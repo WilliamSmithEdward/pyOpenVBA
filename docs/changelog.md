@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- 58 more members read as Excel answers them on a new workbook. The
+  Workbook password and encryption reads, Container, the document-server
+  members and ExternalCodeServiceTimeout. An embedded chart's sheet-only
+  members raise 1004, its protection and field-button reads are off and
+  PivotLayout is Nothing. Axis.CategorySortOrder and DisplayUnitLabel,
+  Series.BubbleSizes, ChartObject.ZOrder and ProtectChartObject.
+  Shape.Child, Connector, FormControlType, HasSmartArt, BlackWhiteMode and
+  Hyperlink. ShapeRange's single-shape reads, which several shapes answer
+  with error 70 or what they share. Application on Axis, AxisTitle,
+  LegendEntry and TextFrame2, and TextFrame2.Parent. Measured in
+  `tests/fixtures/missing_reads.json`.
 - Worksheet.QueryTables, OLEObjects and NamedSheetViews, Workbook.XmlMaps,
   XmlNamespaces, CustomViews, PublishObjects, SlicerCaches, Charts and the
   Excel 4 macro sheet collections, and Application.Charts. Each is empty as

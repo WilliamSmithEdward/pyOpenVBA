@@ -260,6 +260,25 @@ class Axis(Created):
         return self.chart
 
     @member
+    def Application(self) -> object:
+        self.read()
+        return self.chart.sheet.book.application
+
+    @member
+    def CategorySortOrder(self) -> object:
+        # Only a pivot chart's category axis has a sort order (tests/fixtures/missing_reads.json).
+        self.read()
+        raise error(445, "Object doesn't support this action")
+
+    @member
+    def DisplayUnitLabel(self) -> object:
+        # An axis without a labelled display unit has no label to give (tests/fixtures/missing_reads.json).
+        self.read()
+        if self.entry.display_label:
+            raise VBAUnsupportedError("Axis.DisplayUnitLabel is not implemented")
+        raise error(1004, "Unable to get the DisplayUnitLabel property of the Axis class")
+
+    @member
     def Type(self) -> object:
         self.read()
         return VBAInt(self.entry.kind, "Long")
@@ -721,6 +740,11 @@ class AxisTitle(TitleMembers):
     def Parent(self) -> object:
         self.read()
         return self.axis
+
+    @member
+    def Application(self) -> object:
+        self.read()
+        return self.axis.chart.sheet.book.application
 
     def title_look(self) -> TitleLook:
         self.read()

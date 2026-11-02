@@ -1735,6 +1735,76 @@ class Workbook(ExcelObject):
         (tests/fixtures/full_name_url_encoded.json)."""
         return self.FullName()
 
+    # -- what a workbook on a local disk, unencrypted and outside any document server, answers
+    # (tests/fixtures/missing_reads.json)
+
+    @member
+    def Password(self) -> object:
+        return "********"
+
+    @setter("Password")
+    def _password(self, value: object) -> None:
+        raise VBAUnsupportedError("Protecting a workbook with a password is not implemented")
+
+    @member
+    def WritePassword(self) -> object:
+        return "********"
+
+    @setter("WritePassword")
+    def _write_password(self, value: object) -> None:
+        raise VBAUnsupportedError("Protecting a workbook with a password is not implemented")
+
+    @member
+    def PasswordEncryptionProvider(self) -> object:
+        return ""
+
+    @member
+    def PasswordEncryptionAlgorithm(self) -> object:
+        return ""
+
+    @member
+    def PasswordEncryptionKeyLength(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
+    def PasswordEncryptionFileProperties(self) -> object:
+        return True
+
+    @member
+    def ExternalCodeServiceTimeout(self) -> object:
+        return VBAInt(30, "Long")
+
+    @member
+    def Container(self) -> object:
+        raise error(1004, "Unable to get the Container property of the Workbook class")
+
+    def on_server(self, name: str) -> object:
+        raise error(440, f"{name} is only available for a workbook on a document server")
+
+    @member
+    def ContentTypeProperties(self) -> object:
+        return self.on_server("ContentTypeProperties")
+
+    @member
+    def ServerPolicy(self) -> object:
+        return self.on_server("ServerPolicy")
+
+    @member
+    def DocumentLibraryVersions(self) -> object:
+        return self.on_server("DocumentLibraryVersions")
+
+    @member
+    def Permission(self) -> object:
+        return self.on_server("Permission")
+
+    @member
+    def SharedWorkspace(self) -> object:
+        return NOTHING
+
+    @member
+    def ActiveSlicer(self) -> object:
+        return NOTHING
+
     @member
     def Path(self) -> object:
         return self.path

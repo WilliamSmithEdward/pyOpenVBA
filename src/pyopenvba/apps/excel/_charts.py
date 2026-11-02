@@ -567,6 +567,15 @@ class ChartObject(Created):
         return ShapeRange([ShapeObject(self.sheet, self.shape)])
 
     @member
+    def ZOrder(self) -> object:
+        # The chart's place among all the sheet's shapes (tests/fixtures/missing_reads.json).
+        return ShapeObject(self.sheet, self.shape).vba_get('ZOrderPosition', [])
+
+    @member
+    def ProtectChartObject(self) -> object:
+        return False
+
+    @member
     def Application(self) -> object:
         return self.sheet.book.application
 
@@ -744,6 +753,95 @@ class Chart(Created):
     @member
     def Application(self) -> object:
         return self.sheet.book.application
+
+    # -- what an embedded chart answers for what only a chart sheet or a pivot chart has, which the model holds
+    # neither of (tests/fixtures/missing_reads.json)
+
+    def sheet_only(self, name: str) -> object:
+        self.admit_read()
+        raise error(1004, f'Unable to get the {name} property of the Chart class')
+
+    @member
+    def Index(self) -> object:
+        return self.sheet_only('Index')
+
+    @member
+    def CodeName(self) -> object:
+        return self.sheet_only('CodeName')
+
+    @member
+    def Visible(self) -> object:
+        return self.sheet_only('Visible')
+
+    @member
+    def Tab(self) -> object:
+        return self.sheet_only('Tab')
+
+    @member
+    def Next(self) -> object:
+        return self.sheet_only('Next')
+
+    @member
+    def Previous(self) -> object:
+        return self.sheet_only('Previous')
+
+    @member
+    def ProtectContents(self) -> object:
+        return self.sheet_only('ProtectContents')
+
+    @member
+    def ProtectDrawingObjects(self) -> object:
+        return self.sheet_only('ProtectDrawingObjects')
+
+    @member
+    def ProtectionMode(self) -> object:
+        return self.sheet_only('ProtectionMode')
+
+    @member
+    def ProtectData(self) -> object:
+        self.admit_read()
+        return False
+
+    @member
+    def ProtectFormatting(self) -> object:
+        self.admit_read()
+        return False
+
+    @member
+    def ProtectSelection(self) -> object:
+        self.admit_read()
+        return False
+
+    @member
+    def PivotLayout(self) -> object:
+        self.admit_read()
+        return NOTHING
+
+    @member
+    def ShowAllFieldButtons(self) -> object:
+        self.admit_read()
+        return False
+
+    @member
+    def ShowExpandCollapseEntireFieldButtons(self) -> object:
+        self.admit_read()
+        return False
+
+    @member
+    def ShowAxisFieldButtons(self) -> object:
+        return self.sheet_only('ShowAxisFieldButtons')
+
+    @member
+    def ShowLegendFieldButtons(self) -> object:
+        return self.sheet_only('ShowLegendFieldButtons')
+
+    @member
+    def ShowReportFilterFieldButtons(self) -> object:
+        return self.sheet_only('ShowReportFilterFieldButtons')
+
+    @member
+    def ShowValueFieldButtons(self) -> object:
+        return self.sheet_only('ShowValueFieldButtons')
 
     @member
     def ChartType(self) -> object:
@@ -1170,6 +1268,10 @@ class LegendEntry(Created):
     def Parent(self) -> object:
         return self.legend
 
+    @member
+    def Application(self) -> object:
+        return self.legend.chart.sheet.book.application
+
     @method
     def Delete(self) -> object:
         """The entry gone from the legend, answering nothing; deleting the last one takes the legend away and raises
@@ -1443,6 +1545,12 @@ class Series(Created):
     def IsFiltered(self) -> object:
         self.position()
         return False
+
+    @member
+    def BubbleSizes(self) -> object:
+        # Only a bubble chart's series has sizes, and the model makes none (tests/fixtures/missing_reads.json).
+        self.position()
+        raise error(5, 'Invalid procedure call or argument')
 
     @member
     def HasErrorBars(self) -> object:

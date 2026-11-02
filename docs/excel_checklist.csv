@@ -357,7 +357,7 @@ Axes,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_chart_axes.py
 Axes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Axes,Item,method,"Item(Type As XlAxisType, [AxisGroup As XlAxisGroup]) As Axis",,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
-Axis,Application,"property, read-only",As Application,,MISSING,,
+Axis,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 Axis,AxisBetweenCategories,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"Category axes; written as the value axis's crossBetween. False by default in area charts, True otherwise."
 Axis,AxisGroup,"property, read-only",As XlAxisGroup,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,AxisTitle,"property, read-only",As AxisTitle,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
@@ -365,7 +365,7 @@ Axis,BaseUnit,property,As XlTimeUnit,,PARTIAL,tests/fixtures/chart_category_type
 Axis,BaseUnitIsAuto,property,As Boolean,,PARTIAL,tests/fixtures/chart_category_type.json; tests/test_excel_chart_category_type.py,True until CategoryType or BaseUnit is set; setting it True drops the base unit. Setting it False alone is refused.
 Axis,Border,"property, read-only",As Border,,MISSING,,
 Axis,CategoryNames,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_names.json; tests/test_excel_chart_axis_names.py,"Category axes; reads the first series' categories as a 1-based array. An array gives every series literal categories, a Range links them; other values raise 1004."
-Axis,CategorySortOrder,property,As XlCategorySortOrder,,MISSING,,
+Axis,CategorySortOrder,property,As XlCategorySortOrder,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"Raises 445, as on any axis outside a pivot chart."
 Axis,CategoryType,property,As XlCategoryType,,PARTIAL,tests/fixtures/chart_category_type.json; tests/test_excel_chart_category_type.py,"Automatic, category or time scale; a time scale, chosen or automatic over dates, is written as a dateAx. Other values raise 1004, a value axis -2147467259. New charts only."
 Axis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Axis,Crosses,property,As XlAxisCrosses,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Written on the other axis's element. xlMaximum moves that axis to the far side, and with reversal brings it back. Automatic resets CrossesAt."
@@ -373,7 +373,7 @@ Axis,CrossesAt,property,As Double,,PARTIAL,tests/fixtures/chart_axis_lines.json;
 Axis,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_axis_names.json; tests/test_excel_chart_axis_names.py,As HasAxis = False; the Axis object stays readable.
 Axis,DisplayUnit,property,As XlDisplayUnit,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Built-in units and xlCustom written as dispUnits with a label; xlNone removes it; other numbers change nothing.
 Axis,DisplayUnitCustom,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"A set makes the unit custom, written as custUnit. Reads 1 until set."
-Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,MISSING,,
+Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Raises 1004 without a labelled display unit; a labelled one is refused.
 Axis,Format,"property, read-only",As ChartFormat,,MISSING,,
 Axis,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Axis,HasDisplayUnitLabel,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,On when a display unit is set; False drops dispUnitsLbl. Without a unit a set changes nothing.
@@ -410,7 +410,7 @@ Axis,TickMarkSpacing,property,As Long,,PARTIAL,tests/fixtures/chart_axis_scale.j
 Axis,Top,"property, read-only",As Double,,MISSING,,
 Axis,Type,property,As XlAxisType,no setter,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,Width,"property, read-only",As Double,,MISSING,,
-AxisTitle,Application,"property, read-only",As Application,,MISSING,,
+AxisTitle,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 AxisTitle,Caption,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 AxisTitle,Characters,"property, read-only",As Characters,,MISSING,,
 AxisTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -523,7 +523,7 @@ Chart,ChartWizard,method,"ChartWizard([Source As Variant], [Gallery As Variant],
 Chart,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Chart,ClearToMatchColorStyle,method,ClearToMatchColorStyle(),,MISSING,,
 Chart,ClearToMatchStyle,method,ClearToMatchStyle(),,MISSING,,
-Chart,CodeName,"property, read-only",As String,,MISSING,,
+Chart,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Copy,method,"Copy([Before As Variant], [After As Variant])",,MISSING,,
 Chart,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat], [Size As XlPictureAppearance])",,MISSING,,
 Chart,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -548,7 +548,7 @@ Chart,HasLegend,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.
 Chart,HasTitle,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Chart,HeightPercent,property,As Long,,MISSING,,
 Chart,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
-Chart,Index,"property, read-only",As Long,,MISSING,,
+Chart,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Legend,"property, read-only",As Legend,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"Position (bottom, top, left, right, corner; custom refused as by Excel), IncludeInLayout, Shadow and Delete. 1004 when the chart has no legend; HasLegend = False resets it."
 Chart,Location,method,"Location(Where As XlChartLocation, [Name As Variant]) As Chart",,MISSING,,
 Chart,MailEnvelope,"property, read-only",As MsoEnvelope,,MISSING,,
@@ -557,27 +557,27 @@ Chart,MouseMove,event,"MouseMove(Button As Long, Shift As Long, x As Long, y As 
 Chart,MouseUp,event,"MouseUp(Button As Long, Shift As Long, x As Long, y As Long)",,MISSING,,
 Chart,Move,method,"Move([Before As Variant], [After As Variant])",,MISSING,,
 Chart,Name,property,As String,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The sheet's name and the chart object's; setting it raises 7.
-Chart,Next,"property, read-only",As Object,,MISSING,,
+Chart,Next,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,MISSING,,
 Chart,PageSetup,"property, read-only",As PageSetup,,MISSING,,
 Chart,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,Paste,method,Paste([Type As Variant]),,MISSING,,
 Chart,Perspective,property,As Long,,MISSING,,
-Chart,PivotLayout,"property, read-only",As PivotLayout,,MISSING,,
+Chart,PivotLayout,"property, read-only",As PivotLayout,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,PlotArea,"property, read-only",As PlotArea,,MISSING,,
 Chart,PlotBy,property,As XlRowCol,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json,Worked out from the series: columns or rows of value ranges in sheet order with their own names; 0 for literals or reordered series; 1 with none.
 Chart,PlotVisibleOnly,property,As Boolean,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,Written as plotVisOnly; left out of a file it reads True. Imported charts read only.
-Chart,Previous,"property, read-only",As Object,,MISSING,,
+Chart,Previous,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
 Chart,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant])",,MISSING,,
 Chart,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
 Chart,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant])",,MISSING,,
-Chart,ProtectContents,"property, read-only",As Boolean,,MISSING,,
-Chart,ProtectData,property,As Boolean,,MISSING,,
-Chart,ProtectDrawingObjects,"property, read-only",As Boolean,,MISSING,,
-Chart,ProtectFormatting,property,As Boolean,,MISSING,,
-Chart,ProtectionMode,"property, read-only",As Boolean,,MISSING,,
-Chart,ProtectSelection,property,As Boolean,,MISSING,,
+Chart,ProtectContents,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectData,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectDrawingObjects,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectFormatting,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectionMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectSelection,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Refresh,method,Refresh(),,MISSING,,
 Chart,Resize,event,Resize(),,MISSING,,
 Chart,RightAngleAxes,property,As Variant,,MISSING,,
@@ -594,17 +594,17 @@ Chart,SetElement,method,SetElement(Element As MsoChartElementType),,MISSING,,
 Chart,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 Chart,SetSourceData,method,"SetSourceData(Source As Range, [PlotBy As Variant])",,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_source_arguments.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Chart,Shapes,"property, read-only",As Shapes,,MISSING,,
-Chart,ShowAllFieldButtons,property,As Boolean,,MISSING,,
-Chart,ShowAxisFieldButtons,property,As Boolean,,MISSING,,
+Chart,ShowAllFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ShowAxisFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,ShowDataLabelsOverMaximum,property,As Boolean,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,Written as showDLblsOverMax; left out of a file it reads True. Imported charts read only.
-Chart,ShowExpandCollapseEntireFieldButtons,property,As Boolean,,MISSING,,
-Chart,ShowLegendFieldButtons,property,As Boolean,,MISSING,,
-Chart,ShowReportFilterFieldButtons,property,As Boolean,,MISSING,,
-Chart,ShowValueFieldButtons,property,As Boolean,,MISSING,,
+Chart,ShowExpandCollapseEntireFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ShowLegendFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ShowReportFilterFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ShowValueFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,SideWall,"property, read-only",As Walls,,MISSING,,
-Chart,Tab,"property, read-only",As Tab,,MISSING,,
+Chart,Tab,"property, read-only",As Tab,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Unprotect,method,Unprotect([Password As Variant]),,MISSING,,
-Chart,Visible,property,As XlSheetVisibility,,MISSING,,
+Chart,Visible,property,As XlSheetVisibility,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Walls,"property, read-only",As Walls,,MISSING,,
 ChartGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartGroup,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
@@ -669,7 +669,7 @@ ChartObject,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.
 ChartObject,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Placement,property,As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"xlMoveAndSize, xlMove or xlFreeFloating as the anchor's editAs; other values raise -2147467259."
 ChartObject,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as clientData's fPrintsWithSheet."
-ChartObject,ProtectChartObject,property,As Boolean,,MISSING,,
+ChartObject,ProtectChartObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Reads False; no setter.
 ChartObject,RoundedCorners,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The chart part's roundedCorners, read and set; a part without one has rounded corners."
 ChartObject,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
 ChartObject,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart behind the sheet's shapes; answers Empty.
@@ -679,7 +679,7 @@ ChartObject,Top,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.j
 ChartObject,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py; tests/fixtures/shape_cell_moves.json,"The cell under the chart's top left corner, as Shape.TopLeftCell; the chart moves with its cells by its Placement."
 ChartObject,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as the frame's hidden."
 ChartObject,Width,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObject,ZOrder,"property, read-only",As Long,,MISSING,,
+ChartObject,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,The shape's ZOrderPosition.
 ChartObjects,_Default,method,_Default(Index As Variant) As Object,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/fixtures/hidden_defaults_more.json,"Item, bound early. Bound late Excel raises 438, which the model does not tell apart."
 ChartObjects,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 ChartObjects,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As ChartObject",,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
@@ -1156,7 +1156,7 @@ LegendEntries,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_
 LegendEntries,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
 LegendEntries,Item,method,Item(Index As Variant) As LegendEntry,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,An entry by its place among those shown; out of range raises -2147467259.
 LegendEntries,Parent,"property, read-only",As Object,,MISSING,,
-LegendEntry,Application,"property, read-only",As Application,,MISSING,,
+LegendEntry,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 LegendEntry,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
 LegendEntry,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"A legendEntry with delete, by series or point index; answers Empty. Deleting the last entry takes the legend away and raises 1004."
 LegendEntry,Font,"property, read-only",As Font,,MISSING,,
@@ -2034,7 +2034,7 @@ Series,ApplyPictToFront,property,As Boolean,,MISSING,,
 Series,ApplyPictToSides,property,As Boolean,,MISSING,,
 Series,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
 Series,BarShape,property,As XlBarShape,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlBox; the setter is not implemented.
-Series,BubbleSizes,property,As Variant,,MISSING,,
+Series,BubbleSizes,property,As Variant,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Raises 5; the model makes no bubble charts.
 Series,ChartType,property,As XlChartType,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads the chart's own type; a series of another type (a combination chart) is not implemented.
 Series,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 Series,Copy,method,Copy() As Variant,,MISSING,,
@@ -2108,13 +2108,13 @@ Shape,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/o
 Shape,Apply,method,Apply(),,MISSING,,
 Shape,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_range_more.json,"Reads the AutoShape type; setting it swaps the saved preset geometry, for new AutoShapes of the types the model can write."
 Shape,BackgroundStyle,property,As MsoBackgroundStyleIndex,,MISSING,,
-Shape,BlackWhiteMode,property,As MsoBlackWhiteMode,,MISSING,,
+Shape,BlackWhiteMode,property,As MsoBlackWhiteMode,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Reads automatic for shapes the model makes; no setter.
 Shape,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"The cell under the shape's bottom right corner; after a shape that sizes with its cells has moved with them, the cell it is anchored to."
 Shape,Callout,"property, read-only",As CalloutFormat,,MISSING,,
 Shape,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"A shape with no chart raises -2147024809, as in Excel."
-Shape,Child,"property, read-only",As MsoTriState,,MISSING,,
+Shape,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Whether the shape is inside a group.
 Shape,ConnectionSiteCount,"property, read-only",As Long,,MISSING,,
-Shape,Connector,"property, read-only",As MsoTriState,,MISSING,,
+Shape,Connector,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,0 for shapes the model makes; lines and loaded shapes are refused.
 Shape,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
 Shape,ControlFormat,"property, read-only",As ControlFormat,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
 Shape,Copy,method,Copy(),,UNASSESSED,,
@@ -2127,15 +2127,15 @@ Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inli
 Shape,Duplicate,method,Duplicate() As Shape,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy 12 points right and down, on top, with the next id; a default name takes the sheet's next number, a given one is kept. Shapes loaded from a file, charts, controls and groups are refused."
 Shape,Fill,"property, read-only",As FillFormat,,MISSING,,
 Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/fixtures/shape_duplicate.json,"Turns flipH or flipV over, written after rot, and mirrors the rotation (30 becomes 330); twice turns it back. Other commands raise -2147024809."
-Shape,FormControlType,"property, read-only",As XlFormControl,,MISSING,,
+Shape,FormControlType,"property, read-only",As XlFormControl,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,The XlFormControl constant; 1004 for a shape that is no control.
 Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
 Shape,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
 Shape,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,The group's members by number or name; a shape that is no group raises 1004.
 Shape,HasChart,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Shape,HasSmartArt,"property, read-only",As MsoTriState,,MISSING,,
+Shape,HasSmartArt,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Reads 0; the model holds no SmartArt.
 Shape,Height,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,HorizontalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipH is set.
-Shape,Hyperlink,"property, read-only",As Hyperlink,,MISSING,,
+Shape,Hyperlink,"property, read-only",As Hyperlink,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Raises 1004; the model puts no hyperlinks on shapes.
 Shape,ID,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"The id the drawing gives the shape: 2 for the first, rising with each."
 Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's left edge."
 Shape,IncrementRotation,method,IncrementRotation(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,Adds to Rotation and lands inside 0 to 360.
@@ -2187,16 +2187,16 @@ ShapeRange,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ShapeRange,Adjustments,"property, read-only",As Adjustments,,MISSING,,
 ShapeRange,Align,method,"Align(AlignCmd As MsoAlignCmd, RelativeTo As MsoTriState)",,PARTIAL,tests/fixtures/shape_align.json; tests/test_excel_shape_align.py,"Lefts, centers, rights, tops, middles and bottoms of the shapes' box together; RelativeTo is ignored but must be -1, 0 or 1. One shape or a bad command raises -2147024809."
 ShapeRange,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared text; a set gives every shape the text. Differing texts are refused.
-ShapeRange,Application,"property, read-only",As Application,,MISSING,,
+ShapeRange,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,Apply,method,Apply(),,MISSING,,
 ShapeRange,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,The shared value or -2; a set reaches every shape.
 ShapeRange,BackgroundStyle,property,As MsoBackgroundStyleIndex,,MISSING,,
 ShapeRange,BlackWhiteMode,property,As MsoBlackWhiteMode,,MISSING,,
 ShapeRange,Callout,"property, read-only",As CalloutFormat,,MISSING,,
 ShapeRange,Chart,"property, read-only",As Chart,,MISSING,,
-ShapeRange,Child,"property, read-only",As MsoTriState,,MISSING,,
+ShapeRange,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,ConnectionSiteCount,"property, read-only",As Long,,MISSING,,
-ShapeRange,Connector,"property, read-only",As MsoTriState,,MISSING,,
+ShapeRange,Connector,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
 ShapeRange,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 ShapeRange,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -2209,11 +2209,11 @@ ShapeRange,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape
 ShapeRange,Glow,"property, read-only",As GlowFormat,,MISSING,,
 ShapeRange,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
 ShapeRange,Group,method,Group() As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"One group in the topmost member's place, members in sheet order, box their union, named Group and the next number, the next id; one shape raises 1004. Loaded, rotated or flipped shapes, charts and controls are refused."
-ShapeRange,GroupItems,"property, read-only",As GroupShapes,,MISSING,,
-ShapeRange,HasChart,"property, read-only",As MsoTriState,,MISSING,,
+ShapeRange,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
+ShapeRange,HasChart,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,Height,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set sizes every shape."
 ShapeRange,HorizontalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-ShapeRange,ID,"property, read-only",As Long,,MISSING,,
+ShapeRange,ID,"property, read-only",As Long,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape moved on its own, each stopping at the sheet's edge."
 ShapeRange,IncrementRotation,method,IncrementRotation(Increment As Single),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape turned on its own, landing inside 0 to 360."
 ShapeRange,IncrementTop,method,IncrementTop(Increment As Single),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape moved on its own, each stopping at the sheet's edge."
@@ -2224,8 +2224,8 @@ ShapeRange,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape
 ShapeRange,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 ShapeRange,Name,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"One shape's name; several shapes raise -2147024891. A set raises -2147024809 for one shape and -2147024891 for several, as in Excel."
 ShapeRange,Nodes,"property, read-only",As ShapeNodes,,MISSING,,
-ShapeRange,Parent,"property, read-only",As Object,,MISSING,,
-ShapeRange,ParentGroup,"property, read-only",As Shape,,MISSING,,
+ShapeRange,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
+ShapeRange,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,PickUp,method,PickUp(),,MISSING,,
 ShapeRange,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
 ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
@@ -2252,7 +2252,7 @@ ShapeRange,Vertices,"property, read-only",As Variant,,MISSING,,
 ShapeRange,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"Reads the shapes' shared value, or msoTriStateMixed (-2) where they differ; a set reaches every shape."
 ShapeRange,Width,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set sizes every shape."
 ShapeRange,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"The shapes as one block in their own order, to the front or back or a step, none stepping past another of the range; other commands raise -2147024809."
-ShapeRange,ZOrderPosition,"property, read-only",As Long,,MISSING,,
+ShapeRange,ZOrderPosition,"property, read-only",As Long,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 Shapes,_Default,method,_Default(Index As Variant) As Shape,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Item: a shape by number or name, -2147024809 out of range."
 Shapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Shapes,Add3DModel,method,"Add3DModel(Filename As String, [LinkToFile As Variant], [SaveWithDocument As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
@@ -2478,7 +2478,7 @@ TextFrame,Parent,"property, read-only",As Object,,MISSING,,
 TextFrame,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"-2 until set; xlRTL and xlLTR write the paragraphs' rtl, and back to left to right mirrors a rectangle's alignment. xlContext and others raise 1004; left to right back to right to left is refused."
 TextFrame,VerticalAlignment,property,As XlVAlign,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's anchor; justify, distributed and 5 centre. Other values are refused."
 TextFrame,VerticalOverflow,property,As XlOartVerticalOverflow,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's vertOverflow, ellipsis too; 3 raises -2147467259. A rectangle whose overflow changes writes bodyPr in full."
-TextFrame2,Application,"property, read-only",As Object,,MISSING,,
+TextFrame2,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 TextFrame2,AutoSize,property,As MsoAutoSize,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"None or text to fit shape, as bodyPr's noAutofit or normAutofit; 3 raises -2147024809. Shape to fit text, which resizes the shape, is refused."
 TextFrame2,Column,"property, read-only",As TextColumn2,,MISSING,,
 TextFrame2,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -2491,7 +2491,7 @@ TextFrame2,MarginRight,property,As Single,,PARTIAL,tests/fixtures/text_frame2.js
 TextFrame2,MarginTop,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same margin TextFrame reads and sets; negative raises -2147024809. New rectangles and text boxes only.
 TextFrame2,NoTextRotation,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's upright; any value but 0 turns it on.
 TextFrame2,Orientation,property,As MsoTextOrientation,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same orientation TextFrame reads and sets; 7 raises -2147024809.
-TextFrame2,Parent,"property, read-only",As Object,,MISSING,,
+TextFrame2,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,The shape.
 TextFrame2,PathFormat,property,As MsoPathFormat,,MISSING,,
 TextFrame2,Ruler,"property, read-only",As Ruler2,,MISSING,,
 TextFrame2,TextRange,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -2664,7 +2664,7 @@ Workbook,AccuracyVersion,property,As Long,,PARTIAL,tests/test_excel_workbook_set
 Workbook,Activate,event,Activate(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_excel_projects.py,Native workbook Activate/Deactivate callbacks on window changes; event handler errors/mutations and close transitions need further conformance
 Workbook,ActiveChart,"property, read-only",As Chart,,MISSING,,
 Workbook,ActiveSheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Workbook,ActiveSlicer,"property, read-only",As Slicer,,MISSING,,
+Workbook,ActiveSlicer,"property, read-only",As Slicer,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,AddinInstall,event,AddinInstall(),,MISSING,,
 Workbook,AddinUninstall,event,AddinUninstall(),,MISSING,,
 Workbook,AddToFavorites,method,AddToFavorites(),,MISSING,,
@@ -2705,8 +2705,8 @@ Workbook,CompatibilityVersion,property,As Long,,PARTIAL,tests/fixtures/workbook_
 Workbook,ConflictResolution,property,As XlSaveConflictResolution,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
 Workbook,Connections,"property, read-only",As Connections,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The data connections xl/connections.xml keeps; read only.
 Workbook,ConnectionsDisabled,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
-Workbook,Container,"property, read-only",As Object,,MISSING,,
-Workbook,ContentTypeProperties,"property, read-only",As MetaProperties,,MISSING,,
+Workbook,Container,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
+Workbook,ContentTypeProperties,"property, read-only",As MetaProperties,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,ConvertComments,method,ConvertComments(),,PARTIAL,tests/fixtures/workbook_small_methods.json; tests/test_excel_workbook_small_methods.py,"Changes nothing on a workbook without notes. Excel turns each note into a threaded comment, which the model does not hold, so a workbook with notes is refused."
 Workbook,CreateBackup,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 1004 to set.
 Workbook,CreateForecastSheet,method,"CreateForecastSheet(Timeline As Range, Values As Range, [ForecastStart As Variant], [ForecastEnd As Variant], [ConfInt As Variant], [Seasonality As Variant], [DataCompletion As Variant], [Aggregation As Variant], [ChartType As Variant], [ShowStatsTable As Variant])",,MISSING,,
@@ -2724,7 +2724,7 @@ Workbook,DeleteNumberFormat,method,DeleteNumberFormat(NumberFormat As String),,P
 Workbook,DisplayDrawingObjects,property,As XlDisplayDrawingObjects,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,"xlDisplayShapes, xlPlaceholders or xlHide, saved as the workbookPr's showObjects and read back; setting it leaves the workbook unsaved. It hides nothing the model draws."
 Workbook,DisplayInkComments,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as the workbookPr's showInkAnnotation and read back; the workbook stays saved.
 Workbook,DocumentInspectors,"property, read-only",As DocumentInspectors,,MISSING,,
-Workbook,DocumentLibraryVersions,"property, read-only",As DocumentLibraryVersions,,MISSING,,
+Workbook,DocumentLibraryVersions,"property, read-only",As DocumentLibraryVersions,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,DoNotPromptForConvert,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
 Workbook,EnableAutoRecover,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as fileRecoveryPr's autoRecover and read back; the workbook stays saved.
 Workbook,EnableConnections,method,EnableConnections(),,PARTIAL,tests/fixtures/workbook_small_methods.json; tests/test_excel_workbook_small_methods.py,Changes nothing: the model refreshes no connections.
@@ -2736,7 +2736,7 @@ Workbook,Excel4MacroSheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtur
 Workbook,Excel8CompatibilityMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
 Workbook,ExclusiveAccess,method,ExclusiveAccess() As Boolean,,PARTIAL,tests/fixtures/workbook_small_methods.json; tests/test_excel_workbook_small_methods.py,Error 1004 on a workbook that is not shared.
 Workbook,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
-Workbook,ExternalCodeServiceTimeout,property,As Long,,MISSING,,
+Workbook,ExternalCodeServiceTimeout,property,As Long,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,FileFormat,"property, read-only",As XlFileFormat,,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/text_files.json,"51/52 values and Long type measured including failed saves; a text file opened answers xlCSV, xlCSVUTF8, xlUnicodeText, 65 or xlCurrentPlatformText as Excel does. Saving in those formats is not implemented."
 Workbook,Final,property,As Boolean,no setter,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"False; setting it, which saves the workbook, is not implemented."
 Workbook,FollowHyperlink,method,"FollowHyperlink(Address As String, [SubAddress As Variant], [NewWindow As Variant], [AddHistory As Variant], [ExtraInfo As Variant], [Method As Variant], [HeaderInfo As Variant])",,MISSING,,
@@ -2772,13 +2772,13 @@ Workbook,NewWindow,method,NewWindow() As Window,,MISSING,,
 Workbook,Open,event,Open(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when a workbook opens, before the application's WorkbookOpen and its activation."
 Workbook,OpenLinks,method,"OpenLinks(Name As String, [ReadOnly As Variant], [Type As Variant])",,MISSING,,
 Workbook,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Workbook,Password,property,As String,,MISSING,,
-Workbook,PasswordEncryptionAlgorithm,"property, read-only",As String,,MISSING,,
-Workbook,PasswordEncryptionFileProperties,"property, read-only",As Boolean,,MISSING,,
-Workbook,PasswordEncryptionKeyLength,"property, read-only",As Long,,MISSING,,
-Workbook,PasswordEncryptionProvider,"property, read-only",As String,,MISSING,,
+Workbook,Password,property,As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py; tests/test_excel_workbook_properties.py,Reads ******** as Excel does; setting a password is refused.
+Workbook,PasswordEncryptionAlgorithm,"property, read-only",As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
+Workbook,PasswordEncryptionFileProperties,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
+Workbook,PasswordEncryptionKeyLength,"property, read-only",As Long,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
+Workbook,PasswordEncryptionProvider,"property, read-only",As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,Path,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Workbook,Permission,"property, read-only",As Permission,,MISSING,,
+Workbook,Permission,"property, read-only",As Permission,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,PersonalViewListSettings,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
 Workbook,PersonalViewPrintSettings,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
 Workbook,PivotCaches,method,PivotCaches() As PivotCaches,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported creation, refresh, layouts, formatting, structural edits and other limitations."
@@ -2824,11 +2824,11 @@ Workbook,SendForReview,method,"SendForReview([Recipients As Variant], [Subject A
 Workbook,SendMail,method,"SendMail(Recipients As Variant, [Subject As Variant], [ReturnReceipt As Variant])",,MISSING,,
 Workbook,SendMailer,method,"SendMailer([FileFormat As Variant], [Priority As XlPriority])",,MISSING,,
 Workbook,SensitivityLabel,"property, read-only",As ISensitivityLabel,,MISSING,,
-Workbook,ServerPolicy,"property, read-only",As ServerPolicy,,MISSING,,
+Workbook,ServerPolicy,"property, read-only",As ServerPolicy,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,ServerViewableItems,"property, read-only",As ServerViewableItems,,MISSING,,
 Workbook,SetLinkOnData,method,"SetLinkOnData(Name As String, [Procedure As Variant])",,MISSING,,
 Workbook,SetPasswordEncryptionOptions,method,"SetPasswordEncryptionOptions([PasswordEncryptionProvider As Variant], [PasswordEncryptionAlgorithm As Variant], [PasswordEncryptionKeyLength As Variant], [PasswordEncryptionFileProperties As Variant])",,MISSING,,
-Workbook,SharedWorkspace,"property, read-only",As SharedWorkspace,,MISSING,,
+Workbook,SharedWorkspace,"property, read-only",As SharedWorkspace,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,SheetActivate,event,SheetActivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised when another sheet or workbook is made active, after the one left deactivates. Raised after the sheet's own, the sheet first among the arguments."
 Workbook,SheetBeforeDelete,event,SheetBeforeDelete(Sh As Object),,MISSING,,
 Workbook,SheetBeforeDoubleClick,event,"SheetBeforeDoubleClick(Sh As Object, Target As Range, Cancel As Boolean)",,MISSING,,
@@ -2878,7 +2878,7 @@ Workbook,WindowResize,event,WindowResize(Wn As Window),,MISSING,,
 Workbook,Windows,"property, read-only",As Windows,,VERIFIED,tests/fixtures/windows/windows.json,
 Workbook,WorkIdentity,property,As String,,MISSING,,
 Workbook,Worksheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Workbook,WritePassword,property,As String,,MISSING,,
+Workbook,WritePassword,property,As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py; tests/test_excel_workbook_properties.py,Reads ******** as Excel does; setting a password is refused.
 Workbook,WriteReserved,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
 Workbook,WriteReservedBy,"property, read-only",As String,,MISSING,,
 Workbook,XmlImport,method,"XmlImport(Url As String, ImportMap As XmlMap, [Overwrite As Variant], [Destination As Variant]) As XlXmlImportResult",,MISSING,,

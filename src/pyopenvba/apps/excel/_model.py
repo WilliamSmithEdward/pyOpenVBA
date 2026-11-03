@@ -2543,7 +2543,7 @@ class Workbook(ExcelObject):
         for sheet in self.sheets_:
             if _names.same_sheet_name(sheet.name, name):
                 return sheet
-        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, f"there is no sheet called {name}")
+        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, "Subscript out of range")
 
     def sheet_found(self, name: str) -> Worksheet:
         """The sheet Worksheets(name) and Sheets(name) find: the first in tab order whose name word sort cannot tell
@@ -2552,7 +2552,7 @@ class Workbook(ExcelObject):
         for sheet in self.sheets_:
             if _names.same_name(sheet.name, name):
                 return sheet
-        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, f"there is no sheet called {name}")
+        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, "Subscript out of range")
 
     def describe(self, indent: str = "") -> str:
         lines = [f"{indent}Workbook {self.name!r}{'' if self.saved else ' (unsaved changes)'}"]

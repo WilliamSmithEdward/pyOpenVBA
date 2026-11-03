@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import re
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field as dataclass_field
 from typing import TYPE_CHECKING
 
@@ -917,6 +917,15 @@ class ListObject(ExcelObject):
     def __init__(self, table: Table) -> None:
         self.table = table
         self.sheet = table.sheet
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        """A table cut to another sheet leaves this object behind, which answers nothing more
+        (tests/fixtures/table_cut.json)."""
+        if self.table.sheet is not self.sheet:
+            if name.lower() == "autofilter":
+                return NOTHING
+            raise error(1004, "Application-defined or object-defined error")
+        return super().vba_get(name, args, named)
 
     def _range(self, area: Area | None) -> object:
         return NOTHING if area is None else Range(self.sheet, [Area(area.top, area.left, area.bottom, area.right,

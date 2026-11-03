@@ -98,14 +98,14 @@ def _composed(table: Table, elements: dict[str, list[Any]], row: int, column: in
     return bold, italic, font, fill, sides, said
 
 
-def _baked(table: Table) -> None:
-    """Each cell takes the style's format beneath its own. An edge between two cells belongs to the later one, and beats
-    what a weaker element says of that cell's side."""
+def _grid(table: Table) -> dict[tuple[int, int], tuple[Any, ...]] | None:
+    """Every cell's format from the table's style, by its place in the table; None for a table of no style. An edge
+    between two cells belongs to the later one, and beats what a weaker element says of that cell's side."""
     if not table.style:
-        return
+        return None
     elements = table_styles().get(table.style)
     if elements is None:
-        raise VBAUnsupportedError(f'ListObject.Unlist of a table of the style {table.style} is not implemented')
+        raise VBAUnsupportedError(f'Turning a table of the style {table.style} into formats is not implemented')
     whole = table.area
     composed = {(row, column): _composed(table, elements, row, column)
                 for row in range(whole.rows) for column in range(whole.columns)}
@@ -114,6 +114,42 @@ def _baked(table: Table) -> None:
             _moved(sides, 'bottom', composed[row + 1, column][4], 'top')
         if 'right' in sides and column < whole.columns - 1:
             _moved(sides, 'right', composed[row, column + 1][4], 'left')
+    return composed
+
+
+def cut_out(table: Table, moving: dict[tuple[int, int], Any]) -> None:
+    """Cells cut out of a table keep what its style gave them, as they would look alone: an edge shared with the next
+    cell is theirs too (tests/fixtures/table_cut.json). Called with them still on their old rows."""
+    composed = _grid(table)
+    if composed is None:
+        return
+    whole = table.area
+    stylesheet = table.sheet.book.stylesheet
+    for (row, column), cell in moving.items():
+        place = row - whole.top, column - whole.left
+        if place not in composed:
+            continue
+        bold, italic, font, fill, sides, said = composed[place]
+        final = {name: side for name, (_, side) in sides.items()}
+        below = composed.get((place[0] + 1, place[1]))
+        if below is not None and 'top' in below[4]:
+            final['bottom'] = below[4]['top'][1]
+        beside = composed.get((place[0], place[1] + 1))
+        if beside is not None and 'left' in beside[4]:
+            final['right'] = beside[4]['left'][1]
+        made = _beneath(stylesheet.default.font, cell.style or stylesheet.default, bold, italic, font, fill, final,
+                        said | ({'border'} if final else set[str]()))
+        cell.style, cell.xf = made, -1
+        stylesheet.meet(made)
+
+
+def _baked(table: Table) -> None:
+    """Each cell takes the style's format beneath its own."""
+    composed = _grid(table)
+    if composed is None:
+        return
+    whole = table.area
+    elements = table_styles()[table.style]
     # Cells of one format are one format in the file, so what any of them applies they all do. A double line along a
     # totals row's top counts as a side of the row above too, where the style has sides at the table's left: the 240
     # swept cases show that, not why (tests/fixtures/list_unlist.json).

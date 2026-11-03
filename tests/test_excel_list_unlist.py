@@ -17,9 +17,8 @@ from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/list_unlist.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Hiding a table's header row, resizing one with a totals row, and cutting a whole table elsewhere, which the model
-#: does not do.
-LEFT_OUT: tuple[str, ...] = ('o.ShowHeaders = False', 'o.ShowTotals = True: o.Resize', '.Cut ',
+#: Hiding a table's header row and resizing one with a totals row, which the model does not do.
+LEFT_OUT: tuple[str, ...] = ('o.ShowHeaders = False', 'o.ShowTotals = True: o.Resize',
                              # Excel lists a border set before the table's after them; the engine lists it first.
                              'ws.Range("C4").Borders.LineStyle')
 KEPT = [index for index, name in enumerate(NAMES) if not any(text in name for text in LEFT_OUT)]

@@ -611,6 +611,12 @@ def move(source: Range, area: Area, destination: Range) -> None:
     down, across = top - area.top, left - area.left
     moving = {position: cell for position, cell in sheet.cells_.items() if area.contains(*position)}
     book = sheet.book
+    from pyopenvba.apps.excel._table_moves import carried as carried_tables
+
+    moving_tables = carried_tables(sheet, area)
+    from pyopenvba.apps.excel._table_moves import leaving
+
+    leaving(sheet, moving, target, down, across, moving_tables)
     from pyopenvba.apps.excel._spills import cached, restore
 
     caches = cached(sheet) + (cached(target) if target is not sheet else [])
@@ -660,6 +666,9 @@ def move(source: Range, area: Area, destination: Range) -> None:
     from pyopenvba.apps.excel._autofilter import filter_moved
 
     filter_moved(sheet, area, target, down, across)
+    from pyopenvba.apps.excel import _table_moves
+
+    _table_moves.settled(sheet, area, target, landing, moving_tables, down, across)
     for owner in {sheet, target}:
         restore(owner, caches)
         owner.touched()

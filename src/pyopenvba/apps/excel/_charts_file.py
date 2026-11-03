@@ -595,6 +595,15 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda found: found.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1)
             if found.group(0).startswith('<c:valAx>' + identifier) else found.group(0), xml)
+    if state.layout_chart_labels and '</c:ser>' in xml:
+        at = xml.rindex('</c:ser>')
+        xml = xml[:at] + re.sub(r'<c:dLbls>.*?</c:dLbls>', lambda _: state.layout_chart_labels, xml[at:], count=1,
+                                flags=re.S)
+    if state.layout_category_look and '<c:catAx>' in xml:
+        xml = xml.replace('<c:crossAx', state.layout_category_look + '<c:crossAx', 1)
+    if state.layout_value_look and '<c:valAx>' in xml:
+        at = xml.rindex('<c:valAx>')
+        xml = xml[:at] + xml[at:].replace('<c:crossAx', state.layout_value_look + '<c:crossAx', 1)
     if state.chart_style != 2:
         xml = xml.replace('<c14:style val="102"/>', f'<c14:style val="{100 + state.chart_style}"/>', 1).replace(
             '<c:style val="2"/>', f'<c:style val="{state.chart_style}"/>', 1)

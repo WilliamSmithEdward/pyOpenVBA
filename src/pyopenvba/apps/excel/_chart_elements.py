@@ -8,6 +8,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, cast
 
 from pyopenvba.apps.excel._chart_format import unmeasured
+from pyopenvba.apps.excel._chart_xml import LabelLook
 from pyopenvba.interpreter._values import MISSING, VBAInt, error, to_integer
 
 if TYPE_CHECKING:
@@ -306,4 +307,105 @@ def chart_wizard(chart: Chart, source: object, gallery: object, shape: object, p
             found = _axis(chart, kind)
             found.vba_set('HasTitle', True)
             found.vba_get('AxisTitle').vba_set('Text', text)
+    return True
+
+_LAST_TICK = 3
+_FRESH_OVERLAP = {'line': 100, 'lineMarkers': 100, 'scatter': 100, 'area': 100}
+
+
+def _layout_axes(chart: Chart, spec: dict[str, object], kind: str) -> None:
+    for number, name in ((_VALUE, 'value'), (_CATEGORY, 'category')):
+        found = _axis(chart, number)
+        found.vba_set('HasMajorGridlines', spec.get(f'{name}_major', number == _VALUE))
+        found.vba_set('HasMinorGridlines', spec.get(f'{name}_minor', False))
+        found.vba_set('HasTitle', spec.get(f'{name}_title', False))
+        found.vba_set('MajorTickMark', VBAInt(int(str(spec.get(f'{name}_tick', _LAST_TICK))), 'Long'))
+    group = _object(chart.vba_call('ChartGroups', [VBAInt(1, 'Long')]))
+    chart.state.gap_width = int(str(spec.get('gap', 150)))
+    overlap = int(str(spec.get('overlap', _FRESH_OVERLAP.get(kind, 0))))
+    # A chart without bars keeps it to read back alone.
+    chart.state.overlap = overlap
+    chart.state.layout_overlap = None if kind not in _FRESH_OVERLAP else overlap
+    chart.vba_set('HasDataTable', spec.get('data_table', False))
+    chart.state.data_table_keys = True
+    chart.state.layout_value_look = str(spec.get('value_axis_look', ''))
+    chart.state.layout_category_look = str(spec.get('category_axis_look', ''))
+    if kind in ('line', 'lineMarkers', 'area'):
+        group.vba_set('HasDropLines', spec.get('drop_lines', False))
+    if kind in ('line', 'lineMarkers'):
+        group.vba_set('HasHiLoLines', spec.get('hi_lo_lines', False))
+        group.vba_set('HasUpDownBars', spec.get('up_down_bars', False))
+    for number, name in ((_CATEGORY, 'category'), (_VALUE, 'value')):
+        chart.vba_set('HasAxis', spec.get(f'{name}_axis', True), [VBAInt(number, 'Long'), MISSING])
+
+
+def _layout_labels(chart: Chart, spec: dict[str, object]) -> None:
+    from pyopenvba.apps.excel._charts import PointLabel
+
+    every = _each_series(chart)
+    labelled = every if spec.get('first_labels') else every[-1:] if spec.get('last_labels') else []
+    place = spec.get('label_place')
+    chart.state.element_labels = None
+    chart.state.layout_chart_labels = str(spec.get('chart_labels', ''))
+    for series in every:
+        # Taking away labels and giving them leaves the leader lines as they were.
+        entry = series.entry
+        leader_lines = entry.leader_lines
+        for point in entry.points.values():
+            point.label, point.label_own = None, PointLabel()
+        if entry.data_labels:
+            series.vba_set('HasDataLabels', False)
+        entry.label_look = LabelLook()
+        entry.leader_lines = leader_lines
+    for series in labelled:
+        leader_lines = series.entry.leader_lines
+        series.vba_set('HasDataLabels', True)
+        series.entry.leader_lines = leader_lines
+        labels = _object(series.vba_call('DataLabels'))
+        for member_name, field_name in (('ShowCategoryName', 'show_category'), ('ShowSeriesName', 'show_series'),
+                                        ('ShowPercentage', 'show_percent'), ('ShowValue', 'show_value')):
+            if field_name in spec:
+                labels.vba_set(member_name, spec[field_name])
+        if place is not None:
+            labels.vba_set('Position', VBAInt(int(str(place)), 'Long'))
+    if spec.get('point_label') and not spec.get('first_labels'):
+        for series in every:
+            points = _object(series.vba_call('Points'))
+            last = _object(points.vba_items()[-1])
+            # A scatter chart names the point's category, where the others name the series.
+            named = 'ShowSeriesName' if spec.get('point_series') else 'ShowCategoryName'
+            last.vba_call('ApplyDataLabels', [], {named: True})
+            if 'point_place' in spec:
+                last.vba_get('DataLabel').vba_set('Position', VBAInt(int(str(spec['point_place'])), 'Long'))
+
+
+def apply_layout(chart: Chart, layout: object, chart_type: object) -> object:
+    """Chart.ApplyLayout (tests/fixtures/apply_layout.json). A layout gives the chart all that it says, what it does not
+    going back to what a new chart has. The tick label position, the style, the series' looks and a typed title stay."""
+    from pyopenvba.apps.excel._chart_layouts import LAYOUTS
+    from pyopenvba.apps.excel._charts import CHART_TYPES, shown_type
+
+    wanted = int(to_integer(layout, 'Long'))
+    chart.admit_change()
+    kind = CHART_TYPES.get(shown_type(chart.state), '')
+    if kind not in LAYOUTS:
+        raise unmeasured('ApplyLayout on this kind of chart')
+    if wanted not in LAYOUTS[kind]:
+        raise error(5, 'Invalid procedure call or argument')
+    if chart_type is not MISSING:
+        raise unmeasured('ApplyLayout with a ChartType')
+    spec = LAYOUTS[kind][wanted]
+    if spec.get('trendlines'):
+        raise unmeasured('A layout with trendlines')
+    if spec.get('title'):
+        chart.vba_set('HasTitle', True)
+    else:
+        _no_title(chart)
+    chart.vba_set('HasLegend', spec.get('legend', True))
+    if spec.get('legend', True):
+        legend = _object(chart.vba_get('Legend'))
+        legend.vba_set('Position', VBAInt(int(str(spec.get('legend_place', -4152))), 'Long'))
+    if kind not in _NO_AXES:
+        _layout_axes(chart, spec, kind)
+    _layout_labels(chart, spec)
     return True

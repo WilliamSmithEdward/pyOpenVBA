@@ -18,8 +18,7 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/chart_layouts.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
 REFUSED = re.compile(r'ch\.ChartStyle = (?:2\d\d|3\d\d)|ch\.ChartColor = (?:1|10|14|26)$'
-                     r'|ch\.ApplyLayout (?:[1-9]|1[01])\b'
-                     r'|line: ch\.ApplyLayout 12'
+                     r'|ch\.ApplyLayout \d+, xl|scatter: .*ch\.ApplyLayout [39]$'
                      r'|ChartWizard.*(?:CategoryLabels|SeriesLabels)|ChartWizard PlotBy:=xlRows'
                      r'|HasDataLabels = True.*ClearToMatchStyle')
 #: Duplicating a chart adds a second part, which the reader of chart parts does not take.
@@ -63,7 +62,7 @@ def test_each_chart_part_as_excel_saved_it(run: tuple[dict[int, str], Path], ind
     assert chart_part(run[1] / f'c{index}.xlsx') == RECORD['cases'][index][2]
 
 
-@pytest.mark.parametrize('statement', ['ch.ChartStyle = 201', 'ch.ChartColor = 10', 'ch.ApplyLayout 1',
+@pytest.mark.parametrize('statement', ['ch.ChartStyle = 201', 'ch.ChartColor = 10', 'ch.ApplyLayout 1, xlLine',
                                        'ch.ChartWizard SeriesLabels:=0', 'ch.ChartWizard PlotBy:=xlRows'])
 def test_what_needs_more_of_the_model_is_refused(statement: str) -> None:
     app = ExcelApplication()

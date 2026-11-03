@@ -159,6 +159,12 @@ class ChartState:
     #: (tests/fixtures/chart_groups.json).
     gap_width: int = 150
     overlap: int = 0
+    #: What ApplyLayout gave a chart without bars to read back.
+    layout_overlap: int | None = None
+    #: The chart's own c:dLbls and its value axis' c:spPr, as a layout writes them.
+    layout_chart_labels: str = ''
+    layout_value_look: str = ''
+    layout_category_look: str = ''
     vary: bool | None = None
     first_slice: int = 0
     hole: int | None = None
@@ -1219,14 +1225,9 @@ class Chart(Created):
 
     @method
     def ApplyLayout(self, Layout: object, ChartType: object = MISSING) -> object:  # noqa: N803 - native named arguments
-        del ChartType
-        wanted = int(to_integer(Layout, 'Long'))
-        self.admit_change()
-        # A line chart has a twelfth (tests/fixtures/chart_layouts.json).
-        lines = CHART_TYPES.get(shown_type(self.state)) in ('line', 'lineMarkers')
-        if not 1 <= wanted <= (12 if lines else 11):
-            raise error(5, 'Invalid procedure call or argument')
-        raise VBAUnsupportedError('ApplyLayout, which differs by the kind of chart, is not implemented')
+        from pyopenvba.apps.excel._chart_elements import apply_layout
+
+        return apply_layout(self, Layout, ChartType)
 
     @method
     def ChartWizard(self, Source: object = MISSING, Gallery: object = MISSING, Format: object = MISSING,  # noqa: N803
@@ -1931,7 +1932,9 @@ class ChartGroup(Created):
     @member
     def Overlap(self) -> object:
         # Lines, areas and scatter charts answer 100, the series drawn over each other.
-        return VBAInt(100 if self._kind() in ('line', 'lineMarkers', 'area', 'scatter') else self.chart.state.overlap,
+        kept = self.chart.state.layout_overlap
+        drawn = 100 if kept is None else kept
+        return VBAInt(drawn if self._kind() in ('line', 'lineMarkers', 'area', 'scatter') else self.chart.state.overlap,
                       'Long')
 
     @setter('Overlap')

@@ -248,7 +248,7 @@ class DataLabels(VBACollection, ItemDefault, Created):
 
     @setter('ShowPercentage')
     def _show_percentage(self, value: object) -> None:
-        self.only_on('percent', {5}, value)
+        self.only_on('percent', {5, -4120}, value)
 
     @member
     def ShowBubbleSize(self) -> object:
@@ -894,7 +894,7 @@ class DataLabel(Created):
 
 
 #: The places a point's label can take, by chart type (tests/fixtures/data_label.json).
-_POINT_POSITIONS = {51: {3, -4108, 4, 2}, 5: {3, -4108, 2, 5}}
+_POINT_POSITIONS = {51: {3, -4108, 4, 2}, 5: {3, -4108, 2, 5}, 4: {-4152}, 65: {-4152}, -4169: {-4152}}
 _ROTATIONS = {-4171: 90, -4170: -90, -4128: 0}
 _ALIGNED = {-4131: "l", -4152: "r", -4108: "ctr"}
 

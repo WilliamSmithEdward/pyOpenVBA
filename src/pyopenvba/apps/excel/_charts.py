@@ -223,6 +223,14 @@ class ChartState:
     #: its axis's kind (tests/fixtures/chart_fonts.json).
     element_fonts: dict[str, TextLook] = field(default_factory=lambda: {})
 
+    def has_automatic_title(self) -> bool:
+        """Whether it has an automatic title to give: it draws one series with a name, or is a pie whose first has one
+        (tests/fixtures/chart_set_element.json, chart_auto_titles.json)."""
+        first = self.series[0] if self.series else None
+        if first is None or not (first.name_reference or first.name) or self.names_lost():
+            return False
+        return len(self.series) == 1 or CHART_TYPES.get(shown_type(self)) == 'pie'
+
     def names_lost(self) -> bool:
         """Whether every series' name has lost its cell, which leaves them all named by number."""
         every = self.full_series or self.series
@@ -1711,12 +1719,9 @@ class Chart(Created):
 
     @member
     def ChartTitle(self) -> object:
+        self.admit_read()
         if self.state.title is None:
-            pie = (CHART_TYPES.get(shown_type(self.state)) == 'pie' and self.state.series
-                   and not self.state.names_lost())
-            if len(self.state.series) != 1 and not pie and (self.state.series or self.state.full_series):
-                # Only a chart that draws one series has an automatic title to give
-                # (tests/fixtures/chart_set_element.json).
+            if not self.state.has_automatic_title():
                 raise error(-2147024809, 'The parameter is incorrect.')
             # Excel gives the chart its automatic title on the way to the object.
             self.changed()

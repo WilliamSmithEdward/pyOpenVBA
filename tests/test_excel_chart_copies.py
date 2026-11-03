@@ -22,10 +22,8 @@ RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_copies.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
 #: Left out: a Chart read after its chart object went, which Excel still answers; Duplicate's Shape deleted or
-#: duplicated again, which raises 1004; a cell's PasteSpecial of a chart, which adds no chart when it does not raise; a
-#: chart of one series on a sheet other than its data's, whose automatic title the model does not give it.
-LEFT_OUT = ('.Cut', 'n.Delete', 'Set n = n.Duplicate', 'co.Delete', 'Application.CutCopyMode', 'PasteSpecial',
-            'o.ChartObjects.Add 1, 1, 100, 100')
+#: duplicated again, which raises 1004; a cell's PasteSpecial of a chart, which adds no chart when it does not raise.
+LEFT_OUT = ('.Cut', 'n.Delete', 'Set n = n.Duplicate', 'co.Delete', 'Application.CutCopyMode', 'PasteSpecial')
 #: Excel's Paste of a chart raises 1004 at random, about two runs in five, and now and then hangs. So a failed paste
 #: in the fixture tells nothing, but for these, which failed every time in repeated runs.
 ALWAYS_FAIL = ('co.Copy: o.Paste o.Range("B2")', 'ch.ChartArea.Copy: d.Paste')

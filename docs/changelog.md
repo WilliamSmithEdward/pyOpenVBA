@@ -821,6 +821,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Chart.ChartTitle` raises as Excel does on a chart with nothing to name it: no series, or
+  one series with no name. It used to give such a chart a title. The value axis of a chart
+  whose series hold nothing no longer writes a number format.
 - Hiding every cell of a series now takes it out of `SeriesCollection` and
   `FullSeriesCollection` until it is shown again, instead of being refused. It
   stays in the saved file with no cached points. Hiding all of a chart's

@@ -581,7 +581,7 @@ Chart,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,tests
 Chart,Name,property,As String,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The sheet's name and the chart object's; setting it raises 7.
 Chart,Next,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"Raises 1004, as Excel does."
-Chart,PageSetup,"property, read-only",As PageSetup,,MISSING,,
+Chart,PageSetup,"property, read-only",As PageSetup,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 Chart,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,Paste,method,Paste([Type As Variant]),,MISSING,,
 Chart,Perspective,property,As Long,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
@@ -593,13 +593,14 @@ Chart,Previous,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_r
 Chart,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
 Chart,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant])",,MISSING,,
 Chart,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
-Chart,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant])",,MISSING,,
+Chart,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant])",,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 Chart,ProtectContents,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,ProtectData,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectData,property,As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,ProtectDrawingObjects,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,ProtectFormatting,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectFormatting,property,As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectGoalSeek,not in the type library,,,UNASSESSED,,
 Chart,ProtectionMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,ProtectSelection,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectSelection,property,As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Refresh,method,Refresh(),,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,Nothing to do: the model reads cells as it is asked.
 Chart,Resize,event,Resize(),,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"Raises 438, as Excel does on an embedded chart."
 Chart,RightAngleAxes,property,As Variant,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
@@ -625,7 +626,7 @@ Chart,ShowReportFilterFieldButtons,property,As Boolean,no setter,PARTIAL,tests/f
 Chart,ShowValueFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,SideWall,"property, read-only",As Walls,,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"TypeName, and Name raising 1004 on a 2-D chart."
 Chart,Tab,"property, read-only",As Tab,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,Unprotect,method,Unprotect([Password As Variant]),,MISSING,,
+Chart,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 Chart,Visible,property,As XlSheetVisibility,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Walls,"property, read-only",As Walls,,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"TypeName, and Name raising 1004 on a 2-D chart."
 ChartArea,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.

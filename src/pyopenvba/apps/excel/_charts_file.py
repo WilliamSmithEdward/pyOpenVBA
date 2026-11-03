@@ -20,7 +20,7 @@ from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, DATA_TABLE_WITHOUT_KEYS, LABEL_POSITIONS,
                                              CT_CHART, SeriesData, cache_markup,
                                              chart_frame, chart_part, legend_markup, text_properties)
-from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, PointState, Series,
+from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, PointState, Series, page_markup,
                                           SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           categories_gone, category_levels, linked_title, lost, referenced_values,
@@ -821,6 +821,13 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     xml = xml.replace('</c:chart><c:printSettings>', f'</c:chart>{area}<c:printSettings>', 1)
     if state.rounded:
         xml = xml.replace('<c:roundedCorners val="0"/>', '<c:roundedCorners val="1"/>', 1)
+    if any(state.protection.values()):
+        # (tests/fixtures/chart_protection.json).
+        guards = ''.join(f'<c:{name} val="{int(state.protection.get(name, False))}"/>'
+                         for name in ('chartObject', 'data', 'formatting', 'selection', 'userInterface'))
+        xml = xml.replace('<c:chart>', f'<c:protection>{guards}</c:protection><c:chart>', 1)
+    if state.page:
+        xml = re.sub(r'<c:printSettings>.*?</c:printSettings>', lambda _: page_markup(state), xml, count=1, flags=re.DOTALL)
     if state.shadow is not None:
         # The chart area's shadow, as ChartObject.Shadow gives it, and its empty effects once turned off
         # (tests/fixtures/chart_object_reads.json).

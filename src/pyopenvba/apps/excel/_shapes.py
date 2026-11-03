@@ -15,6 +15,7 @@ models of the same thing.
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from collections.abc import Iterator, Sequence
 from copy import deepcopy
 from dataclasses import replace
@@ -268,6 +269,63 @@ class Shapes(VBACollection, ItemDefault, Created):
             ),
         )
         return ShapeObject(self.sheet, shape)
+
+    @method
+    def AddPicture(
+        self,
+        Filename: object = MISSING,
+        LinkToFile: object = MISSING,
+        SaveWithDocument: object = MISSING,
+        Left: object = MISSING,
+        Top: object = MISSING,
+        Width: object = MISSING,
+        Height: object = MISSING,
+    ) -> object:
+        """A picture from a PNG file, kept in the workbook. A linked picture and other kinds of image report themselves
+        (tests/fixtures/shape_add_picture.json)."""
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        self.sheet.book.application.outside("Shapes.AddPicture")
+        guard_drawing(self.sheet, "Shapes.AddPicture")
+        linked, saved = int(to_number(LinkToFile)), int(to_number(SaveWithDocument))
+        if not linked and not saved:
+            raise error(1004, "AddPicture method of Shapes class failed")
+        if linked:
+            raise _unsupported("a linked picture")
+        try:
+            data = Path(to_text(Filename)).read_bytes()
+        except OSError:
+            raise error(1004, "AddPicture method of Shapes class failed") from None
+        wide, tall = _png_points(data)
+        width, height = _number(Width), _number(Height)
+        if (width < 0 and width != -1) or (height < 0 and height != -1):
+            raise _unsupported("a picture with a negative size")
+        natural = width == -1 and height == -1
+        # A size of 0 comes out as the smallest there is (1588 EMU), and -1 as the image's own.
+        across = wide if width == -1 else max(width, 1588 / EMU_PER_POINT)
+        down = tall if height == -1 else max(height, 1588 / EMU_PER_POINT)
+        # A picture takes two of the sheet's numbers and two of its ids.
+        self.sheet.shape_count += 1
+        shape = Shape(name=self._free_name("Picture"), kind="picture", left=_number(Left), top=_number(Top), width=across,
+                      height=down, shape_id=self._free_id() + 1, edit_as="oneCell", lock_aspect=natural, image=data)
+        self.sheet.shapes_.append(shape)
+        self.sheet.drawing_changed()
+        return ShapeObject(self.sheet, shape)
+
+    @method
+    def AddPicture2(
+        self,
+        Filename: object = MISSING,
+        LinkToFile: object = MISSING,
+        SaveWithDocument: object = MISSING,
+        Left: object = MISSING,
+        Top: object = MISSING,
+        Width: object = MISSING,
+        Height: object = MISSING,
+        Compress: object = MISSING,
+    ) -> object:
+        """AddPicture; Compress changed nothing in a small image (tests/fixtures/shape_add_picture.json)."""
+        return self.AddPicture(Filename, LinkToFile, SaveWithDocument, Left, Top, Width, Height)
 
     @method
     def AddCallout(
@@ -1033,6 +1091,10 @@ class ShapeObject(_Drawn):
         return EMPTY
 
     @member
+    def PictureFormat(self) -> object:
+        return PictureFormat(self)
+
+    @member
     def Nodes(self) -> object:
         return ShapeNodes(self)
 
@@ -1733,6 +1795,54 @@ class Adjustments(Created):
         values[at] = written
         self.owner.restyled()
         self.owner.shape.adjustments = None if values == [default for _, default, _ in table] else tuple(values)
+
+
+def _png_points(data: bytes) -> tuple[float, float]:
+    """A PNG's own size in points: its pixels at its pHYs density, or at 96 a inch with none. Other images are not read."""
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        raise _unsupported("a picture that is not a PNG")
+    wide, tall = int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    at = data.find(b"pHYs", 33, 200)
+    if at >= 0 and data[at + 12] == 1:
+        across, down = int.from_bytes(data[at + 4:at + 8], "big"), int.from_bytes(data[at + 8:at + 12], "big")
+        # In whole EMU, rounded down.
+        return (int(wide / across * 36000000) / EMU_PER_POINT, int(tall / down * 36000000) / EMU_PER_POINT)
+    return wide * 0.75, tall * 0.75
+
+
+class PictureFormat(Created):
+    """What a new picture reads (tests/fixtures/shape_add_picture.json); other shapes give this object, and reading it
+    is out of range. Changing a picture's look is not implemented."""
+
+    vba_type_name = "PictureFormat"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    def picture(self) -> None:
+        if self.owner.shape.kind != "picture":
+            raise error(-2147024809, "The specified value is out of range.")
+        if self.owner.shape.source:
+            raise _unsupported("the PictureFormat of a loaded picture")
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Brightness(self) -> object:
+        self.picture()
+        return VBASingle(0.5)
+
+    @member
+    def Contrast(self) -> object:
+        self.picture()
+        return VBASingle(0.5)
+
+    @member
+    def CropLeft(self) -> object:
+        self.picture()
+        return VBASingle(0.0)
 
 
 def _freeform_points(owner: ShapeObject) -> list[tuple[int, tuple[float, float]]]:
@@ -2613,7 +2723,7 @@ class ListDrawingObject(_Drawn):
 
 
 #: Every stem a shape the model makes is named from, so a copy can tell a default name from one given.
-_STEMS = frozenset({*EXCEL_SHAPE_NAMES.values(), "TextBox", "Straight Connector", "Straight Arrow Connector",
+_STEMS = frozenset({*EXCEL_SHAPE_NAMES.values(), "Picture", "TextBox", "Straight Connector", "Straight Arrow Connector",
                     "Elbow Connector", "Curved Connector"})
 
 
@@ -2624,7 +2734,7 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
     chart = sheet.chart_states.get(shape.shape_id) if shape.kind == "chart" else None
     if chart is not None and chart.original:
         raise VBAUnsupportedError("Duplicating a chart read from a file is not implemented")
-    if chart is None and (shape.source or shape.kind not in ("shape", "textBox")):
+    if chart is None and (shape.source or shape.kind not in ("shape", "textBox", "picture")):
         raise VBAUnsupportedError("Duplicating this shape is not implemented")
     found = re.fullmatch(r"(.+) \d+", shape.name)
     shapes = Shapes(sheet)

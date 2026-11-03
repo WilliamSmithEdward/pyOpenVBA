@@ -936,6 +936,19 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     )
 
 
+def _new_picture(shape: Shape) -> str:
+    """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
+    locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"
+    return (
+        f"<xdr:pic><xdr:nvPicPr>{_identity(shape)}<xdr:cNvPicPr>{locks}</xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill>"
+        '<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+        f'r:embed="{shape.image_relationship}"><a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
+        f'<a14:useLocalDpi {_A14} val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
+        f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
+        f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+        "</xdr:spPr></xdr:pic>")
+
+
 def _new_element(shape: Shape) -> str:
     """A new shape's own element, which an anchor or a group holds."""
     if shape.kind == "group":
@@ -952,6 +965,8 @@ def _new_element(shape: Shape) -> str:
             f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/><a:chOff x="{emu(across)}" y="{emu(down)}"/>'
             f'<a:chExt cx="{emu(wide)}" cy="{emu(tall)}"/></a:xfrm></xdr:grpSpPr>{members}</xdr:grpSp>'
         )
+    if shape.kind == "picture":
+        return _new_picture(shape)
     line = shape.kind == "line"
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'

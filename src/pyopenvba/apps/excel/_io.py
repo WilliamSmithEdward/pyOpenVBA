@@ -1052,6 +1052,7 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         original = sheet.drawing_xml or EMPTY_DRAWING
         before = read_drawing(original, sheet.drawing_grid())
         _charts_file.write(sheet, package, part)
+        _write_pictures(package, sheet, part)
         package.write(part, written(sheet.shapes_, original, sheet.drawing_grid()).encode("utf-8"))
         sheet.drawing_part = part
         sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
@@ -1059,6 +1060,33 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         _write_new_controls(package, sheet)
         _write_control_macros(package, sheet)
         sheet.drawing_dirty = False
+
+
+def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
+    """Each new picture's image in xl/media, sharing a part and a relationship with any that holds the same bytes
+    (tests/fixtures/shape_add_picture.json)."""
+    from pyopenvba._relationships import in_office_order
+    from pyopenvba.apps.excel._charts_file import rels_part
+
+    related: dict[bytes, str] = {shape.image: shape.image_relationship for shape in sheet.shapes_
+                                 if shape.image is not None and shape.image_relationship}
+    rels = rels_part(drawing)
+    for shape in sheet.shapes_:
+        if shape.image is None or shape.image_relationship:
+            continue
+        if shape.image not in related:
+            held = sorted(name for name in package.names() if name.startswith("xl/media/"))
+            part = next((name for name in held if package.read(name) == shape.image), None)
+            if part is None:
+                number = 1
+                while f"xl/media/image{number}.png" in held:
+                    number += 1
+                part = f"xl/media/image{number}.png"
+                package.write(part, shape.image)
+            _add_default_content_type(package, "png", "image/png")
+            related[shape.image] = add_relationship(package, rels, _IMAGE_RELATIONSHIP, "../" + part[len("xl/"):])
+            package.write(rels, in_office_order(package.read(rels).decode("utf-8")).encode("utf-8"))
+        shape.image_relationship = related[shape.image]
 
 
 def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState]) -> None:

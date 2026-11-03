@@ -1734,6 +1734,21 @@ Panes,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/windows/windo
 Panes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Panes,Item,"property, read-only",As Pane,,PARTIAL,tests/fixtures/windows/windows.json,"A pane, scrolled on its own, reports itself as not implemented."
 Panes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The window.
+PictureFormat,Application,"property, read-only",As Object,,MISSING,,
+PictureFormat,Brightness,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
+PictureFormat,ColorType,property,As MsoPictureColorType,,MISSING,,
+PictureFormat,Contrast,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
+PictureFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+PictureFormat,Crop,"property, read-only",As Crop,,MISSING,,
+PictureFormat,CropBottom,property,As Single,,MISSING,,
+PictureFormat,CropLeft,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
+PictureFormat,CropRight,property,As Single,,MISSING,,
+PictureFormat,CropTop,property,As Single,,MISSING,,
+PictureFormat,IncrementBrightness,method,IncrementBrightness(Increment As Single),,MISSING,,
+PictureFormat,IncrementContrast,method,IncrementContrast(Increment As Single),,MISSING,,
+PictureFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
+PictureFormat,TransparencyColor,property,As MsoRGBType,,MISSING,,
+PictureFormat,TransparentBackground,property,As MsoTriState,,MISSING,,
 PivotCache,ADOConnection,"property, read-only",As Object,,PARTIAL,tests/fixtures/pivot_properties.json; tests/test_excel_pivot_properties.py,"An OLAP or external source's alone: on a worksheet range's table error 1004, read or set."
 PivotCache,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 PivotCache,BackgroundQuery,property,As Boolean,,PARTIAL,tests/fixtures/pivot_properties.json; tests/test_excel_pivot_properties.py,False; a set is error 1004 on a range's cache.
@@ -2559,7 +2574,7 @@ Shape,OnAction,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt
 Shape,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The sheet.
 Shape,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,The group a shape is in; a shape in none raises 1004.
 Shape,PickUp,method,PickUp(),,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"An AutoShape with no text layout set; a line, text box or other source is refused though measured."
-Shape,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
+Shape,PictureFormat,"property, read-only",As PictureFormat,,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,"A new picture's Brightness, Contrast and CropLeft reads. Other shapes give the object, out of range on use."
 Shape,Placement,property,As XlPlacement,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json; tests/fixtures/shape_structure_moves.json,"Read and set as the anchor's editAs. xlMoveAndSize moves and sizes the shape with the columns and rows under it, rows grown by their fonts included, xlMove moves it, xlFreeFloating leaves it; values other than 1 to 3 are not implemented. Rows grown by wrapped text are not measured."
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
@@ -2688,8 +2703,8 @@ Shapes,AddFormControl,method,"AddFormControl(Type As XlFormControl, Left As Long
 Shapes,AddLabel,method,"AddLabel(Orientation As MsoTextOrientation, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
 Shapes,AddLine,method,"AddLine(BeginX As Single, BeginY As Single, EndX As Single, EndY As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,AddOLEObject,method,"AddOLEObject([ClassType As Variant], [Filename As Variant], [Link As Variant], [DisplayAsIcon As Variant], [IconFileName As Variant], [IconIndex As Variant], [IconLabel As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
-Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
-Shapes,AddPicture2,method,"AddPicture2(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single, Compress As MsoPictureCompress) As Shape",,MISSING,,
+Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,"A PNG kept in the workbook, bytes as they are; -1 is its own size. A link, other images and a picture's fill and line report themselves."
+Shapes,AddPicture2,method,"AddPicture2(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single, Compress As MsoPictureCompress) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,As AddPicture; Compress changed nothing measured.
 Shapes,AddPolyline,method,AddPolyline(SafeArrayOfPoints As Variant) As Shape,,PARTIAL,tests/fixtures/shape_polyline.json; tests/test_excel_shape_polyline.py,"A freeform (Type 5, AutoShapeType 138) through the points in a custGeom, closed and filled when the last point is the first, its box their bounds plus one EMU; fewer than two points raise 1004. Read as Freeform N, saved as Freeform: Shape N."
 Shapes,AddShape,method,"AddShape(Type As MsoAutoShapeType, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Every msoAutoShapeType Excel takes, 1004 for the rest. Sheet protection measured."
 Shapes,AddSmartArt,method,"AddSmartArt(Layout As SmartArtLayout, [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,

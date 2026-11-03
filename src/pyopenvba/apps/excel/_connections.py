@@ -19,7 +19,7 @@ The model refreshes no connection, and it reports itself unsupported, as does a 
 """
 from __future__ import annotations
 
-import xml.etree.ElementTree as ElementTree
+from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -76,6 +76,8 @@ class Connections(VBACollection, ExcelObject):
              CommandText: object = MISSING, lCmdtype: object = MISSING, CreateModelConnection: object = MISSING,
              ImportRelationships: object = MISSING) -> object:
         """A new connection. An empty name is Connection; one there already, in any case, takes the next number."""
+        from pyopenvba.apps.excel._charts_file import xml_tree
+
         if MISSING in (Name, Description, ConnectionString, CommandText, lCmdtype):
             raise error(450, 'Wrong number of arguments or invalid property assignment')
         if CreateModelConnection is not MISSING or ImportRelationships is not MISSING:
@@ -91,10 +93,9 @@ class Connections(VBACollection, ExcelObject):
         while name.casefold() in taken:
             number += 1
             name = f'{base}{number}'
-        entry = ElementTree.Element(NS + 'connection', {'name': name, 'description': to_text(Description), 'type': kind,
-                                                        'background': '1', 'added': '1'})
-        ElementTree.SubElement(entry, NS + 'dbPr', {'connection': rest, 'command': to_text(CommandText),
-                                                    'commandType': str(command_type)})
+        entry = xml_tree(f'<connection xmlns="{NS[1:-1]}" name="{escape(name)}" description="{escape(to_text(Description))}" '
+                         f'type="{kind}" background="1" added="1"><dbPr connection="{escape(rest)}" '
+                         f'command="{escape(to_text(CommandText))}" commandType="{command_type}"/></connection>')
         self.book.connections_added.append(entry)
         self.book.saved = False
         return WorkbookConnection(self.book, entry)

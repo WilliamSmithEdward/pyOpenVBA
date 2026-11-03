@@ -5454,6 +5454,68 @@ class Range(ExcelObject):
         return EMPTY
 
     @method
+    def ResetContents(self) -> object:
+        """On a cell with no control in it, which is every cell here, the same as ClearContents
+        (tests/fixtures/range_missing.json)."""
+        return self.ClearContents()
+
+    @method
+    def RemoveControls(self) -> object:
+        return EMPTY
+
+    @method
+    def TogglePythonMarshalMode(self) -> object:
+        return EMPTY
+
+    def _no_data_for_it(self) -> object:
+        """What these need, a data model's writeback, a linked data type or an edition, no cell here has."""
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def AllocateChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DiscardChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DataTypeToText(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def RefreshLinkedDataType(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def SetCellDataTypeFromCell(self, Range: object = MISSING, Language: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @method
+    def EditionOptions(self, Type: object = MISSING, Option: object = MISSING, Name: object = MISSING,
+                       Reference: object = MISSING, Appearance: object = MISSING, ChartSize: object = MISSING,
+                       Format: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @member
+    def SoundNote(self) -> object:
+        from pyopenvba.apps.excel._range_members import SoundNote
+
+        return SoundNote(self)
+
+    @member
+    def XPath(self) -> object:
+        from pyopenvba.apps.excel._range_members import XPath
+
+        return XPath(self)
+
+    @member
+    def CellControl(self) -> object:
+        from pyopenvba.apps.excel._range_members import CellControl
+
+        return CellControl(self)
+
+    @method
     def ClearContents(self) -> object:
         self.clear_contents_checked()
         _events.after_edit(self)

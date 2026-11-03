@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
+from pyopenvba.apps.excel._chart_borders import INVALID_CALL, ElementProperties
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAArray, VBAInt, error, to_bool, to_integer, to_number,
@@ -158,7 +159,7 @@ class Axes(VBACollection, ItemDefault, Created):
         return self.chart
 
 
-class Axis(Created):
+class Axis(ElementProperties, Created):
     vba_type_name = "Axis"
 
     def __init__(self, chart: Chart, entry: AxisState, *, valid: bool = True) -> None:
@@ -771,7 +772,9 @@ class Axis(Created):
         return EMPTY
 
 
-class AxisTitle(TitleMembers):
+class AxisTitle(ElementProperties, TitleMembers):
+    get_error = INVALID_CALL
+
     vba_type_name = "AxisTitle"
 
     def __init__(self, axis: Axis, entry: TitleState | None) -> None:

@@ -1393,6 +1393,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             if isinstance(root, ExcelInterpreter) and root.bridge.workbook is book:
                 root.bridge.workbook = None
             raise
+        from pyopenvba.apps.excel._link_edits import opened
+
+        opened(book)
         before = self.application.active_book
         self.application.activate_book(book, events=False)
         _events.opened(book)
@@ -2137,11 +2140,14 @@ class Workbook(ExcelObject):
         if saving and Filename is MISSING:
             if not self._save():
                 return EMPTY
+        from pyopenvba.apps.excel._link_edits import closing
+
+        closing(self)
         self.application.workbooks_.remove(self)
         from pyopenvba.apps.excel._held_ranges import closed
 
         closed(self)
-        return EMPTY
+        return True
 
     @method
     def Save(self) -> object:
@@ -2475,6 +2481,30 @@ class Workbook(ExcelObject):
 
         break_link(self, Name, Type)
         return EMPTY
+
+    @method
+    def UpdateLink(self, Name: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import update_link
+
+        return update_link(self, Name, Type)
+
+    @method
+    def ChangeLink(self, Name: object = MISSING, NewName: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import change_link
+
+        return change_link(self, Name, NewName, Type)
+
+    @method
+    def OpenLinks(self, Name: object = MISSING, ReadOnly: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import open_links
+
+        return open_links(self, Name, ReadOnly, Type)
+
+    @method
+    def SetLinkOnData(self, Name: object = MISSING, Procedure: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import set_link_on_data
+
+        return set_link_on_data(Name)
 
     @member
     def UpdateLinks(self) -> object:

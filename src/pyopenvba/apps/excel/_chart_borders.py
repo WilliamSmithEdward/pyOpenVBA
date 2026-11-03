@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol
 
 from pyopenvba.apps.excel._creator import Created
-from pyopenvba.interpreter._objects import member, setter
+from pyopenvba.interpreter._objects import member, method, setter
 from pyopenvba.interpreter._values import VBAInt, error, to_integer, to_number
 from pyopenvba.shapes._values import FillLine
 
@@ -50,6 +50,8 @@ SERIES = Family(-2, 25400, 2, True, True)
 BOX = Family(-2, 25400, _MEDIUM, False, False)
 TRENDLINE = Family(0, 12700, 2, True, True, styles_width=False, weight_reads_automatic=True)
 ERROR_BARS = Family(0, 12700, 2, False, True, hides=False)
+#: A chart group's lines and bars (tests/fixtures/chart_group_looks.json).
+GROUP_LINES = Family(0, 12700, 2, False, True)
 
 
 def family_of_series(kind: str, accent: int) -> Family:
@@ -85,6 +87,31 @@ def _clear(look: FillLine) -> None:
     look.line_rgb, look.line_width, look.line_dash, look.line_cap = None, None, None, None
     look.line_compound = None
     look.line_off = look.line_by_weight = False
+
+
+#: What GetProperty and SetProperty raise on a chart element, by the element (tests/fixtures/chart_group_looks.json).
+NOT_A_PROPERTY = -2147220480
+UNSPECIFIED = -2147467259
+INVALID_CALL = 445
+
+
+class ElementProperties(Created):
+    """GetProperty and SetProperty, which take no name on these elements, those in the file's own terms included."""
+
+    #: A base, not a type of its own.
+    vba_type_name = ''
+    get_error = NOT_A_PROPERTY
+    set_error = NOT_A_PROPERTY
+
+    @method
+    def GetProperty(self, Name: object) -> object:  # noqa: N803 - native named argument
+        del Name
+        raise error(self.get_error, 'Automation error')
+
+    @method
+    def SetProperty(self, Name: object, Value: object) -> object:  # noqa: N803 - native named argument
+        del Name, Value
+        raise error(self.set_error, 'Automation error')
 
 
 class ChartBorder(Created):

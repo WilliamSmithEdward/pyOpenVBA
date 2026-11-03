@@ -846,6 +846,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Cut` through a table. A block holding a whole table now takes the table along, to another sheet too, where it
+  used to leave the table behind. Cells cut out of a table keep the look its style gave them, the header row names its
+  columns afresh, and cells landing beside a table make it grow.
+- `Worksheets("Nope")` says "Subscript out of range" as Excel does.
 - An Error value assigned to a `String` variable, or passed to `Len`, `Format` or a
   function's String argument, raises 13 as in VBA. `CStr` still spells it. `IndentLevel`
   above 0 turns off a cell's `Orientation`, and `Orientation` on an indented cell changes

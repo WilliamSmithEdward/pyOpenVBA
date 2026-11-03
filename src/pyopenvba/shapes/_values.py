@@ -264,6 +264,8 @@ class FillLine:
     effects: bool = False
     #: Its Shadow, Glow, SoftEdge and Reflection, once any was set.
     extra: ShapeEffects | None = None
+    #: On a chart element, the one effect set: its member and value (tests/fixtures/chart_protection.json).
+    chart_effect: tuple[str, object] | None = None
     #: A line that has been hidden writes a line shape's absent fill as noFill.
     no_fill: bool = False
     #: Line.Transparency writes the line out in full with its ends, and this alpha, None at 0.

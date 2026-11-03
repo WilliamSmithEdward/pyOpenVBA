@@ -632,6 +632,12 @@ class PointFormat(EffectMembers, Created):
         self.point = point
         self.series = point.series
 
+    def effect_look(self) -> FillLine:
+        return PointFill(self).own_look()  # pyright: ignore[reportArgumentType]
+
+    def effect_change(self) -> FillLine:
+        return PointFill(self).change()  # pyright: ignore[reportArgumentType]
+
     @member
     def Parent(self) -> object:
         return self.point

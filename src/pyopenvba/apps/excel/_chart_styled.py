@@ -151,7 +151,13 @@ def _text_colour(style: int, name: str) -> str:
     found = re.search(r'<cs:fontRef idx="\w+">(.*?)</cs:fontRef>', _entries(style)[name], re.S)
     if found is None:
         return '<a:scrgbClr r="0" g="0" b="0"/>'
-    return found.group(1).replace('<cs:styleClr val="auto"/>', '<a:schemeClr val="phClr"/>')
+    held = re.sub(r'<cs:styleClr val="(auto|0)"/>', '<a:schemeClr val="phClr"/>', found.group(1))
+    return re.sub(
+        r'<cs:styleClr val="(?:auto|0)">(.*?)</cs:styleClr>',
+        r'<a:schemeClr val="phClr">\1</a:schemeClr>',
+        held,
+        flags=re.S,
+    )
 
 
 def _run_children(style: int, name: str) -> str:
@@ -186,7 +192,7 @@ def _paragraph_font(style: int, name: str, font: TextLook | None) -> str:
     return (
         f'<a:defRPr {spelled}>{"" if children.startswith(_RUN_FILLS) else f"<a:solidFill>{colour}</a:solidFill>"}'
         f'{children}'
-        f'<a:latin typeface="{latin}"/>'
+        f'{"" if "<a:latin" in children else f"<a:latin typeface={chr(34)}{latin}{chr(34)}/>"}'
         f'<a:ea typeface="+{theme}-ea"/><a:cs typeface="+{theme}-cs"/></a:defRPr>'
     )
 
@@ -315,14 +321,41 @@ def _label_body(style: int) -> str:
     return f'<a:bodyPr {spelled}><a:spAutoFit/></a:bodyPr>'
 
 
-def _dressed_labels(series: str, style: int, index: int) -> str:
+def _fixed(spelled: str, theme: tuple[str, ...]) -> str:
+    """Colours as a data label's box spells them: the text and background colours as the system's, the accents as what
+    the theme makes them (tests/fixtures/add_chart2.json)."""
+
+    def opening(name: str) -> str | None:
+        if name in ('dk1', 'tx1'):
+            return '<a:sysClr val="windowText" lastClr="000000"'
+        if name in ('lt1', 'bg1'):
+            return '<a:sysClr val="window" lastClr="FFFFFF"'
+        return f'<a:srgbClr val="{theme[_THEME_PLACES[name]]}"' if name in _THEME_PLACES else None
+
+    def one(found: re.Match[str]) -> str:
+        made = opening(found.group(1))
+        if made is None:
+            return found.group(0)
+        if found.group(2):
+            return made + '/>'
+        tag = made[1 : made.index(' ')]
+        return f'{made}>{found.group(3)}</{tag}>'
+
+    return re.sub(r'<a:schemeClr val="(\w+)"(?:(/)>|>(.*?)</a:schemeClr>)', one, spelled, flags=re.S)
+
+
+def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...]) -> str:
     """Data labels' box and text, and their leader lines."""
 
     def dressed_one(found: re.Match[str]) -> str:
         labels = found.group(0)
         if '<c:txPr>' not in labels:
             labels = re.sub(
-                r'<c:spPr>.*?</c:spPr>', lambda hit: _box(style, 'dataLabel', ''), labels, count=1, flags=re.S
+                r'<c:spPr>.*?</c:spPr>',
+                lambda hit: _fixed(_painted(_box(style, 'dataLabel', ''), _accent(index)), theme),
+                labels,
+                count=1,
+                flags=re.S,
             )
             text = _painted(_text(style, 'dataLabel', _label_body(style)), _accent(index))
             labels = labels.replace('</c:spPr>', '</c:spPr>' + text, 1)
@@ -362,7 +395,7 @@ def _group_labels(xml: str, state: ChartState) -> str:
     )
 
 
-def _dressed_series(xml: str, state: ChartState) -> str:
+def _dressed_series(xml: str, state: ChartState, theme: tuple[str, ...]) -> str:
     """Each series with its look, what was set of it first."""
     style = state.chart_style
     every: list[SeriesState] = state.full_series or state.series
@@ -386,7 +419,7 @@ def _dressed_series(xml: str, state: ChartState) -> str:
         elif kind in ('<c:pieChart>', '<c:doughnutChart>'):
             # A look that takes no colour of the point's is the series' too.
             point_fill, point_line, _ = _shape(_entries(style)['dataPoint'])
-            plain = 'phClr' not in point_fill and (point_fill != '' or 'phClr' not in point_line)
+            plain = 'phClr' not in point_fill + point_line
             look = _painted(_box(style, 'dataPoint', mine), _accent(index)) if mine or plain else ''
         else:
             look = _point_box(style, index, mine)
@@ -396,7 +429,7 @@ def _dressed_series(xml: str, state: ChartState) -> str:
             # Labels the style gave and a macro took away.
             rest = re.sub(r'(?=<c:(?:cat|xVal|val|yVal)>)', '<c:dLbls><c:delete val="1"/></c:dLbls>', rest, count=1)
         series = _dressed_points(series[: head.end()] + look + rest, style, index, kind in _SERIES_KINDS[2:4])
-        series = _dressed_labels(series, style, index)
+        series = _dressed_labels(series, style, index, theme)
         series = series.replace(
             '<c:trendline><c:trendlineType',
             '<c:trendline>' + _painted(_stroke(style, 'trendline'), _accent(index)) + '<c:trendlineType',
@@ -448,7 +481,7 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
                 style,
                 'axisTitle',
                 state.element_fonts.get(f'title{kind}'),
-                _UPRIGHT if kind == 2 else _LEVEL,
+                _UPRIGHT if (kind == 2) != ('<c:barDir val="bar"/>' in xml) else _LEVEL,
             ),
             axis,
             count=1,
@@ -470,7 +503,7 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
     return re.sub(r'<c:(valAx|catAx|dateAx)>.*?</c:\1>', dressed_one, xml, flags=re.S)
 
 
-def dressed(xml: str, state: ChartState) -> str:
+def dressed(xml: str, state: ChartState, theme: tuple[str, ...]) -> str:
     """The chart part of a chart of a style from 201, its elements given what the style says."""
     style = state.chart_style
     xml = re.sub(
@@ -480,7 +513,7 @@ def dressed(xml: str, state: ChartState) -> str:
         count=1,
         flags=re.S,
     )
-    xml = _dressed_series(xml, state)
+    xml = _dressed_series(xml, state, theme)
     xml = _group_labels(xml, state)
     xml = xml.replace('<c:dropLines/>', f'<c:dropLines>{_stroke(style, "dropLine")}</c:dropLines>')
     xml = xml.replace('<c:hiLowLines/>', f'<c:hiLowLines>{_stroke(style, "hiLoLine")}</c:hiLowLines>')

@@ -23,7 +23,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - `Shapes.AddChart2` and `Shapes.AddChart`, so a recorded macro that makes a chart runs. Each picks up the data round
   its sheet's selection. It saves as Excel saves it, with its style and colours parts, wherever a chart type and
   style were compared with Excel and match: every type the engine writes at the 14 styles some type takes by default,
-  and between 224 and 285 of the 297 styles for each of column, bar, stacked column, line, area, pie, doughnut and
+  and between 279 and 292 of the 297 styles for each of column, bar, stacked column, line, area, pie, doughnut and
   scatter charts, data labels, axis titles, drop lines and high-low lines among what they bring. Any other style from
   201 to 497 reports that it is not implemented. The old styles 1 to 48 work. Styled charts read their own fonts,
   lines and gaps, and changing one keeps the style.

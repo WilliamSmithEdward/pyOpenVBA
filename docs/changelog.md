@@ -15,6 +15,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Chart.Refresh`, `ClearToMatchColorStyle`, `ChartObjects`, `Shapes`, `Hyperlinks`
+  and `Evaluate("Legend")`. An embedded chart holds no objects of its own, so the
+  collections count 0. `Chart.Location` to the chart's own sheet returns the
+  chart. `Chart.Delete`, `Move`, `Copy`, `OLEObjects`, `Calculate`, `Resize` and
+  `Evaluate` of anything else raise the errors Excel raises on an embedded chart.
+  `Walls`, `BackWall`, `SideWall` and `Floor` return their objects. Moving a
+  chart to another sheet, and a chart's own shapes, are refused.
 - `Shape.Shadow`, `Glow`, `SoftEdge` and `Reflection` on an AutoShape, a text box and a line, as
   live Excel reads and saves them, the nine reflection presets and six soft edge types included.
   Preset shadows, inner shadows and effects of a shape read from a file are refused.

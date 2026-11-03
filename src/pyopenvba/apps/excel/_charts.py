@@ -822,6 +822,31 @@ class PlotArea(Created):
         return True
 
 
+class HeldByChart(Created):
+    """What an embedded chart keeps of its own, which is nothing: its ChartObjects, Shapes and Hyperlinks, ChartObjects
+    answering the same for an index (tests/fixtures/chart_members.json)."""
+
+    def __init__(self, type_name: str) -> None:
+        self.vba_type_name = type_name
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(0, 'Long')
+
+
+class ChartSurface(Created):
+    """The walls and floor of a chart. Only a 3-D chart, which the model does not make, has them to name
+    (tests/fixtures/chart_members.json)."""
+
+    def __init__(self, chart: Chart, type_name: str) -> None:
+        self.chart, self.vba_type_name = chart, type_name
+
+    @member
+    def Name(self) -> object:
+        self.chart.admit_read()
+        raise error(1004, f'Unable to get the Name property of the {self.vba_type_name} class')
+
+
 class ChartObject(Created):
     vba_type_name = 'ChartObject'
 
@@ -1233,6 +1258,102 @@ class Chart(Created):
         if not 1 <= wanted <= 26:
             raise error(5, 'Invalid procedure call or argument')
         raise VBAUnsupportedError('ChartColor, which brings parts of its own, is not implemented')
+
+    # -- tests/fixtures/chart_members.json
+
+    @method
+    def Delete(self) -> object:
+        self.admit_read()
+        raise error(1004, 'Delete method of Chart class failed')
+
+    @method
+    def Move(self, Before: object = MISSING, After: object = MISSING) -> object:  # noqa: N803 - native named args
+        self.admit_read()
+        raise error(1004, 'Move method of Chart class failed')
+
+    @method
+    def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:  # noqa: N803 - native named args
+        self.admit_read()
+        raise error(1004, 'Copy method of Chart class failed')
+
+    @method
+    def Refresh(self) -> object:
+        self.admit_read()
+        return EMPTY
+
+    @method
+    def Calculate(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def Resize(self, *_: object) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def ClearToMatchColorStyle(self) -> object:
+        self.admit_read()
+        return EMPTY
+
+    @member
+    def ChartObjects(self, Index: object = MISSING) -> object:  # noqa: N803 - native named arg
+        self.admit_read()
+        return HeldByChart('ChartObjects')
+
+    @member
+    def Shapes(self) -> object:
+        self.admit_read()
+        return HeldByChart('Shapes')
+
+    @member
+    def Hyperlinks(self) -> object:
+        self.admit_read()
+        return HeldByChart('Hyperlinks')
+
+    @member
+    def OLEObjects(self, Index: object = MISSING) -> object:  # noqa: N803 - native named arg
+        self.admit_read()
+        raise error(1004, 'OLEObjects method of Chart class failed')
+
+    @method
+    def Evaluate(self, Name: object) -> object:  # noqa: N803 - native named arg
+        """A chart's Evaluate answers the name of an element, not a formula."""
+        self.admit_read()
+        if to_text(Name).casefold() == 'legend' and self.state.legend:
+            return Legend(self)
+        raise error(-2147467259, 'Automation error\nUnspecified error ')
+
+    @method
+    def Location(self, Where: object, Name: object = MISSING) -> object:  # noqa: N803 - native named args
+        self.admit_read()
+        where = to_integer(Where, 'Long')
+        if where not in (1, 2, 3):
+            raise error(13, 'Type mismatch')
+        if where != 2:
+            raise VBAUnsupportedError('Moving a chart to a chart sheet is not implemented')
+        if Name is MISSING:
+            raise error(5, 'Invalid procedure call or argument')
+        wanted = to_text(Name)
+        if not any(sheet.name.casefold() == wanted.casefold() for sheet in self.sheet.book.sheets_):
+            raise error(1004, 'Location method of Chart class failed')
+        if wanted.casefold() != self.sheet.name.casefold():
+            raise VBAUnsupportedError('Moving a chart to another sheet is not implemented')
+        return self
+
+    @member
+    def Walls(self) -> object:
+        return ChartSurface(self, 'Walls')
+
+    @member
+    def BackWall(self) -> object:
+        return ChartSurface(self, 'Walls')
+
+    @member
+    def SideWall(self) -> object:
+        return ChartSurface(self, 'Walls')
+
+    @member
+    def Floor(self) -> object:
+        return ChartSurface(self, 'Floor')
 
     @method
     def ClearToMatchStyle(self) -> object:

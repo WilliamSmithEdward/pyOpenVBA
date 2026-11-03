@@ -2272,12 +2272,59 @@ _ALIGN_SET = {-4131: "l", -4108: "ctr", -4152: "r", -4130: "just", -4117: "justL
 _ORIENTATIONS = ("horz", "vert270", "vert", "eaVert", "mongolianVert", "wordArtVert")
 
 
+class TextColumn2(Created):
+    """TextFrame2.Column: 1 to 16 columns and the gap between them. A shape with no text has this object, and using it is
+    out of range. It has no Parent (tests/fixtures/shape_columns.json)."""
+
+    vba_type_name = "TextColumn2"
+
+    def __init__(self, frame: TextFrame2) -> None:
+        self.frame = frame
+
+    def look(self) -> TextLook:
+        if self.frame.owner.shape.kind == "line":
+            raise error(-2147024809, "The specified value is out of range.")
+        return self.frame._look()  # pyright: ignore[reportPrivateUsage]
+
+    @member
+    def Parent(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def Number(self) -> object:
+        return VBAInt(self.look().columns, "Long")
+
+    @setter("Number")
+    def _number(self, value: object) -> None:
+        wanted = int(to_number(value))
+        self.look()
+        if not 1 <= wanted <= 16:
+            raise error(-2147024809, "The specified value is out of range.")
+        self.frame._changed().columns = wanted  # pyright: ignore[reportPrivateUsage]
+
+    @member
+    def Spacing(self) -> object:
+        return VBASingle(self.look().column_spacing)
+
+    @setter("Spacing")
+    def _spacing(self, value: object) -> None:
+        wanted = float(VBASingle(_number(value)))
+        self.look()
+        if wanted < 0:
+            raise error(-2147024809, "The specified value is out of range.")
+        self.frame._changed().column_spacing = wanted  # pyright: ignore[reportPrivateUsage]
+
+
 class TextFrame2(_TextLayout):
     """The newer way to the same text (tests/fixtures/text_frame2.json).
 
     A text box writes each of these settings as given; a rectangle leaves out one set back to its default."""
 
     vba_type_name = "TextFrame2"
+
+    @member
+    def Column(self) -> object:
+        return TextColumn2(self)
 
     @member
     def Parent(self) -> object:

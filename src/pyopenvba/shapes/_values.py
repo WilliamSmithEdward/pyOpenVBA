@@ -199,6 +199,9 @@ class TextLook:
     anchor_center: bool | None = None
     upright: bool = False
     wrap: str | None = None
+    #: TextFrame2.Column: bodyPr's numCol, and its spcCol in points (tests/fixtures/shape_columns.json).
+    columns: int = 1
+    column_spacing: float = 0.0
     #: DeleteText leaves the empty paragraph's end without a size.
     deleted: bool = False
 

@@ -1249,7 +1249,7 @@ def _laid_out(body: str, look: TextLook) -> str:
         insets = "".join(f' {name}="{emu(value if value is not None else default)}"' for name, value, default in zip(
             ("lIns", "tIns", "rIns", "bIns"), look.margins, (7.2, 3.6, 7.2, 3.6)))
         head = (f'<a:bodyPr rot="0" spcFirstLastPara="0" {overflow} vert="{look.vert or "horz"}" wrap="square"'
-                f'{insets} numCol="1" spcCol="0" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="0"'
+                f'{insets} numCol="{look.columns}" spcCol="{emu(look.column_spacing)}" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="0"'
                 ' forceAA="0" compatLnSpc="1"><a:prstTxWarp prst="textNoShape"><a:avLst/></a:prstTxWarp>'
                 "<a:noAutofit/></a:bodyPr>")
     else:
@@ -1257,7 +1257,9 @@ def _laid_out(body: str, look: TextLook) -> str:
         wrap = f' wrap="{look.wrap}"' if look.wrap else ""
         centred = "" if look.anchor_center is None else f' anchorCtr="{1 if look.anchor_center else 0}"'
         upright = ' upright="1"' if look.upright else ""
-        attributes = f'{overflow}{vert}{wrap}{insets} rtlCol="0" anchor="{look.anchor}"{centred}{upright}'
+        columns = ("" if look.columns == 1 else f' numCol="{look.columns}"') + (
+            f' spcCol="{emu(look.column_spacing)}"' if look.column_spacing else "")
+        attributes = f'{overflow}{vert}{wrap}{insets}{columns} rtlCol="0" anchor="{look.anchor}"{centred}{upright}'
         # TextFrame2's AutoSize is bodyPr's one child (tests/fixtures/text_frame2.json).
         head = (f"<a:bodyPr {attributes}><a:{look.autofit}Autofit/></a:bodyPr>" if look.autofit
                 else f"<a:bodyPr {attributes}/>")

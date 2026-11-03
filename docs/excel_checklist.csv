@@ -2930,6 +2930,12 @@ TableStyles,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/table_st
 TableStyles,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Read.
 TableStyles,Item,method,Item(Index As Variant) As TableStyle,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,By number in Excel's order or by name in any case; error 9 for neither.
 TableStyles,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,The workbook.
+TextColumn2,Application,"property, read-only",As Object,,MISSING,,
+TextColumn2,Creator,"property, read-only",As Long,,UNASSESSED,,
+TextColumn2,Number,property,As Long,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"1 to 16, written as numCol; 1 writes nothing."
+TextColumn2,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"Not in the type library: 438, as in Excel."
+TextColumn2,Spacing,property,As Single,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"Not below 0, written as spcCol; 0 writes nothing."
+TextColumn2,TextDirection,property,As MsoTextDirection,,MISSING,,
 TextFrame,Application,"property, read-only",As Application,,MISSING,,
 TextFrame,AutoMargins,property,As Boolean,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"Excel raises 1004 reading or setting it, on a rectangle and a text box alike."
 TextFrame,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -2948,7 +2954,7 @@ TextFrame,VerticalAlignment,property,As XlVAlign,,PARTIAL,tests/fixtures/text_fr
 TextFrame,VerticalOverflow,property,As XlOartVerticalOverflow,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's vertOverflow, ellipsis too; 3 raises -2147467259. A rectangle whose overflow changes writes bodyPr in full."
 TextFrame2,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 TextFrame2,AutoSize,property,As MsoAutoSize,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"None or text to fit shape, as bodyPr's noAutofit or normAutofit; 3 raises -2147024809. Shape to fit text, which resizes the shape, is refused."
-TextFrame2,Column,"property, read-only",As TextColumn2,,MISSING,,
+TextFrame2,Column,"property, read-only",As TextColumn2,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,A new AutoShape or text box; on a line the object exists and using it is out of range.
 TextFrame2,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 TextFrame2,DeleteText,method,DeleteText(),,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"The text gone, its empty paragraph's end left without a size."
 TextFrame2,HasText,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.

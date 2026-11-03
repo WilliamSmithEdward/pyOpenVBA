@@ -1,0 +1,21 @@
+{
+ "measured_at": "2026-11-03T21:14:13.837810+00:00",
+ "reads": [
+  "TypeName(pt.Slicers)",
+  "pt.Slicers.Count",
+  "TypeName(pt.Slicers.Parent)",
+  "TypeName(pt.Slicers.Application)",
+  "pt.Slicers(1).Name",
+  "TypeName(pt.CalculatedFields.Application)",
+  "TypeName(pt.CalculatedFields.Parent)",
+  "pt.CalculatedFields.Count",
+  "TypeName(pt.PivotFields(\"Region\").CalculatedItems.Application)",
+  "TypeName(pt.PivotFields(\"Region\").CalculatedItems.Parent)",
+  "pt.PivotFields(\"Region\").CalculatedItems.Count",
+  "Walked(pt.Slicers)",
+  "Walked(pt.CalculatedFields)",
+  "Walked(pt.PivotFields(\"Region\").CalculatedItems)"
+ ],
+ "source": "Function Walked(things As Object) As String\n    Dim one As Object, n As Long\n    For Each one In things\n        n = n + 1\n    Next\n    Walked = \"walked\" & n\nEnd Function\n\nFunction Probe() As String\n    Dim wb As Workbook, data As Worksheet, ws As Worksheet, pt As Object, s As String, v As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set data = wb.Worksheets(1)\n    data.Range(\"A1:B1\").Value = Array(\"Region\", \"Amount\")\n    data.Range(\"A2:B2\").Value = Array(\"East\", 1)\n    data.Range(\"A3:B3\").Value = Array(\"West\", 2)\n    Set ws = wb.Worksheets.Add\n    Set pt = wb.PivotCaches.Create(xlDatabase, data.Range(\"A1:B3\")).CreatePivotTable(ws.Range(\"A3\"), \"P\")\n    pt.PivotFields(\"Region\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Total\", xlSum\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.Slicers)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = pt.Slicers.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.Slicers.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.Slicers.Application)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = pt.Slicers(1).Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.CalculatedFields.Application)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.CalculatedFields.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = pt.CalculatedFields.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.PivotFields(\"Region\").CalculatedItems.Application)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.PivotFields(\"Region\").CalculatedItems.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Region\").CalculatedItems.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = Walked(pt.Slicers)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = Walked(pt.CalculatedFields)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = Walked(pt.PivotFields(\"Region\").CalculatedItems)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    On Error GoTo 0\n    Application.DisplayAlerts = False\n    wb.Close False\n    Probe = Mid$(s, 2)\nEnd Function\n",
+ "result": "Slicers,0,PivotTable,Application,E9,Application,PivotTable,0,Application,PivotField,0,walked0,walked0,walked0"
+}

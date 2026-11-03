@@ -430,6 +430,10 @@ class CalculatedItems(VBACollection, ExcelObject):
     def Parent(self) -> object:
         return self.field
 
+    @member
+    def Application(self) -> object:
+        return self.field.table.sheet.book.application
+
     @method
     def Add(self, Name: object, Formula: object, UseStandardFormula: object = MISSING) -> object:
         return add(self.field, Name, Formula)

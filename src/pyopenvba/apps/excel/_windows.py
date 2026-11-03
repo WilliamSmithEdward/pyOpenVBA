@@ -626,6 +626,25 @@ class Windows(VBACollection, ItemDefault, ExcelObject):
     def Parent(self) -> object:
         return self.application
 
+    # -- side by side, which one window at a time never is (tests/fixtures/window_members.json)
+
+    @member
+    def SyncScrollingSideBySide(self) -> object:
+        return False
+
+    @method
+    def BreakSideBySide(self) -> object:
+        return False
+
+    @method
+    def ResetPositionsSideBySide(self) -> object:
+        return EMPTY
+
+    @method
+    def CompareSideBySideWith(self, WindowName: object = MISSING) -> object:  # noqa: N803
+        self.vba_lookup(WindowName, self.vba_items())
+        return False
+
 
 def pane_count(view: SheetViewState) -> int:
     if not view.state:
@@ -635,6 +654,27 @@ def pane_count(view: SheetViewState) -> int:
         both = float(split.get("xSplit", "0") or 0) and float(split.get("ySplit", "0") or 0)
         return 4 if both else 2
     return 4 if view.rows and view.columns else 2
+
+
+class Pane(ExcelObject):
+    """The one pane of a window with no split (tests/fixtures/window_members.json)."""
+
+    vba_type_name = "Pane"
+
+    def __init__(self, window: Window) -> None:
+        self.window = window
+
+    @member
+    def Index(self) -> object:
+        return VBAInt(1, "Long")
+
+    @member
+    def Parent(self) -> object:
+        return self.window
+
+    @member
+    def Application(self) -> object:
+        return self.window.book.application
 
 
 class Panes(VBACollection, ExcelObject):
@@ -654,6 +694,8 @@ class Panes(VBACollection, ExcelObject):
         return self.window.book.application
 
     def vba_items(self) -> list[object]:
+        if pane_count(self.window.view()) == 1:
+            return [Pane(self.window)]
         raise VBAUnsupportedError("a window's panes, each scrolled on its own, are not implemented; Panes.Count is")
 
     @member
@@ -851,6 +893,32 @@ class Window(ExcelObject):
     @method
     def Activate(self) -> object:
         self.book.application.activate_book(self.book)
+        return EMPTY
+
+    @member
+    def ActivePane(self) -> object:
+        """The one pane of a window with no split; with panes, which is active the model does not keep."""
+        if pane_count(self.view()) != 1:
+            raise VBAUnsupportedError("the active pane of a split window is not implemented")
+        return Pane(self)
+
+    @setter("ActivePane")
+    def _set_active_pane(self, value: object) -> None:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def EnableResize(self) -> object:
+        return True
+
+    @member
+    def DisplayDataTypeIcons(self) -> object:
+        return True
+
+    @method
+    def ScrollWorkbookTabs(self, Sheets: object = MISSING, Position: object = MISSING) -> object:  # noqa: N803
+        """No tabs to scroll here: 1004 given nothing, and anything else goes by (tests/fixtures/window_members.json)."""
+        if Sheets is MISSING and Position is MISSING:
+            raise error(1004, "ScrollWorkbookTabs method of Window class failed")
         return EMPTY
 
     @method

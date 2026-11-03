@@ -19,6 +19,11 @@ AboveAverage,SetFirstPriority,method,SetFirstPriority(),,PARTIAL,tests/test_exce
 AboveAverage,SetLastPriority,method,SetLastPriority(),,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Loaded child order and representative are captured independently of mutable priority; broader lifecycle interactions remain partial."
 AboveAverage,StopIfTrue,property,As Boolean,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 AboveAverage,Type,"property, read-only",As Long,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
+Adjustments,Application,"property, read-only",As Object,,MISSING,,
+Adjustments,Count,"property, read-only",As Long,,UNASSESSED,,
+Adjustments,Creator,"property, read-only",As Long,,UNASSESSED,,
+Adjustments,Item,property,As Single,,MISSING,,
+Adjustments,Parent,"property, read-only",As Object,,MISSING,,
 Application,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Name, Microsoft Excel."
 Application,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Answers as Evaluate does.
 Application,_Run2,method,"_Run2([Macro As Variant], [Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,MISSING,,
@@ -667,13 +672,13 @@ ChartFormat,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/test_e
 ChartFormat,ThreeD,"property, read-only",As ThreeDFormat,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartGroup,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
-ChartGroup,BinsCountValue,property,As Long,,MISSING,,
-ChartGroup,BinsOverflowEnabled,property,As Boolean,,MISSING,,
-ChartGroup,BinsOverflowValue,property,As Double,,MISSING,,
-ChartGroup,BinsType,property,As XlBinsType,,MISSING,,
-ChartGroup,BinsUnderflowEnabled,property,As Boolean,,MISSING,,
-ChartGroup,BinsUnderflowValue,property,As Double,,MISSING,,
-ChartGroup,BinWidthValue,property,As Double,,MISSING,,
+ChartGroup,BinsCountValue,property,As Long,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsOverflowEnabled,property,As Boolean,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsOverflowValue,property,As Double,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsType,property,As XlBinsType,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsUnderflowEnabled,property,As Boolean,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsUnderflowValue,property,As Double,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinWidthValue,property,As Double,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,BubbleScale,property,As Long,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,CategoryCollection,method,CategoryCollection([Index As Variant]) As Object,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."

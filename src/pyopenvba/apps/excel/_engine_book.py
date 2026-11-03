@@ -180,6 +180,10 @@ class EngineBook:
         """The cells a link keeps of a linked workbook's sheet keyed [1]Sheet1, or None for one of this workbook."""
         if not sheet.startswith("["):
             return None
+        if self.book.link_changes.source_stale:
+            from pyopenvba.apps.excel._link_edits import settled
+
+            settled(self.book)
         number, _, name = sheet[1:].partition("]")
         linked = self.book.linked_books.get(int(number)) if number.isdigit() else None
         if linked is None:

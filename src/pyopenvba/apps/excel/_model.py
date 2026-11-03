@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
+    from pyopenvba.apps.excel._application_more import Timer
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
@@ -382,6 +383,8 @@ class Application(ExcelObject):
         #: Whether PageSetup settings take effect at once, and those held back while they do not (see _page_setup).
         self.print_communication = True
         self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
+        #: What Application.OnTime has waiting, oldest first (see _application_more).
+        self.timers: list[Timer] = []
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
@@ -942,6 +945,21 @@ class Application(ExcelObject):
         raise error(1004, "Repeat method of Application class failed")
 
     @method
+    def OnTime(self, EarliestTime: object = MISSING, Procedure: object = MISSING, LatestTime: object = MISSING,  # noqa: N803
+               Schedule: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._application_more import on_time
+
+        on_time(self, EarliestTime, Procedure, LatestTime, Schedule)
+        return EMPTY
+
+    def pump_timers(self) -> None:
+        """DoEvents runs what is due, Wait does not (tests/fixtures/on_time.json). Excel's first DoEvents of a macro
+        now and then lets it wait for the next, 1 time in 12 over a measured loop, which the model does not guess at."""
+        from pyopenvba.apps.excel._application_more import run_due
+
+        run_due(self)
+
+    @method
     def OnUndo(self, Text: object = MISSING, Procedure: object = MISSING) -> object:  # noqa: N803 - native named args
         from pyopenvba.apps.excel._application_more import required
 
@@ -1392,6 +1410,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             if isinstance(root, ExcelInterpreter) and root.bridge.workbook is book:
                 root.bridge.workbook = None
             raise
+        from pyopenvba.apps.excel._link_edits import opened
+
+        opened(book)
         before = self.application.active_book
         self.application.activate_book(book, events=False)
         _events.opened(book)
@@ -2131,11 +2152,14 @@ class Workbook(ExcelObject):
         if saving and Filename is MISSING:
             if not self._save():
                 return EMPTY
+        from pyopenvba.apps.excel._link_edits import closing
+
+        closing(self)
         self.application.workbooks_.remove(self)
         from pyopenvba.apps.excel._held_ranges import closed
 
         closed(self)
-        return EMPTY
+        return True
 
     @method
     def Save(self) -> object:
@@ -2285,6 +2309,30 @@ class Workbook(ExcelObject):
 
         break_link(self, Name, Type)
         return EMPTY
+
+    @method
+    def UpdateLink(self, Name: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import update_link
+
+        return update_link(self, Name, Type)
+
+    @method
+    def ChangeLink(self, Name: object = MISSING, NewName: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import change_link
+
+        return change_link(self, Name, NewName, Type)
+
+    @method
+    def OpenLinks(self, Name: object = MISSING, ReadOnly: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import open_links
+
+        return open_links(self, Name, ReadOnly, Type)
+
+    @method
+    def SetLinkOnData(self, Name: object = MISSING, Procedure: object = MISSING) -> object:
+        from pyopenvba.apps.excel._link_edits import set_link_on_data
+
+        return set_link_on_data(Name)
 
     @member
     def UpdateLinks(self) -> object:
@@ -5404,6 +5452,68 @@ class Range(ExcelObject):
         sparklines_cleared(target)
         _events.after_edit(self)
         return EMPTY
+
+    @method
+    def ResetContents(self) -> object:
+        """On a cell with no control in it, which is every cell here, the same as ClearContents
+        (tests/fixtures/range_missing.json)."""
+        return self.ClearContents()
+
+    @method
+    def RemoveControls(self) -> object:
+        return EMPTY
+
+    @method
+    def TogglePythonMarshalMode(self) -> object:
+        return EMPTY
+
+    def _no_data_for_it(self) -> object:
+        """What these need, a data model's writeback, a linked data type or an edition, no cell here has."""
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def AllocateChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DiscardChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DataTypeToText(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def RefreshLinkedDataType(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def SetCellDataTypeFromCell(self, Range: object = MISSING, Language: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @method
+    def EditionOptions(self, Type: object = MISSING, Option: object = MISSING, Name: object = MISSING,
+                       Reference: object = MISSING, Appearance: object = MISSING, ChartSize: object = MISSING,
+                       Format: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @member
+    def SoundNote(self) -> object:
+        from pyopenvba.apps.excel._range_members import SoundNote
+
+        return SoundNote(self)
+
+    @member
+    def XPath(self) -> object:
+        from pyopenvba.apps.excel._range_members import XPath
+
+        return XPath(self)
+
+    @member
+    def CellControl(self) -> object:
+        from pyopenvba.apps.excel._range_members import CellControl
+
+        return CellControl(self)
 
     @method
     def ClearContents(self) -> object:

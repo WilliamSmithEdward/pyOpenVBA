@@ -24,7 +24,7 @@
         "error": "None"
       },
       "reopened": "sheet=O'Brien renamed;filter=True;hidden=False,True;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\inplace.xlsx"
+      "file": "<folder>\\inplace.xlsx"
     },
     {
       "name": "extract",
@@ -48,7 +48,7 @@
         "error": "None"
       },
       "reopened": "sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Extract:='O''Brien renamed'!$D$1:$E$1:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\extract.xlsx"
+      "file": "<folder>\\extract.xlsx"
     },
     {
       "name": "showall",
@@ -72,7 +72,7 @@
         "error": "None"
       },
       "reopened": "sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\showall.xlsx"
+      "file": "<folder>\\showall.xlsx"
     },
     {
       "name": "unique-showall",
@@ -96,7 +96,7 @@
         "error": "None"
       },
       "reopened": "sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\unique-showall.xlsx"
+      "file": "<folder>\\unique-showall.xlsx"
     }
   ],
   "session_id": "b8321abc6651",

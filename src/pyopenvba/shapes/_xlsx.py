@@ -28,8 +28,9 @@ from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, Shape, ShapeEffects, TextLook, child_space, emu,
-                                      points, to_child)
+from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects,
+                                      TextLook, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
 ANCHORS = ("xdr:twoCellAnchor", "xdr:oneCellAnchor", "xdr:absoluteAnchor", "mc:AlternateContent")
@@ -962,6 +963,9 @@ def _new_element(shape: Shape) -> str:
     if shape.kind == "textBox":
         # A text box's text runs across, as Excel writes it.
         body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
+    if shape.kind == "shape" and shape.geometry in DARK_TEXT:
+        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
+                            '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
     if shape.text_look is not None and body:
         body = _laid_out(body, shape.text_look)
     box = ' txBox="1"' if shape.kind == "textBox" else ""
@@ -976,7 +980,12 @@ def _new_element(shape: Shape) -> str:
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
     )
     turn = _xfrm_attributes(shape)
-    geometry = f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>'
+    guides = ""
+    if shape.adjustments is not None:
+        guides = "".join(f'<a:gd name="{name}" fmla="val {value}"/>' for (name, _, _), value in zip(
+            ADJUSTMENTS[shape.geometry], shape.adjustments, strict=True))
+    geometry = (f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst>{guides}</a:avLst></a:prstGeom>'
+                if guides else f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>')
     style = _TEXT_BOX_STYLE if shape.kind == "textBox" else _STYLE
     if shape.kind == "line":
         # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json).
@@ -1006,35 +1015,57 @@ def _fill_line(shape: Shape) -> str:
     text_box = shape.kind == "textBox"
     if look is None:
         return _TEXT_BOX_FILL if text_box else ""
-    fill_colour = _colour(look.fill_rgb, "lt1" if text_box else "accent1", 0, look.fill_alpha)
+    fill_colour = _colour(look.fill_rgb, look.fill_scheme or ("lt1" if text_box else "accent1"), 0, look.fill_alpha,
+                          look.fill_mods, look.fill_index)
+    fill_paint = f"<a:solidFill>{fill_colour}</a:solidFill>"
+    if look.fill_pattern is not None:
+        back = _colour(look.fill_back_rgb or (None if look.fill_back_scheme else "FFFFFF"), look.fill_back_scheme or "",
+                       0, look.fill_alpha, look.fill_back_mods)
+        fill_paint = (f'<a:pattFill prst="{look.fill_pattern}"><a:fgClr>{fill_colour}</a:fgClr><a:bgClr>{back}</a:bgClr>'
+                      "</a:pattFill>")
+    if look.fill_gradient is not None:
+        fill_paint = _gradient(look.fill_gradient)
     fill = ""
     if look.fill_hidden or look.fill_bare:
         fill = "<a:noFill/>"
-    elif look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box:
-        fill = f"<a:solidFill>{fill_colour}</a:solidFill>"
+    elif look.fill_pattern is not None or look.fill_gradient is not None:
+        fill = fill_paint
+    elif (look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box
+          or look.fill_scheme is not None or look.fill_mods or look.fill_index is not None):
+        fill = fill_paint
     elif look.no_fill:
         fill = "<a:noFill/>"
     scheme, shade = {"textBox": ("lt1", 50000), "line": ("accent1", 0)}.get(shape.kind, ("accent1", 15000))
-    paint = f"<a:solidFill>{_colour(look.line_rgb, scheme, shade, look.line_alpha)}</a:solidFill>"
+    if look.line_scheme is not None or look.line_plain:
+        shade = 0
+    own_line = (look.line_rgb is not None or look.line_scheme is not None or bool(look.line_mods) or look.line_plain
+                or look.line_index is not None)
+    paint = _line_paint(look, look.line_scheme or scheme, shade, own_line)
     line = ""
     if text_box or look.line_full or look.line_ends:
         width = (look.frozen_width if look.line_hidden else look.line_width) or (9525 if text_box else 19050)
         dash = (look.frozen_dash if look.line_hidden else look.line_dash) or "solid"
-        line = _stroke("a:ln", "", width, "<a:noFill/>" if look.line_hidden else paint, dash, text_box, look.line_ends)
-    elif look.line_rgb is not None or look.line_width is not None or look.line_dash is not None:
+        head, tail = (look.frozen_head, look.frozen_tail) if look.line_hidden else (look.line_head, look.line_tail)
+        line = _stroke("a:ln", "", width, "<a:noFill/>" if look.line_hidden else paint, dash, text_box, look.line_ends,
+                       _arrow_ends(head, tail, look.line_ends), look.line_align)
+    elif (own_line or look.line_width is not None or look.line_dash is not None or look.line_pattern is not None
+          or look.line_open or look.line_align is not None or any(look.line_head) or any(look.line_tail)):
         attributes = ("" if look.line_width is None else f' w="{look.line_width}"') + (
-            "" if look.line_cap is None else f' cap="{look.line_cap}"')
-        inside = ("" if look.line_rgb is None else paint) + (
-            "" if look.line_dash is None else f'<a:prstDash val="{look.line_dash}"/>')
+            "" if look.line_cap is None else f' cap="{look.line_cap}"') + (
+            "" if look.line_align is None else f' algn="{look.line_align}"')
+        inside = (paint if own_line or look.line_pattern is not None or look.line_open else "") + (
+            "" if look.line_dash is None else f'<a:prstDash val="{look.line_dash}"/>') + _arrow_ends(
+            look.line_head, look.line_tail, False)
         line = f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"
     extensions = ""
     if look.fill_hidden:
-        extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}><a:solidFill>'
-                       f"{fill_colour}</a:solidFill></a14:hiddenFill></a:ext>")
+        extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}>'
+                       f"{fill_paint}</a14:hiddenFill></a:ext>")
     if look.line_hidden and not look.line_lost:
         width = look.line_width or (9525 if text_box else 19050)
         extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
-                       + _stroke("a14:hiddenLine", f" {_A14}", width, paint, look.line_dash or "solid", text_box, False)
+                       + _stroke("a14:hiddenLine", f" {_A14}", width, paint, look.line_dash or "solid", text_box, False,
+                                 _arrow_ends(look.line_head, look.line_tail, False), None)
                        + "</a:ext>")
     effect_list, hidden = _effect_lists(look.extra)
     extensions += hidden
@@ -1096,23 +1127,85 @@ def _effect_lists(effects: ShapeEffects | None) -> tuple[str, str]:
 _A14 = 'xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"'
 
 
-def _colour(rgb: str | None, scheme: str, shade: int, alpha: int | None) -> str:
-    """A colour of the file's: its own, else a theme colour at its shade, either at its alpha."""
-    inside = (f'<a:shade val="{shade}"/>' if shade and rgb is None else "") + (
+def _colour(rgb: str | None, scheme: str, shade: int, alpha: int | None,
+            mods: tuple[tuple[str, int], ...] = (), index: int | None = None) -> str:
+    """A colour of the file's: its own, else a theme colour at its shade, then what Brightness and TintAndShade set,
+    either at its alpha. A SchemeColor is written as its RGB with the palette index beside it."""
+    inside = (f'<a:shade val="{shade}"/>' if shade and rgb is None else "") + "".join(
+        f'<a:{name} val="{value}"/>' for name, value in mods) + (
         "" if alpha is None else f'<a:alpha val="{alpha}"/>')
     tag, value = ("a:srgbClr", rgb) if rgb is not None else ("a:schemeClr", scheme)
-    return f'<{tag} val="{value}">{inside}</{tag}>' if inside else f'<{tag} val="{value}"/>'
+    legacy = "" if index is None else (
+        ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="a14" '
+        f'{_A14} a14:legacySpreadsheetColorIndex="{index}"')
+    return f'<{tag} val="{value}"{legacy}>{inside}</{tag}>' if inside else f'<{tag} val="{value}"{legacy}/>'
 
 
-def _stroke(tag: str, namespace: str, width: int, paint: str, dash: str, text_box: bool, ends: bool) -> str:
+#: What a corner gradient's path and tile hold for each variant.
+_CORNERS = {1: ('r="100000" b="100000"', 'l="-100000" t="-100000"'), 2: ('l="100000" b="100000"', 't="-100000" r="-100000"'),
+            3: ('t="100000" r="100000"', 'l="-100000" b="-100000"'), 4: ('l="100000" t="100000"', 'r="-100000" b="-100000"')}
+
+
+def _gradient(gradient: FillGradient) -> str:
+    """A gradient fill as Excel writes it (tests/fixtures/shape_fill_gradients.json)."""
+    stops = "".join(f'<a:gs pos="{stop.position}">{_colour(stop.rgb, stop.scheme or "", 0, stop.alpha, stop.mods)}</a:gs>'
+                    for stop in gradient.stops)
+    if gradient.path is None:
+        shape = f'<a:lin ang="{gradient.angle}" scaled="1"/><a:tileRect/>'
+    elif gradient.corner is None:
+        shape = '<a:path path="rect"><a:fillToRect l="50000" t="50000" r="50000" b="50000"/></a:path><a:tileRect/>'
+    else:
+        to, tile = _CORNERS[gradient.corner]
+        shape = f'<a:path path="rect"><a:fillToRect {to}/></a:path><a:tileRect {tile}/>'
+    return (f'<a:gradFill flip="none" rotWithShape="{1 if gradient.rotate else 0}"><a:gsLst>{stops}</a:gsLst>{shape}'
+            "</a:gradFill>")
+
+
+def _line_paint(look: FillLine, scheme: str, shade: int, own: bool) -> str:
+    """What a line is painted with: a pattern with the colours set on it, an empty solidFill where a back colour had no
+    pattern to take it, or its colour."""
+    if look.line_pattern is not None:
+        if look.line_alpha is not None:
+            # Its transparency writes out the default black on white.
+            alpha = f'<a:alpha val="{look.line_alpha}"/>'
+            return (f'<a:pattFill prst="{look.line_pattern}"><a:fgClr><a:prstClr val="black">{alpha}</a:prstClr></a:fgClr>'
+                    f'<a:bgClr><a:prstClr val="white">{alpha}</a:prstClr></a:bgClr></a:pattFill>')
+        fore = "" if not own else f"<a:fgClr>{_colour(look.line_rgb, scheme, 0, None, look.line_mods)}</a:fgClr>"
+        back = ""
+        if look.line_back_rgb is not None or look.line_back_scheme is not None:
+            back = f'<a:bgClr>{_colour(look.line_back_rgb, look.line_back_scheme or "", 0, None)}</a:bgClr>'
+        inside = fore + back
+        return (f'<a:pattFill prst="{look.line_pattern}">{inside}</a:pattFill>' if inside
+                else f'<a:pattFill prst="{look.line_pattern}"/>')
+    if look.line_open and not own:
+        return "<a:solidFill/>"
+    colour = _colour(look.line_rgb, scheme, shade, look.line_alpha, look.line_mods, look.line_index)
+    return f"<a:solidFill>{colour}</a:solidFill>"
+
+
+def _arrow_ends(head: tuple[str | None, str | None, str | None], tail: tuple[str | None, str | None, str | None],
+                full: bool) -> str:
+    """A line's headEnd and tailEnd: what was set, or all of each once the line is written out with its ends."""
+    written = ""
+    for tag, (kind, wide, long) in (("a:headEnd", head), ("a:tailEnd", tail)):
+        if full:
+            kind, wide, long = kind or "none", wide or "med", long or "med"
+        attributes = "".join(f' {name}="{value}"' for name, value in (("type", kind), ("w", wide), ("len", long))
+                             if value is not None)
+        written += f"<{tag}{attributes}/>" if attributes else ""
+    return written
+
+
+def _stroke(tag: str, namespace: str, width: int, paint: str, dash: str, text_box: bool, full: bool, ends: str,
+            align: str | None) -> str:
     """A line written out in full: as a text box has it, with no dash or join until its ends are written, or as the
     style gives any other shape's."""
-    if text_box and not ends:
-        return f'<{tag}{namespace} w="{width}" cmpd="sng">{paint}</{tag}>'
+    if text_box and not full:
+        aligned = "" if align is None else f' algn="{align}"'
+        return f'<{tag}{namespace} w="{width}" cmpd="sng"{aligned}>{paint}</{tag}>'
     join = "<a:round/>" if text_box else '<a:miter lim="800000"/>'
-    tail = '<a:headEnd type="none" w="med" len="med"/><a:tailEnd type="none" w="med" len="med"/>' if ends else ""
     return (f'<{tag}{namespace} w="{width}" cap="flat" cmpd="sng" algn="ctr">{paint}<a:prstDash val="{dash}"/>{join}'
-            f"{tail}</{tag}>")
+            f"{ends}</{tag}>")
 
 
 def _free_geometry(shape: Shape) -> str:

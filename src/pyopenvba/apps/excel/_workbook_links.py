@@ -66,6 +66,12 @@ class LinkChanges:
     #: The parts a save with SaveLinkValues False wrote without their values, as they were with them: the workbook
     #: still has the values, and a save with it True again writes them.
     values: dict[str, str] = field(default_factory=lambda: {})
+    #: The parts of the links whose workbooks were read again, which the save writes those values into.
+    reread: set[str] = field(default_factory=lambda: set())
+    #: The parts of the links ChangeLink moved, which the save writes for the workbook each now points at.
+    retargeted: set[str] = field(default_factory=lambda: set())
+    #: Whether an open workbook a link reads has changed since the link last read it.
+    source_stale: bool = False
 
 
 @dataclass(frozen=True)
@@ -82,7 +88,7 @@ class _Reference:
     length: int
 
 
-def _references(formula: str) -> Iterator[_Reference]:
+def references_in(formula: str) -> Iterator[_Reference]:
     """Each reference to a linked workbook in a formula as the model keeps it, = and all."""
     body = formula[1:] if formula.startswith("=") else formula
     if "[" not in body:
@@ -105,7 +111,7 @@ def _references(formula: str) -> Iterator[_Reference]:
         yield _Reference(int(number), first, last or first, found.group("rest"), token.at, len(token.text))
 
 
-def _kind(value: object) -> int | None:
+def link_kind(value: object) -> int | None:
     """A link Type as Excel reads one: missing or Null xlExcelLinks; True 1 and False 0, as a worksheet counts them;
     a number cut to its whole part, 1.5 being 1; text the number it spells, or None where it spells none
     (tests/fixtures/workbook_links.json)."""
@@ -125,7 +131,7 @@ def _kind(value: object) -> int | None:
     raise VBAUnsupportedError(f"a link Type given as {type_name(value)} is not implemented")
 
 
-def _links(book: Workbook) -> list[LinkedBook]:
+def links_of(book: Workbook) -> list[LinkedBook]:
     """The workbook's links to other workbooks, in the order the file keeps them."""
     return [book.linked_books[number] for number in sorted(book.linked_books)]
 
@@ -133,19 +139,19 @@ def _links(book: Workbook) -> list[LinkedBook]:
 def sources(book: Workbook, kind: object) -> object:
     """Workbook.LinkSources: the full names of the workbooks the workbook links to, as an array from 1, or Empty
     where it has none; any Type but xlExcelLinks is Empty, the model keeping no other kind of link."""
-    if _kind(kind) != _EXCEL_LINKS:
+    if link_kind(kind) != _EXCEL_LINKS:
         if book.foreign_links:
             raise VBAUnsupportedError("LinkSources of a workbook with OLE or DDE links is not implemented")
         return EMPTY
-    paths: list[object] = [linked.path(book.path) for linked in _links(book)]
+    paths: list[object] = [linked.path(book.path) for linked in links_of(book)]
     return VBAArray([(1, len(paths))], items=paths) if paths else EMPTY
 
 
-def _found(book: Workbook, name: str) -> tuple[LinkedBook | None, bool]:
+def found_link(book: Workbook, name: str) -> tuple[LinkedBook | None, bool]:
     """The link ``name`` gives, by the linked workbook's full name or its file's name alone, in either case and with
     / for \\; and whether it is one broken already."""
     wanted = name.replace("/", "\\").casefold()
-    for broken, links in ((False, _links(book)), (True, book.broken_links)):
+    for broken, links in ((False, links_of(book)), (True, book.broken_links)):
         for linked in links:
             if wanted in (linked.path(book.path).casefold(), linked.file.casefold()):
                 return linked, broken
@@ -172,12 +178,12 @@ def info(book: Workbook, name: object, what: object, kind: object, edition: obje
     asked = int(to_integer(what, "Long"))
     if edition is not MISSING:
         raise VBAUnsupportedError("LinkInfo's EditionRef, for the Mac's publishers and subscribers, is not implemented")
-    which = _kind(kind)
+    which = link_kind(kind)
     if which is None:
         return VBAErrorValue(_VALUE)
     if not text:
         return VBAErrorValue(_NA)
-    linked, _ = _found(book, text)
+    linked, _ = found_link(book, text)
     if linked is None:
         return VBAErrorValue(_VALUE)
     if which != _EXCEL_LINKS or asked != _STATUS:
@@ -214,7 +220,7 @@ def _sheet_names(path: Path) -> list[str]:
     return [decode(unescape(name)) for name in re.findall(r'<sheet\b[^>]*?\bname="([^"]*)"', text)]
 
 
-def _formulas(book: Workbook) -> Iterator[tuple[str, Worksheet | None]]:
+def formulas_of(book: Workbook) -> Iterator[tuple[str, Worksheet | None]]:
     """Every formula of the workbook's cells and names, with the sheet it is read on, None for a workbook's name."""
     from pyopenvba._a1 import split_sheet as split
 
@@ -232,8 +238,8 @@ def read_sheets(book: Workbook, linked: LinkedBook) -> set[str]:
     first and last too, and those a name of the linked workbook reads."""
     read: set[str] = set()
     order = [sheet.casefold() for sheet in linked.sheets]
-    for formula, _ in _formulas(book):
-        for reference in _references(formula):
+    for formula, _ in formulas_of(book):
+        for reference in references_in(formula):
             if reference.number != linked.number:
                 continue
             if not reference.first:
@@ -275,7 +281,7 @@ def break_link(book: Workbook, name: object, kind: object) -> None:
     which = int(to_integer(kind, "Long"))
     if which not in (_EXCEL_LINKS, _OLE_LINKS):
         raise error(5, "Invalid procedure call or argument")
-    linked, broken = _found(book, text) if which == _EXCEL_LINKS else (None, False)
+    linked, broken = found_link(book, text) if which == _EXCEL_LINKS else (None, False)
     if linked is None:
         raise error(1004, _BREAK_FAILED)
     if broken:
@@ -283,10 +289,10 @@ def break_link(book: Workbook, name: object, kind: object) -> None:
     _refuse_open(book, linked)
     if book.foreign_links:
         raise VBAUnsupportedError("BreakLink in a workbook with OLE or DDE links is not implemented")
-    _refuse_elsewhere(book)
+    refuse_elsewhere(book)
     frozen = _frozen(book, linked.number)
     also_read = {number for sheet, row, column in frozen
-                 for number in _links_read(book, sheet.cells_[(row, column)].formula, sheet)} - {linked.number}
+                 for number in links_read(book, sheet.cells_[(row, column)].formula, sheet)} - {linked.number}
     values = {(sheet.name, row, column): book.calculator.value_of(sheet.name, row, column)
               for sheet, row, column in _with_blocks(frozen)}
     for sheet, row, column in _with_blocks(frozen):
@@ -300,11 +306,11 @@ def break_link(book: Workbook, name: object, kind: object) -> None:
     changes.broken.append(linked.part)
     changes.pruned.update(book.linked_books[number].part for number in also_read if number in book.linked_books)
     book.broken_links.append(linked)
-    _renumber(book, linked.number)
+    renumber(book, linked.number)
     book.saved = False
 
 
-def _refuse_elsewhere(book: Workbook) -> None:
+def refuse_elsewhere(book: Workbook) -> None:
     """Report a link a formula the model does not break reads: a validation's, a conditional format's, a chart's
     series, a control's cells, or a table's column."""
     found = re.compile(r"\[[0-9]+\]")
@@ -326,10 +332,10 @@ def _refuse_elsewhere(book: Workbook) -> None:
                 raise VBAUnsupportedError("BreakLink of a link a chart or a table's column reads is not implemented")
 
 
-def _links_read(book: Workbook, formula: str, sheet: Worksheet | None, seen: frozenset[int] = frozenset()) -> set[int]:
+def links_read(book: Workbook, formula: str, sheet: Worksheet | None, seen: frozenset[int] = frozenset()) -> set[int]:
     """The links a formula on ``sheet`` reads, itself or through a name it names, and a name that one names
     (tests/fixtures/workbook_links.json: =Outer, Outer being =SUM(Ext)*2 and Ext Alpha's cells, reads Alpha)."""
-    read = {reference.number for reference in _references(formula)}
+    read = {reference.number for reference in references_in(formula)}
     body = formula[1:] if formula.startswith("=") else formula
     try:
         tokens = P.tokenize(body, spaces=True)
@@ -343,7 +349,7 @@ def _links_read(book: Workbook, formula: str, sheet: Worksheet | None, seen: fro
         if entry is None or id(entry) in seen:
             continue
         owner = book.sheet_named(split_sheet(entry.name)[0]) if "!" in entry.name else None
-        read |= _links_read(book, entry.refers_to, owner, seen | {id(entry)})
+        read |= links_read(book, entry.refers_to, owner, seen | {id(entry)})
     return read
 
 
@@ -371,7 +377,7 @@ def _frozen(book: Workbook, number: int) -> list[tuple[Worksheet, int, int]]:
     cells: list[tuple[Worksheet, int, int]] = []
     for sheet in book.sheets_:
         for (row, column), cell in sorted(sheet.cells_.items()):
-            if cell.formula and number in _links_read(book, cell.formula, sheet):
+            if cell.formula and number in links_read(book, cell.formula, sheet):
                 if sheet.protection is not None:
                     raise VBAUnsupportedError("BreakLink of a link a protected sheet's formulas read is not "
                                               "implemented: Excel stops with an alert DisplayAlerts does not hold back")
@@ -418,7 +424,7 @@ def _pointed_at_ref(formula: str, number: int) -> str:
     out: list[str] = []
     at = 0
     body = formula[1:] if formula.startswith("=") else formula
-    for reference in _references(formula):
+    for reference in references_in(formula):
         if reference.number != number:
             continue
         out.append(body[at:reference.start])
@@ -429,14 +435,14 @@ def _pointed_at_ref(formula: str, number: int) -> str:
     return ("=" if formula.startswith("=") else "") + "".join(out) + body[at:]
 
 
-def _renumber(book: Workbook, gone: int) -> None:
+def renumber(book: Workbook, gone: int) -> None:
     """Link ``gone`` taken out: each later link one number earlier, in the links and in every formula, which is read
     again but not worked out again."""
     def moved(formula: str) -> str:
         body = formula[1:] if formula.startswith("=") else formula
         out: list[str] = []
         at = 0
-        for reference in _references(formula):
+        for reference in references_in(formula):
             if reference.number > gone:
                 text = body[reference.start:reference.start + reference.length]
                 out.append(body[at:reference.start])
@@ -528,12 +534,15 @@ def write(book: Workbook, package: OpcFile) -> None:
             if package.has(part):
                 package.write(part, text.encode("utf-8"))
         changes.values.clear()
-    links = _links(book)
+    links = links_of(book)
     phantom = {linked.part: linked for linked in links if _reads_book_names(book, linked.number)}
-    if not changes.broken and not changes.pruned and book.save_link_values and not phantom \
+    if not changes.broken and not changes.pruned and not changes.reread and not changes.retargeted \
+            and book.save_link_values and not phantom \
             and all(linked.part == f"xl/externalLinks/externalLink{linked.number}.xml" or not linked.part
                     for linked in links):
         return
+    from pyopenvba.apps.excel._link_edits import write_reread, write_retargeted
+
     _drop_parts(book, package, changes.broken)
     for part in changes.broken:
         changes.values.pop(part, None)
@@ -541,6 +550,10 @@ def write(book: Workbook, package: OpcFile) -> None:
         if not linked.part or not package.has(linked.part):
             continue
         text = package.read(linked.part).decode("utf-8")
+        if linked.part in changes.retargeted:
+            text = write_retargeted(book, package, linked, text)
+        elif linked.part in changes.reread:
+            text = write_reread(book, linked, text)
         if linked.part in changes.pruned:
             text = _pruned(book, linked, text)
         if linked.part in phantom:
@@ -552,12 +565,14 @@ def write(book: Workbook, package: OpcFile) -> None:
     _number_parts(book, package)
     changes.broken.clear()
     changes.pruned.clear()
+    changes.reread.clear()
+    changes.retargeted.clear()
 
 
 def _reads_book_names(book: Workbook, number: int) -> bool:
     """Whether a formula or name reads one of link ``number``'s workbook's own names: [1]!Rate."""
     return any(reference.number == number and not reference.first
-               for formula, _ in _formulas(book) for reference in _references(formula))
+               for formula, _ in formulas_of(book) for reference in references_in(formula))
 
 
 def _with_book_sheet(linked: LinkedBook, text: str) -> str:
@@ -579,7 +594,7 @@ def _with_book_sheet(linked: LinkedBook, text: str) -> str:
 def _pruned(book: Workbook, linked: LinkedBook, text: str) -> str:
     """A link's part keeping the values of the cells the workbook still reads and no others
     (tests/fixtures/workbook_links.json, MixedAgain.xlsx); as read where a reference cannot be followed."""
-    areas = _read_areas(book, linked)
+    areas = read_areas(book, linked)
     if areas is None:
         return text
 
@@ -608,7 +623,7 @@ def _column(letters: str) -> int:
     return column_number(letters)
 
 
-def _read_areas(book: Workbook, linked: LinkedBook) -> dict[int, list[Area]] | None:
+def read_areas(book: Workbook, linked: LinkedBook) -> dict[int, list[Area]] | None:
     """The areas of each of a linked workbook's sheets, by its place in the link, the workbook's formulas and names
     read; None where one of them reads a name of a sheet of that workbook, which the model does not follow."""
     order = [sheet.casefold() for sheet in linked.sheets]
@@ -627,8 +642,8 @@ def _read_areas(book: Workbook, linked: LinkedBook) -> dict[int, list[Area]] | N
             areas.setdefault(index, []).append(found)
         return True
 
-    for formula, _ in _formulas(book):
-        for reference in _references(formula):
+    for formula, _ in formulas_of(book):
+        for reference in references_in(formula):
             if reference.number != linked.number:
                 continue
             if reference.first:
@@ -679,7 +694,7 @@ def _number_parts(book: Workbook, package: OpcFile) -> None:
     """Each link's part named for its number, externalLink1.xml first, as Excel names them on every save."""
     from pyopenvba.apps.excel._charts_file import rels_part
 
-    renames = {linked.part: f"xl/externalLinks/externalLink{linked.number}.xml" for linked in _links(book)
+    renames = {linked.part: f"xl/externalLinks/externalLink{linked.number}.xml" for linked in links_of(book)
                if linked.part and linked.part != f"xl/externalLinks/externalLink{linked.number}.xml"}
     if not renames:
         return

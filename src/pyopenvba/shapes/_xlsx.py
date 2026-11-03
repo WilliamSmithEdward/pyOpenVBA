@@ -28,7 +28,8 @@ from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import PRESET_GEOMETRY, ControlInfo, Shape, TextLook, child_space, emu, points, to_child
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, Shape, ShapeEffects, TextLook, child_space, emu,
+                                      points, to_child)
 
 #: The anchors a sheet's drawing is made of.
 ANCHORS = ("xdr:twoCellAnchor", "xdr:oneCellAnchor", "xdr:absoluteAnchor", "mc:AlternateContent")
@@ -1035,8 +1036,61 @@ def _fill_line(shape: Shape) -> str:
         extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
                        + _stroke("a14:hiddenLine", f" {_A14}", width, paint, look.line_dash or "solid", text_box, False)
                        + "</a:ext>")
-    return (fill + line + ("<a:effectLst/>" if look.effects else "")
+    effect_list, hidden = _effect_lists(look.extra)
+    extensions += hidden
+    return (fill + line + (effect_list or ("<a:effectLst/>" if look.effects else ""))
             + (f"<a:extLst>{extensions}</a:extLst>" if extensions else ""))
+
+
+def _effect_colour(rgb: str | None, scheme: str | None, alpha: int | None) -> str:
+    inner = "" if alpha is None else f'<a:alpha val="{alpha}"/>'
+    if scheme:
+        return f'<a:schemeClr val="{scheme}">{inner}</a:schemeClr>' if inner else f'<a:schemeClr val="{scheme}"/>'
+    if rgb:
+        return f'<a:srgbClr val="{rgb}">{inner}</a:srgbClr>' if inner else f'<a:srgbClr val="{rgb}"/>'
+    black = 'r="0" g="0" b="0"'
+    return f"<a:scrgbClr {black}>{inner}</a:scrgbClr>" if inner else f"<a:scrgbClr {black}/>"
+
+
+def _shadow_markup(effects: ShapeEffects) -> str:
+    size = "" if effects.shadow_size is None else f' sx="{effects.shadow_size}" sy="{effects.shadow_size}"'
+    distance = f' dist="{effects.shadow_distance}"' if effects.shadow_distance else ""
+    direction = f' dir="{effects.shadow_direction}"' if effects.shadow_direction else ""
+    return (f'<a:outerShdw blurRad="{effects.shadow_blur}"{distance}{direction}{size} rotWithShape="0">'
+            f"{_effect_colour(effects.shadow_rgb, None, effects.shadow_alpha)}</a:outerShdw>")
+
+
+def _effect_lists(effects: ShapeEffects | None) -> tuple[str, str]:
+    """The shape's effectLst, and the extensions for a shadow changed while hidden or obscured, each as the file has
+    them (tests/fixtures/shape_effects.json)."""
+    if effects is None:
+        return "", ""
+    glow = ""
+    if effects.glow:
+        radius = "" if effects.glow_radius is None else f' rad="{effects.glow_radius}"'
+        glow = (f"<a:glow{radius}>{_effect_colour(effects.glow_rgb, effects.glow_scheme, effects.glow_alpha)}"
+                "</a:glow>")
+    shadow = _shadow_markup(effects) if effects.shadow_on else ""
+    others = ""
+    if effects.reflection:
+        attributes = "".join(f' {name}="{value}"' for name, value in (
+            ("blurRad", effects.reflection_blur), ("stA", effects.reflection_start), ("endA", effects.reflection_end),
+            ("endPos", effects.reflection_place), ("dist", effects.reflection_distance)) if value is not None)
+        others += f'<a:reflection{attributes} dir="5400000" sy="-100000" algn="bl" rotWithShape="0"/>'
+    if effects.soft_edge:
+        others += f'<a:softEdge rad="{effects.soft_edge}"/>'
+    inside = glow + (shadow if effects.shadow_visible else "") + others
+    hidden = ""
+    if effects.shadow_on and not effects.shadow_visible:
+        # The hidden list has the rest of them too.
+        hidden += ('<a:ext uri="{AF507438-7753-43E0-B8FC-AC1667EBCBE1}">'
+                   f"<a14:hiddenEffects {_A14}><a:effectLst>{glow}{shadow}{others}</a:effectLst>"
+                   "</a14:hiddenEffects></a:ext>")
+    if effects.shadow_obscured:
+        hidden += f'<a:ext uri="{{53640926-AAD7-44D8-BBD7-CCE9431645EC}}"><a14:shadowObscured {_A14} val="1"/></a:ext>'
+    written = effects.list_only or effects.shadow_on or effects.glow or effects.reflection or effects.soft_edge
+    touched = written or effects.reflection_type or effects.touched
+    return (f"<a:effectLst>{inside}</a:effectLst>" if inside else "<a:effectLst/>") if touched else "", hidden
 
 
 _A14 = 'xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"'

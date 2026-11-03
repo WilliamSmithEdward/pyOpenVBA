@@ -2460,7 +2460,7 @@ Shape,Duplicate,method,Duplicate() As Shape,,PARTIAL,tests/fixtures/shape_duplic
 Shape,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"A new AutoShape, text box or line."
 Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/fixtures/shape_duplicate.json,"Turns flipH or flipV over, written after rot, and mirrors the rotation (30 becomes 330); twice turns it back. Other commands raise -2147024809."
 Shape,FormControlType,"property, read-only",As XlFormControl,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,The XlFormControl constant; 1004 for a shape that is no control.
-Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
+Shape,Glow,"property, read-only",As GlowFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
 Shape,GraphicStyle,property,As MsoGraphicStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,The group's members by number or name; a shape that is no group raises 1004.
 Shape,HasChart,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -2488,17 +2488,17 @@ Shape,PickUp,method,PickUp(),,MISSING,,
 Shape,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
 Shape,Placement,property,As XlPlacement,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json; tests/fixtures/shape_structure_moves.json,"Read and set as the anchor's editAs. xlMoveAndSize moves and sizes the shape with the columns and rows under it, rows grown by their fonts included, xlMove moves it, xlFreeFloating leaves it; values other than 1 to 3 are not implemented. Rows grown by wrapped text are not measured."
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
-Shape,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
+Shape,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
 Shape,RerouteConnections,method,RerouteConnections(),,MISSING,,
 Shape,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,The file keeps the angle as given; reads wrap it into 0 to 360. Between 45 and 135 or 225 and 315 degrees the anchor holds the box turned on its centre.
 Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,Select,method,Select([Replace As Variant]),,UNASSESSED,,
 Shape,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
-Shape,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
+Shape,Shadow,"property, read-only",As ShadowFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
 Shape,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,SmartArt,"property, read-only",As SmartArt,,MISSING,,
-Shape,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
+Shape,SoftEdge,"property, read-only",As SoftEdgeFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
 Shape,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
 Shape,TextFrame,"property, read-only",As TextFrame,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.

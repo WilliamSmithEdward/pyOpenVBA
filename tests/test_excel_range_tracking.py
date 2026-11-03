@@ -45,9 +45,7 @@ def test_a_chart_of_several_areas_as_excel_made_it(app: ExcelApplication, index:
 
 HOLDING: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/range_holding.json').read_text(encoding='utf-8'))
-#: For Each over a Range that has gone: Excel runs the body once and then raises 92 at Next, under On Error Resume Next.
-HOLDING_OUT = ('For Each c In r\ns = s & "in"',)
-KEPT = [index for index, (case, _) in enumerate(HOLDING['cases']) if not any(text in case for text in HOLDING_OUT)]
+KEPT = list(range(len(HOLDING['cases'])))
 
 
 @pytest.fixture(scope='module')

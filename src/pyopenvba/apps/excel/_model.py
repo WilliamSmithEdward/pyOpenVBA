@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
     from pyopenvba.apps.excel._charts_file import XmlElement
+    from pyopenvba.apps.excel._allow_edit_ranges import SheetRanges
     from pyopenvba.apps.excel._external_links import LinkedBook
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
@@ -2893,6 +2894,8 @@ class Worksheet(ExcelObject):
         self.protection: SheetProtection | None = None
         #: The Allow options the last Protect gave, which Unprotect leaves in place.
         self.protection_allows: frozenset[str] = frozenset()
+        #: The ranges a protected sheet lets a macro edit, once asked for (see _allow_edit_ranges).
+        self.allow_edit_ranges: SheetRanges | None = None
         #: True once a macro protects or unprotects the sheet, so a save writes its sheetProtection again.
         self.protection_changed = False
         #: EnableSelection: xlNoRestrictions, 0, until a macro sets it.

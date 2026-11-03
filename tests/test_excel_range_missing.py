@@ -49,3 +49,14 @@ def test_what_is_left_says_so(index: int) -> None:
 def test_a_document_with_a_doctype_is_refused_before_any_entity_is_read(document: str) -> None:
     with pytest.raises(XPathError):
         select(document, '//a')
+
+
+def test_an_entity_with_no_declaration_is_refused() -> None:
+    with pytest.raises(XPathError):
+        select('<a>&nope;</a>', '//a')
+
+
+def test_a_document_too_deep_to_walk_answers_rather_than_crashes() -> None:
+    depth = 200_000
+    with pytest.raises(XPathError):
+        select('<a>' * depth + '</a>' * depth, '//a')

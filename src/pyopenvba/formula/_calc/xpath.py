@@ -10,6 +10,7 @@ import math
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import NoReturn
 from xml.parsers import expat
 
 
@@ -88,12 +89,15 @@ def parse_document(text: str) -> Node:
         else:
             stack[-1].children.append(numbered(Node("text", text=data, parent=stack[-1])))
 
-    def refuse(*_: object) -> None:
-        raise XPathError("a document with a DOCTYPE")
+    def refuse(*_: object) -> NoReturn:
+        raise XPathError("a document with a DTD or an entity")
 
     parser = expat.ParserCreate(namespace_separator=" ")
     parser.namespace_prefixes = True
     parser.ordered_attributes = False
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    parser.EntityDeclHandler = refuse
+    parser.ExternalEntityRefHandler = refuse
     parser.StartElementHandler = start
     parser.EndElementHandler = end
     parser.CharacterDataHandler = characters
@@ -630,8 +634,8 @@ def _function(name: str, given: list[_Expression]) -> _Expression:
 def select(document: str, path: str) -> list[Node]:
     """The nodes ``path`` selects in ``document``, in document order. A path that answers anything else fails, as
     FILTERXML has it: true(), a number, count()."""
-    root = parse_document(document)
     try:
+        root = parse_document(document)
         answer = _Parser(path).whole()(_Context(root, 1, 1))
     except RecursionError as failure:
         raise XPathError("too deep") from failure

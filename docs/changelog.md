@@ -15,6 +15,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Chart.ChartStyle` from 1 to 48, `ClearToMatchStyle` and `ChartWizard`. `ChartStyle` from 201,
+  setting `ChartColor` and the layouts of `ApplyLayout` are refused.
 - `Chart.SetElement` on column, bar, line, scatter, area, pie and doughnut charts: titles,
   legends, axes, axis titles, gridlines, data labels, data tables, error bars, drop and
   high-low lines and up-down bars. A data label callout, taking away the plot area and an

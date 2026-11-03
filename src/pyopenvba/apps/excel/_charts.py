@@ -186,6 +186,8 @@ class ChartState:
     not_available_as_blank: bool = True
     #: False when an imported chart spells one of the four display options in a way the model does not read.
     display_readable: bool = True
+    #: ChartStyle, from 1 to 48.
+    chart_style: int = 2
     data_table: bool = False
     #: Whether its data table shows legend keys, as it does until SetElement says otherwise.
     data_table_keys: bool = True
@@ -1172,13 +1174,71 @@ class Chart(Created):
 
     @member
     def ChartStyle(self) -> object:
-        self.made()
-        return VBAInt(2, 'Long')
+        return VBAInt(self.made().chart_style, 'Long')
+
+    @setter('ChartStyle')
+    def _chart_style(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        self.admit_change()
+        if wanted < 1 or wanted == 49:
+            raise error(5, 'Invalid procedure call or argument')
+        if wanted > 48:
+            # The styles from 201 bring parts of their own, and the numbers between were not measured.
+            raise VBAUnsupportedError('A chart style past 48 is not implemented')
+        self.changed()
+        self.state.chart_style = wanted
 
     @member
     def ChartColor(self) -> object:
-        self.made()
-        return VBAInt(2, 'Long')
+        # The eight colour sets repeat through the 48 styles (tests/fixtures/chart_layouts.json).
+        return VBAInt((self.made().chart_style - 1) % 8 + 1, 'Long')
+
+    @setter('ChartColor')
+    def _chart_color(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        self.admit_change()
+        if not 1 <= wanted <= 26:
+            raise error(5, 'Invalid procedure call or argument')
+        raise VBAUnsupportedError('ChartColor, which brings parts of its own, is not implemented')
+
+    @method
+    def ClearToMatchStyle(self) -> object:
+        """Takes away every look set on the chart, leaving what it has and its style."""
+        self.admit_change()
+        state = self.state
+        if any(entry.data_labels for entry in state.series):
+            raise VBAUnsupportedError('ClearToMatchStyle on a chart with data labels is not implemented')
+        self.changed()
+        state.element_looks.clear()
+        state.element_fonts.clear()
+        state.title_look = TitleLook()
+        for entry in state.series:
+            entry.format_look = None
+            entry.points.clear()
+        return True
+
+    @method
+    def ApplyLayout(self, Layout: object, ChartType: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        del ChartType
+        wanted = int(to_integer(Layout, 'Long'))
+        self.admit_change()
+        # A line chart has a twelfth (tests/fixtures/chart_layouts.json).
+        lines = CHART_TYPES.get(shown_type(self.state)) in ('line', 'lineMarkers')
+        if not 1 <= wanted <= (12 if lines else 11):
+            raise error(5, 'Invalid procedure call or argument')
+        raise VBAUnsupportedError('ApplyLayout, which differs by the kind of chart, is not implemented')
+
+    @method
+    def ChartWizard(self, Source: object = MISSING, Gallery: object = MISSING, Format: object = MISSING,  # noqa: N803
+                    PlotBy: object = MISSING, CategoryLabels: object = MISSING,  # noqa: N803
+                    SeriesLabels: object = MISSING, HasLegend: object = MISSING,  # noqa: N803
+                    Title: object = MISSING, CategoryTitle: object = MISSING, ValueTitle: object = MISSING,  # noqa: N803
+                    ExtraTitle: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._chart_elements import chart_wizard
+
+        del ExtraTitle
+        return chart_wizard(self, Source, Gallery, Format, PlotBy, CategoryLabels, SeriesLabels, HasLegend, Title,
+                            CategoryTitle, ValueTitle)
 
     def single_levels(self, what: str) -> None:
         state = self.made()

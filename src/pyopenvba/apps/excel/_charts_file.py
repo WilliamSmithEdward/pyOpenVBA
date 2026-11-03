@@ -595,6 +595,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda found: found.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1)
             if found.group(0).startswith('<c:valAx>' + identifier) else found.group(0), xml)
+    if state.chart_style != 2:
+        xml = xml.replace('<c14:style val="102"/>', f'<c14:style val="{100 + state.chart_style}"/>', 1).replace(
+            '<c:style val="2"/>', f'<c:style val="{state.chart_style}"/>', 1)
     if state.element_labels is not None and '</c:ser>' in xml:
         xml = _with_element_labels(xml, *state.element_labels)
     if state.data_table:

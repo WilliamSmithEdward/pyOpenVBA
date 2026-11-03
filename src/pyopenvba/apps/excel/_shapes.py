@@ -468,6 +468,30 @@ class ShapeRange(VBACollection, Created):
     def ConnectorFormat(self) -> object:
         return RangeConnector(self)
 
+    @member
+    def Shadow(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeShadow
+
+        return RangeShadow(self)
+
+    @member
+    def Glow(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeGlow
+
+        return RangeGlow(self)
+
+    @member
+    def SoftEdge(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeSoftEdge
+
+        return RangeSoftEdge(self)
+
+    @member
+    def Reflection(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeReflection
+
+        return RangeReflection(self)
+
     @method
     def PickUp(self) -> object:
         """One shape's look; a range of more is out of range (tests/fixtures/shape_painter.json)."""

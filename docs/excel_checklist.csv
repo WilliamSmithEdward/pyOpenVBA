@@ -2629,7 +2629,7 @@ ShapeRange,Distribute,method,"Distribute(DistributeCmd As MsoDistributeCmd, Rela
 ShapeRange,Duplicate,method,Duplicate() As ShapeRange,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy of each shape, after every other shape, as one ShapeRange."
 ShapeRange,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_range_fill_line.json; tests/test_excel_shape_range_fill_line.py,What its shapes with a fill share; hiding leaves all but the first a bare noFill.
 ShapeRange,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape turned over where it stands, its rotation mirrored; other commands raise -2147024809."
-ShapeRange,Glow,"property, read-only",As GlowFormat,,MISSING,,
+ShapeRange,Glow,"property, read-only",As GlowFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,A set reaches every shape; reads what they share or Excel's mixed value.
 ShapeRange,GraphicStyle,property,As MsoGraphicStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
 ShapeRange,Group,method,Group() As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"One group in the topmost member's place, members in sheet order, box their union, named Group and the next number, the next id; one shape raises 1004. Loaded, rotated or flipped shapes, charts and controls are refused."
 ShapeRange,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
@@ -2651,7 +2651,7 @@ ShapeRange,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/missin
 ShapeRange,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,PickUp,method,PickUp(),,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,One shape; a range of more is out of range.
 ShapeRange,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
-ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
+ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,"A set reaches every shape; types that differ read mixed, measurements the last shape's."
 ShapeRange,Regroup,method,Regroup() As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The ungrouped shapes made a group again, with the next name and id; shapes from no group raise 1004. Regrouping after a member moved, or part of the shapes, is refused."
 ShapeRange,RerouteConnections,method,RerouteConnections(),,MISSING,,
 ShapeRange,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set turns every shape."
@@ -2659,9 +2659,9 @@ ShapeRange,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalS
 ShapeRange,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
 ShapeRange,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/excel_everyday_10.json,"Rectangles, ovals, lines and text boxes join the selection; other kinds of shape do not yet"
 ShapeRange,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
-ShapeRange,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
+ShapeRange,Shadow,"property, read-only",As ShadowFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,A set reaches every shape; reads what they share or Excel's mixed value. A preset Type reports itself.
 ShapeRange,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
-ShapeRange,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
+ShapeRange,SoftEdge,"property, read-only",As SoftEdgeFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,A set reaches every shape; radii that differ read -1.
 ShapeRange,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
 ShapeRange,TextFrame,"property, read-only",As TextFrame,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,One shape's; several are refused.
 ShapeRange,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,One shape's; several are refused.

@@ -5,11 +5,12 @@ The file writes each trendline as a trendline element after the series' data lab
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape_text
 from pyopenvba.apps.excel._creator import Created
+from pyopenvba.shapes._values import FillLine
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer, to_number, to_text
@@ -39,6 +40,8 @@ class TrendlineState:
     name: str | None = None
     equation: bool = False
     r_squared: bool = False
+    #: What Border has set of its line (tests/fixtures/chart_borders.json).
+    look: FillLine = field(default_factory=FillLine)
 
 
 def _unable(what: str) -> None:
@@ -78,9 +81,13 @@ def _checked_forward(value: object) -> float:
 
 
 def markup(lines: list[TrendlineState]) -> str:
+    from pyopenvba.apps.excel._chart_format import plain_line
+
     written: list[str] = []
     for line in lines:
         body = f'<c:name>{escape_text(line.name)}</c:name>' if line.name is not None else ''
+        stroke = plain_line(line.look)
+        body += f'<c:spPr>{stroke}</c:spPr>' if stroke else ''
         body += f'<c:trendlineType val="{line.kind}"/>'
         if line.kind == 'poly':
             body += f'<c:order val="{line.order}"/>'
@@ -161,11 +168,33 @@ class Trendlines(VBACollection, Created):
         return Trendline(series, line)
 
 
+class _TrendlineLine:
+    """The line of a trendline, for its Border."""
+
+    def __init__(self, owner: Trendline) -> None:
+        self.owner = owner
+
+    def look(self) -> FillLine:
+        self.owner.vba_get('Index', [])
+        return self.owner.line.look
+
+    def change(self) -> FillLine:
+        self.owner.series.chart.changed()
+        return self.look()
+
+
 class Trendline(Created):
     vba_type_name = 'Trendline'
 
     def __init__(self, series: Series, line: TrendlineState) -> None:
         self.series, self.line = series, line
+
+    @member
+    def Border(self) -> object:
+        from pyopenvba.apps.excel._chart_borders import TRENDLINE, ChartBorder
+
+        self._index()
+        return ChartBorder(_TrendlineLine(self), TRENDLINE, self, self.series.chart.sheet.book.stylesheet.colors)
 
     def _index(self) -> int:
         self.series.position()

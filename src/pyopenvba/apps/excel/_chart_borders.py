@@ -1,6 +1,7 @@
 """The Border of a chart's elements, the older way to reach their line, over the same look as Format.Line
 (tests/fixtures/chart_borders.json). Elements fall into three families, which read and write differently: those with a
-grey line of their own, a series or point with none, and the boxes around text and the plot with none."""
+grey line of their own, a series or point with none, and the boxes around text and the plot with none. Trendlines and
+error bars have a black line and a family each."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -36,11 +37,19 @@ class Family:
     #: What Weight and LineStyle read with nothing set.
     weight: int = 2
     style: int = _AUTOMATIC
+    #: Whether LineStyle gives a line with nothing set a width.
+    styles_width: bool = True
+    #: Whether a line drawn by Weight still reads as automatic.
+    weight_reads_automatic: bool = False
+    #: Whether the line can be hidden.
+    hides: bool = True
 
 
 GREY = Family(9013641, 12700, 2, False, True)
 SERIES = Family(-2, 25400, 2, True, True)
 BOX = Family(-2, 25400, _MEDIUM, False, False)
+TRENDLINE = Family(0, 12700, 2, True, True, styles_width=False, weight_reads_automatic=True)
+ERROR_BARS = Family(0, 12700, 2, False, True, hides=False)
 
 
 def family_of_series(kind: str, accent: int) -> Family:
@@ -74,7 +83,7 @@ def _weight_of(width: int) -> int:
 
 def _clear(look: FillLine) -> None:
     look.line_rgb, look.line_width, look.line_dash, look.line_cap = None, None, None, None
-    look.line_off = False
+    look.line_off = look.line_by_weight = False
 
 
 class ChartBorder(Created):
@@ -104,7 +113,7 @@ class ChartBorder(Created):
     def _paint(self, rgb: str) -> None:
         self.line.look()
         look = self.line.change()
-        look.line_off = False
+        look.line_off = look.line_by_weight = False
         look.line_rgb = rgb
         look.line_dash = look.line_dash or 'solid'
 
@@ -113,7 +122,7 @@ class ChartBorder(Created):
         look = self.line.look()
         if look.line_off:
             return VBAInt(_NONE, 'Long')
-        if look.line_rgb is None:
+        if look.line_rgb is None or look.line_by_weight:
             return VBAInt(_AUTOMATIC, 'Long')
         return VBAInt(self.colours.nearest(look.line_rgb), 'Long')
 
@@ -123,6 +132,8 @@ class ChartBorder(Created):
         if wanted == _AUTOMATIC:
             self._automatic()
         elif wanted == _NONE:
+            if not self.family.hides:
+                raise error(-2147467259, 'Automation error\nUnspecified error ')
             self._hide()
         elif 1 <= wanted <= 56:
             self._paint(self.colours.indexed[wanted + 7])
@@ -150,12 +161,15 @@ class ChartBorder(Created):
         look.line_width = _WIDTHS[wanted]
         if untouched and self.family.draws:
             look.line_rgb, look.line_dash = '000000', 'solid'
+            look.line_by_weight = self.family.weight_reads_automatic
 
     @member
     def LineStyle(self) -> object:
         look = self.line.look()
         if look.line_off:
             return VBAInt(_NONE, 'Long')
+        if look.line_by_weight:
+            return VBAInt(_AUTOMATIC, 'Long')
         if look.line_dash is not None:
             return VBAInt(next((key for key, name in _DASHES.items() if name == look.line_dash), _CONTINUOUS), 'Long')
         return VBAInt(_CONTINUOUS if look.line_rgb is not None else self.family.style, 'Long')
@@ -166,13 +180,15 @@ class ChartBorder(Created):
         if wanted == _AUTOMATIC:
             self._automatic()
         elif wanted == _NONE:
+            if not self.family.hides:
+                raise error(1004, 'Unable to set the LineStyle property of the Border class')
             self._hide()
         elif wanted in _DASHES:
             before = self.line.look()
             look = self.line.change()
-            if self.family.draws and before.line_width is None:
+            if self.family.draws and self.family.styles_width and before.line_width is None:
                 look.line_width = 12700
-            look.line_off = False
+            look.line_off = look.line_by_weight = False
             look.line_rgb = look.line_rgb or '000000'
             look.line_dash = _DASHES[wanted]
         else:

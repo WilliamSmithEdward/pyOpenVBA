@@ -15,6 +15,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Chart.SetElement` on column, line-with-markers and pie charts: titles, legends, axes,
+  axis titles, gridlines, data labels, data tables, error bars, drop and high-low lines and
+  up-down bars. A data label callout, taking away the plot area and other kinds of chart are
+  refused.
 - `Chart.FullSeriesCollection`, and a series found by name in it or in `SeriesCollection`.
   `IsFiltered = True` is refused.
 - `Select` on a chart's legend, legend entries, title, axes, axis titles, gridlines,

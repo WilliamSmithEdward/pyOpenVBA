@@ -166,7 +166,10 @@ class Axis(Created):
 
     def read(self) -> None:
         self.chart.admit_read()
-        if not self.valid or self.chart.state.axes.get(self.entry.kind) is not self.entry:
+        if not self.valid:
+            # A chart without axes (tests/fixtures/chart_set_element.json).
+            raise error(-2147467261, "Automation error\nInvalid pointer")
+        if self.chart.state.axes.get(self.entry.kind) is not self.entry:
             raise error(440, "Automation error")
 
     def change(self) -> None:

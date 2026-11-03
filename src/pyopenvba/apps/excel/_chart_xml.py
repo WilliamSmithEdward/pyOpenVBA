@@ -96,6 +96,7 @@ class SeriesData:
 #: Chart.HasDataTable, as Excel writes the table (tests/fixtures/chart_series_more.json).
 DATA_TABLE = ('<c:dTable><c:showHorzBorder val="1"/><c:showVertBorder val="1"/><c:showOutline val="1"/>'
               '<c:showKeys val="1"/></c:dTable>')
+DATA_TABLE_WITHOUT_KEYS = DATA_TABLE.replace('<c:showKeys val="1"/>', '<c:showKeys val="0"/>')
 
 
 # -- the pieces every kind shares ----------------------------------------

@@ -14,7 +14,7 @@ from pyopenvba.formula._calc.xpath import XPathError, select
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/range_missing.json').read_text(encoding='utf-8'))
 #: What the model does not have yet, by what each case asks for.
-GAPS = {'FlashFill': 'Range.FlashFill'}
+GAPS: dict[str, str] = {}
 KEPT = [index for index, (case, _) in enumerate(RECORD['cases']) if not any(text in case for text in GAPS)]
 LEFT = [index for index in range(len(RECORD['cases'])) if index not in KEPT]
 

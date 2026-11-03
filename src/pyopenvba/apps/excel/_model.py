@@ -6022,6 +6022,12 @@ class Range(ExcelObject):
         return copy_from_recordset(self, Data, MaxRows, MaxColumns)
 
     @method
+    def FlashFill(self) -> object:
+        from pyopenvba.apps.excel._flash_fill import flash_fill
+
+        return flash_fill(self)
+
+    @method
     def ResetContents(self) -> object:
         """On a cell with no control in it, which is every cell here, the same as ClearContents
         (tests/fixtures/range_missing.json)."""

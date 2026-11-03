@@ -1,0 +1,592 @@
+{
+ "measured_at": "2026-11-03T21:47:23.835406+00:00",
+ "source": "Public Function Fill(ByVal inputs As String, ByVal seconds As String, ByVal examples As String, ByVal first As Long, ByVal last As Long) As String\n    Dim ws As Object, i As Long, s As String, column As Long, n As Long\n    Application.DisplayAlerts = False\n    Set ws = Workbooks.Add(xlWBATWorksheet).Worksheets(1)\n    ws.Cells(1, 1).Value = \"In\"\n    column = 2\n    If seconds <> \"\" Then column = 3\n    ws.Cells(1, column).Value = \"Out\"\n    n = 0\n    Dim parts As Variant\n    parts = Split(inputs, \"|\")\n    For i = 0 To UBound(parts)\n        If parts(i) <> \"\" Then ws.Cells(i + 2, 1).Value = parts(i)\n        n = n + 1\n    Next\n    If seconds <> \"\" Then\n        parts = Split(seconds, \"|\")\n        ws.Cells(1, 2).Value = \"In2\"\n        For i = 0 To UBound(parts)\n            ws.Cells(i + 2, 2).Value = parts(i)\n        Next\n    End If\n    parts = Split(examples, \"|\")\n    For i = 0 To UBound(parts)\n        If parts(i) <> \"\" Then ws.Cells(i + 2, column).Value = parts(i)\n    Next\n    If last = 0 Then last = n + 1\n    On Error Resume Next\n    ws.Range(ws.Cells(first, column), ws.Cells(last, column)).FlashFill\n    s = Err.Number & \"|\"\n    On Error GoTo 0\n    For i = 2 To n + 1\n        s = s & ws.Cells(i, column).Value & \";\"\n    Next\n    ws.Parent.Close False\n    Application.DisplayAlerts = True\n    Fill = s\nEnd Function\n",
+ "cases": {
+  "first_word": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann"
+   ],
+   "part": null,
+   "answer": "0|Ann;Bob;Cy;Dee;"
+  },
+  "last_word": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Lee"
+   ],
+   "part": null,
+   "answer": "0|Lee;Ray;Poe;Fox;"
+  },
+  "first_word_two_examples": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann",
+    "Bob"
+   ],
+   "part": null,
+   "answer": "0|Ann;Bob;Cy;Dee;"
+  },
+  "middle_word": {
+   "inputs": [
+    "Ann May Lee",
+    "Bob Jo Ray",
+    "Cy Di Poe",
+    "Dee Al Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "May"
+   ],
+   "part": null,
+   "answer": "0|May;Jo;Di;Al;"
+  },
+  "last_of_three": {
+   "inputs": [
+    "Ann May Lee",
+    "Bob Jo Ray",
+    "Cy Di Poe",
+    "Dee Al Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Lee"
+   ],
+   "part": null,
+   "answer": "0|Lee;Ray;Poe;Fox;"
+  },
+  "first_of_three": {
+   "inputs": [
+    "Ann May Lee",
+    "Bob Jo Ray",
+    "Cy Di Poe",
+    "Dee Al Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann"
+   ],
+   "part": null,
+   "answer": "0|Ann;Bob;Cy;Dee;"
+  },
+  "first_letter": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "A"
+   ],
+   "part": null,
+   "answer": "0|A;B;C;D;"
+  },
+  "initials": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "AL"
+   ],
+   "part": null,
+   "answer": "0|AL;BR;CP;DF;"
+  },
+  "initials_dotted": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "A.L."
+   ],
+   "part": null,
+   "answer": "0|A.L.;B.R.;C.P.;D.F.;"
+  },
+  "initials_two_examples": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "AL",
+    "BR"
+   ],
+   "part": null,
+   "answer": "0|AL;BR;CP;DF;"
+  },
+  "swap": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Lee, Ann"
+   ],
+   "part": null,
+   "answer": "0|Lee, Ann;Ray, Bob;Poe, Cy;Fox, Dee;"
+  },
+  "swap_space": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Lee Ann"
+   ],
+   "part": null,
+   "answer": "0|Lee Ann;Ray Bob;Poe Cy;Fox Dee;"
+  },
+  "upper_first": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "ANN"
+   ],
+   "part": null,
+   "answer": "0|ANN;BOB;CY;DEE;"
+  },
+  "lower_whole": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "ann lee"
+   ],
+   "part": null,
+   "answer": "0|ann lee;bob ray;cy poe;dee fox;"
+  },
+  "upper_whole": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "ANN LEE"
+   ],
+   "part": null,
+   "answer": "0|ANN LEE;BOB RAY;CY POE;DEE FOX;"
+  },
+  "prefix_literal": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Mr Ann"
+   ],
+   "part": null,
+   "answer": "0|Mr Ann;Mr Bob;Mr Cy;Mr Dee;"
+  },
+  "suffix_literal": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann!"
+   ],
+   "part": null,
+   "answer": "0|Ann!;Bob!;Cy!;Dee!;"
+  },
+  "whole_copy": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann Lee"
+   ],
+   "part": null,
+   "answer": "0|Ann Lee;Bob Ray;Cy Poe;Dee Fox;"
+  },
+  "mail_user": {
+   "inputs": [
+    "ann.lee@x.com",
+    "bob.ray@y.org",
+    "cy.poe@z.net",
+    "dee.fox@w.io"
+   ],
+   "seconds": null,
+   "examples": [
+    "ann.lee"
+   ],
+   "part": null,
+   "answer": "0|ann.lee;bob.ray;cy.poe;dee.fox;"
+  },
+  "mail_domain": {
+   "inputs": [
+    "ann.lee@x.com",
+    "bob.ray@y.org",
+    "cy.poe@z.net",
+    "dee.fox@w.io"
+   ],
+   "seconds": null,
+   "examples": [
+    "x.com"
+   ],
+   "part": null,
+   "answer": "0|x.com;y.org;z.net;w.io;"
+  },
+  "mail_first": {
+   "inputs": [
+    "ann.lee@x.com",
+    "bob.ray@y.org",
+    "cy.poe@z.net",
+    "dee.fox@w.io"
+   ],
+   "seconds": null,
+   "examples": [
+    "ann"
+   ],
+   "part": null,
+   "answer": "0|ann;bob;cy;dee;"
+  },
+  "mail_tld": {
+   "inputs": [
+    "ann.lee@x.com",
+    "bob.ray@y.org",
+    "cy.poe@z.net",
+    "dee.fox@w.io"
+   ],
+   "seconds": null,
+   "examples": [
+    "com"
+   ],
+   "part": null,
+   "answer": "0|com;org;net;io;"
+  },
+  "code_middle": {
+   "inputs": [
+    "AB-123-X",
+    "CD-456-Y",
+    "EF-789-Z",
+    "GH-012-W"
+   ],
+   "seconds": null,
+   "examples": [
+    "123"
+   ],
+   "part": null,
+   "answer": "0|123;456;789;12;"
+  },
+  "code_first": {
+   "inputs": [
+    "AB-123-X",
+    "CD-456-Y",
+    "EF-789-Z",
+    "GH-012-W"
+   ],
+   "seconds": null,
+   "examples": [
+    "AB"
+   ],
+   "part": null,
+   "answer": "0|AB;CD;EF;GH;"
+  },
+  "code_last": {
+   "inputs": [
+    "AB-123-X",
+    "CD-456-Y",
+    "EF-789-Z",
+    "GH-012-W"
+   ],
+   "seconds": null,
+   "examples": [
+    "X"
+   ],
+   "part": null,
+   "answer": "0|X;Y;Z;W;"
+  },
+  "code_no_dashes": {
+   "inputs": [
+    "AB-123-X",
+    "CD-456-Y",
+    "EF-789-Z",
+    "GH-012-W"
+   ],
+   "seconds": null,
+   "examples": [
+    "AB123X"
+   ],
+   "part": null,
+   "answer": "0|AB123X;CD456Y;EF789Z;GH012W;"
+  },
+  "first_two_chars": {
+   "inputs": [
+    "AB-123-X",
+    "CD-456-Y",
+    "EF-789-Z",
+    "GH-012-W"
+   ],
+   "seconds": null,
+   "examples": [
+    "AB-"
+   ],
+   "part": null,
+   "answer": "0|AB-;CD-;EF-;GH-;"
+  },
+  "two_columns_join": {
+   "inputs": [
+    "Ann",
+    "Bob",
+    "Cy",
+    "Dee"
+   ],
+   "seconds": [
+    "Lee",
+    "Ray",
+    "Poe",
+    "Fox"
+   ],
+   "examples": [
+    "Ann Lee"
+   ],
+   "part": null,
+   "answer": "0|Ann Lee;Bob Ray;Cy Poe;Dee Fox;"
+  },
+  "two_columns_second": {
+   "inputs": [
+    "Ann",
+    "Bob",
+    "Cy",
+    "Dee"
+   ],
+   "seconds": [
+    "Lee",
+    "Ray",
+    "Poe",
+    "Fox"
+   ],
+   "examples": [
+    "Lee"
+   ],
+   "part": null,
+   "answer": "0|Lee;Ray;Poe;Fox;"
+  },
+  "two_columns_mail": {
+   "inputs": [
+    "Ann",
+    "Bob",
+    "Cy",
+    "Dee"
+   ],
+   "seconds": [
+    "Lee",
+    "Ray",
+    "Poe",
+    "Fox"
+   ],
+   "examples": [
+    "ann.lee@x.com"
+   ],
+   "part": null,
+   "answer": "0|ann.lee@x.com;bob.ray@x.com;cy.poe@x.com;dee.fox@x.com;"
+  },
+  "numbers_as_text": {
+   "inputs": [
+    "12-5",
+    "34-6",
+    "56-7",
+    "78-8"
+   ],
+   "seconds": null,
+   "examples": [
+    "12"
+   ],
+   "part": null,
+   "answer": "0|12;12;12;12;"
+  },
+  "numbers_real": {
+   "inputs": [
+    1234,
+    5678,
+    9012,
+    3456
+   ],
+   "seconds": null,
+   "examples": [
+    "12"
+   ],
+   "part": null,
+   "answer": "0|12;56;90;34;"
+  },
+  "no_relation": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "zzz"
+   ],
+   "part": null,
+   "answer": "0|zzz;zzz;zzz;zzz;"
+  },
+  "contradiction": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann",
+    "Ray"
+   ],
+   "part": null,
+   "answer": "1004|Ann;Ray;;;"
+  },
+  "uneven_words": {
+   "inputs": [
+    "Ann Lee",
+    "Bob",
+    "Cy Di Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann"
+   ],
+   "part": null,
+   "answer": "0|Ann;Bob;Cy;Dee;"
+  },
+  "uneven_last": {
+   "inputs": [
+    "Ann Lee",
+    "Bob",
+    "Cy Di Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Lee"
+   ],
+   "part": null,
+   "answer": "0|Lee;Bob;Poe;Fox;"
+  },
+  "blank_input": {
+   "inputs": [
+    "Ann Lee",
+    "",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann"
+   ],
+   "part": null,
+   "answer": "0|Ann;;Cy;Dee;"
+  },
+  "only_part_of_column": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann"
+   ],
+   "part": [
+    2,
+    3
+   ],
+   "answer": "0|Ann;Bob;;;"
+  },
+  "single_row_range": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann"
+   ],
+   "part": [
+    2,
+    2
+   ],
+   "answer": "0|Ann;Bob;Cy;Dee;"
+  },
+  "existing_below": {
+   "inputs": [
+    "Ann Lee",
+    "Bob Ray",
+    "Cy Poe",
+    "Dee Fox"
+   ],
+   "seconds": null,
+   "examples": [
+    "Ann",
+    null,
+    "keep"
+   ],
+   "part": null,
+   "answer": "1004|Ann;;keep;;"
+  }
+ }
+}

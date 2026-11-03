@@ -397,7 +397,7 @@ class DataLabel(Created):
     # -- where it stands
 
     def point_state(self) -> PointState | None:
-        return self.series.entry.points.get(self.index - 1)
+        return self.series.entry.points.get(self.series.point_key(self.index - 1))
 
     def _stale(self) -> bool:
         return self.series.entry.label_generation != self.generation
@@ -410,14 +410,17 @@ class DataLabel(Created):
         """Its state, made if it had none, with the unique id its dLbl takes."""
         chart = self.series.chart
         chart.changed()
-        state = self.series.entry.points.setdefault(self.index - 1, PointState())
+        state = self.series.entry.points.setdefault(self.series.point_key(self.index - 1), PointState())
+        if state.drawn_at < 0:
+            state.drawn_at = self.index - 1
         if state.label_unique < 0:
             state.label_unique, chart.state.next_unique = chart.state.next_unique, chart.state.next_unique + 1
         return state.label_own
 
     def _touched(self) -> None:
         """Characters reads back from now on, with nothing in the file to show for it."""
-        self.series.entry.points.setdefault(self.index - 1, PointState()).label_own.touched = True
+        point = self.series.entry.points.setdefault(self.series.point_key(self.index - 1), PointState())
+        point.label_own.touched = True
 
     def shows_anything(self) -> bool:
         state = self.point_state()
@@ -876,7 +879,7 @@ class DataLabel(Created):
         self._showing()
         chart = self.series.chart
         chart.changed()
-        state = self.series.entry.points.setdefault(self.index - 1, PointState())
+        state = self.series.entry.points.setdefault(self.series.point_key(self.index - 1), PointState())
         if state.label_unique < 0:
             state.label_unique, chart.state.next_unique = chart.state.next_unique, chart.state.next_unique + 1
         state.label, state.label_own = False, PointLabel()

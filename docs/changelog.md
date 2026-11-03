@@ -781,6 +781,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Hiding every cell of a series now takes it out of `SeriesCollection` and
+  `FullSeriesCollection` until it is shown again, instead of being refused. It
+  stays in the saved file with no cached points. Hiding all of a chart's
+  categories leaves its series without them. A point's look and label stay with
+  their cell: hidden, they wait, and the file numbers the rest among the cells
+  shown. `NewSeries` and setting `PlotOrder` beside such a series stay refused.
 - Taking away the cells a chart reads now does what Excel does instead of being
   refused. A reference becomes `#REF!`. A series whose values go keeps one point
   and loses its own look, its points' looks and its labels, and `Formula` raises

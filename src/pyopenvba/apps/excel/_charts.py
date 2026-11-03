@@ -77,6 +77,8 @@ class PointLabel:
 @dataclass
 class PointState:
     """What was set of one point, each None while its series gives it, and the unique ids of its dPt and dLbl."""
+    #: Its place among the cells shown when it was made; moved from there it loses its unique ids.
+    drawn_at: int = field(default=-1, compare=False)
 
     look: FillLine | None = None
     invert: bool | None = None
@@ -198,6 +200,9 @@ class ChartState:
     chart_style: int = 2
     #: Every series in order, while any is filtered out of ``series``, which keeps those drawn.
     full_series: list[SeriesState] = field(default_factory=lambda: [])
+    #: Those whose cells are all hidden, who leave SeriesCollection and FullSeriesCollection until they are shown
+    #: again and stay in the file (tests/fixtures/chart_hidden_cells.json); kept in full_series meanwhile.
+    out_of_sight: list[SeriesState] = field(default_factory=lambda: [])
     data_table: bool = False
     #: Whether its data table shows legend keys, as it does until SetElement says otherwise.
     data_table_keys: bool = True
@@ -314,6 +319,42 @@ def shown_cells(sheet: Worksheet, formula: str) -> list[list[str]]:
 def lost(reference: str) -> bool:
     """Whether the cells a chart's reference read have been taken away (tests/fixtures/chart_lost_cells.json)."""
     return reference.endswith('#REF!')
+
+
+def any_shown(sheet: Worksheet, formula: str) -> bool:
+    """Whether a cell of a reference is not hidden; a reference the model cannot follow counts as shown."""
+    try:
+        areas = parse_reference(formula)
+        for area in areas:
+            owner = sheet.book.sheet_named(area.sheet) if area.sheet else sheet
+            if (any(not owner.dims.row_hidden(row) for row in range(area.top, area.bottom + 1))
+                    and any(not owner.dims.column_hidden(column) for column in range(area.left, area.right + 1))):
+                return True
+    except (ValueError, KeyError, VBAUnsupportedError, VBARuntimeError):
+        return True
+    return False
+
+
+def settle_hidden(sheet: Worksheet, state: ChartState) -> None:
+    """The series out of sight as the cells stand now, with PlotVisibleOnly on."""
+    every = state.full_series or state.series
+    gone = [entry for entry in every if state.visible_only and entry.value_reference
+            and not lost(entry.value_reference) and not any_shown(sheet, entry.value_reference)]
+    if len(gone) == len(state.out_of_sight) and all(a is b for a, b in zip(gone, state.out_of_sight, strict=True)):
+        return
+    filtered = [entry for entry in every if not any(entry is drawn for drawn in state.series)
+                and not any(entry is hidden for hidden in state.out_of_sight)]
+    away = [*gone, *filtered]
+    everyone = list(every)
+    state.out_of_sight = gone
+    state.series[:] = [entry for entry in everyone if not any(entry is other for other in away)]
+    state.full_series = everyone if away else []
+
+
+def categories_gone(sheet: Worksheet, state: ChartState, entry: SeriesState) -> bool:
+    """Whether a series' categories have been taken away, or are all hidden with PlotVisibleOnly on."""
+    return lost(entry.category_reference) or bool(
+        state.visible_only and entry.category_reference and not any_shown(sheet, entry.category_reference))
 
 
 def category_levels(sheet: Worksheet, entry: SeriesState) -> list[list[str]] | None:
@@ -475,7 +516,7 @@ def plot_by(chart: ChartState) -> int:
     left to right, each name the cell above its own column and every series the same categories; xlRows (1) the same
     turned round; 0 when neither holds, as for a literal or a series moved out of order. A chart with no series reads
     xlRows, and series that fit both read the way their source data was given."""
-    if not chart.series:
+    if not chart.series and not chart.out_of_sight:
         return 1
     # A series filtered out counts, though it is not drawn.
     every = chart.full_series or chart.series
@@ -1042,6 +1083,7 @@ class Chart(Created):
                 or not any(shape is self.shape for shape in self.sheet.shapes_)
                 or self.sheet.chart_states.get(self.shape.shape_id) is not self.state):
             raise VBAUnsupportedError('Accessing a detached chart is not implemented')
+        settle_hidden(self.sheet, self.state)
 
     def admit_change(self) -> None:
         from pyopenvba.apps.excel._protection import guard_drawing
@@ -1055,6 +1097,14 @@ class Chart(Created):
         self.admit_change()
         self.state.dirty = True
         self.sheet.drawing_changed()
+
+    def nothing_out(self, what: str) -> None:
+        """As nothing_filtered, for what series with their cells all hidden make no odd answers of
+        (tests/fixtures/chart_hidden_cells.json)."""
+        state = self.state
+        away = [*state.series, *state.out_of_sight]
+        if any(not any(entry is other for other in away) for entry in state.full_series):
+            self.nothing_filtered(what)
 
     def nothing_filtered(self, what: str) -> None:
         """Refuses what gives odd answers around a series filtered out (tests/fixtures/series_filter.json)."""
@@ -1589,7 +1639,7 @@ class Chart(Created):
 
         if Source is MISSING:
             raise error(450)
-        self.nothing_filtered('SetSourceData')
+        self.nothing_out('SetSourceData')
         if Source is NOTHING:
             raise VBAUnsupportedError('Chart source Nothing object lifetime behavior is not implemented')
         if not isinstance(Source, Range):
@@ -1619,6 +1669,7 @@ class Chart(Created):
         selected = self.selected_series()
         place = -1 if selected is None else selected.position() - 1
         self.state.series[:] = series_plan
+        self.state.full_series, self.state.out_of_sight = [], []
         if selected is not None and place < len(series_plan):
             # What is selected stays selected, in the same place among the new series.
             selected.entry = series_plan[place]
@@ -2202,7 +2253,8 @@ class FullSeriesCollection(SeriesCollection):
     def vba_items(self) -> list[object]:
         self.chart.admit_read()
         state = self.chart.state
-        return [Series(self.chart, entry) for entry in state.full_series or state.series]
+        return [Series(self.chart, entry) for entry in state.full_series or state.series
+                if not any(entry is hidden for hidden in state.out_of_sight)]
 
     @method
     def NewSeries(self) -> object:
@@ -2227,16 +2279,18 @@ class Series(Created):
         raise error(-2147467261, 'This object is no longer valid.')
 
     def full_place(self) -> int:
-        full = self.chart.state.full_series
-        if full:
+        state = self.chart.state
+        if state.full_series:
             self.position()
+            full = [entry for entry in state.full_series
+                    if entry is self.entry or not any(entry is hidden for hidden in state.out_of_sight)]
             return next(index + 1 for index, entry in enumerate(full) if entry is self.entry)
         return self.position()
 
     def filtered(self) -> bool:
         state = self.chart.state
         return any(entry is self.entry for entry in state.full_series) and not any(
-            entry is self.entry for entry in state.series)
+            entry is self.entry for entry in [*state.series, *state.out_of_sight])
 
     def vba_call_by_name(self, name: str, args: Sequence[object], *, assignment: bool = False,
                          by_ref: bool = False) -> object:
@@ -2460,18 +2514,19 @@ class Series(Created):
     @member
     def XValues(self) -> object:
         values = self.categories()
-        if lost(self.entry.category_reference):
+        gone = categories_gone(self.chart.sheet, self.chart.state, self.entry)
+        if gone:
             # They read as the first series' that still has its own.
-            other = next((entry for entry in self.chart.state.series
-                          if entry.category_reference and not lost(entry.category_reference)), None)
+            other = next((entry for entry in self.chart.state.series if entry.category_reference
+                          and not categories_gone(self.chart.sheet, self.chart.state, entry)), None)
             if other is not None:
                 return Series(self.chart, other).XValues()
-        if (self.entry.category_reference and not lost(self.entry.category_reference)
+        if (self.entry.category_reference and not gone
                 and category_levels(self.chart.sheet, self.entry) is None):
             # Categories with text among them read every cell as it shows, a blank as ""; numbers with a blank among
             # them cannot be read at all (tests/fixtures/chart_multilevel_categories.json).
             if any(isinstance(value, str) for value in values):
-                if CHART_TYPES.get(shown_type(self.chart.state)) == 'scatter':
+                if CHART_TYPES.get(shown_type(self.chart.state)) == 'scatter' and not self.chart.state.out_of_sight:
                     # A scatter chart has no use for text: it reads their places
                     # (tests/fixtures/chart_hidden_cells.json).
                     values = [float(index + 1) for index in range(len(values))]
@@ -2504,32 +2559,25 @@ class Series(Created):
         return self.entry.data_labels or any(point.label is not None for point in self.entry.points.values())
 
     def values(self) -> list[object]:
-        self.refuse_hidden()
+        self.position()
         if not self.entry.value_reference:
             return self.entry.values
         if lost(self.entry.value_reference):
             return [1.0]
         return referenced_values(self.chart.sheet, self.entry.value_reference, visible=self.chart.state.visible_only)
 
-    def refuse_hidden(self) -> None:
-        """What hidden cells do beyond leaving the rest, which the model does not hold, with PlotVisibleOnly on
-        (tests/fixtures/chart_hidden_cells.json): a series wholly hidden leaves the chart, categories wholly hidden
-        leave the series, and a point's look and label stay with a cell, not a place."""
-        self.position()
-        entry, sheet = self.entry, self.chart.sheet
-        if not self.chart.state.visible_only or not entry.value_reference or lost(entry.value_reference):
-            return
-        shown = referenced_values(sheet, entry.value_reference, visible=True)
-        if not shown:
-            raise VBAUnsupportedError('A series whose cells are all hidden is not implemented')
-        if entry.category_reference and not referenced_values(sheet, entry.category_reference, visible=True):
-            raise VBAUnsupportedError('A series whose categories are all hidden is not implemented')
-        if entry.points and len(shown) != len(referenced_values(sheet, entry.value_reference)):
-            raise VBAUnsupportedError('The points of a series with hidden cells are not implemented')
+    def point_key(self, shown: int) -> int:
+        """Where a point stands among the series' cells, by its place among those shown: a point's look and label stay
+        with its cell (tests/fixtures/chart_hidden_cells.json)."""
+        reference = self.entry.value_reference
+        if not self.chart.state.visible_only or not reference or lost(reference):
+            return shown
+        places = visible_places(self.chart.sheet, reference, True)
+        return places[shown] if shown < len(places) else shown
 
     def categories(self) -> list[object]:
         self.position()
-        if lost(self.entry.category_reference):
+        if categories_gone(self.chart.sheet, self.chart.state, self.entry):
             return ['' for _ in self.values()]
         if self.entry.category_reference:
             levels = category_levels(self.chart.sheet, self.entry)
@@ -2546,7 +2594,7 @@ class Series(Created):
         if lost(self.entry.name_reference) or lost(self.entry.value_reference):
             raise VBARuntimeError(2023, 'Application-defined or object-defined error')
         name = self.entry.name_reference or (quoted(self.entry.name) if self.entry.name is not None else '')
-        categories = ('' if lost(self.entry.category_reference)
+        categories = ('' if categories_gone(self.chart.sheet, self.chart.state, self.entry)
                       else self.entry.category_reference or literal_array(self.entry.categories))
         values = self.entry.value_reference or literal_array(self.entry.values)
         return f'=SERIES({name},{categories},{values},{order})'

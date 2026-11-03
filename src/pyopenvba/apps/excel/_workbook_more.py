@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import re
 import uuid
-import xml.etree.ElementTree as ElementTree
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._model import ExcelObject
@@ -248,11 +247,13 @@ def _custom_parts(book: Workbook) -> list[CustomXMLPart]:
 
 
 def _namespace_of(text: str) -> str:
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
     if not text:
         return ""
     try:
-        root = ElementTree.fromstring(text)
-    except ElementTree.ParseError as failure:
+        root = xml_tree(text)
+    except Exception as failure:
         raise error(_XML_FAILED, "Invalid at the top level of the document.\n") from failure
     return root.tag[1:].partition("}")[0] if root.tag.startswith("{") else ""
 

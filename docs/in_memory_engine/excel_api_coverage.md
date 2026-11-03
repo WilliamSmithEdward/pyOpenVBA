@@ -1,6 +1,35 @@
 # Excel API coverage
 
-Snapshot: **23 October 2026**, covering the current source tree, including
+## Current totals
+
+Counted on **3 November 2026** by `scripts/audit_excel_coverage.py`, whose
+`totals` give the first three lines, and from
+[the member checklist](../excel_checklist.csv) for the fourth:
+
+| Measure | Count |
+| --- | ---: |
+| Reference members with a registered entry point | 2,989 of 7,246 (41.3%) |
+| Reference types with a model class | 153 of 365 |
+| Formula functions registered | 501, with 24 reference names missing |
+| Checklist rows, 3,907 in all | PARTIAL 2,916, MISSING 769, VERIFIED 167, UNASSESSED 52, EXCLUDED 3 |
+
+The reference counts are the `excel:` keys of the committed inventory
+(`src/pyopenvba/interpreter/_inventory_data.py`), each member counted once per
+type. A member registered on a class counts whichever module of the model the
+class lives in. Registration is not conformance: these say what has an entry
+point, and the checklist says what has been audited.
+
+## Areas, as of 23 October
+
+The rest of this document is the snapshot of **23 October 2026**. Its 22-area
+mapping is kept by hand, so its counts were not recomputed and are lower than
+the totals above. Its total of 7,542 members in 389 types cannot be reproduced:
+the inventory had 7,246 members in 365 types at the commit that wrote it, and no
+script in the repository gives the larger figures. The `Missing` statuses were
+checked against the classes the audit finds, and the one that had gone stale is
+corrected below. The [changelog](../changelog.md) has what has been added since.
+
+The snapshot covered the source tree of that date, including
 local AdvancedFilter, bounded AutoFilter wildcard matching, tables' own
 AutoFilters, sorts on cell and font colour, colour scales, data bars, icon
 sets, staged local Pivot
@@ -55,8 +84,8 @@ is a percentage of working macros or complete functionality.
 | Windows, views and dialogs | Partial | 38 / 304 | 23 | Selected window, view, freeze/split and visibility state. Full interactive UI, dialogs, protected views and additional view APIs remain incomplete. |
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
-| Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,334 / 7,542** | **152** | **17.7% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| Legacy features and utilities | Partial | 0 / 386 | 0 | `Scenarios` and `Scenario` have classes since this snapshot. Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags and assorted web/research services remain. |
+| **Total, 23 October** | **Incomplete** | **1,334 / 7,542** | **152** | **17.7% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not

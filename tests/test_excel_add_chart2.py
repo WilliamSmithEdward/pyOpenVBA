@@ -23,7 +23,6 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/add_chart
 NAMES = [case[0] for case in RECORD['cases']]
 #: Several areas selected; the chart types the engine does not write.
 LEFT_OUT: tuple[str, ...] = (
-    'A1:A5,C1:C5',
     'xlBubble',
     'xlRadar',
     'xl3DColumn',

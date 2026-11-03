@@ -365,6 +365,10 @@ def advanced_filter(target: Range, action: object, criteria_argument: object, co
     if len(target.areas) != 1:
         raise _unsupported('on multiple source areas')
     source = target.first
+    used = target.sheet.used_bounds()
+    if source.whole_columns and used is not None:
+        # A whole column is the cells in use (tests/fixtures/excel_everyday_6.json).
+        source = Area(source.top, source.left, min(source.bottom, used[2]), source.right, source.sheet)
     if source.rows < 2:
         raise error(1004)
     if source.rows * source.columns > 1_000_000:
@@ -373,13 +377,15 @@ def advanced_filter(target: Range, action: object, criteria_argument: object, co
         raise _unsupported('over whole rows or columns')
     if sheet.auto_filter is not None:
         raise _unsupported('combined with an AutoFilter')
-    criteria_range = None if criteria_argument is MISSING else _range(criteria_argument, sheet, 'criteria range')
+    # With none given it uses the last it was given (tests/fixtures/excel_everyday_6.json).
+    criteria_range = sheet.filter_criteria if criteria_argument is MISSING else _range(criteria_argument, sheet, 'criteria range')
     output = None if kind == 1 else _range(copy_argument, sheet, 'extract range')
     if criteria_range is not None and criteria_range.first.rows * criteria_range.first.columns > 4096:
         raise _unsupported('with more than 4096 criteria cells')
     projection_width = output.first.columns if output is not None else source.columns
     if source.rows * projection_width > 1_000_000:
         raise _unsupported('staging more than one million cells for extraction or uniqueness')
+    sheet.filter_criteria = criteria_range
     if criteria_range is not None and meets(source, criteria_range.first):
         raise _unsupported('with overlapping source and criteria cells')
     if kind == 2 and enforced(sheet) is not None:

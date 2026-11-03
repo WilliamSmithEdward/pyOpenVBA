@@ -243,7 +243,7 @@ class ChartState:
         return bool(every) and all(lost(entry.name_reference) for entry in every)
 
 
-def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
+def label_block(sheet: Worksheet, area: Area, at: Squeezed | None = None) -> tuple[int, int]:
     """How many of a block's top rows and left columns label the rest, as SetSourceData reads it
     (tests/fixtures/chart_multilevel_categories.json).
 
@@ -256,6 +256,8 @@ def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
     height, width = area.bottom - area.top + 1, area.right - area.left + 1
 
     def value(row: int, column: int) -> object:
+        if at is not None:
+            row, column = at.rows[row - 1], at.columns[column - 1]
         return Range(sheet, [Area(row, column, row, column)]).Value()
 
     def labelling(item: object) -> bool:
@@ -275,11 +277,52 @@ def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
     return min(rows, height - 1), min(columns, width - 1)
 
 
-def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesState]:
+@dataclass
+class Squeezed:
+    """Several areas read as one block with the rows and columns between them taken out: a block from row and column 1
+    stands for these rows and columns (tests/fixtures/range_tracking.json)."""
+
+    rows: list[int]
+    columns: list[int]
+
+    def block(self) -> Area:
+        return Area(1, 1, len(self.rows), len(self.columns))
+
+    def real(self, area: Area) -> Area:
+        return Area(self.rows[area.top - 1], self.columns[area.left - 1], self.rows[area.bottom - 1],
+                    self.columns[area.right - 1])
+
+
+def squeezed(sheet: Worksheet, areas: list[Area]) -> Squeezed:
+    """Areas of the same rows, or of the same columns, as one block. Excel's series from any others follow no rule found."""
+    used = sheet.used_bounds() or (1, 1, 1, 1)
+    first = areas[0]
+    bottom, right = min(first.bottom, used[2]), min(first.right, used[3])
+    if all((area.top, area.bottom) == (first.top, first.bottom) for area in areas):
+        columns = sorted(column for area in areas for column in range(area.left, min(area.right, used[3]) + 1))
+        made = Squeezed(list(range(first.top, bottom + 1)), columns)
+        alike = len(set(columns)) == len(columns)
+    elif all((area.left, area.right) == (first.left, first.right) for area in areas):
+        rows = sorted(row for area in areas for row in range(area.top, min(area.bottom, used[2]) + 1))
+        made = Squeezed(rows, list(range(first.left, right + 1)))
+        alike = len(set(rows)) == len(rows)
+    else:
+        alike, made = False, Squeezed([], [])
+    if not alike:
+        raise VBAUnsupportedError('Chart source data of areas that differ in their rows or columns, or overlap, is not '
+                                  'implemented')
+    return made
+
+
+def plan_series(sheet: Worksheet, area: Area, orientation: int, at: Squeezed | None = None) -> list[SeriesState]:
     """The series SetSourceData makes from a block of cells, by rows (1) or columns (2). The rows and columns
     label_block finds name the series and label the categories, more than one of either making a name or categories
     of several levels (tests/fixtures/chart_multilevel_categories.json)."""
-    rows, columns = label_block(sheet, area)
+    rows, columns = label_block(sheet, area, at)
+
+    def named(block: Area) -> str:
+        return reference(sheet, at.real(block) if at is not None else block)
+
     series_plan: list[SeriesState] = []
     if orientation == 2:
         top, left = area.top + rows, area.left + columns
@@ -288,10 +331,10 @@ def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesSt
         for column in range(left, area.right + 1):
             series = SeriesState(series_id=len(series_plan))
             if rows:
-                series.name_reference = reference(sheet, Area(area.top, column, top - 1, column))
-            series.value_reference = reference(sheet, Area(top, column, area.bottom, column))
+                series.name_reference = named(Area(area.top, column, top - 1, column))
+            series.value_reference = named(Area(top, column, area.bottom, column))
             if columns:
-                series.category_reference = reference(sheet, Area(top, area.left, area.bottom, left - 1))
+                series.category_reference = named(Area(top, area.left, area.bottom, left - 1))
             series_plan.append(series)
     else:
         top, left = area.top + rows, area.left + columns
@@ -300,10 +343,10 @@ def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesSt
         for row in range(top, area.bottom + 1):
             series = SeriesState(series_id=len(series_plan))
             if columns:
-                series.name_reference = reference(sheet, Area(row, area.left, row, left - 1))
-            series.value_reference = reference(sheet, Area(row, left, row, area.right))
+                series.name_reference = named(Area(row, area.left, row, left - 1))
+            series.value_reference = named(Area(row, left, row, area.right))
             if rows:
-                series.category_reference = reference(sheet, Area(area.top, left, top - 1, area.right))
+                series.category_reference = named(Area(area.top, left, top - 1, area.right))
             series_plan.append(series)
     return series_plan
 
@@ -424,7 +467,7 @@ def plotted_before(sheet: Worksheet) -> int:
     from pyopenvba.apps.excel._region import current_region
 
     selection = sheet.selection
-    if not isinstance(selection, Range):
+    if not isinstance(selection, Range) or len(selection.areas) != 1:
         return 0
     area = selection.first
     region = len(selection.areas) == 1 and (area.top, area.left) == (area.bottom, area.right)
@@ -465,10 +508,10 @@ def trimmed(sheet: Worksheet, area: Area) -> Area | None:
     return Area(top, left, bottom, right)
 
 
-def guessed_orientation(sheet: Worksheet, area: Area) -> int:
+def guessed_orientation(sheet: Worksheet, area: Area, at: Squeezed | None = None) -> int:
     """How a block is plotted when nothing says: by rows (1) unless what its labels leave is taller than wide
     (tests/fixtures/chart_add_plotted.json)."""
-    rows, columns = label_block(sheet, area)
+    rows, columns = label_block(sheet, area, at)
     height, width = area.bottom - area.top + 1 - rows, area.right - area.left + 1 - columns
     return 1 if width >= height else 2
 
@@ -577,7 +620,7 @@ def plot_by(chart: ChartState) -> int:
         if any(later <= earlier for earlier, later in zip(places, places[1:])):
             return False
         for cell, area in zip(cells, blocks):
-            if cell is not None and (cell.sheet != area.sheet or (cell.top, cell.left) != (cell.bottom, cell.right)
+            if cell is not None and (cell.sheet != area.sheet
                                      or place(cell) != place(area) or span(cell)[0] >= span(area)[0]):
                 return False
         return len({span(cell) for cell in cells if cell is not None}) <= 1
@@ -707,7 +750,7 @@ def _picked_up(sheet: Worksheet) -> Range | None:
     if not isinstance(chosen, Range):
         return None
     if len(chosen.areas) != 1:
-        raise VBAUnsupportedError('A chart made from several selected areas is not implemented')
+        return chosen
     area = chosen.first
     if (area.top, area.left) != (area.bottom, area.right):
         return chosen
@@ -2048,22 +2091,21 @@ class Chart(Created):
             raise VBAUnsupportedError('Chart source Nothing object lifetime behavior is not implemented')
         if not isinstance(Source, Range):
             raise error(13)
-        if len(Source.areas) != 1:
-            raise VBAUnsupportedError('Multi-area chart source data is not implemented')
         if Source.sheet.book is not self.sheet.book:
             raise VBAUnsupportedError('Cross-workbook chart source data is not implemented')
-        area = Source.first
+        at = squeezed(Source.sheet, Source.areas) if len(Source.areas) != 1 else None
+        area = at.block() if at is not None else Source.first
         height, width = area.bottom - area.top + 1, area.right - area.left + 1
         if height * width > MAX_CHART_POINTS:
             raise VBAUnsupportedError('Chart source data exceeds the supported cell budget')
         if PlotBy is NULL:
             raise error(13)
-        orientation = (guessed_orientation(Source.sheet, area) if PlotBy is MISSING
+        orientation = (guessed_orientation(Source.sheet, area, at) if PlotBy is MISSING
                        else int(to_integer(PlotBy, 'Long')))
         if orientation not in (1, 2):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.admit_change()
-        series_plan = plan_series(Source.sheet, area, orientation)
+        series_plan = plan_series(Source.sheet, area, orientation, at)
         self.changed()
         self.state.plot_by = orientation
         for index, series in enumerate(series_plan):

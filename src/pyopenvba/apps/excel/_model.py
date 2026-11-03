@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import datetime as _dt
 import re
+import weakref
+from itertools import islice
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
@@ -2820,6 +2822,11 @@ class Worksheet(ExcelObject):
         self.chart_states: dict[int, ChartState] = {}
         #: The cells ShowPrecedents and ShowDependents have traced, by (row, column, dependents), and how deep.
         self.traced: dict[tuple[int, int, bool], int] = {}
+        #: The cells AdvancedFilter was last given as its criteria.
+        self.filter_criteria: Range | None = None
+        #: The Range objects alive, which follow their cells, and how many times cells have moved (see _held_ranges).
+        self.held_ranges: weakref.WeakSet[Range] = weakref.WeakSet()
+        self.cells_moved = 0
         self.deleted_chart_parts: set[str] = set()
         #: How many shapes have been added here, which is where the next
         #: one's number comes from.  It does not go back down when one
@@ -3727,6 +3734,7 @@ class Range(ExcelObject):
     def __init__(self, sheet: Worksheet, areas: list[Area], *, whole: str = "", lines: str = "") -> None:
         self.sheet = sheet
         self.areas = areas or [Area(1, 1, 1, 1, sheet.name)]
+        sheet.held_ranges.add(self)
         #: "rows" or "columns" for a range made as whole rows or columns.
         #: Every row and every column is the same block of cells, but
         #: Rows("1:1048576").Hidden hides rows and Columns("A:XFD").Hidden
@@ -3736,6 +3744,12 @@ class Range(ExcelObject):
         #: its first area's rows or columns, every area's for For Each, and AutoFit and Hidden take its rows or
         #: columns; its other members act on its cells (tests/fixtures/range_lines.json).
         self.lines = lines or whole
+
+    def place_now(self) -> Range:
+        """These cells as they stand, in a Range that does not follow them: what an edit's events report it did."""
+        made = Range(self.sheet, list(self.areas), whole=self.whole, lines=self.lines)
+        self.sheet.held_ranges.discard(made)
+        return made
 
     def guard_set(self, member: str) -> None:
         from pyopenvba.apps.excel._protection import check_range_set
@@ -5492,6 +5506,7 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._visible import filtering
 
         check_delete(self)
+        where = self.place_now()
         filtered = filtering(self.sheet) and not all(area.whole_columns for area in self.areas)
         if Shift is MISSING:
             up = filtered or self.first.rows <= self.first.columns
@@ -5505,7 +5520,7 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("deleting cells in several areas is not implemented")
         else:
             self._delete_cells(self.first, up)
-        _events.after_edit(self, calculate_first=True)
+        _events.after_edit(where, calculate_first=True)
         return EMPTY
 
     def _delete_lines(self) -> None:
@@ -5551,6 +5566,7 @@ class Range(ExcelObject):
         as many as the range shows, at its top, and inserting cells is
         error 1004.
         """
+        where = self.place_now()
         from pyopenvba.apps.excel._protection import check_insert
         from pyopenvba.apps.excel._visible import filtering, visible_rows
 
@@ -5572,7 +5588,7 @@ class Range(ExcelObject):
                 _events.after_edit(inserted, calculate_first=False)
                 return EMPTY
             edit(self, delete=False, below=below)
-            _events.after_edit(self, calculate_first=False)
+            _events.after_edit(where, calculate_first=False)
             return EMPTY
         if filtered:
             raise error(1004, "Insert method of Range class failed")
@@ -5584,7 +5600,7 @@ class Range(ExcelObject):
         # With no Shift a range taller than it is wide pushes cells right, any other range down.
         down = area.rows <= area.columns if Shift is MISSING else int(to_integer(Shift, "Long")) == -4121  # xlDown
         shift_cells(self, area, delete=False, vertical=down, below=below)
-        _events.after_edit(self, calculate_first=False)
+        _events.after_edit(where, calculate_first=False)
         return EMPTY
 
     def _shifting_cells(self) -> None:
@@ -6237,12 +6253,25 @@ class Range(ExcelObject):
     # -- Python side
 
     def vba_iterate(self) -> Iterator[object]:
+        """For Each counts its way through the range as it stands at each step, so cells moved by the loop's body change
+        what comes next: a row deleted skips one, and one inserted above can go on for ever
+        (tests/fixtures/range_holding.json)."""
         self._check_alive()
+        place, seen = 0, self.sheet.cells_moved
+        items = self._walked()
+        for item in iter(lambda: next(items, None), None):
+            yield item
+            place += 1
+            if self.sheet.cells_moved != seen:
+                seen = self.sheet.cells_moved
+                if isinstance(self, GoneRange):
+                    return
+                items = islice(self._walked(), place, None)
+
+    def _walked(self) -> Iterator[Range]:
         if self.lines:
-            yield from self._walk_lines()
-            return
-        for row, column in self.positions():
-            yield Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
+            return self._walk_lines()
+        return (Range(self.sheet, [Area(row, column, row, column, self.sheet.name)]) for row, column in self.positions())
 
     def _walk_lines(self) -> Iterator[Range]:
         """For Each over a range of rows or columns: every area's, one at a time; the rows of an area spanning every
@@ -7308,3 +7337,23 @@ def stored_value(value: object) -> object:
     if isinstance(value, (int, float, Decimal)):
         return float(value)
     return value
+
+
+class GoneRange(Range):
+    """A Range whose cells have gone: it still knows what it is and answers nothing else
+    (tests/fixtures/range_tracking.json)."""
+
+    vba_type_name = "Range"
+
+    def vba_value(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        raise error(424, "Object required")
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: object = None) -> None:
+        raise error(424, "Object required")
+
+    def vba_call(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        raise error(424, "Object required")

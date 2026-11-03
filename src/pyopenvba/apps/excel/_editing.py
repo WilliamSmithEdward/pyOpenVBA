@@ -177,6 +177,10 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
                                                    delete=delete))
     _tables.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                               delete=delete), rows=rows)
+    from pyopenvba.apps.excel import _held_ranges
+
+    _held_ranges.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
+                                                   delete=delete))
     _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
     conditional()
@@ -323,6 +327,9 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     _arrays.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _data_tables.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    from pyopenvba.apps.excel import _held_ranges
+
+    _held_ranges.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     conditional()
     _hyperlinks.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     if notes:

@@ -58,8 +58,7 @@ def test_raw_evidence_and_deferred_diagnostics_are_not_normalized() -> None:
     assert 'result=ok' in next(control['raw_result'] for control in REMAINING['probes'] if control['name'] == 'source-union')
 
 
-@pytest.mark.parametrize('name,expression', [('source-union', 'Union(Range("A1:B4"),Range("D1:D4"))'),
-                                            ('source-nothing', 'missing')])
+@pytest.mark.parametrize('name,expression', [('source-nothing', 'missing')])
 def test_deferred_source_forms_refuse_without_claiming_native_error_fidelity(name: str, expression: str) -> None:
     helpers = SCALARS['source'].split('Function Probe() As String', 1)[0]
     app = ExcelApplication()

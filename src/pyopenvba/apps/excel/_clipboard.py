@@ -669,6 +669,11 @@ def move(source: Range, area: Area, destination: Range) -> None:
     from pyopenvba.apps.excel import _table_moves
 
     _table_moves.settled(sheet, area, target, landing, moving_tables, down, across)
+    from pyopenvba.apps.excel import _held_ranges
+
+    for owner in {sheet, target}:
+        _held_ranges.moved(owner, lambda text, owner=owner: moved_references(
+            text, owner.name, sheet.name, area, target.name, landing, down, across), target)
     for owner in {sheet, target}:
         restore(owner, caches)
         owner.touched()

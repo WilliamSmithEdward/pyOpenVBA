@@ -1018,6 +1018,22 @@ class TickLabels(Created):
         return self.axis.chart.font_of(self, f"tick{self.axis.entry.kind}")
 
     @member
+    def Format(self) -> object:
+        """The axis's own look, which the labels share in the file (tests/fixtures/chart_group_looks.json)."""
+        self.axis.read()
+        return self.axis.chart.format_of(self, f"axis{self.axis.entry.kind}")
+
+    @method
+    def Select(self) -> object:
+        self.axis.read()
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def Delete(self) -> object:
+        """Takes the axis with them, which still answers (tests/fixtures/chart_group_looks.json)."""
+        return self.axis.Delete()
+
+    @member
     def NumberFormat(self) -> object:
         from pyopenvba.apps.excel._charts_file import linked_formats
 

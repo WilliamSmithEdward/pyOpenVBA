@@ -797,6 +797,29 @@ class ElementLine(_ElementPart):
         return VBASingle(0.0)
 
 
+class EntryFill(ElementFill):
+    vba_type_name = "FillFormat"
+
+    @setter("Visible")
+    def _entry_visible(self, value: object) -> None:
+        # Hiding it changes nothing.
+        to_integer(value, "Long")
+
+
+class EntryFormat(ElementFormat):
+    """The Format of a legend entry: a fill that reads as set and reaches no file, and no line."""
+
+    vba_type_name = "ChartFormat"
+
+    @member
+    def Fill(self) -> object:
+        return EntryFill(self)
+
+    @member
+    def Line(self) -> object:
+        raise error(-2147467259, "Automation error\nUnspecified error")
+
+
 class ElementColor(Created):
     """A chart element's fill or line colour."""
 

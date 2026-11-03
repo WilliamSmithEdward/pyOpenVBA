@@ -114,6 +114,59 @@ class ElementProperties(Created):
         raise error(self.set_error, 'Automation error')
 
 
+class PictureMembers(Created):
+    """What a series or point reads of a picture fill it does not have; none of it can be set
+    (tests/fixtures/chart_members_more.json)."""
+
+    #: A base, not a type of its own.
+    vba_type_name = ''
+
+    @member
+    def ApplyPictToEnd(self) -> object:
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @setter('ApplyPictToEnd')
+    def _apply_pict_to_end(self, value: object) -> None:
+        del value
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @member
+    def ApplyPictToFront(self) -> object:
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @setter('ApplyPictToFront')
+    def _apply_pict_to_front(self, value: object) -> None:
+        del value
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @member
+    def ApplyPictToSides(self) -> object:
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @setter('ApplyPictToSides')
+    def _apply_pict_to_sides(self, value: object) -> None:
+        del value
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @member
+    def PictureType(self) -> object:
+        return VBAInt(1, 'Long')
+
+    @setter('PictureType')
+    def _picture_type(self, value: object) -> None:
+        del value
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @member
+    def PictureUnit2(self) -> object:
+        return 0.0
+
+    @setter('PictureUnit2')
+    def _picture_unit2(self, value: object) -> None:
+        del value
+        raise error(UNSPECIFIED, 'Automation error')
+
+
 class ChartBorder(Created):
     vba_type_name = 'Border'
 

@@ -276,6 +276,29 @@ class FillLine:
     line_lost: bool = False
     #: Hidden through a range, after its first shape: a noFill and no copy of the colour, which is gone.
     fill_bare: bool = False
+    #: A colour's theme name, its lumMod, lumOff, tint and shade in the order set, and a SchemeColor's palette index,
+    #: fill then line (tests/fixtures/shape_line_ends.json).
+    fill_scheme: str | None = None
+    fill_mods: tuple[tuple[str, int], ...] = ()
+    fill_index: int | None = None
+    line_scheme: str | None = None
+    line_mods: tuple[tuple[str, int], ...] = ()
+    line_index: int | None = None
+    #: TintAndShade takes the place of the shade the style gives a line.
+    line_plain: bool = False
+    #: A line's back colour with no pattern to take it, which leaves an empty solidFill.
+    line_open: bool = False
+    #: A patterned line's prst and back colour; its fore colour is the line's own.
+    line_pattern: str | None = None
+    line_back_rgb: str | None = None
+    line_back_scheme: str | None = None
+    #: InsetPen's algn.
+    line_align: str | None = None
+    #: Each end's type, w and len as set, and those a hidden line had when it was hidden.
+    line_head: tuple[str | None, str | None, str | None] = (None, None, None)
+    line_tail: tuple[str | None, str | None, str | None] = (None, None, None)
+    frozen_head: tuple[str | None, str | None, str | None] = (None, None, None)
+    frozen_tail: tuple[str | None, str | None, str | None] = (None, None, None)
 
 
 @dataclass(slots=True)

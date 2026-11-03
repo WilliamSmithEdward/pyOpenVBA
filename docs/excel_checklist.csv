@@ -783,14 +783,14 @@ ChartTitle,Top,property,As Double,,MISSING,,
 ChartTitle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Excel accepts a set and keeps the title centred, so it reads xlCenter and writes nothing."
 ChartTitle,Width,"property, read-only",As Double,,MISSING,,
 ColorFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
-ColorFormat,Brightness,property,As Single,,MISSING,,
+ColorFormat,Brightness,property,As Single,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,lumMod and lumOff; RGB computed from them. ShapeRange refused.
 ColorFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
-ColorFormat,ObjectThemeColor,property,As MsoThemeColorIndex,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"The style's until RGB is set, then 0. Setting it is refused."
+ColorFormat,ObjectThemeColor,property,As MsoThemeColorIndex,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py; tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,"Reads and sets 1-16 on fore and pattern back colours; the style until RGB is set, then 0. ShapeRange set refused."
 ColorFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The fill or line.
 ColorFormat,RGB,property,As MsoRGBType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Set on a fill or line; a line's fill raises -2147024809; back colours read only.
-ColorFormat,SchemeColor,property,As Long,,MISSING,,
-ColorFormat,TintAndShade,property,As Single,,MISSING,,
-ColorFormat,Type,"property, read-only",As MsoColorType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Scheme from the style, RGB once set, mixed on a line's fill."
+ColorFormat,SchemeColor,property,As Long,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,Set 0-65 and 80; 66-79 refused. Reads what was set or an exact palette match; other colours report themselves because the nearest-colour rule is unknown.
+ColorFormat,TintAndShade,property,As Single,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,"tint or shade, in linear light; replaces the shade a style gives. ShapeRange refused."
+ColorFormat,Type,"property, read-only",As MsoColorType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py; tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,"msoColorTypeRGB once RGB is set, scheme from the style, a theme colour or SchemeColor; mixed on a line with no fill."
 ColorScale,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 ColorScale,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
 ColorScale,ColorScaleCriteria,"property, read-only",As ColorScaleCriteria,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"Two or three, as the scale was made."
@@ -1445,19 +1445,19 @@ LegendKey,Smooth,property,As Boolean,no setter,UNASSESSED,,
 LegendKey,Top,"property, read-only",As Double,,MISSING,,
 LegendKey,Width,"property, read-only",As Double,,MISSING,,
 LineFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
-LineFormat,BackColor,property,As ColorFormat,,MISSING,,
-LineFormat,BeginArrowheadLength,property,As MsoArrowheadLength,,MISSING,,
-LineFormat,BeginArrowheadStyle,property,As MsoArrowheadStyle,,MISSING,,
-LineFormat,BeginArrowheadWidth,property,As MsoArrowheadWidth,,MISSING,,
+LineFormat,BackColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,A pattern takes it; with no pattern it leaves an empty solidFill. ShapeRange refused.
+LineFormat,BeginArrowheadLength,property,As MsoArrowheadLength,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,An open line only; else -2147024809. Written as set; a size is refused once the line is written out with its ends; ShapeRange refused.
+LineFormat,BeginArrowheadStyle,property,As MsoArrowheadStyle,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,An open line only; else -2147024809. Written as set; a size is refused once the line is written out with its ends; ShapeRange refused.
+LineFormat,BeginArrowheadWidth,property,As MsoArrowheadWidth,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,An open line only; else -2147024809. Written as set; a size is refused once the line is written out with its ends; ShapeRange refused.
 LineFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
 LineFormat,DashStyle,property,As MsoLineDashStyle,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"msoLineDash and msoLineRoundDot, with its round cap; others are refused."
-LineFormat,EndArrowheadLength,property,As MsoArrowheadLength,,MISSING,,
-LineFormat,EndArrowheadStyle,property,As MsoArrowheadStyle,,MISSING,,
-LineFormat,EndArrowheadWidth,property,As MsoArrowheadWidth,,MISSING,,
+LineFormat,EndArrowheadLength,property,As MsoArrowheadLength,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,An open line only; else -2147024809. Written as set; a size is refused once the line is written out with its ends; ShapeRange refused.
+LineFormat,EndArrowheadStyle,property,As MsoArrowheadStyle,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,An open line only; else -2147024809. Written as set; a size is refused once the line is written out with its ends; ShapeRange refused.
+LineFormat,EndArrowheadWidth,property,As MsoArrowheadWidth,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,An open line only; else -2147024809. Written as set; a size is refused once the line is written out with its ends; ShapeRange refused.
 LineFormat,ForeColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The line colour.
-LineFormat,InsetPen,property,As MsoTriState,,MISSING,,
+LineFormat,InsetPen,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,Writes algn in or ctr. Refused on a hidden or fully written line and on ShapeRange.
 LineFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The shape.
-LineFormat,Pattern,property,As MsoPatternType,,MISSING,,
+LineFormat,Pattern,property,As MsoPatternType,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,"1 to 54, -2 unset. Drops the solid colour for black on white. ShapeRange refused."
 LineFormat,Style,property,As MsoLineStyle,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,msoLineSingle. Setting it is refused.
 LineFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Writes the line out in full with its ends, 0 included; outside 0 to 1 raises -2147024809. A hidden or dashed line is refused."
 LineFormat,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Hiding writes out the fill, line and effectLst, for good; the ln keeps the width and dash it had, and changes reach the hidden copy. Combinations not measured are refused."

@@ -6,7 +6,7 @@
 # the test matrix runs, so one lock serves 3.10 to 3.14:
 #   uv pip compile test.in --universal --generate-hashes --python-version 3.10 -o test.txt
 # Dependabot proposes each new release.
-pytest==9.1.1
+pytest==9.2.0
 pytest-xdist==3.8.0
 pyright==1.1.414
 openpyxl==3.1.5

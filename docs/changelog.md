@@ -15,6 +15,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `ChartArea.ClearFormats` and `ClearContents`, `PlotArea.ClearFormats`,
+  `Trendline.ClearFormats`, and `ChartObjects.Select` of a single chart.
+- `LegendEntry.Index`, `Font` and `LegendKey`. A key is its series under another name:
+  deleting it deletes the series.
 - `Range.NavigateArrow`, following the levels `ShowPrecedents` and `ShowDependents`
   have traced. Several dependents on one sheet are refused, since their order was
   not worked out.

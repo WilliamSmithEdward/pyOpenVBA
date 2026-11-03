@@ -16,7 +16,7 @@ from __future__ import annotations
 import random
 import math
 import uuid
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Literal
 
@@ -157,11 +157,15 @@ def shadow_markup(shadow: bool | None) -> str:
 
 
 def legend_markup(position: str = 'r', *, overlay: bool = False, shadow: bool | None = None,
-                  deleted: Sequence[int] = (), frame: str = '', text: str = '') -> str:
+                  deleted: Sequence[int] = (), frame: str = '', text: str = '',
+                  entry_text: Mapping[int, str] | None = None) -> str:
     # A deleted entry is a legendEntry after the position, by its series' or point's index
     # (tests/fixtures/chart_legend_entries.json).
-    entries = ''.join(f'<c:legendEntry><c:idx val="{index}"/><c:delete val="1"/></c:legendEntry>'
-                      for index in sorted(deleted))
+    # One with a font of its own holds it there (tests/fixtures/chart_clears.json).
+    fonts = entry_text or {}
+    entries = ''.join(f'<c:legendEntry><c:idx val="{index}"/>'
+                      + ('<c:delete val="1"/>' if index in deleted else fonts[index]) + '</c:legendEntry>'
+                      for index in sorted({*deleted, *fonts}))
     return (f'<c:legend><c:legendPos val="{position}"/>{entries}<c:overlay val="{int(overlay)}"/>'
             f'{frame or shadow_markup(shadow)}{text}</c:legend>')
 

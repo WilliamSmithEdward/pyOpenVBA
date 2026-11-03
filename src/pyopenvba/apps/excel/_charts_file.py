@@ -720,6 +720,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted,
                      legend=legend_markup(state.legend_position, overlay=state.legend_overlay, shadow=state.legend_shadow,
                                           deleted=state.legend_deleted, frame=frame,
+                                          entry_text={int(key[6:]): text_properties(font)
+                                                      for key, font in state.element_fonts.items()
+                                                      if key.startswith('legend') and key[6:].isdigit()},
                                           text=text_properties(state.element_fonts.get('legend')))
                      if state.legend else "", axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,

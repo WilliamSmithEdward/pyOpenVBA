@@ -43,7 +43,7 @@ from typing import TYPE_CHECKING, Final
 from pyopenvba._a1 import Area
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBAError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAInt, error, to_integer, to_text
 
@@ -368,6 +368,34 @@ class Hyperlink(ExcelObject):
     def __init__(self, sheet: Worksheet, link: Link) -> None:
         self.sheet = sheet
         self.link = link
+
+    @method
+    def Follow(self, NewWindow: object = MISSING, AddHistory: object = MISSING,  # noqa: N803
+               ExtraInfo: object = MISSING, Method: object = MISSING, HeaderInfo: object = MISSING) -> object:  # noqa: N803
+        """A link inside the workbook: its sheet active without an event, the selection moved to the place, a place
+        there is not leaving it, the sheet the place is on made active, and then FollowHyperlink
+        (tests/fixtures/more_events.json follow_*). A link out of the workbook opens another application, which the
+        model leaves alone."""
+        from pyopenvba.apps.excel._events import activated, followed
+        from pyopenvba.apps.excel._model import Range
+
+        if self.link.address:
+            raise VBAUnsupportedError("following a link out of the workbook opens another application")
+        book = self.sheet.book
+        application = book.application
+        if application.active_book is not book:
+            raise VBAUnsupportedError("following a link of a workbook behind is not implemented")
+        book.activate_sheet(self.sheet)
+        try:
+            found = application.vba_get("Range", [self.link.sub or ""])
+        except VBAError:
+            found = None
+        if isinstance(found, Range) and found.sheet.book is book:
+            book.activate_sheet(found.sheet)
+            found.select_as_excel_does()
+            activated(book, self.sheet, found.sheet)
+        followed(self.sheet, self)
+        return EMPTY
 
     def _set(self, change: Callable[[Link], None]) -> None:
         change(self.link)

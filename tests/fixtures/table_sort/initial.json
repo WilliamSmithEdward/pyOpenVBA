@@ -43,7 +43,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$A$1:$C$6:headers=True:totals=True;sort=ERR:438:Object doesn't support this property or method:h=Long:1:case=Boolean:False:orientation=Long:1:method=Long:1:fields=1[ERR:438:Object doesn't support this property or method:Long:1:Long:0|];cells=[A1:String:Name:f=Name:nf=General:b=False:fill=16777215|B1:String:Qty:f=Qty:nf=General:b=False:fill=16777215|C1:String:Double:f=Double:nf=General:b=False:fill=16777215|A2:String:apple:f=apple:nf=General:b=False:fill=16777215|B2:Double:1:f=1:nf=General:b=False:fill=16777215|C2:Double:10:f==B2*10:nf=General:b=False:fill=16777215|A3:String:apple:f=apple:nf=General:b=False:fill=16777215|B3:Double:1:f=1:nf=General:b=False:fill=16777215|C3:Double:10:f==B3*10:nf=General:b=False:fill=16777215|A4:String:pear:f=pear:nf=General:b=True:fill=65535|B4:Double:3:f=3:nf=0.00:b=False:fill=16777215|C4:Double:30:f==B4*10:nf=General:b=False:fill=16777215|A5:String:plum:f=plum:nf=General:b=False:fill=16777215|B5:Double:2:f=2:nf=General:b=False:fill=16777215|C5:Double:20:f==B5*10:nf=General:b=False:fill=16777215|A6:String:Total:f=Total:nf=General:b=False:fill=16777215|B6:Double:7:f==SUBTOTAL(109,[Qty]):nf=General:b=False:fill=16777215|C6:Double:70:f==SUBTOTAL(109,[Double]):nf=General:b=False:fill=16777215|];hidden=[1:False|2:False|3:False|4:False|5:False|6:False|];worksheet=ERR:1004:Application-defined or object-defined error:fields=0",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-initial-samples\\ascending-formulas-styles-totals.xlsx"
+      "file": "<folder>\\ascending-formulas-styles-totals.xlsx"
     },
     {
       "name": "stable-multiple-text-numbers",
@@ -71,7 +71,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$A$1:$C$5:headers=True:totals=False;sort=ERR:438:Object doesn't support this property or method:h=Long:1:case=Boolean:False:orientation=Long:1:method=Long:1:fields=2[ERR:438:Object doesn't support this property or method:Long:1:Long:0|ERR:438:Object doesn't support this property or method:Long:1:Long:0|];cells=[A1:String:Name:f=Name:nf=General:b=False:fill=16777215|B1:String:Qty:f=Qty:nf=General:b=False:fill=16777215|C1:String:Double:f=Double:nf=General:b=False:fill=16777215|A2:String:same:f=same:nf=General:b=False:fill=16777215|B2:String:2:f=2:nf=General:b=False:fill=16777215|C2:Double:20:f==B2*10:nf=General:b=False:fill=16777215|A3:String:same:f=same:nf=General:b=False:fill=16777215|B3:Double:2:f=2:nf=General:b=False:fill=16777215|C3:Double:20:f==B3*10:nf=General:b=False:fill=16777215|A4:String:same:f=same:nf=General:b=False:fill=16777215|B4:String:02:f=02:nf=General:b=False:fill=16777215|C4:Double:20:f==B4*10:nf=General:b=False:fill=16777215|A5:String:same:f=same:nf=General:b=True:fill=65535|B5:String:10:f=10:nf=0.00:b=False:fill=16777215|C5:Double:100:f==B5*10:nf=General:b=False:fill=16777215|];hidden=[1:False|2:False|3:False|4:False|5:False|];worksheet=ERR:1004:Application-defined or object-defined error:fields=0",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-initial-samples\\stable-multiple-text-numbers.xlsx"
+      "file": "<folder>\\stable-multiple-text-numbers.xlsx"
     },
     {
       "name": "hidden-headers",
@@ -99,7 +99,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$A$2:$C$5:headers=False:totals=False;sort=ERR:438:Object doesn't support this property or method:h=Long:2:case=Boolean:False:orientation=Long:1:method=Long:1:fields=1[ERR:438:Object doesn't support this property or method:Long:1:Long:0|];cells=[A2:String:apple:f=apple:nf=General:b=False:fill=16777215|B2:Double:1:f=1:nf=General:b=False:fill=16777215|C2:Double:10:f==B2*10:nf=General:b=False:fill=16777215|A3:String:apple:f=apple:nf=General:b=False:fill=16777215|B3:Double:1:f=1:nf=General:b=False:fill=16777215|C3:Double:10:f==B3*10:nf=General:b=False:fill=16777215|A4:String:pear:f=pear:nf=General:b=True:fill=65535|B4:Double:3:f=3:nf=0.00:b=False:fill=16777215|C4:Double:30:f==B4*10:nf=General:b=False:fill=16777215|A5:String:plum:f=plum:nf=General:b=False:fill=16777215|B5:Double:2:f=2:nf=General:b=False:fill=16777215|C5:Double:20:f==B5*10:nf=General:b=False:fill=16777215|];hidden=[2:False|3:False|4:False|5:False|];worksheet=ERR:1004:Application-defined or object-defined error:fields=0",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-initial-samples\\hidden-headers.xlsx"
+      "file": "<folder>\\hidden-headers.xlsx"
     },
     {
       "name": "table-filtered-sort",
@@ -127,7 +127,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$A$1:$C$6:headers=True:totals=True;sort=ERR:438:Object doesn't support this property or method:h=Long:1:case=Boolean:False:orientation=Long:1:method=Long:1:fields=1[ERR:438:Object doesn't support this property or method:Long:1:Long:0|];cells=[A1:String:Name:f=Name:nf=General:b=False:fill=16777215|B1:String:Qty:f=Qty:nf=General:b=False:fill=16777215|C1:String:Double:f=Double:nf=General:b=False:fill=16777215|A2:String:pear:f=pear:nf=General:b=True:fill=65535|B2:Double:3:f=3:nf=0.00:b=False:fill=16777215|C2:Double:30:f==B2*10:nf=General:b=False:fill=16777215|A3:String:apple:f=apple:nf=General:b=False:fill=16777215|B3:Double:1:f=1:nf=General:b=False:fill=16777215|C3:Double:10:f==B3*10:nf=General:b=False:fill=16777215|A4:String:plum:f=plum:nf=General:b=False:fill=16777215|B4:Double:2:f=2:nf=General:b=False:fill=16777215|C4:Double:20:f==B4*10:nf=General:b=False:fill=16777215|A5:String:apple:f=apple:nf=General:b=False:fill=16777215|B5:Double:1:f=1:nf=General:b=False:fill=16777215|C5:Double:10:f==B5*10:nf=General:b=False:fill=16777215|A6:String:Total:f=Total:nf=General:b=False:fill=16777215|B6:Double:5:f==SUBTOTAL(109,[Qty]):nf=General:b=False:fill=16777215|C6:Double:50:f==SUBTOTAL(109,[Double]):nf=General:b=False:fill=16777215|];hidden=[1:False|2:False|3:True|4:False|5:True|6:False|];worksheet=ERR:1004:Application-defined or object-defined error:fields=0",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-initial-samples\\table-filtered-sort.xlsx"
+      "file": "<folder>\\table-filtered-sort.xlsx"
     },
     {
       "name": "held-resize-add-move",
@@ -155,7 +155,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$F$8:$H$14:headers=True:totals=False;sort=ERR:438:Object doesn't support this property or method:h=Long:1:case=Boolean:False:orientation=Long:1:method=Long:1:fields=1[ERR:438:Object doesn't support this property or method:Long:1:Long:0|];cells=[F8:String:Name:f=Name:nf=General:b=False:fill=16777215|G8:String:Qty:f=Qty:nf=General:b=False:fill=16777215|H8:String:Double:f=Double:nf=General:b=False:fill=16777215|F9:String:apple:f=apple:nf=General:b=False:fill=16777215|G9:Double:1:f=1:nf=General:b=False:fill=16777215|H9:Double:10:f==G9*10:nf=General:b=False:fill=16777215|F10:String:apple:f=apple:nf=General:b=False:fill=16777215|G10:Double:1:f=1:nf=General:b=False:fill=16777215|H10:Double:10:f==G10*10:nf=General:b=False:fill=16777215|F11:String:berry:f=berry:nf=General:b=False:fill=16777215|G11:Double:4:f=4:nf=General:b=False:fill=16777215|H11:Double:40:f==G11*10:nf=General:b=False:fill=16777215|F12:String:fig:f=fig:nf=General:b=False:fill=16777215|G12:Double:5:f=5:nf=General:b=False:fill=16777215|H12:Double:50:f==G12*10:nf=General:b=False:fill=16777215|F13:String:pear:f=pear:nf=General:b=True:fill=65535|G13:Double:3:f=3:nf=0.00:b=False:fill=16777215|H13:Double:30:f==G13*10:nf=General:b=False:fill=16777215|F14:String:plum:f=plum:nf=General:b=False:fill=16777215|G14:Double:2:f=2:nf=General:b=False:fill=16777215|H14:Double:20:f==G14*10:nf=General:b=False:fill=16777215|];hidden=[8:False|9:False|10:False|11:False|12:False|13:False|14:False|];worksheet=ERR:1004:Application-defined or object-defined error:fields=0",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-initial-samples\\held-resize-add-move.xlsx"
+      "file": "<folder>\\held-resize-add-move.xlsx"
     },
     {
       "name": "empty-fields-clear",
@@ -243,7 +243,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$A$1:$C$5:headers=True:totals=False;sort=ERR:438:Object doesn't support this property or method:h=Long:1:case=Boolean:False:orientation=Long:1:method=Long:1:fields=1[ERR:438:Object doesn't support this property or method:Long:2:Long:0|];cells=[A1:String:Name:f=Name:nf=General:b=False:fill=16777215|B1:String:Qty:f=Qty:nf=General:b=False:fill=16777215|C1:String:Double:f=Double:nf=General:b=False:fill=16777215|A2:String:pear:f=pear:nf=General:b=True:fill=65535|B2:Double:3:f=3:nf=0.00:b=False:fill=16777215|C2:Double:30:f==B2*10:nf=General:b=False:fill=16777215|A3:String:plum:f=plum:nf=General:b=False:fill=16777215|B3:Double:2:f=2:nf=General:b=False:fill=16777215|C3:Double:20:f==B3*10:nf=General:b=False:fill=16777215|A4:String:apple:f=apple:nf=General:b=False:fill=16777215|B4:Double:1:f=1:nf=General:b=False:fill=16777215|C4:Double:10:f==B4*10:nf=General:b=False:fill=16777215|A5:String:apple:f=apple:nf=General:b=False:fill=16777215|B5:Double:1:f=1:nf=General:b=False:fill=16777215|C5:Double:10:f==B5*10:nf=General:b=False:fill=16777215|];hidden=[1:False|2:False|3:False|4:False|5:False|];worksheet=ERR:438:Object doesn't support this property or method:fields=1",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-initial-samples\\independent-table-sheet-settings.xlsx"
+      "file": "<folder>\\independent-table-sheet-settings.xlsx"
     }
   ],
   "session_id": "3ea11b97d676",

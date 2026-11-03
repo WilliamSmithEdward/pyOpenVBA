@@ -632,6 +632,39 @@ def _split_text(text: str, delimiters: list[str], insensitive: bool, ignore_empt
     return [piece for piece in pieces if piece] if ignore_empty else pieces
 
 
+def _xml_value(context: Context, text: str) -> Scalar:
+    """Text out of a document, read as typing it into a cell reads it (tests/fixtures/range_missing.json)."""
+    if not text:
+        return VALUE
+    if text.upper() in ("TRUE", "FALSE"):
+        return text.upper() == "TRUE"
+    number = text_to_number(text, context.today, locale=context.locale)
+    return text if number is None else number
+
+
+@function("FILTERXML", V, V)
+def FILTERXML(context: Context, document: Scalar, path: Scalar) -> Value:
+    """What an XPath selects: one value, or several in a column. A node with no text of its own is #VALUE! in its
+    place, and so is a document or a path that fails or selects nothing."""
+    from pyopenvba.formula._calc.xpath import XPathError, select
+
+    try:
+        nodes = select(context.text(document), context.text(path))
+    except XPathError:
+        return VALUE
+    if not nodes:
+        return VALUE
+    values = [_xml_value(context, node.own_text()) for node in nodes]
+    return values[0] if len(values) == 1 else Array([[value] for value in values])
+
+
+@function("PHONETIC", R)
+def PHONETIC(context: Context, reference: Value) -> Value:
+    """The furigana of a reference's cells. A cell a macro wrote has none, which is #N/A
+    (tests/fixtures/range_missing.json); the model does not keep what a file's cells have."""
+    return NA
+
+
 @function("TEXTSPLIT", V, A, A, V, V, A, minimum=2)
 def TEXTSPLIT(
     context: Context,

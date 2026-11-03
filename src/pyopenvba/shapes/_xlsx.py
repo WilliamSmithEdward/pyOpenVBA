@@ -936,6 +936,17 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     )
 
 
+def shape_default_markup(shape: Shape) -> str:
+    """The theme's spDef for SetShapesDefaultProperties on a new AutoShape (tests/fixtures/shape_columns.json)."""
+    look = _fill_line(shape)
+    return (f"<a:spDef><a:spPr>{look}</a:spPr>" if look else "<a:spDef><a:spPr/>") + (
+        '<a:bodyPr vertOverflow="clip" horzOverflow="clip" rtlCol="0" anchor="t"/><a:lstStyle><a:defPPr algn="l">'
+        '<a:defRPr sz="1100"/></a:defPPr></a:lstStyle><a:style><a:lnRef idx="2"><a:schemeClr val="accent1">'
+        '<a:shade val="15000"/></a:schemeClr></a:lnRef><a:fillRef idx="1"><a:schemeClr val="accent1"/></a:fillRef>'
+        '<a:effectRef idx="0"><a:schemeClr val="accent1"/></a:effectRef><a:fontRef idx="minor"><a:schemeClr val="lt1"/>'
+        "</a:fontRef></a:style></a:spDef>")
+
+
 def _new_picture(shape: Shape) -> str:
     """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
     locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"

@@ -1062,6 +1062,18 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         sheet.drawing_dirty = False
 
 
+def _write_shape_default(book: Workbook, package: OpcFile) -> None:
+    """SetShapesDefaultProperties' spDef in the theme part (tests/fixtures/shape_columns.json)."""
+    if not book.shape_default_markup:
+        return
+    for part in package.names():
+        if re.fullmatch(r"xl/theme/theme\d+\.xml", part):
+            text = re.sub(r"<a:spDef>.*?</a:spDef>", "", package.read(part).decode("utf-8"), flags=re.DOTALL)
+            markup = book.shape_default_markup
+            package.write(part, re.sub(r"<a:objectDefaults>", lambda _: f"<a:objectDefaults>{markup}", text, count=1).encode("utf-8"))
+            return
+
+
 def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
     """Each new picture's image in xl/media, sharing a part and a relationship with any that holds the same bytes
     (tests/fixtures/shape_add_picture.json)."""
@@ -1631,6 +1643,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     _new_vml_parts(book, package)
     _write_shapes(book, package)
     _write_backgrounds(book, package)
+    _write_shape_default(book, package)
     noted = {sheet.part_name for sheet in book.sheets_ if sheet.notes_changed and sheet.part_name}
     _write_notes(book, package)
     _write_threads(book, package, noted)

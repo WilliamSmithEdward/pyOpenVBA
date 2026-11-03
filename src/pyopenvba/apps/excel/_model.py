@@ -1451,6 +1451,9 @@ class Workbook(ExcelObject):
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
+        #: SetShapesDefaultProperties: the look later AutoShapes take, and the theme's spDef.
+        self.shape_default_look: object = None
+        self.shape_default_markup = ""
         self.name = name
         self.path = path
         self.saved = True

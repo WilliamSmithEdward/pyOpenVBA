@@ -2600,7 +2600,7 @@ Shape,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_properties.json;
 Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,Select,method,Select([Replace As Variant]),,UNASSESSED,,
-Shape,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
+Shape,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_defaults.py,"A new AutoShape's fill, line and effects, for later AutoShapes and the theme. Text settings report themselves."
 Shape,Shadow,"property, read-only",As ShadowFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
 Shape,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,SmartArt,"property, read-only",As SmartArt,,MISSING,,

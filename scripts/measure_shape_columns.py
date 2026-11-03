@@ -105,7 +105,7 @@ def main() -> None:
             with zipfile.ZipFile(Path(folder) / f'c{index}.xlsx') as package:
                 xml = package.read('xl/drawings/drawing1.xml').decode('utf-8')
                 theme = package.read('xl/theme/theme1.xml').decode('utf-8')
-            found = re.search(r'<a:objectDefaults.*?(?:/>|</a:objectDefaults>)', theme, re.DOTALL)
+            found = re.search(r'<a:objectDefaults>.*?</a:objectDefaults>|<a:objectDefaults/>', theme, re.DOTALL)
             parts.append([re.findall(r'<xdr:spPr\b.*?</xdr:spPr>(?:<xdr:style>.*?</xdr:style>)?(?:<xdr:txBody>.*?</xdr:txBody>)?', xml, re.DOTALL),
                           found.group(0) if found else ''])
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'reads': READS, 'source': source,

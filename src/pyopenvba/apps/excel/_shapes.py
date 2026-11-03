@@ -225,6 +225,11 @@ class Shapes(VBACollection, ItemDefault, Created):
             box=(Left, Top, Width, Height),
         )
         shape.auto_shape_type = EXCEL_ALIASES.get(wanted, wanted)
+        book = self.sheet.book
+        if book.shape_default_markup:
+            # After SetShapesDefaultProperties a new AutoShape takes its look, and writes its text layout out.
+            shape.fill_line = deepcopy(cast("FillLine | None", book.shape_default_look))
+            shape.text_look = TextLook(align="l", full=True)
         return ShapeObject(self.sheet, shape)
 
     @method
@@ -1089,6 +1094,21 @@ class ShapeObject(_Drawn):
             raise _unsupported("Apply with nothing picked up, or to this shape")
         shape.fill_line, shape.painted = cast("FillLine | None", deepcopy(application.picked_up_shape)), True
         self.restyled()
+        return EMPTY
+
+    @method
+    def SetShapesDefaultProperties(self) -> object:
+        """This AutoShape's fill, line and effects for later AutoShapes in the workbook, in the theme when it is saved.
+        Text boxes and lines keep their own. Text settings carry over too, which is not built, and report themselves
+        (tests/fixtures/shape_columns.json)."""
+        from pyopenvba.shapes._xlsx import shape_default_markup
+
+        shape = self.shape
+        if shape.source or shape.kind != "shape" or shape.text_look is not None or shape.text:
+            raise _unsupported("SetShapesDefaultProperties from this shape")
+        book = self.sheet.book
+        book.shape_default_look = deepcopy(shape.fill_line)
+        book.shape_default_markup = shape_default_markup(shape)
         return EMPTY
 
     @member

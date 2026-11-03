@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-03T21:40:11.837312+00:00",
+ "measured_at": "2026-11-03T21:43:53.694112+00:00",
  "reads": [
   "sh.TextFrame2.Column.Number",
   "sh.TextFrame2.Column.Spacing",
@@ -24,7 +24,7 @@
   "c.TextFrame.MarginLeft",
   "c.TextFrame.Characters.Font.Bold"
  ],
- "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, c As Object, s As String, v As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Select Case which\n    Case 0: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 1: Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n    Case 2: Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n    Case 3: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 4: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 5: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 6: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 7: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 8: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 9: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 10: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 11: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 12: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 13: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 14: Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n    Case 15: Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n    Case 16: Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n    Case 17: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 18: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 19: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 20: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 21: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 22: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 23: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 24: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 25: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 26: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 27: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 28: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 29: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 30: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 31: Set sh = ws.Shapes.AddShape(109, 10, 10, 100, 40)\n    Case 32: Set sh = ws.Shapes.AddShape(61, 10, 10, 100, 40)\n    Case 33: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 34: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 35: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 36: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 37: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 38: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 39: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 40: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 41: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    End Select\n    On Error GoTo Failed\n    Select Case which\n    Case 4\n        sh.TextFrame2.Column.Number = 2\n    Case 5\n        sh.TextFrame2.Column.Number = 16\n    Case 6\n        sh.TextFrame2.Column.Number = 17\n    Case 7\n        sh.TextFrame2.Column.Number = 0\n    Case 8\n        sh.TextFrame2.Column.Number = 1\n    Case 9\n        sh.TextFrame2.Column.Spacing = 5\n    Case 10\n        sh.TextFrame2.Column.Spacing = -1\n    Case 11\n        sh.TextFrame2.Column.Number = 2: sh.TextFrame2.Column.Spacing = 5\n    Case 12\n        sh.TextFrame2.Column.Spacing = 5: sh.TextFrame2.Column.Number = 2\n    Case 13\n        sh.TextFrame2.Column.Spacing = 0\n    Case 14\n        sh.TextFrame2.Column.Number = 2\n    Case 15\n        sh.TextFrame2.Column.Spacing = 5\n    Case 16\n        sh.TextFrame2.Column.Number = 2\n    Case 17\n        sh.TextFrame2.Column.Number = 2: sh.TextFrame2.MarginLeft = 3\n    Case 18\n        sh.TextFrame2.MarginLeft = 3: sh.TextFrame2.Column.Number = 2\n    Case 19\n        sh.Callout.Type = 3\n    Case 20\n        sh.Callout.Gap = 5\n    Case 21\n        sh.Callout.Border = msoFalse\n    Case 22\n        sh.Callout.Accent = msoTrue\n    Case 23\n        sh.Callout.Angle = 2\n    Case 24\n        sh.Callout.AutoLength = msoFalse\n    Case 25\n        sh.Callout.Drop = 5\n    Case 26\n        sh.Callout.PresetDrop 1\n    Case 27\n        sh.Callout.CustomLength 5\n    Case 28\n        sh.Callout.AutomaticLength\n    Case 29\n        sh.Callout.CustomDrop 5\n    Case 30\n        sh.Callout.Type = 3\n    Case 33\n        sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 34\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 35\n        sh.Line.Weight = 3: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 36\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(5, 20, 70, 100, 40)\n    Case 37\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddTextbox(1, 20, 70, 100, 40)\n    Case 38\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddLine(20, 70, 120, 110)\n    Case 39\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = wb.Worksheets.Add.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 40\n        sh.TextFrame.Characters.Text = \"Hi\": sh.TextFrame.Characters.Font.Bold = True: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 41\n        sh.TextFrame.MarginLeft = 3: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    End Select\n    s = \"ok\"\nMeasured:\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = sh.TextFrame2.Column.Number\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.TextFrame2.Column.Spacing\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.TextFrame2.Column)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.TextFrame2.Column.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.Callout)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Gap\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Border\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Accent\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Angle\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.AutoAttach\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.AutoLength\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Drop\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.DropType\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Length\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.AutoShapeType\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Line.Weight\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.TextFrame.MarginLeft\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.TextFrame.Characters.Font.Bold\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    On Error GoTo 0\n    Tried = s\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Measured\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 41\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, c As Object, s As String, v As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Select Case which\n    Case 0: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 1: Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n    Case 2: Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n    Case 3: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 4: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 5: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 6: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 7: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 8: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 9: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 10: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 11: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 12: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 13: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 14: Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n    Case 15: Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n    Case 16: Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n    Case 17: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 18: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 19: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 20: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 21: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 22: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 23: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 24: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 25: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 26: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 27: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 28: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 29: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 30: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 31: Set sh = ws.Shapes.AddShape(109, 10, 10, 100, 40)\n    Case 32: Set sh = ws.Shapes.AddShape(61, 10, 10, 100, 40)\n    Case 33: Set sh = ws.Shapes.AddShape(109, 10, 10, 100, 40)\n    Case 34: Set sh = ws.Shapes.AddShape(110, 10, 10, 100, 40)\n    Case 35: Set sh = ws.Shapes.AddShape(111, 10, 10, 100, 40)\n    Case 36: Set sh = ws.Shapes.AddShape(112, 10, 10, 100, 40)\n    Case 37: Set sh = ws.Shapes.AddShape(113, 10, 10, 100, 40)\n    Case 38: Set sh = ws.Shapes.AddShape(114, 10, 10, 100, 40)\n    Case 39: Set sh = ws.Shapes.AddShape(115, 10, 10, 100, 40)\n    Case 40: Set sh = ws.Shapes.AddShape(116, 10, 10, 100, 40)\n    Case 41: Set sh = ws.Shapes.AddShape(117, 10, 10, 100, 40)\n    Case 42: Set sh = ws.Shapes.AddShape(118, 10, 10, 100, 40)\n    Case 43: Set sh = ws.Shapes.AddShape(119, 10, 10, 100, 40)\n    Case 44: Set sh = ws.Shapes.AddShape(120, 10, 10, 100, 40)\n    Case 45: Set sh = ws.Shapes.AddShape(121, 10, 10, 100, 40)\n    Case 46: Set sh = ws.Shapes.AddShape(122, 10, 10, 100, 40)\n    Case 47: Set sh = ws.Shapes.AddShape(123, 10, 10, 100, 40)\n    Case 48: Set sh = ws.Shapes.AddShape(124, 10, 10, 100, 40)\n    Case 49: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 50: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 51: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 52: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 53: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 54: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 55: Set sh = ws.Shapes.AddShape(110, 10, 10, 100, 40)\n    Case 56: Set sh = ws.Shapes.AddShape(110, 10, 10, 100, 40)\n    Case 57: Set sh = ws.Shapes.AddShape(110, 10, 10, 100, 40)\n    Case 58: Set sh = ws.Shapes.AddShape(109, 10, 10, 100, 40)\n    Case 59: Set sh = ws.Shapes.AddShape(109, 10, 10, 100, 40)\n    Case 60: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 61: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 62: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 63: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 64: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 65: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 66: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 67: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 68: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 69: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 70: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 71: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 72: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 73: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 74: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 75: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 76: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 77: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 78: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 79: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 80: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 81: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 82: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 83: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 84: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 85: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 86: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 87: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 88: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 89: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 90: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 91: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 92: Set sh = ws.Shapes.AddCallout(3, 10, 10, 100, 40)\n    Case 93: Set sh = ws.Shapes.AddCallout(4, 10, 10, 100, 40)\n    Case 94: Set sh = ws.Shapes.AddCallout(3, 10, 10, 100, 40)\n    Case 95: Set sh = ws.Shapes.AddCallout(2, 10, 10, 100, 40)\n    Case 96: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 97: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 98: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 99: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 100: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 101: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 102: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 103: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    Case 104: Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n    End Select\n    On Error GoTo Failed\n    Select Case which\n    Case 4\n        sh.TextFrame2.Column.Number = 2\n    Case 5\n        sh.TextFrame2.Column.Number = 16\n    Case 6\n        sh.TextFrame2.Column.Number = 17\n    Case 7\n        sh.TextFrame2.Column.Number = 0\n    Case 8\n        sh.TextFrame2.Column.Number = 1\n    Case 9\n        sh.TextFrame2.Column.Spacing = 5\n    Case 10\n        sh.TextFrame2.Column.Spacing = -1\n    Case 11\n        sh.TextFrame2.Column.Number = 2: sh.TextFrame2.Column.Spacing = 5\n    Case 12\n        sh.TextFrame2.Column.Spacing = 5: sh.TextFrame2.Column.Number = 2\n    Case 13\n        sh.TextFrame2.Column.Spacing = 0\n    Case 14\n        sh.TextFrame2.Column.Number = 2\n    Case 15\n        sh.TextFrame2.Column.Spacing = 5\n    Case 16\n        sh.TextFrame2.Column.Number = 2\n    Case 17\n        sh.TextFrame2.Column.Number = 2: sh.TextFrame2.MarginLeft = 3\n    Case 18\n        sh.TextFrame2.MarginLeft = 3: sh.TextFrame2.Column.Number = 2\n    Case 19\n        sh.Callout.Type = 3\n    Case 20\n        sh.Callout.Gap = 5\n    Case 21\n        sh.Callout.Border = msoFalse\n    Case 22\n        sh.Callout.Accent = msoTrue\n    Case 23\n        sh.Callout.Angle = 2\n    Case 24\n        sh.Callout.AutoLength = msoFalse\n    Case 25\n        sh.Callout.Drop = 5\n    Case 26\n        sh.Callout.PresetDrop 1\n    Case 27\n        sh.Callout.CustomLength 5\n    Case 28\n        sh.Callout.AutomaticLength\n    Case 29\n        sh.Callout.CustomDrop 5\n    Case 30\n        sh.Callout.Type = 3\n    Case 49\n        sh.Callout.Type = 1\n    Case 50\n        sh.Callout.Type = 2\n    Case 51\n        sh.Callout.Type = 3\n    Case 52\n        sh.Callout.Type = 4\n    Case 53\n        sh.Callout.Type = 0\n    Case 54\n        sh.Callout.Type = 5\n    Case 55\n        sh.Callout.Type = 1\n    Case 56\n        sh.Callout.Type = 3\n    Case 57\n        sh.Callout.Type = 4\n    Case 58\n        sh.Callout.Border = msoFalse\n    Case 59\n        sh.Callout.Accent = msoTrue\n    Case 60\n        sh.Callout.Border = msoTrue\n    Case 61\n        sh.Callout.Accent = msoTrue: sh.Callout.Accent = msoFalse\n    Case 62\n        sh.Callout.Border = msoTrue: sh.Callout.Accent = msoTrue\n    Case 63\n        sh.Callout.Angle = 1\n    Case 64\n        sh.Callout.Angle = 3\n    Case 65\n        sh.Callout.Angle = 4\n    Case 66\n        sh.Callout.Angle = 5\n    Case 67\n        sh.Callout.Angle = 6\n    Case 68\n        sh.Callout.Angle = 0\n    Case 69\n        sh.Callout.Gap = 0\n    Case 70\n        sh.Callout.Gap = 20\n    Case 71\n        sh.Callout.Gap = 200\n    Case 72\n        sh.Callout.Gap = -5\n    Case 73\n        sh.Callout.PresetDrop 1\n    Case 74\n        sh.Callout.PresetDrop 2\n    Case 75\n        sh.Callout.PresetDrop 3\n    Case 76\n        sh.Callout.PresetDrop 4\n    Case 77\n        sh.Callout.PresetDrop 0\n    Case 78\n        sh.Callout.PresetDrop 5\n    Case 79\n        sh.Callout.CustomDrop 0\n    Case 80\n        sh.Callout.CustomDrop 20\n    Case 81\n        sh.Callout.CustomDrop 100\n    Case 82\n        sh.Callout.CustomDrop -5\n    Case 83\n        sh.Callout.CustomLength 0\n    Case 84\n        sh.Callout.CustomLength 20\n    Case 85\n        sh.Callout.CustomLength 100\n    Case 86\n        sh.Callout.CustomLength -5\n    Case 87\n        sh.Callout.CustomLength 20: sh.Callout.AutomaticLength\n    Case 88\n        sh.Callout.AutoAttach = msoTrue\n    Case 89\n        sh.Callout.AutoAttach = msoFalse\n    Case 90\n        sh.Width = 200\n    Case 91\n        sh.Height = 80\n    Case 92\n        sh.Callout.Gap = 5\n    Case 93\n        sh.Callout.CustomDrop 5\n    Case 94\n        sh.Callout.CustomLength 5\n    Case 95\n        sh.Adjustments(1) = 0.5\n    Case 96\n        sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 97\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 98\n        sh.Line.Weight = 3: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 99\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(5, 20, 70, 100, 40)\n    Case 100\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddTextbox(1, 20, 70, 100, 40)\n    Case 101\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddLine(20, 70, 120, 110)\n    Case 102\n        sh.Fill.ForeColor.RGB = 255: sh.SetShapesDefaultProperties: Set c = wb.Worksheets.Add.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 103\n        sh.TextFrame.Characters.Text = \"Hi\": sh.TextFrame.Characters.Font.Bold = True: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 104\n        sh.TextFrame.MarginLeft = 3: sh.SetShapesDefaultProperties: Set c = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    End Select\n    s = \"ok\"\nMeasured:\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = sh.TextFrame2.Column.Number\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.TextFrame2.Column.Spacing\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.TextFrame2.Column)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.TextFrame2.Column.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.Callout)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Gap\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Border\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Accent\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Angle\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.AutoAttach\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.AutoLength\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Drop\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.DropType\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Callout.Length\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.AutoShapeType\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Line.Weight\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.TextFrame.MarginLeft\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.TextFrame.Characters.Font.Bold\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    On Error GoTo 0\n    Tried = s\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Measured\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 104\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
  "cases": [
   [
    "ws.Shapes.AddShape(1, 10, 10, 100, 40): ",
@@ -352,6 +352,636 @@
    [
     [
      "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"flowChartProcess\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(109, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,0,3,0,0,7.5,1,48.02343,109,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(110, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,0,3,0,0,7.5,1,48.02343,109,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(111, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,8.333,-1,0,3,0,0,7.5,1,8.334,111,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout2\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(112, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,4,8.333,-1,0,2,0,0,7.5,1,8.334,112,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout3\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(113, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(114, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,-1,3,0,0,7.5,1,48.02343,114,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(115, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,8.333,0,-1,3,0,0,7.5,1,8.334,115,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentCallout2\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(116, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,4,8.333,0,-1,2,0,0,7.5,1,8.334,116,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentCallout3\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(117, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(118, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(119, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,8.333,0,0,3,0,0,7.5,1,8.334,119,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout2\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(120, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,4,8.333,0,0,2,0,0,7.5,1,8.334,120,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout3\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(121, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,0,3,0,0,7.5,1,48.02343,109,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(122, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,-1,3,0,0,7.5,1,48.02343,122,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentBorderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(123, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,8.333,-1,-1,3,0,0,7.5,1,8.334,123,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentBorderCallout2\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(124, 10, 10, 100, 40): ",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,4,8.333,-1,-1,2,0,0,7.5,1,8.334,124,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentBorderCallout3\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Type = 1",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Type = 2",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Type = 3",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,8.333,0,0,3,0,0,7.5,1,8.334,119,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout2\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Type = 4",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,4,8.333,0,0,2,0,0,7.5,1,8.334,120,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout3\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Type = 0",
+   "Err -2147024809,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Type = 5",
+   "Err -2147024809,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(110, 10, 10, 100, 40): sh.Callout.Type = 1",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,0,3,0,0,7.5,1,48.02343,109,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(110, 10, 10, 100, 40): sh.Callout.Type = 3",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,8.333,-1,0,3,0,0,7.5,1,8.334,111,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout2\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(110, 10, 10, 100, 40): sh.Callout.Type = 4",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,4,8.333,-1,0,2,0,0,7.5,1,8.334,112,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout3\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(109, 10, 10, 100, 40): sh.Callout.Border = msoFalse",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddShape(109, 10, 10, 100, 40): sh.Callout.Accent = msoTrue",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,-1,3,0,0,7.5,1,48.02343,122,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentBorderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Border = msoTrue",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,0,3,0,0,7.5,1,48.02343,109,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"borderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Accent = msoTrue: sh.Callout.Accent = msoFalse",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Border = msoTrue: sh.Callout.Accent = msoTrue",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,-1,-1,3,0,0,7.5,1,48.02343,122,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"accentBorderCallout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Angle = 1",
+   "Err 5,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Angle = 3",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02358,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 103644\"/><a:gd name=\"adj4\" fmla=\"val -42291\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Angle = 4",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,4,0,0,7.5,1,48.0238,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 78779\"/><a:gd name=\"adj4\" fmla=\"val -49923\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Angle = 5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,5,0,0,7.5,1,48.023,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 18750\"/><a:gd name=\"adj4\" fmla=\"val -56356\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Angle = 6",
+   "Err 5,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Angle = 0",
+   "Err 5,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Gap = 0",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,0,0,0,3,0,0,7.5,-2,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val 0\"/><a:gd name=\"adj3\" fmla=\"val 112500\"/><a:gd name=\"adj4\" fmla=\"val -30000\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Gap = 20",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,20,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -20000\"/><a:gd name=\"adj3\" fmla=\"val 112500\"/><a:gd name=\"adj4\" fmla=\"val -50000\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Gap = 200",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,200,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -200000\"/><a:gd name=\"adj3\" fmla=\"val 112500\"/><a:gd name=\"adj4\" fmla=\"val -230000\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.Gap = -5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,0,0,0,3,0,0,7.5,-2,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val 5000\"/><a:gd name=\"adj3\" fmla=\"val 112500\"/><a:gd name=\"adj4\" fmla=\"val -25000\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.PresetDrop 1",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,3.6,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 9000\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 102750\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.PresetDrop 2",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,0,2,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 0\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 93750\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.PresetDrop 3",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,20,3,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 50000\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 143750\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.PresetDrop 4",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,40,4,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 100000\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 193750\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.PresetDrop 0",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.PresetDrop 5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomDrop 0",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,0,2,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 0\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 93750\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomDrop 20",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,20,3,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 50000\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 143750\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomDrop 100",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,100,-2,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 250000\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 343750\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomDrop -5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,-5,-2,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val -12500\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 81250\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomLength 0",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,5,0,0,7.5,1,0,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 18750\"/><a:gd name=\"adj4\" fmla=\"val -8333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomLength 20",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,2,0,0,7.5,1,20.00007,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 66371\"/><a:gd name=\"adj4\" fmla=\"val -14429\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomLength 100",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,2,0,0,7.5,1,100.0001,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 256856\"/><a:gd name=\"adj4\" fmla=\"val -38811\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomLength -5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,2,0,0,7.5,1,4.999922,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 6845\"/><a:gd name=\"adj4\" fmla=\"val -6809\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.CustomLength 20: sh.Callout.AutomaticLength",
+   "Err 445,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,2,0,0,7.5,1,20.00007,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 66371\"/><a:gd name=\"adj4\" fmla=\"val -14429\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.AutoAttach = msoTrue",
+   "Err 445,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Callout.AutoAttach = msoFalse",
+   "Err 445,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,7.5,1,48.02343,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Width = 200",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,16.666,0,0,4,0,0,7.5,1,70.75486,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"2540000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Height = 80",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,2,0,0,15,1,80.77747,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"1016000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(3, 10, 10, 100, 40): sh.Callout.Gap = 5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,5,0,0,3,0,0,7.5,1,8.334,119,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -5000\"/><a:gd name=\"adj3\" fmla=\"val 18750\"/><a:gd name=\"adj4\" fmla=\"val -13334\"/><a:gd name=\"adj5\" fmla=\"val 112500\"/><a:gd name=\"adj6\" fmla=\"val -43334\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(4, 10, 10, 100, 40): sh.Callout.CustomDrop 5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,4,8.333,0,0,2,0,0,5,1,8.334,120,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout3\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 12500\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 12500\"/><a:gd name=\"adj4\" fmla=\"val -16667\"/><a:gd name=\"adj5\" fmla=\"val 93750\"/><a:gd name=\"adj6\" fmla=\"val -16667\"/><a:gd name=\"adj7\" fmla=\"val 106713\"/><a:gd name=\"adj8\" fmla=\"val -8333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(3, 10, 10, 100, 40): sh.Callout.CustomLength 5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,3,8.333,0,0,3,0,0,7.5,1,5,119,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18750\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 18750\"/><a:gd name=\"adj4\" fmla=\"val -13333\"/><a:gd name=\"adj5\" fmla=\"val 112500\"/><a:gd name=\"adj6\" fmla=\"val -46667\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+    ],
+    "<a:objectDefaults><a:lnDef><a:spPr/>"
+   ]
+  ],
+  [
+   "ws.Shapes.AddCallout(2, 10, 10, 100, 40): sh.Adjustments(1) = 0.5",
+   "ok,1,0,TextColumn2,E438,CalloutFormat,1,8.333,0,0,3,0,0,20,3,39.05125,113,2,E91,E91,E91,E91,E91",
+   [
+    [
+     "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 50000\"/><a:gd name=\"adj2\" fmla=\"val -8333\"/><a:gd name=\"adj3\" fmla=\"val 112500\"/><a:gd name=\"adj4\" fmla=\"val -38333\"/></a:avLst></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
     ],
     "<a:objectDefaults><a:lnDef><a:spPr/>"
    ]

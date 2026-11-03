@@ -14,6 +14,7 @@ models of the same thing.
 
 from __future__ import annotations
 
+import math
 import re
 from pathlib import Path
 from collections.abc import Iterator, Sequence
@@ -36,7 +37,7 @@ from pyopenvba.interpreter._values import (
     to_number,
     to_text,
 )
-from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
+from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT, EXCEL_ALIASES, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
 from pyopenvba.shapes._values import (
     Box,
     EMU_PER_POINT,
@@ -223,7 +224,7 @@ class Shapes(VBACollection, ItemDefault, Created):
             stem=AUTO_SHAPE_NAMES[wanted],
             box=(Left, Top, Width, Height),
         )
-        shape.auto_shape_type = wanted
+        shape.auto_shape_type = EXCEL_ALIASES.get(wanted, wanted)
         return ShapeObject(self.sheet, shape)
 
     @method
@@ -1095,6 +1096,10 @@ class ShapeObject(_Drawn):
         return PictureFormat(self)
 
     @member
+    def Callout(self) -> object:
+        return CalloutFormat(self)
+
+    @member
     def Nodes(self) -> object:
         return ShapeNodes(self)
 
@@ -1808,6 +1813,211 @@ def _png_points(data: bytes) -> tuple[float, float]:
         # In whole EMU, rounded down.
         return (int(wide / across * 36000000) / EMU_PER_POINT, int(tall / down * 36000000) / EMU_PER_POINT)
     return wide * 0.75, tall * 0.75
+
+
+#: Each callout AutoShape as (lines, border, accent).
+_CALLOUT_TYPES = {109: (1, True, False), 111: (2, True, False), 112: (3, True, False), 113: (1, False, False),
+                  114: (1, False, True), 115: (2, False, True), 116: (3, False, True), 119: (2, False, False),
+                  120: (3, False, False), 122: (1, True, True), 123: (2, True, True), 124: (3, True, True)}
+_NOT_A_CALLOUT = (-2147024809, "The specified value is out of range.")
+#: CalloutFormat.Angle's named angles from the vertical, in degrees.
+_CALLOUT_ANGLES = {2: 30.0, 3: 45.0, 4: 60.0, 5: 90.0}
+
+
+class CalloutFormat(Created):
+    """A callout's look (tests/fixtures/shape_columns.json), read from and written to its adjustments: pairs of y and x
+    as fractions of the shape, one more pair than it has lines. Gap and Drop move the whole leader; Length and Angle
+    its second point, a one-line callout's only where measured. Other shapes have this object, and using it is out of
+    range, but for AutoAttach and AutoLength, which read false."""
+
+    vba_type_name = "CalloutFormat"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    def lines(self) -> tuple[int, bool, bool]:
+        found = _CALLOUT_TYPES.get(getattr(self.owner.shape, "auto_shape_type", 1)) if self.owner.shape.kind == "shape" else None
+        if found is None:
+            raise error(*_NOT_A_CALLOUT)
+        return found
+
+    def values(self) -> list[int]:
+        return list(Adjustments(self.owner).values())
+
+    def put(self, values: list[int]) -> None:
+        self.owner.restyled()
+        self.owner.shape.adjustments = tuple(values)
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    def retype(self, lines: int, border: bool, accent: bool) -> None:
+        wanted = next(key for key, one in _CALLOUT_TYPES.items() if one == (lines, border, accent))
+        shape = self.owner.shape
+        if lines != self.lines()[0] and shape.adjustments is not None:
+            raise _unsupported("a callout's Type with its adjustments changed")
+        self.owner.restyled()
+        shape.auto_shape_type, shape.geometry = wanted, EXCEL_GEOMETRY[wanted]
+
+    @member
+    def Type(self) -> object:
+        return VBAInt({1: 1, 2: 3, 3: 4}[self.lines()[0]], "Long")
+
+    @setter("Type")
+    def _type(self, value: object) -> None:
+        lines = {1: 1, 2: 1, 3: 2, 4: 3}.get(int(to_number(value)))
+        _, border, accent = self.lines()
+        if lines is None:
+            raise error(*_NOT_A_CALLOUT)
+        self.retype(lines, border, accent)
+
+    @member
+    def Border(self) -> object:
+        return VBAInt(-1 if self.lines()[1] else 0, "Long")
+
+    @setter("Border")
+    def _border(self, value: object) -> None:
+        lines, _, accent = self.lines()
+        self.retype(lines, int(to_number(value)) != 0, accent)
+
+    @member
+    def Accent(self) -> object:
+        return VBAInt(-1 if self.lines()[2] else 0, "Long")
+
+    @setter("Accent")
+    def _accent(self, value: object) -> None:
+        lines, border, _ = self.lines()
+        self.retype(lines, border, int(to_number(value)) != 0)
+
+    @member
+    def AutoAttach(self) -> object:
+        return VBAInt(0, "Long")
+
+    @setter("AutoAttach")
+    def _auto_attach(self, value: object) -> None:
+        raise error(445, "Object doesn't support this action")
+
+    @member
+    def AutoLength(self) -> object:
+        return VBAInt(0, "Long")
+
+    @setter("AutoLength")
+    def _auto_length(self, value: object) -> None:
+        raise error(450, "Wrong number of arguments or invalid property assignment")
+
+    @method
+    def AutomaticLength(self) -> object:
+        raise error(445, "Object doesn't support this action")
+
+    @member
+    def Gap(self) -> object:
+        self.lines()
+        return VBASingle(max(0.0, -self.values()[1] / 100000 * self.owner.shape.width))
+
+    @setter("Gap")
+    def _gap(self, value: object) -> None:
+        self.lines()
+        values = self.values()
+        shift = round(-_number(value) / self.owner.shape.width * 100000) - values[1]
+        self.put([one + shift if index % 2 else one for index, one in enumerate(values)])
+
+    @member
+    def Drop(self) -> object:
+        self.lines()
+        return VBASingle(self.values()[0] / 100000 * self.owner.shape.height)
+
+    @setter("Drop")
+    def _drop(self, value: object) -> None:
+        raise error(450, "Wrong number of arguments or invalid property assignment")
+
+    @member
+    def DropType(self) -> object:
+        self.lines()
+        values = self.values()
+        if values[1] >= 0:
+            return VBAInt(-2, "Long")
+        at = values[0]
+        return VBAInt({0: 2, 50000: 3, 100000: 4}.get(at, 1 if 0 < at < 100000 else -2), "Long")
+
+    def dropped(self, wanted: float) -> None:
+        values = self.values()
+        shift = round(wanted / self.owner.shape.height * 100000) - values[0]
+        self.put([one if index % 2 else one + shift for index, one in enumerate(values)])
+
+    @method
+    def CustomDrop(self, Drop: object = MISSING) -> object:
+        self.lines()
+        self.dropped(_number(Drop))
+        return EMPTY
+
+    @method
+    def PresetDrop(self, DropType: object = MISSING) -> object:
+        self.lines()
+        height = self.owner.shape.height
+        wanted = {1: 3.6, 2: 0.0, 3: height / 2, 4: height}.get(int(to_number(DropType)))
+        if wanted is not None:
+            self.dropped(wanted)
+        return EMPTY
+
+    def span(self, segment: int) -> tuple[float, float]:
+        """A leader's segment across and down in points."""
+        values = self.values()
+        shape = self.owner.shape
+        return ((values[segment * 2 + 3] - values[segment * 2 + 1]) / 100000 * shape.width,
+                (values[segment * 2 + 2] - values[segment * 2]) / 100000 * shape.height)
+
+    @member
+    def Length(self) -> object:
+        self.lines()
+        return VBASingle(math.hypot(*self.span(0)))
+
+    @method
+    def CustomLength(self, Length: object = MISSING) -> object:
+        """The new length along the old leader's fractions taken as points, so its direction changes, and a negative one
+        turns it back through its start."""
+        lines = self.lines()[0]
+        values = self.values()
+        shape = self.owner.shape
+        wanted = _number(Length)
+        if lines == 1:
+            across, down = values[3] - values[1], values[2] - values[0]
+            size = math.hypot(across, down)
+            values[3] = values[1] + round(wanted * across / size / shape.width * 100000)
+            values[2] = values[0] + round(wanted * down / size / shape.height * 100000)
+        elif lines == 2:
+            # The first segment's end moves; the leader's far end stays.
+            values[3] = values[1] + round(-wanted / shape.width * 100000)
+        else:
+            raise _unsupported("CustomLength on a three-line callout")
+        self.put(values)
+        return EMPTY
+
+    @member
+    def Angle(self) -> object:
+        lines = self.lines()[0]
+        across, down = self.span(min(lines, 2) - 1)
+        if not across and not down:
+            return VBAInt(5, "Long")
+        degrees = math.degrees(math.atan2(abs(across), abs(down)))
+        return VBAInt(min(_CALLOUT_ANGLES, key=lambda key: abs(_CALLOUT_ANGLES[key] - degrees)), "Long")
+
+    @setter("Angle")
+    def _angle(self, value: object) -> None:
+        lines = self.lines()[0]
+        degrees = _CALLOUT_ANGLES.get(int(to_number(value)))
+        if degrees is None:
+            raise error(5, "Invalid procedure call or argument")
+        if lines != 1:
+            raise _unsupported("the Angle of a callout of several lines")
+        values = self.values()
+        shape = self.owner.shape
+        across, down = self.span(0)
+        length = math.hypot(across, down)
+        turned = math.radians(degrees)
+        values[3] = values[1] + round(math.copysign(length * math.sin(turned), across) / shape.width * 100000)
+        values[2] = values[0] + round(length * math.cos(turned) / shape.height * 100000)
+        self.put(values)
 
 
 class PictureFormat(Created):

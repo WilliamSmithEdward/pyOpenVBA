@@ -677,10 +677,6 @@ class WorksheetView(ExcelObject):
     def __init__(self, window: Window, sheet: Worksheet) -> None:
         self.window, self.sheet = window, sheet
 
-    @member
-    def DisplayDataTypeIcons(self) -> object:
-        return True
-
     def view(self) -> SheetViewState:
         if not any(one is self.sheet for one in self.window.book.sheets_):
             raise VBAUnsupportedError("the view of a deleted sheet is not implemented")

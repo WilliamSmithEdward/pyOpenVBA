@@ -15,7 +15,7 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/hidden_me
 NAMES = [case[0] for case in RECORD['cases']]
 #: Members still to come, each of which reports itself when asked for: a table style of a workbook's own, a table style's
 #: elements, ranges that allow edits, a list column's XPath, Characters of a displayed format, a header's picture object.
-LEFT_OUT = ('TableStyleElements', '.Duplicate', 'TableStyles.Add', 'AllowEditRanges', '.XPath', 'DisplayFormat.Characters', 'r = Application.CellFormat',
+LEFT_OUT = ('PhoneticCharacters', 'DisplayDataTypeIcons', 'TableStyleElements', '.Duplicate', 'TableStyles.Add', 'AllowEditRanges', '.XPath', 'DisplayFormat.Characters', 'r = Application.CellFormat',
             'FindFormat', 'OddPage', 'FormatConditions.Add(xlExpression, , "=TRUE").NumberFormat', 'ws.PageSetup.LeftHeader', 'ic.IconCriteria(1).Value', 'r = ActiveWindow.Panes.[_Default](1).Index',
             # Breaks a chart's extent brings into the sheet's used area; a group's items; Errors, which For Each refuses
             # in Excel and walks here; a window's panes, which report themselves.

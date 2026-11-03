@@ -952,7 +952,10 @@ def selection(sheet: Worksheet) -> object:
     (tests/fixtures/active_chart.json, tests/fixtures/chart_areas.json)."""
     chart = active_chart(sheet)
     if not isinstance(chart, Chart):
-        return sheet.selection
+        from pyopenvba.apps.excel._selected_shapes import answer
+
+        drawn = answer(sheet)
+        return sheet.selection if drawn is None else drawn
     if sheet.chart_part == 'area':
         return ChartArea(chart)
     if sheet.chart_part == 'plot':

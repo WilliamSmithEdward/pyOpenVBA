@@ -1,0 +1,198 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-11-03T18:42:46.205334+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "fill_source_selected",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nws.Range(\"Z1\").Select\nws.Range(\"Z1\").AutoFill ws.Range(\"Z1:Z3\")\ns = Selection.Address & \"|\" & ActiveCell.Address & \"|\" & ws.Range(\"Z3\").Value\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$Z$1|$Z$1|1"
+    },
+    {
+      "name": "fill_source_is_selection",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nws.Range(\"Z1:Z2\").Select\nSelection.AutoFill ws.Range(\"Z1:Z3\")\ns = Selection.Address & \"|\" & ActiveCell.Address & \"|\" & ws.Range(\"Z3\").Value\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$Z$1:$Z$2|$Z$1|3"
+    },
+    {
+      "name": "fill_two_selected_one_filled",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nws.Range(\"Z1:Z2\").Select\nws.Range(\"Z1\").AutoFill ws.Range(\"Z1:Z3\")\ns = Selection.Address & \"|\" & ActiveCell.Address & \"|\" & ws.Range(\"Z3\").Value\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$Z$1:$Z$2|$Z$1|1"
+    },
+    {
+      "name": "fill_selection_elsewhere",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nws.Range(\"A1\").Select\nws.Range(\"Z1:Z2\").AutoFill ws.Range(\"Z1:Z3\")\ns = Selection.Address & \"|\" & ActiveCell.Address & \"|\" & ws.Range(\"Z3\").Value\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1|$A$1|3"
+    },
+    {
+      "name": "fill_selection_is_destination",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nws.Range(\"Z1:Z3\").Select\nws.Range(\"Z1\").AutoFill ws.Range(\"Z1:Z3\")\ns = Selection.Address & \"|\" & ActiveCell.Address & \"|\" & ws.Range(\"Z3\").Value\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$Z$1:$Z$3|$Z$1|1"
+    },
+    {
+      "name": "fill_selected_with_active_elsewhere",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nws.Range(\"Z1:Z2\").Select\nws.Range(\"Z2\").Activate\nws.Range(\"Z1:Z2\").AutoFill ws.Range(\"Z1:Z3\")\ns = Selection.Address & \"|\" & ActiveCell.Address & \"|\" & ws.Range(\"Z3\").Value\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$Z$1:$Z$2|$Z$2|3"
+    },
+    {
+      "name": "fill_right_source_selected",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nws.Range(\"Z1\").Select\nws.Range(\"Z1\").AutoFill ws.Range(\"Z1:AB1\")\ns = Selection.Address & \"|\" & ActiveCell.Address\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$Z$1|$Z$1"
+    },
+    {
+      "name": "fill_other_sheet_active",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"Z1\").Value = 1\nws.Range(\"Z2\").Value = 2\nSet ws2 = Worksheets.Add\nws.Range(\"Z1\").AutoFill ws.Range(\"Z1:Z3\")\ns = ActiveSheet.Name = ws2.Name\ns = s & ws.Range(\"Z3\").Value\nws.Activate\ns = s & Selection.Address\nApplication.DisplayAlerts = False\nws2.Delete\nApplication.DisplayAlerts = True\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True1$A$1"
+    },
+    {
+      "name": "shape_type_name",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Rectangle"
+    },
+    {
+      "name": "shape_name",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\ns = Selection.Name\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Box"
+    },
+    {
+      "name": "shape_left_top",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\ns = Selection.Left & \"|\" & Selection.Top\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "10|10"
+    },
+    {
+      "name": "shape_left_set",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nSelection.Left = 40\ns = o.Left\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "40"
+    },
+    {
+      "name": "shape_range_count",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\ns = Selection.ShapeRange.Count & Selection.ShapeRange(1).Name\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1Box"
+    },
+    {
+      "name": "shape_address_fails",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\ns = Selection.Address\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "error": 438
+    },
+    {
+      "name": "shape_active_cell_stays",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\ns = ActiveCell.Address\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$C$3"
+    },
+    {
+      "name": "shape_then_range",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nws.Range(\"A1\").Select\ns = TypeName(Selection) & Selection.Address\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Range$A$1"
+    },
+    {
+      "name": "shape_then_activate",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nws.Range(\"A1\").Activate\ns = TypeName(Selection) & Selection.Address & ActiveCell.Address\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Range$A$1$A$1"
+    },
+    {
+      "name": "shape_selection_delete",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nSelection.Delete\ns = TypeName(Selection) & Selection.Address & ActiveCell.Address & ws.Shapes.Count\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Range$B$2:$C$3$C$30"
+    },
+    {
+      "name": "shape_deleted_by_name",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\no.Delete\ns = TypeName(Selection) & Selection.Address & ActiveCell.Address\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Range$B$2:$C$3$C$3"
+    },
+    {
+      "name": "shape_other_deleted",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nSet c = Nothing\nDim p As Object\nSet p = ws.Shapes.AddShape(msoShapeOval, 80, 10, 50, 50)\no.Select\np.Delete\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Rectangle"
+    },
+    {
+      "name": "shape_oval",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nws.Shapes.AddShape(msoShapeOval, 80, 10, 50, 50).Select\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Oval"
+    },
+    {
+      "name": "shape_rounded",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nws.Shapes.AddShape(msoShapeRoundedRectangle, 80, 10, 50, 50).Select\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Rectangle"
+    },
+    {
+      "name": "shape_line",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nws.Shapes.AddLine(1, 1, 50, 50).Select\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Line"
+    },
+    {
+      "name": "shape_textbox",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nws.Shapes.AddTextbox(1, 1, 1, 50, 50).Select\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "TextBox"
+    },
+    {
+      "name": "shape_two",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nDim p As Object\nSet p = ws.Shapes.AddShape(msoShapeOval, 80, 10, 50, 50)\np.Name = \"Ring\"\nws.Shapes.Range(Array(\"Box\", \"Ring\")).Select\ns = TypeName(Selection) & Selection.Count & Selection.ShapeRange.Count\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "DrawingObjects22"
+    },
+    {
+      "name": "shape_add_to_selection",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nDim p As Object\nSet p = ws.Shapes.AddShape(msoShapeOval, 80, 10, 50, 50)\no.Select\np.Select False\ns = TypeName(Selection) & Selection.Count\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "DrawingObjects2"
+    },
+    {
+      "name": "shape_replace_true",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nDim p As Object\nSet p = ws.Shapes.AddShape(msoShapeOval, 80, 10, 50, 50)\no.Select\np.Select True\ns = TypeName(Selection) & Selection.Name = p.Name\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "False"
+    },
+    {
+      "name": "shape_on_other_sheet",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\nSet ws2 = Worksheets.Add\nOn Error Resume Next\no.Select\ns = Err.Number & TypeName(Selection)\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws2.Delete\nApplication.DisplayAlerts = True\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0Range"
+    },
+    {
+      "name": "shape_sheet_away_and_back",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nSet ws2 = Worksheets.Add\ns = TypeName(Selection)\nws.Activate\ns = s & TypeName(Selection)\nApplication.DisplayAlerts = False\nws2.Delete\nApplication.DisplayAlerts = True\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "RangeRectangle"
+    },
+    {
+      "name": "shape_insert_rows_keeps",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nws.Rows(1).Insert\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Rectangle"
+    },
+    {
+      "name": "shape_write_cell_keeps",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nws.Range(\"A1\").Value = 1\ns = TypeName(Selection)\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Rectangle"
+    },
+    {
+      "name": "shape_paste_elsewhere",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nws.Range(\"H1\").Value = 1\nws.Range(\"H1\").Copy\nOn Error Resume Next\nws.Paste\ns = Err.Number & TypeName(Selection) & ws.Range(\"B2\").Value\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004Rectangle"
+    },
+    {
+      "name": "shape_range_on_selection",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Activate\nws.Range(\"B2:C3\").Select\nws.Range(\"C3\").Activate\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 50)\no.Name = \"Box\"\no.Select\nOn Error Resume Next\ns = Selection.Value\ns = s & \"|\" & Err.Number\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "|438"
+    },
+    {
+      "name": "clear_outline_nothing",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:E1\").Value = Array(\"Cust\", \"Region\", \"Item\", \"Qty\", \"Price\")\nws.Range(\"A2:E2\").Value = Array(\"Ann\", \"North\", \"Pen\", 10, 1.5)\nws.Range(\"A3:E3\").Value = Array(\"Bob\", \"South\", \"Ink\", 3, 12.25)\nws.Range(\"A4:E4\").Value = Array(\"Cy\", \"North\", \"Pad\", 7, 4)\nws.Range(\"A5:E5\").Value = Array(\"Di\", \"East\", \"Pen\", 20, 1.5)\nws.Range(\"Z1\").ClearOutline\ns = ws.Rows(1).OutlineLevel\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1"
+    },
+    {
+      "name": "clear_outline_cell_in_group",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:E1\").Value = Array(\"Cust\", \"Region\", \"Item\", \"Qty\", \"Price\")\nws.Range(\"A2:E2\").Value = Array(\"Ann\", \"North\", \"Pen\", 10, 1.5)\nws.Range(\"A3:E3\").Value = Array(\"Bob\", \"South\", \"Ink\", 3, 12.25)\nws.Range(\"A4:E4\").Value = Array(\"Cy\", \"North\", \"Pad\", 7, 4)\nws.Range(\"A5:E5\").Value = Array(\"Di\", \"East\", \"Pen\", 20, 1.5)\nws.Rows(\"2:3\").Group\nws.Range(\"A2\").ClearOutline\ns = ws.Rows(2).OutlineLevel & ws.Rows(3).OutlineLevel & ws.Columns(1).OutlineLevel\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "111"
+    },
+    {
+      "name": "clear_outline_cells_in_group",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:E1\").Value = Array(\"Cust\", \"Region\", \"Item\", \"Qty\", \"Price\")\nws.Range(\"A2:E2\").Value = Array(\"Ann\", \"North\", \"Pen\", 10, 1.5)\nws.Range(\"A3:E3\").Value = Array(\"Bob\", \"South\", \"Ink\", 3, 12.25)\nws.Range(\"A4:E4\").Value = Array(\"Cy\", \"North\", \"Pad\", 7, 4)\nws.Range(\"A5:E5\").Value = Array(\"Di\", \"East\", \"Pen\", 20, 1.5)\nws.Rows(\"2:4\").Group\nws.Range(\"A2:B3\").ClearOutline\ns = ws.Rows(2).OutlineLevel & ws.Rows(3).OutlineLevel & ws.Rows(4).OutlineLevel\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "112"
+    },
+    {
+      "name": "clear_outline_column_group",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:E1\").Value = Array(\"Cust\", \"Region\", \"Item\", \"Qty\", \"Price\")\nws.Range(\"A2:E2\").Value = Array(\"Ann\", \"North\", \"Pen\", 10, 1.5)\nws.Range(\"A3:E3\").Value = Array(\"Bob\", \"South\", \"Ink\", 3, 12.25)\nws.Range(\"A4:E4\").Value = Array(\"Cy\", \"North\", \"Pad\", 7, 4)\nws.Range(\"A5:E5\").Value = Array(\"Di\", \"East\", \"Pen\", 20, 1.5)\nws.Columns(\"B:C\").Group\nws.Range(\"B1\").ClearOutline\ns = ws.Columns(2).OutlineLevel & ws.Columns(3).OutlineLevel\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11"
+    },
+    {
+      "name": "clear_outline_both",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:E1\").Value = Array(\"Cust\", \"Region\", \"Item\", \"Qty\", \"Price\")\nws.Range(\"A2:E2\").Value = Array(\"Ann\", \"North\", \"Pen\", 10, 1.5)\nws.Range(\"A3:E3\").Value = Array(\"Bob\", \"South\", \"Ink\", 3, 12.25)\nws.Range(\"A4:E4\").Value = Array(\"Cy\", \"North\", \"Pad\", 7, 4)\nws.Range(\"A5:E5\").Value = Array(\"Di\", \"East\", \"Pen\", 20, 1.5)\nws.Rows(\"2:3\").Group\nws.Columns(\"B:C\").Group\nws.Range(\"B2\").ClearOutline\ns = ws.Rows(2).OutlineLevel & ws.Rows(3).OutlineLevel & ws.Columns(2).OutlineLevel & ws.Columns(3).OutlineLevel\nApplication.CutCopyMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1111"
+    }
+  ]
+}

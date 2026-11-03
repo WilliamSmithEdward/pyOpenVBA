@@ -811,6 +811,14 @@ class ShapeRange(VBACollection, Created):
             shape.Delete()
         return EMPTY
 
+    @method
+    def Select(self, Replace: object = MISSING) -> object:
+        from pyopenvba.apps.excel._selected_shapes import select
+
+        for index, shape in enumerate(self.shapes):
+            select(shape.sheet, shape.shape, Replace if index == 0 else False)
+        return EMPTY
+
 
 class ShapeObject(_Drawn):
     """One shape on a sheet."""
@@ -1402,6 +1410,10 @@ class ShapeObject(_Drawn):
             from pyopenvba.apps.excel._charts import ChartObject
 
             ChartObject(self.sheet, self.shape).made_active("area")
+            return EMPTY
+        from pyopenvba.apps.excel._selected_shapes import select
+
+        select(self.sheet, self.shape, Replace)
         return EMPTY
 
     @method

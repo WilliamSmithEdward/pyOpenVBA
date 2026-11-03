@@ -19,12 +19,16 @@ def _gone(held: Range) -> None:
     # So what was taken from it, a Font or a Comment, goes too.
     held.invalidated = True
     application = held.sheet.book.application
-    if application.clipboard is not None and application.clipboard.source is held:
+    clip = application.clipboard
+    if clip is not None and clip.source is held and not clip.orphaned:
         application.clipboard = None
 
 
 def closed(book: Workbook) -> None:
     """A workbook has closed, and its ranges with it."""
+    clip = book.application.clipboard
+    if clip is not None and clip.source.sheet.book is book:
+        clip.orphaned = True
     for sheet in book.sheets_:
         for held in list(sheet.held_ranges):
             _gone(held)

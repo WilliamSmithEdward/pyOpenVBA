@@ -2601,7 +2601,7 @@ ShapeRange,RerouteConnections,method,RerouteConnections(),,MISSING,,
 ShapeRange,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set turns every shape."
 ShapeRange,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
 ShapeRange,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
-ShapeRange,Select,method,Select([Replace As Variant]),,MISSING,,
+ShapeRange,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/excel_everyday_10.json,"Rectangles, ovals, lines and text boxes join the selection; other kinds of shape do not yet"
 ShapeRange,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
 ShapeRange,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
 ShapeRange,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."

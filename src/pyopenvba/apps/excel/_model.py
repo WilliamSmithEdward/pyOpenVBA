@@ -908,6 +908,106 @@ class Application(ExcelObject):
                              {"HasMenu": HasMenu, "MenuText": MenuText, "StatusBar": StatusBar,
                               "HelpFile": HelpFile, "ArgumentDescriptions": ArgumentDescriptions})
 
+    # -- tests/fixtures/application_undo.json
+
+    @method
+    def Undo(self) -> object:
+        raise error(1004, "Undo method of Application class failed")
+
+    @method
+    def Repeat(self) -> object:
+        raise error(1004, "Repeat method of Application class failed")
+
+    @method
+    def OnUndo(self, Text: object = MISSING, Procedure: object = MISSING) -> object:  # noqa: N803 - native named args
+        from pyopenvba.apps.excel._application_more import required
+
+        required(Text, Procedure)
+        return True
+
+    @method
+    def OnRepeat(self, Text: object = MISSING, Procedure: object = MISSING) -> object:  # noqa: N803 - native named args
+        from pyopenvba.apps.excel._application_more import required
+
+        required(Text, Procedure)
+        return True
+
+    @method
+    def OnKey(self, Key: object = MISSING, Procedure: object = MISSING) -> object:  # noqa: N803 - native named args
+        from pyopenvba.apps.excel._application_more import checked_key
+
+        checked_key(Key)
+        return True
+
+    @method
+    def CheckAbort(self, KeepAbort: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return EMPTY
+
+    @member
+    def WindowState(self) -> object:
+        return VBAInt(-4143, "Long")
+
+    @member
+    def IgnoreRemoteRequests(self) -> object:
+        return False
+
+    @member
+    def AutomationSecurity(self) -> object:
+        return VBAInt(1, "Long")
+
+    @member
+    def MaxSupportedCompatibilityVersion(self) -> object:
+        return VBAInt(2, "Long")
+
+    @member
+    def MailSystem(self) -> object:
+        return VBAInt(1, "Long")
+
+    @member
+    def TransitionMenuKey(self) -> object:
+        return "/"
+
+    @member
+    def TransitionMenuKeyAction(self) -> object:
+        return VBAInt(1, "Long")
+
+    @member
+    def PreviousSelections(self) -> object:
+        return NOTHING
+
+    @member
+    def ActiveProtectedViewWindow(self) -> object:
+        return NOTHING
+
+    def _nothing_held(self, type_name: str) -> object:
+        from pyopenvba.apps.excel._application_more import EmptyCollection
+
+        return EmptyCollection(type_name)
+
+    @member
+    def ProtectedViewWindows(self) -> object:
+        return self._nothing_held("ProtectedViewWindows")
+
+    @member
+    def Watches(self) -> object:
+        return self._nothing_held("Watches")
+
+    @member
+    def ODBCErrors(self) -> object:
+        return self._nothing_held("ODBCErrors")
+
+    @member
+    def OLEDBErrors(self) -> object:
+        return self._nothing_held("OLEDBErrors")
+
+    @member
+    def Excel4MacroSheets(self) -> object:
+        return self._nothing_held("Sheets")
+
+    @member
+    def Excel4IntlMacroSheets(self) -> object:
+        return self._nothing_held("Sheets")
+
     @method
     def Run(self, Macro: object = MISSING, *args: object) -> object:
         from pyopenvba.apps.excel._projects import run_macro

@@ -2444,8 +2444,16 @@ class Series(Created):
             # Categories with text among them read every cell as it shows, a blank as ""; numbers with a blank among
             # them cannot be read at all (tests/fixtures/chart_multilevel_categories.json).
             if any(isinstance(value, str) for value in values):
-                values = [text for row in shown_cells(self.chart.sheet, self.entry.category_reference)
-                          for text in row]
+                if CHART_TYPES.get(shown_type(self.chart.state)) == 'scatter':
+                    # A scatter chart has no use for text: it reads their places
+                    # (tests/fixtures/chart_hidden_cells.json).
+                    values = [float(index + 1) for index in range(len(values))]
+                else:
+                    every = [text for row in shown_cells(self.chart.sheet, self.entry.category_reference)
+                             for text in row]
+                    kept = visible_places(self.chart.sheet, self.entry.category_reference,
+                                          self.chart.state.visible_only)
+                    values = [every[place] for place in kept]
             elif any(value is EMPTY for value in values):
                 raise error(-2147467259, 'Automation error\nUnspecified error ')
         values = [float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
@@ -2466,8 +2474,26 @@ class Series(Created):
         return self.entry.data_labels or any(point.label is not None for point in self.entry.points.values())
 
     def values(self) -> list[object]:
+        self.refuse_hidden()
+        if not self.entry.value_reference:
+            return self.entry.values
+        return referenced_values(self.chart.sheet, self.entry.value_reference, visible=self.chart.state.visible_only)
+
+    def refuse_hidden(self) -> None:
+        """What hidden cells do beyond leaving the rest, which the model does not hold, with PlotVisibleOnly on
+        (tests/fixtures/chart_hidden_cells.json): a series wholly hidden leaves the chart, categories wholly hidden
+        leave the series, and a point's look and label stay with a cell, not a place."""
         self.position()
-        return referenced_values(self.chart.sheet, self.entry.value_reference) if self.entry.value_reference else self.entry.values
+        entry, sheet = self.entry, self.chart.sheet
+        if not self.chart.state.visible_only or not entry.value_reference:
+            return
+        shown = referenced_values(sheet, entry.value_reference, visible=True)
+        if not shown:
+            raise VBAUnsupportedError('A series whose cells are all hidden is not implemented')
+        if entry.category_reference and not referenced_values(sheet, entry.category_reference, visible=True):
+            raise VBAUnsupportedError('A series whose categories are all hidden is not implemented')
+        if entry.points and len(shown) != len(referenced_values(sheet, entry.value_reference)):
+            raise VBAUnsupportedError('The points of a series with hidden cells are not implemented')
 
     def categories(self) -> list[object]:
         self.position()
@@ -2475,7 +2501,8 @@ class Series(Created):
             levels = category_levels(self.chart.sheet, self.entry)
             if levels is not None:
                 return list(joined_categories(levels))
-            return referenced_values(self.chart.sheet, self.entry.category_reference)
+            return referenced_values(self.chart.sheet, self.entry.category_reference,
+                                     visible=self.chart.state.visible_only)
         return self.entry.categories or [float(index + 1) for index in range(len(self.values()))]
 
     @member
@@ -2839,7 +2866,22 @@ def series_input(value: object, *, sheet: Worksheet) -> tuple[str, list[object]]
         return value[1:], []
     raise error(1004, 'Series data requires a range or array')
 
-def referenced_values(sheet: Worksheet, formula: str) -> list[object]:
+def visible_places(sheet: Worksheet, formula: str, visible: bool) -> list[int]:
+    """Which of a reference's cells, by their place in it, count: those not hidden, or with ``visible`` off all."""
+    places: list[int] = []
+    place = 0
+    for area in parse_reference(formula):
+        owner = sheet.book.sheet_named(area.sheet) if area.sheet else sheet
+        for row in range(area.top, area.bottom + 1):
+            for column in range(area.left, area.right + 1):
+                if not (visible and (owner.dims.row_hidden(row) or owner.dims.column_hidden(column))):
+                    places.append(place)
+                place += 1
+    return places
+
+
+def referenced_values(sheet: Worksheet, formula: str, *, visible: bool = False) -> list[object]:
+    """What a reference holds, ``visible`` keeping only the cells not hidden."""
     from pyopenvba.apps.excel._model import Range
 
     if len(formula) > MAX_CHART_REFERENCE_TEXT:
@@ -2854,6 +2896,9 @@ def referenced_values(sheet: Worksheet, formula: str) -> list[object]:
     result: list[object] = []
     for area, owner in zip(areas, owners, strict=True):
         for row in range(area.top, area.bottom + 1):
+            if visible and owner.dims.row_hidden(row):
+                continue
             for column in range(area.left, area.right + 1):
-                result.append(Range(owner, [Area(row, column, row, column)]).Value2())
+                if not (visible and owner.dims.column_hidden(column)):
+                    result.append(Range(owner, [Area(row, column, row, column)]).Value2())
     return result

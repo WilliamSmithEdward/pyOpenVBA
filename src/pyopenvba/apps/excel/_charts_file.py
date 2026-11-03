@@ -27,6 +27,7 @@ from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED
                                           settle_hidden, shown_cells, shown_type, visible_places)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
+from pyopenvba.apps.excel._chart_line_format import group_line_markup
 from pyopenvba.apps.excel._chart_trendlines import TYPES as TRENDLINE_TYPES, TrendlineState, markup as trendlines_markup
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
@@ -409,13 +410,17 @@ def _grouped(xml: str, state: ChartState, kind: str) -> str:
     # column and bar charts, each just before the group's own marker and smooth flags, or its axes
     # (tests/fixtures/chart_group_lines.json).
     lined = kind in ('line', 'lineMarkers')
-    extra = ('<c:dropLines/>' if state.drop_lines and (lined or kind == 'area') else '')
+    def element(tag: str) -> str:
+        look = group_line_markup(tag, state.element_looks.get(tag))
+        return f'<c:{tag}>{look}</c:{tag}>' if look else f'<c:{tag}/>'
+
+    extra = element('dropLines') if state.drop_lines and (lined or kind == 'area') else ''
     if lined:
-        extra += '<c:hiLowLines/>' if state.hi_lo_lines else ''
-        extra += ('<c:upDownBars><c:gapWidth val="150"/><c:upBars/><c:downBars/></c:upDownBars>'
+        extra += element('hiLowLines') if state.hi_lo_lines else ''
+        extra += (f'<c:upDownBars><c:gapWidth val="150"/>{element("upBars")}{element("downBars")}</c:upDownBars>'
                   if state.up_down_bars else '')
     if kind in ('column', 'bar') and shown_type(state) in STACKED and state.series_lines:
-        extra += '<c:serLines/>'
+        extra += element('serLines')
     if extra:
         if lined:
             xml = re.sub(r'(?:<c:marker val="1"/>)?<c:smooth val="0"/>(?=<c:axId)', lambda found: extra + found.group(0),

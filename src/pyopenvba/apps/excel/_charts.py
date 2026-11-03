@@ -17,6 +17,7 @@ from pyopenvba.apps.excel._chart_xml import LabelLook, TextLook
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
+from pyopenvba.apps.excel._chart_borders import INVALID_CALL, NOT_A_PROPERTY, UNSPECIFIED, ElementProperties
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
@@ -179,6 +180,14 @@ class ChartState:
     hole: int | None = None
     #: HasDropLines, HasHiLoLines, HasUpDownBars and HasSeriesLines, which only some kinds draw
     #: (tests/fixtures/chart_group_lines.json).
+    #: What a group has for a bubble or pie-of-pie chart, which the model does not draw.
+    bubble_scale: int = 100
+    size_represents: int = 1
+    negative_bubbles: bool = False
+    shading: bool = True
+    split_type: int = 1
+    split_value: int | None = 1
+    second_plot_size: int = 75
     drop_lines: bool = False
     hi_lo_lines: bool = False
     up_down_bars: bool = False
@@ -559,6 +568,10 @@ def marker_markup(entry: SeriesState) -> str:
     look = marker_look(entry, stroke)
     if not symbol:
         return f'<c:marker>{look}</c:marker>' if look else ''
+    if symbol == 'none' and entry.marker_back is None and entry.marker_line is None:
+        # A foreground colour alone stays for the session and leaves no mark on a series with no marker
+        # (tests/fixtures/chart_group_looks.json).
+        return '<c:marker><c:symbol val="none"/></c:marker>'
     if symbol in ('none', 'picture'):
         return f'<c:marker><c:symbol val="{symbol}"/>{look}</c:marker>'
     return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{entry.marker_size or 5}"/>{look}</c:marker>'
@@ -1086,7 +1099,9 @@ class ChartArea(Created):
         return True
 
 
-class PlotArea(Created):
+class PlotArea(ElementProperties, Created):
+    get_error, set_error = INVALID_CALL, UNSPECIFIED
+
     """Where a chart draws its series (tests/fixtures/chart_areas.json); its place, which Excel lays out, is not
     modelled."""
 
@@ -1384,7 +1399,7 @@ class ChartObject(Created):
         return EMPTY
 
 
-class Chart(Created):
+class Chart(ElementProperties, Created):
     vba_type_name = 'Chart'
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
@@ -2150,7 +2165,7 @@ class Chart(Created):
             entry is series.entry for entry in self.state.series) else None
 
 
-class ChartTitle(TitleMembers):
+class ChartTitle(ElementProperties, TitleMembers):
     vba_type_name = 'ChartTitle'
 
     def __init__(self, chart: Chart) -> None:
@@ -2247,7 +2262,7 @@ def linked_title(sheet: Worksheet, formula: str) -> str:
 LEGEND_POSITIONS = {-4107: 'b', -4160: 't', -4131: 'l', -4152: 'r', 2: 'tr'}
 
 
-class Legend(Created):
+class Legend(ElementProperties, Created):
     vba_type_name = 'Legend'
 
     def __init__(self, chart: Chart) -> None:
@@ -2354,6 +2369,14 @@ class LegendEntries(VBACollection, Created):
     def __init__(self, legend: Legend) -> None:
         self.legend = legend
 
+    @member
+    def Parent(self) -> object:
+        return self.legend
+
+    @member
+    def Application(self) -> object:
+        return self.legend.chart.sheet.book.application
+
     def vba_items(self) -> list[object]:
         state = self.legend.shown()
         if CHART_TYPES.get(shown_type(state)) in ('pie', 'doughnut'):
@@ -2387,12 +2410,75 @@ class LegendKey(Created):
         return self.series.chart.sheet.book.application
 
     @member
+    def Application(self) -> object:
+        return self.series.chart.sheet.book.application
+
+    @member
     def Format(self) -> object:
         return self.series.vba_get('Format', [])
 
     @member
     def MarkerStyle(self) -> object:
         return self.series.vba_get('MarkerStyle', [])
+
+    @setter('MarkerStyle')
+    def _marker_style(self, value: object) -> None:
+        if CHART_TYPES.get(shown_type(self.series.chart.state)) not in _DRAWS_MARKERS:
+            # The key takes a style its series refuses.
+            raise VBAUnsupportedError('LegendKey.MarkerStyle on a chart that draws no markers is not implemented')
+        self.series.vba_set('MarkerStyle', value)
+
+    @member
+    def MarkerSize(self) -> object:
+        return self.series.vba_get('MarkerSize', [])
+
+    @setter('MarkerSize')
+    def _marker_size(self, value: object) -> None:
+        self.series.vba_set('MarkerSize', value)
+
+    @member
+    def MarkerBackgroundColor(self) -> object:
+        return self.series.vba_get('MarkerBackgroundColor', [])
+
+    @setter('MarkerBackgroundColor')
+    def _marker_background_color(self, value: object) -> None:
+        self.series.vba_set('MarkerBackgroundColor', value)
+
+    @member
+    def MarkerBackgroundColorIndex(self) -> object:
+        return self.series.vba_get('MarkerBackgroundColorIndex', [])
+
+    @setter('MarkerBackgroundColorIndex')
+    def _marker_background_color_index(self, value: object) -> None:
+        self.series.vba_set('MarkerBackgroundColorIndex', value)
+
+    @member
+    def MarkerForegroundColor(self) -> object:
+        return self.series.vba_get('MarkerForegroundColor', [])
+
+    @setter('MarkerForegroundColor')
+    def _marker_foreground_color(self, value: object) -> None:
+        self.series.vba_set('MarkerForegroundColor', value)
+
+    @member
+    def MarkerForegroundColorIndex(self) -> object:
+        return self.series.vba_get('MarkerForegroundColorIndex', [])
+
+    @setter('MarkerForegroundColorIndex')
+    def _marker_foreground_color_index(self, value: object) -> None:
+        self.series.vba_set('MarkerForegroundColorIndex', value)
+
+    @member
+    def PictureType(self) -> object:
+        return VBAInt(1, 'Long')
+
+    @member
+    def PictureUnit2(self) -> object:
+        return VBASingle(0.0)
+
+    @method
+    def ClearFormats(self) -> object:
+        return self.series.vba_call('ClearFormats', [])
 
     @member
     def Smooth(self) -> object:
@@ -2471,6 +2557,14 @@ class ChartGroups(VBACollection, Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @member
+    def Parent(self) -> object:
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
 
     def vba_items(self) -> list[object]:
         self.chart.admit_read()
@@ -2570,6 +2664,108 @@ class ChartGroup(Created):
         self.chart.admit_change()
         self.chart.changed()
         setattr(self.chart.state, field_name, wanted)
+        if not wanted:
+            for key in _GROUP_LOOKS[field_name]:
+                self.chart.state.element_looks.pop(key, None)
+
+    # What a group has for a kind the model does not draw: kept, and written nowhere
+    # (tests/fixtures/chart_group_looks.json).
+
+    def _kept(self, field_name: str) -> object:
+        self._kind()
+        return getattr(self.chart.state, field_name)
+
+    def _ranged(self, field_name: str, value: object, lowest: int, highest: int, code: int = 5) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        self.chart.admit_change()
+        if not lowest <= wanted <= highest:
+            raise error(code, 'Invalid procedure call or argument' if code == 5 else 'Automation error')
+        self.chart.changed()
+        setattr(self.chart.state, field_name, wanted)
+
+    def _switched(self, field_name: str, value: object) -> None:
+        wanted = to_bool(value)
+        self.chart.admit_change()
+        self.chart.changed()
+        setattr(self.chart.state, field_name, wanted)
+
+    @member
+    def BubbleScale(self) -> object:
+        return VBAInt(cast(int, self._kept('bubble_scale')), 'Long')
+
+    @setter('BubbleScale')
+    def _bubble_scale(self, value: object) -> None:
+        self._ranged('bubble_scale', value, 0, 300)
+
+    @member
+    def SizeRepresents(self) -> object:
+        return VBAInt(cast(int, self._kept('size_represents')), 'Long')
+
+    @setter('SizeRepresents')
+    def _size_represents(self, value: object) -> None:
+        self._ranged('size_represents', value, 1, 2)
+
+    @member
+    def SecondPlotSize(self) -> object:
+        return VBAInt(cast(int, self._kept('second_plot_size')), 'Long')
+
+    @setter('SecondPlotSize')
+    def _second_plot_size(self, value: object) -> None:
+        self._ranged('second_plot_size', value, 5, 200)
+
+    @member
+    def ShowNegativeBubbles(self) -> object:
+        return self._kept('negative_bubbles')
+
+    @setter('ShowNegativeBubbles')
+    def _show_negative_bubbles(self, value: object) -> None:
+        self._switched('negative_bubbles', value)
+
+    @member
+    def Has3DShading(self) -> object:
+        return self._kept('shading')
+
+    @setter('Has3DShading')
+    def _has_3d_shading(self, value: object) -> None:
+        if not to_bool(value):
+            # Excel writes a flat 3-D material on every series.
+            raise VBAUnsupportedError('Has3DShading = False is not implemented')
+        self._switched('shading', value)
+
+    @member
+    def SplitType(self) -> object:
+        return VBAInt(cast(int, self._kept('split_type')), 'Long')
+
+    @setter('SplitType')
+    def _split_type(self, value: object) -> None:
+        self._ranged('split_type', value, 1, 4, 1004)
+        # A new type starts over: the first point, 1 of value, 10 percent, and with a custom split no value at all.
+        self.chart.state.split_value = {1: 1, 2: 1, 3: 10}.get(self.chart.state.split_type)
+
+    @member
+    def SplitValue(self) -> object:
+        value = self._kept('split_value')
+        return EMPTY if value is None else VBAInt(cast(int, value), 'Long')
+
+    @setter('SplitValue')
+    def _split_value(self, value: object) -> None:
+        self._ranged('split_value', value, 0, 2147483647, -2147467259)
+
+    @member
+    def HasRadarAxisLabels(self) -> object:
+        self._kind()
+        raise error(-2147467259, 'Automation error\nUnspecified error')
+
+    @setter('HasRadarAxisLabels')
+    def _has_radar_axis_labels(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(-2147467259, 'Automation error\nUnspecified error')
+
+    @member
+    def RadarAxisLabels(self) -> object:
+        self._kind()
+        raise error(-2147467259, 'Automation error\nUnspecified error')
 
     @member
     def HasDropLines(self) -> object:
@@ -2649,6 +2845,11 @@ class ChartGroup(Created):
         self._set('hole', value, 10, 90)
 
 
+#: The looks that go with a chart group's lines or bars.
+_GROUP_LOOKS = {'drop_lines': ('dropLines',), 'hi_lo_lines': ('hiLowLines',), 'up_down_bars': ('upBars', 'downBars'),
+                'series_lines': ('serLines',)}
+
+
 class _GroupLines(Created):
     """A chart group's drop lines, high-low lines, up or down bars or series lines: there while the group's Has member
     reads True, named as Excel names them, and gone with Delete (tests/fixtures/chart_type_reads.json)."""
@@ -2658,6 +2859,8 @@ class _GroupLines(Created):
     #: The ChartGroup member that says whether they are there, and their name; None where reading it raises.
     flag = ''
     name: str | None = None
+    #: Their look's key, which is their element in the file.
+    key = ''
 
     def __init__(self, group: ChartGroup) -> None:
         self.group = group
@@ -2691,34 +2894,97 @@ class _GroupLines(Created):
         if not self.present():
             raise error(424, 'Object required')
         if self.name is None:
-            raise VBAUnsupportedError(f'Deleting {self.vba_type_name} is not implemented')
+            raise error(-2147467259, 'Automation error\nUnspecified error')
         self.group.vba_set(self.flag, False)
         return True
 
+    # Their look, gone with them (tests/fixtures/chart_group_looks.json).
 
-class DropLines(_GroupLines):
+    def look(self) -> FillLine:
+        chart = self.group.chart
+        chart.admit_read()
+        if chart.state.original:
+            raise VBAUnsupportedError('The look of the lines or bars of an imported chart is not implemented')
+        self.shown()
+        return chart.state.element_looks.get(self.key) or FillLine()
+
+    def change(self) -> FillLine:
+        self.look()
+        chart = self.group.chart
+        chart.changed()
+        return chart.state.element_looks.setdefault(self.key, FillLine())
+
+    @member
+    def Format(self) -> object:
+        from pyopenvba.apps.excel._chart_line_format import BarChartFormat, LineChartFormat
+
+        self.look()
+        if self.key in ('upBars', 'downBars'):
+            return BarChartFormat(self, self, self.group.chart, self.key)
+        return LineChartFormat(self, self)
+
+    @member
+    def Border(self) -> object:
+        from pyopenvba.apps.excel._chart_borders import GROUP_LINES, ChartBorder
+
+        self.look()
+        return ChartBorder(self, GROUP_LINES, self, self.group.chart.sheet.book.stylesheet.colors)
+
+    @method
+    def Select(self) -> object:
+        self.shown()
+        return select_element(self.group.chart, self, True)
+
+
+class _UnansweredSelect(_GroupLines):
+    """Lines whose Select answers nothing, and which do not have GetProperty or SetProperty at all."""
+
+    vba_type_name = ''
+
+    @method
+    def Select(self) -> object:
+        super().Select()
+        return EMPTY
+
+
+class DropLines(_UnansweredSelect):
     vba_type_name = 'DropLines'
-    flag, name = 'HasDropLines', 'Dropline 1'
+    flag, name, key = 'HasDropLines', 'Dropline 1', 'dropLines'
 
 
-class HiLoLines(_GroupLines):
+class HiLoLines(_UnansweredSelect):
     vba_type_name = 'HiLoLines'
-    flag, name = 'HasHiLoLines', 'HiLoline 1'
+    flag, name, key = 'HasHiLoLines', 'HiLoline 1', 'hiLowLines'
 
 
-class UpBars(_GroupLines):
+class _Properties(ElementProperties):
+    vba_type_name = ''
+    get_error, set_error = INVALID_CALL, UNSPECIFIED
+
+
+class UpBars(_Properties, _GroupLines):
     vba_type_name = 'UpBars'
-    flag, name = 'HasUpDownBars', 'UpBar 1'
+    flag, name, key = 'HasUpDownBars', 'UpBar 1', 'upBars'
 
 
-class DownBars(_GroupLines):
+class DownBars(_Properties, _GroupLines):
     vba_type_name = 'DownBars'
-    flag, name = 'HasUpDownBars', None
+    flag, name, key = 'HasUpDownBars', None, 'downBars'
+
+    @member
+    def Border(self) -> object:
+        self.look()
+        raise error(1004, 'Unable to get the Border property of the DownBars class')
+
+    @method
+    def Select(self) -> object:
+        self.shown()
+        return select_element(self.group.chart, self, False)
 
 
-class SeriesLines(_GroupLines):
+class SeriesLines(_Properties, _GroupLines):
     vba_type_name = 'SeriesLines'
-    flag, name = 'HasSeriesLines', 'Seriesline 1'
+    flag, name, key = 'HasSeriesLines', 'Seriesline 1', 'serLines'
 
 
 class SeriesCollection(VBACollection, ItemDefault, Created):
@@ -2809,6 +3075,22 @@ class FullSeriesCollection(SeriesCollection):
 
 
 class Series(Created):
+    @method
+    def GetProperty(self, Name: object) -> object:  # noqa: N803 - native named argument
+        """Its Name by that name; any other name it does not know raises (tests/fixtures/chart_group_looks.json)."""
+        wanted = to_text(Name)
+        if wanted.lower() != 'name':
+            raise error(NOT_A_PROPERTY, 'Automation error')
+        return self.vba_get('Name', [])
+
+    @method
+    def SetProperty(self, Name: object, Value: object) -> object:  # noqa: N803 - native named argument
+        wanted = to_text(Name)
+        if wanted.lower() != 'name':
+            raise error(NOT_A_PROPERTY, 'Automation error')
+        self.vba_set('Name', Value)
+        return EMPTY
+
     vba_type_name = 'Series'
 
     def __init__(self, chart: Chart, entry: SeriesState) -> None:
@@ -3378,8 +3660,8 @@ class Series(Created):
         entry = self.lines()
         self.chart.changed()
         setattr(entry, field_name, wanted)
-        if wanted is not None and entry.marker == MARKER_NONE:
-            # A series drawn without markers takes automatic ones once given a marker colour.
+        if wanted is not None and field_name == 'marker_back' and entry.marker == MARKER_NONE:
+            # A series drawn without markers takes automatic ones once given a background colour.
             entry.marker = MARKER_AUTOMATIC
         self.taken_from_points(field_name)
 

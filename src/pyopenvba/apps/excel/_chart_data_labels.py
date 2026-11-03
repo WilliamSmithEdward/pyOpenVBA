@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from pyopenvba.apps.excel._chart_format import unmeasured
 from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, LabelLook, TextLook
 from pyopenvba.apps.excel._charts import PointLabel, PointState
+from pyopenvba.apps.excel._chart_borders import INVALID_CALL, UNSPECIFIED, ElementProperties
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -126,7 +127,7 @@ def apply_to_point(point: Point, look: LabelLook, leader_lines: object) -> None:
         own.label_own.separator = look.separator
 
 
-class DataLabels(VBACollection, ItemDefault, Created):
+class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
     vba_type_name = 'DataLabels'
 
     def __init__(self, series: Series, generation: int) -> None:
@@ -392,7 +393,9 @@ class DataLabels(VBACollection, ItemDefault, Created):
         return True
 
 
-class DataLabel(Created):
+class DataLabel(ElementProperties, Created):
+    get_error, set_error = INVALID_CALL, UNSPECIFIED
+
     """One point's label, as tests/fixtures/data_label.json measured it. What is set of it stands apart from its series'
     labels, whatever is not set following them, and a label showing nothing is a deleted one.
 

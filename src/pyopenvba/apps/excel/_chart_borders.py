@@ -83,6 +83,7 @@ def _weight_of(width: int) -> int:
 
 def _clear(look: FillLine) -> None:
     look.line_rgb, look.line_width, look.line_dash, look.line_cap = None, None, None, None
+    look.line_compound = None
     look.line_off = look.line_by_weight = False
 
 
@@ -99,7 +100,7 @@ class ChartBorder(Created):
     @member
     def Color(self) -> object:
         look = self.line.look()
-        if look.line_off:
+        if look.line_off or look.line_hidden:
             return VBAInt(-2, 'Long')
         if look.line_rgb is not None:
             text = look.line_rgb
@@ -120,7 +121,7 @@ class ChartBorder(Created):
     @member
     def ColorIndex(self) -> object:
         look = self.line.look()
-        if look.line_off:
+        if look.line_off or look.line_hidden:
             return VBAInt(_NONE, 'Long')
         if look.line_rgb is None or look.line_by_weight:
             return VBAInt(_AUTOMATIC, 'Long')
@@ -143,7 +144,7 @@ class ChartBorder(Created):
     @member
     def Weight(self) -> object:
         look = self.line.look()
-        if look.line_off:
+        if look.line_off or look.line_hidden:
             return VBAInt(self.family.hidden_weight, 'Long')
         return VBAInt(self.family.weight if look.line_width is None else _weight_of(look.line_width), 'Long')
 
@@ -166,9 +167,9 @@ class ChartBorder(Created):
     @member
     def LineStyle(self) -> object:
         look = self.line.look()
-        if look.line_off:
+        if look.line_off or look.line_hidden:
             return VBAInt(_NONE, 'Long')
-        if look.line_by_weight:
+        if look.line_by_weight or (look.line_rgb is None and look.line_dash is not None):
             return VBAInt(_AUTOMATIC, 'Long')
         if look.line_dash is not None:
             return VBAInt(next((key for key, name in _DASHES.items() if name == look.line_dash), _CONTINUOUS), 'Long')

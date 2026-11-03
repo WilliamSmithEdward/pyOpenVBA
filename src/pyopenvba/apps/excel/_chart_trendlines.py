@@ -81,13 +81,12 @@ def _checked_forward(value: object) -> float:
 
 
 def markup(lines: list[TrendlineState]) -> str:
-    from pyopenvba.apps.excel._chart_format import plain_line
+    from pyopenvba.apps.excel._chart_line_format import shape_properties
 
     written: list[str] = []
     for line in lines:
         body = f'<c:name>{escape_text(line.name)}</c:name>' if line.name is not None else ''
-        stroke = plain_line(line.look)
-        body += f'<c:spPr>{stroke}</c:spPr>' if stroke else ''
+        body += shape_properties(line.look, 'rnd', False)
         body += f'<c:trendlineType val="{line.kind}"/>'
         if line.kind == 'poly':
             body += f'<c:order val="{line.order}"/>'
@@ -188,6 +187,13 @@ class Trendline(Created):
 
     def __init__(self, series: Series, line: TrendlineState) -> None:
         self.series, self.line = series, line
+
+    @member
+    def Format(self) -> object:
+        from pyopenvba.apps.excel._chart_line_format import LineChartFormat
+
+        self._index()
+        return LineChartFormat(self, _TrendlineLine(self))
 
     @member
     def Border(self) -> object:

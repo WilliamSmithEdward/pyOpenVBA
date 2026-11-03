@@ -252,6 +252,8 @@ class FillLine:
     line_cap: str | None = None
     #: Excel: Border.LineStyle = xlNone on a chart element, which writes the line as a width and no fill.
     line_off: bool = False
+    #: Excel: LineFormat.Style on a trendline or error bars, the compound line the file writes.
+    line_compound: str | None = None
     #: Excel: Border.Weight on a trendline, whose black line still reads as automatic.
     line_by_weight: bool = False
     #: Whether the fill or line is hidden, each kept in the spPr's extLst meanwhile.

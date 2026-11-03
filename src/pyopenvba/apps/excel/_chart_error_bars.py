@@ -141,7 +141,7 @@ def _custom(value: object, series_input: Callable[..., tuple[str, list[object]]]
 def markup(bars: Sequence[ErrorBarState], kind: str, values: Callable[[str, tuple[str, list[object]]], str]) -> str:
     """The series' errBars elements, Y first. ``values`` writes a custom bar's plus or minus element from its
     reference, or from the values given where it has none."""
-    from pyopenvba.apps.excel._chart_format import plain_line
+    from pyopenvba.apps.excel._chart_line_format import shape_properties
 
     written: list[str] = []
     for bar in bars:
@@ -154,8 +154,7 @@ def markup(bars: Sequence[ErrorBarState], kind: str, values: Callable[[str, tupl
             body += values('plus', bar.plus) + values('minus', bar.minus)
         elif bar.kind != 'stdErr' and bar.amount is not None:
             body += f'<c:val val="{_number_text(bar.amount)}"/>'
-        stroke = plain_line(bar.look)
-        body += f'<c:spPr>{stroke}</c:spPr>' if stroke else ''
+        body += shape_properties(bar.look, 'flat', True)
         written.append(f'<c:errBars>{body}</c:errBars>')
     return ''.join(written)
 
@@ -191,6 +190,13 @@ class ErrorBars(Created):
         for bar in self._bars():
             bar.look = look
         return look
+
+    @member
+    def Format(self) -> object:
+        from pyopenvba.apps.excel._chart_line_format import LineChartFormat
+
+        self._bars()
+        return LineChartFormat(self, self)
 
     @member
     def Border(self) -> object:

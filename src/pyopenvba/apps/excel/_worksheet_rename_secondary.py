@@ -192,7 +192,8 @@ def admit(book: Workbook, old: str, wanted: str, budget: Budget) -> None:
                 raise unsupported('with external hyperlinks')
             reference(link.sub, old, wanted, budget)
         for shape in owner.shapes_:
-            if shape.kind not in ('shape', 'textBox', 'line', 'formControl', 'chart') or shape.macro or shape.source or shape.children:
+            if (shape.kind not in ('shape', 'textBox', 'line', 'formControl', 'chart') or shape.macro or shape.children
+                    or (shape.source and shape.kind != 'chart')):
                 raise unsupported('with unmeasured drawing references')
             if shape.control is not None:
                 if shape.control.macro_text:

@@ -781,6 +781,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A chart read from a file now follows the cells it reads, as a new chart does:
+  rows and columns inserted or deleted, cells shifted or cut, and its sheet
+  renamed. Only the references and cached points in its part change. A sheet
+  whose drawing holds only charts can now be renamed once it has been saved or
+  read from a file. Its cached points also leave hidden cells out. Moving cells
+  between the points of a chart from a file that sets a point's look or label
+  is refused.
 - A chart leaves out hidden and filtered cells while `PlotVisibleOnly` is on, in what its series read
   and in what it saves. A series or its categories wholly hidden, and a point's look or label on a
   series with hidden cells, are refused.

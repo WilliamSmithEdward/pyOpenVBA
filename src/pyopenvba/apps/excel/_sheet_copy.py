@@ -231,6 +231,9 @@ def _charts_copied(source: Worksheet, copied: Worksheet, renamed: dict[str, str]
         state.part, state.dirty = "", True
         changed_in(copied, state, lambda text, _owner: formula(text, renamed, external))
         numbered_afresh(state)
+        # The copy has the automatic title the chart has only once it is read.
+        if state.title is None and not state.title_deleted and state.has_automatic_title():
+            state.title = "Chart Title"
         copied.chart_states[shape.shape_id] = state
     if source.shapes_:
         copied.drawing_changed()

@@ -746,6 +746,11 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda found: found.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1)
             if found.group(0).startswith('<c:valAx>' + identifier) else found.group(0), xml)
+    if state.series and not any(entry.value_reference or entry.values for entry in state.series):
+        # Series with nothing to draw leave the value axis no number format to follow
+        # (tests/fixtures/chart_auto_titles.json).
+        xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda hit: hit.group(0).replace(
+            '<c:numFmt formatCode="General" sourceLinked="1"/>', ''), xml, flags=re.DOTALL)
     if state.out_of_sight:
         xml = _with_series_out_of_sight(xml, state)
     if '<c:areaChart>' in xml:

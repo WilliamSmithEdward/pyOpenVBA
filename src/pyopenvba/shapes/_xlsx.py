@@ -968,6 +968,11 @@ def _new_element(shape: Shape) -> str:
                             '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
     if shape.text_look is not None and body:
         body = _laid_out(body, shape.text_look)
+    if shape.painted:
+        body = body.replace(
+            '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
+            '<a:pPr marL="0" indent="0" algn="l"/><a:endParaRPr lang="en-US" sz="1100"><a:solidFill><a:schemeClr val="lt1"/>'
+            '</a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:endParaRPr>')
     box = ' txBox="1"' if shape.kind == "textBox" else ""
     textlink = "" if line else ' textlink=""'
     identity = _identity(shape)

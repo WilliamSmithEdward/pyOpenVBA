@@ -15,10 +15,10 @@ models of the same thing.
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from copy import deepcopy
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
@@ -35,7 +35,7 @@ from pyopenvba.interpreter._values import (
     to_number,
     to_text,
 )
-from pyopenvba.shapes._adjustments import ADJUSTMENTS, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
+from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
 from pyopenvba.shapes._values import (
     Box,
     EMU_PER_POINT,
@@ -51,6 +51,7 @@ from pyopenvba.shapes._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.shapes._values import FillLine
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._model import Worksheet
 
@@ -466,6 +467,19 @@ class ShapeRange(VBACollection, Created):
     @member
     def ConnectorFormat(self) -> object:
         return RangeConnector(self)
+
+    @method
+    def PickUp(self) -> object:
+        """One shape's look; a range of more is out of range (tests/fixtures/shape_painter.json)."""
+        if len(self.shapes) != 1:
+            raise error(-2147024809, "The specified value is out of range.")
+        return self.shapes[0].PickUp()
+
+    @method
+    def Apply(self) -> object:
+        for one in self.shapes:
+            one.Apply()
+        return EMPTY
 
     @member
     def Type(self) -> object:
@@ -971,6 +985,36 @@ class ShapeObject(_Drawn):
         found = re.fullmatch(rf"{re.escape(before or '')} (\d+)", self.shape.name)
         if found:
             self.shape.name = f"{AUTO_SHAPE_NAMES[wanted]} {found.group(1)}"
+
+    @method
+    def PickUp(self) -> object:
+        """Keep this shape's look for Apply, in the application, so another workbook can take it too
+        (tests/fixtures/shape_painter.json)."""
+        if self.shape.source or self.shape.kind != "shape" or self.shape.text_look is not None:
+            raise _unsupported("PickUp from this shape")
+        self.sheet.book.application.picked_up_shape = deepcopy(self.shape.fill_line)
+        self.sheet.book.application.shape_picked_up = True
+        return EMPTY
+
+    @method
+    def Apply(self) -> object:
+        """Give this shape the look PickUp kept, in place of its own. Its empty text's format is written out."""
+        application = self.sheet.book.application
+        shape = self.shape
+        if (not application.shape_picked_up or shape.source or shape.kind != "shape"
+                or shape.text or shape.text_look is not None or shape.geometry in DARK_TEXT):
+            raise _unsupported("Apply with nothing picked up, or to this shape")
+        shape.fill_line, shape.painted = cast("FillLine | None", deepcopy(application.picked_up_shape)), True
+        self.restyled()
+        return EMPTY
+
+    @member
+    def Nodes(self) -> object:
+        return ShapeNodes(self)
+
+    @member
+    def Vertices(self) -> object:
+        return _vba_points(_freeform_points(self))
 
     @member
     def Adjustments(self, Index: object = MISSING) -> object:
@@ -1665,6 +1709,88 @@ class Adjustments(Created):
         values[at] = written
         self.owner.restyled()
         self.owner.shape.adjustments = None if values == [default for _, default, _ in table] else tuple(values)
+
+
+def _freeform_points(owner: ShapeObject) -> list[tuple[int, tuple[float, float]]]:
+    """A freeform's points in order, each with the segment type of the step that holds it, on the sheet in points; a
+    close adds none. A first point takes the type of the step after it."""
+    shape = owner.shape
+    if shape.source or shape.kind != "freeform":
+        raise _unsupported("the Nodes and Vertices of this shape")
+    found: list[tuple[int, tuple[float, float]]] = []
+    for command, points in shape.path:
+        for x, y in points:
+            found.append((1 if command == "cubicBezTo" else 0,
+                          (shape.left + x / EMU_PER_POINT, shape.top + y / EMU_PER_POINT)))
+    if len(found) > 1:
+        found[0] = (found[1][0], found[0][1])
+    return found
+
+
+def _vba_points(points: list[tuple[int, tuple[float, float]]]) -> VBAArray:
+    """Points as Excel gives them: Singles, n rows of x and y from 1."""
+    made = VBAArray([(1, len(points)), (1, 2)], element_type="Single")
+    for row, (_, (x, y)) in enumerate(points, start=1):
+        made.set([row, 1], VBASingle(x))
+        made.set([row, 2], VBASingle(y))
+    return made
+
+
+class ShapeNodes(Created):
+    """A freeform's nodes (tests/fixtures/shape_painter.json). Other shapes have nodes of their preset's that are not
+    modelled, and report themselves."""
+
+    vba_type_name = "ShapeNodes"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    def vba_iterate(self) -> Iterator[object]:
+        return iter([ShapeNode(self.owner, index) for index in range(len(_freeform_points(self.owner)))])
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(len(_freeform_points(self.owner)), "Long")
+
+    @member(default=True, kind="method")
+    def Item(self, Index: object = MISSING) -> object:
+        chosen = int(to_number(Index))
+        if not 1 <= chosen <= len(_freeform_points(self.owner)):
+            raise error(-2147024809, "The specified value is out of range.")
+        return ShapeNode(self.owner, chosen - 1)
+
+
+class ShapeNode(Created):
+    vba_type_name = "ShapeNode"
+
+    def __init__(self, owner: ShapeObject, index: int) -> None:
+        self.owner, self.index = owner, index
+
+    def point(self) -> tuple[int, tuple[float, float]]:
+        return _freeform_points(self.owner)[self.index]
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def SegmentType(self) -> object:
+        return VBAInt(self.point()[0], "Long")
+
+    @member
+    def EditingType(self) -> object:
+        # A line's later nodes have none to read, which Excel reports as a failure.
+        if self.point()[0] == 0 and self.index > 0:
+            raise error(-2147467259, "Method 'EditingType' of object 'ShapeNode' failed")
+        return VBAInt(0, "Long")
+
+    @member
+    def Points(self) -> object:
+        return _vba_points([self.point()])
 
 
 class RangeAdjustments(Created):

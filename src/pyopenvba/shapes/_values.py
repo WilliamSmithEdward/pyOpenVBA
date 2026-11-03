@@ -427,6 +427,8 @@ class Shape:
     #: Excel: LockAspectRatio once set, None until then; Locked.
     lock_aspect: bool | None = None
     locked: bool = True
+    #: Excel: Shape.Apply has written the empty text's format out.
+    painted: bool = False
     #: Excel: Adjustments, as the file's values in the order of ADJUSTMENTS; None while the geometry's defaults stand.
     adjustments: tuple[int, ...] | None = None
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.

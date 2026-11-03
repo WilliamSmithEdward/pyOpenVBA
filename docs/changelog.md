@@ -15,6 +15,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Shape.Shadow`, `Glow`, `SoftEdge` and `Reflection` on an AutoShape, a text box and a line, as
+  live Excel reads and saves them, the nine reflection presets and six soft edge types included.
+  Preset shadows, inner shadows and effects of a shape read from a file are refused.
 - `Chart.ChartStyle` from 1 to 48, `ClearToMatchStyle` and `ChartWizard`. `ChartStyle` from 201,
   setting `ChartColor` and the layouts of `ApplyLayout` are refused.
 - `Chart.SetElement` on column, bar, line, scatter, area, pie and doughnut charts: titles,

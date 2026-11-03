@@ -204,6 +204,39 @@ class TextLook:
 
 
 @dataclass(slots=True)
+class ShapeEffects:
+    """A shape's Shadow, Glow, SoftEdge and Reflection, as the file spells them (tests/fixtures/shape_effects.json)."""
+
+    #: The file has an effectLst though nothing is in it.
+    list_only: bool = False
+    #: Glow, SoftEdge or Reflection has been set, even back to nothing.
+    touched: bool = False
+    shadow_on: bool = False
+    shadow_visible: bool = False
+    shadow_moved: bool = False
+    shadow_rgb: str | None = None
+    shadow_distance: int = 37357
+    shadow_direction: int = 2700000
+    shadow_blur: int = 63500
+    shadow_alpha: int | None = None
+    shadow_size: int | None = None
+    shadow_obscured: bool = False
+    glow: bool = False
+    glow_radius: int | None = None
+    glow_rgb: str | None = None
+    glow_scheme: str | None = None
+    glow_alpha: int | None = None
+    soft_edge: int = 0
+    reflection: bool = False
+    reflection_type: int = 0
+    reflection_start: int | None = None
+    reflection_end: int | None = None
+    reflection_place: int | None = None
+    reflection_distance: int | None = None
+    reflection_blur: int | None = None
+
+
+@dataclass(slots=True)
 class FillLine:
     """Excel: what Shape.Fill and Shape.Line set on a new shape, each None while the shape's style gives it
     (tests/fixtures/shape_fill_line.json). Excel writes only what was set."""
@@ -223,6 +256,8 @@ class FillLine:
     #: Hiding a fill the style gave, or any line, writes the line out in full with an effectLst, for good.
     line_full: bool = False
     effects: bool = False
+    #: Its Shadow, Glow, SoftEdge and Reflection, once any was set.
+    extra: ShapeEffects | None = None
     #: A line that has been hidden writes a line shape's absent fill as noFill.
     no_fill: bool = False
     #: Line.Transparency writes the line out in full with its ends, and this alpha, None at 0.

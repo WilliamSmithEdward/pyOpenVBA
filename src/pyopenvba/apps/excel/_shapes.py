@@ -1237,6 +1237,34 @@ class ShapeObject(_Drawn):
         self.on_sheet()
         return LineFormat(self)
 
+    @member
+    def Shadow(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import ShadowFormat
+
+        self.on_sheet()
+        return ShadowFormat(self)
+
+    @member
+    def Glow(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import GlowFormat
+
+        self.on_sheet()
+        return GlowFormat(self)
+
+    @member
+    def SoftEdge(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import SoftEdgeFormat
+
+        self.on_sheet()
+        return SoftEdgeFormat(self)
+
+    @member
+    def Reflection(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import ReflectionFormat
+
+        self.on_sheet()
+        return ReflectionFormat(self)
+
     def _measured_kind(self, what: str) -> str:
         """The kind the style reads were measured on: a button stands apart from the other controls; loaded shapes,
         freeforms and other controls are refused (tests/fixtures/shape_scale.json)."""

@@ -427,6 +427,8 @@ class Shape:
     #: Excel: LockAspectRatio once set, None until then; Locked.
     lock_aspect: bool | None = None
     locked: bool = True
+    #: Excel: Adjustments, as the file's values in the order of ADJUSTMENTS; None while the geometry's defaults stand.
+    adjustments: tuple[int, ...] | None = None
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
     flip_h: bool = False
     flip_v: bool = False
@@ -453,7 +455,12 @@ class Shape:
 
     @property
     def mso_type(self) -> int:
-        """What Shape.Type answers for this kind."""
+        """What Shape.Type answers for this kind: a connector is an AutoShape where a plain line is not, and types 109 to
+        124 are callouts (tests/fixtures/shape_adjustment_table.json)."""
+        if self.kind == "line" and self.geometry != "line":
+            return 1
+        if self.kind == "shape" and 109 <= getattr(self, "auto_shape_type", 1) <= 124:
+            return 2
         return MSO_TYPE.get(self.kind, 1)
 
     def __repr__(self) -> str:

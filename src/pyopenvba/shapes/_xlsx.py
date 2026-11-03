@@ -28,6 +28,7 @@ from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
+from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
 from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects,
                                       TextLook, child_space, emu, points, to_child)
 
@@ -962,6 +963,9 @@ def _new_element(shape: Shape) -> str:
     if shape.kind == "textBox":
         # A text box's text runs across, as Excel writes it.
         body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
+    if shape.kind == "shape" and shape.geometry in DARK_TEXT:
+        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
+                            '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
     if shape.text_look is not None and body:
         body = _laid_out(body, shape.text_look)
     box = ' txBox="1"' if shape.kind == "textBox" else ""
@@ -976,7 +980,12 @@ def _new_element(shape: Shape) -> str:
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
     )
     turn = _xfrm_attributes(shape)
-    geometry = f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>'
+    guides = ""
+    if shape.adjustments is not None:
+        guides = "".join(f'<a:gd name="{name}" fmla="val {value}"/>' for (name, _, _), value in zip(
+            ADJUSTMENTS[shape.geometry], shape.adjustments, strict=True))
+    geometry = (f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst>{guides}</a:avLst></a:prstGeom>'
+                if guides else f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>')
     style = _TEXT_BOX_STYLE if shape.kind == "textBox" else _STYLE
     if shape.kind == "line":
         # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json).

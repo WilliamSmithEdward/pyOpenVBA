@@ -10,6 +10,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel._chart_borders import INVALID_CALL, UNSPECIFIED, ElementProperties
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.shapes._values import FillLine
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -165,7 +166,9 @@ def _number_text(value: float) -> str:
     return format_number(value)
 
 
-class ErrorBars(Created):
+class ErrorBars(ElementProperties, Created):
+    get_error, set_error = INVALID_CALL, UNSPECIFIED
+
     """A series' error bars, both ways at once."""
 
     vba_type_name = 'ErrorBars'
@@ -240,6 +243,17 @@ class ErrorBars(Created):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.series.chart.changed()
         self.series.entry.error_bars = [replace(bar, no_cap=wanted == 2) for bar in bars]
+
+    @method
+    def ClearFormats(self) -> object:
+        """The line and the caps as new (tests/fixtures/chart_group_looks.json)."""
+        bars = self._bars()
+        self.series.chart.admit_change()
+        if bars[0].look.line_hidden:
+            raise VBAUnsupportedError('ClearFormats on error bars with a hidden line is not implemented')
+        self.series.chart.changed()
+        self.series.entry.error_bars = [replace(bar, look=FillLine(), no_cap=False) for bar in bars]
+        return EMPTY
 
     @method
     def Delete(self) -> object:

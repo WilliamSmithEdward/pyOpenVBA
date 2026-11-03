@@ -309,6 +309,15 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
     return paste_block(clip.source.sheet, clip.block, destination)
 
 
+def pasted_selection(sheet: Worksheet) -> None:
+    """The selection grown to the block just pasted into it."""
+    from pyopenvba.apps.excel._model import Range
+
+    destination = sheet.selection
+    if isinstance(destination, Range):
+        Range(sheet, [landing_of(_clip(destination).block, destination)]).Select()
+
+
 def paste_special(target: Range, what: object, operation: object, skip_blanks: object, transpose: object) -> object:
     """Range.PasteSpecial."""
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines

@@ -159,6 +159,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     held = anchors(sheet)
     merges = _merges.lines_planned(sheet, rows=rows, start=start, count=count, delete=delete)
     sheet.cells_ = moved
+    sheet.traced.clear()
     _chart_references.carry_out(chart_references)
     _merges.replaced(sheet, merges)
     for owner, cell, text in formulas:

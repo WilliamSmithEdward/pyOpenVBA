@@ -2715,6 +2715,8 @@ class Worksheet(ExcelObject):
         #: The shapes on the sheet, in the order the drawing holds them.
         self.shapes_: list[ShapeState] = []
         self.chart_states: dict[int, ChartState] = {}
+        #: The cells ShowPrecedents and ShowDependents have traced, by (row, column, dependents), and how deep.
+        self.traced: dict[tuple[int, int, bool], int] = {}
         self.deleted_chart_parts: set[str] = set()
         #: How many shapes have been added here, which is where the next
         #: one's number comes from.  It does not go back down when one
@@ -3243,6 +3245,21 @@ class Worksheet(ExcelObject):
         return paste(self, Destination, Link)
 
     @method
+    def PasteSpecial(self, Format: object = MISSING, Link: object = MISSING,  # noqa: N803 - native named args
+                     DisplayAsIcon: object = MISSING, IconFileName: object = MISSING,  # noqa: N803
+                     IconIndex: object = MISSING, IconLabel: object = MISSING,  # noqa: N803
+                     NoHTMLFormatting: object = MISSING) -> object:  # noqa: N803
+        """As Paste, with cells on the clipboard, leaving what it pasted selected; asked for a format Excel raises 1004
+        even for those (tests/fixtures/range_members.json)."""
+        from pyopenvba.apps.excel._clipboard import paste, pasted_selection
+
+        if Format is not MISSING:
+            raise error(1004, "PasteSpecial method of Worksheet class failed")
+        answer = paste(self, MISSING, MISSING)
+        pasted_selection(self)
+        return answer
+
+    @method
     def Delete(self) -> object:
         """Take the sheet out: the formulas and names that read it read #REF! instead, and where it was active the
         next visible sheet after it is, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
@@ -3366,6 +3383,7 @@ class Worksheet(ExcelObject):
         (tests/fixtures/clear_arrows.json)."""
         if self.protection is not None and self.protection.contents:
             raise error(1004, "ClearArrows method of Worksheet class failed")
+        self.traced.clear()
         return EMPTY
 
     @method
@@ -3944,13 +3962,74 @@ class Range(ExcelObject):
 
     @method
     def ShowPrecedents(self, Remove: object = MISSING) -> object:  # noqa: N803 - native named argument
+        from pyopenvba.apps.excel._range_members import trace
+
         self.tracing()
+        trace(self, dependents=False, remove=Remove)
         return True
 
     @method
     def ShowDependents(self, Remove: object = MISSING) -> object:  # noqa: N803 - native named argument
+        from pyopenvba.apps.excel._range_members import trace
+
         self.tracing()
+        trace(self, dependents=True, remove=Remove)
         return True
+
+    @method
+    def NavigateArrow(self, TowardPrecedents: object = MISSING, ArrowNumber: object = MISSING,  # noqa: N803
+                      LinkNumber: object = MISSING) -> object:  # noqa: N803 - native named args
+        from pyopenvba.apps.excel._range_members import navigate_arrow
+
+        return navigate_arrow(self, TowardPrecedents, ArrowNumber, LinkNumber)
+
+    # -- tests/fixtures/range_members.json
+
+    @method
+    def Justify(self) -> object:
+        from pyopenvba.apps.excel._range_members import justify
+
+        return justify(self)
+
+    @method
+    def Show(self) -> object:
+        """Brings the range into view, which the model has no view to do; the selection stays."""
+        return True
+
+    @method
+    def Run(self, *_: object) -> object:
+        """Runs an Excel 4 macro, which a worksheet's cell never starts."""
+        raise error(1004, "Run method of Range class failed")
+
+    @member
+    def Phonetic(self) -> object:
+        from pyopenvba.apps.excel._range_members import EmptyPhonetic
+
+        return EmptyPhonetic()
+
+    @member
+    def Phonetics(self) -> object:
+        return NOTHING
+
+    @method
+    def SetPhonetic(self) -> object:
+        return EMPTY
+
+    @method
+    def SortSpecial(self, SortMethod: object = MISSING, Key1: object = MISSING,  # noqa: N803 - native named args
+                    Order1: object = MISSING, Type: object = MISSING, Key2: object = MISSING,  # noqa: N803
+                    Order2: object = MISSING, Key3: object = MISSING, Order3: object = MISSING,  # noqa: N803
+                    Header: object = MISSING, OrderCustom: object = MISSING, MatchCase: object = MISSING,  # noqa: N803
+                    Orientation: object = MISSING, DataOption1: object = MISSING,  # noqa: N803
+                    DataOption2: object = MISSING, DataOption3: object = MISSING) -> object:  # noqa: N803
+        """A sort by phonetic or stroke order, which on text without Far East characters is the ordinary one."""
+        if Key1 is MISSING:
+            # With no key it takes the first column, and every row.
+            first = self.first
+            Key1 = Range(self.sheet, [Area(first.top, first.left, first.top, first.left)])
+            Header = 2 if Header is MISSING else Header
+        return self.Sort(Key1, Order1, Key2, Type, Order2, Key3, Order3, Header, OrderCustom, MatchCase, Orientation,
+                         SortMethod, DataOption1, DataOption2, DataOption3)
 
     @method
     def ShowErrors(self) -> object:

@@ -1,0 +1,342 @@
+{
+ "measured_at": "2026-11-03T07:32:54.844910+00:00",
+ "reads": [
+  "d.ChartObjects.Count",
+  "o.ChartObjects.Count",
+  "wb.Charts.Count",
+  "wb.Sheets.Count",
+  "ActiveSheet.Name",
+  "d.Shapes.Count",
+  "ch.Name",
+  "ch.SeriesCollection.Count",
+  "TypeName(ch.Parent)",
+  "ch.Parent.Name"
+ ],
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, d As Worksheet, o As Worksheet, ch As Object, co As Object, s As String, v As String, r As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set d = wb.Worksheets(1): d.Name = \"Data\"\n    Set o = wb.Worksheets.Add(After:=d): o.Name = \"Other\": d.Activate\n    d.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\"))\n    d.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3))\n    d.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6))\n    Set co = d.ChartObjects.Add(300, 100, 300, 200): Set ch = co.Chart\n    ch.SetSourceData d.Range(\"A1:C4\"), xlColumns\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ch.Delete\n    Case 1\n        r = ch.Delete\n    Case 2\n        ch.Delete: r = ch.Name\n    Case 3\n        ch.Parent.Delete: r = ch.Name\n    Case 4\n        co.Delete: r = d.ChartObjects.Count\n    Case 5\n        ch.Delete: r = d.ChartObjects.Count\n    Case 6\n        ch.Delete: r = co.Name\n    Case 7\n        d.ChartObjects(1).Chart.Delete: r = d.Shapes.Count\n    Case 8\n        ch.Refresh\n    Case 9\n        r = ch.Refresh\n    Case 10\n        d.Range(\"B2\").Value = 9: ch.Refresh: r = ch.SeriesCollection(1).Values()(1)\n    Case 11\n        ch.Calculate\n    Case 12\n        r = TypeName(ch.ChartObjects)\n    Case 13\n        r = ch.ChartObjects.Count\n    Case 14\n        r = ch.ChartObjects().Count\n    Case 15\n        r = TypeName(ch.ChartObjects(1))\n    Case 16\n        r = TypeName(ch.Shapes)\n    Case 17\n        r = ch.Shapes.Count\n    Case 18\n        ch.Shapes.AddShape 1, 1, 1, 50, 50: r = ch.Shapes.Count\n    Case 19\n        ch.Shapes.AddShape 1, 1, 1, 50, 50: r = ch.Shapes(1).Name\n    Case 20\n        ch.Shapes.AddTextbox 1, 1, 1, 50, 50: r = ch.Shapes(1).Type\n    Case 21\n        r = TypeName(ch.OLEObjects)\n    Case 22\n        r = ch.OLEObjects.Count\n    Case 23\n        r = TypeName(ch.Hyperlinks)\n    Case 24\n        r = ch.Hyperlinks.Count\n    Case 25\n        r = TypeName(ch.Evaluate(\"Data!A1\"))\n    Case 26\n        r = ch.Evaluate(\"Data!A1\").Value\n    Case 27\n        r = ch.Evaluate(\"1+2\")\n    Case 28\n        r = ch.Evaluate(\"A1\")\n    Case 29\n        r = TypeName(ch.Evaluate(\"A1\"))\n    Case 30\n        r = ch.Evaluate(\"Series1\")\n    Case 31\n        r = TypeName(ch.Evaluate(\"Legend\"))\n    Case 32\n        r = ch.Evaluate(\"SUM(Data!B2:B4)\")\n    Case 33\n        r = [Data!B2]\n    Case 34\n        r = TypeName(ch.Location(xlLocationAutomatic))\n    Case 35\n        r = TypeName(ch.Location(xlLocationAsObject, \"Other\")): r = r & d.ChartObjects.Count & o.ChartObjects.Count\n    Case 36\n        r = TypeName(ch.Location(xlLocationAsNewSheet, \"Shown\")): r = r & d.ChartObjects.Count & wb.Charts.Count & wb.Sheets.Count\n    Case 37\n        r = TypeName(ch.Location(xlLocationAsNewSheet)): r = r & wb.Charts(1).Name\n    Case 38\n        ch.Location xlLocationAsObject, \"Nowhere\"\n    Case 39\n        ch.Location xlLocationAsObject, \"Data\": r = d.ChartObjects.Count\n    Case 40\n        ch.Location 9\n    Case 41\n        ch.Location xlLocationAsObject\n    Case 42\n        ch.Move\n    Case 43\n        ch.Move After:=o\n    Case 44\n        ch.Copy\n    Case 45\n        ch.Copy After:=o\n    Case 46\n        r = wb.Charts.Add.Name\n    Case 47\n        wb.Charts.Add: r = wb.Charts(1).Parent.Name\n    Case 48\n        ch.Resize\n    Case 49\n        ch.Resize 10, 10\n    Case 50\n        r = TypeName(ch.Walls)\n    Case 51\n        r = TypeName(ch.Floor)\n    Case 52\n        r = TypeName(ch.BackWall)\n    Case 53\n        r = TypeName(ch.SideWall)\n    Case 54\n        r = ch.Walls.Name\n    Case 55\n        r = ch.Floor.Name\n    Case 56\n        ch.ChartType = xl3DColumnClustered: r = TypeName(ch.Walls)\n    Case 57\n        ch.ChartType = xl3DColumnClustered: r = ch.Floor.Name\n    Case 58\n        ch.ChartType = xl3DColumnClustered: r = ch.BackWall.Name\n    Case 59\n        ch.ChartType = xl3DColumnClustered: r = ch.SideWall.Name\n    Case 60\n        ch.ChartType = xl3DColumnClustered: r = ch.Walls.Name\n    Case 61\n        r = TypeName(ch.Axes(xlValue).Border)\n    Case 62\n        r = ch.Axes(xlValue).Border.LineStyle\n    Case 63\n        r = ch.Axes(xlValue).Border.Color\n    Case 64\n        r = ch.Axes(xlValue).Border.Weight\n    Case 65\n        ch.Axes(xlValue).Border.Color = 255: r = ch.Axes(xlValue).Border.Color\n    Case 66\n        ch.Axes(xlValue).Border.Weight = xlThick: r = ch.Axes(xlValue).Border.Weight\n    Case 67\n        ch.Axes(xlValue).Border.LineStyle = xlNone: r = ch.Axes(xlValue).Border.LineStyle\n    Case 68\n        r = ch.Axes(xlCategory).MinorUnitScale\n    Case 69\n        r = TypeName(ch.SeriesCollection(1).LeaderLines)\n    Case 70\n        ch.SeriesCollection(1).ClearFormats\n    Case 71\n        ch.SeriesCollection(1).Format.Fill.ForeColor.RGB = 255: ch.SeriesCollection(1).ClearFormats: r = ch.SeriesCollection(1).Format.Fill.ForeColor.RGB\n    Case 72\n        r = ch.ClearToMatchColorStyle\n    Case 73\n        ch.ClearToMatchColorStyle\n    Case 74\n        r = TypeName(wb.Charts.Add)\n    Case 75\n        r = TypeName(wb.Charts.Add.ChartObjects)\n    Case 76\n        r = wb.Charts.Add.ChartObjects.Count\n    Case 77\n        r = wb.Charts.Add.Shapes.Count\n    Case 78\n        wb.Charts.Add.Delete: r = wb.Charts.Count\n    Case 79\n        wb.Charts.Add.Refresh\n    Case 80\n        r = TypeName(wb.Charts.Add.Location(xlLocationAsObject, \"Other\")): r = r & wb.Charts.Count & o.ChartObjects.Count\n    End Select\n    s = \"ok \"\nAnswered:\n    On Error Resume Next\n    Err.Clear\n    v = \"\": v = CStr(r)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = d.ChartObjects.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = o.ChartObjects.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Charts.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Sheets.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = ActiveSheet.Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = d.Shapes.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = ch.Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = ch.SeriesCollection.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(ch.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = ch.Parent.Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    On Error GoTo 0\n    Tried = s\n    wb.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \"\n    Resume Answered\nEnd Function\n\nPublic Function Probe(ByVal first As Long, ByVal last As Long) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "ch.Delete",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Delete",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Delete: r = ch.Name",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Parent.Delete: r = ch.Name",
+   "Err -2147467259 ||0|0|0|2|Data|0|E-2147467259|2|ChartObject|E-2147467259"
+  ],
+  [
+   "co.Delete: r = d.ChartObjects.Count",
+   "ok |0|0|0|0|2|Data|0|E-2147467259|2|ChartObject|E-2147467259"
+  ],
+  [
+   "ch.Delete: r = d.ChartObjects.Count",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Delete: r = co.Name",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "d.ChartObjects(1).Chart.Delete: r = d.Shapes.Count",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Refresh",
+   "ok ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Refresh",
+   "ok ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "d.Range(\"B2\").Value = 9: ch.Refresh: r = ch.SeriesCollection(1).Values()(1)",
+   "ok |9|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Calculate",
+   "Err 438 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.ChartObjects)",
+   "ok |ChartObjects|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.ChartObjects.Count",
+   "ok |0|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.ChartObjects().Count",
+   "ok |0|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.ChartObjects(1))",
+   "ok |ChartObjects|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Shapes)",
+   "ok |Shapes|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Shapes.Count",
+   "ok |0|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Shapes.AddShape 1, 1, 1, 50, 50: r = ch.Shapes.Count",
+   "ok |1|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Shapes.AddShape 1, 1, 1, 50, 50: r = ch.Shapes(1).Name",
+   "ok |Rectangle 1|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Shapes.AddTextbox 1, 1, 1, 50, 50: r = ch.Shapes(1).Type",
+   "ok |17|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.OLEObjects)",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.OLEObjects.Count",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Hyperlinks)",
+   "ok |Hyperlinks|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Hyperlinks.Count",
+   "ok |0|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Evaluate(\"Data!A1\"))",
+   "Err -2147467259 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Evaluate(\"Data!A1\").Value",
+   "Err -2147467259 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Evaluate(\"1+2\")",
+   "Err -2147467259 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Evaluate(\"A1\")",
+   "Err -2147467259 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Evaluate(\"A1\"))",
+   "Err -2147467259 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Evaluate(\"Series1\")",
+   "Err -2147467259 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Evaluate(\"Legend\"))",
+   "ok |Legend|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Evaluate(\"SUM(Data!B2:B4)\")",
+   "Err -2147467259 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = [Data!B2]",
+   "ok |1|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Location(xlLocationAutomatic))",
+   "ok |Chart|0|0|1|3|Chart1|0|E-2147467259|2|ChartObject|E-2147467259"
+  ],
+  [
+   "r = TypeName(ch.Location(xlLocationAsObject, \"Other\")): r = r & d.ChartObjects.Count & o.ChartObjects.Count",
+   "ok |Chart01|0|1|0|2|Other|0|E-2147467259|2|ChartObject|E-2147467259"
+  ],
+  [
+   "r = TypeName(ch.Location(xlLocationAsNewSheet, \"Shown\")): r = r & d.ChartObjects.Count & wb.Charts.Count & wb.Sheets.Count",
+   "ok |Chart013|0|0|1|3|Shown|0|E-2147467259|2|ChartObject|E-2147467259"
+  ],
+  [
+   "r = TypeName(ch.Location(xlLocationAsNewSheet)): r = r & wb.Charts(1).Name",
+   "ok |ChartChart1|0|0|1|3|Chart1|0|E-2147467259|2|ChartObject|E-2147467259"
+  ],
+  [
+   "ch.Location xlLocationAsObject, \"Nowhere\"",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Location xlLocationAsObject, \"Data\": r = d.ChartObjects.Count",
+   "ok |1|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Location 9",
+   "Err 13 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Location xlLocationAsObject",
+   "Err 5 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Move",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Move After:=o",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Copy",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Copy After:=o",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = wb.Charts.Add.Name",
+   "ok |Chart1|1|0|1|3|Chart1|1|Chart1 Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "wb.Charts.Add: r = wb.Charts(1).Parent.Name",
+   "ok |Sheet48|1|0|1|3|Chart1|1|Chart1 Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Resize",
+   "Err 438 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Resize 10, 10",
+   "Err 438 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Walls)",
+   "ok |Walls|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Floor)",
+   "ok |Floor|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.BackWall)",
+   "ok |Walls|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.SideWall)",
+   "ok |Walls|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Walls.Name",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Floor.Name",
+   "Err 1004 ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.ChartType = xl3DColumnClustered: r = TypeName(ch.Walls)",
+   "ok |Walls|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.ChartType = xl3DColumnClustered: r = ch.Floor.Name",
+   "ok |Floor|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.ChartType = xl3DColumnClustered: r = ch.BackWall.Name",
+   "ok |Back Wall|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.ChartType = xl3DColumnClustered: r = ch.SideWall.Name",
+   "ok |Side Wall|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.ChartType = xl3DColumnClustered: r = ch.Walls.Name",
+   "ok |Walls|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.Axes(xlValue).Border)",
+   "ok |Border|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Axes(xlValue).Border.LineStyle",
+   "ok |-4105|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Axes(xlValue).Border.Color",
+   "ok |9013641|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Axes(xlValue).Border.Weight",
+   "ok |2|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Axes(xlValue).Border.Color = 255: r = ch.Axes(xlValue).Border.Color",
+   "ok |255|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Axes(xlValue).Border.Weight = xlThick: r = ch.Axes(xlValue).Border.Weight",
+   "ok |4|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.Axes(xlValue).Border.LineStyle = xlNone: r = ch.Axes(xlValue).Border.LineStyle",
+   "ok |-4142|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.Axes(xlCategory).MinorUnitScale",
+   "ok |0|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(ch.SeriesCollection(1).LeaderLines)",
+   "ok |LeaderLines|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.SeriesCollection(1).ClearFormats",
+   "ok ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.SeriesCollection(1).Format.Fill.ForeColor.RGB = 255: ch.SeriesCollection(1).ClearFormats: r = ch.SeriesCollection(1).Format.Fill.ForeColor.RGB",
+   "ok |8544277|1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = ch.ClearToMatchColorStyle",
+   "ok ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "ch.ClearToMatchColorStyle",
+   "ok ||1|0|0|2|Data|1|Data Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(wb.Charts.Add)",
+   "ok |Chart|1|0|1|3|Chart1|1|Chart1 Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(wb.Charts.Add.ChartObjects)",
+   "ok |ChartObjects|1|0|1|3|Chart1|1|Chart1 Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = wb.Charts.Add.ChartObjects.Count",
+   "ok |0|1|0|1|3|Chart1|1|Chart1 Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = wb.Charts.Add.Shapes.Count",
+   "ok |0|1|0|1|3|Chart1|1|Chart1 Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "wb.Charts.Add.Delete: r = wb.Charts.Count",
+   "ok |0|1|0|0|2|Data|1|: Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "wb.Charts.Add.Refresh",
+   "ok ||1|0|1|3|Chart1|1|Chart1 Chart 1|2|ChartObject|Chart 1"
+  ],
+  [
+   "r = TypeName(wb.Charts.Add.Location(xlLocationAsObject, \"Other\")): r = r & wb.Charts.Count & o.ChartObjects.Count",
+   "ok |Chart01|1|1|0|2|Other|1|Other Chart 1|2|ChartObject|Chart 1"
+  ]
+ ]
+}

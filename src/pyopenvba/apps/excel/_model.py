@@ -6168,19 +6168,37 @@ class Range(ExcelObject):
         def inside(at_row: int, at_column: int) -> bool:
             return 1 <= at_row <= MAX_ROWS and 1 <= at_column <= MAX_COLUMNS
 
+        dims = self.sheet.dims
+
+        def following(at_row: int, at_column: int) -> tuple[int, int]:
+            # Hidden lines are not there to land on, whatever hid them (tests/fixtures/excel_everyday_13.json).
+            at_row, at_column = at_row + down, at_column + across
+            if down:
+                while 1 <= at_row <= MAX_ROWS and dims.row_hidden(at_row):
+                    at_row += down
+            else:
+                while 1 <= at_column <= MAX_COLUMNS and dims.column_hidden(at_column):
+                    at_column += across
+            return at_row, at_column
+
+        # Coming up across a gap, a table's last row stops it, filled or not.
+        table_ends: set[tuple[int, int]] = {(table.area.bottom, one) for table in self.sheet.tables
+                      for one in range(table.area.left, table.area.right + 1)} if which == -4162 else set()
         # The cell and its neighbour decide which of the two journeys this
         # is: from a filled cell along a run of filled cells to its last
         # one, or across a gap, from an empty cell too, to the next filled
         # cell, or to the edge of the sheet if there is none.
-        step_row, step_column = row + down, column + across
+        step_row, step_column = following(row, column)
         if occupied(row, column) and inside(step_row, step_column) and occupied(step_row, step_column):
-            while inside(row + down, column + across) and occupied(row + down, column + across):
-                row, column = row + down, column + across
+            while inside(step_row, step_column) and occupied(step_row, step_column):
+                row, column = step_row, step_column
+                step_row, step_column = following(row, column)
         else:
-            while inside(row + down, column + across):
-                row, column = row + down, column + across
-                if occupied(row, column):
+            while inside(step_row, step_column):
+                row, column = step_row, step_column
+                if occupied(row, column) or (row, column) in table_ends:
                     break
+                step_row, step_column = following(row, column)
         return Range(self.sheet, [Area(row, column, row, column, self.first.sheet)])
 
     @method

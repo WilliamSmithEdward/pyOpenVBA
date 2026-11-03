@@ -1,5 +1,5 @@
-"""The seventh to eleventh sweeps of everyday macros, replayed against what live Excel answered
-(scripts/measure_excel_everyday_7.py to _11.py).
+"""The seventh to thirteenth sweeps of everyday macros, replayed against what live Excel answered
+(scripts/measure_excel_everyday_7.py to _13.py).
 
 Each probe is a module of its own on a sheet it adds and deletes; the model's answer, or the run-time error it stops with,
 is Excel's. A probe in GAPS needs what the model does not have yet, and reports it.
@@ -17,7 +17,7 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 
 PROBES: list[dict[str, Any]] = [
     probe for name in ('excel_everyday_7.json', 'excel_everyday_8.json', 'excel_everyday_9.json', 'excel_everyday_10.json',
-                 'excel_everyday_11.json')
+                 'excel_everyday_11.json', 'excel_everyday_12.json', 'excel_everyday_13.json')
     for probe in json.loads((Path(__file__).parent / 'fixtures' / name).read_text(encoding='utf-8'))['probes']]
 #: What each probe the model cannot answer yet needs.
 GAPS: dict[str, str] = {

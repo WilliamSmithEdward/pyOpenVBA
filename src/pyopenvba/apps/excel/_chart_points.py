@@ -32,6 +32,7 @@ from pyopenvba.apps.excel._charts import (
     PointLabel,
     PointState,
     marker_look,
+    select_element,
     shown_type,
 )
 from pyopenvba.apps.excel._creator import Created, ItemDefault
@@ -578,6 +579,10 @@ class Point(Created):
         point.look = FillLine(line_rgb=colour, line_width=_CLEARED.line_width, line_dash=_CLEARED.line_dash)
         self.numbered(point)
         return EMPTY
+
+    @method
+    def Select(self) -> object:
+        return select_element(self.series.chart, self, self.kind() != "area" and self.series.plotted())
 
     @method
     def Delete(self) -> object:

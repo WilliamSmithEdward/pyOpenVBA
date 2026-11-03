@@ -795,9 +795,13 @@ class Window(ExcelObject):
 
     @member
     def Selection(self) -> object:
-        from pyopenvba.apps.excel._charts import selection
+        from pyopenvba.apps.excel._charts import ChartObject, selection
 
-        return selection(self.sheet())
+        sheet = self.sheet()
+        found = selection(sheet)
+        # Whatever part of an active chart is selected, a window answers its frame
+        # (tests/fixtures/chart_element_select.json).
+        return found if sheet.active_chart is None else ChartObject(sheet, sheet.active_chart)
 
     @member
     def ActiveChart(self) -> object:

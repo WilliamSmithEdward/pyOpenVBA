@@ -30,12 +30,13 @@ def refused(case: str) -> bool:
 
 
 def _skipped(case: str) -> bool:
-    """Selecting has no model yet. On a line chart a series' Fill reads back through its markers without a trace in the
-    file, which the model does not hold, and a coloured automatic marker reads size 7 after ClearFormats, for no rule we
-    have. A scatter chart left with no series writes a number format on its axis, and a pie turns its leader lines off.
-    """
+    """On a line chart a series' Fill reads back through its markers without a trace in the file, which the model does
+    not hold, and a coloured automatic marker reads size 7 after ClearFormats, for no rule we have. A scatter chart left
+    with no series writes a number format on its axis, and a pie turns its leader lines off. Selecting a pie's point
+    writes an empty title in its file, which the model does not hold; tests/test_excel_chart_element_select.py replays
+    what Selection answers there."""
     kind, statements = case.split(': ', 1)
-    return ('.Select' in statements or (kind == 'line' and f'{S}.Format.Fill.' in statements)
+    return ((kind == 'line' and f'{S}.Format.Fill.' in statements) or (kind == 'pie' and '.Select' in statements)
             or case == f'line: {P}.MarkerBackgroundColor = RGB(0, 255, 0): {P}.ClearFormats'
             or case in (f'scatter: {P}.Delete: {P}.Delete', f'pie: {P}.Delete: {P}.Delete'))
 

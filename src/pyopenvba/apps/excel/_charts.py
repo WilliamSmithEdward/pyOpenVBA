@@ -651,7 +651,29 @@ def selection(sheet: Worksheet) -> object:
         return ChartArea(chart)
     if sheet.chart_part == 'plot':
         return PlotArea(chart)
+    if sheet.chart_part == 'element':
+        # A selected series or point that has been taken away leaves the chart area selected.
+        return ChartArea(chart) if chart.selected_series() is None else sheet.chart_element
     return ChartObject(sheet, chart.shape)
+
+
+def select_element(chart: Chart, element: object, plotted: bool) -> object:
+    """A series' or point's Select (tests/fixtures/chart_element_select.json): nothing on a sheet that is not active.
+    One the chart cannot select, as an area chart's point, fails but activates the chart if it was not, with its area
+    selected."""
+    chart.admit_read()
+    sheet = chart.sheet
+    book = sheet.book
+    if book.application.active_book is book and book.active_sheet is not sheet:
+        return True
+    framed = ChartObject(sheet, chart.shape)
+    if not plotted:
+        if sheet.active_chart is not chart.shape:
+            framed.made_active('area')
+        raise error(-2147467259, 'Automation error\nUnspecified error')
+    framed.made_active('element')
+    sheet.chart_element = element
+    return True
 
 
 class ChartArea(Created):
@@ -1483,8 +1505,23 @@ class Chart(Created):
             series.unique = self.state.unique_base + index
             series.marker = default_marker(self.state)
         self.state.next_unique = self.state.unique_base + len(series_plan)
+        selected = self.selected_series()
+        place = -1 if selected is None else selected.position() - 1
         self.state.series[:] = series_plan
+        if selected is not None and place < len(series_plan):
+            # What is selected stays selected, in the same place among the new series.
+            selected.entry = series_plan[place]
         return EMPTY
+
+    def selected_series(self) -> Series | None:
+        """The series selected, or the series of the point selected, of this chart."""
+        sheet = self.sheet
+        if sheet.active_chart is not self.shape or sheet.chart_part != 'element':
+            return None
+        element = sheet.chart_element
+        series = element if isinstance(element, Series) else getattr(element, 'series', None)
+        return series if isinstance(series, Series) and any(
+            entry is series.entry for entry in self.state.series) else None
 
 
 class ChartTitle(TitleMembers):
@@ -2352,6 +2389,16 @@ class Series(Created):
                             ShowCategoryName, ShowValue, ShowPercentage, Separator)
         apply_to_series(self, look, HasLeaderLines)
         return True
+
+    @method
+    def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
+        del Replace
+        return select_element(self.chart, self, self.plotted())
+
+    def plotted(self) -> bool:
+        """Whether its chart draws it: a pie draws only its first series."""
+        place = self.position()
+        return place == 1 or CHART_TYPES.get(shown_type(self.chart.state)) != 'pie'
 
     @method
     def DataLabels(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument

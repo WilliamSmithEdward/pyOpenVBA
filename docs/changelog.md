@@ -15,6 +15,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Shapes.AddChart2` and `Shapes.AddChart`, so a recorded macro that makes a chart runs. Each picks up the data round
+  its sheet's selection. A chart at a style some chart type takes by default (201, 216, 227, 240, 251, 262, 269, 276,
+  286, 297, 307, 317, 332, 333) saves as Excel saves it, with its style and colours parts, for the chart types the
+  engine writes. The other styles from 201 to 497 report that they are not implemented, and the old styles 1 to 48
+  work. Styled charts read their own fonts, lines and gaps, and changing one keeps the style.
 - `Application.Undo` and `Repeat`, which raise 1004 as nothing is left to undo while a macro
   runs. `OnUndo`, `OnRepeat`, `OnKey` and `CheckAbort`, checked and held nowhere, since the
   model has no menu or keyboard. A key OnKey cannot read raises 1004.

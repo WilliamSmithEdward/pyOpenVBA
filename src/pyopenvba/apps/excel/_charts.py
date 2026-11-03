@@ -23,7 +23,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArra
 from pyopenvba.shapes._values import FillLine, Shape, emu, points
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._model import Range, Worksheet
 
 # Engine admission bounds, not native Excel limits.
 MAX_CHART_POINTS = 1_000_000
@@ -199,8 +199,10 @@ class ChartState:
     not_available_as_blank: bool = True
     #: False when an imported chart spells one of the four display options in a way the model does not read.
     display_readable: bool = True
-    #: ChartStyle, from 1 to 48.
+    #: ChartStyle, from 1 to 48, or from 201 for one of AddChart2's styles.
     chart_style: int = 2
+    #: Whether AddChart2 made it a scatter chart, which differs from another chart turned into one.
+    made_scatter: bool = False
     #: Every series in order, while any is filtered out of ``series``, which keeps those drawn.
     full_series: list[SeriesState] = field(default_factory=lambda: [])
     #: Those whose cells are all hidden, who leave SeriesCollection and FullSeriesCollection until they are shown
@@ -585,6 +587,121 @@ def state(sheet: Worksheet, shape: Shape) -> ChartState:
             raise VBAUnsupportedError('Chart metadata for this drawing has not been loaded')
         sheet.chart_states[shape.shape_id] = ChartState()
     return sheet.chart_states[shape.shape_id]
+
+
+def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object, object, object, object],
+              new_layout: object) -> Shape:
+    """Shapes.AddChart2 and AddChart: a new chart holding the data round its sheet's selection, laid out as a chart of the
+    type and style starts (tests/fixtures/add_chart2.json)."""
+    from pyopenvba.apps.excel._chart_style_table import DEFAULT_STYLES, FIRST_STYLE, LAST_STYLE, REFUSED_TYPES, layout
+    from pyopenvba.apps.excel._protection import drawing_enforced
+
+    if drawing_enforced(sheet):
+        raise error(1004, 'The specified value is out of range.')
+    wanted = _whole(kind, 51)
+    if wanted not in DEFAULT_STYLES and wanted not in REFUSED_TYPES:
+        wanted = 51
+    given = _whole(style, -1)
+    chosen = DEFAULT_STYLES.get(wanted, 0) if given == -1 else given
+    if wanted in REFUSED_TYPES or not (1 <= chosen <= 48 or FIRST_STYLE <= chosen <= LAST_STYLE):
+        raise error(1004, 'Method \'AddChart2\' of object \'Shapes\' failed')
+    if wanted not in CHART_TYPES:
+        raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
+    settled: list[str] = []
+    if FIRST_STYLE <= chosen <= LAST_STYLE:
+        if chosen not in DEFAULT_STYLES.values():
+            # The rest differ by more than their style parts, each in its own way: fills, labels, the legend's place.
+            raise VBAUnsupportedError(f'Chart style {chosen} is not implemented')
+        settled = layout(chosen, wanted)
+        wanted = int(settled[0])
+        if wanted not in CHART_TYPES:
+            raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
+    left, top, width, height = (float(to_number(value)) if value is not MISSING else None for value in place)
+    shape = Shapes(sheet).new_chart_shape(left if left is not None and left >= 0 else 192.0,
+                                          top if top is not None and top >= 0 else 103.125,
+                                          360.0 if width is None or width < 0 else width,
+                                          216.0 if height is None or height < 0 else height)
+    base = plotted_before(sheet)
+    fresh = ChartState(unique_base=base, next_unique=base, chart_type=wanted, chart_style=chosen)
+    sheet.chart_states[shape.shape_id] = fresh
+    chart = Chart(sheet, shape)
+    source = _picked_up(sheet)
+    if settled:
+        _set_out(chart, settled)
+    if source is not None:
+        fresh.unique_base = fresh.next_unique = 0
+        chart.SetSourceData(source)
+        if CHART_TYPES[fresh.chart_type] == 'scatter':
+            _across_first(fresh)
+    new = new_layout is MISSING or to_bool(new_layout)
+    if new:
+        # A new layout has a title, and a legend only where there is something for one to tell apart.
+        fresh.title = 'Chart Title'
+        fresh.title_typed = False
+        fresh.legend = len(fresh.series) > 1 or CHART_TYPES[fresh.chart_type] in ('pie', 'doughnut')
+    if settled and fresh.legend:
+        # The one style of these that puts it elsewhere (tests/fixtures/chart_style_parts.json).
+        fresh.legend_position = 't' if chosen == 317 else 'b'
+    return shape
+
+
+def _across_first(chart: ChartState) -> None:
+    """A new scatter chart's first column of numbers, with no labels beside it, runs across
+    (tests/fixtures/add_chart2.json)."""
+    if len(chart.series) > 1 and not chart.series[0].category_reference:
+        across, *rest = chart.series
+        for index, entry in enumerate(rest):
+            entry.category_reference, entry.series_id, entry.unique = across.value_reference, index, index
+        chart.series[:] = rest
+        chart.next_unique = len(rest)
+
+
+def _whole(value: object, otherwise: int) -> int:
+    """A style or type as a number; what is not one, or is left out, is the default."""
+    if value is MISSING:
+        return otherwise
+    try:
+        return int(to_number(value))
+    except VBARuntimeError:
+        return otherwise
+
+
+def _picked_up(sheet: Worksheet) -> Range | None:
+    """The cells a new chart takes for its data: those selected, or a single cell's region, on the sheet it goes on."""
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._region import current_region
+
+    chosen = sheet.selection
+    if not isinstance(chosen, Range):
+        return None
+    if len(chosen.areas) != 1:
+        raise VBAUnsupportedError('A chart made from several selected areas is not implemented')
+    area = chosen.first
+    if (area.top, area.left) != (area.bottom, area.right):
+        return chosen
+    region = current_region(sheet, area.top, area.left)
+    return None if trimmed(sheet, region) is None else Range(sheet, [region])
+
+
+def _set_out(chart: Chart, settled: list[str]) -> None:
+    """A chart as its style lays it out (tests/fixtures/chart_style_parts.json)."""
+    from pyopenvba.apps.excel._chart_axes import TICK_MARKS, states
+    from pyopenvba.apps.excel._chart_style_table import DOUGHNUTS
+
+    _, gap, overlap, category_tick, value_tick, _, _, category_grid, value_grid = settled
+    chart.state.gap_width, chart.state.overlap = int(gap), int(overlap)
+    kind = CHART_TYPES[chart.state.chart_type]
+    chart.state.made_scatter = kind == 'scatter'
+    if kind == 'doughnut':
+        chart.state.hole, chart.state.first_slice = DOUGHNUTS[chart.state.chart_style]
+    if kind == 'area' or chart.state.chart_type in (63, 64, 66, 67):
+        # What stacks draws nothing as nought.
+        chart.state.blanks = 2
+    axes = states(chart)
+    for axis, tick, grid in ((axes[1], category_tick, category_grid), (axes[2], value_tick, value_grid)):
+        if tick != 'E':
+            axis.major_tick = TICK_MARKS[int(tick)]
+            axis.major_gridlines = grid == 'True'
 
 
 class ChartObjects(VBACollection, ItemDefault, Created):
@@ -1370,20 +1487,25 @@ class Chart(Created):
 
     @setter('ChartStyle')
     def _chart_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._chart_style_table import DEFAULT_STYLES
+        from pyopenvba.apps.excel._chart_styled import is_styled
+
         wanted = int(to_integer(value, 'Long'))
         self.admit_change()
         if wanted < 1 or wanted == 49:
             raise error(5, 'Invalid procedure call or argument')
-        if wanted > 48:
-            # The styles from 201 bring parts of their own, and the numbers between were not measured.
+        if wanted > 48 and not (is_styled(self.state.chart_style) and wanted in DEFAULT_STYLES.values()):
+            # Turning a chart of the old kind to one of AddChart2's styles was not measured, nor the rest of those.
             raise VBAUnsupportedError('A chart style past 48 is not implemented')
         self.changed()
         self.state.chart_style = wanted
 
     @member
     def ChartColor(self) -> object:
-        # The eight colour sets repeat through the 48 styles (tests/fixtures/chart_layouts.json).
-        return VBAInt((self.made().chart_style - 1) % 8 + 1, 'Long')
+        # The eight colour sets repeat through the 48 styles (tests/fixtures/chart_layouts.json); the styles from 201
+        # share one colours part (tests/fixtures/add_chart2.json).
+        style = self.made().chart_style
+        return VBAInt(10 if style > 48 else (style - 1) % 8 + 1, 'Long')
 
     @setter('ChartColor')
     def _chart_color(self, value: object) -> None:
@@ -1607,6 +1729,10 @@ class Chart(Created):
     def ChartType(self) -> object:
         if self.state.chart_type == 0:
             raise VBAUnsupportedError('Reading this imported chart type is not implemented')
+        if self.state.made_scatter and not self.state.series and self.state.chart_type == -4169:
+            # One of AddChart2's scatter charts reads as with lines until it has a series
+            # (tests/fixtures/add_chart2.json).
+            return VBAInt(74, 'Long')
         return VBAInt(shown_type(self.state), 'Long')
 
     @setter('ChartType')
@@ -1627,6 +1753,10 @@ class Chart(Created):
             # Stacking a column or bar chart overlaps its bars fully, and unstacking it parts them
             # (tests/fixtures/chart_stacked.json).
             self.state.overlap = 100 if wanted in STACKED else 0
+        elif (self.state.chart_style > 48
+              and {CHART_TYPES[wanted], CHART_TYPES.get(self.state.chart_type)} == {'column', 'bar'}):
+            # A style's overlap does not survive its bars turning (tests/fixtures/add_chart2.json).
+            self.state.overlap = 0
         self.state.chart_type = wanted
         if self.sheet.active_chart is self.shape:
             # A new type for the active chart selects its chart area; a title does not
@@ -1645,11 +1775,14 @@ class Chart(Created):
 
     @setter('HasTitle')
     def _has_title(self, value: object) -> None:
+        from pyopenvba.apps.excel._chart_styled import is_styled
+
         self.admit_change()
         wanted = to_bool(value)
         self.keeps_look('title', wanted)
         self.changed()
-        self.state.title_deleted = False
+        # A styled chart's title is taken away as deleting it does (tests/fixtures/add_chart2.json).
+        self.state.title_deleted = not wanted and is_styled(self.state.chart_style)
         if not wanted:
             self.state.title, self.state.title_typed, self.state.title_look = None, False, TitleLook()
         elif self.state.title is None:
@@ -1977,6 +2110,10 @@ class ChartTitle(TitleMembers):
             return linked_title(self.chart.sheet, state.title_look.formula)
         drawn_one = len(state.series) == 1 or CHART_TYPES.get(shown_type(state)) == 'pie'
         if state.title is not None and not state.title_typed and drawn_one and state.series:
+            if state.chart_style > 48 and not (state.series[0].name_reference or state.series[0].name):
+                # One of AddChart2's new charts has no name to take from a series with none
+                # (tests/fixtures/add_chart2.json).
+                return state.title
             # The automatic title of a chart that draws one series is that series' name.
             return Series(self.chart, state.series[0]).Name()
         return state.title or ''
@@ -3227,7 +3364,8 @@ class Series(Created):
         self.position()
         entry = self.entry
         drawn = CHART_TYPES.get(shown_type(self.chart.state)) in _DRAWS_MARKERS
-        size = entry.marker_size or (9 if drawn and self.lines().marker == MARKER_AUTOMATIC else 5)
+        style = self.chart.state.chart_style
+        size = entry.marker_size or (9 if drawn and style <= 48 and self.lines().marker == MARKER_AUTOMATIC else 5)
         return VBAInt(size, 'Long')
 
     @setter('MarkerSize')

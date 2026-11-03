@@ -669,6 +669,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     shape = next(item for item in sheet.shapes_ if item.shape_id == shape_id)
     from pyopenvba.apps.excel._chart_format import element_markup, markup as series_look
     from pyopenvba.apps.excel._chart_points import point_labels_markup, points_markup
+    from pyopenvba.apps.excel._chart_styled import dressed, is_styled
 
     chart = Chart(sheet, shape)
     settle_hidden(sheet, chart.state)
@@ -771,7 +772,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     if state.layout_value_look and '<c:valAx>' in xml:
         at = xml.rindex('<c:valAx>')
         xml = xml[:at] + xml[at:].replace('<c:crossAx', state.layout_value_look + '<c:crossAx', 1)
-    if state.chart_style != 2:
+    if state.chart_style != 2 and not is_styled(state.chart_style):
         xml = xml.replace('<c14:style val="102"/>', f'<c14:style val="{100 + state.chart_style}"/>', 1).replace(
             '<c:style val="2"/>', f'<c:style val="{state.chart_style}"/>', 1)
     if state.element_labels is not None and '</c:ser>' in xml:
@@ -794,6 +795,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         # (tests/fixtures/chart_object_reads.json).
         look = CHART_SHADOW if state.shadow else '<c:spPr><a:effectLst/></c:spPr>'
         xml = xml.replace('</c:chart><c:printSettings>', '</c:chart>' + look + '<c:printSettings>', 1)
+    if is_styled(state.chart_style):
+        xml = dressed(xml, state)
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)
@@ -801,6 +804,11 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     xml = re.sub(r'<c:(val|yVal)><c:numLit><c:formatCode>[^<]*</c:formatCode><c:ptCount val="0"/></c:numLit>'
                  r'</c:\1>', '', xml)
     return xml
+
+CT_CHART_STYLE = 'application/vnd.ms-office.chartstyle+xml'
+CT_CHART_COLORS = 'application/vnd.ms-office.chartcolorstyle+xml'
+REL_CHART_STYLE = 'http://schemas.microsoft.com/office/2011/relationships/chartStyle'
+REL_CHART_COLORS = 'http://schemas.microsoft.com/office/2011/relationships/chartColorStyle'
 
 #: The chart area's look once ChartObject.Shadow is on (tests/fixtures/chart_object_reads.json).
 CHART_SHADOW = ('<c:spPr><a:effectLst><a:outerShdw dist="35921" dir="2700000" algn="br"><a:srgbClr val="000000"/>'
@@ -860,11 +868,46 @@ def _bar_values(sheet: Worksheet, element: str, given: tuple[str, list[object]])
             f'{cache_markup(cached, numeric=True, code=source_format(sheet, formula))}</c:numRef></c:{element}>')
 
 
+def _style_part_names(part: str) -> tuple[str, str]:
+    number = part[len('xl/charts/chart'):-len('.xml')]
+    return f'xl/charts/style{number}.xml', f'xl/charts/colors{number}.xml'
+
+
+def _write_style_parts(package: OpcFile, chart: ChartState) -> None:
+    """The parts a chart of one of AddChart2's styles brings with it, or none where it has gone back to an old style."""
+    from pyopenvba.apps.excel._chart_style_table import COLORS_PART, style_part
+    from pyopenvba.apps.excel._chart_styled import is_styled
+
+    if not is_styled(chart.chart_style):
+        _remove_style_parts(package, chart.part)
+        return
+    style, colours = _style_part_names(chart.part)
+    package.write(style, style_part(chart.chart_style).encode('utf-8'))
+    package.write(colours, COLORS_PART.encode('utf-8'))
+    add_content_type(package, style, CT_CHART_STYLE)
+    add_content_type(package, colours, CT_CHART_COLORS)
+    package.write(rels_part(chart.part), (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        f'<Relationship Id="rId2" Type="{REL_CHART_COLORS}" Target="{posixpath.basename(colours)}"/>'
+        f'<Relationship Id="rId1" Type="{REL_CHART_STYLE}" Target="{posixpath.basename(style)}"/>'
+        '</Relationships>').encode('utf-8'))
+
+
+def _remove_style_parts(package: OpcFile, part: str) -> None:
+    for name in _style_part_names(part):
+        if package.has(name):
+            package.remove(name)
+            drop_content_type(package, name)
+            package.remove(rels_part(part))
+
+
 def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
     retained = {chart.part for owner in sheet.book.sheets_ for identifier, chart in owner.chart_states.items()
                 if any(shape.shape_id == identifier and shape.kind == 'chart' for shape in owner.shapes_)}
     retired = set(sheet.deleted_chart_parts)
     for part in retired - retained:
+        _remove_style_parts(package, part)
         package.remove(part)
         package.remove(rels_part(part))
         drop_content_type(package, part)
@@ -895,5 +938,6 @@ def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
         if generated is not None:
             package.write(chart.part, generated.encode('utf-8'))
             add_content_type(package, chart.part, CT_CHART)
+            _write_style_parts(package, chart)
             chart.dirty = False
     sheet.deleted_chart_parts.clear()

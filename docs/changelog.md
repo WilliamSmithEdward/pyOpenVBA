@@ -15,6 +15,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Application.Undo` and `Repeat`, which raise 1004 as nothing is left to undo while a macro
+  runs. `OnUndo`, `OnRepeat`, `OnKey` and `CheckAbort`, checked and held nowhere, since the
+  model has no menu or keyboard. A key OnKey cannot read raises 1004.
+- Read-only `Application` members a macro may test: `WindowState`, `AutomationSecurity`,
+  `IgnoreRemoteRequests`, `MailSystem`, `MaxSupportedCompatibilityVersion`,
+  `TransitionMenuKey`, `TransitionMenuKeyAction`, `PreviousSelections`,
+  `ActiveProtectedViewWindow`, and the empty `ProtectedViewWindows`, `Watches`, `ODBCErrors`,
+  `OLEDBErrors`, `Excel4MacroSheets` and `Excel4IntlMacroSheets`.
 - `DataLabels.Format`: the fill's colour and the outline's weight. A colour on the outline
   does nothing, as in Excel.
 - `Trendline.Forward2`, `Backward2` and setting `Backward`, which only a scatter chart runs

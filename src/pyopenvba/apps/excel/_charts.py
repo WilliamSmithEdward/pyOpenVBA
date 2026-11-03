@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 import math
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState
@@ -652,8 +652,8 @@ def selection(sheet: Worksheet) -> object:
     if sheet.chart_part == 'plot':
         return PlotArea(chart)
     if sheet.chart_part == 'element':
-        # A selected series or point that has been taken away leaves the chart area selected.
-        return ChartArea(chart) if chart.selected_series() is None else sheet.chart_element
+        # A selected element that has been taken away leaves the chart area selected.
+        return sheet.chart_element if chart.element_there() else ChartArea(chart)
     return ChartObject(sheet, chart.shape)
 
 
@@ -1442,6 +1442,11 @@ class Chart(Created):
         return collection if Index is MISSING else collection.vba_get('Item', [Index])
 
     @method
+    def FullSeriesCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        collection = FullSeriesCollection(self)
+        return collection if Index is MISSING else collection.vba_get('Item', [Index])
+
+    @method
     def Axes(self, Type: object = MISSING, AxisGroup: object = MISSING) -> object:  # noqa: N803 - native named arguments
         from pyopenvba.apps.excel._chart_axes import Axes, axis
 
@@ -1513,6 +1518,20 @@ class Chart(Created):
             selected.entry = series_plan[place]
         return EMPTY
 
+    def element_there(self) -> bool:
+        """Whether the element selected is still in the chart: its series, or for the ones that come and go, itself."""
+        element = self.sheet.chart_element
+        state = self.state
+        if isinstance(element, Legend):
+            return state.legend
+        if isinstance(element, ChartTitle):
+            return state.title is not None
+        entry = getattr(element, 'entry', None)
+        if entry is not None and hasattr(entry, 'present'):
+            return bool(entry.present)
+        series = element if isinstance(element, Series) else getattr(element, 'series', None)
+        return series is None or self.selected_series() is not None
+
     def selected_series(self) -> Series | None:
         """The series selected, or the series of the point selected, of this chart."""
         sheet = self.sheet
@@ -1542,6 +1561,10 @@ class ChartTitle(TitleMembers):
     def title_sheet(self) -> Worksheet:
         self.chart.admit_change()
         return self.chart.sheet
+
+    @method
+    def Select(self) -> object:
+        return select_element(self.chart, self, True)
 
     @member
     def Parent(self) -> object:
@@ -1624,6 +1647,10 @@ class Legend(Created):
         state = self.shown()
         self.chart.changed()
         return state
+
+    @method
+    def Select(self) -> object:
+        return select_element(self.chart, self, True)
 
     @member
     def Parent(self) -> object:
@@ -1727,6 +1754,10 @@ class LegendEntry(Created):
 
     def __init__(self, legend: Legend, index: int) -> None:
         self.legend, self.index = legend, index
+
+    @method
+    def Select(self) -> object:
+        return select_element(self.legend.chart, self, True)
 
     @member
     def Parent(self) -> object:
@@ -2014,6 +2045,11 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
         return [Series(self.chart, entry) for entry in self.chart.state.series]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
+        if isinstance(index, str):
+            for item in items:
+                if to_text(cast(Series, item).vba_get('Name', [])).casefold() == index.casefold():
+                    return item
+            raise error(1004, 'Invalid Parameter')
         position = int(to_integer(index, 'Long'))
         if 1 <= position <= len(items):
             return items[position - 1]
@@ -2042,6 +2078,17 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
         self.chart.state.next_unique += 1
         self.chart.state.series.append(entry)
         return Series(self.chart, entry)
+
+
+class FullSeriesCollection(SeriesCollection):
+    """Every series, including those filtered out of SeriesCollection, which the model does not do
+    (tests/fixtures/chart_full_series.json). It adds none."""
+
+    vba_type_name = 'FullSeriesCollection'
+
+    @method
+    def NewSeries(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
 
 
 class Series(Created):
@@ -2104,6 +2151,12 @@ class Series(Created):
     def IsFiltered(self) -> object:
         self.position()
         return False
+
+    @setter('IsFiltered')
+    def _is_filtered(self, value: object) -> None:
+        self.position()
+        if to_bool(value):
+            raise VBAUnsupportedError('Filtering a series out of its chart is not implemented')
 
     @member
     def BubbleSizes(self) -> object:

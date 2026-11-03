@@ -406,7 +406,7 @@ Axis,MinorUnitScale,property,As XlTimeUnit,,MISSING,,
 Axis,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,ReversePlotOrder,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,ScaleType,property,As XlScaleType,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"Anything but xlScaleLinear makes the scale logarithmic, written as logBase 10 until LogBase is set."
-Axis,Select,method,Select() As Variant,,MISSING,,
+Axis,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_full_series.py,Selection answers it; nothing on a sheet not active; removing the axis leaves the chart area selected.
 Axis,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 Axis,TickLabelPosition,property,As XlTickLabelPosition,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Next to by default; high, low, next to and none. Other values raise -2147467259. Imported charts read only."
 Axis,TickLabels,"property, read-only",As TickLabels,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
@@ -432,12 +432,12 @@ AxisTitle,Height,"property, read-only",As Double,,MISSING,,
 AxisTitle,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"Written as the paragraph's algn once set. Ignored while the title is turned, which an upright axis's title is until its orientation is set."
 AxisTitle,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,False writes overlay 1.
 AxisTitle,Left,property,As Double,,MISSING,,
-AxisTitle,Name,"property, read-only",As String,,MISSING,,
+AxisTitle,Name,"property, read-only",As String,,UNASSESSED,,
 AxisTitle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"An upright axis's title reads xlUpward until set, with nothing written. -90 to 90 degrees or the named constants, written as bodyPr rot."
 AxisTitle,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 AxisTitle,Position,property,As XlChartElementPosition,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,Reads automatic. Any other position needs native layout and is refused.
 AxisTitle,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,xlRTL and xlLTR write the paragraph's rtl; xlContext clears it.
-AxisTitle,Select,method,Select() As Variant,,MISSING,,
+AxisTitle,Select,method,Select() As Variant,,UNASSESSED,,
 AxisTitle,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 AxisTitle,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,True writes Excel's outer shadow; False after it an empty effect list.
 AxisTitle,Text,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
@@ -553,7 +553,7 @@ Chart,Evaluate,method,Evaluate(Name As Variant) As Variant,,MISSING,,
 Chart,Export,method,"Export(Filename As String, [FilterName As Variant], [Interactive As Variant]) As Boolean",,MISSING,,
 Chart,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Chart,Floor,"property, read-only",As Floor,,MISSING,,
-Chart,FullSeriesCollection,method,FullSeriesCollection([Index As Variant]) As Object,,MISSING,,
+Chart,FullSeriesCollection,method,FullSeriesCollection([Index As Variant]) As Object,,PARTIAL,tests/test_excel_chart_full_series.py,"Every series, by number or name; adds none. Filtering a series out is refused."
 Chart,GapDepth,property,As Long,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
 Chart,GetChartElement,method,"GetChartElement(x As Long, y As Long, ElementID As Long, Arg1 As Long, Arg2 As Long)",,MISSING,,
 Chart,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
@@ -770,7 +770,7 @@ ChartTitle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/chart_title.j
 ChartTitle,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Chart.
 ChartTitle,Position,property,As XlChartElementPosition,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,Reads automatic. Any other position needs native layout and is refused.
 ChartTitle,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,xlRTL and xlLTR write the paragraph's rtl; xlContext clears it.
-ChartTitle,Select,method,Select() As Variant,,MISSING,,
+ChartTitle,Select,method,Select() As Variant,,UNASSESSED,,
 ChartTitle,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 ChartTitle,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,True writes Excel's outer shadow; False after it an empty effect list.
 ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json; tests/test_excel_chart_staging.py,"The automatic title reads the sole series' name, else Chart Title; typed text is written as rich text, the automatic title with none."
@@ -984,7 +984,7 @@ DataLabels,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_l
 DataLabels,Position,property,As XlDataLabelPosition,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Each type's default and the positions it takes, measured per type; others refused."
 DataLabels,Propagate,method,Propagate(Index As Variant),,MISSING,,
 DataLabels,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
-DataLabels,Select,method,Select() As Variant,,MISSING,,
+DataLabels,Select,method,Select() As Variant,,UNASSESSED,,
 DataLabels,Separator,property,As Variant,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Reads 1 until set to text, then written; constants are refused."
 DataLabels,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 DataLabels,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
@@ -1091,7 +1091,7 @@ ErrorBars,Format,"property, read-only",As ChartFormat,,MISSING,,
 ErrorBars,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 ErrorBars,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
 ErrorBars,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
-ErrorBars,Select,method,Select() As Variant,,MISSING,,
+ErrorBars,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_full_series.py,Selection answers it; nothing on a sheet not active.
 ErrorBars,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 ErrorCheckingOptions,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/error_checking_options.json; tests/test_excel_error_checking_options.py,The application.
 ErrorCheckingOptions,BackgroundChecking,property,As Boolean,,PARTIAL,tests/fixtures/error_checking_options.json; tests/test_excel_error_checking_options.py,"What a new Excel session read on the measuring machine; set, kept for the session. Range.Errors answers whatever it says, as Excel does."
@@ -1231,6 +1231,14 @@ FormatConditions,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtu
 FormatConditions,Delete,method,Delete(),,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Native loaded-group controls cover individual deletion with target tombstone and one shared survivor group, versus bulk deletion retaining the prior group representative."
 FormatConditions,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Loaded identities can be shared by multiple rules without merging their object roots or owner styles; representative order follows captured load mode."
 FormatConditions,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch."
+FullSeriesCollection,_Default,method,_Default(Index As Variant) As Series,,UNASSESSED,,
+FullSeriesCollection,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+FullSeriesCollection,Application,"property, read-only",As Application,,UNASSESSED,,
+FullSeriesCollection,Count,"property, read-only",As Long,,UNASSESSED,,
+FullSeriesCollection,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+FullSeriesCollection,Item,method,Item(Index As Variant) As Series,,UNASSESSED,,
+FullSeriesCollection,NewSeries,not in the type library,,,UNASSESSED,,
+FullSeriesCollection,Parent,"property, read-only",As Object,,UNASSESSED,,
 Gridlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Border,"property, read-only",As Border,,MISSING,,
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
@@ -1239,7 +1247,7 @@ Gridlines,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/ch
 Gridlines,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Gridlines,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"Gridline 1 to 4: the value axis major and minor, then the category axis."
 Gridlines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,The axis.
-Gridlines,Select,method,Select() As Variant,,MISSING,,
+Gridlines,Select,method,Select() As Variant,,UNASSESSED,,
 Gridlines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 GroupShapes,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 GroupShapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
@@ -1378,7 +1386,7 @@ Legend,LegendEntries,method,LegendEntries([Index As Variant]) As Object,,PARTIAL
 Legend,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads ""Legend""."
 Legend,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Legend,Position,property,As XlLegendPosition,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"Written as legendPos: b, t, l, r, tr. xlLegendPositionCustom and other numbers raise -2147467259, as in Excel."
-Legend,Select,method,Select() As Variant,,MISSING,,
+Legend,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_full_series.py,Selection answers it; nothing on a sheet not active; removing the legend leaves the chart area selected.
 Legend,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 Legend,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,True writes Excel's outer shadow; False after it an empty effect list.
 Legend,Top,property,As Double,,MISSING,,
@@ -1400,7 +1408,7 @@ LegendEntry,Index,"property, read-only",As Long,,MISSING,,
 LegendEntry,Left,"property, read-only",As Double,,MISSING,,
 LegendEntry,LegendKey,"property, read-only",As LegendKey,,MISSING,,
 LegendEntry,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,The Legend.
-LegendEntry,Select,method,Select() As Variant,,MISSING,,
+LegendEntry,Select,method,Select() As Variant,,UNASSESSED,,
 LegendEntry,Top,"property, read-only",As Double,,MISSING,,
 LegendEntry,Width,"property, read-only",As Double,,MISSING,,
 LineFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
@@ -2373,7 +2381,7 @@ Series,HasLeaderLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_lab
 Series,InvertColor,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"Reads white, 16777215; the setter is not implemented."
 Series,InvertColorIndex,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 2; the setter is not implemented.
 Series,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The ser's invertIfNegative on column and bar charts; other kinds take the setting silently and write nothing.
-Series,IsFiltered,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; filtering a series out is not implemented.
+Series,IsFiltered,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; filtering a series out is not implemented.
 Series,LeaderLines,"property, read-only",As LeaderLines,,MISSING,,
 Series,MarkerBackgroundColor,property,As Long,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The marker's fill colour; -1 while automatic, -2 for none. Setting it writes the marker's fill and gives a series without markers automatic ones. Line and scatter charts only; others raise 1004."
 Series,MarkerBackgroundColorIndex,property,As XlColorIndex,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The palette slot nearest the fill colour; 2 while automatic, -4142 for none. Slots 1 to 56, 57 for black, none and automatic can be set."
@@ -2913,7 +2921,7 @@ Trendline,NameIsAuto,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendline
 Trendline,Order,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Period,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
-Trendline,Select,method,Select() As Variant,,MISSING,,
+Trendline,Select,method,Select() As Variant,,UNASSESSED,,
 Trendline,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 Trendline,Type,property,As XlTrendlineType,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendlines,_Default,method,_Default([Index As Variant]) As Trendline,,MISSING,,

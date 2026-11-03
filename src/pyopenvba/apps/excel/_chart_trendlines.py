@@ -178,6 +178,12 @@ class Trendline(Created):
         self._index()
         self.series.chart.admit_change()
 
+    @method
+    def Select(self) -> object:
+        from pyopenvba.apps.excel._charts import select_element
+
+        return select_element(self.series.chart, self, True)
+
     @member
     def Parent(self) -> object:
         self._index()

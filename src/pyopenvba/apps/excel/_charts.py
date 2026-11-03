@@ -194,6 +194,8 @@ class ChartState:
     display_readable: bool = True
     #: ChartStyle, from 1 to 48.
     chart_style: int = 2
+    #: Every series in order, while any is filtered out of ``series``, which keeps those drawn.
+    full_series: list[SeriesState] = field(default_factory=lambda: [])
     data_table: bool = False
     #: Whether its data table shows legend keys, as it does until SetElement says otherwise.
     data_table_keys: bool = True
@@ -463,15 +465,17 @@ def plot_by(chart: ChartState) -> int:
     xlRows, and series that fit both read the way their source data was given."""
     if not chart.series:
         return 1
+    # A series filtered out counts, though it is not drawn.
+    every = chart.full_series or chart.series
     try:
-        values = [parse_reference(entry.value_reference) for entry in chart.series]
-        names = [parse_reference(entry.name_reference) if entry.name_reference else None for entry in chart.series]
+        values = [parse_reference(entry.value_reference) for entry in every]
+        names = [parse_reference(entry.name_reference) if entry.name_reference else None for entry in every]
     except ValueError:
         return 0
     literal = any(not entry.value_reference or entry.name is not None and not entry.name_reference
-                  or entry.categories and not entry.category_reference for entry in chart.series)
+                  or entry.categories and not entry.category_reference for entry in every)
     if (literal or any(len(areas) != 1 for areas in values) or any(name is not None and len(name) != 1 for name in names)
-            or len({entry.category_reference for entry in chart.series}) != 1
+            or len({entry.category_reference for entry in every}) != 1
             or len({name is None for name in names}) != 1):
         return 0
     blocks = [areas[0] for areas in values]
@@ -1034,6 +1038,11 @@ class Chart(Created):
         self.state.dirty = True
         self.sheet.drawing_changed()
 
+    def nothing_filtered(self, what: str) -> None:
+        """Refuses what gives odd answers around a series filtered out (tests/fixtures/series_filter.json)."""
+        if self.state.full_series:
+            raise VBAUnsupportedError(f'{what} on a chart with a series filtered out is not implemented')
+
     def keeps_look(self, key: str, wanted: bool = False) -> None:
         """Refuses taking away an element with a look: what it comes back with was not measured."""
         if not wanted and (key in self.state.element_looks or key in self.state.element_fonts):
@@ -1427,7 +1436,8 @@ class Chart(Created):
     @member
     def ChartTitle(self) -> object:
         if self.state.title is None:
-            if len(self.state.series) > 1 and CHART_TYPES.get(shown_type(self.state)) != 'pie':
+            pie = CHART_TYPES.get(shown_type(self.state)) == 'pie' and self.state.series
+            if len(self.state.series) != 1 and not pie and (self.state.series or self.state.full_series):
                 # Only a chart that draws one series has an automatic title to give
                 # (tests/fixtures/chart_set_element.json).
                 raise error(-2147024809, 'The parameter is incorrect.')
@@ -1560,6 +1570,7 @@ class Chart(Created):
 
         if Source is MISSING:
             raise error(450)
+        self.nothing_filtered('SetSourceData')
         if Source is NOTHING:
             raise VBAUnsupportedError('Chart source Nothing object lifetime behavior is not implemented')
         if not isinstance(Source, Range):
@@ -2146,6 +2157,7 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
     @method
     def NewSeries(self) -> object:
         self.chart.admit_change()
+        self.chart.nothing_filtered('NewSeries')
         used = {entry.series_id if entry.series_id >= 0 else index
                 for index, entry in enumerate(self.chart.state.series)}
         series_id = 0
@@ -2165,6 +2177,11 @@ class FullSeriesCollection(SeriesCollection):
 
     vba_type_name = 'FullSeriesCollection'
 
+    def vba_items(self) -> list[object]:
+        self.chart.admit_read()
+        state = self.chart.state
+        return [Series(self.chart, entry) for entry in state.full_series or state.series]
+
     @method
     def NewSeries(self) -> object:
         raise error(438, "Object doesn't support this property or method")
@@ -2178,16 +2195,33 @@ class Series(Created):
 
     def position(self) -> int:
         self.chart.admit_read()
-        for index, entry in enumerate(self.chart.state.series):
+        state = self.chart.state
+        for index, entry in enumerate(state.series):
+            if entry is self.entry:
+                return index + 1
+        for index, entry in enumerate(state.full_series):
             if entry is self.entry:
                 return index + 1
         raise error(-2147467261, 'This object is no longer valid.')
 
+    def full_place(self) -> int:
+        full = self.chart.state.full_series
+        if full:
+            self.position()
+            return next(index + 1 for index, entry in enumerate(full) if entry is self.entry)
+        return self.position()
+
+    def filtered(self) -> bool:
+        state = self.chart.state
+        return any(entry is self.entry for entry in state.full_series) and not any(
+            entry is self.entry for entry in state.series)
+
     def vba_call_by_name(self, name: str, args: Sequence[object], *, assignment: bool = False,
                          by_ref: bool = False) -> object:
         self.chart.admit_read()
+        state = self.chart.state
         if (name.lower() in ('name', 'plotorder', 'formula', 'values', 'xvalues')
-                and not any(entry is self.entry for entry in self.chart.state.series)):
+                and not any(entry is self.entry for entry in [*state.series, *state.full_series])):
             raise error(440, 'Automation error')
         return super().vba_call_by_name(name, args, assignment=assignment, by_ref=by_ref)
 
@@ -2229,13 +2263,28 @@ class Series(Created):
     @member
     def IsFiltered(self) -> object:
         self.position()
-        return False
+        return self.filtered()
 
     @setter('IsFiltered')
     def _is_filtered(self, value: object) -> None:
+        """Moves it between the series drawn and those only FullSeriesCollection has
+        (tests/fixtures/series_filter.json)."""
         self.position()
-        if to_bool(value):
-            raise VBAUnsupportedError('Filtering a series out of its chart is not implemented')
+        wanted = to_bool(value)
+        if wanted == self.filtered():
+            return
+        self.chart.admit_change()
+        self.chart.changed()
+        state = self.chart.state
+        if not state.full_series:
+            state.full_series = list(state.series)
+        hidden = [entry for entry in state.full_series
+                  if not any(entry is drawn for drawn in state.series) and entry is not self.entry]
+        if wanted:
+            hidden.append(self.entry)
+        state.series[:] = [entry for entry in state.full_series if not any(entry is one for one in hidden)]
+        if not hidden:
+            state.full_series = []
 
     @member
     def BubbleSizes(self) -> object:
@@ -2308,12 +2357,14 @@ class Series(Created):
 
     @member
     def PlotOrder(self) -> object:
-        return VBAInt(self.position(), 'Long')
+        place = self.position()
+        return VBAInt(0 if self.filtered() else place, 'Long')
 
     @setter('PlotOrder')
     def _plot_order(self, value: object) -> None:
         self.position()
         self.chart.admit_change()
+        self.chart.nothing_filtered('Setting PlotOrder')
         if value is NULL:
             raise error(13, 'Type mismatch')
         wanted = int(to_integer(value, 'Long'))
@@ -2331,9 +2382,13 @@ class Series(Created):
 
     @method
     def Delete(self) -> object:
-        position = self.position()
+        self.position()
         self.chart.changed()
-        self.chart.state.series.pop(position - 1)
+        state = self.chart.state
+        state.series[:] = [entry for entry in state.series if entry is not self.entry]
+        state.full_series = [entry for entry in state.full_series if entry is not self.entry]
+        if len(state.full_series) == len(state.series):
+            state.full_series = []
         return True
 
     @member
@@ -2363,7 +2418,9 @@ class Series(Created):
         self.entry.name = text if not self.entry.name_reference else ''
 
     @member
-    def Values(self) -> object:
+    def Values(self, Index: object = MISSING) -> object:  # noqa: N803 - it takes none, as Excel answers
+        if Index is not MISSING:
+            raise error(451, 'Property let procedure not defined and property get procedure did not return an object')
         values = [float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
                   for value in self.values()]
         return VBAArray([(1, len(values))], items=values)
@@ -2420,7 +2477,8 @@ class Series(Created):
 
     @member
     def Formula(self) -> object:
-        order = self.position()
+        # Its number among them all, filtered or not.
+        order = self.full_place()
         name = self.entry.name_reference or (quoted(self.entry.name) if self.entry.name is not None else '')
         categories = self.entry.category_reference or literal_array(self.entry.categories)
         values = self.entry.value_reference or literal_array(self.entry.values)
@@ -2495,7 +2553,8 @@ class Series(Created):
         from pyopenvba.apps.excel._chart_format import ChartFormat
 
         self.chart.admit_read()
-        if not any(entry is self.entry for entry in self.chart.state.series):
+        state = self.chart.state
+        if not any(entry is self.entry for entry in [*state.series, *state.full_series]):
             # A series taken away answers this one differently from its other members.
             raise error(-2147467259, 'Automation error\nUnspecified error')
         return ChartFormat(self)
@@ -2530,6 +2589,8 @@ class Series(Created):
     def plotted(self) -> bool:
         """Whether its chart draws it: a pie draws only its first series."""
         place = self.position()
+        if self.filtered():
+            return False
         return place == 1 or CHART_TYPES.get(shown_type(self.chart.state)) != 'pie'
 
     @method

@@ -11,18 +11,16 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 from test_excel_chart_markup import chart_part
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_full_series.json').read_text(encoding='utf-8'))
-FILTERING = '.IsFiltered = True'
 
 
 def refused(case: str) -> bool:
-    """What the model refuses: filtering a series out, selecting a pie's label, a scatter chart's gridlines, and reading
+    """What the model refuses: selecting a pie's label, a scatter chart's gridlines, and reading
     ChartTitle once HasTitle was set False, which the model answers by giving the chart its title back."""
-    return (FILTERING in case or (case.startswith('pie: ') and 'DataLabel.Select' in case)
+    return ((case.startswith('pie: ') and 'DataLabel.Select' in case)
             or (case.startswith('scatter: ') and 'MajorGridlines' in case)
             or 'ch.HasTitle = False: ch.ChartTitle.Select' in case)
 
@@ -71,13 +69,3 @@ def test_each_chart_part_as_excel_saved_it(run: tuple[dict[int, str], Path], ind
     assert chart_part(run[1] / f'c{index}.xlsx') == RECORD['cases'][index][2]
 
 
-@pytest.mark.parametrize('owner', ['ch.FullSeriesCollection(1)', 'ch.SeriesCollection(1)'])
-def test_filtering_a_series_out_is_refused(owner: str) -> None:
-    app = ExcelApplication()
-    app.add_workbook()
-    app.add_module('Public Sub Go()\n    Dim ch As Object\n    ActiveSheet.Range("B1:B3").Value = 1\n'
-                   '    Set ch = ActiveSheet.ChartObjects.Add(10, 10, 200, 100).Chart\n'
-                   f'    ch.SetSourceData ActiveSheet.Range("B1:B3")\n    {owner}.IsFiltered = True\nEnd Sub\n',
-                   name='Refused')
-    with pytest.raises(VBAUnsupportedError):
-        app.run('Refused.Go')

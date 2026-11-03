@@ -233,7 +233,8 @@ class Point(Created):
     def gone(self) -> bool:
         """Whether its series has been taken away."""
         self.series.chart.admit_read()
-        return not any(entry is self.series.entry for entry in self.series.chart.state.series)
+        state = self.series.chart.state
+        return not any(entry is self.series.entry for entry in [*state.series, *state.full_series])
 
     def numbered(self, point: PointState) -> None:
         """Its dPt's unique id, from the chart's count, once it has a dPt."""

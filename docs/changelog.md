@@ -28,7 +28,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   high-low lines and up-down bars. A data label callout, taking away the plot area and an
   area chart's error bars are refused.
 - `Chart.FullSeriesCollection`, and a series found by name in it or in `SeriesCollection`.
-  `IsFiltered = True` is refused.
+- `Series.IsFiltered`, which moves a series out of `SeriesCollection` and into the file's extension
+  for filtered series. `NewSeries`, `SetSourceData` and setting `PlotOrder` are refused while a series
+  is filtered out.
 - `Select` on a chart's legend, legend entries, title, axes, axis titles, gridlines,
   data labels, trendlines and error bars, which `Selection` then answers.
 - `Point.Select` and `Series.Select`, which `Selection` then answers. A chart that cannot

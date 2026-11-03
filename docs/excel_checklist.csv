@@ -553,7 +553,7 @@ Chart,Evaluate,method,Evaluate(Name As Variant) As Variant,,MISSING,,
 Chart,Export,method,"Export(Filename As String, [FilterName As Variant], [Interactive As Variant]) As Boolean",,MISSING,,
 Chart,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Chart,Floor,"property, read-only",As Floor,,MISSING,,
-Chart,FullSeriesCollection,method,FullSeriesCollection([Index As Variant]) As Object,,PARTIAL,tests/test_excel_chart_full_series.py,"Every series, by number or name; adds none. Filtering a series out is refused."
+Chart,FullSeriesCollection,method,FullSeriesCollection([Index As Variant]) As Object,,PARTIAL,tests/test_excel_series_filter.py,"Every series, filtered or not, by number or name; adds none."
 Chart,GapDepth,property,As Long,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
 Chart,GetChartElement,method,"GetChartElement(x As Long, y As Long, ElementID As Long, Arg1 As Long, Arg2 As Long)",,MISSING,,
 Chart,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
@@ -2381,7 +2381,7 @@ Series,HasLeaderLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_lab
 Series,InvertColor,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"Reads white, 16777215; the setter is not implemented."
 Series,InvertColorIndex,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 2; the setter is not implemented.
 Series,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The ser's invertIfNegative on column and bar charts; other kinds take the setting silently and write nothing.
-Series,IsFiltered,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; filtering a series out is not implemented.
+Series,IsFiltered,property,As Boolean,,PARTIAL,tests/test_excel_series_filter.py,"As live Excel on eight kinds of chart. NewSeries, SetSourceData and setting PlotOrder are refused while a series is filtered out."
 Series,LeaderLines,"property, read-only",As LeaderLines,,MISSING,,
 Series,MarkerBackgroundColor,property,As Long,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The marker's fill colour; -1 while automatic, -2 for none. Setting it writes the marker's fill and gives a series without markers automatic ones. Line and scatter charts only; others raise 1004."
 Series,MarkerBackgroundColorIndex,property,As XlColorIndex,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The palette slot nearest the fill colour; 2 while automatic, -4142 for none. Slots 1 to 56, 57 for black, none and automatic can be set."

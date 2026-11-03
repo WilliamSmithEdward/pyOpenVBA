@@ -507,6 +507,40 @@ def linked_formats(chart: Chart) -> tuple[str, str]:
             source_format(chart.sheet, item.value_reference))
 
 
+#: The extension each kind of chart keeps its filtered series under (tests/fixtures/series_filter.json).
+_FILTERED = {'column': 'filteredBarSeries', 'bar': 'filteredBarSeries', 'line': 'filteredLineSeries',
+             'lineMarkers': 'filteredLineSeries', 'scatter': 'filteredScatterSeries', 'area': 'filteredAreaSeries',
+             'pie': 'filteredPieSeries', 'doughnut': 'filteredPieSeries'}
+_C15 = '{02D57815-91ED-43cb-92C2-25804820EDAC}'
+
+
+def _with_filtered_series(xml: str, kind: object, places: list[int]) -> str:
+    """The chart with these series moved from its group to an extension at the group's end, their references spelled as
+    such an extension spells them."""
+    found = list(re.finditer(r'<c:ser>.*?</c:ser>', xml, re.DOTALL))
+    moved = ''
+    name = _FILTERED[str(kind)]
+    space = 'xmlns:c15="http://schemas.microsoft.com/office/drawing/2012/chart"'
+    for place in sorted(places, reverse=True):
+        match = found[place]
+        xml = xml[:match.start()] + xml[match.end():]
+    for turn, place in enumerate(places):
+        # Each has a wrapper of its own, and past the first its references name the namespace again.
+        again = f' {space}' if turn else ''
+        inner = found[place].group(0)[len('<c:ser>'):-len('</c:ser>')]
+        inner = inner.replace(f' {space}', again)
+        inner = re.sub(r'<c:f>(.+?)</c:f>', lambda hit: (
+            f'<c:extLst><c:ext uri="{_C15}"{again}><c15:formulaRef><c15:sqref>{hit.group(1)}</c15:sqref>'
+            '</c15:formulaRef></c:ext></c:extLst>'), inner)
+        moved += f'<c15:{name}><c15:ser>{inner}</c15:ser></c15:{name}>'
+    extension = f'<c:extLst><c:ext uri="{_C15}" {space}>{moved}</c:ext></c:extLst>'
+    close = re.search(r'</c:(?:bar|line|scatter|area|pie|doughnut)Chart>', xml)
+    assert close is not None
+    xml = xml[:close.start()] + extension + xml[close.start():]
+    # With nothing drawn the axes have no number format to follow.
+    return xml if '<c:ser>' in xml else xml.replace('<c:numFmt formatCode="General" sourceLinked="1"/>', '')
+
+
 def _with_element_labels(xml: str, shown: bool, place: int | None) -> str:
     """The chart's own c:dLbls, after its last series, as SetElement leaves it
     (tests/fixtures/chart_set_element.json)."""
@@ -527,7 +561,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
 
     chart = Chart(sheet, shape)
     data: list[SeriesData] = []
-    for item in chart.state.series:
+    for item in chart.state.full_series or chart.state.series:
         series = Series(chart, item)
         categories = series.categories()
         levels = category_levels(sheet, item) or []
@@ -595,6 +629,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda found: found.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1)
             if found.group(0).startswith('<c:valAx>' + identifier) else found.group(0), xml)
+    if state.full_series:
+        xml = _with_filtered_series(xml, kind, [index for index, item in enumerate(state.full_series)
+                                                if not any(item is drawn for drawn in state.series)])
     if state.layout_chart_labels and '</c:ser>' in xml:
         at = xml.rindex('</c:ser>')
         xml = xml[:at] + re.sub(r'<c:dLbls>.*?</c:dLbls>', lambda _: state.layout_chart_labels, xml[at:], count=1,

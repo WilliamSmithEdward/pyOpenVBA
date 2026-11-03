@@ -944,6 +944,85 @@ class Application(ExcelObject):
     def Repeat(self) -> object:
         raise error(1004, "Repeat method of Application class failed")
 
+    # -- what Application reads with no screen here (tests/fixtures/application_objects.json)
+
+    def _profile(self, type_name: str) -> object:
+        from pyopenvba.apps.excel._application_more import ProfileObject
+
+        return ProfileObject(self, type_name)
+
+    @member
+    def AutoRecover(self) -> object:
+        return self._profile('AutoRecover')
+
+    @member
+    def MultiThreadedCalculation(self) -> object:
+        return self._profile('MultiThreadedCalculation')
+
+    @member
+    def SpellingOptions(self) -> object:
+        return self._profile('SpellingOptions')
+
+    @member
+    def AutoCorrect(self) -> object:
+        return self._profile('AutoCorrect')
+
+    @member
+    def DefaultWebOptions(self) -> object:
+        return self._profile('DefaultWebOptions')
+
+    @member
+    def DefaultPivotTableLayoutOptions(self) -> object:
+        return self._profile('DefaultPivotTableLayoutOptions')
+
+    @member
+    def FileValidation(self) -> object:
+        return VBAInt(0, 'Long')
+
+    @member
+    def FileValidationPivot(self) -> object:
+        return VBAInt(0, 'Long')
+
+    @member
+    def WindowsForPens(self) -> object:
+        return False
+
+    @member
+    def ClusterConnector(self) -> object:
+        return ''
+
+    @member
+    def DDEAppReturnCode(self) -> object:
+        return 0.0
+
+    @member
+    def AlwaysUseClearType(self) -> object:
+        return False
+
+    @member
+    def FormulaBarHeight(self) -> object:
+        return VBAInt(1, 'Long')
+
+    @member
+    def RegisteredFunctions(self) -> object:
+        return NULL
+
+    @member
+    def MailSession(self) -> object:
+        return NULL
+
+    @member
+    def FileConverters(self) -> object:
+        return NULL
+
+    @member
+    def ActiveEncryptionSession(self) -> object:
+        raise error(5, 'Invalid procedure call or argument')
+
+    @member
+    def SensitivityLabelPolicy(self) -> object:
+        raise error(440, 'Automation error')
+
     @method
     def OnTime(self, EarliestTime: object = MISSING, Procedure: object = MISSING, LatestTime: object = MISSING,  # noqa: N803
                Schedule: object = MISSING) -> object:  # noqa: N803

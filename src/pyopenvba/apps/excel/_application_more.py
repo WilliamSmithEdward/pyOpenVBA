@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -52,6 +53,51 @@ class EmptyCollection(Created):
     @member
     def Count(self) -> object:
         return VBAInt(0, 'Long')
+
+
+#: What the objects behind Application's options read as the measuring machine's Excel had them
+#: (tests/fixtures/application_objects.json). Nothing here was set: setting one changes a user's profile, so a setter
+#: reports itself as a member the model does not have.
+PROFILE: dict[str, dict[str, object]] = {
+    'AutoRecover': {'Enabled': False, 'Time': VBAInt(10, 'Long')},
+    'MultiThreadedCalculation': {'Enabled': True},
+    'SpellingOptions': {'ArabicModes': VBAInt(2, 'Long'), 'IgnoreCaps': True, 'IgnoreMixedDigits': True,
+                        'IgnoreFileNames': True, 'SuggestMainOnly': False, 'UserDict': 'RoamingCustom.dic',
+                        'DictLang': VBAInt(1033, 'Long')},
+    'AutoCorrect': {'CapitalizeNamesOfDays': True, 'CorrectCapsLock': True, 'CorrectSentenceCap': True,
+                    'ReplaceText': True, 'TwoInitialCapitals': True, 'AutoExpandListRange': True,
+                    'AutoFillFormulasInLists': True, 'DisplayAutoCorrectOptions': True},
+    'DefaultWebOptions': {'AllowPNG': True, 'DownloadComponents': False, 'Encoding': VBAInt(1252, 'Long'),
+                          'LocationOfComponents': '', 'OrganizeInFolder': True, 'PixelsPerInch': VBAInt(96, 'Long'),
+                          'RelyOnCSS': True, 'RelyOnVML': False, 'SaveHiddenData': True,
+                          'SaveNewWebPagesAsWebArchives': True, 'ScreenSize': VBAInt(4, 'Long'),
+                          'TargetBrowser': VBAInt(4, 'Long'), 'UpdateLinksOnSave': True, 'UseLongFileNames': True,
+                          'AlwaysSaveInDefaultEncoding': False, 'CheckIfOfficeIsHTMLEditor': True,
+                          'LoadPictures': True},
+    'DefaultPivotTableLayoutOptions': {},
+}
+
+
+class ProfileObject(Created):
+    """One of Application's objects of options, read only (see PROFILE)."""
+
+    def __init__(self, application: Application, type_name: str) -> None:
+        self.application = application
+        self.vba_type_name = type_name
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        for known, value in PROFILE[self.vba_type_name].items():
+            if known.casefold() == name.casefold():
+                return value
+        return super().vba_get(name, args, named)
+
+    @member
+    def Application(self) -> object:
+        return self.application
+
+    @member
+    def Parent(self) -> object:
+        return self.application
 
 
 @dataclass

@@ -25,7 +25,7 @@ Application,_Run2,method,"_Run2([Macro As Variant], [Arg1 As Variant], [Arg2 As 
 Application,ActivateMicrosoftApp,method,ActivateMicrosoftApp(Index As XlMSApplication),,MISSING,,
 Application,ActiveCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,ActiveChart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,"The embedded chart activated on the active sheet until a range is selected or activated, kept per sheet and per workbook; Nothing otherwise."
-Application,ActiveEncryptionSession,"property, read-only",As Long,,MISSING,,
+Application,ActiveEncryptionSession,"property, read-only",As Long,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Error 5 on a workbook with no encryption session
 Application,ActivePrinter,property,As String,,MISSING,,
 Application,ActiveProtectedViewWindow,"property, read-only",As ProtectedViewWindow,,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Nothing.
 Application,ActiveSheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -37,16 +37,16 @@ Application,AddIns2,"property, read-only",As AddIns2,,MISSING,,
 Application,AfterCalculate,event,AfterCalculate(),,MISSING,,
 Application,AlertBeforeOverwriting,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,AltStartupPath,property,As String,,MISSING,,
-Application,AlwaysUseClearType,property,As Boolean,,MISSING,,
+Application,AlwaysUseClearType,property,As Boolean,no setter,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Reads False as the measuring machine had it; setting it reports itself, as it applies when Excel starts"
 Application,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,ArbitraryXMLSupportAvailable,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,Reads True.
 Application,AskToUpdateLinks,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Assistance,"property, read-only",As IAssistance,,MISSING,,
-Application,AutoCorrect,"property, read-only",As AutoCorrect,,MISSING,,
+Application,AutoCorrect,"property, read-only",As AutoCorrect,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
 Application,AutoFormatAsYouTypeReplaceHyperlinks,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,AutomationSecurity,property,As MsoAutomationSecurity,no setter,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Reads 1; setting is not implemented.
 Application,AutoPercentEntry,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
-Application,AutoRecover,"property, read-only",As AutoRecover,,MISSING,,
+Application,AutoRecover,"property, read-only",As AutoRecover,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
 Application,Build,"property, read-only",As Long,,UNASSESSED,,
 Application,Calculate,method,Calculate(),,PARTIAL,tests/fixtures/udf_source_lifetime.json; tests/fixtures/full_calculation.json; tests/fixtures/calculation_scope.json,"UDF edits, cached results and dependent invalidation are measured within and across macro calls; manual Text displays dirty cached values. Broader scheduling remains incomplete. Native full/ordinary calculation and initial manual formula entry are measured; broader combinations remain partial. Calculation scope, cached precedents, deferred notifications and saved dirty states have 192 native probes, 1080 additional UDF observations and four XLSM file gates. Broader graph, reentrancy and event-error behavior remains partial."
 Application,CalculateBeforeSave,property,As Boolean,,PARTIAL,tests/fixtures/manual_spill_edits.json,Manual save flags and mode switching; nine native files. Wider save-event and external-workbook interactions remain partial.
@@ -69,7 +69,7 @@ Application,Charts,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/empty
 Application,CheckAbort,method,CheckAbort([KeepAbort As Variant]),,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,No effect.
 Application,CheckSpelling,method,"CheckSpelling(Word As String, [CustomDictionary As Variant], [IgnoreUppercase As Variant]) As Boolean",,MISSING,,
 Application,ClipboardFormats,"property, read-only",As Variant,,MISSING,,
-Application,ClusterConnector,property,As String,,MISSING,,
+Application,ClusterConnector,property,As String,no setter,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Empty text; setting it reports itself
 Application,Columns,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,COMAddIns,"property, read-only",As COMAddIns,,MISSING,,
 Application,CommandBars,"property, read-only",As CommandBars,,MISSING,,
@@ -84,7 +84,7 @@ Application,CursorMovement,property,As Long,,PARTIAL,tests/fixtures/application_
 Application,CustomListCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"Excel's four lists of day and month names, then those a macro added in the session."
 Application,CutCopyMode,property,As XlCutCopyMode,,VERIFIED,tests/fixtures/paste.json,"0, 1 after Copy and 2 after Cut; False clears the clipboard."
 Application,DataEntryMode,property,As Long,no setter,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,Reads xlOff; the setter is not implemented.
-Application,DDEAppReturnCode,"property, read-only",As Long,,MISSING,,
+Application,DDEAppReturnCode,"property, read-only",As Long,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"0, a Double; no DDE here"
 Application,DDEExecute,method,"DDEExecute(Channel As Long, String As String)",,MISSING,,
 Application,DDEInitiate,method,"DDEInitiate(App As String, Topic As String) As Long",,MISSING,,
 Application,DDEPoke,method,"DDEPoke(Channel As Long, Item As Variant, Data As Variant)",,MISSING,,
@@ -92,10 +92,10 @@ Application,DDERequest,method,"DDERequest(Channel As Long, Item As String) As Va
 Application,DDETerminate,method,DDETerminate(Channel As Long),,MISSING,,
 Application,DecimalSeparator,property,As String,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,Reads the en-US separator; setting another is refused as unsupported.
 Application,DefaultFilePath,property,As String,,MISSING,,
-Application,DefaultPivotTableLayoutOptions,"property, read-only",As DefaultPivotTableLayoutOptions,,MISSING,,
+Application,DefaultPivotTableLayoutOptions,"property, read-only",As DefaultPivotTableLayoutOptions,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
 Application,DefaultSaveFormat,property,As XlFileFormat,no setter,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,"Reads 51, xlOpenXMLWorkbook; the setter is not implemented."
 Application,DefaultSheetDirection,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,xlRTL and xlLTR; xlContext and 0 become xlLTR; other numbers change nothing.
-Application,DefaultWebOptions,"property, read-only",As DefaultWebOptions,,MISSING,,
+Application,DefaultWebOptions,"property, read-only",As DefaultWebOptions,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
 Application,DeferAsyncQueries,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads False as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,Excel's own lists error 1004; a number past the last does nothing.
 Application,Dialogs,"property, read-only",As Dialogs,,MISSING,,
@@ -134,11 +134,11 @@ Application,Excel4MacroSheets,"property, read-only",As Sheets,,PARTIAL,tests/fix
 Application,ExecuteExcel4Macro,method,ExecuteExcel4Macro(String As String) As Variant,,MISSING,,
 Application,ExtendList,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,FeatureInstall,property,As MsoFeatureInstall,,MISSING,,
-Application,FileConverters,"property, read-only",As Variant,,MISSING,,
+Application,FileConverters,"property, read-only",As Variant,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Null: no converter is installed here
 Application,FileDialog,"property, read-only",As FileDialog,,MISSING,,
 Application,FileExportConverters,"property, read-only",As FileExportConverters,,MISSING,,
-Application,FileValidation,property,As MsoFileValidationMode,,MISSING,,
-Application,FileValidationPivot,property,As XlFileValidationPivotMode,,MISSING,,
+Application,FileValidation,property,As MsoFileValidationMode,no setter,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Reads 0; setting it reports itself
+Application,FileValidationPivot,property,As XlFileValidationPivotMode,no setter,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Reads 0; setting it reports itself
 Application,FindFile,method,FindFile() As Boolean,,MISSING,,
 Application,FindFormat,property,As CellFormat,no setter,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,A new CellFormat each read over the one format the session keeps; Range.Find and Replace look for it with SearchFormat.
 Application,FixedDecimal,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
@@ -146,7 +146,7 @@ Application,FixedDecimalPlaces,property,As Long,,PARTIAL,tests/fixtures/applicat
 Application,FlashFill,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,FlashFillMode,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"False, whatever a macro sets, with no error, as Excel's."
 Application,FormatStaleValues,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
-Application,FormulaBarHeight,property,As Long,,MISSING,,
+Application,FormulaBarHeight,property,As Long,no setter,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Reads 1; setting it reports itself, as how tall it may be follows the window"
 Application,GenerateGetPivotData,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,GenerateTableRefs,property,As XlGenerateTableRefs,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,0 and 1; anything else changes nothing.
 Application,GetCustomListContents,method,GetCustomListContents(ListNum As Long) As Variant,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,A list from 1; error 13 for a number naming none.
@@ -176,7 +176,7 @@ Application,LibraryPath,"property, read-only",As String,,MISSING,,
 Application,MacroOptions,method,"MacroOptions([Macro As Variant], [Description As Variant], [HasMenu As Variant], [MenuText As Variant], [HasShortcutKey As Variant], [ShortcutKey As Variant], [Category As Variant], [StatusBar As Variant], [HelpContextID As Variant], [HelpFile As Variant], [ArgumentDescriptions As Variant])",,PARTIAL,tests/fixtures/macro_options.json; tests/test_excel_macro_options.py,"Description, HelpContextID, ShortcutKey and a Category of 0 to 14 as attribute lines in the procedure, kept out of the editor's sight; an unknown macro, a key that is no letter and category 40 are 1004. A category by name, ArgumentDescriptions, StatusBar, HelpFile, menus and a workbook-qualified macro are unsupported."
 Application,MailLogoff,method,MailLogoff(),,MISSING,,
 Application,MailLogon,method,"MailLogon([Name As Variant], [Password As Variant], [DownloadNewMail As Variant])",,MISSING,,
-Application,MailSession,"property, read-only",As Variant,,MISSING,,
+Application,MailSession,"property, read-only",As Variant,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Null: no mail session here
 Application,MailSystem,"property, read-only",As XlMailSystem,,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,
 Application,MapPaperSize,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,MathCoprocessorAvailable,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,Reads True.
@@ -188,7 +188,7 @@ Application,MergeInstances,property,As Boolean,,PARTIAL,tests/fixtures/applicati
 Application,MouseAvailable,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,Reads True.
 Application,MoveAfterReturn,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,MoveAfterReturnDirection,property,As XlDirection,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"The four directions read back, 1 to 4 as down, right, up and left, any other number as set and 65536 more where it is not positive, over 36 live settings"
-Application,MultiThreadedCalculation,"property, read-only",As MultiThreadedCalculation,,MISSING,,
+Application,MultiThreadedCalculation,"property, read-only",As MultiThreadedCalculation,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
 Application,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Application,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,NetworkTemplatesPath,"property, read-only",As String,,MISSING,,
@@ -227,7 +227,7 @@ Application,RecentFiles,"property, read-only",As RecentFiles,,MISSING,,
 Application,RecordMacro,method,"RecordMacro([BasicCode As Variant], [XlmCode As Variant])",,MISSING,,
 Application,RecordRelative,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,"Reads False, no macro being recorded."
 Application,ReferenceStyle,property,As XlReferenceStyle,,PARTIAL,tests/test_excel_reference_style.py; tests/fixtures/reference_style.json,"Reads xlA1 or xlR1C1, ignores any other number; Evaluate reads R1C1 in the R1C1 style and refuses it in A1; calcPr refMode saved and read from the first workbook. The style's effect on the editing UI is outside the headless model."
-Application,RegisteredFunctions,"property, read-only",As Variant,,MISSING,,
+Application,RegisteredFunctions,"property, read-only",As Variant,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Null: no XLL is registered here
 Application,RegisterXLL,method,RegisterXLL(Filename As String) As Boolean,,MISSING,,
 Application,Repeat,method,Repeat(),,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Raises 1004; breaks Excel run through the harness at times.
 Application,ReplaceFormat,property,As CellFormat,no setter,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,A new CellFormat each read over the one format the session keeps; Range.Replace puts it in with ReplaceFormat.
@@ -238,7 +238,7 @@ Application,Run,method,"Run([Macro As Variant], [Arg1 As Variant], [Arg2 As Vari
 Application,ScreenUpdating,property,As Boolean,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Application,Selection,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,SendKeys,method,"SendKeys(Keys As Variant, [Wait As Variant])",,MISSING,,
-Application,SensitivityLabelPolicy,"property, read-only",As SensitivityLabelPolicy,,MISSING,,
+Application,SensitivityLabelPolicy,"property, read-only",As SensitivityLabelPolicy,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Error 440, as on the measuring machine, which has no label policy"
 Application,SharePointVersion,method,SharePointVersion(bstrUrl As String) As Long,,MISSING,,
 Application,SheetActivate,event,SheetActivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised when another sheet or workbook is made active, after the one left deactivates. Raised after the sheet's own, the sheet first among the arguments."
 Application,SheetBeforeDelete,event,SheetBeforeDelete(Sh As Object),,MISSING,,
@@ -271,7 +271,7 @@ Application,SmartArtColors,"property, read-only",As SmartArtColors,,MISSING,,
 Application,SmartArtLayouts,"property, read-only",As SmartArtLayouts,,MISSING,,
 Application,SmartArtQuickStyles,"property, read-only",As SmartArtQuickStyles,,MISSING,,
 Application,Speech,"property, read-only",As Speech,,MISSING,,
-Application,SpellingOptions,"property, read-only",As SpellingOptions,,MISSING,,
+Application,SpellingOptions,"property, read-only",As SpellingOptions,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
 Application,StandardFont,property,As String,,PARTIAL,tests/fixtures/column_autofit.json,"Aptos Narrow, the font new workbooks take in today's Excel; set to another font it reports itself unsupported."
 Application,StandardFontSize,property,As Double,,PARTIAL,tests/fixtures/column_autofit.json,11; set to another size it reports itself unsupported.
 Application,StartupPath,"property, read-only",As String,,MISSING,,
@@ -307,7 +307,7 @@ Application,WindowActivate,event,"WindowActivate(Wb As Workbook, Wn As Window)",
 Application,WindowDeactivate,event,"WindowDeactivate(Wb As Workbook, Wn As Window)",,MISSING,,
 Application,WindowResize,event,"WindowResize(Wb As Workbook, Wn As Window)",,MISSING,,
 Application,Windows,"property, read-only",As Windows,,VERIFIED,tests/fixtures/windows/windows.json,"Front to back: a workbook added or opened comes to the front, and one activated comes forward only while the screen updates."
-Application,WindowsForPens,"property, read-only",As Boolean,,MISSING,,
+Application,WindowsForPens,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,False.
 Application,WindowState,property,As XlWindowState,no setter,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Reads xlNormal; setting is not implemented.
 Application,WorkbookActivate,event,WorkbookActivate(Wb As Workbook),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when another sheet or workbook is made active, after the one left deactivates. The application's is raised after the workbook's own, the workbook first among the arguments."
 Application,WorkbookAddinInstall,event,WorkbookAddinInstall(Wb As Workbook),,MISSING,,

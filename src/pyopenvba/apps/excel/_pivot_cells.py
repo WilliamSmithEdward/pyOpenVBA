@@ -290,6 +290,25 @@ class PivotCell(ExcelObject):
     def DiscardChange(self) -> object:
         raise error(1004, 'DiscardChange method of PivotCell class failed')
 
+    # -- tests/fixtures/pivot_reads.json: a table over a list has no source values or server actions. MDX is left out:
+    # reading it disconnected Excel's object.
+
+    @member
+    def Parent(self) -> object:
+        return self.table
+
+    @member
+    def CellChanged(self) -> object:
+        raise error(1004, 'Unable to get the CellChanged property of the PivotCell class')
+
+    @member
+    def DataSourceValue(self) -> object:
+        raise error(1004, 'Unable to get the DataSourceValue property of the PivotCell class')
+
+    @member
+    def ServerActions(self) -> object:
+        raise error(1004, 'Unable to get the ServerActions property of the PivotCell class')
+
     def __init__(self, table: pivots.PivotTable, found: Role, cell: _model.Range) -> None:
         self.table, self.found, self.cell = table, found, cell
 

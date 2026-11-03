@@ -47,6 +47,9 @@ CASES = [
     'pt.PivotFields("Region").PivotFilters.Add2 xlCaptionEquals, , "East"',
     'pt.RefreshTable',
     'pt.PivotCache.Refresh',
+    'pt.PivotFields("Kind").PivotFilters.Add2 xlBottomCount, pt.DataFields(1), 1',
+    'pt.PivotFields("Kind").PivotFilters.Add2 xlValueIsLessThan, pt.DataFields(1), 15',
+    'pt.PivotFields("Region").PivotFilters.Add2 xlValueIsGreaterThan, pt.DataFields(1), 15',
 ]
 READS = [
     'pt.ActiveFilters.Count', 'TypeName(pt.ActiveFilters)', 'pt.ActiveFilters(1).Name',

@@ -276,7 +276,9 @@ def tokenize(source: str, *, module: str = "", retain_errors: bool = False) -> l
                     position += 1
                 continue
             declared = ""
-            if position < length and source[position] in TYPE_SUFFIXES:
+            # r!Name reads a member by name: a ! with a name right after it is no type suffix.
+            is_bang = source.startswith("!", position) and (_IDENT.match(source, position + 1) or source.startswith("[", position + 1))
+            if position < length and source[position] in TYPE_SUFFIXES and not is_bang:
                 suffix = source[position]
                 declared = SUFFIX_TYPES[suffix]
                 name += suffix

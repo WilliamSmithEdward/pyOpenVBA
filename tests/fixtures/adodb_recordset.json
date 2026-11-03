@@ -1,0 +1,846 @@
+{
+ "measured_at": "2026-11-03T20:49:15.389427+00:00",
+ "source": "Private Const adVarChar As Long = 200\nPrivate Const adInteger As Long = 3\nPrivate Const adDouble As Long = 5\nPrivate Const adBoolean As Long = 11\nPrivate Const adDate As Long = 7\nPrivate Const adCurrency As Long = 6\nPrivate Const adFldIsNullable As Long = 32\nPrivate Const adBookmarkLast As Long = 2\nPrivate Const adFilterNone As Long = 0\nPrivate Const adSearchBackward As Long = -1\nPrivate Const adAddNew As Long = 16778240\nPrivate Const adMovePrevious As Long = 512\nPrivate Const adBookmark As Long = 8192\nPrivate Const adDelete As Long = 16779264\nPrivate Const adFind As Long = 524288\nPrivate Const adClipString As Long = 2\nPrivate Const adUpdate As Long = 16809984\nPrivate Const adUpdateBatch As Long = 65536\nPrivate Const adResync As Long = 131072\nPrivate Const adHoldRecords As Long = 256\nPrivate Const adApproxPosition As Long = 16384\nPrivate Const adIndex As Long = 1048576\nPrivate Const adSeek As Long = 2097152\nPrivate Const adNotify As Long = 262144\nPrivate Function New0() As Object\n    Set New0 = CreateObject(\"ADODB.Recordset\")\nEnd Function\n\nPrivate Function Made() As Object\n    Set Made = New0()\n    Made.Fields.Append \"N\", adVarChar, 10\n    Made.Fields.Append \"Q\", adInteger\n    Made.Open\nEnd Function\n\nPrivate Function Rows3() As Object\n    Dim i As Long, t As Object\n    Set t = Made()\n    For i = 1 To 3\n        t.AddNew\n        t(\"N\") = Chr(96 + i)\n        t(\"Q\") = i\n        t.Update\n    Next\n    Set Rows3 = t\nEnd Function\n\nPrivate Function Clone3() As Object\n    Set Clone3 = Rows3().Clone\nEnd Function\n\nPrivate Function Typed() As Object\n    Set Typed = New0()\n    Typed.Fields.Append \"I\", adInteger, , adFldIsNullable\n    Typed.Fields.Append \"D\", adDouble, , adFldIsNullable\n    Typed.Fields.Append \"B\", adBoolean, , adFldIsNullable\n    Typed.Fields.Append \"T\", adDate, , adFldIsNullable\n    Typed.Fields.Append \"S\", adVarChar, 5, adFldIsNullable\n    Typed.Fields.Append \"C\", adCurrency, , adFldIsNullable\n    Typed.Open\nEnd Function\n\nPrivate Function Cells3(ByVal ws As Object) As String\n    Dim i As Long\n    For i = 1 To 4\n        Cells3 = Cells3 & ws.Cells(i, 1).Value & ws.Cells(i, 2).Value & \";\"\n    Next\nEnd Function\n\nPublic Function Probe(ByVal which As Long) As String\n    Dim ws As Object, r As Object, o As Object, s As String, v As Variant, i As Long\n    Application.DisplayAlerts = False\n    Set ws = Workbooks.Add(xlWBATWorksheet).Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set r = New0()\ns = r.State & \"|\" & r.Fields.Count & \"|\" & r.CursorType & \"|\" & r.LockType & \"|\" & r.CursorLocation\n    Case 1\n        Set r = New0()\ns = r.EOF\n    Case 2\n        Set r = New0()\ns = r.RecordCount\n    Case 3\n        Set r = New0()\nr.AddNew\n    Case 4\n        Set r = New0()\nr.MoveFirst\n    Case 5\n        Set r = New0()\nr.Close\n    Case 6\n        Set r = New0()\nr.Open\n    Case 7\n        Set r = New0()\ns = r.Fields(0).Name\n    Case 8\n        Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\ns = r.Fields.Count & r.Fields(0).Name & r.Fields(0).Type & r.Fields(0).DefinedSize & \"|\" & r.State\n    Case 9\n        Set r = New0()\nr.Fields.Append \"N\", adVarChar\ns = r.Fields(0).DefinedSize\n    Case 10\n        Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\nr.Fields.Append \"n\", adInteger\n    Case 11\n        Set r = Made()\ns = r.State & \"|\" & r.EOF & r.BOF & r.RecordCount & \"|\" & r.CursorType & r.LockType & r.CursorLocation\n    Case 12\n        Set r = Made()\nr.MoveFirst\n    Case 13\n        Set r = Made()\nr.MoveNext\n    Case 14\n        Set r = Made()\ns = r(\"N\")\n    Case 15\n        Set r = Made()\nr.Fields.Append \"X\", adInteger\n    Case 16\n        Set r = Made()\nr.Open\n    Case 17\n        Set r = Made()\nr.Close\ns = r.State & r.Fields.Count\n    Case 18\n        Set r = Made()\nr.Close\nr.Open\ns = r.State & r.RecordCount\n    Case 19\n        Set r = Made()\nr.AddNew\ns = r.RecordCount & \"|\" & r.EOF & \"|\" & IsNull(r(\"N\")) & \"|\" & r.EditMode\nr(\"N\") = \"a\"\ns = s & r(\"N\") & r.EditMode\nr.Update\ns = s & r.EditMode & r.RecordCount\n    Case 20\n        Set r = Made()\nr.AddNew\nr(\"N\") = \"a\"\nr.AddNew\nr(\"N\") = \"b\"\nr.Update\ns = r.RecordCount & r(\"N\") & r.AbsolutePosition\n    Case 21\n        Set r = Made()\nr.AddNew Array(\"N\", \"Q\"), Array(\"a\", 1)\ns = r.RecordCount & r(\"N\") & r(\"Q\") & r.EditMode\n    Case 22\n        Set r = Made()\nr.AddNew \"N\", \"a\"\ns = r.RecordCount & r(\"N\") & r.EditMode\n    Case 23\n        Set r = Made()\nr.AddNew\nr.CancelUpdate\ns = r.RecordCount & r.EOF & r.BOF\n    Case 24\n        Set r = Rows3()\ns = r.RecordCount & \"|\" & r.AbsolutePosition & \"|\" & r(\"N\") & r.EOF & r.BOF\n    Case 25\n        Set r = Rows3()\nr.Update\ns = r.EditMode\n    Case 26\n        Set r = Rows3()\nr.CancelUpdate\ns = r.EditMode\n    Case 27\n        Set r = Rows3()\nr.MoveFirst\ns = r(\"N\") & r.AbsolutePosition\nr.MoveNext\ns = s & r(\"N\") & r.AbsolutePosition\nr.MoveLast\ns = s & r(\"N\") & r.AbsolutePosition\nr.MovePrevious\ns = s & r(\"N\")\n    Case 28\n        Set r = Rows3()\nr.MoveFirst\nr.MovePrevious\ns = r.BOF & r.EOF & r.AbsolutePosition\nr.MovePrevious\n    Case 29\n        Set r = Rows3()\nr.MoveLast\nr.MoveNext\ns = r.EOF & r.BOF & r.AbsolutePosition\nr.MoveNext\n    Case 30\n        Set r = Rows3()\nr.MoveLast\nr.MoveNext\ns = r(\"N\")\n    Case 31\n        Set r = Rows3()\nr.MoveFirst\nr.Move 2\ns = r(\"N\")\nr.Move -1\ns = s & r(\"N\")\nr.Move 5\ns = s & r.EOF\n    Case 32\n        Set r = Rows3()\nr.MoveFirst\nr.Move 1, adBookmarkLast\ns = r.EOF\n    Case 33\n        Set r = Rows3()\nr.AbsolutePosition = 2\ns = r(\"N\")\nr.AbsolutePosition = 9\n    Case 34\n        Set r = Rows3()\nr.MoveFirst\nDo Until r.EOF\ns = s & r(\"N\") & r(\"Q\") & \",\"\nr.MoveNext\nLoop\n    Case 35\n        Set r = Rows3()\nr.MoveFirst\nv = r.Bookmark\nr.MoveLast\nr.Bookmark = v\ns = r(\"N\") & TypeName(v) & v\n    Case 36\n        Set r = Rows3()\nr.MoveFirst\ns = r!N & r.Fields(\"Q\").Value & r.Fields(0) & r(1) & r.Fields.Item(\"N\").Name & r.Collect(\"N\")\n    Case 37\n        Set r = Rows3()\nr.MoveFirst\ns = r(\"n\") & TypeName(r(\"N\").Value) & TypeName(r(\"Q\").Value) & TypeName(r(\"N\"))\n    Case 38\n        Set r = Rows3()\nr.MoveFirst\ns = r(\"Nope\")\n    Case 39\n        Set r = Rows3()\nr.MoveFirst\ns = r.Fields(9).Name\n    Case 40\n        Set r = Rows3()\nFor Each o In r.Fields\ns = s & o.Name & o.Type & \",\"\nNext\n    Case 41\n        Set r = Rows3()\ns = r.Fields(1).Name & r.Fields(1).Type & r.Fields(1).DefinedSize & r.Fields(1).ActualSize & r.Fields(0).ActualSize\n    Case 42\n        Set r = Typed()\nr.AddNew\nr(\"I\") = \"5\"\nr(\"D\") = \"1.5\"\nr(\"B\") = 1\nr(\"T\") = \"1/2/2020\"\nr(\"S\") = 12\nr(\"C\") = 2.5\nr.Update\ns = TypeName(r(\"I\").Value) & r(\"I\") & TypeName(r(\"D\").Value) & r(\"D\") & TypeName(r(\"B\").Value) & r(\"B\") & TypeName(r(\"T\").Value) & r(\"T\") & TypeName(r(\"S\").Value) & r(\"S\") & TypeName(r(\"C\").Value) & r(\"C\")\n    Case 43\n        Set r = Typed()\nr.AddNew\nr(\"I\") = \"x\"\n    Case 44\n        Set r = Typed()\nr.AddNew\nr(\"I\") = 99999999999#\n    Case 45\n        Set r = Typed()\nr.AddNew\nr(\"S\") = \"abcdefghijk\"\ns = Len(r(\"S\"))\n    Case 46\n        Set r = Typed()\nr.AddNew\nr(\"I\") = Null\nr(\"S\") = Null\ns = IsNull(r(\"I\")) & IsNull(r(\"S\"))\n    Case 47\n        Set r = Typed()\nr.AddNew\nr(\"S\") = \"\"\ns = Len(r(\"S\"))\n    Case 48\n        Set r = Rows3()\nr.MoveFirst\nr(\"N\") = \"z\"\ns = r.EditMode & r(\"N\")\nr.MoveNext\ns = s & r.EditMode\nr.MoveFirst\ns = s & r(\"N\")\n    Case 49\n        Set r = Rows3()\nr.MoveFirst\nr(\"N\") = \"z\"\nr.CancelUpdate\ns = r(\"N\") & r.EditMode\n    Case 50\n        Set r = Rows3()\nr.MoveFirst\nr.Update \"N\", \"w\"\ns = r(\"N\") & r.EditMode\n    Case 51\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\ns = r.RecordCount & r.EOF\ns = s & r(\"N\")\n    Case 52\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.MoveNext\ns = r(\"N\") & r.RecordCount & r.AbsolutePosition\n    Case 53\n        Set r = Rows3()\nr.MoveLast\nr.Delete\nr.MoveNext\ns = r.EOF & r.RecordCount\n    Case 54\n        Set r = Rows3()\nr.Sort = \"Q DESC\"\ns = r.Sort & r(\"N\") & r.AbsolutePosition\nr.MoveNext\ns = s & r(\"N\")\n    Case 55\n        Set r = Rows3()\nr.Sort = \"N\"\nr.MoveFirst\ns = r(\"N\")\nr.Sort = \"\"\nr.MoveFirst\ns = s & r(\"N\")\n    Case 56\n        Set r = Rows3()\nr.Sort = \"Nope\"\n    Case 57\n        Set r = Rows3()\nr.Filter = \"Q > 1\"\ns = r.RecordCount & r(\"N\") & r.AbsolutePosition\nr.Filter = adFilterNone\ns = s & r.RecordCount & TypeName(r.Filter) & r.Filter\n    Case 58\n        Set r = Rows3()\nr.Filter = \"N = 'b'\"\ns = r.RecordCount & r(\"N\") & r.Filter\n    Case 59\n        Set r = Rows3()\nr.Filter = \"N LIKE 'b*'\"\ns = r.RecordCount\n    Case 60\n        Set r = Rows3()\nr.Filter = \"Q > 9\"\ns = r.RecordCount & r.EOF & r.BOF\n    Case 61\n        Set r = Rows3()\nr.Filter = \"Q > 1 AND N = 'c'\"\ns = r.RecordCount & r(\"N\")\n    Case 62\n        Set r = Rows3()\nr.Filter = \"Nope = 1\"\n    Case 63\n        Set r = Rows3()\nr.MoveFirst\nr.Find \"N = 'b'\"\ns = r(\"N\") & r.AbsolutePosition\nr.Find \"N = 'zz'\"\ns = s & r.EOF\n    Case 64\n        Set r = Rows3()\nr.MoveLast\nr.Find \"N = 'a'\", , adSearchBackward\ns = r(\"N\")\n    Case 65\n        Set r = Rows3()\nr.MoveFirst\nr.Find \"Q > 1\", 1\ns = r(\"N\")\n    Case 66\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows\ns = LBound(v, 1) & UBound(v, 1) & LBound(v, 2) & UBound(v, 2) & v(0, 2) & v(1, 2) & r.EOF\n    Case 67\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(2)\ns = UBound(v, 2) & r(\"N\")\n    Case 68\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , \"Q\")\ns = UBound(v, 1) & v(0, 1)\n    Case 69\n        Set r = Made()\nv = r.GetRows\n    Case 70\n        Set r = Rows3()\nr.MoveFirst\ns = Replace(Replace(r.GetString, vbTab, \"T\"), vbCr, \"R\") & r.EOF\n    Case 71\n        Set r = Rows3()\nr.MoveFirst\ns = r.GetString(adClipString, 2, \",\", \";\", \"-\")\n    Case 72\n        Set r = Clone3()\nr.MoveFirst\ns = r(\"N\")\n    Case 73\n        Set r = Rows3()\ns = r.Supports(adAddNew) & r.Supports(adMovePrevious) & r.Supports(adBookmark) & r.Supports(adDelete) & r.Supports(adFind)\n    Case 74\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(v) & v & \"|\" & Cells3(ws) & \"|\" & r.EOF\n    Case 75\n        Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & \"|\" & Cells3(ws)\n    Case 76\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, 2)\ns = v & \"|\" & Cells3(ws) & \"|\" & r(\"N\")\n    Case 77\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, , 1)\ns = v & \"|\" & Cells3(ws)\n    Case 78\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1:A1\").CopyFromRecordset(r, 0)\ns = v & \"|\" & Cells3(ws)\n    Case 79\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"C2\").CopyFromRecordset(r)\ns = v & ws.Range(\"C2\").Value & ws.Range(\"D4\").Value\n    Case 80\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"B2:C2\").CopyFromRecordset(r)\ns = v & ws.Range(\"B2\").Value & ws.Range(\"C4\").Value\n    Case 81\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1,C1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value & ws.Range(\"C1\").Value\n    Case 82\n        Set r = Rows3()\nr.MoveLast\nr.MoveNext\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & \"|\" & ws.Range(\"A1\").Value\n    Case 83\n        Set r = Made()\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(v) & v\n    Case 84\n        Set r = New0()\nv = ws.Range(\"A1\").CopyFromRecordset(r)\n    Case 85\n        Set r = Rows3()\nr.Close\nv = ws.Range(\"A1\").CopyFromRecordset(r)\n    Case 86\n        v = ws.Range(\"A1\").CopyFromRecordset(5)\n    Case 87\n        Set r = Nothing\nv = ws.Range(\"A1\").CopyFromRecordset(r)\n    Case 88\n        Set r = Typed()\nr.AddNew\nr(\"I\") = 5\nr(\"D\") = 1.5\nr(\"B\") = True\nr(\"T\") = #1/2/2020#\nr(\"S\") = \"x\"\nr(\"C\") = 2.5\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\nFor i = 1 To 6\ns = s & TypeName(ws.Cells(1, i).Value) & \"=\" & ws.Cells(1, i).Value & \"~\" & ws.Cells(1, i).NumberFormat & \",\"\nNext\n    Case 89\n        Set r = Typed()\nr.AddNew\nr(\"I\") = Null\nr(\"S\") = \"=1+1\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = IsEmpty(ws.Range(\"A1\").Value) & ws.Range(\"E1\").Value & ws.Range(\"E1\").HasFormula\n    Case 90\n        Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1:C1\").Value = 9\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"C1\").Value & ws.Range(\"A1\").Value\n    Case 91\n        Set r = Rows3()\nr.Filter = \"Q > 1\"\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & Cells3(ws)\n    Case 92\n        Set r = Rows3()\nr.MoveFirst\nws.Protect\nOn Error Resume Next\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = Err.Number & \"|\" & ws.Range(\"A1\").Value\nws.Unprotect\n    Case 93\n        Set r = Rows3()\nr.Requery\n    Case 94\n        Set r = Rows3()\ns = TypeName(r) & TypeName(r.Fields) & TypeName(r.Fields(0)) & TypeName(r.ActiveConnection) & r.Source & \"|\" & r.PageSize & r.PageCount & r.MaxRecords & r.CacheSize\n    Case 95\n        Set r = Rows3()\nr.Close\nSet r = Nothing\ns = r Is Nothing\n    Case 96\n        Set r = Rows3()\nr.Close\ns = r.RecordCount\n    Case 97\n        Set r = Rows3()\nr.Close\ns = r.Fields.Count & r.Fields(0).Name\n    Case 98\n        Set r = Rows3()\nr.Close\ns = r(\"N\")\n    Case 99\n        Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Sort = \"Q DESC\"\ns = r(\"N\") & r.AbsolutePosition\n    Case 100\n        Set r = Rows3()\nr.MoveFirst\nr.Sort = \"Q DESC\"\ns = r(\"N\") & r.AbsolutePosition\n    Case 101\n        Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Filter = \"Q > 0\"\ns = r(\"N\") & r.AbsolutePosition\n    Case 102\n        Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Filter = \"Q > 1\"\nr.Filter = 0\ns = r(\"N\") & r.AbsolutePosition\n    Case 103\n        Set r = Rows3()\nr.Sort = \"N DESC, Q\"\nr.MoveFirst\ns = r(\"N\")\nr.Sort = \"N ASC\"\nr.MoveFirst\ns = s & r(\"N\")\n    Case 104\n        Set r = Made()\nr.AddNew Array(\"N\", \"Q\"), Array(\"b\", 1)\nr.AddNew Array(\"N\", \"Q\"), Array(\"a\", 2)\nr.AddNew Array(\"Q\"), Array(3)\nr.Update\nr.Sort = \"N\"\nr.MoveFirst\ns = r(\"Q\")\nr.MoveNext\ns = s & r(\"Q\")\nr.MoveNext\ns = s & r(\"Q\")\n    Case 105\n        Set r = Rows3()\nr.Filter = \"Q >= 2 OR N = 'a'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 106\n        Set r = Rows3()\nr.Filter = \"N <> 'a'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 107\n        Set r = Rows3()\nr.Filter = \"N = 'B'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 108\n        Set r = Rows3()\nr.Filter = \"(Q = 1)\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 109\n        Set r = Rows3()\nr.Filter = \"Q IN (1, 2)\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 110\n        Set r = Rows3()\nr.Filter = \"N LIKE '*b'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 111\n        Set r = Rows3()\nr.Filter = \"N LIKE '%b%'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 112\n        Set r = Rows3()\nr.Filter = \"N LIKE 'b%'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 113\n        Set r = Rows3()\nr.Filter = \"Q = '1'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 114\n        Set r = Rows3()\nr.Filter = \"Q = 1 AND (N = 'a' OR N = 'b')\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 115\n        Set r = Rows3()\nr.Filter = \"Q > 1 OR Q = 1 AND N = 'z'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 116\n        Set r = Rows3()\nr.Filter = \"N = b\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 117\n        Set r = Rows3()\nr.Filter = \"N = \"\"b\"\"\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")\n    Case 118\n        Set r = Rows3()\nr.Filter = \"\"\ns = r.RecordCount & TypeName(r.Filter) & r.Filter\n    Case 119\n        Set r = Rows3()\nr.Filter = \"Q > 1\"\nr.MoveLast\nr.Delete\nr.MoveFirst\ns = r.RecordCount\nr.Filter = 0\ns = s & r.RecordCount\n    Case 120\n        Set r = Rows3()\nr.Filter = \"Q > 1\"\nr.AddNew\nr(\"Q\") = 0\nr(\"N\") = \"n\"\nr.Update\ns = r.RecordCount & r(\"N\")\nr.MoveFirst\ns = s & r.RecordCount\n    Case 121\n        Set r = Rows3()\nr.MoveFirst\nr.Find \"N LIKE 'b*'\"\ns = r(\"N\")\n    Case 122\n        Set r = Rows3()\nr.MoveFirst\nr.Find \"Q > 1 AND N = 'c'\"\ns = r(\"N\")\n    Case 123\n        Set r = Made()\nr.Find \"Q > 1\"\ns = r.EOF\n    Case 124\n        Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Find \"N = 'a'\"\ns = r.EOF\n    Case 125\n        Set r = Rows3()\nr.MoveLast\nr.Find \"N = 'zz'\", , adSearchBackward\ns = r.BOF & r.EOF\n    Case 126\n        Set r = Made()\ns = r.EditMode\n    Case 127\n        Set r = Made()\nr.Delete\n    Case 128\n        Set r = Made()\nr.Update\n    Case 129\n        Set r = Made()\nr.CancelUpdate\n    Case 130\n        Set r = Rows3()\nr.MoveFirst\nr.Move 0\ns = r(\"N\")\n    Case 131\n        Set r = Rows3()\nr.MoveFirst\nr.Move -5\ns = r.BOF & r.EOF\n    Case 132\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.MoveFirst\ns = r(\"N\") & r.EditMode & r.RecordCount\n    Case 133\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\ns = r.EditMode\n    Case 134\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.Delete\n    Case 135\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\nr(\"N\") = \"x\"\n    Case 136\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.MovePrevious\ns = r.BOF\n    Case 137\n        Set r = Rows3()\nr.MoveFirst\nr.CancelUpdate\nr.MoveFirst\ns = r(\"N\") & r.RecordCount\n    Case 138\n        Set r = Rows3()\nr.MoveLast\nr.CancelUpdate\ns = r.RecordCount & r.EOF & r.BOF\n    Case 139\n        Set r = Rows3()\nr.UpdateBatch\nr.MoveFirst\ns = r.EditMode\nr(\"N\") = \"z\"\ns = s & r.EditMode\nr.Update\ns = s & r.EditMode & r(\"N\")\nr(\"N\") = \"y\"\nr.CancelUpdate\ns = s & r(\"N\") & r.EditMode & r.RecordCount\n    Case 140\n        Set r = Rows3()\nr.UpdateBatch\nr.MoveFirst\nr.Delete\ns = r.RecordCount\nr.CancelBatch\ns = s & r.RecordCount\n    Case 141\n        Set r = Rows3()\nr.MoveFirst\nr.CancelBatch\ns = r.RecordCount & r.EOF\n    Case 142\n        Set r = Rows3()\nr.MoveFirst\nr.Fields(\"N\").Value = \"x\"\nr.Fields(1) = 7\ns = r(\"N\") & r(\"Q\") & r(\"N\").OriginalValue & \"|\" & r(\"N\").UnderlyingValue\n    Case 143\n        Set r = Rows3()\nr.UpdateBatch\nr.MoveFirst\nr(\"N\") = \"x\"\ns = r(\"N\") & r(\"N\").OriginalValue & r(\"N\").UnderlyingValue\n    Case 144\n        Set r = Rows3()\ns = r.Fields(0).Attributes & \"|\" & r.Fields(1).Attributes & \"|\" & r.Fields(1).Precision & r.Fields(1).NumericScale & \"|\" & r.Status\n    Case 145\n        Set r = Typed()\nr.AddNew\ns = r.Fields(0).Attributes\n    Case 146\n        Set r = Rows3()\nr.MoveFirst\nr(\"N\") = Null\ns = IsNull(r(\"N\"))\n    Case 147\n        Set r = Rows3()\nr.Fields.Delete \"N\"\n    Case 148\n        Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\nr.Fields.Delete \"N\"\ns = r.Fields.Count\n    Case 149\n        Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\nr.Fields.Append \"Q\", adInteger\nr.Open\ns = r.Fields.Refresh\n    Case 150\n        Set r = Rows3()\nr.MoveFirst\ns = Replace(r.GetString(, , , , \"-\"), vbCr, \"R\")\n    Case 151\n        Set r = Made()\ns = r.GetString\n    Case 152\n        Set r = Made()\nr.AddNew\nr(\"Q\") = 1\nr.Update\nr.MoveFirst\ns = \"[\" & Replace(Replace(r.GetString, vbTab, \"T\"), vbCr, \"R\") & \"]\"\n    Case 153\n        Set r = Made()\nr.AddNew\nr(\"Q\") = 1\nr.Update\nr.MoveFirst\ns = \"[\" & Replace(Replace(r.GetString(, , , , \"-\"), vbTab, \"T\"), vbCr, \"R\") & \"]\"\n    Case 154\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, 2)\ns = UBound(v, 2)\n    Case 155\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , Array(\"Q\", \"N\"))\ns = UBound(v, 1) & v(0, 0) & v(1, 0)\n    Case 156\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , 1)\ns = UBound(v, 1) & v(0, 0)\n    Case 157\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , \"Nope\")\n    Case 158\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(9)\ns = UBound(v, 2)\n    Case 159\n        Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(0)\ns = TypeName(v)\n    Case 160\n        Set r = Rows3()\nSet o = r.Clone\nr.MoveFirst\no.MoveLast\ns = r(\"N\") & o(\"N\")\nr(\"N\") = \"z\"\no.MoveFirst\ns = s & o(\"N\") & o.RecordCount\no.AddNew\no(\"Q\") = 9\no.Update\ns = s & r.RecordCount\n    Case 161\n        Set r = Rows3()\nSet o = r.Clone\nr.Close\ns = o.State & o.RecordCount\n    Case 162\n        Set r = Rows3()\ns = r.Supports(adUpdate) & r.Supports(adUpdateBatch) & r.Supports(adResync) & r.Supports(adHoldRecords) & r.Supports(adApproxPosition) & r.Supports(adIndex) & r.Supports(adSeek) & r.Supports(adNotify)\n    Case 163\n        Set r = New0()\nr.Fields.Append \"F\", 202, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 164\n        Set r = New0()\nr.Fields.Append \"F\", 130, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 165\n        Set r = New0()\nr.Fields.Append \"F\", 201, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 166\n        Set r = New0()\nr.Fields.Append \"F\", 203, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 167\n        Set r = New0()\nr.Fields.Append \"F\", 129, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 168\n        Set r = New0()\nr.Fields.Append \"F\", 8, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 169\n        Set r = New0()\nr.Fields.Append \"F\", 2, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.4\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 170\n        Set r = New0()\nr.Fields.Append \"F\", 4, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 171\n        Set r = New0()\nr.Fields.Append \"F\", 16, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 172\n        Set r = New0()\nr.Fields.Append \"F\", 17, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 173\n        Set r = New0()\nr.Fields.Append \"F\", 18, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 174\n        Set r = New0()\nr.Fields.Append \"F\", 19, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 175\n        Set r = New0()\nr.Fields.Append \"F\", 20, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 176\n        Set r = New0()\nr.Fields.Append \"F\", 21, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 177\n        Set r = New0()\nr.Fields.Append \"F\", 14, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 178\n        Set r = New0()\nr.Fields.Append \"F\", 131, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 179\n        Set r = New0()\nr.Fields.Append \"F\", 133, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 180\n        Set r = New0()\nr.Fields.Append \"F\", 134, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020 3:04:05 AM#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 181\n        Set r = New0()\nr.Fields.Append \"F\", 135, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 182\n        Set r = New0()\nr.Fields.Append \"F\", 72, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"{00000000-0000-0000-0000-000000000001}\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 183\n        Set r = New0()\nr.Fields.Append \"F\", 128, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 184\n        Set r = New0()\nr.Fields.Append \"F\", 204, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 185\n        Set r = New0()\nr.Fields.Append \"F\", 205, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 186\n        Set r = New0()\nr.Fields.Append \"F\", 12, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 187\n        Set r = New0()\nr.Fields.Append \"F\", 64, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value\n    Case 188\n        Set r = New0()\nr.Fields.Append \"F\", adInteger, 99\ns = r.Fields(0).DefinedSize\n    Case 189\n        Set r = New0()\nr.Fields.Append \"F\", 9999, 10\n    Case 190\n        Set r = Typed()\nr.AddNew\nr(\"S\") = \"12\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(ws.Range(\"E1\").Value) & ws.Range(\"E1\").Value & ws.Range(\"E1\").NumberFormat & ws.Range(\"E1\").PrefixCharacter\n    Case 191\n        Set r = Typed()\nr.AddNew\nr(\"S\") = \"1/2\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(ws.Range(\"E1\").Value) & ws.Range(\"E1\").Value & ws.Range(\"E1\").NumberFormat\n    Case 192\n        Set r = Typed()\nr.AddNew\nr(\"S\") = \"'x\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"E1\").Value & ws.Range(\"E1\").PrefixCharacter & ws.Range(\"E1\").HasFormula\n    Case 193\n        Set r = Typed()\nr.AddNew\nr(\"C\") = 2.5\nr.Update\nr.MoveFirst\nws.Range(\"F1\").NumberFormat = \"0.000\"\nws.Range(\"D1\").NumberFormat = \"0.000\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"F1\").NumberFormat & ws.Range(\"D1\").NumberFormat\n    Case 194\n        Set r = Typed()\nr.AddNew\nr(\"T\") = #1/2/2020#\nr.Update\nr.MoveFirst\nws.Range(\"D1\").NumberFormat = \"0.000\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"D1\").NumberFormat & ws.Range(\"D1\").Value2\n    Case 195\n        Set r = Typed()\nr.AddNew\nr(\"T\") = #1/2/2020 3:04:05 AM#\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"D1\").NumberFormat & ws.Range(\"D1\").Text\n    Case 196\n        Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1\").Value = \"x\"\nws.Range(\"A1:B2\").Merge\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value & ws.Range(\"A2\").Value & ws.Range(\"B3\").Value\n    Case 197\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1048575\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1048576\").Value\n    Case 198\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"XFD1\").CopyFromRecordset(r)\ns = v & ws.Range(\"XFD1\").Value\n    Case 199\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Rows(2).CopyFromRecordset(r)\ns = v & ws.Range(\"A2\").Value\n    Case 200\n        Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1\").CopyFromRecordset r\ns = ws.Range(\"A1\").Value\n    Case 201\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, -1)\n    Case 202\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, , 0)\ns = v & ws.Range(\"A1\").Value\n    Case 203\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, , 9)\ns = v & ws.Range(\"B1\").Value\n    Case 204\n        Set r = Rows3()\nr.Filter = \"Q > 9\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v\n    Case 205\n        Set r = Rows3()\nr.MoveFirst\nr.Delete\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value\n    Case 206\n        Set r = Rows3()\nr.MoveFirst\nr.MovePrevious\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value\n    Case 207\n        Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1\").Validation.Add xlValidateWholeNumber, , xlBetween, \"1\", \"5\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value\n    Case 208\n        Set r = Rows3()\nr.MoveFirst\nws.ListObjects.Add xlSrcRange, ws.Range(\"A1:B2\"), , xlYes\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value & ws.ListObjects(1).Range.Address\n    Case 209\n        Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A3\").CopyFromRecordset(r)\ns = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row & ws.UsedRange.Address\n    End Select\n    s = \"ok \" & s\nAnswered:\n    On Error Resume Next\n    ws.Unprotect\n    ws.Parent.Close False\n    On Error GoTo 0\n    Application.DisplayAlerts = True\n    Probe = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \" & s\n    Resume Answered\nEnd Function\n",
+ "cases": [
+  [
+   "Set r = New0()\ns = r.State & \"|\" & r.Fields.Count & \"|\" & r.CursorType & \"|\" & r.LockType & \"|\" & r.CursorLocation",
+   "ok 0|0|0|1|2"
+  ],
+  [
+   "Set r = New0()\ns = r.EOF",
+   "Err 3704 "
+  ],
+  [
+   "Set r = New0()\ns = r.RecordCount",
+   "Err 3704 "
+  ],
+  [
+   "Set r = New0()\nr.AddNew",
+   "Err 3704 "
+  ],
+  [
+   "Set r = New0()\nr.MoveFirst",
+   "Err 3704 "
+  ],
+  [
+   "Set r = New0()\nr.Close",
+   "Err 3704 "
+  ],
+  [
+   "Set r = New0()\nr.Open",
+   "Err 3709 "
+  ],
+  [
+   "Set r = New0()\ns = r.Fields(0).Name",
+   "Err 3265 "
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\ns = r.Fields.Count & r.Fields(0).Name & r.Fields(0).Type & r.Fields(0).DefinedSize & \"|\" & r.State",
+   "ok 1N20010|0"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"N\", adVarChar\ns = r.Fields(0).DefinedSize",
+   "Err 3001 "
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\nr.Fields.Append \"n\", adInteger",
+   "Err 3367 "
+  ],
+  [
+   "Set r = Made()\ns = r.State & \"|\" & r.EOF & r.BOF & r.RecordCount & \"|\" & r.CursorType & r.LockType & r.CursorLocation",
+   "ok 1|TrueTrue0|343"
+  ],
+  [
+   "Set r = Made()\nr.MoveFirst",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Made()\nr.MoveNext",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Made()\ns = r(\"N\")",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Made()\nr.Fields.Append \"X\", adInteger",
+   "Err 3219 "
+  ],
+  [
+   "Set r = Made()\nr.Open",
+   "Err 3705 "
+  ],
+  [
+   "Set r = Made()\nr.Close\ns = r.State & r.Fields.Count",
+   "ok 00"
+  ],
+  [
+   "Set r = Made()\nr.Close\nr.Open\ns = r.State & r.RecordCount",
+   "Err 3709 "
+  ],
+  [
+   "Set r = Made()\nr.AddNew\ns = r.RecordCount & \"|\" & r.EOF & \"|\" & IsNull(r(\"N\")) & \"|\" & r.EditMode\nr(\"N\") = \"a\"\ns = s & r(\"N\") & r.EditMode\nr.Update\ns = s & r.EditMode & r.RecordCount",
+   "ok 1|False|False|2a221"
+  ],
+  [
+   "Set r = Made()\nr.AddNew\nr(\"N\") = \"a\"\nr.AddNew\nr(\"N\") = \"b\"\nr.Update\ns = r.RecordCount & r(\"N\") & r.AbsolutePosition",
+   "ok 2b2"
+  ],
+  [
+   "Set r = Made()\nr.AddNew Array(\"N\", \"Q\"), Array(\"a\", 1)\ns = r.RecordCount & r(\"N\") & r(\"Q\") & r.EditMode",
+   "ok 1a12"
+  ],
+  [
+   "Set r = Made()\nr.AddNew \"N\", \"a\"\ns = r.RecordCount & r(\"N\") & r.EditMode",
+   "ok 1a2"
+  ],
+  [
+   "Set r = Made()\nr.AddNew\nr.CancelUpdate\ns = r.RecordCount & r.EOF & r.BOF",
+   "ok 0TrueTrue"
+  ],
+  [
+   "Set r = Rows3()\ns = r.RecordCount & \"|\" & r.AbsolutePosition & \"|\" & r(\"N\") & r.EOF & r.BOF",
+   "ok 3|3|cFalseFalse"
+  ],
+  [
+   "Set r = Rows3()\nr.Update\ns = r.EditMode",
+   "ok 2"
+  ],
+  [
+   "Set r = Rows3()\nr.CancelUpdate\ns = r.EditMode",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = r(\"N\") & r.AbsolutePosition\nr.MoveNext\ns = s & r(\"N\") & r.AbsolutePosition\nr.MoveLast\ns = s & r(\"N\") & r.AbsolutePosition\nr.MovePrevious\ns = s & r(\"N\")",
+   "ok a1b2c3b"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.MovePrevious\ns = r.BOF & r.EOF & r.AbsolutePosition\nr.MovePrevious",
+   "Err 3021 TrueFalse-2"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveLast\nr.MoveNext\ns = r.EOF & r.BOF & r.AbsolutePosition\nr.MoveNext",
+   "Err 3021 TrueFalse-3"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveLast\nr.MoveNext\ns = r(\"N\")",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Move 2\ns = r(\"N\")\nr.Move -1\ns = s & r(\"N\")\nr.Move 5\ns = s & r.EOF",
+   "ok cbTrue"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Move 1, adBookmarkLast\ns = r.EOF",
+   "ok True"
+  ],
+  [
+   "Set r = Rows3()\nr.AbsolutePosition = 2\ns = r(\"N\")\nr.AbsolutePosition = 9",
+   "ok b"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nDo Until r.EOF\ns = s & r(\"N\") & r(\"Q\") & \",\"\nr.MoveNext\nLoop",
+   "ok a1,b2,c3,"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.Bookmark\nr.MoveLast\nr.Bookmark = v\ns = r(\"N\") & TypeName(v) & v",
+   "ok aDouble1"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = r!N & r.Fields(\"Q\").Value & r.Fields(0) & r(1) & r.Fields.Item(\"N\").Name & r.Collect(\"N\")",
+   "ok a1a1Na"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = r(\"n\") & TypeName(r(\"N\").Value) & TypeName(r(\"Q\").Value) & TypeName(r(\"N\"))",
+   "ok aStringLongField"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = r(\"Nope\")",
+   "Err 3265 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = r.Fields(9).Name",
+   "Err 3265 "
+  ],
+  [
+   "Set r = Rows3()\nFor Each o In r.Fields\ns = s & o.Name & o.Type & \",\"\nNext",
+   "ok N200,Q3,"
+  ],
+  [
+   "Set r = Rows3()\ns = r.Fields(1).Name & r.Fields(1).Type & r.Fields(1).DefinedSize & r.Fields(1).ActualSize & r.Fields(0).ActualSize",
+   "ok Q3441"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"I\") = \"5\"\nr(\"D\") = \"1.5\"\nr(\"B\") = 1\nr(\"T\") = \"1/2/2020\"\nr(\"S\") = 12\nr(\"C\") = 2.5\nr.Update\ns = TypeName(r(\"I\").Value) & r(\"I\") & TypeName(r(\"D\").Value) & r(\"D\") & TypeName(r(\"B\").Value) & r(\"B\") & TypeName(r(\"T\").Value) & r(\"T\") & TypeName(r(\"S\").Value) & r(\"S\") & TypeName(r(\"C\").Value) & r(\"C\")",
+   "ok Long5Double1.5BooleanTrueDate1/2/2020String12Currency2.5"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"I\") = \"x\"",
+   "Err -2147217887 "
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"I\") = 99999999999#",
+   "Err -2147217887 "
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"S\") = \"abcdefghijk\"\ns = Len(r(\"S\"))",
+   "Err -2147217887 "
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"I\") = Null\nr(\"S\") = Null\ns = IsNull(r(\"I\")) & IsNull(r(\"S\"))",
+   "ok TrueTrue"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"S\") = \"\"\ns = Len(r(\"S\"))",
+   "ok 0"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr(\"N\") = \"z\"\ns = r.EditMode & r(\"N\")\nr.MoveNext\ns = s & r.EditMode\nr.MoveFirst\ns = s & r(\"N\")",
+   "ok 2z2z"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr(\"N\") = \"z\"\nr.CancelUpdate\ns = r(\"N\") & r.EditMode",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Update \"N\", \"w\"\ns = r(\"N\") & r.EditMode",
+   "ok w2"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\ns = r.RecordCount & r.EOF\ns = s & r(\"N\")",
+   "Err -2147217885 2False"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.MoveNext\ns = r(\"N\") & r.RecordCount & r.AbsolutePosition",
+   "ok b21"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveLast\nr.Delete\nr.MoveNext\ns = r.EOF & r.RecordCount",
+   "ok True2"
+  ],
+  [
+   "Set r = Rows3()\nr.Sort = \"Q DESC\"\ns = r.Sort & r(\"N\") & r.AbsolutePosition\nr.MoveNext\ns = s & r(\"N\")",
+   "ok Q DESCc1b"
+  ],
+  [
+   "Set r = Rows3()\nr.Sort = \"N\"\nr.MoveFirst\ns = r(\"N\")\nr.Sort = \"\"\nr.MoveFirst\ns = s & r(\"N\")",
+   "ok aa"
+  ],
+  [
+   "Set r = Rows3()\nr.Sort = \"Nope\"",
+   "Err 3265 "
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 1\"\ns = r.RecordCount & r(\"N\") & r.AbsolutePosition\nr.Filter = adFilterNone\ns = s & r.RecordCount & TypeName(r.Filter) & r.Filter",
+   "ok 2b13Long0"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N = 'b'\"\ns = r.RecordCount & r(\"N\") & r.Filter",
+   "ok 1bN = 'b'"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N LIKE 'b*'\"\ns = r.RecordCount",
+   "ok 1"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 9\"\ns = r.RecordCount & r.EOF & r.BOF",
+   "ok 0TrueTrue"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 1 AND N = 'c'\"\ns = r.RecordCount & r(\"N\")",
+   "ok 1c"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Nope = 1\"",
+   "Err 3265 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Find \"N = 'b'\"\ns = r(\"N\") & r.AbsolutePosition\nr.Find \"N = 'zz'\"\ns = s & r.EOF",
+   "ok b2True"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveLast\nr.Find \"N = 'a'\", , adSearchBackward\ns = r(\"N\")",
+   "ok a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Find \"Q > 1\", 1\ns = r(\"N\")",
+   "ok b"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows\ns = LBound(v, 1) & UBound(v, 1) & LBound(v, 2) & UBound(v, 2) & v(0, 2) & v(1, 2) & r.EOF",
+   "ok 0102c3True"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(2)\ns = UBound(v, 2) & r(\"N\")",
+   "ok 1c"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , \"Q\")\ns = UBound(v, 1) & v(0, 1)",
+   "ok 02"
+  ],
+  [
+   "Set r = Made()\nv = r.GetRows",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = Replace(Replace(r.GetString, vbTab, \"T\"), vbCr, \"R\") & r.EOF",
+   "ok aT1RbT2RcT3RTrue"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = r.GetString(adClipString, 2, \",\", \";\", \"-\")",
+   "ok a,1;b,2;"
+  ],
+  [
+   "Set r = Clone3()\nr.MoveFirst\ns = r(\"N\")",
+   "ok a"
+  ],
+  [
+   "Set r = Rows3()\ns = r.Supports(adAddNew) & r.Supports(adMovePrevious) & r.Supports(adBookmark) & r.Supports(adDelete) & r.Supports(adFind)",
+   "ok TrueTrueTrueTrueTrue"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(v) & v & \"|\" & Cells3(ws) & \"|\" & r.EOF",
+   "ok Long3|a1;b2;c3;;|True"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & \"|\" & Cells3(ws)",
+   "ok 2|b2;c3;;;"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, 2)\ns = v & \"|\" & Cells3(ws) & \"|\" & r(\"N\")",
+   "ok 2|a1;b2;;;|c"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, , 1)\ns = v & \"|\" & Cells3(ws)",
+   "ok 3|a;b;c;;"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1:A1\").CopyFromRecordset(r, 0)\ns = v & \"|\" & Cells3(ws)",
+   "ok 0|;;;;"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"C2\").CopyFromRecordset(r)\ns = v & ws.Range(\"C2\").Value & ws.Range(\"D4\").Value",
+   "ok 3a3"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"B2:C2\").CopyFromRecordset(r)\ns = v & ws.Range(\"B2\").Value & ws.Range(\"C4\").Value",
+   "ok 3a3"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1,C1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value & ws.Range(\"C1\").Value",
+   "ok 3a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveLast\nr.MoveNext\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & \"|\" & ws.Range(\"A1\").Value",
+   "ok 0|"
+  ],
+  [
+   "Set r = Made()\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(v) & v",
+   "ok Long0"
+  ],
+  [
+   "Set r = New0()\nv = ws.Range(\"A1\").CopyFromRecordset(r)",
+   "Err 3704 "
+  ],
+  [
+   "Set r = Rows3()\nr.Close\nv = ws.Range(\"A1\").CopyFromRecordset(r)",
+   "Err 3704 "
+  ],
+  [
+   "v = ws.Range(\"A1\").CopyFromRecordset(5)",
+   "Err 13 "
+  ],
+  [
+   "Set r = Nothing\nv = ws.Range(\"A1\").CopyFromRecordset(r)",
+   "Err 5 "
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"I\") = 5\nr(\"D\") = 1.5\nr(\"B\") = True\nr(\"T\") = #1/2/2020#\nr(\"S\") = \"x\"\nr(\"C\") = 2.5\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\nFor i = 1 To 6\ns = s & TypeName(ws.Cells(1, i).Value) & \"=\" & ws.Cells(1, i).Value & \"~\" & ws.Cells(1, i).NumberFormat & \",\"\nNext",
+   "ok Double=5~General,Double=1.5~General,Boolean=True~General,Date=1/2/2020~m/d/yyyy,String=x~General,Double=2.5~General,"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"I\") = Null\nr(\"S\") = \"=1+1\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = IsEmpty(ws.Range(\"A1\").Value) & ws.Range(\"E1\").Value & ws.Range(\"E1\").HasFormula",
+   "ok True=1+1False"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1:C1\").Value = 9\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"C1\").Value & ws.Range(\"A1\").Value",
+   "ok 9a"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 1\"\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & Cells3(ws)",
+   "ok 2b2;c3;;;"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nws.Protect\nOn Error Resume Next\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = Err.Number & \"|\" & ws.Range(\"A1\").Value\nws.Unprotect",
+   "ok -2147467259|"
+  ],
+  [
+   "Set r = Rows3()\nr.Requery",
+   "Err 3219 "
+  ],
+  [
+   "Set r = Rows3()\ns = TypeName(r) & TypeName(r.Fields) & TypeName(r.Fields(0)) & TypeName(r.ActiveConnection) & r.Source & \"|\" & r.PageSize & r.PageCount & r.MaxRecords & r.CacheSize",
+   "ok RecordsetFieldsFieldNothing|10101"
+  ],
+  [
+   "Set r = Rows3()\nr.Close\nSet r = Nothing\ns = r Is Nothing",
+   "ok True"
+  ],
+  [
+   "Set r = Rows3()\nr.Close\ns = r.RecordCount",
+   "Err 3704 "
+  ],
+  [
+   "Set r = Rows3()\nr.Close\ns = r.Fields.Count & r.Fields(0).Name",
+   "Err 3265 "
+  ],
+  [
+   "Set r = Rows3()\nr.Close\ns = r(\"N\")",
+   "Err 3265 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Sort = \"Q DESC\"\ns = r(\"N\") & r.AbsolutePosition",
+   "ok c1"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Sort = \"Q DESC\"\ns = r(\"N\") & r.AbsolutePosition",
+   "ok c1"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Filter = \"Q > 0\"\ns = r(\"N\") & r.AbsolutePosition",
+   "ok a1"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Filter = \"Q > 1\"\nr.Filter = 0\ns = r(\"N\") & r.AbsolutePosition",
+   "ok a1"
+  ],
+  [
+   "Set r = Rows3()\nr.Sort = \"N DESC, Q\"\nr.MoveFirst\ns = r(\"N\")\nr.Sort = \"N ASC\"\nr.MoveFirst\ns = s & r(\"N\")",
+   "ok ca"
+  ],
+  [
+   "Set r = Made()\nr.AddNew Array(\"N\", \"Q\"), Array(\"b\", 1)\nr.AddNew Array(\"N\", \"Q\"), Array(\"a\", 2)\nr.AddNew Array(\"Q\"), Array(3)\nr.Update\nr.Sort = \"N\"\nr.MoveFirst\ns = r(\"Q\")\nr.MoveNext\ns = s & r(\"Q\")\nr.MoveNext\ns = s & r(\"Q\")",
+   "ok 321"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q >= 2 OR N = 'a'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "ok 3a"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N <> 'a'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "ok 2b"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N = 'B'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "ok 1b"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"(Q = 1)\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "ok 1a"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q IN (1, 2)\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "Err 3001 "
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N LIKE '*b'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "Err 3001 "
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N LIKE '%b%'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "ok 1b"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N LIKE 'b%'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "ok 1b"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q = '1'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "ok 1a"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q = 1 AND (N = 'a' OR N = 'b')\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "Err 3001 "
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 1 OR Q = 1 AND N = 'z'\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "Err 3001 "
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N = b\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "Err 3001 "
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"N = \"\"b\"\"\"\nr.MoveFirst\ns = r.RecordCount & r(\"N\")",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"\"\ns = r.RecordCount & TypeName(r.Filter) & r.Filter",
+   "ok 3Long0"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 1\"\nr.MoveLast\nr.Delete\nr.MoveFirst\ns = r.RecordCount\nr.Filter = 0\ns = s & r.RecordCount",
+   "ok 12"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 1\"\nr.AddNew\nr(\"Q\") = 0\nr(\"N\") = \"n\"\nr.Update\ns = r.RecordCount & r(\"N\")\nr.MoveFirst\ns = s & r.RecordCount",
+   "ok 2n2"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Find \"N LIKE 'b*'\"\ns = r(\"N\")",
+   "ok b"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Find \"Q > 1 AND N = 'c'\"\ns = r(\"N\")",
+   "Err 3001 "
+  ],
+  [
+   "Set r = Made()\nr.Find \"Q > 1\"\ns = r.EOF",
+   "ok True"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.MoveNext\nr.Find \"N = 'a'\"\ns = r.EOF",
+   "ok True"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveLast\nr.Find \"N = 'zz'\", , adSearchBackward\ns = r.BOF & r.EOF",
+   "ok TrueFalse"
+  ],
+  [
+   "Set r = Made()\ns = r.EditMode",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Made()\nr.Delete",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Made()\nr.Update",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Made()\nr.CancelUpdate",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Move 0\ns = r(\"N\")",
+   "ok a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Move -5\ns = r.BOF & r.EOF",
+   "ok TrueFalse"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.MoveFirst\ns = r(\"N\") & r.EditMode & r.RecordCount",
+   "ok b22"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\ns = r.EditMode",
+   "ok 0"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.Delete",
+   "Err -2147217885 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\nr(\"N\") = \"x\"",
+   "Err -2147217885 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\nr.MovePrevious\ns = r.BOF",
+   "ok True"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.CancelUpdate\nr.MoveFirst\ns = r(\"N\") & r.RecordCount",
+   "ok b2"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveLast\nr.CancelUpdate\ns = r.RecordCount & r.EOF & r.BOF",
+   "ok 2TrueTrue"
+  ],
+  [
+   "Set r = Rows3()\nr.UpdateBatch\nr.MoveFirst\ns = r.EditMode\nr(\"N\") = \"z\"\ns = s & r.EditMode\nr.Update\ns = s & r.EditMode & r(\"N\")\nr(\"N\") = \"y\"\nr.CancelUpdate\ns = s & r(\"N\") & r.EditMode & r.RecordCount",
+   "ok 011za03"
+  ],
+  [
+   "Set r = Rows3()\nr.UpdateBatch\nr.MoveFirst\nr.Delete\ns = r.RecordCount\nr.CancelBatch\ns = s & r.RecordCount",
+   "ok 23"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.CancelBatch\ns = r.RecordCount & r.EOF",
+   "ok 0False"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Fields(\"N\").Value = \"x\"\nr.Fields(1) = 7\ns = r(\"N\") & r(\"Q\") & r(\"N\").OriginalValue & \"|\" & r(\"N\").UnderlyingValue",
+   "ok x7|"
+  ],
+  [
+   "Set r = Rows3()\nr.UpdateBatch\nr.MoveFirst\nr(\"N\") = \"x\"\ns = r(\"N\") & r(\"N\").OriginalValue & r(\"N\").UnderlyingValue",
+   "ok xaa"
+  ],
+  [
+   "Set r = Rows3()\ns = r.Fields(0).Attributes & \"|\" & r.Fields(1).Attributes & \"|\" & r.Fields(1).Precision & r.Fields(1).NumericScale & \"|\" & r.Status",
+   "ok 4|20|00|1"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\ns = r.Fields(0).Attributes",
+   "ok 52"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr(\"N\") = Null\ns = IsNull(r(\"N\"))",
+   "Err -2147217887 "
+  ],
+  [
+   "Set r = Rows3()\nr.Fields.Delete \"N\"",
+   "Err 3219 "
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\nr.Fields.Delete \"N\"\ns = r.Fields.Count",
+   "ok 0"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"N\", adVarChar, 10\nr.Fields.Append \"Q\", adInteger\nr.Open\ns = r.Fields.Refresh",
+   "ok "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\ns = Replace(r.GetString(, , , , \"-\"), vbCr, \"R\")",
+   "ok a\t1Rb\t2Rc\t3R"
+  ],
+  [
+   "Set r = Made()\ns = r.GetString",
+   "Err 3021 "
+  ],
+  [
+   "Set r = Made()\nr.AddNew\nr(\"Q\") = 1\nr.Update\nr.MoveFirst\ns = \"[\" & Replace(Replace(r.GetString, vbTab, \"T\"), vbCr, \"R\") & \"]\"",
+   "ok [T1R]"
+  ],
+  [
+   "Set r = Made()\nr.AddNew\nr(\"Q\") = 1\nr.Update\nr.MoveFirst\ns = \"[\" & Replace(Replace(r.GetString(, , , , \"-\"), vbTab, \"T\"), vbCr, \"R\") & \"]\"",
+   "ok [-T1R]"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, 2)\ns = UBound(v, 2)",
+   "ok 0"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , Array(\"Q\", \"N\"))\ns = UBound(v, 1) & v(0, 0) & v(1, 0)",
+   "ok 11a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , 1)\ns = UBound(v, 1) & v(0, 0)",
+   "ok 01"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(, , \"Nope\")",
+   "Err 3265 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(9)\ns = UBound(v, 2)",
+   "ok 2"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = r.GetRows(0)\ns = TypeName(v)",
+   "Err 3219 "
+  ],
+  [
+   "Set r = Rows3()\nSet o = r.Clone\nr.MoveFirst\no.MoveLast\ns = r(\"N\") & o(\"N\")\nr(\"N\") = \"z\"\no.MoveFirst\ns = s & o(\"N\") & o.RecordCount\no.AddNew\no(\"Q\") = 9\no.Update\ns = s & r.RecordCount",
+   "ok acz34"
+  ],
+  [
+   "Set r = Rows3()\nSet o = r.Clone\nr.Close\ns = o.State & o.RecordCount",
+   "ok 13"
+  ],
+  [
+   "Set r = Rows3()\ns = r.Supports(adUpdate) & r.Supports(adUpdateBatch) & r.Supports(adResync) & r.Supports(adHoldRecords) & r.Supports(adApproxPosition) & r.Supports(adIndex) & r.Supports(adSeek) & r.Supports(adNotify)",
+   "ok TrueTrueTrueTrueTrueFalseFalseTrue"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 202, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 202~10~String~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 130, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 130~10~String~5         "
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 201, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 201~10~String~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 203, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 203~10~String~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 129, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 129~10~String~5         "
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 8, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 203~-1~String~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 2, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.4\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 2~2~Integer~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 4, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 4~4~Single~5.5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 16, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "Err 458 16~1~"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 17, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 17~1~Byte~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 18, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "Err 458 18~2~"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 19, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "Err 458 19~4~"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 20, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 20~8~Decimal~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 21, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 21~8~Decimal~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 14, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 14~16~Decimal~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 131, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5.5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "Err -2147217887 131~19~"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 133, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 133~6~Date~1/2/2020"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 134, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020 3:04:05 AM#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 134~6~Date~11/3/2026 3:04:05 AM"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 135, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 135~16~Date~1/2/2020"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 72, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"{00000000-0000-0000-0000-000000000001}\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 72~16~String~{00000000-0000-0000-0000-000000000001}"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 128, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "Err -2147217887 128~10~"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 204, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "Err -2147217887 204~10~"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 205, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = \"5\"\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "Err -2147217887 205~10~"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 12, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = 5\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 12~24~Integer~5"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 64, 10, adFldIsNullable\nr.Open\nr.AddNew\ns = r(\"F\").Type & \"~\" & r(\"F\").DefinedSize & \"~\"\nr(\"F\") = #1/2/2020#\ns = s & TypeName(r(\"F\").Value) & \"~\" & r(\"F\").Value",
+   "ok 64~8~Date~1/2/2020"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", adInteger, 99\ns = r.Fields(0).DefinedSize",
+   "ok 4"
+  ],
+  [
+   "Set r = New0()\nr.Fields.Append \"F\", 9999, 10",
+   "Err 3001 "
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"S\") = \"12\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(ws.Range(\"E1\").Value) & ws.Range(\"E1\").Value & ws.Range(\"E1\").NumberFormat & ws.Range(\"E1\").PrefixCharacter",
+   "ok String12General"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"S\") = \"1/2\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = TypeName(ws.Range(\"E1\").Value) & ws.Range(\"E1\").Value & ws.Range(\"E1\").NumberFormat",
+   "ok String1/2General"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"S\") = \"'x\"\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"E1\").Value & ws.Range(\"E1\").PrefixCharacter & ws.Range(\"E1\").HasFormula",
+   "ok x'False"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"C\") = 2.5\nr.Update\nr.MoveFirst\nws.Range(\"F1\").NumberFormat = \"0.000\"\nws.Range(\"D1\").NumberFormat = \"0.000\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"F1\").NumberFormat & ws.Range(\"D1\").NumberFormat",
+   "ok 0.000m/d/yyyy"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"T\") = #1/2/2020#\nr.Update\nr.MoveFirst\nws.Range(\"D1\").NumberFormat = \"0.000\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"D1\").NumberFormat & ws.Range(\"D1\").Value2",
+   "ok m/d/yyyy43832"
+  ],
+  [
+   "Set r = Typed()\nr.AddNew\nr(\"T\") = #1/2/2020 3:04:05 AM#\nr.Update\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = ws.Range(\"D1\").NumberFormat & ws.Range(\"D1\").Text",
+   "ok m/d/yyyy1/2/2020"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1\").Value = \"x\"\nws.Range(\"A1:B2\").Merge\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value & ws.Range(\"A2\").Value & ws.Range(\"B3\").Value",
+   "ok 3a3"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1048575\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1048576\").Value",
+   "ok 2b"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"XFD1\").CopyFromRecordset(r)\ns = v & ws.Range(\"XFD1\").Value",
+   "ok 3a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Rows(2).CopyFromRecordset(r)\ns = v & ws.Range(\"A2\").Value",
+   "ok 3a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1\").CopyFromRecordset r\ns = ws.Range(\"A1\").Value",
+   "ok a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, -1)",
+   "Err -2147467259 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, , 0)\ns = v & ws.Range(\"A1\").Value",
+   "Err -2147467259 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(r, , 9)\ns = v & ws.Range(\"B1\").Value",
+   "ok 31"
+  ],
+  [
+   "Set r = Rows3()\nr.Filter = \"Q > 9\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v",
+   "ok 0"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.Delete\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value",
+   "Err -2147217885 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nr.MovePrevious\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value",
+   "ok 0"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nws.Range(\"A1\").Validation.Add xlValidateWholeNumber, , xlBetween, \"1\", \"5\"\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value",
+   "ok 3a"
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nws.ListObjects.Add xlSrcRange, ws.Range(\"A1:B2\"), , xlYes\nv = ws.Range(\"A1\").CopyFromRecordset(r)\ns = v & ws.Range(\"A1\").Value & ws.ListObjects(1).Range.Address",
+   "Err 9 "
+  ],
+  [
+   "Set r = Rows3()\nr.MoveFirst\nv = ws.Range(\"A3\").CopyFromRecordset(r)\ns = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row & ws.UsedRange.Address",
+   "ok 5$A$3:$B$5"
+  ]
+ ]
+}

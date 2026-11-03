@@ -169,12 +169,15 @@ def in_memory(name: str, *, program: bool, interpreter: Interpreter) -> VBAObjec
     """The object CreateObject makes for a program's name, or New for a class's, where pyOpenVBA makes it in
     memory; None for any other."""
     from pyopenvba.interpreter._adodb import AdoStream
+    from pyopenvba.interpreter._recordset import AdoRecordset
     from pyopenvba.interpreter._http import PROGRAMS as HTTP_PROGRAMS, HttpRequest
     from pyopenvba.interpreter._regexp import RegExp
 
     key = name.lower()
     if program and key == "adodb.stream":
         return AdoStream(interpreter)
+    if program and key == "adodb.recordset":
+        return AdoRecordset()
     if program and key in HTTP_PROGRAMS:
         interpreter.outside(f"CreateObject({name!r})")
         return HttpRequest(key, interpreter)

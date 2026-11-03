@@ -26,6 +26,76 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
 
 
+def copy_from_recordset(target: Range, data: object, max_rows: object, max_columns: object) -> object:
+    """The recordset from its current row, at the range's first cell, past the edges of nothing but the sheet. Nothing it writes
+    is read as a formula or a number, a date takes m/d/yyyy, Null empties a cell, and it answers the rows it took
+    (tests/fixtures/adodb_recordset.json)."""
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS
+    from pyopenvba.apps.excel import _events, _merges
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._protection import enforced
+    from pyopenvba.interpreter._recordset import AdoRecordset
+    from pyopenvba.interpreter._objects import VBAObject
+    from pyopenvba.interpreter._values import NOTHING, NULL, VBAInt, VBADate, to_number
+
+    failed = -2147467259
+    if data is NOTHING:
+        raise error(5, "Invalid procedure call or argument")
+    if not isinstance(data, VBAObject):
+        raise error(13, "Type mismatch")
+    if not isinstance(data, AdoRecordset):
+        raise VBAUnsupportedError("CopyFromRecordset from anything but a disconnected ADODB.Recordset is not implemented")
+    if not data.is_open:
+        raise error(3704, "Operation is not allowed when the object is closed")
+    rows_wanted = None if max_rows is MISSING else int(to_integer(max_rows, "Long"))
+    columns_wanted = None if max_columns is MISSING else int(to_integer(max_columns, "Long"))
+    if (rows_wanted is not None and rows_wanted < 0) or (columns_wanted is not None and columns_wanted <= 0):
+        raise error(failed, "Automation error")
+    if data.at == "gone":
+        raise error(-2147217885, "Row handle referred to a deleted row or a row marked for deletion")
+    if data.at != "row" or rows_wanted == 0:
+        return VBAInt(0, "Long")
+    sheet, corner = target.sheet, target.first
+    if enforced(sheet) is not None:
+        raise error(failed, "Automation error")
+    # It answers what fits on the sheet, and stays on the row after that.
+    room = MAX_ROWS - corner.top + 1
+    taken = data.take(room if rows_wanted is None else min(rows_wanted, room))
+    width = len(data.table.fields) if columns_wanted is None else min(columns_wanted, len(data.table.fields))
+    bottom, right = min(corner.top + len(taken) - 1, MAX_ROWS), min(corner.left + width - 1, MAX_COLUMNS)
+    written = Area(corner.top, corner.left, bottom, right, sheet.name)
+    if any(not (written.bottom < table.area.top or table.area.bottom < written.top or written.right < table.area.left
+                or table.area.right < written.left) for table in sheet.tables):
+        raise VBAUnsupportedError("CopyFromRecordset into a table is not implemented")
+    for down, row in enumerate(taken):
+        for across, value in enumerate(row.values[:right - corner.left + 1]):
+            at = (corner.top + down, corner.left + across)
+            if not _merges.writable(sheet, *at):
+                continue
+            place = Range(sheet, [Area(at[0], at[1], at[0], at[1], sheet.name)])
+            # A date field's column takes the format, Null or not.
+            if data.table.fields[across].kind in (7, 64, 133, 135):
+                place.vba_set("NumberFormat", "m/d/yyyy")
+            if value is NULL:
+                place.clear_contents_checked()
+                continue
+            if isinstance(value, str) and value.startswith("'"):
+                place.vba_set("Value", value)
+                continue
+            cell = sheet.cell(*at, create=True)
+            assert cell is not None
+            shown: object = value
+            if isinstance(value, VBADate):
+                shown = value.serial
+            elif not isinstance(value, (str, bool)):
+                shown = float(to_number(value))
+            cell.formula, cell.value, cell.stale = "", shown, False
+            sheet.settle(*at)
+            sheet.cell_changed(*at)
+    _events.after_edit(Range(sheet, [written]))
+    return VBAInt(len(taken), "Long")
+
+
 class SoundNote(Created):
     """A cell's sound note: an object every cell answers, whose members are not implemented."""
 

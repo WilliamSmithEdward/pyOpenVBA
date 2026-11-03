@@ -6016,6 +6016,12 @@ class Range(ExcelObject):
         return EMPTY
 
     @method
+    def CopyFromRecordset(self, Data: object = MISSING, MaxRows: object = MISSING, MaxColumns: object = MISSING) -> object:
+        from pyopenvba.apps.excel._range_members import copy_from_recordset
+
+        return copy_from_recordset(self, Data, MaxRows, MaxColumns)
+
+    @method
     def ResetContents(self) -> object:
         """On a cell with no control in it, which is every cell here, the same as ClearContents
         (tests/fixtures/range_missing.json)."""

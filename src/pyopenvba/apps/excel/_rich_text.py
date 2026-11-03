@@ -213,6 +213,10 @@ class Characters(ExcelObject):
         self.start = start
         self.length = length
 
+    @member
+    def PhoneticCharacters(self) -> object:
+        return ""
+
     def _first(self) -> int:
         return max(1, self.start or 1) - 1
 

@@ -36,6 +36,10 @@ class Tab(ExcelObject):
     def __init__(self, sheet: Worksheet) -> None:
         self.sheet = sheet
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     def _set(self, color: S.Color | None) -> None:
         self.sheet.tab_color = color
         self.sheet.tab_changed = True

@@ -918,6 +918,14 @@ class ListObject(ExcelObject):
         self.table = table
         self.sheet = table.sheet
 
+    @method
+    def ExportToVisio(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def Publish(self, Target: object = MISSING, LinkSource: object = MISSING) -> object:
+        raise error(5, "Cannot connect to the server at this time. Your table cannot be published.")
+
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A table cut to another sheet leaves this object behind, which answers nothing more
         (tests/fixtures/table_cut.json)."""
@@ -1421,6 +1429,10 @@ class ListRow(ExcelObject):
         self.table = table
         self.sheet = table.sheet
         self.index = index
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
 
     @member
     def Index(self) -> object:

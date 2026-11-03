@@ -503,6 +503,10 @@ class Axis(Created):
         return self.chart.format_of(self, f"axis{self.entry.kind}")
 
     @member
+    def Border(self) -> object:
+        return self.chart.border_of(self, f"axis{self.entry.kind}")
+
+    @member
     def MajorGridlines(self) -> object:
         # Reaching the gridlines never fails; reading them once the axis has none does
         # (tests/fixtures/chart_axis_parts.json).
@@ -883,6 +887,11 @@ class AxisTitle(TitleMembers):
         return self.axis.chart.format_of(self, f"title{self.axis.entry.kind}")
 
     @member
+    def Border(self) -> object:
+        self.read()
+        return self.axis.chart.border_of(self, f"title{self.axis.entry.kind}")
+
+    @member
     def Font(self) -> object:
         self.read()
         return self.axis.chart.font_of(self, f"title{self.axis.entry.kind}", bold=True)
@@ -948,6 +957,10 @@ class Gridlines(Created):
         if not self.major:
             raise VBAUnsupportedError("The look of minor gridlines is not implemented")
         return self.axis.chart.format_of(self, f"grid{self.axis.entry.kind}")
+
+    @member
+    def Border(self) -> object:
+        return self.axis.chart.border_of(self, f"grid{self.axis.entry.kind}")
 
     @method
     def Delete(self) -> object:

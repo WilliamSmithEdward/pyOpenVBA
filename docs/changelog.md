@@ -15,6 +15,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Border` on a chart's axes, gridlines, series, points, chart area, plot area,
+  legend, titles and axis titles: `Color`, `ColorIndex`, `Weight` and `LineStyle`,
+  over the same look as `Format.Line`. The markup matches Excel's.
+- `Series.ClearFormats`. It takes away the look set on a series and its points. On
+  a line or scatter series the marker comes back automatic and smoothing goes, and
+  a scatter series gains a line. Labels and trendlines stay. It is refused on a
+  line series with a look and on an area series with a point set apart.
 - `Chart.Refresh`, `ClearToMatchColorStyle`, `ChartObjects`, `Shapes`, `Hyperlinks`
   and `Evaluate("Legend")`. An embedded chart holds no objects of its own, so the
   collections count 0. `Chart.Location` to the chart's own sheet returns the

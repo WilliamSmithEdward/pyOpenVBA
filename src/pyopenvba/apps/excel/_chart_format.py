@@ -34,7 +34,7 @@ _WHITE = 16777215
 _INVALID = (-2147024809, "The specified value is out of range.")
 _A14 = 'xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"'
 #: LineFormat.DashStyle and how the file writes it: its prstDash and the cap it takes.
-_DASHES = {4: ("dash", None), 3: ("dot", "rnd")}
+_DASHES = {4: ("dash", None), 3: ("dot", "rnd"), 7: ("lgDash", None)}
 
 
 def unmeasured(what: str) -> VBAUnsupportedError:
@@ -68,7 +68,7 @@ def plain_line(look: FillLine) -> str:
         return ""
     attributes = ("" if look.line_width is None else f' w="{look.line_width}"') + (
         "" if look.line_cap is None else f' cap="{look.line_cap}"')
-    inside = ("" if look.line_rgb is None else _solid(look.line_rgb)) + (
+    inside = ("<a:noFill/>" if look.line_off else "" if look.line_rgb is None else _solid(look.line_rgb)) + (
         "" if look.line_dash is None else f'<a:prstDash val="{look.line_dash}"/>')
     return f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"
 
@@ -82,7 +82,12 @@ def hidden_fill(colour: str, alpha: int | None = None) -> str:
 def markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, ...]) -> str:
     """The series' spPr, none while nothing was set of it."""
     look = entry.format_look
-    if look is None or kind not in (*FILLED, "line"):
+    if look is None:
+        return ""
+    if kind in ("lineMarkers", "scatter"):
+        # Only Border reaches the line of these.
+        return look_markup(look, "line", accent_colour(theme, place)) if plain_line(look) else ""
+    if kind not in (*FILLED, "line"):
         return ""
     return look_markup(look, kind, accent_colour(theme, place))
 
@@ -269,7 +274,7 @@ class SeriesLine(_Part):
         look = self.look()
         kind = self.kind()
         if kind == "scatter":
-            return True
+            return not self.series.entry.scatter_line
         return kind in FILLED and look.line_rgb is None and (
             look.line_full or look.line_width is not None or look.line_dash is not None)
 

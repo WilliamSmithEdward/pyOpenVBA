@@ -268,6 +268,15 @@ class Point(Created):
         return PointFormat(self)
 
     @member
+    def Border(self) -> object:
+        from pyopenvba.apps.excel._chart_borders import SERIES, ChartBorder
+
+        if self.gone():
+            raise error(-2147467259, "Automation error\nUnspecified error ")
+        self.kind()
+        return ChartBorder(PointFormat(self).Line(), SERIES, self, self.series.chart.sheet.book.stylesheet.colors)
+
+    @member
     def Explosion(self) -> object:
         self.kind()
         point = self.own()
@@ -634,11 +643,11 @@ class _OfPoint:
         series = self.owner.series.entry.format_look or FillLine()
         fill = own if (own.fill_rgb is not None or own.fill_solid or own.fill_hidden) else series
         line = own if (own.line_rgb is not None or own.line_width is not None or own.line_dash is not None
-                       or own.line_full) else series
+                       or own.line_full or own.line_off) else series
         return FillLine(fill_rgb=fill.fill_rgb, fill_alpha=fill.fill_alpha, fill_solid=fill.fill_solid,
                         fill_hidden=fill.fill_hidden, line_rgb=line.line_rgb, line_width=line.line_width,
                         line_dash=line.line_dash, line_cap=line.line_cap, line_full=line.line_full,
-                        line_hidden=line.line_hidden, effects=line.effects)
+                        line_hidden=line.line_hidden, effects=line.effects, line_off=line.line_off)
 
     def admit(self) -> None:
         if self.owner.point.kind() not in (*FILLED, *_LINES):

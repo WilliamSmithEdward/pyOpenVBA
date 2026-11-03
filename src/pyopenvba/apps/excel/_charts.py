@@ -112,6 +112,9 @@ class SeriesState:
     values: list[object] = field(default_factory=lambda: [])
     category_reference: str = ''
     value_reference: str = ''
+    #: On a scatter chart, whether ClearFormats has given it the line it otherwise goes without
+    #: (tests/fixtures/chart_borders.json).
+    scatter_line: bool = False
     #: Whether categories whose cells were taken away held numbers, which the file's empty reference still says.
     lost_numbers: bool = False
     series_id: int = -1
@@ -811,6 +814,10 @@ class ChartArea(Created):
         return self.chart.format_of(self, 'area')
 
     @member
+    def Border(self) -> object:
+        return self.chart.border_of(self, 'area')
+
+    @member
     def Font(self) -> object:
         return self.chart.font_of(self, 'area')
 
@@ -855,6 +862,10 @@ class PlotArea(Created):
     @member
     def Format(self) -> object:
         return self.chart.format_of(self, 'plot')
+
+    @member
+    def Border(self) -> object:
+        return self.chart.border_of(self, 'plot')
 
     @method
     def Select(self) -> object:
@@ -1466,6 +1477,15 @@ class Chart(Created):
         self.admit_read()
         return PlotArea(self)
 
+    def border_of(self, element: object, key: str) -> object:
+        """The older way to the element's line (tests/fixtures/chart_borders.json)."""
+        from pyopenvba.apps.excel._chart_borders import ChartBorder, family_of
+        from pyopenvba.apps.excel._chart_format import ElementFormat, ElementLine
+
+        self.admit_read()
+        line = ElementLine(ElementFormat(element, self, key))
+        return ChartBorder(line, family_of(key), element, self.sheet.book.stylesheet.colors)
+
     def format_of(self, element: object, key: str) -> object:
         from pyopenvba.apps.excel._chart_format import ElementFormat
 
@@ -1864,6 +1884,10 @@ class ChartTitle(TitleMembers):
         return self.chart.format_of(self, 'title')
 
     @member
+    def Border(self) -> object:
+        return self.chart.border_of(self, 'title')
+
+    @member
     def Font(self) -> object:
         return self.chart.font_of(self, 'title', size=18.0, bold=True)
 
@@ -1979,6 +2003,11 @@ class Legend(Created):
     def Format(self) -> object:
         self.shown()
         return self.chart.format_of(self, 'legend')
+
+    @member
+    def Border(self) -> object:
+        self.shown()
+        return self.chart.border_of(self, 'legend')
 
     @member
     def Font(self) -> object:
@@ -2870,6 +2899,40 @@ class Series(Created):
             point.explosion = None
             if point.look is None and point.invert is None and point.label is None:
                 del self.entry.points[place]
+
+    @member
+    def Border(self) -> object:
+        from pyopenvba.apps.excel._chart_borders import ChartBorder, family_of_series
+        from pyopenvba.apps.excel._chart_format import ChartFormat, SeriesLine
+
+        self.chart.admit_read()
+        line = SeriesLine(ChartFormat(self))
+        return ChartBorder(line, family_of_series(line.kind(), line.accent()), self,
+                           self.chart.sheet.book.stylesheet.colors)
+
+    @method
+    def ClearFormats(self) -> object:
+        """Takes away the look set on the series and its points; their labels, its trendlines and what else it has
+        stay (tests/fixtures/chart_borders.json)."""
+        self.position()
+        kind = CHART_TYPES.get(shown_type(self.chart.state), '')
+        if kind == 'line' and self.entry.format_look is not None:
+            raise VBAUnsupportedError('ClearFormats on a line series with a look is not implemented')
+        if kind == 'area' and self.entry.points:
+            raise VBAUnsupportedError('ClearFormats on an area series with a point set apart is not implemented')
+        self.chart.changed()
+        self.entry.format_look = None
+        if kind in ('line', 'lineMarkers', 'scatter'):
+            # They all come back automatic.
+            self.entry.marker, self.entry.marker_size = MARKER_AUTOMATIC, None
+            self.entry.marker_fore, self.entry.marker_back = None, None
+            self.entry.smooth = False
+            self.entry.scatter_line = kind == 'scatter'
+        for place, point in list(self.entry.points.items()):
+            point.look = None
+            if point.invert is None and point.explosion is None and point.label is None and not point.has_marker():
+                del self.entry.points[place]
+        return True
 
     @member
     def Smooth(self) -> object:

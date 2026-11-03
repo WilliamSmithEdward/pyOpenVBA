@@ -401,6 +401,12 @@ class PivotTable(ExcelObject):
         return PivotAxis(self)
 
     @member
+    def Slicers(self) -> object:
+        from pyopenvba.apps.excel._tables import TableSlicers
+
+        return TableSlicers(self)
+
+    @member
     def PivotFormulas(self) -> object:
         from pyopenvba.apps.excel._application_more import EmptyCollection
 

@@ -224,12 +224,15 @@ class Point(Created):
         return CHART_TYPES.get(shown_type(state), "")
 
     def own(self) -> PointState | None:
-        return self.series.entry.points.get(self.index)
+        return self.series.entry.points.get(self.series.point_key(self.index))
 
     def held(self) -> PointState:
         """The point's state, made if it had none."""
         self.series.chart.changed()
-        return self.series.entry.points.setdefault(self.index, PointState())
+        point = self.series.entry.points.setdefault(self.series.point_key(self.index), PointState())
+        if point.drawn_at < 0:
+            point.drawn_at = self.index
+        return point
 
     def gone(self) -> bool:
         """Whether its series has been taken away."""

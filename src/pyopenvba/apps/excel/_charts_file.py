@@ -9,6 +9,8 @@ from __future__ import annotations
 import posixpath
 import re
 import xml.etree.ElementTree as ET
+from dataclasses import replace
+from pyopenvba.apps.excel._chart_references import NO_ID
 from xml.parsers import expat
 from typing import TYPE_CHECKING, NoReturn
 
@@ -18,10 +20,11 @@ from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, DATA_TABLE_WITHOUT_KEYS, LABEL_POSITIONS,
                                              CT_CHART, SeriesData, cache_markup,
                                              chart_frame, chart_part, legend_markup, text_properties)
-from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, Series, SeriesState,
+from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, PointState, Series,
+                                          SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
-                                          category_levels, linked_title, lost, referenced_values, shown_cells,
-                                          shown_type)
+                                          categories_gone, category_levels, linked_title, lost, referenced_values,
+                                          settle_hidden, shown_cells, shown_type, visible_places)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.apps.excel._chart_trendlines import TYPES as TRENDLINE_TYPES, TrendlineState, markup as trendlines_markup
@@ -562,14 +565,51 @@ def _filtered_title(kind: str, element: str, reference: str, cache: str) -> str:
             f'</c15:{element}></c15:{kind}></c:ext>')
 
 
-def _with_lost_references(xml: str, state: ChartState) -> str:
+def _all_numbers(sheet: Worksheet, reference: str) -> bool:
+    return not lost(reference) and all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                                       for value in referenced_values(sheet, reference))
+
+
+def _shown_points(sheet: Worksheet, state: ChartState, item: SeriesState) -> SeriesState:
+    """The series with its points numbered among the cells shown, as the file numbers them; those hidden wait."""
+    if not state.visible_only or not item.points or not item.value_reference or lost(item.value_reference):
+        return item
+    places = {place: index for index, place in enumerate(visible_places(sheet, item.value_reference, True))}
+    def numbered(place: int, point: PointState) -> PointState:
+        # Moved to another place it loses its unique ids, as moved cells do.
+        if places[place] in (place, point.drawn_at):
+            return point
+        return replace(point, unique=-1, label_unique=NO_ID if point.label_unique >= 0 else point.label_unique)
+
+    return replace(item, points={places[place]: numbered(place, point) for place, point in item.points.items()
+                                 if place in places})
+
+
+def _with_series_out_of_sight(xml: str, state: ChartState) -> str:
+    """A series with its cells all hidden is in the file with references that hold nothing, and without its own look,
+    which it has again once shown."""
+    found = list(re.finditer(r'<c:ser>.*?</c:ser>', xml, re.DOTALL))
+    for match, entry in reversed(list(zip(found, state.full_series or state.series, strict=False))):
+        if any(entry is hidden for hidden in state.out_of_sight):
+            series = re.sub(r'<c:numCache>(?:(?!<c:numCache>).)*?</c:numCache></c:numRef></c:(val|yVal)>',
+                            r'</c:numRef></c:\1>', match.group(0), flags=re.DOTALL)
+            if entry.format_look is not None:
+                series = re.sub(r'(</c:tx>|<c:order val="[0-9]+"/>)<c:spPr>.*?</c:spPr>', r'\1', series, count=1,
+                                flags=re.DOTALL)
+            xml = xml[:match.start()] + series + xml[match.end():]
+    # With nothing drawn the axes have no number format to follow.
+    return xml if state.series else xml.replace('<c:numFmt formatCode="General" sourceLinked="1"/>', '')
+
+
+def _with_lost_references(xml: str, sheet: Worksheet, state: ChartState) -> str:
     """The chart with its series' lost names and categories as Excel spells them, which depends on the others: a name
     lost from every series leaves the series for an extension, and categories too except on a scatter chart, which has
     no such extension; lost from only some, they stay as references to nothing
     (tests/fixtures/chart_lost_cells.json)."""
     every = state.full_series or state.series
     names_gone = state.names_lost()
-    categories_gone = bool(every) and all(lost(entry.category_reference) for entry in every)
+    # With no series drawn their categories stay too.
+    all_gone = bool(state.series) and all(categories_gone(sheet, state, entry) for entry in every)
     found = list(re.finditer(r'<c:ser>.*?</c:ser>', xml, re.DOTALL))
     for match, entry in reversed(list(zip(found, every, strict=False))):
         series = match.group(0)
@@ -577,11 +617,11 @@ def _with_lost_references(xml: str, state: ChartState) -> str:
         if names_gone:
             series = re.sub(r'<c:tx>.*?</c:tx>', '', series, count=1, flags=re.DOTALL)
             added += _filtered_title('filteredSeriesTitle', 'tx', entry.name_reference, _LOST_NAME)
-        if lost(entry.category_reference):
-            kind = 'numRef' if entry.lost_numbers else 'strRef'
+        if categories_gone(sheet, state, entry):
+            kind = 'numRef' if entry.lost_numbers or _all_numbers(sheet, entry.category_reference) else 'strRef'
             spelled = f'<c:{kind}><c:f>{escape_text(entry.category_reference)}</c:f></c:{kind}>'
             scatter = '<c:xVal>' in series
-            if categories_gone and not scatter:
+            if all_gone and not scatter:
                 series = re.sub(r'<c:cat>.*?</c:cat>', '', series, count=1, flags=re.DOTALL)
                 added += _filtered_title('filteredCategoryTitle', 'cat', entry.category_reference, '')
             else:
@@ -593,7 +633,7 @@ def _with_lost_references(xml: str, state: ChartState) -> str:
             series = (series[:at] + added + series[at:] if at >= 0
                       else series.replace('</c:ser>', f'<c:extLst>{added}</c:extLst></c:ser>'))
         xml = xml[:match.start()] + series + xml[match.end():]
-    if every and lost(every[0].category_reference) and '<c:xVal>' not in xml:
+    if every and categories_gone(sheet, state, every[0]) and state.series and '<c:xVal>' not in xml:
         # The axis follows the first series', and without them has no number format to follow.
         xml = re.sub(r'<c:catAx>.*?</c:catAx>', lambda hit: hit.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', ''), xml, count=1, flags=re.DOTALL)
@@ -631,6 +671,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     from pyopenvba.apps.excel._chart_points import point_labels_markup, points_markup
 
     chart = Chart(sheet, shape)
+    settle_hidden(sheet, chart.state)
     data: list[SeriesData] = []
     for item in chart.state.full_series or chart.state.series:
         series = Series(chart, item)
@@ -653,9 +694,10 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                look=series_look(item, CHART_TYPES.get(shown_type(chart.state), ''), series.position(),
                                                 sheet.book.stylesheet.colors.theme),
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
-                               points=points_markup(item, CHART_TYPES.get(shown_type(chart.state), ''),
+                               points=points_markup(_shown_points(sheet, chart.state, item),
+                                                    CHART_TYPES.get(shown_type(chart.state), ''),
                                                     series.position(), sheet.book.stylesheet.colors.theme),
-                               point_labels=point_labels_markup(item),
+                               point_labels=point_labels_markup(_shown_points(sheet, chart.state, item)),
                                labels=item.data_labels, leader_lines=item.leader_lines, label_look=item.label_look,
                                error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(shown_type(chart.state), ''),
                                                             lambda element, given: _bar_values(sheet, element, given)),
@@ -700,13 +742,17 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda found: found.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1)
             if found.group(0).startswith('<c:valAx>' + identifier) else found.group(0), xml)
-    if state.full_series:
-        xml = _with_filtered_series(xml, kind, [index for index, item in enumerate(state.full_series)
-                                                if not any(item is drawn for drawn in state.series)])
+    if state.out_of_sight:
+        xml = _with_series_out_of_sight(xml, state)
     if '<c:areaChart>' in xml:
         xml = _with_lost_values(xml, state)
-    if any(lost(entry.name_reference) or lost(entry.category_reference) for entry in state.full_series or state.series):
-        xml = _with_lost_references(xml, state)
+    if any(lost(entry.name_reference) or categories_gone(sheet, state, entry)
+           for entry in state.full_series or state.series):
+        xml = _with_lost_references(xml, sheet, state)
+    filtered = [index for index, item in enumerate(state.full_series)
+                if not any(item is other for other in [*state.series, *state.out_of_sight])]
+    if filtered:
+        xml = _with_filtered_series(xml, kind, filtered)
     if state.layout_chart_labels and '</c:ser>' in xml:
         at = xml.rindex('</c:ser>')
         xml = xml[:at] + re.sub(r'<c:dLbls>.*?</c:dLbls>', lambda _: state.layout_chart_labels, xml[at:], count=1,

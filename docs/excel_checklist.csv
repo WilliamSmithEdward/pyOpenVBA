@@ -27,7 +27,7 @@ AllowEditRange,Title,property,As String,,PARTIAL,tests/fixtures/allow_edit_range
 AllowEditRange,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
 AllowEditRange,Users,"property, read-only",As UserAccessList,,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
 AllowEditRanges,_Default,"property, read-only",As AllowEditRange,,MISSING,,
-AllowEditRanges,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+AllowEditRanges,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 AllowEditRanges,Add,method,"Add(Title As String, Range As Range, [Password As Variant]) As AllowEditRange",,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
 AllowEditRanges,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
 AllowEditRanges,Creator,not in the type library,,,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
@@ -890,8 +890,8 @@ ConditionValue,Type,"property, read-only",As XlConditionValueTypes,,PARTIAL,test
 ConditionValue,Value,"property, read-only",As Variant,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Connections,_Default,"property, read-only",As WorkbookConnection,,MISSING,,
 Connections,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
-Connections,Add2,method,"Add2(Name As String, Description As String, ConnectionString As Variant, CommandText As Variant, [lCmdtype As Variant], [CreateModelConnection As Variant], [ImportRelationships As Variant]) As WorkbookConnection",,MISSING,,
-Connections,AddFromFile,method,"AddFromFile(Filename As String, [CreateModelConnection As Variant], [ImportRelationships As Variant]) As WorkbookConnection",,MISSING,,
+Connections,Add2,method,"Add2(Name As String, Description As String, ConnectionString As Variant, CommandText As Variant, [lCmdtype As Variant], [CreateModelConnection As Variant], [ImportRelationships As Variant]) As WorkbookConnection",,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+Connections,AddFromFile,method,"AddFromFile(Filename As String, [CreateModelConnection As Variant], [ImportRelationships As Variant]) As WorkbookConnection",,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 Connections,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
 Connections,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,How many the file keeps.
 Connections,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
@@ -1604,12 +1604,12 @@ NegativeBarFormat,Color,"property, read-only",As Object,,PARTIAL,tests/fixtures/
 NegativeBarFormat,ColorType,property,As XlDataBarNegativeColorType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 NegativeBarFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 NegativeBarFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Answers as Excel does over the measured cases.
-OLEDBConnection,ADOConnection,"property, read-only",As Object,,MISSING,,
+OLEDBConnection,ADOConnection,"property, read-only",As Object,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,AlwaysUseConnectionFile,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,onlyUseConnectionFile.
 OLEDBConnection,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
 OLEDBConnection,BackgroundQuery,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,background.
-OLEDBConnection,CalculatedMembers,"property, read-only",As CalculatedMembers,,MISSING,,
-OLEDBConnection,CancelRefresh,method,CancelRefresh(),,MISSING,,
+OLEDBConnection,CalculatedMembers,"property, read-only",As CalculatedMembers,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,CancelRefresh,method,CancelRefresh(),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,CommandText,property,As Variant,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,dbPr's command.
 OLEDBConnection,CommandType,property,As XlCmdType,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"dbPr's commandType, 2 by default."
 OLEDBConnection,Connection,property,As Variant,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,OLEDB; then dbPr's connection.
@@ -1617,30 +1617,30 @@ OLEDBConnection,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtur
 OLEDBConnection,EnableRefresh,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,True.
 OLEDBConnection,IsConnected,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
 OLEDBConnection,LocalConnection,property,As Variant,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004.
-OLEDBConnection,LocaleID,property,As Long,,MISSING,,
+OLEDBConnection,LocaleID,property,As Long,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,MaintainConnection,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,keepAlive.
-OLEDBConnection,MakeConnection,method,MakeConnection(),,MISSING,,
-OLEDBConnection,MaxDrillthroughRecords,property,As Long,,MISSING,,
-OLEDBConnection,OLAP,"property, read-only",As Boolean,,MISSING,,
+OLEDBConnection,MakeConnection,method,MakeConnection(),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,MaxDrillthroughRecords,property,As Long,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,OLAP,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Its connection.
-OLEDBConnection,Reconnect,method,Reconnect(),,MISSING,,
+OLEDBConnection,Reconnect,method,Reconnect(),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,Refresh,method,Refresh(),,MISSING,,
-OLEDBConnection,RefreshDate,"property, read-only",As Date,,MISSING,,
-OLEDBConnection,Refreshing,"property, read-only",As Boolean,,MISSING,,
+OLEDBConnection,RefreshDate,"property, read-only",As Date,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,Refreshing,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,RefreshOnFileOpen,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,refreshOnLoad.
 OLEDBConnection,RefreshPeriod,property,As Long,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"interval, 0 by default."
-OLEDBConnection,RetrieveInOfficeUILang,property,As Boolean,,MISSING,,
-OLEDBConnection,RobustConnect,property,As XlRobustConnect,,MISSING,,
+OLEDBConnection,RetrieveInOfficeUILang,property,As Boolean,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,RobustConnect,property,As XlRobustConnect,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,SaveAsODC,method,"SaveAsODC(ODCFileName As String, [Description As Variant], [Keywords As Variant])",,MISSING,,
 OLEDBConnection,SavePassword,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,savePassword.
 OLEDBConnection,ServerCredentialsMethod,property,As XlCredentialsMethod,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCredentialsMethodIntegrated; other methods unsupported.
-OLEDBConnection,ServerFillColor,property,As Boolean,,MISSING,,
-OLEDBConnection,ServerFontStyle,property,As Boolean,,MISSING,,
-OLEDBConnection,ServerNumberFormat,property,As Boolean,,MISSING,,
-OLEDBConnection,ServerSSOApplicationID,property,As String,,MISSING,,
-OLEDBConnection,ServerTextColor,property,As Boolean,,MISSING,,
+OLEDBConnection,ServerFillColor,property,As Boolean,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,ServerFontStyle,property,As Boolean,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,ServerNumberFormat,property,As Boolean,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,ServerSSOApplicationID,property,As String,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+OLEDBConnection,ServerTextColor,property,As Boolean,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,SourceConnectionFile,property,As String,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"odcFile, empty by default."
-OLEDBConnection,SourceDataFile,property,As String,,MISSING,,
+OLEDBConnection,SourceDataFile,property,As String,no setter,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 OLEDBConnection,UseLocalConnection,property,As Boolean,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
 Outline,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,AutomaticStyles,property,As Boolean,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
@@ -2165,7 +2165,7 @@ Queries,Add,method,"Add(Name As String, Formula As String, [Description As Varia
 Queries,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,The application.
 Queries,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Queries,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Queries,FastCombine,property,As Boolean,,MISSING,,
+Queries,FastCombine,property,As Boolean,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 Queries,Item,method,Item(NameOrIndex As Variant) As WorkbookQuery,no NameOrIndex,PARTIAL,tests/fixtures/unassessed_members.json; tests/test_excel_unassessed_members.py,By name or number; a number out of range raises -2147352565.
 Queries,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,The workbook.
 Range,_Default,property,As Variant,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Read with no index raises 438; with one, Item; set, Value."
@@ -2394,7 +2394,7 @@ Scenarios,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/hidden_
 Scenarios,Add,method,"Add(Name As String, ChangingCells As Variant, [Values As Variant], [Comment As Variant], [Locked As Variant], [Hidden As Variant]) As Scenario",,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"Values kept as text, the cells' own for those left out; Excel's ""Created by"" comment; unlocked on a protected sheet when Locked is left out; 1004 for an empty, long or repeated name, a formula, or one Integer value."
 Scenarios,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The application.
 Scenarios,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,How many the sheet has.
-Scenarios,CreateSummary,method,"CreateSummary([ReportType As XlSummaryReportType], [ResultCells As Variant]) As Variant",,MISSING,,
+Scenarios,CreateSummary,method,"CreateSummary([ReportType As XlSummaryReportType], [ResultCells As Variant]) As Variant",,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 Scenarios,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,xlCreatorCode.
 Scenarios,Item,method,Item(Index As Variant) As Scenario,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,By number or by name ignoring case; one that is not there is 1004.
 Scenarios,Merge,method,Merge(Source As Variant) As Variant,,MISSING,,
@@ -3018,7 +3018,7 @@ UserAccess,Creator,not in the type library,,,PARTIAL,tests/fixtures/allow_edit_r
 UserAccess,Delete,method,Delete(),,MISSING,,
 UserAccess,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
 UserAccessList,_Default,"property, read-only",As UserAccess,,MISSING,,
-UserAccessList,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+UserAccessList,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 UserAccessList,Add,method,"Add(Name As String, AllowEdit As Boolean) As UserAccess",,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
 UserAccessList,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
 UserAccessList,Creator,not in the type library,,,PARTIAL,tests/fixtures/allow_edit_ranges.json; tests/test_excel_allow_edit_ranges.py,Measured live with its write gate and what a save writes. Users takes Everyone; other accounts report themselves.
@@ -3175,7 +3175,7 @@ Workbook,CanCheckIn,method,CanCheckIn() As Boolean,,PARTIAL,tests/fixtures/workb
 Workbook,CaseSensitive,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 450 to set.
 Workbook,ChangeFileAccess,method,"ChangeFileAccess(Mode As XlFileAccess, [WritePassword As Variant], [Notify As Variant])",,MISSING,,
 Workbook,ChangeHistoryDuration,property,As Long,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"0 for a workbook that is not shared; a set changes nothing, as in Excel."
-Workbook,ChangeLink,method,"ChangeLink(Name As String, NewName As String, [Type As XlLinkType])",,MISSING,,
+Workbook,ChangeLink,method,"ChangeLink(Name As String, NewName As String, [Type As XlLinkType])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"Points a link at another workbook in the same folder, joins links, numbers them by name and saves as Excel does. A new name without a folder, a link read through its workbook's names or across sheets, and saving a link to another folder report themselves."
 Workbook,ChartDataPointTrack,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"True; text is error 13, and setting it reports itself unsupported."
 Workbook,Charts,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/empty_collections.json; tests/test_excel_empty_collections.py,"Empty: the model holds no chart sheets, and a workbook with one is refused as it opens."
 Workbook,CheckCompatibility,property,As Boolean,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"False for a new workbook; takes a Boolean, leaving the workbook unsaved; saved as the workbookPr's checkCompatibility and read back. It checks nothing."
@@ -3254,7 +3254,7 @@ Workbook,NewChart,event,NewChart(Ch As Chart),,MISSING,,
 Workbook,NewSheet,event,NewSheet(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for a sheet added, before the sheet left deactivates and the new one activates."
 Workbook,NewWindow,method,NewWindow() As Window,,MISSING,,
 Workbook,Open,event,Open(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when a workbook opens, before the application's WorkbookOpen and its activation."
-Workbook,OpenLinks,method,"OpenLinks(Name As String, [ReadOnly As Variant], [Type As Variant])",,MISSING,,
+Workbook,OpenLinks,method,"OpenLinks(Name As String, [ReadOnly As Variant], [Type As Variant])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"Opens the files named, on a workbook that has links, over 22 live cases."
 Workbook,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,Password,property,As String,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py; tests/test_excel_workbook_properties.py,Reads ******** as Excel does; setting a password is refused.
 Workbook,PasswordEncryptionAlgorithm,"property, read-only",As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
@@ -3310,7 +3310,7 @@ Workbook,SendMailer,method,"SendMailer([FileFormat As Variant], [Priority As XlP
 Workbook,SensitivityLabel,"property, read-only",As ISensitivityLabel,,MISSING,,
 Workbook,ServerPolicy,"property, read-only",As ServerPolicy,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,ServerViewableItems,"property, read-only",As ServerViewableItems,,MISSING,,
-Workbook,SetLinkOnData,method,"SetLinkOnData(Name As String, [Procedure As Variant])",,MISSING,,
+Workbook,SetLinkOnData,method,"SetLinkOnData(Name As String, [Procedure As Variant])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"For DDE and OLE links, which the model does not keep; does nothing, as Excel does for a workbook link."
 Workbook,SetPasswordEncryptionOptions,method,"SetPasswordEncryptionOptions([PasswordEncryptionProvider As Variant], [PasswordEncryptionAlgorithm As Variant], [PasswordEncryptionKeyLength As Variant], [PasswordEncryptionFileProperties As Variant])",,MISSING,,
 Workbook,SharedWorkspace,"property, read-only",As SharedWorkspace,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,SheetActivate,event,SheetActivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised when another sheet or workbook is made active, after the one left deactivates. Raised after the sheet's own, the sheet first among the arguments."
@@ -3346,7 +3346,7 @@ Workbook,ToggleFormsDesign,method,ToggleFormsDesign(),,MISSING,,
 Workbook,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/workbook_protection.json,"The password matched case and all, any opening a workbook that has none; given none where Excel would ask in a dialog, it reports itself unsupported."
 Workbook,UnprotectSharing,method,UnprotectSharing([SharingPassword As Variant]),,MISSING,,
 Workbook,UpdateFromFile,method,UpdateFromFile(),,MISSING,,
-Workbook,UpdateLink,method,"UpdateLink([Name As Variant], [Type As Variant])",,MISSING,,
+Workbook,UpdateLink,method,"UpdateLink([Name As Variant], [Type As Variant])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"Reads a closed workbook into the link, as Excel does over 30 live cases, and saves its values as Excel saves them."
 Workbook,UpdateLinks,property,As XlUpdateLinks,,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"Reads the file's updateLinks and takes 1 to 3, rounded as a Long, else 1004, leaving the workbook saved; saved as never or always, measured live. It changes nothing the model opens."
 Workbook,UpdateRemoteReferences,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"True; text is error 1004, and setting it reports itself unsupported."
 Workbook,UserStatus,"property, read-only",As Variant,,MISSING,,
@@ -3372,17 +3372,17 @@ Workbook,XmlNamespaces,"property, read-only",As XmlNamespaces,,PARTIAL,tests/fix
 WorkbookConnection,_Default,property,As String,,MISSING,,
 WorkbookConnection,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
 WorkbookConnection,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
-WorkbookConnection,DataFeedConnection,"property, read-only",As DataFeedConnection,,MISSING,,
-WorkbookConnection,Delete,method,Delete(),,MISSING,,
-WorkbookConnection,Description,property,As String,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"description, empty where none."
+WorkbookConnection,DataFeedConnection,"property, read-only",As DataFeedConnection,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+WorkbookConnection,Delete,method,Delete(),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+WorkbookConnection,Description,property,As String,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"description, empty where none."
 WorkbookConnection,InModel,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
 WorkbookConnection,ModelConnection,"property, read-only",As ModelConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
-WorkbookConnection,ModelTables,"property, read-only",As ModelTables,,MISSING,,
-WorkbookConnection,Name,property,As String,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,name.
+WorkbookConnection,ModelTables,"property, read-only",As ModelTables,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+WorkbookConnection,Name,property,As String,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,name.
 WorkbookConnection,ODBCConnection,"property, read-only",As ODBCConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
 WorkbookConnection,OLEDBConnection,"property, read-only",As OLEDBConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Its OLEDBConnection.
 WorkbookConnection,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The workbook.
-WorkbookConnection,Ranges,"property, read-only",As Ranges,,MISSING,,
+WorkbookConnection,Ranges,"property, read-only",As Ranges,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 WorkbookConnection,Refresh,method,Refresh(),,MISSING,,
 WorkbookConnection,RefreshWithRefreshAll,property,As Boolean,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,True; a connection with an extension unsupported.
 WorkbookConnection,TextConnection,"property, read-only",As TextConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
@@ -3401,16 +3401,16 @@ Workbooks,_Default,"property, read-only",As Workbook,,PARTIAL,tests/fixtures/hid
 Workbooks,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 Workbooks,Add,method,Add([Template As Variant]) As Workbook,,PARTIAL,tests/fixtures/workbook_copy.json; tests/test_excel_workbook_names.py; tests/fixtures/workbook_names.json,"Template other than a worksheet workbook reports unsupported. Book and its own number with no template, Sheet and its own with xlWBATWorksheet, as Excel names them."
 Workbooks,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Workbooks,CanCheckOut,method,CanCheckOut(Filename As String) As Boolean,,MISSING,,
-Workbooks,CheckOut,method,CheckOut(Filename As String),,MISSING,,
+Workbooks,CanCheckOut,method,CanCheckOut(Filename As String) As Boolean,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+Workbooks,CheckOut,method,CheckOut(Filename As String),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 Workbooks,Close,method,Close(),,MISSING,,
 Workbooks,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/unassessed_members.json; tests/test_excel_unassessed_members.py,Read.
 Workbooks,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Workbooks,Item,"property, read-only",As Workbook,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbooks,Open,method,"Open(Filename As String, [UpdateLinks As Variant], [ReadOnly As Variant], [Format As Variant], [Password As Variant], [WriteResPassword As Variant], [IgnoreReadOnlyRecommended As Variant], [Origin As Variant], [Delimiter As Variant], [Editable As Variant], [Notify As Variant], [Converter As Variant], [AddToMru As Variant], [Local As Variant], [CorruptLoad As Variant]) As Workbook",,PARTIAL,tests/fixtures/workbook_open.json; tests/test_excel_projects.py; tests/test_excel_workbook.py; tests/fixtures/text_files.json,"Independent source import and 4 native open/activation traces; native gates execute persisted handlers. CSV and text files open as Excel reads them over 76 live files and 12 opens in sequence: splitting, quotes, sep= lines, typing, encodings, names, the delimiter Format leaves for later text files, ReadOnly, and the errors for a missing or invalid file. UpdateLinks, Password and the rest are taken and change nothing for the files the model opens. Origin other than xlWindows, CorruptLoad other than xlNormalLoad, a Converter, Excel 97-2003 workbooks, text files holding a NUL and a workbook holding a chart sheet, a dialog sheet or an Excel 4 macro sheet report themselves unsupported."
-Workbooks,OpenDatabase,method,"OpenDatabase(Filename As String, [CommandText As Variant], [CommandType As Variant], [BackgroundQuery As Variant], [ImportDataAs As Variant]) As Workbook",,MISSING,,
+Workbooks,OpenDatabase,method,"OpenDatabase(Filename As String, [CommandText As Variant], [CommandType As Variant], [BackgroundQuery As Variant], [ImportDataAs As Variant]) As Workbook",,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 Workbooks,OpenText,method,"OpenText(Filename As String, [Origin As Variant], [StartRow As Variant], [DataType As Variant], [TextQualifier As XlTextQualifier], [ConsecutiveDelimiter As Variant], [Tab As Variant], [Semicolon As Variant], [Comma As Variant], [Space As Variant], [Other As Variant], [OtherChar As Variant], [FieldInfo As Variant], [TextVisualLayout As Variant], [DecimalSeparator As Variant], [ThousandsSeparator As Variant], [TrailingMinusNumbers As Variant], [Local As Variant])",,PARTIAL,tests/fixtures/open_text.json,"Every argument as Excel takes it over 44 live files: delimiters, runs of them, qualifiers, StartRow, FieldInfo's kinds and fixed widths, separators, a trailing minus and the code pages xlWindows, xlMSDOS, 1252 and 65001, a .csv read as Workbooks.Open reads one; the delimiters, ConsecutiveDelimiter and Origin left out are the session's, as OpenText, TextToColumns and Workbooks.Open's Format last set them. DataType left out of text Excel may read as fixed width, fixed widths without FieldInfo, a field of 32,759 characters or more and the Macintosh code page past ASCII report themselves unsupported."
-Workbooks,OpenXML,method,"OpenXML(Filename As String, [Stylesheets As Variant], [LoadOption As Variant]) As Workbook",,MISSING,,
+Workbooks,OpenXML,method,"OpenXML(Filename As String, [Stylesheets As Variant], [LoadOption As Variant]) As Workbook",,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 Workbooks,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,_CodeName,property,As String,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"Answers the error value #NAME? (2029), not the code name; setting it raises 424."
 Worksheet,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Takes no name and answers the error value #NAME? (2029); given a name it raises 450.

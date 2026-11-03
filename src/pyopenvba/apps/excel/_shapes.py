@@ -2405,7 +2405,7 @@ class TextFrame(_TextLayout):
 
     @member
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
-        return Characters(self.owner)
+        return Characters(self.owner, Start is not MISSING or Length is not MISSING)
 
     @member
     def AutoSize(self) -> object:
@@ -2646,9 +2646,16 @@ class Characters(_Drawn):
 
     vba_type_name = "Characters"
 
-    def __init__(self, shape: ShapeObject) -> None:
+    def __init__(self, shape: ShapeObject, partial: bool = False) -> None:
         self.owner = shape
         self.sheet = shape.sheet
+        self.partial = partial
+
+    @member
+    def Font(self) -> object:
+        if self.partial:
+            raise _unsupported("the Font of some of a shape's characters")
+        return ShapeFont(self)
 
     @member(default=True)
     def Text(self) -> object:
@@ -2662,6 +2669,225 @@ class Characters(_Drawn):
     @member
     def Count(self) -> object:
         return VBAInt(len(self.owner.shape.text), "Long")
+
+
+#: What Characters.Font writes for each Underline it takes.
+_FONT_UNDERLINES = {2: "words", -4119: "dbl", -4142: "none"}
+#: A font name's attributes in the file, for those measured. Others would need the font's own data, and report themselves.
+_FONT_LATIN = {"Arial": '<a:latin typeface="Arial" panose="020B0604020202020204" pitchFamily="34" charset="0"/>',
+               "": '<a:latin typeface=""/>'}
+
+
+class ShapeFont(Created):
+    """All of a shape's text's font (tests/fixtures/shape_font.json)."""
+
+    vba_type_name = "Font"
+
+    def __init__(self, characters: Characters) -> None:
+        self.characters = characters
+        self.frame = TextFrame(characters.owner)
+
+    def look(self) -> TextLook:
+        return self.frame._look()  # pyright: ignore[reportPrivateUsage]
+
+    def changed(self) -> TextLook:
+        return self.frame._changed()  # pyright: ignore[reportPrivateUsage]
+
+    def text_box(self) -> bool:
+        return self.characters.owner.shape.kind == "textBox"
+
+    @member
+    def Parent(self) -> object:
+        return self.characters
+
+    @member
+    def Bold(self) -> object:
+        return bool(self.look().font_bold)
+
+    @setter("Bold")
+    def _bold(self, value: object) -> None:
+        self.changed().font_bold = bool(to_number(value))
+
+    @member
+    def Italic(self) -> object:
+        return bool(self.look().font_italic)
+
+    @setter("Italic")
+    def _italic(self, value: object) -> None:
+        self.changed().font_italic = bool(to_number(value))
+
+    @member
+    def Size(self) -> object:
+        size = self.look().font_size
+        return VBAInt(int(size), "Long") if size == int(size) else size
+
+    @setter("Size")
+    def _size(self, value: object) -> None:
+        wanted = float(to_number(value))
+        # A size of 0 is left alone; others below the measured 10.5 go through as given.
+        if wanted > 0:
+            self.changed().font_size = wanted
+
+    @member
+    def Name(self) -> object:
+        latin = self.look().font_latin
+        return "Aptos Narrow" if latin is None else next(name for name, markup in _FONT_LATIN.items() if markup == latin)
+
+    @setter("Name")
+    def _name(self, value: object) -> None:
+        wanted = to_text(value)
+        if wanted not in _FONT_LATIN:
+            raise _unsupported(f"the font {wanted!r} in a shape")
+        self.changed().font_latin = _FONT_LATIN[wanted]
+
+    @member
+    def Color(self) -> object:
+        look = self.look()
+        if look.font_rgb is not None:
+            red, green, blue = (int(look.font_rgb[at:at + 2], 16) for at in (0, 2, 4))
+            return VBAInt(red | green << 8 | blue << 16, "Long")
+        return VBAInt(0 if self.text_box() else 16777215, "Long")
+
+    @setter("Color")
+    def _color(self, value: object) -> None:
+        colour = int(to_number(value)) & 0xFFFFFF
+        look = self.changed()
+        look.font_rgb, look.font_index, look.font_tint = f"{colour & 255:02X}{colour >> 8 & 255:02X}{colour >> 16 & 255:02X}", None, None
+
+    @member
+    def ColorIndex(self) -> object:
+        look = self.look()
+        if look.font_index is not None:
+            return VBAInt(look.font_index - 7, "Long")
+        if look.font_rgb is None:
+            return VBAInt(-4105 if self.text_box() else 2, "Long")
+        if look.font_rgb == "000000":
+            return VBAInt(-4105, "Long")
+        palette = self.characters.owner.sheet.book.stylesheet.colors.indexed[8:64]
+        if look.font_rgb not in palette:
+            raise _unsupported("the ColorIndex of a font colour not in the palette")
+        return VBAInt(palette.index(look.font_rgb) + 1, "Long")
+
+    @setter("ColorIndex")
+    def _color_index(self, value: object) -> None:
+        wanted = int(to_number(value))
+        look = self.changed()
+        if wanted == -4105:
+            look.font_rgb, look.font_index, look.font_tint = "000000", None, None
+            return
+        palette = self.characters.owner.sheet.book.stylesheet.colors.indexed[8:64]
+        if not 1 <= wanted <= len(palette):
+            raise _unsupported("this ColorIndex of a shape's font")
+        look.font_rgb, look.font_index, look.font_tint = palette[wanted - 1], wanted + 7, None
+
+    @member
+    def Underline(self) -> object:
+        chosen = self.look().font_underline
+        return VBAInt(-4142 if chosen is None else next(key for key, name in _FONT_UNDERLINES.items() if name == chosen), "Long")
+
+    @setter("Underline")
+    def _underline(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in _FONT_UNDERLINES:
+            raise _unsupported("this Underline of a shape's font")
+        self.changed().font_underline = _FONT_UNDERLINES[wanted]
+
+    @member
+    def Strikethrough(self) -> object:
+        return self.look().font_strike
+
+    @setter("Strikethrough")
+    def _strikethrough(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Strikethrough off a shape's font")
+        self.changed().font_strike = True
+
+    @member
+    def Superscript(self) -> object:
+        return self.look().font_baseline == 30000
+
+    @setter("Superscript")
+    def _superscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Superscript off a shape's font")
+        self.changed().font_baseline = 30000
+
+    @member
+    def Subscript(self) -> object:
+        return self.look().font_baseline == -25000
+
+    @setter("Subscript")
+    def _subscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Subscript off a shape's font")
+        self.changed().font_baseline = -25000
+
+    @member
+    def FontStyle(self) -> object:
+        look = self.look()
+        return {(False, False): "Regular", (True, False): "Bold", (False, True): "Italic", (True, True): "Bold Italic"}[
+            (bool(look.font_bold), bool(look.font_italic))]
+
+    @setter("FontStyle")
+    def _font_style(self, value: object) -> None:
+        styles = {"Regular": (False, False), "Bold": (True, False), "Italic": (False, True), "Bold Italic": (True, True)}
+        wanted = to_text(value)
+        if wanted not in styles:
+            raise _unsupported(f"the FontStyle {wanted!r} of a shape's font")
+        look = self.changed()
+        look.font_bold, look.font_italic = styles[wanted]
+
+    @member
+    def ThemeColor(self) -> object:
+        raise error(1004, "Unable to get the ThemeColor property of the Font class")
+
+    @setter("ThemeColor")
+    def _theme_color(self, value: object) -> None:
+        raise error(1004, "Unable to set the ThemeColor property of the Font class")
+
+    @member
+    def TintAndShade(self) -> object:
+        tint = self.look().font_tint
+        return VBASingle(0.0 if tint is None else 1 - tint / 100000)
+
+    @setter("TintAndShade")
+    def _tint_and_shade(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        if self.text_box() or wanted <= 0:
+            raise _unsupported("this TintAndShade of a shape's font")
+        look = self.changed()
+        look.font_tint, look.font_rgb, look.font_index = round((1 - wanted) * 100000), None, None
+
+    @member
+    def ThemeFont(self) -> object:
+        return VBAInt(0, "Long")
+
+    @setter("ThemeFont")
+    def _theme_font(self, value: object) -> None:
+        raise error(1004, "Unable to set the ThemeFont property of the Font class")
+
+    @member
+    def OutlineFont(self) -> object:
+        return VBAInt(19, "Long")
+
+    @setter("OutlineFont")
+    def _outline_font(self, value: object) -> None:
+        # It changes nothing.
+        self.look()
+
+    @member
+    def Shadow(self) -> object:
+        return self.look().font_shadow
+
+    @setter("Shadow")
+    def _shadow(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Shadow off a shape's font")
+        self.changed().font_shadow = True
+
+    @member
+    def Background(self) -> object:
+        raise error(1004, "Unable to get the Background property of the Font class")
 
 
 class ControlFormat(_Drawn):

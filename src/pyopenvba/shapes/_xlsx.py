@@ -1249,6 +1249,32 @@ def _free_geometry(shape: Shape) -> str:
             f'<a:path w="{emu(shape.width)}" h="{emu(shape.height)}">{steps}</a:path></a:pathLst></a:custGeom>')
 
 
+def _font_markup(look: TextLook) -> tuple[str, str]:
+    """What Characters.Font writes on a run or a paragraph's end: its attributes and its children."""
+    attributes = f' sz="{round(look.font_size * 100)}"'
+    if look.font_bold is not None:
+        attributes += f' b="{1 if look.font_bold else 0}"'
+    if look.font_italic is not None:
+        attributes += f' i="{1 if look.font_italic else 0}"'
+    if look.font_underline is not None:
+        attributes += f' u="{look.font_underline}"'
+    if look.font_strike:
+        attributes += ' strike="sngStrike"'
+    if look.font_baseline is not None:
+        attributes += f' baseline="{look.font_baseline}"'
+    children = ""
+    if look.font_rgb is not None:
+        children += f'<a:solidFill>{_colour(look.font_rgb, "", 0, None, (), look.font_index)}</a:solidFill>'
+    elif look.font_tint is not None:
+        children += f'<a:solidFill><a:schemeClr val="lt1"><a:tint val="{look.font_tint}"/></a:schemeClr></a:solidFill>'
+    if look.font_shadow:
+        children += ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0">'
+                     '<a:scrgbClr r="0" g="0" b="0"/></a:outerShdw></a:effectLst>')
+    if look.font_latin is not None:
+        children += look.font_latin
+    return attributes, children
+
+
 def _laid_out(body: str, look: TextLook) -> str:
     """A new shape's txBody with the layout TextFrame gave it: bodyPr's attributes in the schema's order, and each
     paragraph's algn and rtl (tests/fixtures/text_frame.json)."""
@@ -1277,6 +1303,11 @@ def _laid_out(body: str, look: TextLook) -> str:
     body = re.sub(r"<a:bodyPr\b[^>]*/>", lambda _: head, body, count=1)
     if look.deleted:
         body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US"/>')
+    attributes, children = _font_markup(look)
+    if attributes != ' sz="1100"' or children:
+        for tag in ("a:rPr", "a:endParaRPr"):
+            body = body.replace(f'<{tag} lang="en-US" sz="1100"/>', f'<{tag} lang="en-US"{attributes}>{children}</{tag}>'
+                                if children else f'<{tag} lang="en-US"{attributes}/>')
     settings = (f' algn="{look.align}"' if look.align else "") + (
         "" if look.rtl is None else f' rtl="{1 if look.rtl else 0}"')
     paragraph = f"<a:p><a:pPr{settings}/>" if settings else "<a:p>"

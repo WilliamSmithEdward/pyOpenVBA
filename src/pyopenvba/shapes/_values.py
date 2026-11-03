@@ -199,6 +199,20 @@ class TextLook:
     anchor_center: bool | None = None
     upright: bool = False
     wrap: str | None = None
+    #: Characters.Font on all the text, as the runs write it (tests/fixtures/shape_font.json): the attributes in the
+    #: file's order, each None until set; the colour as RGB, with SchemeColor-like index or a tint of the style's own; a
+    #: shadow; and the latin font's own attributes.
+    font_size: float = 11.0
+    font_bold: bool | None = None
+    font_italic: bool | None = None
+    font_underline: str | None = None
+    font_strike: bool = False
+    font_baseline: int | None = None
+    font_rgb: str | None = None
+    font_index: int | None = None
+    font_tint: int | None = None
+    font_shadow: bool = False
+    font_latin: str | None = None
     #: TextFrame2.Column: bodyPr's numCol, and its spcCol in points (tests/fixtures/shape_columns.json).
     columns: int = 1
     column_spacing: float = 0.0

@@ -20,6 +20,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Shadow`, `Font`, `Characters`, `Delete`, and a fill through `Format`. What is set of a
   label stands apart from its series' labels and saves as Excel writes it. `AutoText =
   False`, a formula, and a label's place and size are refused.
+- `ADODB.Stream`: bytes and text in memory through its charsets, as live Excel
+  answers them. `SaveToFile` and `LoadFromFile` need `sandbox=False`.
 - Text files and the file system from VBA with `sandbox=False`: `Open` for Input,
   Output and Append, `Print #`, `Write #`, `Input #`, `Line Input #`, `Close`,
   `Seek`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `Kill`, `MkDir`, `RmDir`,

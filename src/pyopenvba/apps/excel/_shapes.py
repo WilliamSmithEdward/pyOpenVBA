@@ -455,6 +455,19 @@ class ShapeRange(VBACollection, Created):
         return list(self.shapes)
 
     @member
+    def Adjustments(self, Index: object = MISSING) -> object:
+        found = RangeAdjustments(self)
+        return found if Index is MISSING else found.vba_call("Item", (Index,))
+
+    @setter("Adjustments")
+    def _adjustments(self, Index: object, value: object) -> None:
+        RangeAdjustments(self).vba_set("Item", value, (Index,))
+
+    @member
+    def ConnectorFormat(self) -> object:
+        return RangeConnector(self)
+
+    @member
     def Type(self) -> object:
         kinds = {shape.shape.mso_type for shape in self.shapes}
         return VBAInt(next(iter(kinds)) if len(kinds) == 1 else -2, 'Long')
@@ -1652,6 +1665,74 @@ class Adjustments(Created):
         values[at] = written
         self.owner.restyled()
         self.owner.shape.adjustments = None if values == [default for _, default, _ in table] else tuple(values)
+
+
+class RangeAdjustments(Created):
+    """A ShapeRange's Adjustments (tests/fixtures/shape_range_more_format.json): what its shapes share, or the mixed
+    value. Past any shape's end is error 5, and a set stops there, the shapes before it having taken it."""
+
+    vba_type_name = "Adjustments"
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    def parts(self) -> list[Adjustments]:
+        return [Adjustments(one) for one in self.range.shapes]
+
+    @member
+    def Parent(self) -> object:
+        return self.range
+
+    @member
+    def Count(self) -> object:
+        counts = [part.vba_get("Count") for part in self.parts()]
+        return counts[0] if all(one == counts[0] for one in counts) else VBAInt(-2147483648, "Long")
+
+    @member(default=True, kind="method")
+    def Item(self, Index: object = MISSING) -> object:
+        found = [part.vba_call("Item", (Index,)) for part in self.parts()]
+        return found[0] if all(one == found[0] for one in found) else VBASingle(-2147483648.0)
+
+    @setter("Item")
+    def _item(self, Index: object, value: object) -> None:
+        for part in self.parts():
+            part.vba_set("Item", value, (Index,))
+
+
+class RangeConnector(Created):
+    """A ShapeRange's ConnectorFormat (tests/fixtures/shape_range_more_format.json): reads its first line's, and is
+    out of range with no line among them. Setting its Type is always out of range."""
+
+    vba_type_name = "ConnectorFormat"
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    def first(self) -> ConnectorFormat:
+        for one in self.range.shapes:
+            if one.shape.kind == "line":
+                return ConnectorFormat(one)
+        raise error(-2147024809, "The specified value is out of range.")
+
+    @member
+    def Parent(self) -> object:
+        return self.range
+
+    @member
+    def Type(self) -> object:
+        return self.first().vba_get("Type")
+
+    @setter("Type")
+    def _type(self, value: object) -> None:
+        raise error(-2147024809, "The specified value is out of range.")
+
+    @member
+    def BeginConnected(self) -> object:
+        return self.first().vba_get("BeginConnected")
+
+    @member
+    def EndConnected(self) -> object:
+        return self.first().vba_get("EndConnected")
 
 
 class ConnectorFormat(Created):

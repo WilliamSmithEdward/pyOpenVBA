@@ -586,15 +586,19 @@ class LineFormat(_Format):
         self.alone()
         table = ARROW_STYLES if part == 0 else ARROW_SIZES
         wanted = int(to_integer(value, "Long"))
-        before = self.kept()
+        self.kept()
         # Only an open line has ends to put arrowheads on.
         if self.shape.kind != "line" or wanted not in table:
             raise error(*_INVALID)
+        self.put_arrow(end, part, table[wanted])
+
+    def put_arrow(self, end: str, part: int, written: str) -> None:
+        before = self.kept()
         if before.line_ends and part:
             raise _unmeasured("The size of an arrowhead on a line written out with its ends")
         look = self.change()
         ends = list(getattr(look, f"line_{end}"))
-        ends[part] = table[wanted]
+        ends[part] = written
         setattr(look, f"line_{end}", tuple(ends))
 
     @member
@@ -1356,6 +1360,36 @@ def _tint(wanted: float) -> tuple[tuple[str, int], ...]:
     return (("tint", round((1 - wanted) * 100000)),) if wanted > 0 else (("shade", round((1 + wanted) * 100000)),)
 
 
+class RangeStops(Created):
+    """A ShapeRange's GradientStops (tests/fixtures/shape_range_more_format.json): the first gradient's count, and a
+    stop added or deleted on each. A single stop through a range was not measured."""
+
+    vba_type_name = "GradientStops"
+
+    def __init__(self, fill: RangeFill) -> None:
+        self.fill = fill
+
+    def each(self) -> list[GradientStops]:
+        return [GradientStops(part) for part in self.fill.bearers()]
+
+    @member(default=True, kind="method")
+    def Item(self, index: object) -> object:
+        raise VBAUnsupportedError("A single gradient stop through a ShapeRange is not implemented")
+
+    @member
+    def Count(self) -> object:
+        graded = self.fill.graded()
+        if not graded:
+            raise error(*_INVALID)
+        return GradientStops(graded[0]).vba_get("Count")
+
+    @method
+    def Insert(self, rgb: object, position: object, transparency: object = MISSING, index: object = MISSING) -> object:
+        for stops in self.each():
+            stops.Insert(rgb, position, transparency, index)
+        return EMPTY
+
+
 def _scheme_number(scheme: str) -> int:
     return next(number for number, name in SCHEMES.items() if name == scheme)
 
@@ -1379,6 +1413,110 @@ class RangeFill(FillFormat):
     def alone(self) -> None:
         raise VBAUnsupportedError("This member of a ShapeRange's fill is not implemented")
 
+    def each(self, name: str, *args: object) -> object:
+        """A method on each shape with a fill. A range of lines alone was not measured."""
+        if not any(part.filled() for part in self.parts()):
+            raise _unmeasured("This fill method on a range of lines")
+        for part in self.bearers():
+            part.vba_call(name, args)
+        return EMPTY
+
+    @method
+    def Patterned(self, pattern: object) -> object:
+        return self.each("Patterned", pattern)
+
+    @member
+    def Pattern(self) -> object:
+        return _alike([part.vba_get("Pattern") for part in self.bearers()], VBAInt(-2, "Long"))
+
+    @method
+    def TwoColorGradient(self, style: object, variant: object) -> object:
+        self.each("TwoColorGradient", style, variant)
+        # A line among them takes the gradient too, though it reads as having no fill.
+        made = self.bearers()[0].look().fill_gradient
+        for part in self.parts():
+            if not part.filled():
+                self.lined_with(part, made)
+        return EMPTY
+
+    def lined_with(self, part: FillFormat, made: FillGradient | None) -> None:
+        part.owner.guard("Fill")
+        if part.shape.fill_line is None:
+            part.shape.fill_line = FillLine()
+        part.shape.fill_line.fill_gradient = made
+        part.owner.restyled()
+
+    def only_filled(self, what: str) -> None:
+        if any(not part.filled() for part in self.parts()):
+            raise _unmeasured(f"{what} on a range with a line")
+
+    @method
+    def OneColorGradient(self, style: object, variant: object, degree: object) -> object:
+        self.only_filled("OneColorGradient")
+        return self.each("OneColorGradient", style, variant, degree)
+
+    @method
+    def PresetGradient(self, style: object, variant: object, preset: object) -> object:
+        self.only_filled("PresetGradient")
+        return self.each("PresetGradient", style, variant, preset)
+
+    def graded(self) -> list[FillFormat]:
+        return [part for part in self.bearers() if part.look().fill_gradient is not None]
+
+    @member
+    def GradientColorType(self) -> object:
+        # Shapes with no gradient do not count here, as they do in the rest.
+        return _alike([part.vba_get("GradientColorType") for part in self.graded()] or [VBAInt(-2, "Long")],
+                      VBAInt(-2, "Long"))
+
+    @member
+    def GradientStyle(self) -> object:
+        return _alike([part.vba_get("GradientStyle") for part in self.bearers()], VBAInt(-2, "Long"))
+
+    @member
+    def GradientVariant(self) -> object:
+        if self.vba_get("GradientStyle") == -2:
+            return VBAInt(0, "Long")
+        return _alike([part.vba_get("GradientVariant") for part in self.bearers()], VBAInt(0, "Long"))
+
+    @member
+    def GradientDegree(self) -> object:
+        found = [part.vba_get("GradientDegree") for part in self.bearers()]
+        if any(one != found[0] for one in found[1:]):
+            raise error(70, "Permission denied")
+        return found[0]
+
+    @member
+    def PresetGradientType(self) -> object:
+        return _alike([part.vba_get("PresetGradientType") for part in self.bearers()], VBAInt(-2, "Long"))
+
+    @member
+    def GradientAngle(self) -> object:
+        found = [part.vba_get("GradientAngle") for part in self.bearers()]
+        if any(one != found[0] for one in found[1:]):
+            raise error(-2147467259, "Method 'GradientAngle' of object 'FillFormat' failed")
+        return found[0]
+
+    @setter("GradientAngle")
+    def _gradient_angle(self, value: object) -> None:
+        for part in self.bearers():
+            part.vba_set("GradientAngle", value)
+
+    @member
+    def RotateWithObject(self) -> object:
+        if not self.agreed():
+            return VBAInt(-2, "Long")
+        return _alike([part.vba_get("RotateWithObject") for part in self.bearers()], VBAInt(-2, "Long"))
+
+    @setter("RotateWithObject")
+    def _rotate_with_object(self, value: object) -> None:
+        for part in self.bearers():
+            part.vba_set("RotateWithObject", value)
+
+    @member
+    def GradientStops(self) -> object:
+        return RangeStops(self)
+
     def parts(self) -> list[FillFormat]:
         on_sheet = self.owner.sheet.shapes_
         return [FillFormat(one) for one in self.range.shapes if any(shape is one.shape for shape in on_sheet)]
@@ -1388,7 +1526,8 @@ class RangeFill(FillFormat):
         return [part for part in parts if part.filled()] or parts
 
     def agreed(self) -> bool:
-        return len({(part.look().fill_hidden, part.look().fill_bare) for part in self.bearers()}) == 1
+        return len({(part.look().fill_hidden, part.look().fill_bare, int(to_integer(part.vba_get("Type"), "Long")))
+                    for part in self.bearers()}) == 1
 
     def merged(self, name: str, mixed: object) -> object:
         if not self.agreed():
@@ -1476,6 +1615,41 @@ class RangeLine(LineFormat):
     def alone(self) -> None:
         raise VBAUnsupportedError("This member of a ShapeRange's line is not implemented")
 
+    def arrow(self, end: str, part: int) -> object:
+        return _alike([one.arrow(end, part) for one in self.parts()], VBAInt(-2, "Long"))
+
+    def set_arrow(self, end: str, part: int, value: object) -> None:
+        """Every shape takes it, a closed outline too, so long as one is a line."""
+        table = ARROW_STYLES if part == 0 else ARROW_SIZES
+        wanted = int(to_integer(value, "Long"))
+        parts = self.parts()
+        if not any(one.shape.kind == "line" for one in parts) or wanted not in table:
+            raise error(*_INVALID)
+        for one in parts:
+            one.put_arrow(end, part, table[wanted])
+
+    @member
+    def BackColor(self) -> object:
+        return RangeColor(self, fore=False)
+
+    @member
+    def Pattern(self) -> object:
+        # A line with no pattern does not count against one with a pattern.
+        found = [value for value in (part.vba_get("Pattern") for part in self.parts()) if value != -2]
+        return _alike(found or [VBAInt(-2, "Long")], VBAInt(-2, "Long"))
+
+    @setter("Pattern")
+    def _pattern(self, value: object) -> None:
+        self.spread("Pattern", value)
+
+    @member
+    def InsetPen(self) -> object:
+        return self.alike("InsetPen", VBAInt(-2, "Long"))
+
+    @setter("InsetPen")
+    def _inset_pen(self, value: object) -> None:
+        self.spread("InsetPen", value)
+
     def parts(self) -> list[LineFormat]:
         on_sheet = self.owner.sheet.shapes_
         return [LineFormat(one) for one in self.range.shapes if any(shape is one.shape for shape in on_sheet)]
@@ -1554,8 +1728,6 @@ class RangeColor(ColorFormat):
 
     def unit(self) -> tuple[object, object, object] | None:
         """The colour its shapes share, or None."""
-        if not self.fore:
-            raise VBAUnsupportedError("The theme colour and type of a range's back colour are not implemented")
         if not self.whole.agreed():
             return None
         found = [(part.vba_get("RGB"), part.vba_get("ObjectThemeColor"), part.vba_get("Type")) for part in self.parts()]
@@ -1579,19 +1751,51 @@ class RangeColor(ColorFormat):
     def _rgb(self, value: object) -> None:
         if isinstance(self.whole, RangeFill):
             self.whole.still("The colour")
-        if self.fore:
+        if self.fore or not isinstance(self.whole, RangeFill) or any(
+                part.look().fill_pattern is not None or part.look().fill_gradient is not None for part in self.whole.bearers()):
             for part in self.parts():
                 part.vba_set("RGB", value)
             return
         # A range's back colour changes no colour: it writes the fill out, as Solid does.
-        if not isinstance(self.whole, RangeFill) or any(part.shape.kind != "shape" for part in self.whole.bearers()):
+        if any(part.shape.kind != "shape" for part in self.whole.bearers()):
             raise _unmeasured("Setting the back colour of this range")
         for part in self.whole.bearers():
             part.vba_get("Solid")
 
+    def spread(self, name: str, value: object) -> None:
+        if isinstance(self.whole, RangeFill):
+            self.whole.still(name)
+        for part in self.parts():
+            part.vba_set(name, value)
+
+    def unit_read(self, name: str) -> object:
+        if self.unit() is None:
+            return VBASingle(_MIXED)
+        return _alike([part.vba_get(name) for part in self.parts()], VBASingle(_MIXED))
+
     @setter("ObjectThemeColor")
     def _object_theme_color(self, value: object) -> None:
-        self.whole.alone()
+        self.spread("ObjectThemeColor", value)
+
+    @member
+    def Brightness(self) -> object:
+        return self.unit_read("Brightness")
+
+    @setter("Brightness")
+    def _brightness(self, value: object) -> None:
+        self.spread("Brightness", value)
+
+    @member
+    def TintAndShade(self) -> object:
+        return self.unit_read("TintAndShade")
+
+    @setter("TintAndShade")
+    def _tint_and_shade(self, value: object) -> None:
+        self.spread("TintAndShade", value)
+
+    @setter("SchemeColor")
+    def _scheme_color(self, value: object) -> None:
+        self.spread("SchemeColor", value)
 
     @member
     def ObjectThemeColor(self) -> object:

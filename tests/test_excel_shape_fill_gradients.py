@@ -27,9 +27,6 @@ UNMEASURED = ['sh.Fill.TwoColorGradient 1, 1: sh.Fill.Transparency = 0.5: sh.Fil
               'sh.Fill.TwoColorGradient 1, 1: sh.Fill.ForeColor.SchemeColor = 3',
               'sh.Line.Visible = msoFalse: sh.Fill.TwoColorGradient 1, 1: sh.Fill.ForeColor.RGB = 255',
               'sh.Fill.TwoColorGradient 1, 1: sh.Fill.BackColor.Brightness = 0.4']
-RANGE_UNMEASURED = ['r.Fill.TwoColorGradient 1, 1', 'r.Fill.OneColorGradient 1, 1, 0.5', 'r.Fill.PresetGradient 1, 1, 7',
-                    'Dim v: Set v = r.Fill.GradientStops', 'Dim v: v = r.Fill.GradientStyle',
-                    'Dim v: v = r.Fill.GradientAngle', 'r.Fill.RotateWithObject = msoFalse']
 
 
 def drawn(path: Path) -> str:
@@ -71,19 +68,6 @@ def test_an_unmeasured_combination_is_refused(statements: str) -> None:
                    f'    {statements}\nEnd Sub\n', name='Unmeasured')
     with pytest.raises(VBAUnsupportedError):
         app.run('Unmeasured.Go')
-
-
-@pytest.mark.parametrize('statements', RANGE_UNMEASURED)
-def test_a_range_refuses_a_gradient(statements: str) -> None:
-    app = ExcelApplication(sandbox=False)
-    app.add_workbook()
-    app.add_module('Public Sub Go()\n    Dim r As Object\n'
-                   '    ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40).Name = "a"\n'
-                   '    ActiveSheet.Shapes.AddShape(1, 20, 20, 100, 40).Name = "b"\n'
-                   '    Set r = ActiveSheet.Shapes.Range(Array("a", "b"))\n'
-                   f'    {statements}\nEnd Sub\n', name='Ranged')
-    with pytest.raises(VBAUnsupportedError):
-        app.run('Ranged.Go')
 
 
 def test_a_duplicate_keeps_the_gradient_and_changes_its_own() -> None:

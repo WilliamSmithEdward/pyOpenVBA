@@ -22,7 +22,6 @@ INDEXES = range(len(RECORD['cases']))
 UNMEASURED = ['sh.Line.Visible = msoFalse: sh.Fill.Patterned 22',
               'sh.Fill.Patterned 22: sh.Fill.Visible = msoFalse: sh.Fill.BackColor.RGB = 255',
               'sh.Fill.Patterned 22: sh.Fill.BackColor.Brightness = 0.4']
-RANGE_UNMEASURED = ['r.Fill.Patterned 22', 'Dim v: v = r.Fill.Pattern']
 
 
 def drawn(path: Path) -> str:
@@ -64,16 +63,3 @@ def test_an_unmeasured_combination_is_refused(statements: str) -> None:
                    f'    {statements}\nEnd Sub\n', name='Unmeasured')
     with pytest.raises(VBAUnsupportedError):
         app.run('Unmeasured.Go')
-
-
-@pytest.mark.parametrize('statements', RANGE_UNMEASURED)
-def test_a_range_refuses_a_pattern(statements: str) -> None:
-    app = ExcelApplication(sandbox=False)
-    app.add_workbook()
-    app.add_module('Public Sub Go()\n    Dim r As Object\n'
-                   '    ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40).Name = "a"\n'
-                   '    ActiveSheet.Shapes.AddShape(1, 20, 20, 100, 40).Name = "b"\n'
-                   '    Set r = ActiveSheet.Shapes.Range(Array("a", "b"))\n'
-                   f'    {statements}\nEnd Sub\n', name='Ranged')
-    with pytest.raises(VBAUnsupportedError):
-        app.run('Ranged.Go')

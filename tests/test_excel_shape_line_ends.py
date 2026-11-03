@@ -42,11 +42,6 @@ UNMEASURED = ['sh.Line.DashStyle = msoLineDash: sh.Line.Pattern = 22',
               'sh.Line.Visible = msoFalse: sh.Fill.ForeColor.Brightness = 0.4',
               'Dim v: v = sh.Fill.ForeColor.SchemeColor',
               'sh.Fill.ForeColor.SchemeColor = 3: sh.Fill.ForeColor.Brightness = 0.4: sh.Fill.ForeColor.Brightness = 0.1']
-#: Through a ShapeRange, none of these is measured.
-RANGE_UNMEASURED = ['r.Line.EndArrowheadStyle = 2', 'r.Line.Pattern = 22', 'r.Line.InsetPen = msoTrue',
-                    'Dim v: Set v = r.Line.BackColor', 'r.Fill.ForeColor.Brightness = 0.4',
-                    'r.Line.ForeColor.TintAndShade = 0.4', 'r.Fill.ForeColor.ObjectThemeColor = 6',
-                    'r.Line.ForeColor.SchemeColor = 3']
 
 
 def kept(answer: str) -> str:
@@ -95,19 +90,6 @@ def test_an_unmeasured_combination_is_refused(statements: str) -> None:
                    f'    {statements}\nEnd Sub\n', name='Unmeasured')
     with pytest.raises(VBAUnsupportedError):
         app.run('Unmeasured.Go')
-
-
-@pytest.mark.parametrize('statements', RANGE_UNMEASURED)
-def test_a_range_refuses_what_only_one_shape_has_measured(statements: str) -> None:
-    app = ExcelApplication(sandbox=False)
-    app.add_workbook()
-    app.add_module('Public Sub Go()\n    Dim r As Object\n'
-                   '    ActiveSheet.Shapes.AddLine(10, 10, 110, 50).Name = "a"\n'
-                   '    ActiveSheet.Shapes.AddLine(20, 20, 120, 60).Name = "b"\n'
-                   '    Set r = ActiveSheet.Shapes.Range(Array("a", "b"))\n'
-                   f'    {statements}\nEnd Sub\n', name='Ranged')
-    with pytest.raises(VBAUnsupportedError):
-        app.run('Ranged.Go')
 
 
 def test_a_duplicate_keeps_the_new_look_and_changes_its_own() -> None:

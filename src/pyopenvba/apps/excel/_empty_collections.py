@@ -44,6 +44,7 @@ KINDS = {
     'Charts': Kind('Sheets', 9, 9, frozenset()),
     'Excel4MacroSheets': Kind('Sheets', 9, 9, frozenset()),
     'Excel4IntlMacroSheets': Kind('Sheets', 9, 9, frozenset()),
+    'Ranges': Kind('Ranges', 9, 9, frozenset()),
 }
 
 

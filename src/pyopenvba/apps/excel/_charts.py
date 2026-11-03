@@ -742,8 +742,8 @@ def _set_out(chart: Chart, settled: list[str]) -> None:
     if kind not in ('pie', 'doughnut'):
         for axis, titled in ((axes[1], category_title), (axes[2], value_title)):
             axis.title = TitleState() if titled else None
-    # An area has no place to put them but its own.
-    chart.state.style_labels = ([*labels[:4], ''] if kind == 'area' else labels) if labels else None
+    # An area or a doughnut has no place to put them but its own.
+    chart.state.style_labels = ([*labels[:4], ''] if kind in ('area', 'doughnut') else labels) if labels else None
 
 
 class ChartObjects(VBACollection, ItemDefault, Created):

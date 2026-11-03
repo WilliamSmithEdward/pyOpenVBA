@@ -796,7 +796,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         look = CHART_SHADOW if state.shadow else '<c:spPr><a:effectLst/></c:spPr>'
         xml = xml.replace('</c:chart><c:printSettings>', '</c:chart>' + look + '<c:printSettings>', 1)
     if is_styled(state.chart_style):
-        xml = dressed(xml, state)
+        xml = dressed(xml, state, sheet.book.stylesheet.colors.theme)
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)

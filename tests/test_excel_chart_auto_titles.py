@@ -16,8 +16,7 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_auto_titles.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Left out: SeriesCollection.Add and Extend, which the model does not have.
-LEFT_OUT = ('SeriesCollection.Add', 'SeriesCollection.Extend')
+LEFT_OUT: tuple[str, ...] = ()
 KEPT = [index for index, name in enumerate(NAMES) if not any(text in name for text in LEFT_OUT)]
 
 

@@ -21,10 +21,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A colour on a series' line with a marker: setting `Format.Line.ForeColor.RGB` on a line series with markers or a
   scatter series, and `MarkerStyle` on a line series with a line colour, reach the marker as they do in Excel.
 - `Shapes.AddChart2` and `Shapes.AddChart`, so a recorded macro that makes a chart runs. Each picks up the data round
-  its sheet's selection. A chart at a style some chart type takes by default (201, 216, 227, 240, 251, 262, 269, 276,
-  286, 297, 307, 317, 332, 333) saves as Excel saves it, with its style and colours parts, for the chart types the
-  engine writes. The other styles from 201 to 497 report that they are not implemented, and the old styles 1 to 48
-  work. Styled charts read their own fonts, lines and gaps, and changing one keeps the style.
+  its sheet's selection. It saves as Excel saves it, with its style and colours parts, wherever a chart type and
+  style were compared with Excel and match: every type the engine writes at the 14 styles some type takes by default,
+  and between 76 and 182 styles in all for each of column, bar, stacked column, line, area, pie, doughnut and scatter
+  charts. Any other style
+  from 201 to 497 reports that it is not implemented, as most of those bring data labels or axis titles. The old
+  styles 1 to 48 work. Styled charts read their own fonts, lines and gaps, and changing one keeps the style.
 - `Application.Undo` and `Repeat`, which raise 1004 as nothing is left to undo while a macro
   runs. `OnUndo`, `OnRepeat`, `OnKey` and `CheckAbort`, checked and held nowhere, since the
   model has no menu or keyboard. A key OnKey cannot read raises 1004.

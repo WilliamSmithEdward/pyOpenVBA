@@ -598,7 +598,8 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
               new_layout: object) -> Shape:
     """Shapes.AddChart2 and AddChart: a new chart holding the data round its sheet's selection, laid out as a chart of the
     type and style starts (tests/fixtures/add_chart2.json)."""
-    from pyopenvba.apps.excel._chart_style_table import DEFAULT_STYLES, FIRST_STYLE, LAST_STYLE, REFUSED_TYPES, layout
+    from pyopenvba.apps.excel._chart_style_table import (DEFAULT_STYLES, FIRST_STYLE, LAST_STYLE, PROVEN, REFUSED_TYPES,
+                                                         extras, layout)
     from pyopenvba.apps.excel._protection import drawing_enforced
 
     if drawing_enforced(sheet):
@@ -614,8 +615,8 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
         raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
     settled: list[str] = []
     if FIRST_STYLE <= chosen <= LAST_STYLE:
-        if chosen not in DEFAULT_STYLES.values():
-            # The rest differ by more than their style parts, each in its own way: fills, labels, the legend's place.
+        if chosen not in PROVEN.get(wanted, ()):
+            # The rest bring more than a style part says, data labels and axis titles among them, or were not measured.
             raise VBAUnsupportedError(f'Chart style {chosen} is not implemented')
         settled = layout(chosen, wanted)
         wanted = int(settled[0])
@@ -644,9 +645,14 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
         fresh.title = 'Chart Title'
         fresh.title_typed = False
         fresh.legend = len(fresh.series) > 1 or CHART_TYPES[fresh.chart_type] in ('pie', 'doughnut')
-    if settled and fresh.legend:
-        # The one style of these that puts it elsewhere (tests/fixtures/chart_style_parts.json).
-        fresh.legend_position = 't' if chosen == 317 else 'b'
+    if settled:
+        said = extras(chosen)
+        if new and not said[0]:
+            fresh.title, fresh.title_deleted = None, True
+        if new and not said[1]:
+            fresh.legend = False
+        if fresh.legend:
+            fresh.legend_position = said[1] or 'b'
     return shape
 
 
@@ -691,7 +697,7 @@ def _picked_up(sheet: Worksheet) -> Range | None:
 def _set_out(chart: Chart, settled: list[str]) -> None:
     """A chart as its style lays it out (tests/fixtures/chart_style_parts.json)."""
     from pyopenvba.apps.excel._chart_axes import TICK_MARKS, states
-    from pyopenvba.apps.excel._chart_style_table import DOUGHNUTS
+    from pyopenvba.apps.excel._chart_style_table import DOUGHNUTS, extras
 
     _, gap, overlap, category_tick, value_tick, _, _, category_grid, value_grid = settled
     chart.state.gap_width, chart.state.overlap = int(gap), int(overlap)
@@ -707,6 +713,11 @@ def _set_out(chart: Chart, settled: list[str]) -> None:
         if tick != 'E':
             axis.major_tick = TICK_MARKS[int(tick)]
             axis.major_gridlines = grid == 'True'
+    said = extras(chart.state.chart_style)
+    if len(said) > 3:
+        for axis, (minor_grid, minor_tick, deleted) in zip((axes[1], axes[2]), (said[2:5], said[5:8]), strict=True):
+            if axis.present:
+                axis.minor_gridlines, axis.minor_tick, axis.present = minor_grid, minor_tick, not deleted
 
 
 class ChartObjects(VBACollection, ItemDefault, Created):
@@ -1492,14 +1503,14 @@ class Chart(Created):
 
     @setter('ChartStyle')
     def _chart_style(self, value: object) -> None:
-        from pyopenvba.apps.excel._chart_style_table import DEFAULT_STYLES
+        from pyopenvba.apps.excel._chart_style_table import PROVEN
         from pyopenvba.apps.excel._chart_styled import is_styled
 
         wanted = int(to_integer(value, 'Long'))
         self.admit_change()
         if wanted < 1 or wanted == 49:
             raise error(5, 'Invalid procedure call or argument')
-        if wanted > 48 and not (is_styled(self.state.chart_style) and wanted in DEFAULT_STYLES.values()):
+        if wanted > 48 and not (is_styled(self.state.chart_style) and wanted in PROVEN.get(self.state.chart_type, ())):
             # Turning a chart of the old kind to one of AddChart2's styles was not measured, nor the rest of those.
             raise VBAUnsupportedError('A chart style past 48 is not implemented')
         self.changed()

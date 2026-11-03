@@ -63,6 +63,10 @@ def accent_colour(theme: tuple[str, ...], place: int) -> str:
     return theme[3 + place]
 
 
+def solid_fill(rgb: str, alpha: int | None = None) -> str:
+    return _solid(rgb, alpha)
+
+
 def plain_line(look: FillLine) -> str:
     """A line as Excel writes what was set of it."""
     if look.line_rgb is None and look.line_width is None and look.line_dash is None and look.line_compound is None:

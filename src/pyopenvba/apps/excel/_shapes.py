@@ -838,6 +838,10 @@ class ShapeObject(_Drawn):
     def DrawingObject(self) -> object:
         from pyopenvba.apps.excel._controls import list_control
 
+        if self.shape.kind == "chart":
+            from pyopenvba.apps.excel._charts import ChartObject
+
+            return ChartObject(self.sheet, self.shape)
         list_control(self.shape)
         return ListDrawingObject(self.sheet, self.shape)
 
@@ -1386,7 +1390,18 @@ class ShapeObject(_Drawn):
 
     @method
     def Copy(self) -> object:
-        raise _unsupported("copying a shape")
+        if self.shape.kind != "chart":
+            raise _unsupported("copying a shape")
+        chart_copied(self.sheet, self.shape)
+        return EMPTY
+
+    @method
+    def Cut(self) -> object:
+        """A chart goes at once, and Excel will not paste it after (tests/fixtures/chart_copies.json)."""
+        if self.shape.kind != "chart":
+            raise _unsupported("cutting a shape")
+        self.Delete()
+        return EMPTY
 
     def _position(self) -> int:
         for index, one in enumerate(self.sheet.shapes_, start=1):
@@ -2084,11 +2099,14 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
     """Shape.Duplicate: the copy Excel makes, placed 12 points right and down, after every other shape, with the
     next id. A name of Excel's own making, stem and number, takes the sheet's next one; a name a macro gave is kept
     as it is (tests/fixtures/shape_duplicate.json)."""
-    if shape.source or shape.kind not in ("shape", "textBox"):
+    chart = sheet.chart_states.get(shape.shape_id) if shape.kind == "chart" else None
+    if chart is not None and chart.original:
+        raise VBAUnsupportedError("Duplicating a chart read from a file is not implemented")
+    if chart is None and (shape.source or shape.kind not in ("shape", "textBox")):
         raise VBAUnsupportedError("Duplicating this shape is not implemented")
     found = re.fullmatch(r"(.+) \d+", shape.name)
     shapes = Shapes(sheet)
-    if found is not None and found.group(1) in _STEMS:
+    if found is not None and (found.group(1) in _STEMS or chart is not None and found.group(1) == "Chart"):
         name = shapes._free_name(found.group(1))  # pyright: ignore[reportPrivateUsage]
     else:
         sheet.shape_count += 1
@@ -2097,9 +2115,54 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
                    left=shape.left + 12, top=shape.top + 12, children=[], source="", source_at=0, former_group=None,
                    # The copy's looks are its own, so changing one leaves the original alone.
                    text_look=deepcopy(shape.text_look), fill_line=deepcopy(shape.fill_line))
+    if chart is not None:
+        # A chart of its own, with a part of its own when it is saved (tests/fixtures/chart_copies.json).
+        own = deepcopy(chart)
+        own.part, own.dirty = "", True
+        sheet.chart_states[copy.shape_id] = own
     sheet.shapes_.append(copy)
     sheet.drawing_changed()
     return copy
+
+
+def chart_copied(sheet: Worksheet, shape: Shape) -> None:
+    """A chart on the clipboard, which is not Range's: CutCopyMode stays 0, and it goes when a cell is selected or
+    cells are copied (tests/fixtures/chart_copies.json)."""
+    sheet.copied_chart = (shape, sheet.selection, sheet.book.application.clipboard)
+
+
+def chart_pasted(sheet: Worksheet, destination: object) -> bool:
+    """The copied chart at ``destination`` or the selection, if it is there to paste; another sheet has none."""
+    from pyopenvba.apps.excel._model import Range
+
+    copied = sheet.copied_chart
+    if (copied is None or copied[1] is not sheet.selection or copied[2] is not sheet.book.application.clipboard
+            or not any(one is copied[0] for one in sheet.shapes_)):
+        return False
+    place = destination if isinstance(destination, Range) else sheet.selection
+    if not isinstance(place, Range) or place.sheet is not sheet:
+        raise VBAUnsupportedError("Pasting a chart anywhere but a cell on its sheet is not implemented")
+    made = duplicated(sheet, copied[0])
+    made.left, made.top = float(to_number(place.Left())), float(to_number(place.Top()))
+    # Pasted, it numbers its unique ids afresh, series by series: a series with a dPt passes one over, then each point
+    # takes the next, its dPt and its dLbl the same, and then the series.
+    own = sheet.chart_states[made.shape_id]
+    number = 0
+    for entry in own.full_series or own.series:
+        if any(point.unique >= 0 for point in entry.points.values()):
+            number += 1
+        for _place, point in sorted(entry.points.items()):
+            if point.unique >= 0:
+                point.unique = number
+            if point.label_unique >= 0:
+                point.label_unique = number
+            number += point.unique >= 0 or point.label_unique >= 0
+        entry.unique, number = number, number + 1
+    own.next_unique = own.unique_base = number
+    from pyopenvba.apps.excel._charts import ChartObject
+
+    ChartObject(sheet, made).made_active("area")
+    return True
 
 
 def grouped(sheet: Worksheet, shapes: list[Shape]) -> Shape:

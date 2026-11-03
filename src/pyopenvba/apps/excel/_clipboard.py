@@ -290,6 +290,10 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
 
     if link is not MISSING and to_bool(link):
         raise VBAUnsupportedError("Worksheet.Paste Link:=True is not implemented")
+    from pyopenvba.apps.excel._shapes import chart_pasted
+
+    if chart_pasted(sheet, destination):
+        return True
     if destination is MISSING:
         destination = sheet.selection
         if not isinstance(destination, Range):

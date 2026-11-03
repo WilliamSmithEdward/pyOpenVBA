@@ -710,6 +710,12 @@ class ChartObjects(VBACollection, ItemDefault, Created):
         return EMPTY
 
     @method
+    def Duplicate(self) -> object:
+        for item in self.vba_items():
+            cast(ChartObject, item).Duplicate()
+        return self
+
+    @method
     def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
         items = self.vba_items()
         if len(items) != 1:
@@ -831,6 +837,13 @@ class ChartArea(Created):
         return self.chart.font_of(self, 'area')
 
     # -- tests/fixtures/chart_clears.json
+
+    @method
+    def Copy(self) -> object:
+        """Selects the chart, and puts nothing that Worksheet.Paste will take (tests/fixtures/chart_copies.json)."""
+        self.chart.admit_read()
+        ChartObject(self.chart.sheet, self.chart.shape).made_active('area')
+        return EMPTY
 
     @method
     def ClearFormats(self) -> object:
@@ -1082,6 +1095,21 @@ class ChartObject(Created):
     @method
     def Delete(self) -> object:
         return ShapeObject(self.sheet, self.shape).Delete()
+
+    # -- tests/fixtures/chart_copies.json
+
+    @method
+    def Duplicate(self) -> object:
+        """The copy, as a Shape, as Excel answers."""
+        return ShapeObject(self.sheet, self.shape).Duplicate()
+
+    @method
+    def Copy(self) -> object:
+        return ShapeObject(self.sheet, self.shape).Copy()
+
+    @method
+    def Cut(self) -> object:
+        return ShapeObject(self.sheet, self.shape).Cut()
 
     # -- tests/fixtures/chart_object_more.json
 

@@ -55,6 +55,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.shapes._values import Shape as ShapeValue
     from pyopenvba.apps.excel._rich_text import Run
     from pyopenvba.apps.excel._udf import EvaluationOrigin
     from pyopenvba.powerquery._opc import Entry
@@ -2715,6 +2716,8 @@ class Worksheet(ExcelObject):
         #: The shapes on the sheet, in the order the drawing holds them.
         self.shapes_: list[ShapeState] = []
         self.chart_states: dict[int, ChartState] = {}
+        #: A chart copied, with the selection and the clipboard then, which it lasts as long as.
+        self.copied_chart: tuple[ShapeValue, object, object] | None = None
         #: The cells ShowPrecedents and ShowDependents have traced, by (row, column, dependents), and how deep.
         self.traced: dict[tuple[int, int, bool], int] = {}
         self.deleted_chart_parts: set[str] = set()

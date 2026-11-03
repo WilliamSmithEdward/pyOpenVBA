@@ -273,6 +273,27 @@ def _clone(sheet: Worksheet, rows: bool, number: int) -> RowRecord | ColumnRecor
     return copied
 
 
+def clear_from_cells(target: Range) -> bool:
+    """ClearOutline on cells, not lines: one cell clears every outline on the sheet, and a block the lines it crosses
+    (tests/fixtures/excel_everyday_10.json)."""
+    from pyopenvba.apps.excel._model import Range
+
+    sheet, area = target.sheet, target.first
+    one = area.rows == 1 and area.columns == 1
+    for rows in (True, False):
+        start, end = (area.top, area.bottom) if rows else (area.left, area.right)
+        marked = [number for number, record in _records(sheet, rows).items()
+                  if _depth(record) and (one or start <= number <= end)]
+        if not marked:
+            continue
+        if rows:
+            lines = Range(sheet, [Area(min(marked), 1, max(marked), MAX_COLUMNS, sheet.name)], whole='rows')
+        else:
+            lines = Range(sheet, [Area(1, min(marked), MAX_ROWS, max(marked), sheet.name)], whole='columns')
+        group(lines, 'ClearOutline')
+    return True
+
+
 def group(target: Range, operation: str) -> bool:
     rows, first, last = axis(target)
     _cap(last - first + 1)

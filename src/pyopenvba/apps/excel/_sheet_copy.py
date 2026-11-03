@@ -217,6 +217,14 @@ def copy_sheets(sources: list[Worksheet], before: object, after: object) -> obje
     if anchor is MISSING:
         _events.new_workbook(destination)
     copies[0].Activate()
+    from pyopenvba.apps.excel._model import Range
+
+    for copied in copies:
+        # A copy's active cell is the first of its selection (tests/fixtures/excel_everyday_9.json).
+        chosen = copied.selection_range
+        if chosen is not None:
+            corner = chosen.first
+            copied.active_cell_range = Range(copied, [Area(corner.top, corner.left, corner.top, corner.left, copied.name)])
     if anchor is MISSING:
         # The new workbook's window is in front by now, and its sheet activates after it.
         _events.sheet_entered(copies[0])

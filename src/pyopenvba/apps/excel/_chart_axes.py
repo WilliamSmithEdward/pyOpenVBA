@@ -447,6 +447,9 @@ class Axis(Created):
 
     @member
     def MajorTickMark(self) -> object:
+        if not self.valid:
+            # A chart without axes answers this one its own way (tests/fixtures/apply_layout.json).
+            raise error(-2147467259, "Automation error\nUnspecified error")
         return self.spelled("major_tick", TICK_MARKS)
 
     @setter("MajorTickMark")

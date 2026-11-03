@@ -492,6 +492,9 @@ def plot_by(chart: ChartState) -> int:
             return False
         if len({(area.sheet, span(area)) for area in blocks}) != 1:
             return False
+        category = every[0].category_reference
+        if category and span(parse_reference(category)[0]) != span(blocks[0]):
+            return False
         places = [place(area) for area in blocks]
         if any(later <= earlier for earlier, later in zip(places, places[1:])):
             return False

@@ -601,6 +601,11 @@ def move(source: Range, area: Area, destination: Range) -> None:
     from pyopenvba.apps.excel._spills import cached, restore
 
     caches = cached(sheet) + (cached(target) if target is not sheet else [])
+    from pyopenvba.apps.excel import _chart_references
+
+    chart_references = _chart_references.plan(book, lambda text, owner: moved_references(
+        text, owner, sheet.name, area, target.name, landing, down, across))
+    _chart_references.carry_out(chart_references)
     # Every formula and name follows the cells before any cell moves.
     for owner in book.sheets_:
         for position, cell in owner.cells_.items():

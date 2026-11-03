@@ -781,6 +781,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A chart's series, title links and custom error bars follow the cells they read when rows and
+  columns are inserted or deleted, cells shift or are cut, and the sheet is renamed, as a point's
+  look and label do. Before, they stayed put and the saved file read the wrong cells. Taking away
+  cells a chart reads is refused before anything moves, and so is moving cells a chart read from a
+  file reads.
 - `StrConv(text, vbFromUnicode)` is a String, as in Excel, not a Byte array. A String
   can now hold an odd count of bytes, so `LenB`, `MidB`, `LeftB`, `RightB`, `AscB`,
   `InStrB` and `&` count the last byte. `ChrB` exists. `StrConv(x, vbUnicode)` reads a

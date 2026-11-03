@@ -338,6 +338,10 @@ def rename(sheet: Worksheet, wanted: str) -> None:
         _package(book, budget, sheet.name, wanted)
     except (ValueError, XmlParseError):
         raise unsupported('with malformed persisted XML metadata') from None
+    from pyopenvba.apps.excel import _chart_references
+
+    chart_references = _chart_references.plan(book, lambda text, _owner: _chart_references.renamed(
+        text, sheet.name, wanted))
     cells: list[tuple[Worksheet, Cell, str]] = []
     total = 0
     for owner in book.sheets_:
@@ -403,6 +407,7 @@ def rename(sheet: Worksheet, wanted: str) -> None:
             table.changed = True
     for key, area in shared_updates:
         sheet.shared_groups[key] = area
+    _chart_references.carry_out(chart_references)
     sheet.name = wanted
     book.names_.changed = bool(names) or book.names_.changed
     book.saved = False

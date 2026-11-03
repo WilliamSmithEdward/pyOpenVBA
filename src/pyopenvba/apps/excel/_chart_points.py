@@ -106,7 +106,8 @@ def points_markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, .
         look = "" if point.look is None else look_markup(point.look, kind, accent)
         marker = _marker_markup(point, entry, kind)
         written += (f'<c:dPt><c:idx val="{index}"/>{invert}{marker}<c:bubble3D val="0"/>{burst}{look}'
-                    f"<c:extLst>{_unique_tail(point.unique)}</c:extLst></c:dPt>")
+                    + (f"<c:extLst>{_unique_tail(point.unique)}</c:extLst>" if point.unique >= 0 else "")
+                    + "</c:dPt>")
     return written
 
 
@@ -166,7 +167,7 @@ def point_labels_markup(entry: SeriesState) -> str:
     """The series' dLbl elements: a point's own label, or where the series has labels, one it took away."""
     written = ""
     for index, point in sorted(entry.points.items()):
-        if point.label_unique < 0 or (point.label is None and point.label_own.empty()):
+        if point.label_unique == -1 or (point.label is None and point.label_own.empty()):
             continue
         if point.label is False and not entry.data_labels:
             continue
@@ -178,7 +179,7 @@ def point_labels_markup(entry: SeriesState) -> str:
             ' xmlns:c15="http://schemas.microsoft.com/office/drawing/2012/chart"'
             + _range_extension(own, point.label is False))
         written += (f'<c:dLbl><c:idx val="{index}"/>{body}<c:extLst>{extension}'
-                    f"{_unique_tail(point.label_unique)}</c:extLst></c:dLbl>")
+                    f"{_unique_tail(point.label_unique) if point.label_unique >= 0 else ''}</c:extLst></c:dLbl>")
     return written
 
 

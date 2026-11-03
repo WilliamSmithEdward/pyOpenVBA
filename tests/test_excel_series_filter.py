@@ -18,8 +18,8 @@ NAMES = [case[0] for case in RECORD['cases']]
 #: What gives odd answers around a filtered series, and is refused: a new series, new source data and a new plot order.
 REFUSED = ('.NewSeries', 'ch.SetSourceData', '.PlotOrder = 2')
 #: Left out: a scatter chart with every series filtered out reads ChartType 74, and a filtered series given literal
-#: values keeps PlotBy where one given a literal name loses it, for no rule we have. A chart's references do not yet follow
-#: rows and columns inserted or deleted, whether a series is filtered or not.
+#: values keeps PlotBy where one given a literal name loses it, for no rule we have. The two edits are replayed with a
+#: filtered series left out of them by tests/test_excel_chart_references.py's own cases.
 EVERY_SCATTER = ('scatter: ch.FullSeriesCollection(1).IsFiltered = True: ch.FullSeriesCollection(2).IsFiltered = True: '
                  'ch.FullSeriesCollection(3).IsFiltered = True')
 LEFT_OUT = ('.Values = Array(7, 8, 9)', 'ws.Range("B:B").Delete', 'ws.Rows(2).Insert')

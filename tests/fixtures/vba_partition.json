@@ -1,0 +1,443 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-11-03T22:18:53.146569+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "qbcolor_0",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(0)) & \"|\" & QBColor(0)\nProbe = s\nEnd Function\n",
+      "result": "Long|0"
+    },
+    {
+      "name": "qbcolor_1",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(1)) & \"|\" & QBColor(1)\nProbe = s\nEnd Function\n",
+      "result": "Long|8388608"
+    },
+    {
+      "name": "qbcolor_2",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(2)) & \"|\" & QBColor(2)\nProbe = s\nEnd Function\n",
+      "result": "Long|32768"
+    },
+    {
+      "name": "qbcolor_3",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(3)) & \"|\" & QBColor(3)\nProbe = s\nEnd Function\n",
+      "result": "Long|8421376"
+    },
+    {
+      "name": "qbcolor_4",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(4)) & \"|\" & QBColor(4)\nProbe = s\nEnd Function\n",
+      "result": "Long|128"
+    },
+    {
+      "name": "qbcolor_5",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(5)) & \"|\" & QBColor(5)\nProbe = s\nEnd Function\n",
+      "result": "Long|8388736"
+    },
+    {
+      "name": "qbcolor_6",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(6)) & \"|\" & QBColor(6)\nProbe = s\nEnd Function\n",
+      "result": "Long|32896"
+    },
+    {
+      "name": "qbcolor_7",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(7)) & \"|\" & QBColor(7)\nProbe = s\nEnd Function\n",
+      "result": "Long|12632256"
+    },
+    {
+      "name": "qbcolor_8",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(8)) & \"|\" & QBColor(8)\nProbe = s\nEnd Function\n",
+      "result": "Long|8421504"
+    },
+    {
+      "name": "qbcolor_9",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(9)) & \"|\" & QBColor(9)\nProbe = s\nEnd Function\n",
+      "result": "Long|16711680"
+    },
+    {
+      "name": "qbcolor_10",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(10)) & \"|\" & QBColor(10)\nProbe = s\nEnd Function\n",
+      "result": "Long|65280"
+    },
+    {
+      "name": "qbcolor_11",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(11)) & \"|\" & QBColor(11)\nProbe = s\nEnd Function\n",
+      "result": "Long|16776960"
+    },
+    {
+      "name": "qbcolor_12",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(12)) & \"|\" & QBColor(12)\nProbe = s\nEnd Function\n",
+      "result": "Long|255"
+    },
+    {
+      "name": "qbcolor_13",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(13)) & \"|\" & QBColor(13)\nProbe = s\nEnd Function\n",
+      "result": "Long|16711935"
+    },
+    {
+      "name": "qbcolor_14",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(14)) & \"|\" & QBColor(14)\nProbe = s\nEnd Function\n",
+      "result": "Long|65535"
+    },
+    {
+      "name": "qbcolor_15",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(15)) & \"|\" & QBColor(15)\nProbe = s\nEnd Function\n",
+      "result": "Long|16777215"
+    },
+    {
+      "name": "qbcolor_16",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(16)) & \"|\" & QBColor(16)\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "qbcolor_17",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(-1)) & \"|\" & QBColor(-1)\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "qbcolor_18",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(1.5)) & \"|\" & QBColor(1.5)\nProbe = s\nEnd Function\n",
+      "result": "Long|32768"
+    },
+    {
+      "name": "qbcolor_19",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(2.5)) & \"|\" & QBColor(2.5)\nProbe = s\nEnd Function\n",
+      "result": "Long|32768"
+    },
+    {
+      "name": "qbcolor_20",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(\"3\")) & \"|\" & QBColor(\"3\")\nProbe = s\nEnd Function\n",
+      "result": "Long|8421376"
+    },
+    {
+      "name": "qbcolor_21",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(\"x\")) & \"|\" & QBColor(\"x\")\nProbe = s\nEnd Function\n",
+      "error": 13
+    },
+    {
+      "name": "qbcolor_22",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(Null)) & \"|\" & QBColor(Null)\nProbe = s\nEnd Function\n",
+      "error": 94
+    },
+    {
+      "name": "qbcolor_23",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(Empty)) & \"|\" & QBColor(Empty)\nProbe = s\nEnd Function\n",
+      "result": "Long|0"
+    },
+    {
+      "name": "qbcolor_24",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(True)) & \"|\" & QBColor(True)\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "qbcolor_25",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\ns = TypeName(QBColor(15.5)) & \"|\" & QBColor(15.5)\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_0",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[  0:  9]"
+    },
+    {
+      "name": "partition_1",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(0, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[  0:  9]"
+    },
+    {
+      "name": "partition_2",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(9, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[  0:  9]"
+    },
+    {
+      "name": "partition_3",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(10, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 10: 19]"
+    },
+    {
+      "name": "partition_4",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(100, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[100:100]"
+    },
+    {
+      "name": "partition_5",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(101, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[101:   ]"
+    },
+    {
+      "name": "partition_6",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(-1, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[   : -1]"
+    },
+    {
+      "name": "partition_7",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(1000, 0, 100, 10)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[101:   ]"
+    },
+    {
+      "name": "partition_8",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(50, 0, 99, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 50: 54]"
+    },
+    {
+      "name": "partition_9",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(99, 0, 99, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 95: 99]"
+    },
+    {
+      "name": "partition_10",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(95, 0, 99, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 95: 99]"
+    },
+    {
+      "name": "partition_11",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(100, 0, 99, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[100:   ]"
+    },
+    {
+      "name": "partition_12",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(-1, 0, 99, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[   : -1]"
+    },
+    {
+      "name": "partition_13",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 9, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 5: 5]"
+    },
+    {
+      "name": "partition_14",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(10, 0, 9, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[10:  ]"
+    },
+    {
+      "name": "partition_15",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(-1, 0, 9, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[  :-1]"
+    },
+    {
+      "name": "partition_16",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 1, 10, 3)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 6]"
+    },
+    {
+      "name": "partition_17",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(10, 1, 10, 3)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[10:10]"
+    },
+    {
+      "name": "partition_18",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(1, 1, 10, 3)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 1: 3]"
+    },
+    {
+      "name": "partition_19",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(-5, -10, 10, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_20",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(-10, -10, 10, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_21",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(10, -10, 10, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_22",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(11, -10, 10, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_23",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(-11, -10, 10, 5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_24",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(0, 0, 0, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_25",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(1, 0, 0, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_26",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(-1, 0, 0, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_27",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(7, 5, 9, 100)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 5: 9]"
+    },
+    {
+      "name": "partition_28",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 5, 9, 100)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 5: 9]"
+    },
+    {
+      "name": "partition_29",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(10, 5, 9, 100)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[10:  ]"
+    },
+    {
+      "name": "partition_30",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(4, 5, 9, 100)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[  : 4]"
+    },
+    {
+      "name": "partition_31",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 10000, 100)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[    0:   99]"
+    },
+    {
+      "name": "partition_32",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(10000, 0, 10000, 100)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[10000:10000]"
+    },
+    {
+      "name": "partition_33",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(10001, 0, 10000, 100)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[10001:     ]"
+    },
+    {
+      "name": "partition_34",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 100000, 1000)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[     0:   999]"
+    },
+    {
+      "name": "partition_35",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5.5, 0, 10, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 6: 7]"
+    },
+    {
+      "name": "partition_36",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5.4, 0, 10, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 5]"
+    },
+    {
+      "name": "partition_37",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(2.5, 0, 10, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 2: 2]"
+    },
+    {
+      "name": "partition_38",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(3.5, 0, 10, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 4]"
+    },
+    {
+      "name": "partition_39",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0.5, 10, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 5]"
+    },
+    {
+      "name": "partition_40",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 10.5, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 5]"
+    },
+    {
+      "name": "partition_41",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 10, 2.5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 5]"
+    },
+    {
+      "name": "partition_42",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 10, 1.5)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 5]"
+    },
+    {
+      "name": "partition_43",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 10, 0)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_44",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 10, -1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_45",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 10, 0, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_46",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 5, 5, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_47",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, -1, 10, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_48",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(\"5\", \"0\", \"10\", \"2\")\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 4: 5]"
+    },
+    {
+      "name": "partition_49",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(\"x\", 0, 10, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 13
+    },
+    {
+      "name": "partition_50",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(Null, 0, 10, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "Null[]"
+    },
+    {
+      "name": "partition_51",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, Null, 10, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "Null[]"
+    },
+    {
+      "name": "partition_52",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, Null, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "Null[]"
+    },
+    {
+      "name": "partition_53",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 10, Null)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "Null[]"
+    },
+    {
+      "name": "partition_54",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(Empty, 0, 10, 2)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[ 0: 1]"
+    },
+    {
+      "name": "partition_55",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(True, -5, 5, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_56",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(2147483647, 0, 2147483647, 1000000)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[2147000000:2147483647]"
+    },
+    {
+      "name": "partition_57",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 2147483647, 1000000)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[         0:    999999]"
+    },
+    {
+      "name": "partition_58",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, -2147483647, 2147483647, 1000)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "error": 5
+    },
+    {
+      "name": "partition_59",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(5, 0, 2147483648#, 1000)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[         0:       999]"
+    },
+    {
+      "name": "partition_60",
+      "macro": "Function Probe() As String\nDim s As String, v As Variant\nv = Partition(99999999999#, 0, 10, 1)\ns = TypeName(v) & \"[\" & v & \"]\"\nProbe = s\nEnd Function\n",
+      "result": "String[11:  ]"
+    }
+  ]
+}

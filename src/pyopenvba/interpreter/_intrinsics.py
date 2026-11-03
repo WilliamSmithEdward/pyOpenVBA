@@ -92,8 +92,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "imestatus": "reports the input method editor",
     "command": "reads the command line Office was started with",
     "getobject": "attaches to a running application",
-    "qbcolor": "is not implemented yet",
-    "partition": "is not implemented yet",
 }
 
 
@@ -1435,6 +1433,36 @@ def vba_array_dispatch(interpreter: Interpreter, args: list[object], named: dict
 
 
 INTRINSICS["array"] = vba_array_dispatch
+
+
+_QB_COLORS: Final = (0, 8388608, 32768, 8421376, 128, 8388736, 32896, 12632256, 8421504, 16711680, 65280, 16776960, 255, 16711935, 65535, 16777215)
+
+
+@intrinsic("QBColor", "Color", minimum=1)
+def vba_qbcolor(interpreter: Interpreter, color: object) -> object:
+    """The RGB of one of the sixteen old colours (tests/fixtures/vba_partition.json)."""
+    which = int(to_integer(color, "Integer"))
+    if not 0 <= which < len(_QB_COLORS):
+        raise error(5)
+    return VBAInt(_QB_COLORS[which], "Long")
+
+
+@intrinsic("Partition", "Number", "Start", "Stop", "Interval", minimum=4)
+def vba_partition(interpreter: Interpreter, number: object, start: object, stop: object, interval: object) -> object:
+    """Which band of Interval from Start to Stop a number falls in, as "lower:upper" padded to the width of Stop + 1. Each is rounded as
+    VBA rounds, never overflowing a Long; below Start and above Stop are open-ended bands (tests/fixtures/vba_partition.json)."""
+    if any(one is NULL for one in (number, start, stop, interval)):
+        return NULL
+    value, first, last, step = (round(float(to_number(one))) for one in (number, start, stop, interval))
+    if first < 0 or last <= first or step < 1:
+        raise error(5)
+    width = len(str(last + 1))
+    if value < first:
+        return f"{'':>{width}}:{first - 1:>{width}}"
+    if value > last:
+        return f"{last + 1:>{width}}:{'':>{width}}"
+    lower = first + (value - first) // step * step
+    return f"{lower:>{width}}:{min(lower + step - 1, last):>{width}}"
 
 
 @intrinsic("LBound", "ArrayName", "Dimension", minimum=1)

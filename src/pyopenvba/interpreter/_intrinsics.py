@@ -147,6 +147,18 @@ for _name, _reason in UNIMPLEMENTED.items():
 _METHOD, _GET, _LET, _SET = 1, 2, 4, 8
 
 
+def _answered(target: VBAObject, name: str, args: list[object], *, assignment: bool = False,
+              by_ref: bool = False) -> object:
+    """The member's answer. An invalid pointer comes back through CallByName as error 440, where other failures pass
+    (tests/fixtures/chart_axes/initial.json against the same reads made directly in chart_set_element.json)."""
+    try:
+        return target.vba_call_by_name(name, args, assignment=assignment, by_ref=by_ref)
+    except VBARuntimeError as problem:
+        if problem.number == -2147467261:
+            raise error(440, "Automation error") from problem
+        raise
+
+
 def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
     """CallByName(Object, ProcName, CallType, Args...): a member named at run time.
 
@@ -170,13 +182,13 @@ def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str,
     if kind & (_LET | _SET):
         if not rest or (kind & _SET and not isinstance(rest[-1], VBAObject) and rest[-1] is not NOTHING):
             raise error(438, f"{target.vba_type_name} has no such member as {name}")
-        return target.vba_call_by_name(name, rest, assignment=True, by_ref=bool(kind & _SET))
+        return _answered(target, name, rest, assignment=True, by_ref=bool(kind & _SET))
     if not kind & (_METHOD | _GET) or (kind == _METHOD and spec is not None and spec.kind != "method"):
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
     strict = getattr(target, "vba_strict_call_types", False)
     if strict and kind == _GET and spec is not None and spec.kind == "method":
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
-    return target.vba_call_by_name(name, rest)
+    return _answered(target, name, rest)
 
 
 INTRINSICS["callbyname"] = _call_by_name

@@ -15,7 +15,8 @@ from typing import TYPE_CHECKING, NoReturn
 from pyopenvba._xml import attributes, escape as escape_attribute, escape_text, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
-from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, CT_CHART, SeriesData, cache_markup,
+from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, DATA_TABLE_WITHOUT_KEYS, LABEL_POSITIONS,
+                                             CT_CHART, SeriesData, cache_markup,
                                              chart_frame, chart_part, legend_markup, text_properties)
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
@@ -506,6 +507,19 @@ def linked_formats(chart: Chart) -> tuple[str, str]:
             source_format(chart.sheet, item.value_reference))
 
 
+def _with_element_labels(xml: str, shown: bool, place: int | None) -> str:
+    """The chart's own c:dLbls, after its last series, as SetElement leaves it
+    (tests/fixtures/chart_set_element.json)."""
+    at = xml.rindex('</c:ser>')
+    tail = xml[at:]
+    if shown:
+        position = '' if place is None else f'<c:dLblPos val="{LABEL_POSITIONS[place]}"/>'
+        tail = tail.replace('<c:dLbls><c:showLegendKey val="0"/><c:showVal val="0"/>',
+                            f'<c:dLbls>{position}<c:showLegendKey val="0"/><c:showVal val="1"/>', 1)
+    tail = tail.replace('<c:showLeaderLines val="0"/></c:dLbls>', '<c:showLeaderLines val="1"/></c:dLbls>', 1)
+    return xml[:at] + tail
+
+
 def markup(sheet: Worksheet, shape_id: int) -> str:
     shape = next(item for item in sheet.shapes_ if item.shape_id == shape_id)
     from pyopenvba.apps.excel._chart_format import element_markup, markup as series_look
@@ -581,9 +595,12 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda found: found.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1)
             if found.group(0).startswith('<c:valAx>' + identifier) else found.group(0), xml)
+    if state.element_labels is not None and '</c:ser>' in xml:
+        xml = _with_element_labels(xml, *state.element_labels)
     if state.data_table:
         # The data table closes the plot area, after the axes, on every kind (tests/fixtures/chart_series_more.json).
-        xml = xml.replace('</c:plotArea>', DATA_TABLE + '</c:plotArea>', 1)
+        table = DATA_TABLE if state.data_table_keys else DATA_TABLE_WITHOUT_KEYS
+        xml = xml.replace('</c:plotArea>', table + '</c:plotArea>', 1)
     # The plot area's look follows all of that, and the chart area's follows the chart
     # (tests/fixtures/chart_element_format.json).
     xml = xml.replace('</c:plotArea>', element_markup('plot', state.element_looks.get('plot')) + '</c:plotArea>', 1)

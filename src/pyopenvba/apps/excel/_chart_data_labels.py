@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 #: areas and doughnuts, right of a line's or scatter's points, and best fit on a pie.
 DEFAULT_POSITIONS = {51: 2, 57: 2, 52: -4108, 4: -4152, 65: -4152, 5: 5, -4120: -4108, -4169: -4152, 1: -4108}
 #: The positions each measured chart type takes; another raises -2147467259 where the type was measured refusing one.
-TAKEN = {51: {3, -4108, 4, 2}, 57: {3, -4108, 4, 2}, 4: {0, 1, -4131, -4152}, 65: {0, 1, -4131, -4152},
+TAKEN = {51: {3, -4108, 4, 2}, 57: {3, -4108, 4, 2}, 4: {0, 1, -4131, -4152}, 65: {0, 1, -4131, -4152, -4108},
          5: {5, 2, 3, -4108}}
 REFUSING = {51: {0}, 57: {0}, 1: {-4108}}
 

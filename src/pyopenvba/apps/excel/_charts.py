@@ -187,6 +187,11 @@ class ChartState:
     #: False when an imported chart spells one of the four display options in a way the model does not read.
     display_readable: bool = True
     data_table: bool = False
+    #: Whether its data table shows legend keys, as it does until SetElement says otherwise.
+    data_table_keys: bool = True
+    #: What SetElement last said of the chart's labels: whether they show, and where. The chart's own c:dLbls holds
+    #: it.
+    element_labels: tuple[bool, int | None] | None = None
     #: The chart object's RoundedCorners, and its Shadow: None until set, which a shadow turned off differs from in
     #: the file (tests/fixtures/chart_object_reads.json).
     rounded: bool = False
@@ -1361,6 +1366,10 @@ class Chart(Created):
     @member
     def ChartTitle(self) -> object:
         if self.state.title is None:
+            if len(self.state.series) > 1 and CHART_TYPES.get(shown_type(self.state)) != 'pie':
+                # Only a chart that draws one series has an automatic title to give
+                # (tests/fixtures/chart_set_element.json).
+                raise error(-2147024809, 'The parameter is incorrect.')
             # Excel gives the chart its automatic title on the way to the object.
             self.changed()
             self.state.title = 'Chart Title'
@@ -1440,6 +1449,12 @@ class Chart(Created):
     def SeriesCollection(self, Index: object = MISSING) -> object:
         collection = SeriesCollection(self)
         return collection if Index is MISSING else collection.vba_get('Item', [Index])
+
+    @method
+    def SetElement(self, Element: object) -> object:  # noqa: N803 - native named argument
+        from pyopenvba.apps.excel._chart_elements import set_element
+
+        return set_element(self, Element)
 
     @method
     def FullSeriesCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
@@ -1599,8 +1614,9 @@ class ChartTitle(TitleMembers):
         state = self.chart.state
         if state.title_look.formula:
             return linked_title(self.chart.sheet, state.title_look.formula)
-        if state.title is not None and not state.title_typed and len(state.series) == 1:
-            # The automatic title of a chart with one series is that series' name.
+        drawn_one = len(state.series) == 1 or CHART_TYPES.get(shown_type(state)) == 'pie'
+        if state.title is not None and not state.title_typed and drawn_one and state.series:
+            # The automatic title of a chart that draws one series is that series' name.
             return Series(self.chart, state.series[0]).Name()
         return state.title or ''
 

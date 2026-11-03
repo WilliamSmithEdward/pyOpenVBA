@@ -7,10 +7,11 @@ series' data labels and before its categories, and names the direction only in l
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._creator import Created
+from pyopenvba.shapes._values import FillLine
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAInt, error, to_integer, to_number
@@ -43,6 +44,8 @@ class ErrorBarState:
     plus: tuple[str, list[object]] = ('', [])
     minus: tuple[str, list[object]] = ('', [])
     no_cap: bool = False
+    #: What Border has set of its line (tests/fixtures/chart_borders.json).
+    look: FillLine = field(default_factory=FillLine)
 
 
 def _default_amount(series: Series) -> float:
@@ -138,6 +141,8 @@ def _custom(value: object, series_input: Callable[..., tuple[str, list[object]]]
 def markup(bars: Sequence[ErrorBarState], kind: str, values: Callable[[str, tuple[str, list[object]]], str]) -> str:
     """The series' errBars elements, Y first. ``values`` writes a custom bar's plus or minus element from its
     reference, or from the values given where it has none."""
+    from pyopenvba.apps.excel._chart_format import plain_line
+
     written: list[str] = []
     for bar in bars:
         if kind != 'scatter' and bar.direction != 'y':
@@ -149,6 +154,8 @@ def markup(bars: Sequence[ErrorBarState], kind: str, values: Callable[[str, tupl
             body += values('plus', bar.plus) + values('minus', bar.minus)
         elif bar.kind != 'stdErr' and bar.amount is not None:
             body += f'<c:val val="{_number_text(bar.amount)}"/>'
+        stroke = plain_line(bar.look)
+        body += f'<c:spPr>{stroke}</c:spPr>' if stroke else ''
         written.append(f'<c:errBars>{body}</c:errBars>')
     return ''.join(written)
 
@@ -172,6 +179,25 @@ class ErrorBars(Created):
         if not self.series.entry.error_bars:
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         return self.series.entry.error_bars
+
+    # The line both ways at once, for its Border.
+
+    def look(self) -> FillLine:
+        return self._bars()[0].look
+
+    def change(self) -> FillLine:
+        self.series.chart.changed()
+        look = self.look()
+        for bar in self._bars():
+            bar.look = look
+        return look
+
+    @member
+    def Border(self) -> object:
+        from pyopenvba.apps.excel._chart_borders import ERROR_BARS, ChartBorder
+
+        self._bars()
+        return ChartBorder(self, ERROR_BARS, self, self.series.chart.sheet.book.stylesheet.colors)
 
     @method
     def Select(self) -> object:

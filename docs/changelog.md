@@ -15,6 +15,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Border` on a trendline and on error bars. Error bars refuse to hide their line, as
+  Excel's do, raising an error for `LineStyle` or `ColorIndex` set to `xlNone`.
 - `Border` on a chart's axes, gridlines, series, points, chart area, plot area,
   legend, titles and axis titles: `Color`, `ColorIndex`, `Weight` and `LineStyle`,
   over the same look as `Format.Line`. The markup matches Excel's.

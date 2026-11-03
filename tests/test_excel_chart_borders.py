@@ -16,8 +16,8 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_borders.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Left out: a trendline's and error bars' Border, which have no Format in the model to share.
-LEFT_OUT = ('Trendlines(1).', '.ErrorBars.')
+#: Left out: the Format of a trendline and of error bars, which the model does not have.
+LEFT_OUT = ('Trendlines(1).Format', '.ErrorBars.Format')
 #: Refused: ClearFormats on a line series with a look, which Excel moves to its marker, on an area series with a point set
 #: apart, which leaves it an empty dPt, and a line colour on these kinds, which Format.Line does not set. A fill on a line
 #: series is not refused: the model takes none, where Excel keeps it for the marker ClearFormats leaves.

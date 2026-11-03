@@ -3149,7 +3149,7 @@ Workbook,CanCheckIn,method,CanCheckIn() As Boolean,,PARTIAL,tests/fixtures/workb
 Workbook,CaseSensitive,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 450 to set.
 Workbook,ChangeFileAccess,method,"ChangeFileAccess(Mode As XlFileAccess, [WritePassword As Variant], [Notify As Variant])",,MISSING,,
 Workbook,ChangeHistoryDuration,property,As Long,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"0 for a workbook that is not shared; a set changes nothing, as in Excel."
-Workbook,ChangeLink,method,"ChangeLink(Name As String, NewName As String, [Type As XlLinkType])",,MISSING,,
+Workbook,ChangeLink,method,"ChangeLink(Name As String, NewName As String, [Type As XlLinkType])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"Points a link at another workbook in the same folder, joins links, numbers them by name and saves as Excel does. A new name without a folder, a link read through its workbook's names or across sheets, and saving a link to another folder report themselves."
 Workbook,ChartDataPointTrack,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"True; text is error 13, and setting it reports itself unsupported."
 Workbook,Charts,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/empty_collections.json; tests/test_excel_empty_collections.py,"Empty: the model holds no chart sheets, and a workbook with one is refused as it opens."
 Workbook,CheckCompatibility,property,As Boolean,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"False for a new workbook; takes a Boolean, leaving the workbook unsaved; saved as the workbookPr's checkCompatibility and read back. It checks nothing."
@@ -3228,7 +3228,7 @@ Workbook,NewChart,event,NewChart(Ch As Chart),,MISSING,,
 Workbook,NewSheet,event,NewSheet(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for a sheet added, before the sheet left deactivates and the new one activates."
 Workbook,NewWindow,method,NewWindow() As Window,,MISSING,,
 Workbook,Open,event,Open(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when a workbook opens, before the application's WorkbookOpen and its activation."
-Workbook,OpenLinks,method,"OpenLinks(Name As String, [ReadOnly As Variant], [Type As Variant])",,MISSING,,
+Workbook,OpenLinks,method,"OpenLinks(Name As String, [ReadOnly As Variant], [Type As Variant])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"Opens the files named, on a workbook that has links, over 22 live cases."
 Workbook,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,Password,property,As String,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py; tests/test_excel_workbook_properties.py,Reads ******** as Excel does; setting a password is refused.
 Workbook,PasswordEncryptionAlgorithm,"property, read-only",As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
@@ -3284,7 +3284,7 @@ Workbook,SendMailer,method,"SendMailer([FileFormat As Variant], [Priority As XlP
 Workbook,SensitivityLabel,"property, read-only",As ISensitivityLabel,,MISSING,,
 Workbook,ServerPolicy,"property, read-only",As ServerPolicy,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,ServerViewableItems,"property, read-only",As ServerViewableItems,,MISSING,,
-Workbook,SetLinkOnData,method,"SetLinkOnData(Name As String, [Procedure As Variant])",,MISSING,,
+Workbook,SetLinkOnData,method,"SetLinkOnData(Name As String, [Procedure As Variant])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"For DDE and OLE links, which the model does not keep; does nothing, as Excel does for a workbook link."
 Workbook,SetPasswordEncryptionOptions,method,"SetPasswordEncryptionOptions([PasswordEncryptionProvider As Variant], [PasswordEncryptionAlgorithm As Variant], [PasswordEncryptionKeyLength As Variant], [PasswordEncryptionFileProperties As Variant])",,MISSING,,
 Workbook,SharedWorkspace,"property, read-only",As SharedWorkspace,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,SheetActivate,event,SheetActivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised when another sheet or workbook is made active, after the one left deactivates. Raised after the sheet's own, the sheet first among the arguments."
@@ -3320,7 +3320,7 @@ Workbook,ToggleFormsDesign,method,ToggleFormsDesign(),,MISSING,,
 Workbook,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/workbook_protection.json,"The password matched case and all, any opening a workbook that has none; given none where Excel would ask in a dialog, it reports itself unsupported."
 Workbook,UnprotectSharing,method,UnprotectSharing([SharingPassword As Variant]),,MISSING,,
 Workbook,UpdateFromFile,method,UpdateFromFile(),,MISSING,,
-Workbook,UpdateLink,method,"UpdateLink([Name As Variant], [Type As Variant])",,MISSING,,
+Workbook,UpdateLink,method,"UpdateLink([Name As Variant], [Type As Variant])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"Reads a closed workbook into the link, as Excel does over 30 live cases, and saves its values as Excel saves them."
 Workbook,UpdateLinks,property,As XlUpdateLinks,,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"Reads the file's updateLinks and takes 1 to 3, rounded as a Long, else 1004, leaving the workbook saved; saved as never or always, measured live. It changes nothing the model opens."
 Workbook,UpdateRemoteReferences,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"True; text is error 1004, and setting it reports itself unsupported."
 Workbook,UserStatus,"property, read-only",As Variant,,MISSING,,

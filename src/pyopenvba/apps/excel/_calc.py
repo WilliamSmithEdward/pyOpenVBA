@@ -359,6 +359,9 @@ class Calculator:
                     if not self.automatic:
                         changed.update((sheet.lower(), *position) for position in block_cached(owner, anchor))
         self._spoil(changed, set())
+        from pyopenvba.apps.excel._link_edits import source_changed
+
+        source_changed(self.book)
 
     def wrote_area(self, sheet: str, area: Area) -> None:
         """A block of cells changed at once, as a copy changes it: forget the formulas compiled there, and mark
@@ -426,6 +429,26 @@ class Calculator:
             owner = self._sheet_named(key[0])
             if cell is not None and owner is not None:
                 self.remember(owner.name, key[1], key[2], cell)
+                cell.stale = True
+                marked.add(key)
+        self._spoil(marked, set(marked))
+
+    def reread(self, cells: list[CellKey]) -> None:
+        """A link's copy of its workbook changed: read every formula again, as a link's number or sheet may have moved,
+        and work out only ``cells`` and what reads them, the rest keeping what they hold (tests/fixtures/link_edits.json)."""
+        waiting = [cell for owner in self.book.sheets_ for cell in owner.cells_.values() if cell.stale]
+        self.rebuild()
+        for owner in self.book.sheets_:
+            for cell in owner.cells_.values():
+                cell.stale = False
+        for cell in waiting:
+            cell.stale = True
+        self.build()
+        marked: set[CellKey] = set()
+        for name, row, column in cells:
+            key = (name.lower(), row, column)
+            cell = self._cell(key)
+            if cell is not None:
                 cell.stale = True
                 marked.add(key)
         self._spoil(marked, set(marked))

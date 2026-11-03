@@ -14,10 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 RECORD = json.loads((ROOT / 'tests/fixtures/collection_items.json').read_text(encoding='utf-8'))
 #: Collections whose answers the model does not all reproduce yet: an index it reads otherwise, or a member it lacks.
 #: Their checklist rows stay PARTIAL.
-UNFINISHED = {'ChartGroups', 'ChartObjects', 'CommentsThreaded', 'DataLabels', 'DocumentProperties', 'Errors',
-              'FormatConditions', 'FullSeriesCollection', 'Hyperlinks', 'Panes', 'PivotFields', 'PivotFilters',
-              'PivotItems', 'PivotTables', 'Points', 'Queries', 'Scenarios', 'SeriesCollection', 'ShapeRange', 'Shapes',
-              'SheetViews', 'Slicers', 'SparklineGroup', 'TableStyles', 'VPageBreaks'}
+UNFINISHED = {'ChartObjects', 'CommentsThreaded', 'DataLabels', 'DocumentProperties', 'Errors', 'FullSeriesCollection',
+              'Hyperlinks', 'Panes', 'PivotFilters', 'Points', 'Queries', 'SeriesCollection', 'ShapeRange', 'Shapes',
+              'SheetViews', 'Slicers', 'SparklineGroup', 'VPageBreaks'}
 CASES = [(number, *case) for number, case in enumerate(RECORD['cases']) if case[0] not in UNFINISHED]
 
 

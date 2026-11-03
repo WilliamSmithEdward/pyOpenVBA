@@ -2582,7 +2582,7 @@ class ChartGroups(VBACollection, Created):
         return [ChartGroup(self.chart)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
-        if int(to_number(index)) != 1:
+        if int(to_integer(index, 'Long')) != 1:
             raise error(1004, 'Unable to get the ChartGroups property of the Chart class')
         return items[0]
 

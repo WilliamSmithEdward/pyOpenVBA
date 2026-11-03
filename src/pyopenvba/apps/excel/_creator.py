@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from pyopenvba.apps.excel._item_indexes import item_error
+from pyopenvba.apps.excel._item_indexes import item_error, loose_index
 from pyopenvba.apps.excel._read_only import let_error, set_parent_error
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._inventory import member_exists, type_known
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method
-from pyopenvba.interpreter._values import MISSING, VBAInt, error
+from pyopenvba.interpreter._values import MISSING, NULL, VBAInt, error
 
 
 class Created(VBAObject):
@@ -37,6 +37,10 @@ class Created(VBAObject):
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         if name.lower() != "item" or not isinstance(self, VBACollection):
             return super().vba_get(name, args, named)
+        if len(args) == 1 and not named:
+            if self.vba_type_name == "Scenarios" and args[0] is NULL:
+                return self
+            args = [loose_index(self.vba_type_name, args[0])]
         try:
             return super().vba_get(name, args, named)
         except VBARuntimeError as failed:

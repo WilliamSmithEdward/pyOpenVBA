@@ -119,8 +119,12 @@ class Clip:
     """What Copy or Cut put on the clipboard: the range itself, read when it is pasted."""
 
     source: Range
-    block: Block
     cut: bool
+
+    @property
+    def block(self) -> Block:
+        """What it covers now: the range follows its cells."""
+        return block_of(self.source.areas)
 
     @property
     def area(self) -> Area:
@@ -138,7 +142,8 @@ def copy(target: Range) -> object:
 
     refuse_sparklines(target.sheet, "Copying from")
     source = visible(target)
-    target.sheet.book.application.clipboard = Clip(source, block_of(source.areas), cut=False)
+    block_of(source.areas)
+    target.sheet.book.application.clipboard = Clip(source, cut=False)
     return True
 
 
@@ -262,7 +267,7 @@ def cut(target: Range, destination: object) -> object:
     if len(target.areas) != 1:
         raise error(1004, "That command cannot be used on multiple selections")
     if destination is MISSING:
-        target.sheet.book.application.clipboard = Clip(target, block_of([target.first]), cut=True)
+        target.sheet.book.application.clipboard = Clip(target, cut=True)
         return True
     if not isinstance(destination, Range):
         raise error(1004, "Cut needs a range to move to")
@@ -597,7 +602,7 @@ def move(source: Range, area: Area, destination: Range) -> None:
     if any(_merges.intersects(area, one) for one in sheet.merged_areas) or any(
             _merges.intersects(landing, one) for one in target.merged_areas):
         raise VBAUnsupportedError("cutting merged cells is not implemented")
-    if _sized(sheet, area) or _sized(target, landing):
+    if sized(sheet, area) or sized(target, landing):
         raise VBAUnsupportedError("cutting whole rows or columns that carry sizes or formats of their own is not "
                                   "implemented")
     unmeasured(Range(target, [landing]), "Cutting cells")
@@ -682,7 +687,7 @@ def move(source: Range, area: Area, destination: Range) -> None:
     book.application.clipboard = None
 
 
-def _sized(sheet: Worksheet, area: Area) -> bool:
+def sized(sheet: Worksheet, area: Area) -> bool:
     """Whether whole rows or columns of ``area`` keep a height, width, hiding or format of their own."""
     if area.whole_columns:
         return any(area.left <= column <= area.right for column in sheet.dims.columns)

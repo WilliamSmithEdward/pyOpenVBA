@@ -868,7 +868,31 @@ def shift_reference(text: str, down: int, across: int) -> str:
     moved = [_shift_corner(part, down, across) for part in parts]
     if any(part == "#REF!" for part in moved):
         return "#REF!"
-    return ":".join(moved)
+    return ":".join(_in_order(moved))
+
+
+def _in_order(corners: list[str]) -> list[str]:
+    """A range's corners top-left first: one that has turned over is respelled, each axis on its own, with its dollar
+    signs staying on the values they came with, so =SUM($D$3:D4) copied up three rows is =SUM($D1:D$3)."""
+    from pyopenvba._a1 import column_number
+
+    if len(corners) != 2:
+        return corners
+    start, end = _CORNER.match(corners[0]), _CORNER.match(corners[1])
+    if start is None or end is None:
+        return corners
+    start_fixed, start_letters, start_row_fixed, start_digits = start.groups()
+    end_fixed, end_letters, end_row_fixed, end_digits = end.groups()
+    if start_letters and end_letters and column_number(start_letters) > column_number(end_letters):
+        start_fixed, start_letters, end_fixed, end_letters = end_fixed, end_letters, start_fixed, start_letters
+    if start_digits and end_digits and int(start_digits) > int(end_digits):
+        start_row_fixed, start_digits, end_row_fixed, end_digits = end_row_fixed, end_digits, start_row_fixed, start_digits
+
+    def spelled(fixed: str | None, letters: str | None, row_fixed: str | None, digits: str | None) -> str:
+        return f"{fixed or ''}{letters or ''}{row_fixed or ''}{digits or ''}"
+
+    return [spelled(start_fixed, start_letters, start_row_fixed, start_digits),
+            spelled(end_fixed, end_letters, end_row_fixed, end_digits)]
 
 
 def _shift_corner(part: str, down: int, across: int) -> str:

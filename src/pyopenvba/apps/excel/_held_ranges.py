@@ -9,7 +9,25 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, parse_area, split_sheet
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range, Worksheet
+    from pyopenvba.apps.excel._model import Range, Workbook, Worksheet
+
+
+def _gone(held: Range) -> None:
+    from pyopenvba.apps.excel._model import GoneRange
+
+    held.__class__ = GoneRange
+    # So what was taken from it, a Font or a Comment, goes too.
+    held.invalidated = True
+    application = held.sheet.book.application
+    if application.clipboard is not None and application.clipboard.source is held:
+        application.clipboard = None
+
+
+def closed(book: Workbook) -> None:
+    """A workbook has closed, and its ranges with it."""
+    for sheet in book.sheets_:
+        for held in list(sheet.held_ranges):
+            _gone(held)
 
 
 def _spelled(area: Area) -> str:
@@ -17,8 +35,6 @@ def _spelled(area: Area) -> str:
 
 
 def _follow(held: Range, rewrite: Callable[[str], str], target: Worksheet | None = None) -> None:
-    from pyopenvba.apps.excel._model import GoneRange
-
     areas: list[Area] = []
     moved_to = held.sheet
     for area in held.areas:
@@ -30,7 +46,7 @@ def _follow(held: Range, rewrite: Callable[[str], str], target: Worksheet | None
             moved_to = target
         areas.append(parse_area(text.removeprefix('='), sheet=moved_to.name))
     if not areas:
-        held.__class__ = GoneRange
+        _gone(held)
         return
     if moved_to is not held.sheet:
         held.sheet.held_ranges.discard(held)

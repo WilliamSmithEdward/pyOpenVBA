@@ -15,6 +15,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.Insert` with something on the clipboard is Insert Copied Cells or Insert Cut Cells:
+  `Rows(3).Copy: Rows(6).Insert` duplicates the row and `Rows(3).Cut: Rows(6).Insert` moves it. Measured in live Excel
+  over about 240 shapes of copy, cut and target (`tests/fixtures/range_audit.json`). Filling whole columns with a copy
+  of cells, a million cells each, says it is not implemented.
 - Chart data from several areas with the same rows or columns, through `SetSourceData` and `AddChart2`'s selection, and
   `AdvancedFilter` over a whole column.
 - `ListObject.Unlist`, which turns a table into cells: each of the 60 built-in styles becomes the cells' own formats
@@ -850,6 +854,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Delete` ends Copy and Cut, whatever it deletes. A `Font`, `Interior`, `Borders` or `Comment` taken from a range
+  goes when its cells go, a `Comment` follows its cell, and Ranges go when their workbook closes.
+- `Columns("8:9")` is error 1004. Copying several whole columns no longer says the destination is too large. A copied
+  range that turns over is respelled top-left first, so `=SUM($D$3:D4)` copied up three rows is `=SUM($D1:D$3)`.
 - A Range now follows its cells however it is held, by a variable, a `With` block, an argument or a collection, through
   rows and columns inserted or deleted, cells shifted and `Cut`, and raises 424 once they have gone. It used to stay at
   its old address. `For Each` over a range counts through it as it stands at each step, as Excel does, so deleting rows

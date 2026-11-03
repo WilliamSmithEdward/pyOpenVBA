@@ -1,0 +1,1162 @@
+{
+ "measured_at": "2026-11-03T17:58:07.663432+00:00",
+ "source": "Private Function Look(ByVal ws As Object) As String\n    Dim i As Long, j As Long, t As String\n    t = Application.CutCopyMode & \"|\" & ws.UsedRange.Address(False, False) & \"|\" & Selection.Address(False, False)\n    If ws.Parent.Worksheets.Count > 1 Then t = t & \"|\" & ws.Parent.Worksheets(2).UsedRange.Address(False, False)\n    For i = 1 To 7\n        t = t & \"/\"\n        For j = 1 To 8\n            t = t & ws.Cells(i, j).Text & \",\"\n        Next\n    Next\n    Look = t\nEnd Function\n\nPrivate Function Forms(ByVal ws As Object) As String\n    Dim i As Long, j As Long, t As String\n    For i = 1 To 22\n        For j = 1 To 9\n            If ws.Cells(i, j).HasFormula Then t = t & ws.Cells(i, j).Address(False, False) & ws.Cells(i, j).Formula & \";\"\n        Next\n    Next\n    Forms = t\nEnd Function\n\nPrivate Function Fill() As Object\n    Dim ws As Object, i As Long\n    Set ws = Workbooks.Add(xlWBATWorksheet).Worksheets(1)\n    ws.Range(\"A1:E1\").Value = Array(\"Name\", \"Team\", \"Unit\", \"Qty\", \"Cost\")\n    For i = 2 To 9\n        ws.Cells(i, 1).Value = \"n\" & i: ws.Cells(i, 2).Value = \"t\" & i: ws.Cells(i, 3).Value = \"u\" & i\n        ws.Cells(i, 4).Value = i: ws.Cells(i, 5).Value = i * 2\n    Next\n    Set Fill = ws\nEnd Function\n\nPublic Function Audit(ByVal which As Long) As String\n    Dim ws As Object, wb As Object\n    Dim r As Range, q As Range, c As Range, s As String, i As Long, v As Variant, o As Object, lo As Object\n    Application.DisplayAlerts = False\n    Set ws = Fill()\n    Set wb = ws.Parent\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"B3\").Copy\nws.Rows(1).Insert\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value\n    Case 1\n        ws.Range(\"B3\").Cut\nws.Rows(1).Insert\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value\n    Case 2\n        ws.Range(\"B3\").Copy\nws.Rows(20).Insert\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value\n    Case 3\n        ws.Range(\"B3\").Copy\nws.Range(\"B3\").Delete xlShiftUp\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value\n    Case 4\n        ws.Range(\"B3\").Copy\nws.Range(\"Z1\").Value = 1\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value\n    Case 5\n        ws.Range(\"B3\").Cut\nws.Range(\"Z1\").Value = 1\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value\n    Case 6\n        Set o = ws.Range(\"B3\").Font\nws.Rows(1).Insert\no.Bold = True\ns = ws.Range(\"B3\").Font.Bold & ws.Range(\"B4\").Font.Bold\n    Case 7\n        Set o = ws.Range(\"B3\").Interior\nws.Rows(1).Insert\no.Color = 255\ns = ws.Range(\"B3\").Interior.Color & \"|\" & ws.Range(\"B4\").Interior.Color\n    Case 8\n        Set o = ws.Range(\"B3\").Borders\nws.Rows(1).Insert\no.LineStyle = xlContinuous\ns = ws.Range(\"B3\").Borders(xlEdgeTop).LineStyle & \"|\" & ws.Range(\"B4\").Borders(xlEdgeTop).LineStyle\n    Case 9\n        Set o = ws.Range(\"B3\").Font\nws.Rows(3).Delete\ns = o.Bold\n    Case 10\n        Set o = ws.Range(\"B3\").Validation\nws.Rows(1).Insert\no.Add xlValidateWholeNumber, , xlBetween, \"1\", \"5\"\nOn Error Resume Next\ns = ws.Range(\"B3\").Validation.Type & \"|\" & Err.Number\nErr.Clear\ns = s & ws.Range(\"B4\").Validation.Type & \"|\" & Err.Number\n    Case 11\n        Set o = ws.Range(\"B3\").FormatConditions\nws.Rows(1).Insert\no.Add xlCellValue, xlGreater, \"=1\"\ns = ws.Range(\"B3\").FormatConditions.Count & ws.Range(\"B4\").FormatConditions.Count\n    Case 12\n        Set o = ws.Range(\"B3\").FormatConditions.Add(xlCellValue, xlGreater, \"=1\")\nws.Rows(1).Insert\ns = o.AppliesTo.Address\n    Case 13\n        Set o = ws.Range(\"B3\").Characters(1, 1)\nws.Rows(1).Insert\no.Font.Bold = True\ns = ws.Range(\"B3\").Font.Bold & ws.Range(\"B4\").Font.Bold & TypeName(o)\n    Case 14\n        With ws.Sort\n.SetRange ws.Range(\"A1:E9\")\n.SortFields.Add Key:=ws.Range(\"D2:D9\"), Order:=xlDescending\n.Header = xlYes\nEnd With\nws.Rows(1).Insert\nws.Sort.Apply\ns = ws.Sort.Rng.Address & ws.Sort.SortFields(1).Key.Address & ws.Range(\"D3\").Value & ws.Range(\"D2\").Value\n    Case 15\n        ws.Sort.SetRange ws.Range(\"A1:E9\")\nws.Rows(20).Insert\ns = ws.Sort.Rng.Address\n    Case 16\n        ws.Range(\"H1\").Value = \"Team\"\nws.Range(\"H2\").Value = \"t3\"\nws.Range(\"A1:E9\").AdvancedFilter xlFilterInPlace, ws.Range(\"H1:H2\")\nws.ShowAllData\nws.Rows(1).Insert\nws.Range(\"A2:E10\").AdvancedFilter xlFilterCopy, , ws.Range(\"L1\")\ns = ws.Range(\"L2\").Value & ws.Cells(ws.Rows.Count, 12).End(xlUp).Row\n    Case 17\n        ws.Range(\"H1\").Value = \"Team\"\nws.Range(\"H2\").Value = \"t3\"\nws.Range(\"A1:E9\").AdvancedFilter xlFilterInPlace, ws.Range(\"H1:H2\")\nws.ShowAllData\ns = ThisWorkbook.Names.Count & ws.Names.Count\nOn Error Resume Next\ns = s & ws.Names(\"Criteria\").RefersTo & ws.Names(\"_FilterDatabase\").RefersTo\ns = s & Err.Number\n    Case 18\n        Set o = ws.Hyperlinks.Add(ws.Range(\"B3\"), \"https://example.com\")\nws.Rows(1).Insert\ns = o.Range.Address & ws.Hyperlinks(1).Range.Address\n    Case 19\n        Set o = ws.Range(\"B3\").AddComment(\"x\")\nws.Rows(1).Insert\ns = o.Parent.Address & ws.Range(\"B4\").Comment.Text\n    Case 20\n        Set o = ws.Range(\"B3\").AddComment(\"x\")\nws.Rows(3).Delete\nOn Error Resume Next\ns = ws.Comments.Count & o.Parent.Address & Err.Number\n    Case 21\n        On Error Resume Next\ns = ws.Columns(\"8:9\").Address\ns = s & \"|\" & Err.Number\n    Case 22\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows.Add 1\ns = r.Address & q.Address & lo.Range.Address\n    Case 23\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows.Add\ns = r.Address & q.Address & lo.Range.Address\n    Case 24\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows(1).Delete\ns = r.Address & q.Address & lo.Range.Address\n    Case 25\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows(2).Delete\nOn Error Resume Next\ns = r.Address & Err.Number & q.Address & lo.Range.Address\n    Case 26\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns.Add 1\ns = r.Address & q.Address & lo.Range.Address\n    Case 27\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns.Add\ns = r.Address & q.Address & lo.Range.Address\n    Case 28\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns(1).Delete\ns = r.Address & q.Address & lo.Range.Address\n    Case 29\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns(2).Delete\nOn Error Resume Next\ns = r.Address & Err.Number & q.Address & lo.Range.Address\n    Case 30\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nws.Rows(1).Insert\ns = r.Address & q.Address & lo.Range.Address\n    Case 31\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nws.Rows(4).Insert\ns = r.Address & q.Address & lo.Range.Address\n    Case 32\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.Resize ws.Range(\"A1:E12\")\ns = r.Address & q.Address & lo.Range.Address\n    Case 33\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ShowTotals = True\ns = r.Address & q.Address & lo.Range.Address\n    Case 34\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.Delete\nOn Error Resume Next\ns = r.Address & Err.Number\n    Case 35\n        Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.Unlist\ns = r.Address & q.Address\n    Case 36\n        Set r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").Sort ws.Range(\"B1\"), Header:=xlYes\nws.Range(\"A1:E9\").Subtotal 2, xlSum, Array(4)\ns = r.Address & ws.UsedRange.Address\n    Case 37\n        ws.Range(\"A1:E9\").Subtotal 2, xlSum, Array(4)\nSet r = ws.Range(\"B5\")\nws.Range(\"A1\").CurrentRegion.RemoveSubtotal\nOn Error Resume Next\ns = r.Address & Err.Number & ws.UsedRange.Address\n    Case 38\n        Set r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").RemoveDuplicates 2, xlYes\ns = r.Address\n    Case 39\n        ws.Range(\"B4:B5\").Value = \"t3\"\nSet r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").RemoveDuplicates 2, xlYes\ns = r.Address & r.Value\n    Case 40\n        Set r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").Sort ws.Range(\"D1\"), xlDescending, Header:=xlYes\ns = r.Address & r.Value\n    Case 41\n        Set r = ws.Range(\"A1:B1\")\nr.Merge\ns = r.Address\nr.UnMerge\ns = s & r.Address\n    Case 42\n        Set r = ws.Range(\"D3\")\nws.Rows(3).Group\ns = r.Address\nws.Rows(3).Hidden = True\ns = s & r.Address & r.Height\n    Case 43\n        Set r = ws.Range(\"H1\")\nws.Range(\"B3\").Cut r\ns = r.Address & r.Value\n    Case 44\n        Set r = ws.Range(\"B3\")\nr.Cut ws.Range(\"H1\")\ns = r.Address & r.Value\nr.EntireRow.Delete\ns = s & ws.Range(\"B3\").Value\n    Case 45\n        Set r = ws.Range(\"B3\")\nr.Delete xlShiftUp\nOn Error Resume Next\ns = r.Address & Err.Number\n    Case 46\n        Set r = ws.Range(\"B3\")\nr.Insert xlShiftDown\ns = r.Address\n    Case 47\n        Set r = ws.Rows(3)\nr.Insert\ns = r.Address\n    Case 48\n        Set r = ws.Rows(3)\nr.Delete\nOn Error Resume Next\ns = r.Address & Err.Number\n    Case 49\n        Set r = ws.Range(\"A1\")\nws.Parent.Close False\nOn Error Resume Next\ns = r.Address & Err.Number\n    Case 50\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 51\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(2).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 52\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 53\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(4).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 54\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(5).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 55\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(9).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 56\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(10).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 57\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 58\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"30:31\").Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 59\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 60\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(2).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 61\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(3).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 62\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(10).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 63\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 64\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftToRight\ns = Err.Number & \"|\" & Look(ws)\n    Case 65\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"A1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 66\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 67\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B5\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 68\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftToRight\ns = Err.Number & \"|\" & Look(ws)\n    Case 69\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 70\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1:D2\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 71\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D20\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 72\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 73\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(3).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 74\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(5).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 75\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(20).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 76\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(1).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 77\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(2).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 78\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(5).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 79\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)\n    Case 80\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B1\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)\n    Case 81\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B5\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)\n    Case 82\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"A3\").Delete xlShiftToLeft\ns = Err.Number & \"|\" & Look(ws)\n    Case 83\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 84\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 85\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(5).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 86\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 87\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 88\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(10).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 89\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 90\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 91\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 92\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 93\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(3).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 94\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(5).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 95\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(20).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 96\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)\n    Case 97\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B5\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)\n    Case 98\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 99\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 100\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 101\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 102\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 103\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 104\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 105\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 106\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 107\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 108\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 109\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 110\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 111\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 112\n        ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 113\n        ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(4).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 114\n        ws.Columns(2).Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 115\n        ws.Columns(2).Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 116\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 117\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 118\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 119\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftToRight\ns = Err.Number & \"|\" & Look(ws)\n    Case 120\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"G1\").Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 121\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"G1:H2\").Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 122\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 123\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)\n    Case 124\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)\n    Case 125\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)\n    Case 126\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 127\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"2:3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 128\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"5:6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 129\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 130\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"2:3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 131\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"8:9\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 132\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\nws.Paste ws.Range(\"H1\")\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 133\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\nws.Range(\"D1\").Insert\nws.Paste ws.Range(\"H1\")\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 134\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\nws.Paste ws.Range(\"H1\")\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 135\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 136\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 137\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 138\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 139\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Columns(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 140\n        ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 141\n        ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 142\n        ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 143\n        ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 144\n        ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 145\n        ws.Range(\"A3:E3\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 146\n        ws.Range(\"A3:E3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 147\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1:D4\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 148\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1:G4\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 149\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1:E3\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 150\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 151\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(\"8:9\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 152\n        ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 153\n        ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(\"1:4\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 154\n        ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(\"1:3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 155\n        ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 156\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 157\n        ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 158\n        ws.Range(\"A1,C1\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 159\n        ws.Range(\"A1,C1\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 160\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 161\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 162\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 163\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 164\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B5\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 165\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B4\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 166\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B3\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 167\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 168\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 169\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 170\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 171\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"C3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 172\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"C3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 173\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 174\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 175\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 176\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 177\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 178\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1:D2\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 179\n        ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1:E2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 180\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 181\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 182\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 183\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"G1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 184\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 185\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"C1\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 186\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 187\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"C3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 188\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 189\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 190\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"A4\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 191\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 192\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 193\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 194\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 195\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(5).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 196\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 197\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 198\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 199\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"A1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 200\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 201\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 202\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 203\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(5).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 204\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 205\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 206\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(\"6:9\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 207\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 208\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 209\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 210\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 211\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 212\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 213\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 214\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Cut\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 215\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Cut\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 216\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Cut\nws.Activate\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 217\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Cut\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 218\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Cut\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 219\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Copy\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 220\n        ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Copy\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 221\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 222\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 223\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 224\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 225\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 226\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 227\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"D5\")\nSet q = ws.Range(\"D3\")\nws.Range(\"D3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = r.Address(False, False) & \",\" & Forms(ws) & \",\" & q.Address(False, False)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 228\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"D5\")\nSet q = ws.Range(\"D3\")\nws.Range(\"D3\").Cut\nOn Error Resume Next\nws.Range(\"F1\").Insert xlShiftDown\ns = r.Address(False, False) & \",\" & Forms(ws) & \",\" & q.Address(False, False)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 229\n        ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"D5\")\nSet q = ws.Range(\"D3\")\nws.Range(\"D3\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert xlShiftDown\ns = r.Address(False, False) & \",\" & Forms(ws) & \",\" & q.Address(False, False)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 230\n        ws.Rows(3).RowHeight = 40\nws.Range(\"B3\").Font.Bold = True\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = (ws.Rows(6).RowHeight > 30) & ws.Range(\"B6\").Font.Bold & (ws.Rows(7).RowHeight > 30)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 231\n        ws.Range(\"B3\").Font.Bold = True\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = ws.Range(\"B5\").Font.Bold & ws.Range(\"B3\").Font.Bold\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 232\n        ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 233\n        ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 234\n        ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 235\n        ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 236\n        ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 237\n        ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 238\n        ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(\"20:23\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 239\n        ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 240\n        ws.Range(\"A3:E3\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 241\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 242\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"3:4\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 243\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"20:22\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 244\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 245\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 246\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 247\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 248\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(\"20:22\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 249\n        ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 250\n        ws.Range(\"B3:B5\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 251\n        ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 252\n        ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 253\n        ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 254\n        ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 255\n        ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 256\n        ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 257\n        ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 258\n        ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 259\n        ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 260\n        ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"C1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 261\n        ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 262\n        ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(\"3:6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 263\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"A5\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 264\n        ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 265\n        ws.Columns(2).Cut\nOn Error Resume Next\nws.Range(\"D2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 266\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"H:I\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 267\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"B:C\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 268\n        ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"A:B\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 269\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(\"H:I\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 270\n        ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(\"A:B\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 271\n        ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(\"A:B\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 272\n        ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(\"G:H\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 273\n        ws.Columns(\"B:C\").Copy\nOn Error Resume Next\nws.Columns(\"C\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 274\n        ws.Columns(\"B:C\").Copy\nOn Error Resume Next\nws.Columns(\"A:D\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 275\n        ws.Columns(\"B:C\").Copy\nOn Error Resume Next\nws.Columns(\"G:I\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 276\n        ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(\"6:7\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 277\n        ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 278\n        ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"B6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 279\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 280\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B4\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 281\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"E3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 282\n        ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 283\n        ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 284\n        ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"A\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 285\n        ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"C\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 286\n        ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"D\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 287\n        ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"G:H\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    Case 288\n        ws.Range(\"B3\").Font.Bold = True\nws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = ws.Range(\"Z6\").Font.Bold & ws.Range(\"Z7\").Font.Bold\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)\n    End Select\n    s = \"ok \" & s\nAnswered:\n    On Error Resume Next\n    Application.CutCopyMode = False\n    wb.Close False\n    On Error GoTo 0\n    Application.DisplayAlerts = True\n    Audit = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \" & s\n    Resume Answered\nEnd Function\n",
+ "cases": [
+  [
+   "ws.Range(\"B3\").Copy\nws.Rows(1).Insert\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value",
+   "Err 1004 "
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nws.Rows(1).Insert\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value",
+   "Err 1004 0"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nws.Rows(20).Insert\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value",
+   "ok 1t3"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nws.Range(\"B3\").Delete xlShiftUp\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value",
+   "Err 1004 0"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nws.Range(\"Z1\").Value = 1\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value",
+   "ok 1t3"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nws.Range(\"Z1\").Value = 1\ns = Application.CutCopyMode\nws.Paste ws.Range(\"H1\")\ns = s & ws.Range(\"H1\").Value",
+   "ok 2t3"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").Font\nws.Rows(1).Insert\no.Bold = True\ns = ws.Range(\"B3\").Font.Bold & ws.Range(\"B4\").Font.Bold",
+   "ok FalseTrue"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").Interior\nws.Rows(1).Insert\no.Color = 255\ns = ws.Range(\"B3\").Interior.Color & \"|\" & ws.Range(\"B4\").Interior.Color",
+   "ok 16777215|255"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").Borders\nws.Rows(1).Insert\no.LineStyle = xlContinuous\ns = ws.Range(\"B3\").Borders(xlEdgeTop).LineStyle & \"|\" & ws.Range(\"B4\").Borders(xlEdgeTop).LineStyle",
+   "ok -4142|1"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").Font\nws.Rows(3).Delete\ns = o.Bold",
+   "Err 424 "
+  ],
+  [
+   "Set o = ws.Range(\"B3\").Validation\nws.Rows(1).Insert\no.Add xlValidateWholeNumber, , xlBetween, \"1\", \"5\"\nOn Error Resume Next\ns = ws.Range(\"B3\").Validation.Type & \"|\" & Err.Number\nErr.Clear\ns = s & ws.Range(\"B4\").Validation.Type & \"|\" & Err.Number",
+   "ok 1|0"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").FormatConditions\nws.Rows(1).Insert\no.Add xlCellValue, xlGreater, \"=1\"\ns = ws.Range(\"B3\").FormatConditions.Count & ws.Range(\"B4\").FormatConditions.Count",
+   "ok 01"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").FormatConditions.Add(xlCellValue, xlGreater, \"=1\")\nws.Rows(1).Insert\ns = o.AppliesTo.Address",
+   "ok $B$4"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").Characters(1, 1)\nws.Rows(1).Insert\no.Font.Bold = True\ns = ws.Range(\"B3\").Font.Bold & ws.Range(\"B4\").Font.Bold & TypeName(o)",
+   "ok FalseCharacters"
+  ],
+  [
+   "With ws.Sort\n.SetRange ws.Range(\"A1:E9\")\n.SortFields.Add Key:=ws.Range(\"D2:D9\"), Order:=xlDescending\n.Header = xlYes\nEnd With\nws.Rows(1).Insert\nws.Sort.Apply\ns = ws.Sort.Rng.Address & ws.Sort.SortFields(1).Key.Address & ws.Range(\"D3\").Value & ws.Range(\"D2\").Value",
+   "ok $A$2:$E$10$D$3:$D$109Qty"
+  ],
+  [
+   "ws.Sort.SetRange ws.Range(\"A1:E9\")\nws.Rows(20).Insert\ns = ws.Sort.Rng.Address",
+   "ok $A$1:$E$9"
+  ],
+  [
+   "ws.Range(\"H1\").Value = \"Team\"\nws.Range(\"H2\").Value = \"t3\"\nws.Range(\"A1:E9\").AdvancedFilter xlFilterInPlace, ws.Range(\"H1:H2\")\nws.ShowAllData\nws.Rows(1).Insert\nws.Range(\"A2:E10\").AdvancedFilter xlFilterCopy, , ws.Range(\"L1\")\ns = ws.Range(\"L2\").Value & ws.Cells(ws.Rows.Count, 12).End(xlUp).Row",
+   "ok n32"
+  ],
+  [
+   "ws.Range(\"H1\").Value = \"Team\"\nws.Range(\"H2\").Value = \"t3\"\nws.Range(\"A1:E9\").AdvancedFilter xlFilterInPlace, ws.Range(\"H1:H2\")\nws.ShowAllData\ns = ThisWorkbook.Names.Count & ws.Names.Count\nOn Error Resume Next\ns = s & ws.Names(\"Criteria\").RefersTo & ws.Names(\"_FilterDatabase\").RefersTo\ns = s & Err.Number",
+   "ok 02=Sheet1!$H$1:$H$2=Sheet1!$A$1:$E$90"
+  ],
+  [
+   "Set o = ws.Hyperlinks.Add(ws.Range(\"B3\"), \"https://example.com\")\nws.Rows(1).Insert\ns = o.Range.Address & ws.Hyperlinks(1).Range.Address",
+   "ok $B$4$B$4"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").AddComment(\"x\")\nws.Rows(1).Insert\ns = o.Parent.Address & ws.Range(\"B4\").Comment.Text",
+   "ok $B$4x"
+  ],
+  [
+   "Set o = ws.Range(\"B3\").AddComment(\"x\")\nws.Rows(3).Delete\nOn Error Resume Next\ns = ws.Comments.Count & o.Parent.Address & Err.Number",
+   "ok "
+  ],
+  [
+   "On Error Resume Next\ns = ws.Columns(\"8:9\").Address\ns = s & \"|\" & Err.Number",
+   "ok |1004"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows.Add 1\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$4$A$3:$E$10$A$1:$E$10"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows.Add\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$3$A$2:$E$9$A$1:$E$10"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows(1).Delete\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$2$A$2:$E$8$A$1:$E$8"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListRows(2).Delete\nOn Error Resume Next\ns = r.Address & Err.Number & q.Address & lo.Range.Address",
+   "ok "
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns.Add 1\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $C$3$B$2:$F$9$A$1:$F$9"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns.Add\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$3$A$2:$E$9$A$1:$F$9"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns(1).Delete\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $A$3$A$2:$D$9$A$1:$D$9"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ListColumns(2).Delete\nOn Error Resume Next\ns = r.Address & Err.Number & q.Address & lo.Range.Address",
+   "ok "
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nws.Rows(1).Insert\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$4$A$3:$E$10$A$2:$E$10"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nws.Rows(4).Insert\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$3$A$2:$E$10$A$1:$E$10"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.Resize ws.Range(\"A1:E12\")\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$3$A$2:$E$9$A$1:$E$12"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.ShowTotals = True\ns = r.Address & q.Address & lo.Range.Address",
+   "ok $B$3$A$2:$E$9$A$1:$E$10"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.Delete\nOn Error Resume Next\ns = r.Address & Err.Number",
+   "ok $B$30"
+  ],
+  [
+   "Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:E9\"), , xlYes)\nSet r = ws.Range(\"B3\")\nSet q = lo.DataBodyRange\nlo.Unlist\ns = r.Address & q.Address",
+   "ok $B$3$A$2:$E$9"
+  ],
+  [
+   "Set r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").Sort ws.Range(\"B1\"), Header:=xlYes\nws.Range(\"A1:E9\").Subtotal 2, xlSum, Array(4)\ns = r.Address & ws.UsedRange.Address",
+   "ok $B$8$A$1:$E$18"
+  ],
+  [
+   "ws.Range(\"A1:E9\").Subtotal 2, xlSum, Array(4)\nSet r = ws.Range(\"B5\")\nws.Range(\"A1\").CurrentRegion.RemoveSubtotal\nOn Error Resume Next\ns = r.Address & Err.Number & ws.UsedRange.Address",
+   "ok "
+  ],
+  [
+   "Set r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").RemoveDuplicates 2, xlYes\ns = r.Address",
+   "ok $B$5"
+  ],
+  [
+   "ws.Range(\"B4:B5\").Value = \"t3\"\nSet r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").RemoveDuplicates 2, xlYes\ns = r.Address & r.Value",
+   "ok $B$5t7"
+  ],
+  [
+   "Set r = ws.Range(\"B5\")\nws.Range(\"A1:E9\").Sort ws.Range(\"D1\"), xlDescending, Header:=xlYes\ns = r.Address & r.Value",
+   "ok $B$5t6"
+  ],
+  [
+   "Set r = ws.Range(\"A1:B1\")\nr.Merge\ns = r.Address\nr.UnMerge\ns = s & r.Address",
+   "ok $A$1:$B$1$A$1:$B$1"
+  ],
+  [
+   "Set r = ws.Range(\"D3\")\nws.Rows(3).Group\ns = r.Address\nws.Rows(3).Hidden = True\ns = s & r.Address & r.Height",
+   "ok $D$3$D$30"
+  ],
+  [
+   "Set r = ws.Range(\"H1\")\nws.Range(\"B3\").Cut r\ns = r.Address & r.Value",
+   "Err 424 "
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nr.Cut ws.Range(\"H1\")\ns = r.Address & r.Value\nr.EntireRow.Delete\ns = s & ws.Range(\"B3\").Value",
+   "ok $H$1t3t4"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nr.Delete xlShiftUp\nOn Error Resume Next\ns = r.Address & Err.Number",
+   "ok "
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nr.Insert xlShiftDown\ns = r.Address",
+   "ok $B$4"
+  ],
+  [
+   "Set r = ws.Rows(3)\nr.Insert\ns = r.Address",
+   "ok $4:$4"
+  ],
+  [
+   "Set r = ws.Rows(3)\nr.Delete\nOn Error Resume Next\ns = r.Address & Err.Number",
+   "ok "
+  ],
+  [
+   "Set r = ws.Range(\"A1\")\nws.Parent.Close False\nOn Error Resume Next\ns = r.Address & Err.Number",
+   "ok "
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(2).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,t3,t3,t3,t3,t3,t3,t3,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(4).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/t3,t3,t3,t3,t3,t3,t3,t3,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(5).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/t3,t3,t3,t3,t3,t3,t3,t3,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(9).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(10).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:20|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"30:31\").Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:31|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(2).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A:F|A1/Name,t3,Team,Unit,Qty,Cost,,,/n2,t3,t2,u2,2,4,,,/n3,t3,t3,u3,3,6,,,/n4,t3,t4,u4,4,8,,,/n5,t3,t5,u5,5,10,,,/n6,t3,t6,u6,6,12,,,/n7,t3,t7,u7,7,14,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(3).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A:F|A1/Name,Team,t3,Unit,Qty,Cost,,,/n2,t2,t3,u2,2,4,,,/n3,t3,t3,u3,3,6,,,/n4,t4,t3,u4,4,8,,,/n5,t5,t3,u5,5,10,,,/n6,t6,t3,u6,6,12,,,/n7,t7,t3,u7,7,14,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(10).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A:J|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/Name,Team,Unit,t3,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,t3,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftToRight\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:F9|A1/Name,Team,Unit,t3,Qty,Cost,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"A1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/t3,Team,Unit,Qty,Cost,,,,/Name,t2,u2,2,4,,,,/n2,t3,u3,3,6,,,,/n3,t4,u4,4,8,,,,/n4,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/Name,t3,Unit,Qty,Cost,,,,/n2,Team,u2,2,4,,,,/n3,t2,u3,3,6,,,,/n4,t3,u4,4,8,,,,/n5,t4,u5,5,10,,,,/n6,t5,u6,6,12,,,,/n7,t6,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B5\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t3,u5,5,10,,,,/n6,t5,u6,6,12,,,,/n7,t6,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftToRight\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:F9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,n3,t3,u3,3,6,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/Name,Team,Unit,t3,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,t3,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1:D2\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E11|A1/Name,Team,Unit,t3,Cost,,,,/n2,t2,u2,t3,4,,,,/n3,t3,u3,Qty,6,,,,/n4,t4,u4,2,8,,,,/n5,t5,u5,3,10,,,,/n6,t6,u6,4,12,,,,/n7,t7,u7,5,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D20\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E20|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(3).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(5).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(20).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(1).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:D9|A1/Team,Unit,Qty,Cost,,,,,/t2,u2,2,4,,,,,/t3,u3,3,6,,,,,/t4,u4,4,8,,,,,/t5,u5,5,10,,,,,/t6,u6,6,12,,,,,/t7,u7,7,14,,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(2).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:D9|A1/Name,Unit,Qty,Cost,,,,,/n2,u2,2,4,,,,,/n3,u3,3,6,,,,,/n4,u4,4,8,,,,,/n5,u5,5,10,,,,,/n6,u6,6,12,,,,,/n7,u7,7,14,,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(5).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:D9|A1/Name,Team,Unit,Qty,,,,,/n2,t2,u2,2,,,,,/n3,t3,u3,3,,,,,/n4,t4,u4,4,,,,,/n5,t5,u5,5,,,,,/n6,t6,u6,6,,,,,/n7,t7,u7,7,,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,2,Cost,,,,/n2,t2,u2,3,4,,,,/n3,t3,u3,4,6,,,,/n4,t4,u4,5,8,,,,/n5,t5,u5,6,10,,,,/n6,t6,u6,7,12,,,,/n7,t7,u7,8,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B1\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,t2,Unit,Qty,Cost,,,,/n2,t3,u2,2,4,,,,/n3,t4,u3,3,6,,,,/n4,t5,u4,4,8,,,,/n5,t6,u5,5,10,,,,/n6,t7,u6,6,12,,,,/n7,t8,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B5\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t6,u5,5,10,,,,/n6,t7,u6,6,12,,,,/n7,t8,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"A3\").Delete xlShiftToLeft\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,u3,3,6,,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E10|A1/t3,Team,Unit,Qty,Cost,,,,/Name,t2,u2,2,4,,,,/n2,,u3,3,6,,,,/n3,t4,u4,4,8,,,,/n4,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,n3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(5).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/n4,t4,u4,4,8,,,,/t3,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E20|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E10|A1/t3,Team,Unit,Qty,Cost,,,,/Name,t2,u2,2,4,,,,/n2,,u3,3,6,,,,/n3,t4,u4,4,8,,,,/n4,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(10).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:J9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E10|A1/Name,Team,Unit,t3,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,t3,Unit,Qty,Cost,,,,/n2,Team,u2,2,4,,,,/n3,t2,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E10|A1/Name,Team,Unit,t3,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(3).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(5).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(20).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,2,Cost,,,,/n2,t2,u2,3,4,,,,/n3,t3,u3,4,6,,,,/n4,t4,u4,5,8,,,,/n5,t5,u5,6,10,,,,/n6,t6,u6,7,12,,,,/n7,t7,u7,8,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B5\").Delete xlShiftUp\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t6,u5,5,10,,,,/n6,t7,u6,6,12,,,,/n7,t8,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/n3,t3,u3,3,6,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E20|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/n3,t3,u3,3,6,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E19|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:F9|A1/Team,Name,Team,Unit,Qty,Cost,,,/t2,n2,t2,u2,2,4,,,/t3,n3,t3,u3,3,6,,,/t4,n4,t4,u4,4,8,,,/t5,n5,t5,u5,5,10,,,/t6,n6,t6,u6,6,12,,,/t7,n7,t7,u7,7,14,,,"
+  ],
+  [
+   "ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(4).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:F9|A1/Name,Team,Unit,Team,Qty,Cost,,,/n2,t2,u2,t2,2,4,,,/n3,t3,u3,t3,3,6,,,/n4,t4,u4,t4,4,8,,,/n5,t5,u5,t5,5,10,,,/n6,t6,u6,t6,6,12,,,/n7,t7,u7,t7,7,14,,,"
+  ],
+  [
+   "ws.Columns(2).Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E11|A1/Name,Team,Unit,t3,u3,,,,/n2,t2,u2,t4,u4,,,,/n3,t3,u3,Qty,Cost,,,,/n4,t4,u4,2,4,,,,/n5,t5,u5,3,6,,,,/n6,t6,u6,4,8,,,,/n7,t7,u7,5,10,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftToRight\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:G9|A1/Name,Team,Unit,t3,u3,Qty,Cost,,/n2,t2,u2,t4,u4,2,4,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"G1\").Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:H9|A1/Name,Team,Unit,Qty,Cost,,t3,u3,/n2,t2,u2,2,4,,t4,u4,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"G1:H2\").Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:H9|A1/Name,Team,Unit,Qty,Cost,,t3,u3,/n2,t2,u2,2,4,,t4,u4,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:10|A1|A1:A2/7,7,7,7,7,7,7,7,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|1:20|A1|A1:A2/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|1|A1:E10|A1|A1:A2/Name,Team,Unit,7,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,t3,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:A2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Copy\nws.Activate\nOn Error Resume Next\nws.Rows(1).Delete\ns = Err.Number & \"|\" & Look(ws)",
+   "ok 0|0|A1:E8|A1|A1:A2/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"2:3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(\"5:6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:11|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/t3,t3,t3,t3,t3,t3,t3,t3,/t3,t3,t3,t3,t3,t3,t3,t3,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"2:3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"8:9\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\nws.Paste ws.Range(\"H1\")\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,,/t3,t3,t3,t3,t3,t3,t3,t3,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\nws.Range(\"D1\").Insert\nws.Paste ws.Range(\"H1\")\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:H10|A1/Name,Team,Unit,t3,Cost,,,t3,/n2,t2,u2,Qty,4,,,,/n3,t3,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\nws.Paste ws.Range(\"H1\")\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:H10|A1/Name,t3,Unit,Qty,Cost,,,t3,/n2,Team,u2,2,4,,,,/n3,t2,u3,3,6,,,,/n4,t3,u4,4,8,,,,/n5,t4,u5,5,10,,,,/n6,t5,u6,6,12,,,,/n7,t6,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:F9|A1/Name,Team,Unit,t3,Qty,Cost,,,/n2,t2,u2,t4,2,4,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:H|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,t4,/n3,t3,u3,3,6,,,t3,/n4,t4,u4,4,8,,,t4,/n5,t5,u5,5,10,,,t3,/n6,t6,u6,6,12,,,t4,/n7,t7,u7,7,14,,,t3,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Columns(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:F|A1/Name,t3,Team,Unit,Qty,Cost,,,/n2,t4,t2,u2,2,4,,,/n3,t3,t3,u3,3,6,,,/n4,t4,t4,u4,4,8,,,/n5,t3,t5,u5,5,10,,,/n6,t4,t6,u6,6,12,,,/n7,t3,t7,u7,7,14,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E10|A1/Name,Team,Unit,t3,u3,,,,/n2,t2,u2,Qty,Cost,,,,/n3,t3,u3,2,4,,,,/n4,t4,u4,3,6,,,,/n5,t5,u5,4,8,,,,/n6,t6,u6,5,10,,,,/n7,t7,u7,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:20|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,u3,t3,u3,t3,u3,t3,u3,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:I|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,t3,/n3,t3,u3,3,6,,,t3,/n4,t4,u4,4,8,,,t3,/n5,t5,u5,5,10,,,t3,/n6,t6,u6,6,12,,,t3,/n7,t7,u7,7,14,,,t3,"
+  ],
+  [
+   "ws.Range(\"A3:E3\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E20|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"A3:E3\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E10|A1/n3,t3,u3,3,6,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1:D4\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E13|A1/Name,Team,Unit,t3,u3,,,,/n2,t2,u2,t4,u4,,,,/n3,t3,u3,t3,u3,,,,/n4,t4,u4,t4,u4,,,,/n5,t5,u5,Qty,Cost,,,,/n6,t6,u6,2,4,,,,/n7,t7,u7,3,6,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1:G4\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:G13|A1/Name,Team,Unit,t3,u3,t3,u3,,/n2,t2,u2,t4,u4,t4,u4,,/n3,t3,u3,t3,u3,t3,u3,,/n4,t4,u4,t4,u4,t4,u4,,/n5,t5,u5,Qty,Cost,,,,/n6,t6,u6,2,4,,,,/n7,t7,u7,3,6,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Range(\"D1:E3\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E11|A1/Name,Team,Unit,t3,u3,,,,/n2,t2,u2,t4,u4,,,,/n3,t3,u3,Qty,Cost,,,,/n4,t4,u4,2,4,,,,/n5,t5,u5,3,6,,,,/n6,t6,u6,4,8,,,,/n7,t7,u7,5,10,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(\"8:9\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E11|A1/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(\"1:4\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E13|A1/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(\"1:3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E11|A1/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E11|A1/n3,t3,u3,3,6,,,,/n3,t3,u3,3,6,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"A1,C1\").Copy\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,t3,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"A1,C1\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,t3,Unit,Qty,Cost,,,,/n2,Team,u2,2,4,,,,/n3,t2,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Columns(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,t3,Qty,Cost,,,,/n2,t2,Unit,2,4,,,,/n3,,u2,3,6,,,,/n4,t4,u3,4,8,,,,/n5,t5,u4,5,10,,,,/n6,t6,u5,6,12,,,,/n7,t7,u6,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/t3,t2,u2,2,4,,,,/n2,,u3,3,6,,,,/n3,t4,u4,4,8,,,,/n4,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/t3,t4,u4,4,8,,,,/n4,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B5\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t4,u3,3,6,,,,/n4,t3,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B4\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B3\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,n3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,,u3,3,6,,,,/n3,t4,u4,4,8,,,,/n4,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,n3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"C3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"C3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,u3,t3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,t3,Unit,Qty,Cost,,,,/n2,Team,u2,2,4,,,,/n3,t2,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:F9|A1/Name,t3,Team,Unit,Qty,Cost,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,t3,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:F9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,t3,5,10,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1:D2\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,t3,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Cut\nOn Error Resume Next\nws.Range(\"D1:E2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,t3,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,u3,n3,3,6,,,,/t4,u4,n4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,,3,6,,,,/n4,,,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"G1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:H9|A1/Name,Team,Unit,Qty,Cost,,t3,u3,/n2,t2,u2,2,4,,t4,u4,/n3,,,3,6,,,,/n4,,,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,t3,u3,Qty,Cost,,,,/n2,t4,u4,2,4,,,,/n3,Team,Unit,3,6,,,,/n4,t2,u2,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"C1\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t3,u3,2,4,,,,/n3,t4,u4,3,6,,,,/n4,t2,u2,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"C3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,u3,n3,3,6,,,,/t4,u4,n4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"A4\").Insert xlShiftToRight\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:I9|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,t4,/n3,,,3,6,,,,/n4,,,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n3,t3,u3,3,6,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(5).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n3,t3,u3,3,6,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/n3,t3,u3,3,6,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/n3,t3,u3,3,6,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"A1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/n3,t3,u3,3,6,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(5).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E19|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,/n9,t9,u9,9,18,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(\"6:9\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Team,Name,Unit,Qty,Cost,,,,/t2,n2,u2,2,4,,,,/t3,n3,u3,3,6,,,,/t4,n4,u4,4,8,,,,/t5,n5,u5,5,10,,,,/t6,n6,u6,6,12,,,,/t7,n7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(4).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Unit,Team,Qty,Cost,,,,/n2,u2,t2,2,4,,,,/n3,u3,t3,3,6,,,,/n4,u4,t4,4,8,,,,/n5,u5,t5,5,10,,,,/n6,u6,t6,6,12,,,,/n7,u7,t7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:G9|A1/Name,Unit,Qty,Cost,,,Team,,/n2,u2,2,4,,,t2,,/n3,u3,3,6,,,t3,,/n4,u4,4,8,,,t4,,/n5,u5,5,10,,,t5,,/n6,u6,6,12,,,t6,,/n7,u7,7,14,,,t7,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Team,Name,Unit,Qty,Cost,,,,/t2,n2,u2,2,4,,,,/t3,n3,u3,3,6,,,,/t4,n4,u4,4,8,,,,/t5,n5,u5,5,10,,,,/t6,n6,u6,6,12,,,,/t7,n7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Unit,Team,Qty,Cost,,,,/n2,u2,t2,2,4,,,,/n3,u3,t3,3,6,,,,/n4,u4,t4,4,8,,,,/n5,u5,t5,5,10,,,,/n6,u6,t6,6,12,,,,/n7,u7,t7,7,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Cut\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1|A1:B2/7,Team,Unit,Qty,Cost,,,,/Name,t2,u2,2,4,,,,/n2,t3,u3,3,6,,,,/n3,t4,u4,4,8,,,,/n4,t5,u5,5,10,,,,/n5,t6,u6,6,12,,,,/n6,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Cut\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E20|A1|A1:B2/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Range(\"A1\").Cut\nws.Activate\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1|A1:B2/Name,Team,Unit,7,Cost,,,,/n2,t2,u2,Qty,4,,,,/n3,t3,u3,2,6,,,,/n4,t4,u4,3,8,,,,/n5,t5,u5,4,10,,,,/n6,t6,u6,5,12,,,,/n7,t7,u7,6,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Cut\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1|A2:B2/7,7,,,,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Cut\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E20|A1|A2:B2/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Copy\nws.Activate\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E10|A1|A1:B2/7,7,,,,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Parent.Worksheets.Add(After:=ws).Range(\"A1:B2\").Value = 7\nws.Parent.Worksheets(2).Rows(1).Copy\nws.Activate\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E20|A1|A1:B2/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok B6,F1=D1*2;G1=SUM($D1:D$3);H2=SUM(D3:D10);I2=D4+D6;F4=D4*2;G4=SUM($D$3:D4);,B40|0|1|A1:I10|A1/n3,t3,u3,3,6,6,5,,/Name,Team,Unit,Qty,Cost,,,44,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,6,5,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok B5,H1=SUM(D2:D10);I1=D3+D5;F3=D3*2;G3=SUM($D$2:D3);F6=D6*2;G6=SUM($D$2:D6);,B30|0|1|A1:I10|A1/Name,Team,Unit,Qty,Cost,,,47,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,6,5,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,6,17,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok B5,H1=SUM(D2:D9);I1=D3+D5;F3=D3*2;G3=SUM($D$2:D3);F20=D20*2;G20=SUM($D$2:D20);,B30|0|1|A1:I20|A1/Name,Team,Unit,Qty,Cost,,,44,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,6,5,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok B5,F1=D1*2;G1=SUM($D$3:D3);H2=SUM(D3:D9);I2=D1+D5;,B10|0|0|A1:I9|A1/n3,t3,u3,3,6,6,2,,/Name,Team,Unit,Qty,Cost,,,41,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok B4,H1=SUM(D2:D9);I1=D5+D4;F5=D5*2;G5=SUM($D$2:D5);,B50|0|0|A1:I9|A1/Name,Team,Unit,Qty,Cost,,,44,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,6,14,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"B5\")\nSet q = ws.Range(\"B3\")\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(20).Insert\ns = r.Address(False, False) & \",\" & Forms(ws)\nErr.Clear\ns = s & \",\" & q.Address(False, False) & Err.Number\nErr.Clear\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok B4,H1=SUM(D2:D8);I1=D19+D4;F19=D19*2;G19=SUM($D$2:D19);,B190|0|0|A1:I19|A1/Name,Team,Unit,Qty,Cost,,,41,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,/n8,t8,u8,8,16,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"D5\")\nSet q = ws.Range(\"D3\")\nws.Range(\"D3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert xlShiftDown\ns = r.Address(False, False) & \",\" & Forms(ws) & \",\" & q.Address(False, False)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok D5,H1=SUM(D3:D9);I1=D1+D5;F3=D1*2;G3=SUM($D$3:D3);,D1|0|0|A1:I9|A1/Name,Team,Unit,3,Cost,,,41,/n2,t2,u2,Qty,4,,,,/n3,t3,u3,2,6,6,2,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"D5\")\nSet q = ws.Range(\"D3\")\nws.Range(\"D3\").Cut\nOn Error Resume Next\nws.Range(\"F1\").Insert xlShiftDown\ns = r.Address(False, False) & \",\" & Forms(ws) & \",\" & q.Address(False, False)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok D5,H1=SUM(D2:D9);I1=F1+D5;G3=SUM($D$2:D3);F4=F1*2;,F1|0|0|A1:I9|A1/Name,Team,Unit,Qty,Cost,3,,41,/n2,t2,u2,2,4,,,,/n3,t3,u3,,6,,2,,/n4,t4,u4,4,8,6,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"F3\").Formula = \"=D3*2\"\nws.Range(\"G3\").Formula = \"=SUM($D$2:D3)\"\nws.Range(\"H1\").Formula = \"=SUM(D2:D9)\"\nws.Range(\"I1\").Formula = \"=D3+D5\"\nSet r = ws.Range(\"D5\")\nSet q = ws.Range(\"D3\")\nws.Range(\"D3\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert xlShiftDown\ns = r.Address(False, False) & \",\" & Forms(ws) & \",\" & q.Address(False, False)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok D5,H1=SUM(D2:D9);I1=D4+D5;F3=D4*2;G3=SUM($D$2:D4);,D4|0|0|A1:I9|A1/Name,Team,Unit,Qty,Cost,,,44,/n2,t2,u2,2,4,,,,/n3,t3,u3,4,6,6,9,,/n4,t4,u4,3,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).RowHeight = 40\nws.Range(\"B3\").Font.Bold = True\nws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = (ws.Rows(6).RowHeight > 30) & ws.Range(\"B6\").Font.Bold & (ws.Rows(7).RowHeight > 30)\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok TrueTrueFalse|0|1|A1:E10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,,,,/n6,t6,u6,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Font.Bold = True\nws.Rows(3).Cut\nOn Error Resume Next\nws.Rows(6).Insert\ns = ws.Range(\"B5\").Font.Bold & ws.Range(\"B3\").Font.Bold\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok TrueFalse|0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:J|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,t4,/n3,t3,u3,3,6,,,t3,/n4,t4,u4,4,8,,,t4,/n5,t5,u5,5,10,,,t3,/n6,t6,u6,6,12,,,t4,/n7,t7,u7,7,14,,,t3,"
+  ],
+  [
+   "ws.Range(\"B3:D4\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(20).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(\"20:23\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"A3:E4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E11|A1/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Range(\"A3:E3\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E20|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"1:2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"3:4\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:11|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,u3,t3,u3,t3,u3,t3,u3,/t4,u4,t4,u4,t4,u4,t4,u4,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Rows(\"20:22\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(8).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:I|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,t4,/n3,t3,u3,3,6,,,t3,/n4,t4,u4,4,8,,,t4,/n5,t5,u5,5,10,,,t3,/n6,t6,u6,6,12,,,t4,/n7,t7,u7,7,14,,,t3,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(\"20:22\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E21|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|1:11|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,t3,t3,t3,t3,t3,t3,t3,/t4,t4,t4,t4,t4,t4,t4,t4,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B5\").Copy\nOn Error Resume Next\nws.Rows(\"20:21\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E22|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:F9|A1/Name,Team,Unit,t3,Qty,Cost,,,/n2,t2,u2,t4,2,4,,,/n3,,u3,3,6,,,,/n4,,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,u3,t3,3,6,,,,/n4,u4,t4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"D5\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:F9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,,u3,3,6,,,,/n4,,u4,4,8,,,,/n5,t5,u5,t3,5,10,,,/n6,t6,u6,t4,6,12,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,n3,u3,3,6,,,,/t4,n4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Rows(1).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:F9|A1/t3,Name,Team,Unit,Qty,Cost,,,/t4,n2,t2,u2,2,4,,,/n3,,u3,3,6,,,,/n4,,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"D1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E10|A1/Name,Team,Unit,t3,u3,,,,/n2,t2,u2,Qty,Cost,,,,/n3,,,2,4,,,,/n4,t4,u4,3,6,,,,/n5,t5,u5,4,8,,,,/n6,t6,u6,5,10,,,,/n7,t7,u7,6,12,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/t3,u3,n3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,t3,u3,Qty,Cost,,,,/n2,Team,Unit,2,4,,,,/n3,t2,u2,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C3\").Cut\nOn Error Resume Next\nws.Range(\"C1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(3).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E11|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Copy\nOn Error Resume Next\nws.Rows(\"3:6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E13|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n3,t3,u3,3,6,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"A5\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n4,t4,u4,4,8,,,,/n3,t3,u3,3,6,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(3).Cut\nOn Error Resume Next\nws.Range(\"A3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Cut\nOn Error Resume Next\nws.Range(\"D2\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"H:I\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:I|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,t3,/n3,t3,u3,3,6,,,t3,/n4,t4,u4,4,8,,,t3,/n5,t5,u5,5,10,,,t3,/n6,t6,u6,6,12,,,t3,/n7,t7,u7,7,14,,,t3,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"B:C\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:G|A1/Name,t3,t3,Team,Unit,Qty,Cost,,/n2,t3,t3,t2,u2,2,4,,/n3,t3,t3,t3,u3,3,6,,/n4,t3,t3,t4,u4,4,8,,/n5,t3,t3,t5,u5,5,10,,/n6,t3,t3,t6,u6,6,12,,/n7,t3,t3,t7,u7,7,14,,"
+  ],
+  [
+   "ws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Columns(\"A:B\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(\"H:I\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A:I|A1/Name,Team,Unit,Qty,Cost,,,t3,/n2,t2,u2,2,4,,,t4,/n3,t3,u3,3,6,,,t3,/n4,t4,u4,4,8,,,t4,/n5,t5,u5,5,10,,,t3,/n6,t6,u6,6,12,,,t4,/n7,t7,u7,7,14,,,t3,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Copy\nOn Error Resume Next\nws.Columns(\"A:B\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(\"A:B\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:G9|A1/Team,Team,Name,Team,Unit,Qty,Cost,,/t2,t2,n2,t2,u2,2,4,,/t3,t3,n3,t3,u3,3,6,,/t4,t4,n4,t4,u4,4,8,,/t5,t5,n5,t5,u5,5,10,,/t6,t6,n6,t6,u6,6,12,,/t7,t7,n7,t7,u7,7,14,,"
+  ],
+  [
+   "ws.Columns(2).Copy\nOn Error Resume Next\nws.Columns(\"G:H\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:H9|A1/Name,Team,Unit,Qty,Cost,,Team,Team,/n2,t2,u2,2,4,,t2,t2,/n3,t3,u3,3,6,,t3,t3,/n4,t4,u4,4,8,,t4,t4,/n5,t5,u5,5,10,,t5,t5,/n6,t6,u6,6,12,,t6,t6,/n7,t7,u7,7,14,,t7,t7,"
+  ],
+  [
+   "ws.Columns(\"B:C\").Copy\nOn Error Resume Next\nws.Columns(\"C\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|1|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(\"B:C\").Copy\nOn Error Resume Next\nws.Columns(\"A:D\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:I9|A1/Team,Unit,Team,Unit,Name,Team,Unit,Qty,/t2,u2,t2,u2,n2,t2,u2,2,/t3,u3,t3,u3,n3,t3,u3,3,/t4,u4,t4,u4,n4,t4,u4,4,/t5,u5,t5,u5,n5,t5,u5,5,/t6,u6,t6,u6,n6,t6,u6,6,/t7,u7,t7,u7,n7,t7,u7,7,"
+  ],
+  [
+   "ws.Columns(\"B:C\").Copy\nOn Error Resume Next\nws.Columns(\"G:I\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:H9|A1/Name,Team,Unit,Qty,Cost,,Team,Unit,/n2,t2,u2,2,4,,t2,u2,/n3,t3,u3,3,6,,t3,u3,/n4,t4,u4,4,8,,t4,u4,/n5,t5,u5,5,10,,t5,u5,/n6,t6,u6,6,12,,t6,u6,/n7,t7,u7,7,14,,t7,u7,"
+  ],
+  [
+   "ws.Rows(3).Copy\nOn Error Resume Next\nws.Rows(\"6:7\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|1|A1:E11|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n3,t3,u3,3,6,,,,/n3,t3,u3,3,6,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"B1\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,t3,Unit,Qty,Cost,,,,/n2,t4,u2,2,4,,,,/n3,Team,u3,3,6,,,,/n4,t2,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:B4\").Cut\nOn Error Resume Next\nws.Range(\"B6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t5,u3,3,6,,,,/n4,t3,u4,4,8,,,,/n5,t4,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B6\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t5,u5,3,6,,,,/n4,t3,u3,4,8,,,,/n5,t4,u4,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"B4\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"E3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,3,t3,u3,6,,,,/n4,4,t4,u4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut\nOn Error Resume Next\nws.Range(\"D3\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Rows(\"3:4\").Cut\nOn Error Resume Next\nws.Rows(2).Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n2,t2,u2,2,4,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"A\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Team,Unit,Name,Qty,Cost,,,,/t2,u2,n2,2,4,,,,/t3,u3,n3,3,6,,,,/t4,u4,n4,4,8,,,,/t5,u5,n5,5,10,,,,/t6,u6,n6,6,12,,,,/t7,u7,n7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"C\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |1004|2|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"D\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:E9|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/n6,t6,u6,6,12,,,,/n7,t7,u7,7,14,,,,"
+  ],
+  [
+   "ws.Columns(\"B:C\").Cut\nOn Error Resume Next\nws.Columns(\"G:H\").Insert\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok |0|0|A1:F9|A1/Name,Qty,Cost,,Team,Unit,,,/n2,2,4,,t2,u2,,,/n3,3,6,,t3,u3,,,/n4,4,8,,t4,u4,,,/n5,5,10,,t5,u5,,,/n6,6,12,,t6,u6,,,/n7,7,14,,t7,u7,,,"
+  ],
+  [
+   "ws.Range(\"B3\").Font.Bold = True\nws.Range(\"B3\").Copy\nOn Error Resume Next\nws.Rows(6).Insert\ns = ws.Range(\"Z6\").Font.Bold & ws.Range(\"Z7\").Font.Bold\ns = s & \"|\" & Err.Number & \"|\" & Look(ws)",
+   "ok TrueFalse|0|1|1:10|A1/Name,Team,Unit,Qty,Cost,,,,/n2,t2,u2,2,4,,,,/n3,t3,u3,3,6,,,,/n4,t4,u4,4,8,,,,/n5,t5,u5,5,10,,,,/t3,t3,t3,t3,t3,t3,t3,t3,/n6,t6,u6,6,12,,,,"
+  ]
+ ]
+}

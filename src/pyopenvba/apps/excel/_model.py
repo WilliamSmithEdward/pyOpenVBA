@@ -104,7 +104,7 @@ class ExcelObject(Created):
 
     def _check_alive(self) -> None:
         if any(getattr(owner, "invalidated", False) for owner in
-               (self, getattr(self, "sheet", None), getattr(self, "entry", None))):
+               (self, getattr(self, "sheet", None), getattr(self, "entry", None), getattr(self, "target", None))):
             raise error(424, "Object required")
 
     def vba_member(self, name: str) -> MemberSpec | None:
@@ -2111,6 +2111,9 @@ class Workbook(ExcelObject):
             if not self._save():
                 return EMPTY
         self.application.workbooks_.remove(self)
+        from pyopenvba.apps.excel._held_ranges import closed
+
+        closed(self)
         return EMPTY
 
     @method
@@ -3131,7 +3134,11 @@ class Worksheet(ExcelObject):
             if "," in Index:
                 raise error(13, "Type mismatch")
             wanted = Index if ":" in Index else f"{Index}:{Index}"
-            return Range(self, parse_reference(wanted, sheet=self.name), whole="columns")
+            areas = parse_reference(wanted, sheet=self.name)
+            # Columns("8:9") names rows, and Excel will not have it (tests/fixtures/range_audit.json).
+            if not all(area.whole_columns for area in areas):
+                raise error(1004, "Application-defined or object-defined error")
+            return Range(self, areas, whole="columns")
         column = int(to_integer(Index, "Long"))
         return Range(self, [Area(1, column, MAX_ROWS, column, self.name)], whole="columns")
 
@@ -5507,6 +5514,8 @@ class Range(ExcelObject):
 
         check_delete(self)
         where = self.place_now()
+        # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
+        self.sheet.book.application.clipboard = None
         filtered = filtering(self.sheet) and not all(area.whole_columns for area in self.areas)
         if Shift is MISSING:
             up = filtered or self.first.rows <= self.first.columns
@@ -5553,7 +5562,7 @@ class Range(ExcelObject):
     def _delete_cells(self, area: Area, up: bool) -> None:
         from pyopenvba.apps.excel._editing import shift_cells
 
-        self._shifting_cells()
+        self.shifting_cells()
         shift_cells(self, area, delete=True, vertical=up)
 
     @method
@@ -5576,6 +5585,20 @@ class Range(ExcelObject):
         # before (tests/fixtures/excel_everyday_2.json, insert_from_below_*).
         below = CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) == 1
         filtered = filtering(self.sheet)
+        application = self.sheet.book.application
+        clip = application.clipboard
+        if clip is not None:
+            # Several areas are not inserted: the cells open up empty and they leave the clipboard.
+            if len(clip.block.parts) > 1:
+                application.clipboard = None
+            else:
+                from pyopenvba.apps.excel._inserted_cells import insert
+
+                if filtered or len(self.areas) != 1:
+                    raise VBAUnsupportedError("inserting copied or cut cells on a filtered sheet, or in several areas, "
+                                              "is not implemented")
+                _events.after_edit(insert(self, clip, Shift, below), calculate_first=False)
+                return EMPTY
         if area.whole_rows or area.whole_columns:
             from pyopenvba.apps.excel._editing import edit
 
@@ -5596,14 +5619,14 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("inserting cells in several areas is not implemented")
         from pyopenvba.apps.excel._editing import shift_cells
 
-        self._shifting_cells()
+        self.shifting_cells()
         # With no Shift a range taller than it is wide pushes cells right, any other range down.
         down = area.rows <= area.columns if Shift is MISSING else int(to_integer(Shift, "Long")) == -4121  # xlDown
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)
         return EMPTY
 
-    def _shifting_cells(self) -> None:
+    def shifting_cells(self) -> None:
         """Refuse to shift cells on a sheet whose rows or columns carry formats.
 
         Excel moves the format each position shows along with the cells,
@@ -5675,7 +5698,9 @@ class Range(ExcelObject):
             _merges.intersects(written, one) for one in Destination.sheet.merged_areas
         ):
             raise VBAUnsupportedError("Copy involving merged cells is not implemented")
-        if rows * columns > 1048576:
+        # Whole lines onto whole lines touch only the cells that exist.
+        if rows * columns > 1048576 and not (area.whole_rows and written.whole_rows) and not (
+                area.whole_columns and written.whole_columns):
             raise VBAUnsupportedError("Copy destinations larger than 1048576 cells are not implemented")
         covered, cut = _arrays.met(Destination.sheet, [written])
         if cut:

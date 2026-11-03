@@ -366,8 +366,19 @@ class Comment(ExcelObject):
     vba_type_name = "Comment"
 
     def __init__(self, sheet: Worksheet, row: int, column: int) -> None:
+        from pyopenvba.apps.excel._model import Range
+
         self.sheet = sheet
-        self.row, self.column = row, column
+        #: Its cell, which it follows as any Range does (tests/fixtures/range_audit.json).
+        self.target = Range(sheet, [Area(row, column, row, column, sheet.name)])
+
+    @property
+    def row(self) -> int:
+        return self.target.first.top
+
+    @property
+    def column(self) -> int:
+        return self.target.first.left
 
     @property
     def note(self) -> Note:

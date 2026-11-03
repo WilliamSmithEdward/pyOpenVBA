@@ -1,0 +1,146 @@
+{
+ "measured_at": "2026-11-03T20:51:15.613653+00:00",
+ "reads": [
+  "pt.ActiveFilters.Count",
+  "TypeName(pt.ActiveFilters)",
+  "pt.ActiveFilters(1).Name",
+  "pt.ActiveFilters(1).FilterType",
+  "pt.ActiveFilters(1).Description",
+  "TypeName(pt.ActiveFilters(1).Application)",
+  "pt.ActiveFilters(1).Active",
+  "pt.ActiveFilters(1).PivotField.Name",
+  "pt.ActiveFilters(1).IsMemberPropertyFilter",
+  "pt.ActiveFilters(1).Value1",
+  "pt.PivotFields(\"Region\").AllItemsVisible",
+  "pt.PivotFields(\"Kind\").AllItemsVisible",
+  "pt.PivotFields(\"Year\").AllItemsVisible",
+  "pt.PivotFields(\"Amount\").AllItemsVisible",
+  "pt.PivotFields(\"Note\").AllItemsVisible",
+  "pt.PivotFields(\"Region\").ShowingInAxis",
+  "pt.PivotFields(\"Kind\").ShowingInAxis",
+  "pt.PivotFields(\"Year\").ShowingInAxis",
+  "pt.PivotFields(\"Amount\").ShowingInAxis",
+  "pt.PivotFields(\"Note\").ShowingInAxis",
+  "pt.DataFields(1).ShowingInAxis",
+  "TypeName(pt.PivotFields(\"Region\").ChildItems)",
+  "pt.PivotFields(\"Region\").ChildItems.Count",
+  "pt.PivotFields(\"Year\").PageRangeCells",
+  "pt.PageRangeCells.Address",
+  "pt.PageRange.Address",
+  "pt.RefreshName = Application.UserName",
+  "Int(pt.RefreshDate) = Date",
+  "pt.PivotCache.RefreshName = Application.UserName",
+  "Int(pt.PivotCache.RefreshDate) = Date",
+  "pt.PivotCache.MemoryUsed > 0",
+  "pt.PivotFields(\"Region\").MemoryUsed > 0",
+  "TypeName(pt.PivotRowAxis)",
+  "TypeName(pt.PivotColumnAxis)",
+  "TypeName(pt.PivotFormulas)",
+  "pt.PivotFormulas.Count",
+  "TypeName(ws.Range(\"B7\").PivotCell.Parent)",
+  "ws.Range(\"B7\").PivotCell.CellChanged",
+  "ws.Range(\"B7\").PivotCell.DataSourceValue",
+  "ws.Range(\"B7\").PivotCell.ServerActions.Count",
+  "ws.Range(\"A7\").PivotCell.CellChanged",
+  "ws.Range(\"A7\").PivotCell.DataSourceValue",
+  "pt.TableRange1.Address",
+  "pt.TableRange2.Address",
+  "ws.Range(\"A1\").Value",
+  "ws.Range(\"B1\").Value"
+ ],
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, data As Worksheet, ws As Worksheet, pt As Object, s As String, v As String\n    Dim i As Long, row As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set data = wb.Worksheets(1)\n    data.Range(\"A1:E1\").Value = Array(\"Region\", \"Kind\", \"Year\", \"Amount\", \"Note\")\n    row = Array(Array(\"East\", \"A\", 2020, 1, \"n\"), Array(\"East\", \"B\", 2021, 2, \"n\"), Array(\"West\", \"A\", 2020, 4, \"m\"), Array(\"West\", \"B\", 2021, 8, \"m\"), Array(\"North\", \"A\", 2021, 16, \"m\"))\n    For i = 0 To 4: data.Range(\"A\" & i + 2).Resize(1, 5).Value = row(i): Next\n    Set ws = wb.Worksheets.Add\n    Set pt = wb.PivotCaches.Create(xlDatabase, data.Range(\"A1:E6\")).CreatePivotTable(ws.Range(\"A5\"), \"P\")\n    pt.PivotFields(\"Region\").Orientation = xlRowField\n    pt.PivotFields(\"Kind\").Orientation = xlColumnField\n    pt.PivotFields(\"Year\").Orientation = xlPageField\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Total\", xlSum\n    On Error GoTo Failed\n    Select Case which\n    Case 1\n        pt.PivotFields(\"Region\").PivotItems(\"East\").Visible = False\n    Case 2\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\"\n    Case 3\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, , \"E\"\n    Case 4\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlTopCount, pt.DataFields(1), 1\n    Case 5\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlValueIsGreaterThan, pt.DataFields(1), 5\n    Case 6\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\": pt.PivotFields(\"Kind\").PivotFilters.Add2 xlCaptionEquals, , \"A\"\n    Case 7\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\": pt.ClearAllFilters\n    Case 8\n        pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").CurrentPage = \"2020\"\n    Case 9\n        pt.PivotFields(\"Year\").EnableMultiplePageItems = True: pt.PivotFields(\"Year\").PivotItems(\"2021\").Visible = False\n    Case 10\n        pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").AddPageItem \"2020\"\n    Case 11\n        pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").AddPageItem \"2020\": pt.PivotFields(\"Year\").AddPageItem \"2021\"\n    Case 12\n        pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").AddPageItem \"2020\", True\n    Case 13\n        pt.PivotFields(\"Year\").AddPageItem \"1999\"\n    Case 14\n        pt.PivotFields(\"Region\").AddPageItem \"East\"\n    Case 15\n        pt.PivotFields(\"Region\").AllItemsVisible = True\n    Case 16\n        pt.PivotFields(\"Region\").ShowingInAxis = False\n    Case 17\n        pt.PivotFields(\"Region\").ShowingInAxis = True\n    Case 18\n        pt.PivotFields(\"Note\").Orientation = xlRowField\n    Case 19\n        pt.PivotFields(\"Region\").Orientation = xlHidden\n    Case 20\n        pt.PivotFields(\"Kind\").PivotFilters.Add2 xlCaptionEquals, , \"A\": pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\"\n    Case 21\n        pt.RefreshTable\n    Case 22\n        pt.PivotCache.Refresh\n    End Select\n    s = \"ok\"\nMeasured:\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.ActiveFilters)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters(1).Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters(1).FilterType\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters(1).Description\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.ActiveFilters(1).Application)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters(1).Active\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters(1).PivotField.Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters(1).IsMemberPropertyFilter\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.ActiveFilters(1).Value1\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Region\").AllItemsVisible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Kind\").AllItemsVisible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Year\").AllItemsVisible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Amount\").AllItemsVisible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Note\").AllItemsVisible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Region\").ShowingInAxis\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Kind\").ShowingInAxis\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Year\").ShowingInAxis\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Amount\").ShowingInAxis\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Note\").ShowingInAxis\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.DataFields(1).ShowingInAxis\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.PivotFields(\"Region\").ChildItems)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Region\").ChildItems.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Year\").PageRangeCells\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PageRangeCells.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PageRange.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.RefreshName = Application.UserName\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = Int(pt.RefreshDate) = Date\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotCache.RefreshName = Application.UserName\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = Int(pt.PivotCache.RefreshDate) = Date\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotCache.MemoryUsed > 0\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFields(\"Region\").MemoryUsed > 0\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.PivotRowAxis)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.PivotColumnAxis)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = TypeName(pt.PivotFormulas)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.PivotFormulas.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = TypeName(ws.Range(\"B7\").PivotCell.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"B7\").PivotCell.CellChanged\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"B7\").PivotCell.DataSourceValue\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"B7\").PivotCell.ServerActions.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"A7\").PivotCell.CellChanged\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"A7\").PivotCell.DataSourceValue\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.TableRange1.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = pt.TableRange2.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"A1\").Value\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"B1\").Value\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & Replace(v, \",\", \";\")\n    On Error GoTo 0\n    Tried = s\n    wb.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Measured\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 22\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotItems(\"East\").Visible = False",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,False,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$9,$A$3:$D$9,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\"",
+   "ok,1,PivotFilters,,15,,Application,True,Region,False,East,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$8,$A$3:$D$8,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, , \"E\"",
+   "ok,1,PivotFilters,,17,,Application,True,Region,False,E,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$8,$A$3:$D$8,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlTopCount, pt.DataFields(1), 1",
+   "ok,1,PivotFilters,,1,,Application,True,Region,False,1,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$8,$A$3:$D$8,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlValueIsGreaterThan, pt.DataFields(1), 5",
+   "ok,1,PivotFilters,,9,,Application,True,Region,False,5,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$9,$A$3:$D$9,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\": pt.PivotFields(\"Kind\").PivotFilters.Add2 xlCaptionEquals, , \"A\"",
+   "ok,2,PivotFilters,,15,,Application,True,Kind,False,A,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$C$8,$A$3:$C$8,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\": pt.ClearAllFilters",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").CurrentPage = \"2020\"",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,False,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$C$9,$A$3:$C$9,,"
+  ],
+  [
+   "pt.PivotFields(\"Year\").EnableMultiplePageItems = True: pt.PivotFields(\"Year\").PivotItems(\"2021\").Visible = False",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,False,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$C$9,$A$3:$C$9,,"
+  ],
+  [
+   "pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").AddPageItem \"2020\"",
+   "Err 1004,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").AddPageItem \"2020\": pt.PivotFields(\"Year\").AddPageItem \"2021\"",
+   "Err 1004,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Year\").ClearAllFilters: pt.PivotFields(\"Year\").AddPageItem \"2020\", True",
+   "Err 1004,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Year\").AddPageItem \"1999\"",
+   "Err 1004,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").AddPageItem \"East\"",
+   "Err 1004,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").AllItemsVisible = True",
+   "Err 450,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").ShowingInAxis = False",
+   "Err 450,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").ShowingInAxis = True",
+   "Err 450,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotFields(\"Note\").Orientation = xlRowField",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,True,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$13,$A$3:$D$13,,"
+  ],
+  [
+   "pt.PivotFields(\"Region\").Orientation = xlHidden",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,False,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$7,$A$3:$D$7,,"
+  ],
+  [
+   "pt.PivotFields(\"Kind\").PivotFilters.Add2 xlCaptionEquals, , \"A\": pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionEquals, , \"East\"",
+   "ok,2,PivotFilters,,15,,Application,True,Region,False,East,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$C$8,$A$3:$C$8,,"
+  ],
+  [
+   "pt.RefreshTable",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ],
+  [
+   "pt.PivotCache.Refresh",
+   "ok,0,PivotFilters,E1004,E1004,E1004,E1004,E1004,E1004,E1004,E1004,True,True,True,True,True,True,True,True,True,False,True,PivotItems,0,E438,$A$3:$B$3,$A$3:$B$3,True,True,True,True,True,True,PivotAxis,PivotAxis,PivotFormulas,0,PivotTable,E1004,E1004,E1004,E1004,E1004,$A$5:$D$10,$A$3:$D$10,,"
+  ]
+ ]
+}

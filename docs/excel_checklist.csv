@@ -192,7 +192,7 @@ Application,MultiThreadedCalculation,"property, read-only",As MultiThreadedCalcu
 Application,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Application,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,NetworkTemplatesPath,"property, read-only",As String,,MISSING,,
-Application,NewWorkbook,event,NewWorkbook(Wb As Workbook),,MISSING,,
+Application,NewWorkbook,event,NewWorkbook(Wb As Workbook),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised by Workbooks.Add and a sheet copied or moved to a new workbook, before its window comes forward"
 Application,NextLetter,method,NextLetter() As Workbook,,MISSING,,
 Application,ODBCErrors,"property, read-only",As ODBCErrors,,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Count 0.
 Application,ODBCTimeout,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,0 and up; starts as the measuring machine's Excel had it.
@@ -241,13 +241,13 @@ Application,SendKeys,method,"SendKeys(Keys As Variant, [Wait As Variant])",,MISS
 Application,SensitivityLabelPolicy,"property, read-only",As SensitivityLabelPolicy,,MISSING,,
 Application,SharePointVersion,method,SharePointVersion(bstrUrl As String) As Long,,MISSING,,
 Application,SheetActivate,event,SheetActivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised when another sheet or workbook is made active, after the one left deactivates. Raised after the sheet's own, the sheet first among the arguments."
-Application,SheetBeforeDelete,event,SheetBeforeDelete(Sh As Object),,MISSING,,
+Application,SheetBeforeDelete,event,SheetBeforeDelete(Sh As Object),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised for each sheet of a delete Excel does not refuse, last tab first"
 Application,SheetBeforeDoubleClick,event,"SheetBeforeDoubleClick(Sh As Object, Target As Range, Cancel As Boolean)",,MISSING,,
 Application,SheetBeforeRightClick,event,"SheetBeforeRightClick(Sh As Object, Target As Range, Cancel As Boolean)",,MISSING,,
 Application,SheetCalculate,event,SheetCalculate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for each sheet a calculation worked formulas out on, in Excel's order (see _events). Raised after the sheet's own, the sheet first among the arguments."
 Application,SheetChange,event,"SheetChange(Sh As Object, Target As Range)",,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for writes of Value, Formula and the rest, clears, inserts and deletes, Copy, FillDown, AutoFill, DataSeries and Replace, with the cells as Target, as Excel raises it; Sort, Merge and formats raise none (see _events). Raised after the sheet's own, the sheet first among the arguments."
 Application,SheetDeactivate,event,SheetDeactivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for the sheet or workbook left when another is made active. Raised after the sheet's own, the sheet first among the arguments."
-Application,SheetFollowHyperlink,event,"SheetFollowHyperlink(Sh As Object, Target As Hyperlink)",,MISSING,,
+Application,SheetFollowHyperlink,event,"SheetFollowHyperlink(Sh As Object, Target As Hyperlink)",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised by Hyperlink.Follow after the link has gone to its place
 Application,SheetLensGalleryRenderComplete,event,SheetLensGalleryRenderComplete(Sh As Object),,MISSING,,
 Application,SheetPivotTableAfterValueChange,event,"SheetPivotTableAfterValueChange(Sh As Object, TargetPivotTable As PivotTable, TargetRange As Range)",,MISSING,,
 Application,SheetPivotTableBeforeAllocateChanges,event,"SheetPivotTableBeforeAllocateChanges(Sh As Object, TargetPivotTable As PivotTable, ValueChangeStart As Long, ValueChangeEnd As Long, Cancel As Boolean)",,MISSING,,
@@ -303,9 +303,9 @@ Application,Wait,method,Wait(Time As Variant) As Boolean,,PARTIAL,tests/test_exc
 Application,WarnOnFunctionNameConflict,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,Watches,"property, read-only",As Watches,,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Count 0.
 Application,Width,property,As Double,,MISSING,,
-Application,WindowActivate,event,"WindowActivate(Wb As Workbook, Wn As Window)",,MISSING,,
-Application,WindowDeactivate,event,"WindowDeactivate(Wb As Workbook, Wn As Window)",,MISSING,,
-Application,WindowResize,event,"WindowResize(Wb As Workbook, Wn As Window)",,MISSING,,
+Application,WindowActivate,event,"WindowActivate(Wb As Workbook, Wn As Window)",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised after Activate as another workbook's window comes forward, a workbook closing among them"
+Application,WindowDeactivate,event,"WindowDeactivate(Wb As Workbook, Wn As Window)",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised before Deactivate as a workbook's window goes behind or closes
+Application,WindowResize,event,"WindowResize(Wb As Workbook, Wn As Window)",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised once for a width or height set, twice when it changes, once for a state that changes"
 Application,Windows,"property, read-only",As Windows,,VERIFIED,tests/fixtures/windows/windows.json,"Front to back: a workbook added or opened comes to the front, and one activated comes forward only while the screen updates."
 Application,WindowsForPens,"property, read-only",As Boolean,,MISSING,,
 Application,WindowState,property,As XlWindowState,no setter,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Reads xlNormal; setting is not implemented.
@@ -317,14 +317,14 @@ Application,WorkbookAfterSave,event,"WorkbookAfterSave(Wb As Workbook, Success A
 Application,WorkbookAfterXmlExport,event,"WorkbookAfterXmlExport(Wb As Workbook, Map As XmlMap, Url As String, Result As XlXmlExportResult)",,MISSING,,
 Application,WorkbookAfterXmlImport,event,"WorkbookAfterXmlImport(Wb As Workbook, Map As XmlMap, IsRefresh As Boolean, Result As XlXmlImportResult)",,MISSING,,
 Application,WorkbookBeforeClose,event,"WorkbookBeforeClose(Wb As Workbook, Cancel As Boolean)",,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/save_copy_as.json; tests/test_workbook_lifecycle.py,"Raised before a workbook closes, which a handler may cancel. The application's is raised after the workbook's own, the workbook first among the arguments."
-Application,WorkbookBeforePrint,event,"WorkbookBeforePrint(Wb As Workbook, Cancel As Boolean)",,MISSING,,
+Application,WorkbookBeforePrint,event,"WorkbookBeforePrint(Wb As Workbook, Cancel As Boolean)",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised before a print; Cancel stops it
 Application,WorkbookBeforeRemoteChange,event,WorkbookBeforeRemoteChange(Wb As Workbook),,MISSING,,
 Application,WorkbookBeforeSave,event,"WorkbookBeforeSave(Wb As Workbook, SaveAsUI As Boolean, Cancel As Boolean)",,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/save_copy_as.json; tests/test_workbook_lifecycle.py,"Raised before a save, which a handler may cancel. The application's is raised after the workbook's own, the workbook first among the arguments."
 Application,WorkbookBeforeXmlExport,event,"WorkbookBeforeXmlExport(Wb As Workbook, Map As XmlMap, Url As String, Cancel As Boolean)",,MISSING,,
 Application,WorkbookBeforeXmlImport,event,"WorkbookBeforeXmlImport(Wb As Workbook, Map As XmlMap, Url As String, IsRefresh As Boolean, Cancel As Boolean)",,MISSING,,
 Application,WorkbookDeactivate,event,WorkbookDeactivate(Wb As Workbook),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised for the sheet or workbook left when another is made active. The application's is raised after the workbook's own, the workbook first among the arguments."
 Application,WorkbookModelChange,event,"WorkbookModelChange(Wb As Workbook, Changes As ModelChanges)",,MISSING,,
-Application,WorkbookNewChart,event,"WorkbookNewChart(Wb As Workbook, Ch As Chart)",,MISSING,,
+Application,WorkbookNewChart,event,"WorkbookNewChart(Wb As Workbook, Ch As Chart)",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised by AddChart, AddChart2, ChartObjects.Add and Duplicate; not by a sheet copy"
 Application,WorkbookNewSheet,event,"WorkbookNewSheet(Wb As Workbook, Sh As Object)",,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for a sheet added, before the sheet left deactivates and the new one activates. The application's is raised after the workbook's own, the workbook first among the arguments."
 Application,WorkbookOpen,event,WorkbookOpen(Wb As Workbook),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when a workbook opens, after the workbook's own Open and before its activation, the workbook as Wb."
 Application,WorkbookPivotTableCloseConnection,event,"WorkbookPivotTableCloseConnection(Wb As Workbook, Target As PivotTable)",,MISSING,,
@@ -1300,7 +1300,7 @@ Hyperlink,CreateNewDocument,method,"CreateNewDocument(Filename As String, EditNo
 Hyperlink,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
 Hyperlink,Delete,method,Delete(),,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"Its cells go back to the default format, merges kept. On a protected sheet a locked cell keeps its link, error 1004."
 Hyperlink,EmailSubject,property,As String,,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json,"The subject of a mailto address, which setting it writes in, in place of one it names, or takes out; """" for no address; another address fails. Set on a link with no address, which leaves Excel refusing every change after it, it reports unsupported."
-Hyperlink,Follow,method,"Follow([NewWindow As Variant], [AddHistory As Variant], [ExtraInfo As Variant], [Method As Variant], [HeaderInfo As Variant])",,EXCLUDED,,Opens the address in another application.
+Hyperlink,Follow,method,"Follow([NewWindow As Variant], [AddHistory As Variant], [ExtraInfo As Variant], [Method As Variant], [HeaderInfo As Variant])",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,A link inside the workbook goes to its place and raises FollowHyperlink; a place there is not leaves the selection; a link out of the workbook reports itself
 Hyperlink,Name,"property, read-only",As String,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"The text to show it was given, or ""address - subaddress"", which follows a new address; read from a file without a display, its cell's text. Setting it is error 450."
 Hyperlink,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,Its cells.
 Hyperlink,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
@@ -2294,7 +2294,7 @@ Range,PlacePictureOverCells,method,PlacePictureOverCells([AsReference As Variant
 Range,Precedents,"property, read-only",As Range,,PARTIAL,tests/fixtures/precedents.json; tests/test_excel_precedents.py,"The cells on the sheet the range's formulas read, names' cells too, another sheet's and INDIRECT's left out, a legacy formula's cut reference as the cell its row meets; areas joined and ordered as Excel's, over 264 live answers; every level, each formula once"
 Range,PrefixCharacter,"property, read-only",As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"The apostrophe a cell was typed with, kept by its format until Clear or ClearFormats and shown while the cell holds text; the Lotus navigation prefixes are not modelled."
 Range,Previous,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The cell left of the top-left one, error 1004 before column A; on a protected sheet it reports itself unsupported."
-Range,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant]) As Variant",,MISSING,,
+Range,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant]) As Variant",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"BeforePrint and nothing more, the model having no printer: a sheet not active is active for the event and made active again without one, a hidden one 1004; Preview, a named printer and a print to a file report themselves"
 Range,PrintPreview,method,PrintPreview([EnableChanges As Variant]) As Variant,,MISSING,,
 Range,QueryTable,"property, read-only",As QueryTable,,PARTIAL,tests/fixtures/range_small_reads.json; tests/test_excel_range_small_reads.py,Error 1004: the model holds no query tables.
 Range,Range,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,"A reference read as though the range's first cell were A1, names, unions and intersections included; one Range alone, or a reference landing off the sheet, is error 1004. A reference on another sheet reports itself unsupported."
@@ -3044,7 +3044,7 @@ Window,ActiveSheetView,"property, read-only",As Object,,PARTIAL,tests/fixtures/s
 Window,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,AutoFilterDateGrouping,property,As Boolean,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"The workbook's, saved in its workbookView and read back; it changes no filter."
 Window,Caption,property,As Variant,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant]) As Boolean",,MISSING,,
+Window,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant]) As Boolean",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Closes the workbook, its only window in the model, with the workbook's events"
 Window,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Window,DisplayDataTypeIcons,property,As Boolean,,MISSING,,
 Window,DisplayFormulas,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
@@ -3066,14 +3066,14 @@ Window,Height,property,As Double,,PARTIAL,tests/fixtures/windows/windows.json,"K
 Window,Hwnd,"property, read-only",As Long,,MISSING,,
 Window,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,LargeScroll,method,"LargeScroll([Down As Variant], [Up As Variant], [ToRight As Variant], [ToLeft As Variant]) As Variant",,MISSING,,
-Window,Left,property,As Double,,MISSING,,
+Window,Left,property,As Double,,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Reads back what a macro set, no event; before one does it is the screen's and reports itself"
 Window,NewWindow,method,NewWindow() As Window,,MISSING,,
 Window,OnWindow,property,As String,,MISSING,,
 Window,Panes,"property, read-only",As Panes,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,PointsToScreenPixelsX,method,PointsToScreenPixelsX(Points As Long) As Long,,MISSING,,
 Window,PointsToScreenPixelsY,method,PointsToScreenPixelsY(Points As Long) As Long,,MISSING,,
-Window,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant]) As Variant",,MISSING,,
+Window,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant]) As Variant",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Error 1004, before any event, on Excel's hidden window"
 Window,PrintPreview,method,PrintPreview([EnableChanges As Variant]) As Variant,,MISSING,,
 Window,RangeFromPoint,method,"RangeFromPoint(x As Long, y As Long) As Object",,MISSING,,
 Window,RangeSelection,"property, read-only",As Range,,VERIFIED,tests/fixtures/windows/windows.json,
@@ -3091,7 +3091,7 @@ Window,SplitHorizontal,property,As Double,no setter,PARTIAL,tests/fixtures/windo
 Window,SplitRow,property,As Long,,PARTIAL,tests/fixtures/windows/windows.json,A split that is not frozen is answered for and not saved: Excel keeps it in twips of what the window shows.
 Window,SplitVertical,property,As Double,no setter,PARTIAL,tests/fixtures/windows/windows.json,Read only here.
 Window,TabRatio,property,As Double,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,Top,property,As Double,,MISSING,,
+Window,Top,property,As Double,,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Reads back what a macro set, no event; before one does it is the screen's and reports itself"
 Window,Type,"property, read-only",As XlWindowType,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,xlWorkbook.
 Window,UsableHeight,"property, read-only",As Double,,MISSING,,
 Window,UsableWidth,"property, read-only",As Double,,MISSING,,
@@ -3134,7 +3134,7 @@ Workbook,AutoSaveOn,property,As Boolean,,PARTIAL,tests/fixtures/workbook_propert
 Workbook,AutoUpdateFrequency,property,As Long,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; a set is refused with error 1004, as Excel refuses it."
 Workbook,AutoUpdateSaveChanges,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"Error 1004 read or set, as on a workbook that is not shared."
 Workbook,BeforeClose,event,BeforeClose(Cancel As Boolean),,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/save_copy_as.json; tests/test_workbook_lifecycle.py,"Raised before a workbook closes, which a handler may cancel."
-Workbook,BeforePrint,event,BeforePrint(Cancel As Boolean),,MISSING,,
+Workbook,BeforePrint,event,BeforePrint(Cancel As Boolean),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised before a print; Cancel stops it
 Workbook,BeforeRemoteChange,event,BeforeRemoteChange(),,MISSING,,
 Workbook,BeforeSave,event,"BeforeSave(SaveAsUI As Boolean, Cancel As Boolean)",,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/save_copy_as.json; tests/test_workbook_lifecycle.py,"Raised before a save, which a handler may cancel."
 Workbook,BeforeXmlExport,event,"BeforeXmlExport(Map As XmlMap, Url As String, Cancel As Boolean)",,MISSING,,
@@ -3222,7 +3222,7 @@ Workbook,ModelChange,event,ModelChange(Changes As ModelChanges),,MISSING,,
 Workbook,MultiUserEditing,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
 Workbook,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt,
-Workbook,NewChart,event,NewChart(Ch As Chart),,MISSING,,
+Workbook,NewChart,event,NewChart(Ch As Chart),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised by AddChart, AddChart2, ChartObjects.Add and Duplicate; not by a sheet copy"
 Workbook,NewSheet,event,NewSheet(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for a sheet added, before the sheet left deactivates and the new one activates."
 Workbook,NewWindow,method,NewWindow() As Window,,MISSING,,
 Workbook,Open,event,Open(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when a workbook opens, before the application's WorkbookOpen and its activation."
@@ -3243,7 +3243,7 @@ Workbook,PivotTableOpenConnection,event,PivotTableOpenConnection(Target As Pivot
 Workbook,PivotTables,"property, read-only",As Object,,MISSING,,
 Workbook,Post,method,Post([DestName As Variant]),,MISSING,,
 Workbook,PrecisionAsDisplayed,property,As Boolean,,PARTIAL,tests/fixtures/precision_as_displayed.json; tests/test_excel_precision_as_displayed.py,"Turned on, every number of every sheet is rounded half away from zero to what its format shows: the section its value takes, its decimal places through percent signs and trailing commas, an exponent's mantissa; General, text, dates, times and fractions stay whole. Numbers written, formats given to constants and formula results, array formulas too, round from then on; turned off, they stay rounded. Saved and read as calcPr fullPrecision=""0"". A dynamic-array spill is not rounded."
-Workbook,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,MISSING,,
+Workbook,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"BeforePrint and nothing more, the model having no printer: a sheet not active is active for the event and made active again without one, a hidden one 1004; Preview, a named printer and a print to a file report themselves"
 Workbook,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
 Workbook,Protect,method,"Protect([Password As Variant], [Structure As Variant], [Windows As Variant])",,PARTIAL,tests/fixtures/workbook_protection.json,"Protects the structure unless Structure says False; on a protected workbook it needs the password, then sets the structure as Structure says, a Protect with no Structure turning the protection off. A protected structure refuses adding, deleting, renaming, moving, copying and hiding sheets with Excel's errors. Windows does nothing, as in Excel. Saved and read as Excel does; given no password where Excel would ask for one, it reports itself unsupported."
 Workbook,ProtectSharing,method,"ProtectSharing([Filename As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [SharingPassword As Variant], [FileFormat As Variant])",,MISSING,,
@@ -3286,13 +3286,13 @@ Workbook,SetLinkOnData,method,"SetLinkOnData(Name As String, [Procedure As Varia
 Workbook,SetPasswordEncryptionOptions,method,"SetPasswordEncryptionOptions([PasswordEncryptionProvider As Variant], [PasswordEncryptionAlgorithm As Variant], [PasswordEncryptionKeyLength As Variant], [PasswordEncryptionFileProperties As Variant])",,MISSING,,
 Workbook,SharedWorkspace,"property, read-only",As SharedWorkspace,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,SheetActivate,event,SheetActivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised when another sheet or workbook is made active, after the one left deactivates. Raised after the sheet's own, the sheet first among the arguments."
-Workbook,SheetBeforeDelete,event,SheetBeforeDelete(Sh As Object),,MISSING,,
+Workbook,SheetBeforeDelete,event,SheetBeforeDelete(Sh As Object),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised for each sheet of a delete Excel does not refuse, last tab first"
 Workbook,SheetBeforeDoubleClick,event,"SheetBeforeDoubleClick(Sh As Object, Target As Range, Cancel As Boolean)",,MISSING,,
 Workbook,SheetBeforeRightClick,event,"SheetBeforeRightClick(Sh As Object, Target As Range, Cancel As Boolean)",,MISSING,,
 Workbook,SheetCalculate,event,SheetCalculate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for each sheet a calculation worked formulas out on, in Excel's order (see _events). Raised after the sheet's own, the sheet first among the arguments."
 Workbook,SheetChange,event,"SheetChange(Sh As Object, Target As Range)",,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for writes of Value, Formula and the rest, clears, inserts and deletes, Copy, FillDown, AutoFill, DataSeries and Replace, with the cells as Target, as Excel raises it; Sort, Merge and formats raise none (see _events). Raised after the sheet's own, the sheet first among the arguments."
 Workbook,SheetDeactivate,event,SheetDeactivate(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for the sheet or workbook left when another is made active. Raised after the sheet's own, the sheet first among the arguments."
-Workbook,SheetFollowHyperlink,event,"SheetFollowHyperlink(Sh As Object, Target As Hyperlink)",,MISSING,,
+Workbook,SheetFollowHyperlink,event,"SheetFollowHyperlink(Sh As Object, Target As Hyperlink)",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised by Hyperlink.Follow after the link has gone to its place
 Workbook,SheetLensGalleryRenderComplete,event,SheetLensGalleryRenderComplete(Sh As Object),,MISSING,,
 Workbook,SheetPivotTableAfterValueChange,event,"SheetPivotTableAfterValueChange(Sh As Object, TargetPivotTable As PivotTable, TargetRange As Range)",,MISSING,,
 Workbook,SheetPivotTableBeforeAllocateChanges,event,"SheetPivotTableBeforeAllocateChanges(Sh As Object, TargetPivotTable As PivotTable, ValueChangeStart As Long, ValueChangeEnd As Long, Cancel As Boolean)",,MISSING,,
@@ -3328,9 +3328,9 @@ Workbook,VBASigned,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/work
 Workbook,VBProject,"property, read-only",As VBProject,,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"In-memory component/source buffers, delayed compilation and guarded persistence; 128 native probes and native execution gate. References/designers/import/export, complete procedure queries and reset/lifetime semantics remain incomplete."
 Workbook,WebOptions,"property, read-only",As WebOptions,,MISSING,,
 Workbook,WebPagePreview,method,WebPagePreview(),,MISSING,,
-Workbook,WindowActivate,event,WindowActivate(Wn As Window),,MISSING,,
-Workbook,WindowDeactivate,event,WindowDeactivate(Wn As Window),,MISSING,,
-Workbook,WindowResize,event,WindowResize(Wn As Window),,MISSING,,
+Workbook,WindowActivate,event,WindowActivate(Wn As Window),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised after Activate as the workbook's window comes forward
+Workbook,WindowDeactivate,event,WindowDeactivate(Wn As Window),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised before Deactivate as the workbook's window goes behind or closes
+Workbook,WindowResize,event,WindowResize(Wn As Window),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised once for a width or height set, twice when it changes, once for a state that changes"
 Workbook,Windows,"property, read-only",As Windows,,VERIFIED,tests/fixtures/windows/windows.json,
 Workbook,WorkIdentity,property,As String,,MISSING,,
 Workbook,Worksheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -3390,7 +3390,7 @@ Worksheet,Activate,event,Activate(),,PARTIAL,tests/fixtures/workbook_open.json; 
 Worksheet,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,AutoFilter,"property, read-only",As AutoFilter,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,"The filter at the active cell: a table's where it is in a table, else the sheet's own, or Nothing."
 Worksheet,AutoFilterMode,property,As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/full_calculation.json; tests/fixtures/table_autofilter/table_autofilter.json,"Whether the sheet has a filter of its own. Setting it False turns off the filter at the active cell, a table's where it is in one, and does nothing on a sheet with no filter of its own. Setting it to True reports itself unsupported. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts."
-Worksheet,BeforeDelete,event,BeforeDelete(),,MISSING,,
+Worksheet,BeforeDelete,event,BeforeDelete(),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised for each sheet of a delete Excel does not refuse, last tab first"
 Worksheet,BeforeDoubleClick,event,"BeforeDoubleClick(Target As Range, Cancel As Boolean)",,MISSING,,
 Worksheet,BeforeRightClick,event,"BeforeRightClick(Target As Range, Cancel As Boolean)",,MISSING,,
 Worksheet,Calculate,event,Calculate(),,PARTIAL,tests/fixtures/calculation_scope.json; tests/test_excel_calculate_order.py; tests/fixtures/calculate_order.json," Calculation scope, cached precedents, deferred notifications and saved dirty states have 192 native probes, 1080 additional UDF observations and four XLSM file gates. Sheets raise it in the order they were made, which a file keeps as sheetId, and a pivot refresh raises it for each table's sheet, then for the sheets its closing calculation works out or that hold notifications. Broader graph, reentrancy and event-error behavior remains partial."
@@ -3426,7 +3426,7 @@ Worksheet,EnableSelection,property,As XlEnableSelection,,PARTIAL,tests/fixtures/
 Worksheet,Evaluate,method,Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/evaluate.json; tests/test_excel_conditional_udf.py; tests/test_excel_conditional_udf_context.py; tests/fixtures/conditional_udf,"As Application.Evaluate, with references on this sheet rather than the active one. Native nested Evaluate controls permit fresh DisplayFormat acquisition by evaluated UDFs, restore the enclosing worksheet/conditional origin afterward, and retain existing UDF mutation restrictions."
 Worksheet,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Worksheet,FilterMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/test_excel_advanced_filter.py; tests/fixtures/advanced_filter/native.json; tests/fixtures/table_autofilter/table_autofilter.json,"The filter at the active cell's, as it was when the sheet was last activated, its selection moved or a filter changed: deleting a filtered table leaves it True, and a sheet read from a file answers for its own filter, which the file keeps as filterMode. AdvancedFilter has independently measured filtering without dropdowns, persisted list/criteria names and hidden rows; ShowAllData clears that list while preserving unrelated manually hidden rows."
-Worksheet,FollowHyperlink,event,FollowHyperlink(Target As Hyperlink),,MISSING,,
+Worksheet,FollowHyperlink,event,FollowHyperlink(Target As Hyperlink),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,Raised by Hyperlink.Follow after the link has gone to its place
 Worksheet,HPageBreaks,"property, read-only",As HPageBreaks,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted."
 Worksheet,Hyperlinks,"property, read-only",As Hyperlinks,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"In the order they were added, a link replaced keeping its place."
 Worksheet,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -3454,7 +3454,7 @@ Worksheet,PivotTableUpdate,event,PivotTableUpdate(Target As PivotTable),,PARTIAL
 Worksheet,PivotTableWizard,method,"PivotTableWizard([SourceType As Variant], [SourceData As Variant], [TableDestination As Variant], [TableName As Variant], [RowGrand As Variant], [ColumnGrand As Variant], [SaveData As Variant], [HasAutoFormat As Variant], [AutoPage As Variant], [Reserved As Variant], [BackgroundQuery As Variant], [OptimizeCache As Variant], [PageFieldOrder As Variant], [PageFieldWrapCount As Variant], [ReadData As Variant], [Connection As Variant]) As PivotTable",,MISSING,,
 Worksheet,Previous,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The sheet before, Nothing before the first."
 Worksheet,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
-Worksheet,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,MISSING,,
+Worksheet,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"BeforePrint and nothing more, the model having no printer: a sheet not active is active for the event and made active again without one, a hidden one 1004; Preview, a named printer and a print to a file report themselves"
 Worksheet,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
 Worksheet,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant], [AllowFormattingCells As Variant], [AllowFormattingColumns As Variant], [AllowFormattingRows As Variant], [AllowInsertingColumns As Variant], [AllowInsertingRows As Variant], [AllowInsertingHyperlinks As Variant], [AllowDeletingColumns As Variant], [AllowDeletingRows As Variant], [AllowSorting As Variant], [AllowFiltering As Variant], [AllowUsingPivotTables As Variant])",,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"Contents, DrawingObjects and Scenarios True unless given, the Allow options False; a second Protect changes only what it asks to change, needing the password to, and empties the clipboard. A protected sheet refuses a macro's edits to locked cells, formats and structure with Excel's own errors; UserInterfaceOnly frees macros. Given no password where Excel would ask for one, it reports itself unsupported. Saved and read as Excel saves and reads it."
 Worksheet,ProtectContents,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,Saved and read as Excel saves and reads it.

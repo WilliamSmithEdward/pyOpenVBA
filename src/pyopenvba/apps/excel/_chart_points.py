@@ -582,6 +582,9 @@ class Point(Created):
         kind = self.kind()
         if kind not in _MARKER_KINDS:
             raise VBAUnsupportedError("ClearFormats on a point of this kind of chart is not implemented")
+        if self.series.entry.marker_line is not None:
+            raise VBAUnsupportedError("ClearFormats on a point of a series whose line colour reached its marker is not "
+                                      "implemented")
         point = self.held()
         colour = _CLEARED.line_rgb
         if kind in _LINES:

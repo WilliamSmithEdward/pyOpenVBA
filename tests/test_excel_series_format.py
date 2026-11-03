@@ -14,12 +14,9 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from test_excel_chart_markup import chart_part
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/series_format.json').read_text(encoding='utf-8'))
-#: Cases the model refuses: one series' own chart type, a marker on a series with a look, whose line Excel copies into
-#: it, and a line colour on a series with markers, or a scatter series, which reaches the marker too. The replay runs
-#: them with no statements and leaves their answers out.
-REFUSED = ['51: sr.Format.Fill.ForeColor.RGB = 255: sr.ChartType = xlLine',
-           '4: sr.Format.Line.ForeColor.RGB = 255: sr.MarkerStyle = xlMarkerStyleCircle',
-           '65: sr.Format.Line.ForeColor.RGB = 255', '-4169: sr.Format.Line.ForeColor.RGB = 255']
+#: The case the model refuses: one series' own chart type. The replay runs it with no statements and leaves its answers
+#: out.
+REFUSED = ['51: sr.Format.Fill.ForeColor.RGB = 255: sr.ChartType = xlLine']
 KEPT = [index for index, (case, _, _) in enumerate(RECORD['cases']) if case not in REFUSED]
 
 

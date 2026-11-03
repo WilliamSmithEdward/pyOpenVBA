@@ -2848,6 +2848,8 @@ class Worksheet(ExcelObject):
         self.traced: dict[tuple[int, int, bool], int] = {}
         #: The cells AdvancedFilter was last given as its criteria.
         self.filter_criteria: Range | None = None
+        #: The shapes selected, as _selected_shapes has it.
+        self.selected_shapes: list[ShapeValue] = []
         #: The Range objects alive, which follow their cells, and how many times cells have moved (see _held_ranges).
         self.held_ranges: weakref.WeakSet[Range] = weakref.WeakSet()
         self.cells_moved = 0
@@ -3382,8 +3384,11 @@ class Worksheet(ExcelObject):
 
         # With no destination it goes to the selection, which grows to what it pasted (excel_everyday_7.json).
         selected = landed_selection(self) if Destination is MISSING else None
+        was = self.selection.first if isinstance(self.selection, Range) else None
         answer = paste(self, Destination, Link)
-        if selected is not None:
+        # Where it already holds what was pasted it stays as it was, its active cell too.
+        if selected is not None and (was is None or (was.top, was.left, was.bottom, was.right) != (
+                selected.first.top, selected.first.left, selected.first.bottom, selected.first.right)):
             selected.Select()
         return answer
 
@@ -5230,8 +5235,11 @@ class Range(ExcelObject):
 
     @method
     def ClearOutline(self) -> object:
-        from pyopenvba.apps.excel._outline import group
+        from pyopenvba.apps.excel._outline import clear_from_cells, group
 
+        area = self.first
+        if len(self.areas) == 1 and not area.whole_rows and not area.whole_columns:
+            return clear_from_cells(self)
         return group(self, 'ClearOutline')
 
     @method
@@ -5335,6 +5343,7 @@ class Range(ExcelObject):
         """Make the range the sheet's selection, its first cell the active one; SelectionChange when that moves it."""
         before = self.sheet.selection_range
         self.sheet.active_chart = None
+        self.sheet.selected_shapes = []
         shown = [(one.top, one.left, one.bottom, one.right) for one in before.areas] if before is not None \
             else [(1, 1, 1, 1)]
         # The selection is the range's cells, whatever Rows or Columns made it (tests/fixtures/range_lines.json).
@@ -5896,9 +5905,12 @@ class Range(ExcelObject):
 
         answer = autofill(self, Destination, Type)
         if isinstance(Destination, Range) and len(Destination.areas) == 1:
-            # Excel selects what it filled, then reports the cells it filled as changed.
-            if Destination.sheet is self.sheet.book.active_sheet:
-                Destination.select_as_excel_does()
+            # Excel reports what it filled as selected and then as changed (tests/fixtures/events.json), but the
+            # selection is where it was afterwards, with events on or off (tests/fixtures/excel_everyday_10.json).
+            sheet = Destination.sheet
+            shown = sheet.selection
+            if sheet is self.sheet.book.active_sheet and not (isinstance(shown, Range) and shown.areas == Destination.areas):
+                _events.selected(sheet, Destination)
             filled = _beyond(self.first, Destination.first)
             if filled is not None:
                 _events.after_edit(Range(Destination.sheet, [filled]))

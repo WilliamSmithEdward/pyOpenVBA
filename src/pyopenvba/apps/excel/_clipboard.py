@@ -318,8 +318,10 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
     if chart_pasted(sheet, destination):
         return True
     if destination is MISSING:
+        from pyopenvba.apps.excel._selected_shapes import selected as selected_shapes
+
         destination = sheet.selection
-        if not isinstance(destination, Range):
+        if not isinstance(destination, Range) or selected_shapes(sheet):
             raise error(1004, "Paste needs a selection on this sheet")
     if not isinstance(destination, Range):
         raise error(1004, "Paste needs a range to paste into")
@@ -474,9 +476,8 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         conditional_plan.commit()
     from pyopenvba.apps.excel._model import Range
 
-    selected = sheet.selection
-    if sheet is sheet.book.active_sheet and isinstance(selected, Range) and selected.areas == target.areas:
-        # Pasted into the selection, which grows to what it pasted (tests/fixtures/excel_everyday_7.json).
+    if sheet is sheet.book.active_sheet:
+        # What it pasted ends up selected, wherever that was (tests/fixtures/excel_everyday_9.json).
         Range(sheet, [Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1, sheet.name)]).Select()
     return True
 

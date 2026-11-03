@@ -15,6 +15,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Selection` with a shape selected is the shape's drawing object, `Rectangle`, `Oval`, `Line` or `TextBox`, or
+  `DrawingObjects` for several, with `Name`, `Left`, `Top`, `ShapeRange` and `Count`. `ShapeRange.Select` selects them.
 - `Range.Insert` with something on the clipboard is Insert Copied Cells or Insert Cut Cells:
   `Rows(3).Copy: Rows(6).Insert` duplicates the row and `Rows(3).Cut: Rows(6).Insert` moves it. Measured in live Excel
   over about 240 shapes of copy, cut and target (`tests/fixtures/range_audit.json`). Filling whole columns with a copy
@@ -858,7 +860,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `_clipboard_ends.py` as measured: `Font.Bold` ends them and `Font.Color` does not, `Calculate` ends them and
   `CalculateFull` does not, and so on through 140 edits (`tests/fixtures/excel_everyday_7.json` and `_8.json`).
   `Application.CutCopyMode` set to anything ends them. A `Range.Copy` to a destination ends what was on the clipboard.
-- `Worksheet.Paste` and `Range.PasteSpecial` into the selection grow the selection to what they pasted.
+- `Worksheet.Paste` into the selection grows it to what it pasted, and where it already held that keeps its active
+  cell. `Range.PasteSpecial` selects what it pasted, wherever that was.
+- `Range.AutoFill` leaves the selection where it was.
+- `Range.ClearOutline` on cells: one cell clears every outline on the sheet, and a block the lines it crosses.
 - `Range.Delete` ends Copy and Cut, whatever it deletes. A `Font`, `Interior`, `Borders` or `Comment` taken from a range
   goes when its cells go, a `Comment` follows its cell, and Ranges go when their workbook closes.
 - `Columns("8:9")` is error 1004. Copying several whole columns no longer says the destination is too large. A copied

@@ -18,7 +18,7 @@ from pyopenvba.apps.excel._number_format import to_file
 from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, VBAInt, error, to_bool, to_integer
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer
 from pyopenvba.shapes._values import FillLine
 
 if TYPE_CHECKING:
@@ -265,6 +265,25 @@ class Point(Created):
         if point.label_unique < 0 and (wanted or entry.data_labels):
             state = self.series.chart.state
             point.label_unique, state.next_unique = state.next_unique, state.next_unique + 1
+
+    @method
+    def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,
+                        HasLeaderLines: object = MISSING, ShowSeriesName: object = MISSING,
+                        ShowCategoryName: object = MISSING, ShowValue: object = MISSING,
+                        ShowPercentage: object = MISSING, ShowBubbleSize: object = MISSING,
+                        Separator: object = MISSING) -> object:
+        from pyopenvba.apps.excel._chart_data_labels import applied_look, apply_to_point
+
+        del ShowBubbleSize
+        state = self.series.chart.state
+        wanted = 2 if Type is MISSING else int(to_integer(Type, "Long"))
+        if wanted in (3, 5) and state.chart_type != 5:
+            # It takes the label away and then fails.
+            apply_to_point(self, LabelLook(value=False), MISSING)
+        look = applied_look(state.chart_type, Type, LegendKey, AutoText, ShowSeriesName, ShowCategoryName, ShowValue,
+                            ShowPercentage, Separator)
+        apply_to_point(self, look, HasLeaderLines)
+        return True
 
     @member
     def DataLabel(self) -> object:

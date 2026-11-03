@@ -15,7 +15,7 @@ from pyopenvba.apps.excel._chart_trendlines import Trendlines, TrendlineState
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
 from pyopenvba.apps.excel._chart_xml import LabelLook, TextLook
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -1379,6 +1379,25 @@ class Chart(Created):
         self.state.not_available_as_blank = wanted
 
     @method
+    def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,
+                        HasLeaderLines: object = MISSING, ShowSeriesName: object = MISSING,
+                        ShowCategoryName: object = MISSING, ShowValue: object = MISSING,
+                        ShowPercentage: object = MISSING, ShowBubbleSize: object = MISSING,
+                        Separator: object = MISSING) -> object:
+        from pyopenvba.apps.excel._chart_data_labels import applied_look, apply_to_series
+
+        del ShowBubbleSize
+        try:
+            look = applied_look(self.state.chart_type, Type, LegendKey, AutoText, ShowSeriesName,
+                                ShowCategoryName, ShowValue, ShowPercentage, Separator)
+        except VBARuntimeError:
+            # A chart takes a type its series refuse: no labels, and no error.
+            return True
+        for entry in self.state.series:
+            apply_to_series(Series(self, entry), look, HasLeaderLines)
+        return True
+
+    @method
     def SeriesCollection(self, Index: object = MISSING) -> object:
         collection = SeriesCollection(self)
         return collection if Index is MISSING else collection.vba_get('Item', [Index])
@@ -2299,6 +2318,20 @@ class Series(Created):
         self.position()
         points = Points(self)
         return points if Index is MISSING else points.vba_get('Item', [Index])
+
+    @method
+    def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,
+                        HasLeaderLines: object = MISSING, ShowSeriesName: object = MISSING,
+                        ShowCategoryName: object = MISSING, ShowValue: object = MISSING,
+                        ShowPercentage: object = MISSING, ShowBubbleSize: object = MISSING,
+                        Separator: object = MISSING) -> object:
+        from pyopenvba.apps.excel._chart_data_labels import applied_look, apply_to_series
+
+        del ShowBubbleSize
+        look = applied_look(self.chart.state.chart_type, Type, LegendKey, AutoText, ShowSeriesName,
+                            ShowCategoryName, ShowValue, ShowPercentage, Separator)
+        apply_to_series(self, look, HasLeaderLines)
+        return True
 
     @method
     def DataLabels(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument

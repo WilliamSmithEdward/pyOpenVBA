@@ -517,7 +517,7 @@ Chart,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixt
 Chart,Activate,event,Activate(),,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,Raises 1004 on an embedded chart that is not active.
 Chart,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 Chart,ApplyChartTemplate,method,ApplyChartTemplate(Filename As String),,MISSING,,
-Chart,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant])",,MISSING,,
+Chart,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant])",,PARTIAL,tests/test_excel_apply_data_labels.py,"Every series, as live Excel; a type its series refuse does nothing and raises nothing. AutoText:=False is refused."
 Chart,ApplyLayout,method,"ApplyLayout(Layout As Long, [ChartType As Variant])",,MISSING,,
 Chart,AutoScaling,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
 Chart,Axes,method,"Axes([Type As Variant], [AxisGroup As XlAxisGroup]) As Object",,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
@@ -2045,7 +2045,7 @@ PlotArea,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSI
 PlotArea,Top,property,As Double,,MISSING,,
 PlotArea,Width,property,As Double,,MISSING,,
 Point,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
-Point,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,MISSING,,
+Point,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,PARTIAL,tests/test_excel_apply_data_labels.py,"As live Excel on column, pie and line charts. AutoText:=False is refused."
 Point,ApplyPictToEnd,property,As Boolean,,MISSING,,
 Point,ApplyPictToFront,property,As Boolean,,MISSING,,
 Point,ApplyPictToSides,property,As Boolean,,MISSING,,
@@ -2342,7 +2342,7 @@ Scenarios,Item,method,Item(Index As Variant) As Scenario,,PARTIAL,tests/fixtures
 Scenarios,Merge,method,Merge(Source As Variant) As Variant,,MISSING,,
 Scenarios,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The sheet.
 Series,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The Application.
-Series,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,MISSING,,
+Series,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,PARTIAL,tests/test_excel_apply_data_labels.py,"As live Excel on column, pie and line charts; position, number format, separator and font stay. AutoText:=False is refused."
 Series,ApplyPictToEnd,property,As Boolean,,MISSING,,
 Series,ApplyPictToFront,property,As Boolean,,MISSING,,
 Series,ApplyPictToSides,property,As Boolean,,MISSING,,

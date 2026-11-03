@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape
+from pyopenvba.apps.excel._chart_styled import is_styled, line_read, series_line_weight
 from pyopenvba.apps.excel._charts import CHART_TYPES, shown_type
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._styles import bgr
@@ -344,6 +345,9 @@ class SeriesLine(_Part):
         width = self.look().line_width
         if width is not None:
             return VBASingle(points(width))
+        style = self.series.chart.state.chart_style
+        if is_styled(style) and self.kind() not in FILLED:
+            return VBASingle(series_line_weight(style))
         return VBASingle(0.75 if self.kind() in FILLED else 3.0)
 
     @setter("Weight")
@@ -681,6 +685,12 @@ class ElementFill(_ElementPart):
 class ElementLine(_ElementPart):
     vba_type_name = "LineFormat"
 
+    def styled(self) -> tuple[float, str] | None:
+        """The weight and colour one of AddChart2's styles gives the line."""
+        chart = self.owner.chart
+        style = chart.state.chart_style
+        return line_read(style, self.key, chart.sheet.book.stylesheet.colors.theme) if is_styled(style) else None
+
     def reads_hidden(self) -> bool:
         """A line that is no real line: hidden, or a weight or dash on an element with no line."""
         look = self.look()
@@ -727,6 +737,9 @@ class ElementLine(_ElementPart):
             return VBASingle(_MIXED)
         if look.line_width is not None:
             return VBASingle(points(look.line_width))
+        styled = self.styled()
+        if styled is not None:
+            return VBASingle(styled[0])
         return VBASingle(1.0 if _grey(self.key) else 0.75)
 
     @setter("Weight")
@@ -806,6 +819,9 @@ class ElementColor(Created):
             return VBAInt(0, "Long")
         if owner.reads_hidden():
             return VBAInt(_WHITE, "Long")
+        styled = owner.styled()
+        if look.line_rgb is None and styled is not None:
+            return VBAInt(bgr(styled[1]), "Long")
         return VBAInt(_GREY_LONG if look.line_rgb is None else bgr(look.line_rgb), "Long")
 
     @setter("RGB")

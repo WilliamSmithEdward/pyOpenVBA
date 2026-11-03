@@ -2624,7 +2624,8 @@ Shapes,_Default,method,_Default(Index As Variant) As Shape,,PARTIAL,tests/fixtur
 Shapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Shapes,Add3DModel,method,"Add3DModel(Filename As String, [LinkToFile As Variant], [SaveWithDocument As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
 Shapes,AddCallout,method,"AddCallout(Type As MsoCalloutType, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
-Shapes,AddChart2,method,"AddChart2([Style As Variant], [XlChartType As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant], [NewLayout As Variant]) As Shape",,MISSING,,
+Shapes,AddChart,not in the type library,,,UNASSESSED,,
+Shapes,AddChart2,method,"AddChart2([Style As Variant], [XlChartType As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant], [NewLayout As Variant]) As Shape",,UNASSESSED,,
 Shapes,AddConnector,method,"AddConnector(Type As MsoConnectorType, BeginX As Single, BeginY As Single, EndX As Single, EndY As Single) As Shape",,MISSING,,
 Shapes,AddCurve,method,AddCurve(SafeArrayOfPoints As Variant) As Shape,,PARTIAL,tests/fixtures/shape_polyline.json; tests/test_excel_shape_polyline.py,"A freeform of cubic Bezier curves, a start and three points each, kept on the sheet; any other count raises 1004."
 Shapes,AddFormControl,method,"AddFormControl(Type As XlFormControl, Left As Long, Top As Long, Width As Long, Height As Long) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/radio_controls.json,

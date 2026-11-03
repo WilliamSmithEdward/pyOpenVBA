@@ -347,6 +347,21 @@ class Shapes(VBACollection, ItemDefault, Created):
         self.sheet.drawing_changed()
         return shape
 
+    @method
+    def AddChart2(self, Style: object = MISSING, XlChartType: object = MISSING, Left: object = MISSING,  # noqa: N803
+                  Top: object = MISSING, Width: object = MISSING, Height: object = MISSING,  # noqa: N803
+                  NewLayout: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._charts import add_chart
+
+        return ShapeObject(self.sheet, add_chart(self.sheet, Style, XlChartType, (Left, Top, Width, Height), NewLayout))
+
+    @method
+    def AddChart(self, XlChartType: object = MISSING, Left: object = MISSING, Top: object = MISSING,  # noqa: N803
+                 Width: object = MISSING, Height: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._charts import add_chart
+
+        return ShapeObject(self.sheet, add_chart(self.sheet, 2, XlChartType, (Left, Top, Width, Height), False))
+
     def new_chart_shape(self, left: float, top: float, width: float, height: float) -> Shape:
         return self._made(kind='chart', geometry='', stem='Chart', box=(left, top, width, height))
 

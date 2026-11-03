@@ -1400,8 +1400,8 @@ def write_alignment(target: Range, what: str, value: object) -> None:
     change = alignment_change(what, value)
 
     def changed(alignment: S.Alignment) -> S.Alignment:
-        # A cell cannot be both indented and turned, where a style can: indenting straightens it, and turning an indented
-        # cell does nothing (tests/fixtures/excel_everyday_4.json).
+        # A cell cannot be both indented and turned, where a style can: indenting straightens it, and turning an
+        # indented cell does nothing (tests/fixtures/excel_everyday_4.json).
         if what == "Orientation" and alignment.indent:
             return alignment
         made = change(alignment)

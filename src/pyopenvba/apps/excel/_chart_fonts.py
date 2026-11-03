@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from pyopenvba.apps.excel._chart_styled import font_read, is_styled
 from pyopenvba.apps.excel._chart_xml import TextLook
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._styles import bgr
@@ -36,6 +37,11 @@ class ChartFont(Created):
     def __init__(self, element: object, chart: Chart, key: str, size: float, bold: bool,
                  labels: Any = None) -> None:
         self.element, self.chart, self.key, self.size, self.bold = element, chart, key, size, bold
+        #: The colour a style from 201 gives the text, which also says the size and whether it is bold.
+        self.colour = "000000"
+        style = chart.state.chart_style
+        if is_styled(style):
+            self.size, self.bold, self.colour = font_read(style, key, chart.sheet.book.stylesheet.colors.theme)
         #: A data labels' font is kept with their look; the rest in the chart's fonts.
         self.labels = labels
 
@@ -167,7 +173,7 @@ class ChartFont(Created):
     @member
     def Color(self) -> object:
         rgb = self.look().rgb
-        return VBAInt(0 if rgb is None else bgr(rgb), "Long")
+        return VBAInt(bgr(self.colour if rgb is None else rgb), "Long")
 
     @setter("Color")
     def _color(self, value: object) -> None:

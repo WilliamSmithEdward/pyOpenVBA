@@ -627,7 +627,7 @@ ChartArea,Border,not in the type library,,,UNASSESSED,,
 ChartArea,Clear,method,Clear() As Variant,,MISSING,,
 ChartArea,ClearContents,method,ClearContents() As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,"With an axis look, Excel keeps a number format the model drops."
 ChartArea,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
-ChartArea,Copy,method,Copy() As Variant,,MISSING,,
+ChartArea,Copy,method,Copy() As Variant,,UNASSESSED,,
 ChartArea,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 ChartArea,Font,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,A txPr after the chart. Whether it reaches the other elements was not measured: refused beside theirs.
 ChartArea,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
@@ -702,12 +702,12 @@ ChartObject,Application,"property, read-only",As Application,,PARTIAL,tests/fixt
 ChartObject,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The cell under the chart's bottom right corner, as Shape.BottomRightCell."
 ChartObject,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart on top of the sheet's shapes; answers True.
 ChartObject,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObject,Copy,method,Copy() As Variant,,MISSING,,
+ChartObject,Copy,method,Copy() As Variant,,UNASSESSED,,
 ChartObject,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
 ChartObject,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-ChartObject,Cut,method,Cut() As Variant,,MISSING,,
+ChartObject,Cut,method,Cut() As Variant,,UNASSESSED,,
 ChartObject,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObject,Duplicate,method,Duplicate() As Object,,MISSING,,
+ChartObject,Duplicate,method,Duplicate() As Object,,UNASSESSED,,
 ChartObject,Height,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Left,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
@@ -737,7 +737,7 @@ ChartObjects,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_c
 ChartObjects,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ChartObjects,Cut,method,Cut() As Variant,,MISSING,,
 ChartObjects,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObjects,Duplicate,method,Duplicate() As Object,,MISSING,,
+ChartObjects,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/chart_copies.json; tests/test_excel_chart_copies.py,A chart read from a file is refused.
 ChartObjects,Height,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Left,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
@@ -2482,10 +2482,10 @@ Shape,ConnectionSiteCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/
 Shape,Connector,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,0 for shapes the model makes; lines and loaded shapes are refused.
 Shape,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
 Shape,ControlFormat,"property, read-only",As ControlFormat,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
-Shape,Copy,method,Copy(),,UNASSESSED,,
+Shape,Copy,method,Copy(),,PARTIAL,tests/fixtures/chart_copies.json; tests/test_excel_chart_copies.py,Charts only.
 Shape,CopyPicture,method,"CopyPicture([Appearance As Variant], [Format As Variant])",,MISSING,,
 Shape,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Shape,Cut,method,Cut(),,MISSING,,
+Shape,Cut,method,Cut(),,PARTIAL,tests/fixtures/chart_copies.json; tests/test_excel_chart_copies.py,Charts only.
 Shape,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,Written as the adec:decorative extension; turning it off leaves val 0. Turning it on clears AlternativeText and Title.
 Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,

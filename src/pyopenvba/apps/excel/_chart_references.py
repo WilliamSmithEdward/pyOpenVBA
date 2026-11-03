@@ -211,6 +211,11 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
     return steps
 
 
+def changed_in(sheet: Worksheet, state: ChartState, change: Change) -> None:
+    """Every reference of one chart changed now, as a sheet copied with it does."""
+    carry_out(_chart_plan(sheet, state, change))
+
+
 def carry_out(steps: list[Step]) -> None:
     for step in steps:
         step()

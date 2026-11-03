@@ -413,7 +413,10 @@ class DataLabel(Created):
         state = self.series.entry.points.setdefault(self.series.point_key(self.index - 1), PointState())
         if state.drawn_at < 0:
             state.drawn_at = self.index - 1
-        if state.label_unique < 0:
+        if state.label_unique < 0 and state.unique >= 0:
+            # A point with a dPt shares its id with its dLbl (tests/fixtures/chart_copies.json).
+            state.label_unique = state.unique
+        elif state.label_unique < 0:
             state.label_unique, chart.state.next_unique = chart.state.next_unique, chart.state.next_unique + 1
         return state.label_own
 

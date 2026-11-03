@@ -345,7 +345,11 @@ class Point(Created):
         point.label = wanted
         if point.label_unique < 0 and (wanted or entry.data_labels):
             state = self.series.chart.state
-            point.label_unique, state.next_unique = state.next_unique, state.next_unique + 1
+            if point.unique >= 0:
+                # A point with a dPt shares its id with its dLbl (tests/fixtures/chart_copies.json).
+                point.label_unique = point.unique
+            else:
+                point.label_unique, state.next_unique = state.next_unique, state.next_unique + 1
 
     @method
     def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,

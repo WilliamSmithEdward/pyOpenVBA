@@ -55,6 +55,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.shapes._values import Shape as ShapeValue
     from pyopenvba.apps.excel._rich_text import Run
     from pyopenvba.apps.excel._udf import EvaluationOrigin
     from pyopenvba.powerquery._opc import Entry
@@ -361,6 +362,8 @@ class Application(ExcelObject):
         self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
+        #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
+        self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
         self.user_name = "pyOpenVBA"
         self.interpreter: Interpreter | None = None
         self.executing_projects: list[Interpreter] = []

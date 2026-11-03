@@ -15,6 +15,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `ChartObject.Duplicate`, `ChartObjects.Duplicate` and `Shape.Duplicate` of a chart, each
+  with a chart and part of its own. `ChartObject.Duplicate` answers a `Shape`, as in Excel.
+- `ChartObject.Copy`, `Cut` and `Shape.Copy`, `Cut` of a chart with `Worksheet.Paste`. The copy
+  holds the chart as it was, lasts until cells are copied, and pastes only on the active sheet.
+  Excel's own paste of a chart fails at random; the model's does not. A chart read from a file
+  is not copied. `Shape.DrawingObject` of a chart answers its `ChartObject`.
+- `Worksheet.Copy` with new charts on the sheet, each its own, reading the copies of the sheets
+  copied with it. Other drawings and charts read from a file stay refused.
 - `ChartArea.ClearFormats` and `ClearContents`, `PlotArea.ClearFormats`,
   `Trendline.ClearFormats`, and `ChartObjects.Select` of a single chart.
 - `LegendEntry.Index`, `Font` and `LegendKey`. A key is its series under another name:

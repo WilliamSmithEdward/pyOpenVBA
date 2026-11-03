@@ -1,0 +1,740 @@
+{
+ "measured_at": "2026-11-03T21:28:29.838437+00:00",
+ "probes": [
+  {
+   "name": "bang_dictionary",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set o = CreateObject(\"Scripting.Dictionary\")\n    o(\"k\") = 5\n    s = o!k\n    Probe = s\nEnd Function\n",
+   "result": "5"
+  },
+  {
+   "name": "bang_assign",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set o = CreateObject(\"Scripting.Dictionary\")\n    o(\"k\") = 5\n    o!k = 6\n    s = o(\"k\")\n    Probe = s\nEnd Function\n",
+   "result": "6"
+  },
+  {
+   "name": "bang_bracket",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set o = CreateObject(\"Scripting.Dictionary\")\n    o(\"k\") = 5\n    o(\"a b\") = 7\n    s = o![a b]\n    Probe = s\nEnd Function\n",
+   "result": "7"
+  },
+  {
+   "name": "bang_after_call",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Get1()!k\n    Probe = s\nEnd Function\n",
+   "error": 28
+  },
+  {
+   "name": "bang_space_before",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set o = CreateObject(\"Scripting.Dictionary\")\n    o(\"k\") = 5\n    s = o !k\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "bang_with",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set o = CreateObject(\"Scripting.Dictionary\")\n    o(\"k\") = 5\n    With o\n    s = !k\n    End With\n    Probe = s\nEnd Function\n",
+   "result": "5"
+  },
+  {
+   "name": "bang_range",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = TypeName(ActiveSheet!A1)\n    Probe = s\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "bang_suffix_still",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim x!\n    x! = 1.5\n    s = x! & TypeName(x!)\n    Probe = s\nEnd Function\n",
+   "result": "1.5Single"
+  },
+  {
+   "name": "bang_suffix_then_op",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim x!\n    x! = 2\n    s = x! * 2\n    Probe = s\nEnd Function\n",
+   "result": "4"
+  },
+  {
+   "name": "bang_literal",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = TypeName(1!) & 2!\n    Probe = s\nEnd Function\n",
+   "result": "Single2"
+  },
+  {
+   "name": "bang_function_suffix",
+   "macro": "Function Half!(a)\nHalf! = a / 2\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Half!(3)\n    Probe = s\nEnd Function\n",
+   "result": "1.5"
+  },
+  {
+   "name": "suffix_all",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a%, b&, c!, d#, e@, f$\n    s = TypeName(a) & TypeName(b) & TypeName(c) & TypeName(d) & TypeName(e) & TypeName(f)\n    Probe = s\nEnd Function\n",
+   "result": "IntegerLongSingleDoubleCurrencyString"
+  },
+  {
+   "name": "suffix_function",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Left$(\"abc\", 1) & Mid$(\"abc\", 2) & Right$(\"abc\", 1) & UCase$(\"a\") & LCase$(\"A\") & Trim$(\" a \") & TypeName(Left$(\"a\", 1))\n    Probe = s\nEnd Function\n",
+   "result": "abccAaaString"
+  },
+  {
+   "name": "suffix_chr",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Chr$(65) & ChrW$(66) & Str$(5) & Space$(1) & String$(2, \"x\") & Format$(1, \"0\") & Hex$(255) & Oct$(8)\n    Probe = s\nEnd Function\n",
+   "result": "AB 5 xx1FF10"
+  },
+  {
+   "name": "suffix_conflict",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a%\n    a& = 1\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "suffix_literal_hash",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = TypeName(1#) & TypeName(1@) & TypeName(1&) & TypeName(1%) & TypeName(&HFF) & TypeName(&HFF&) & TypeName(&O7) & TypeName(32768)\n    Probe = s\nEnd Function\n",
+   "result": "DoubleCurrencyLongIntegerIntegerLongIntegerLong"
+  },
+  {
+   "name": "hex_negative",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = &HFFFF & \"|\" & &HFFFF& & \"|\" & &H8000 & \"|\" & &O177777\n    Probe = s\nEnd Function\n",
+   "result": "-1|65535|-32768|-1"
+  },
+  {
+   "name": "date_literal",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = #1/2/2020# & \"|\" & #3:04 PM# & \"|\" & TypeName(#1/2/2020#) & \"|\" & #January 2, 2020#\n    Probe = s\nEnd Function\n",
+   "result": "1/2/2020|3:04:00 PM|Date|1/2/2020"
+  },
+  {
+   "name": "exponent_d",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = 1D2 & \"|\" & 1E2 & \"|\" & TypeName(1E2) & TypeName(1D2)\n    Probe = s\nEnd Function\n",
+   "result": "100|100|DoubleDouble"
+  },
+  {
+   "name": "continuation",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"a\" & _\n    \"b\" & _\n    \"c\"\n    Probe = s\nEnd Function\n",
+   "result": "abc"
+  },
+  {
+   "name": "continuation_in_call",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Left( _\n    \"abc\", _\n    1)\n    Probe = s\nEnd Function\n",
+   "result": "a"
+  },
+  {
+   "name": "colon_many",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = 1: i = i + 1: s = i\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "colon_label",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    GoTo L1\n    i = 9\n    L1: i = i + 1: s = i\n    Probe = s\nEnd Function\n",
+   "result": "1"
+  },
+  {
+   "name": "number_label",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    GoTo 10\n    i = 9\n    10 i = i + 1\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "1"
+  },
+  {
+   "name": "number_lines_erl",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    On Error GoTo B\n    10 i = 1\n    20 i = 1 / 0\n    30 s = \"no\"\n    Exit Function\n    B:\n    s = Erl()\n    Probe = s\nEnd Function\n",
+   "result": "20"
+  },
+  {
+   "name": "comment_rem",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"a\" ' c\n    Rem c\n    s = s & \"b\": Rem c\n    Probe = s\nEnd Function\n",
+   "result": "ab"
+  },
+  {
+   "name": "comment_continuation",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"a\" ' c _\n    ' still comment\n    s = s & \"b\"\n    Probe = s\nEnd Function\n",
+   "result": "ab"
+  },
+  {
+   "name": "if_line_colon",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    If True Then i = 1: i = 2\n    If False Then i = 5: i = 6\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "if_line_else_colon",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    If False Then i = 1 Else i = 2: i = i + 1\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "3"
+  },
+  {
+   "name": "if_line_nested",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    If True Then If False Then i = 1 Else i = 2\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "if_then_newline_colon",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    If True Then: i = 1: End If\n    s = i\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "else_if_two_words",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    If False Then\n    i = 1\n    Else If True Then\n    i = 2\n    End If\n    End If\n    s = i\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "let_keyword",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Let i = 5\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "5"
+  },
+  {
+   "name": "call_keyword",
+   "macro": "Sub P(ByRef a)\na = a + 1\nEnd Sub\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = 1\n    Call P(i)\n    P i\n    P (i)\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "3"
+  },
+  {
+   "name": "gosub",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    GoSub A1\n    s = s & \"b\"\n    Exit Function\n    A1:\n    s = s & \"a\"\n    Return\n    Probe = s\nEnd Function\n",
+   "result": ""
+  },
+  {
+   "name": "return_no_gosub",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Return\n    Probe = s\nEnd Function\n",
+   "error": 3
+  },
+  {
+   "name": "on_gosub",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = 2\n    On i GoSub A1, A2\n    s = s & \"e\"\n    Exit Function\n    A1:\n    s = \"1\"\n    Return\n    A2:\n    s = \"2\"\n    Return\n    Probe = s\nEnd Function\n",
+   "result": ""
+  },
+  {
+   "name": "on_goto",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = 2\n    On i GoTo A1, A2\n    Exit Function\n    A1:\n    s = \"1\"\n    Exit Function\n    A2:\n    s = \"2\"\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "select_is_to",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = 5\n    Select Case i\n    Case Is < 3, 9\n    s = \"a\"\n    Case 4 To 6\n    s = \"b\"\n    Case Else\n    s = \"c\"\n    End Select\n    Probe = s\nEnd Function\n",
+   "result": "b"
+  },
+  {
+   "name": "select_text_like",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Select Case \"abc\"\n    Case \"a\" To \"b\"\n    s = \"x\"\n    Case Else\n    s = \"y\"\n    End Select\n    Probe = s\nEnd Function\n",
+   "result": "x"
+  },
+  {
+   "name": "select_compare_first",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Select Case True\n    Case 1 > 2\n    s = \"a\"\n    Case 2 > 1\n    s = \"b\"\n    End Select\n    Probe = s\nEnd Function\n",
+   "result": "b"
+  },
+  {
+   "name": "with_nested_dot",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    With ActiveSheet\n    With .Range(\"A1\")\n    .Value = 3\n    s = .Value + .Parent.Range(\"A1\").Value\n    End With\n    End With\n    Probe = s\nEnd Function\n",
+   "result": "6"
+  },
+  {
+   "name": "with_new",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    With CreateObject(\"Scripting.Dictionary\")\n    .Add \"a\", 1\n    s = .Count\n    End With\n    Probe = s\nEnd Function\n",
+   "result": "1"
+  },
+  {
+   "name": "for_step_negative",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    For i = 3 To 1 Step -1\n    s = s & i\n    Next i\n    s = s & i\n    Probe = s\nEnd Function\n",
+   "result": "3210"
+  },
+  {
+   "name": "for_float",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim d As Double\n    For d = 0 To 1 Step 0.25\n    s = s & d & \",\"\n    Next\n    Probe = s\nEnd Function\n",
+   "result": "0,0.25,0.5,0.75,1,"
+  },
+  {
+   "name": "for_next_two",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim j As Long\n    For i = 1 To 2\n    For j = 1 To 2\n    s = s & i & j\n    Next j, i\n    Probe = s\nEnd Function\n",
+   "result": "11122122"
+  },
+  {
+   "name": "for_wrong_next",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim j As Long\n    For i = 1 To 2\n    For j = 1 To 2\n    Next i\n    Next j\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "for_exit_do_inside",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    For i = 1 To 2\n    Exit Do\n    Next\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "for_change_bound",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim n As Long\n    n = 2\n    For i = 1 To n\n    n = 5\n    s = s & i\n    Next\n    Probe = s\nEnd Function\n",
+   "result": "12"
+  },
+  {
+   "name": "while_wend",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    While i < 2\n    i = i + 1\n    Wend\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "do_exit",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Do\n    i = i + 1\n    If i = 3 Then Exit Do\n    Loop\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "3"
+  },
+  {
+   "name": "erase_fixed",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a(2) As Long\n    a(1) = 5\n    Erase a\n    s = a(1) & UBound(a)\n    Probe = s\nEnd Function\n",
+   "result": "02"
+  },
+  {
+   "name": "erase_dynamic",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a() As Long\n    ReDim a(2)\n    Erase a\n    s = UBound(a)\n    Probe = s\nEnd Function\n",
+   "error": 9
+  },
+  {
+   "name": "redim_preserve",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a() As Long\n    ReDim a(1)\n    a(1) = 7\n    ReDim Preserve a(3)\n    s = a(1) & UBound(a)\n    Probe = s\nEnd Function\n",
+   "result": "73"
+  },
+  {
+   "name": "redim_preserve_first_dim",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a() As Long\n    ReDim a(1, 1)\n    ReDim Preserve a(2, 1)\n    Probe = s\nEnd Function\n",
+   "error": 9
+  },
+  {
+   "name": "redim_undeclared",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    ReDim zz(2)\n    zz(1) = 3\n    s = zz(1)\n    Probe = s\nEnd Function\n",
+   "result": "3"
+  },
+  {
+   "name": "redim_to_syntax",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a() As Long\n    ReDim a(2 To 4)\n    s = LBound(a) & UBound(a)\n    Probe = s\nEnd Function\n",
+   "result": "24"
+  },
+  {
+   "name": "dim_to_negative",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a(-1 To 1) As Long\n    s = LBound(a) & UBound(a)\n    Probe = s\nEnd Function\n",
+   "result": "-11"
+  },
+  {
+   "name": "mid_statement",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"abcde\"\n    Mid(s, 2, 2) = \"XY\"\n    Mid$(s, 4) = \"Z\"\n    Probe = s\nEnd Function\n",
+   "result": "aXYZe"
+  },
+  {
+   "name": "lset_rset",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a As String * 4\n    LSet a = \"x\"\n    s = \"[\" & a & \"]\"\n    RSet a = \"y\"\n    s = s & \"[\" & a & \"]\"\n    Probe = s\nEnd Function\n",
+   "result": "[x   ][   y]"
+  },
+  {
+   "name": "fixed_string",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a As String * 3\n    a = \"abcdef\"\n    s = a & Len(a)\n    Probe = s\nEnd Function\n",
+   "result": "abc3"
+  },
+  {
+   "name": "static_var",
+   "macro": "Function C()\nStatic n As Long\nn = n + 1\nC = n\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = C()\n    s = C()\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "static_function",
+   "macro": "Static Function C()\nDim n As Long\nn = n + 1\nC = n\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = C()\n    s = C()\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "const_expression",
+   "macro": "Const A1 = 2, B1 = A1 * 3\nPrivate Const C1 As String = \"x\" & \"y\"\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = B1 & C1\n    Probe = s\nEnd Function\n",
+   "result": "6xy"
+  },
+  {
+   "name": "const_local_assign",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Const K = 1\n    K = 2\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "enum_implicit",
+   "macro": "Enum E1\nA1\nB1 = 5\nC1\nEnd Enum\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = A1 & B1 & C1 & E1.C1\n    Probe = s\nEnd Function\n",
+   "result": "0566"
+  },
+  {
+   "name": "type_nested",
+   "macro": "Type T1\nX As Long\nY(1) As String\nEnd Type\nType T2\nI As T1\nEnd Type\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim q As T2\n    q.I.X = 5\n    q.I.Y(1) = \"a\"\n    s = q.I.X & q.I.Y(1)\n    Probe = s\nEnd Function\n",
+   "result": "5a"
+  },
+  {
+   "name": "type_copy",
+   "macro": "Type T1\nX As Long\nEnd Type\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a As T1, b As T1\n    a.X = 1\n    b = a\n    b.X = 2\n    s = a.X & b.X\n    Probe = s\nEnd Function\n",
+   "result": "12"
+  },
+  {
+   "name": "type_in_variant",
+   "macro": "Type T1\nX As Long\nEnd Type\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a As T1\n    v = a\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "option_base",
+   "macro": "Option Base 1\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a(2) As Long\n    s = LBound(a) & UBound(a) & LBound(Array(1))\n    Probe = s\nEnd Function\n",
+   "result": "121"
+  },
+  {
+   "name": "option_compare_text",
+   "macro": "Option Compare Text\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = (\"a\" = \"A\") & (\"a\" < \"B\") & (\"a\" Like \"A\") & InStr(\"xA\", \"a\") & StrComp(\"a\", \"A\")\n    Probe = s\nEnd Function\n",
+   "result": "TrueTrueTrue20"
+  },
+  {
+   "name": "option_compare_binary",
+   "macro": "Option Compare Binary\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = (\"a\" = \"A\") & (\"a\" < \"B\") & (\"a\" Like \"A\") & InStr(\"xA\", \"a\")\n    Probe = s\nEnd Function\n",
+   "result": "FalseFalseFalse0"
+  },
+  {
+   "name": "option_explicit",
+   "macro": "Option Explicit\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    zz = 1\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "option_private",
+   "macro": "Option Private Module\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"ok\"\n    Probe = s\nEnd Function\n",
+   "result": "ok"
+  },
+  {
+   "name": "deftype",
+   "macro": "DefLng A-C\nDefStr S\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a1, b1, st\n    s = TypeName(a1) & TypeName(st)\n    Probe = s\nEnd Function\n",
+   "result": "LongString"
+  },
+  {
+   "name": "declare_ptrsafe",
+   "macro": "#If VBA7 Then\nDeclare PtrSafe Function GetTickCount Lib \"kernel32\" () As Long\n#Else\nDeclare Function GetTickCount Lib \"kernel32\" () As Long\n#End If\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"ok\"\n    Probe = s\nEnd Function\n",
+   "result": "ok"
+  },
+  {
+   "name": "cond_compile",
+   "macro": "#Const X1 = 2\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    #If X1 = 2 Then\n    s = \"a\"\n    #ElseIf X1 = 3 Then\n    s = \"b\"\n    #Else\n    s = \"c\"\n    #End If\n    #If Win64 Then\n    s = s & \"w\"\n    #End If\n    #If VBA7 Then\n    s = s & \"7\"\n    #End If\n    #If Mac Then\n    s = s & \"m\"\n    #End If\n    Probe = s\nEnd Function\n",
+   "result": "aw7"
+  },
+  {
+   "name": "cond_undefined",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    #If Nope Then\n    s = \"a\"\n    #Else\n    s = \"b\"\n    #End If\n    Probe = s\nEnd Function\n",
+   "result": "b"
+  },
+  {
+   "name": "longptr",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim p As LongPtr, q As LongLong\n    s = TypeName(p) & TypeName(q) & LenB(p)\n    Probe = s\nEnd Function\n",
+   "result": "LongLongLongLong8"
+  },
+  {
+   "name": "typeof_is",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set o = ActiveSheet\n    s = (TypeOf o Is Worksheet) & (TypeOf o Is Range) & (TypeOf o Is Object)\n    Probe = s\nEnd Function\n",
+   "result": "TrueFalseTrue"
+  },
+  {
+   "name": "typeof_not",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set o = ActiveSheet\n    If Not TypeOf o Is Range Then s = \"n\"\n    Probe = s\nEnd Function\n",
+   "result": "n"
+  },
+  {
+   "name": "is_nothing_not",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    If Not o Is Nothing Then s = \"a\" Else s = \"b\"\n    Probe = s\nEnd Function\n",
+   "result": "b"
+  },
+  {
+   "name": "addressof",
+   "macro": "Sub Cb()\nEnd Sub\nFunction Ptr(ByVal p As LongPtr)\nPtr = p <> 0\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Ptr(AddressOf Cb)\n    Probe = s\nEnd Function\n",
+   "result": "True"
+  },
+  {
+   "name": "varptr",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim q As Long\n    s = (VarPtr(q) <> 0) & (StrPtr(\"a\") <> 0) & (ObjPtr(ActiveSheet) <> 0)\n    Probe = s\nEnd Function\n",
+   "result": "TrueTrueTrue"
+  },
+  {
+   "name": "operators_int",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = 7 \\ 2 & \"|\" & 7 Mod 2 & \"|\" & -7 Mod 2 & \"|\" & 7.5 Mod 2 & \"|\" & 2 ^ 3 ^ 2 & \"|\" & -2 ^ 2 & \"|\" & 7.5 \\ 2\n    Probe = s\nEnd Function\n",
+   "result": "3|1|-1|0|64|-4|4"
+  },
+  {
+   "name": "operators_logic",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = (True Xor False) & (True Eqv False) & (True Imp False) & (5 And 3) & (5 Or 3) & (Not 5) & (5 Xor 3) & (5 Eqv 3) & (5 Imp 3)\n    Probe = s\nEnd Function\n",
+   "result": "TrueFalseFalse17-66-7-5"
+  },
+  {
+   "name": "operators_compare_null",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    v = Null\n    s = IsNull(v + 1) & IsNull(v & \"a\") & IsNull(v = 1) & (v & \"a\") & IsNull(Not v) & (True Or v) & IsNull(False Or v) & (False And v)\n    Probe = s\nEnd Function\n",
+   "result": "TrueFalseTrueaTrueTrueTrueFalse"
+  },
+  {
+   "name": "operators_concat_number",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = 1 & 2 & TypeName(1 & 2) & \"1\" + 2 & TypeName(\"1\" + 2) & (\"a\" & 1)\n    Probe = s\nEnd Function\n",
+   "result": "12String3Doublea1"
+  },
+  {
+   "name": "plus_text_number",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"a\" + 1\n    Probe = s\nEnd Function\n",
+   "error": 13
+  },
+  {
+   "name": "like_patterns",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = (\"abc\" Like \"a*\") & (\"a1\" Like \"a#\") & (\"ab\" Like \"a?\") & (\"b\" Like \"[a-c]\") & (\"d\" Like \"[!a-c]\") & (\"a*\" Like \"a[*]\") & (\"\" Like \"*\")\n    Probe = s\nEnd Function\n",
+   "result": "TrueTrueTrueTrueTrueTrueTrue"
+  },
+  {
+   "name": "comparison_chain",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = 1 < 2 < 3 & \"|\" & (3 > 2 > 1) & \"|\" & (1 = 1 = True)\n    Probe = s\nEnd Function\n",
+   "result": "True"
+  },
+  {
+   "name": "integer_overflow",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = 200 * 200\n    Probe = s\nEnd Function\n",
+   "error": 6
+  },
+  {
+   "name": "long_mixed",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = 200& * 200 & TypeName(200 * 2) & TypeName(40000) & TypeName(2.5) & TypeName(1 / 2) & TypeName(2 \\ 1) & TypeName(True + 1) & TypeName(CByte(1) + CByte(1))\n    Probe = s\nEnd Function\n",
+   "result": "40000IntegerLongDoubleDoubleIntegerIntegerByte"
+  },
+  {
+   "name": "rounding_bankers",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = CInt(2.5) & CInt(3.5) & Round(2.5) & Round(2.675, 2) & CLng(-1.5) & Int(-1.5) & Fix(-1.5)\n    Probe = s\nEnd Function\n",
+   "result": "2422.68-2-2-1"
+  },
+  {
+   "name": "implicit_date_math",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = #1/2/2020# + 1 & \"|\" & TypeName(#1/2/2020# + 1) & \"|\" & #1/3/2020# - #1/2/2020# & \"|\" & TypeName(#1/3/2020# - #1/2/2020#)\n    Probe = s\nEnd Function\n",
+   "result": "1/3/2020|Date|1|Double"
+  },
+  {
+   "name": "named_args",
+   "macro": "Function F(a, Optional b = 2, Optional c = 3)\nF = a & b & c\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F(1, c:=9) & F(b:=5, a:=4)\n    Probe = s\nEnd Function\n",
+   "result": "129453"
+  },
+  {
+   "name": "named_dup",
+   "macro": "Function F(a)\nF = a\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F(a:=1, a:=2)\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "missing_optional",
+   "macro": "Function F(Optional a)\nF = IsMissing(a) & TypeName(a)\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F() & F(1)\n    Probe = s\nEnd Function\n",
+   "result": "TrueErrorFalseInteger"
+  },
+  {
+   "name": "skipped_comma",
+   "macro": "Function F(Optional a = 1, Optional b = 2)\nF = a & b\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F(, 5)\n    Probe = s\nEnd Function\n",
+   "result": "15"
+  },
+  {
+   "name": "paramarray_empty",
+   "macro": "Function F(ParamArray p())\nF = UBound(p) & LBound(p) & TypeName(p)\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F() & \"|\" & F(1, 2)\n    Probe = s\nEnd Function\n",
+   "result": "-10Variant()|10Variant()"
+  },
+  {
+   "name": "paramarray_byref",
+   "macro": "Sub F(ParamArray p())\np(0) = 9\nEnd Sub\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = 1\n    F i\n    s = i\n    Probe = s\nEnd Function\n",
+   "result": "9"
+  },
+  {
+   "name": "function_as_variable",
+   "macro": "Function F()\nF = 1\nF = F + 1\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "recursive_name",
+   "macro": "Function F(n)\nIf n = 0 Then F = 0 Else F = n + F(n - 1)\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F(3)\n    Probe = s\nEnd Function\n",
+   "result": "6"
+  },
+  {
+   "name": "exit_property",
+   "macro": "Property Get P()\nP = 1\nExit Property\nP = 2\nEnd Property\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = P\n    Probe = s\nEnd Function\n",
+   "result": "1"
+  },
+  {
+   "name": "property_let_get",
+   "macro": "Dim m\nProperty Let P(a)\nm = a * 2\nEnd Property\nProperty Get P()\nP = m\nEnd Property\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    P = 2\n    s = P\n    Probe = s\nEnd Function\n",
+   "result": "4"
+  },
+  {
+   "name": "property_set",
+   "macro": "Dim m As Object\nProperty Set P(a)\nSet m = a\nEnd Property\nProperty Get P()\nSet P = m\nEnd Property\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set P = ActiveSheet\n    s = TypeName(P)\n    Probe = s\nEnd Function\n",
+   "result": "Worksheet"
+  },
+  {
+   "name": "byval_call_parens",
+   "macro": "Sub B(a)\na = 9\nEnd Sub\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = 1\n    B (i)\n    s = i\n    B i\n    s = s & i\n    Probe = s\nEnd Function\n",
+   "result": "19"
+  },
+  {
+   "name": "array_literal_func",
+   "macro": "Function F()\nF = Array(1, 2)\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F()(1) & UBound(F)\n    Probe = s\nEnd Function\n",
+   "result": "21"
+  },
+  {
+   "name": "return_array_typed",
+   "macro": "Function F() As Long()\nDim a(1) As Long\na(1) = 4\nF = a\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = F()(1)\n    Probe = s\nEnd Function\n",
+   "result": "4"
+  },
+  {
+   "name": "array_assign_copy",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a(1) As Long, b() As Long\n    a(1) = 1\n    b = a\n    b(1) = 2\n    s = a(1) & b(1)\n    Probe = s\nEnd Function\n",
+   "result": "12"
+  },
+  {
+   "name": "array_assign_fixed",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a(1) As Long, b(1) As Long\n    b = a\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "variant_array_copy",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    v = Array(1, 2)\n    Dim w\n    w = v\n    w(0) = 9\n    s = v(0) & w(0)\n    Probe = s\nEnd Function\n",
+   "result": "19"
+  },
+  {
+   "name": "for_each_array",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    For Each v In Array(1, 2)\n    s = s & v\n    Next\n    Probe = s\nEnd Function\n",
+   "result": "12"
+  },
+  {
+   "name": "for_each_long_var",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    For Each i In Array(1)\n    Next\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "split_join_filter",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Join(Split(\"a,b\", \",\"), \"-\") & UBound(Split(\"\")) & Join(Filter(Array(\"ab\", \"c\"), \"a\"), \"\") & TypeName(Split(\"a\"))\n    Probe = s\nEnd Function\n",
+   "result": "a-b-1abString()"
+  },
+  {
+   "name": "set_non_object",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Set v = 5\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "let_object_default",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    ActiveSheet.Range(\"A1\").Value = 4\n    v = ActiveSheet.Range(\"A1\")\n    s = TypeName(v) & v\n    Probe = s\nEnd Function\n",
+   "result": "Double4"
+  },
+  {
+   "name": "error_statement",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    On Error Resume Next\n    Error 11\n    s = Err.Number & Err.Description\n    Probe = s\nEnd Function\n",
+   "result": "11Division by zero"
+  },
+  {
+   "name": "err_raise_custom",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    On Error Resume Next\n    Err.Raise vbObjectError + 5, \"src\", \"desc\"\n    s = Err.Number - vbObjectError & Err.Source & Err.Description\n    Probe = s\nEnd Function\n",
+   "result": "5srcdesc"
+  },
+  {
+   "name": "resume_label",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    On Error GoTo B\n    i = 1 / 0\n    A1:\n    s = s & \"a\"\n    Exit Function\n    B:\n    s = \"b\"\n    Resume A1\n    Probe = s\nEnd Function\n",
+   "result": ""
+  },
+  {
+   "name": "resume_same",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    On Error GoTo B\n    i = 1 / v\n    s = i\n    Exit Function\n    B:\n    v = 1\n    Resume\n    Probe = s\nEnd Function\n",
+   "result": ""
+  },
+  {
+   "name": "on_error_minus_one",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    On Error GoTo B\n    i = 1 / 0\n    Exit Function\n    B:\n    On Error GoTo -1\n    On Error Resume Next\n    i = 1 / 0\n    s = Err.Number\n    Probe = s\nEnd Function\n",
+   "result": "11"
+  },
+  {
+   "name": "error_in_handler",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    On Error GoTo B\n    i = 1 / 0\n    Exit Function\n    B:\n    i = 1 / 0\n    Probe = s\nEnd Function\n",
+   "error": 11
+  },
+  {
+   "name": "stop_statement_skipped",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    If False Then Stop\n    s = \"a\"\n    Probe = s\nEnd Function\n",
+   "result": "a"
+  },
+  {
+   "name": "debug_print",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Debug.Print \"a\"; 1, \"b\"\n    Debug.Assert True\n    s = \"ok\"\n    Probe = s\nEnd Function\n",
+   "result": "ok"
+  },
+  {
+   "name": "beep_doevents",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = DoEvents\n    s = TypeName(i)\n    Probe = s\nEnd Function\n",
+   "result": "Long"
+  },
+  {
+   "name": "keyword_names",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim Name As String, Value As Long, Left As Long\n    Name = \"a\"\n    Value = 1\n    Left = 2\n    s = Name & Value & Left\n    Probe = s\nEnd Function\n",
+   "result": "a12"
+  },
+  {
+   "name": "keyword_named_arg_range",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim Range As Long\n    Range = 1\n    s = Range & TypeName(ActiveSheet.Range(\"A1\"))\n    Probe = s\nEnd Function\n",
+   "result": "1Range"
+  },
+  {
+   "name": "bracket_name",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim [a b] As Long\n    [a b] = 2\n    s = [a b]\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "bracket_evaluate",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = [1+1] & TypeName([A1])\n    Probe = s\nEnd Function\n",
+   "result": "2Range"
+  },
+  {
+   "name": "unicode_name",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim caf\u00e9 As Long\n    caf\u00e9 = 2\n    s = caf\u00e9\n    Probe = s\nEnd Function\n",
+   "result": "2"
+  },
+  {
+   "name": "underscore_name",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a_b As Long, _c As Long\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "line_too_many_continuations",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = \"a\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\" & _\n    \"b\"\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "case_insensitive",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    DIM A AS LONG\n    A = 1\n    IF a = 1 THEN S = \"x\"\n    Probe = s\nEnd Function\n",
+   "result": "x"
+  },
+  {
+   "name": "empty_function_call",
+   "macro": "Function F()\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = TypeName(F()) & TypeName(F)\n    Probe = s\nEnd Function\n",
+   "result": "EmptyEmpty"
+  },
+  {
+   "name": "sub_value",
+   "macro": "Sub P()\nEnd Sub\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    i = P()\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "sub_call_undefined",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Nope1\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "wrong_arg_count",
+   "macro": "Function F(a)\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    v = F(1, 2)\n    Probe = s\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "implicit_variant_type",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    zz = 1\n    s = TypeName(zz)\n    zz = \"a\"\n    s = s & TypeName(zz)\n    Probe = s\nEnd Function\n",
+   "result": "IntegerString"
+  },
+  {
+   "name": "dim_multi_only_last",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim a, b As Long\n    s = TypeName(a) & TypeName(b)\n    Probe = s\nEnd Function\n",
+   "result": "EmptyLong"
+  },
+  {
+   "name": "date_function_no_parens",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    v = Date\n    s = TypeName(v) & TypeName(Now) & TypeName(Timer) & TypeName(Time)\n    Probe = s\nEnd Function\n",
+   "result": "DateDateSingleDate"
+  },
+  {
+   "name": "date_assign",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    Dim d As Date\n    d = \"1/2/2020\"\n    s = d & TypeName(d) & CDbl(d)\n    Probe = s\nEnd Function\n",
+   "result": "1/2/2020Date43832"
+  },
+  {
+   "name": "string_compare_numbers",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = (\"10\" < \"9\") & (10 < 9) & (\"10\" < 9) & (v = 0) & (v = \"\") & IsEmpty(v)\n    Probe = s\nEnd Function\n",
+   "result": "TrueFalseFalseTrueTrueTrue"
+  },
+  {
+   "name": "boolean_text",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = CStr(True) & CBool(\"True\") & CBool(1) & CInt(True) & (True = -1)\n    Probe = s\nEnd Function\n",
+   "result": "TrueTrueTrue-1True"
+  },
+  {
+   "name": "val_cdbl",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Val(\"12abc\") & Val(\"&H10\") & Val(\" 1 2\") & CDbl(\"1.5\") & CStr(1.5) & Str(1.5) & \"|\" & Str(-1)\n    Probe = s\nEnd Function\n",
+   "result": "1216121.51.5 1.5|-1"
+  },
+  {
+   "name": "iif_both_evaluated",
+   "macro": "Function F()\nF = 1\ni9 = i9 + 1\nEnd Function\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = IIf(True, 1, 1 / 0)\n    Probe = s\nEnd Function\n",
+   "error": 11
+  },
+  {
+   "name": "choose_switch",
+   "macro": "\n\nPrivate Function Get1() As Object\n    Set Get1 = CreateObject(\"Scripting.Dictionary\")\n    Get1(\"k\") = 5\nEnd Function\n\nFunction Probe() As String\n    Dim s As String, i As Long, v As Variant, o As Object\n    s = Choose(2, \"a\", \"b\") & Switch(False, \"x\", True, \"y\") & TypeName(Choose(9, 1)) & TypeName(Switch(False, 1))\n    Probe = s\nEnd Function\n",
+   "result": "byNullNull"
+  }
+ ]
+}

@@ -42,6 +42,12 @@ SUFFIX_TYPES: Final[dict[str, str]] = {
     "$": "String",
 }
 
+#: The most lines a statement can continue over.
+_MOST_CONTINUATIONS: Final = 24
+#: Words a bang may follow across a space, as the start of an expression inside a With.
+_BEFORE_A_VALUE: Final = frozenset({"then", "else", "and", "or", "not", "xor", "eqv", "imp", "mod", "like", "is", "to", "step", "case", "while", "until", "in",
+                                    "call", "set", "let", "print", "if", "elseif", "return", "goto"})
+
 #: Every character above ASCII, which VBA allows in a name.  Built
 #: with chr() so this source file itself stays plain ASCII.
 _ABOVE_ASCII = f"{chr(0x80)}-{chr(0xFFFF)}"
@@ -123,6 +129,7 @@ def tokenize(source: str, *, module: str = "", retain_errors: bool = False) -> l
     line = 1
     length = len(source)
     spaced = False
+    continuations = 0
 
     def fail(message: str) -> VBACompileError:
         where = f"{module} line {line}" if module else f"line {line}"
@@ -141,12 +148,33 @@ def tokenize(source: str, *, module: str = "", retain_errors: bool = False) -> l
             spaced = True
             continue
 
+        if char == "_" and _IDENT.match(source, position + 1):
+            # A name cannot start with an underscore: [_NewEnum] is how to spell one.
+            if not retain_errors:
+                raise fail("a name cannot start with an underscore")
+            add(Token('invalid', 'a name cannot start with an underscore', line))
+            position += 1
+            continue
+
+        if char == "!" and spaced and tokens and (tokens[-1].text == ")" or (tokens[-1].kind == "ident" and tokens[-1].lower not in _BEFORE_A_VALUE)):
+            # After a value a bang has to touch it: o!k reads a member and o !k does not compile.
+            if not retain_errors:
+                raise fail("a space before a bang")
+            add(Token('invalid', 'a space before a bang', line))
+            position += 1
+            continue
+
         if char == "_" and not _IDENT.match(source, position + 1):
             # A continuation: the rest of the line has to be empty.
             rest = source[position + 1 :]
             skipped = len(rest) - len(rest.lstrip(" \t"))
             after = position + 1 + skipped
             if after >= length or source[after] in "\r\n":
+                continuations += 1
+                if continuations > _MOST_CONTINUATIONS:
+                    if not retain_errors:
+                        raise fail("too many line continuations")
+                    add(Token('invalid', 'too many line continuations', line))
                 while after < length and source[after] in "\r":
                     after += 1
                 if after < length and source[after] == "\n":
@@ -161,6 +189,7 @@ def tokenize(source: str, *, module: str = "", retain_errors: bool = False) -> l
             continue
 
         if char in "\r\n":
+            continuations = 0
             if char == "\r" and position + 1 < length and source[position + 1] == "\n":
                 position += 1
             position += 1

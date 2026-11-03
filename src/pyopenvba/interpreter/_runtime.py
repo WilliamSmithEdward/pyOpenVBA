@@ -132,6 +132,8 @@ class Slot:
     #: The element type of a variable declared as a dynamic array (``Dim b() As Byte``), where
     #: ``declared`` is Variant; empty for every other variable.
     array_of: str = ""
+    #: A Const, which nothing may assign to.
+    constant: bool = False
     #: Declared as an array of a fixed size, as distinct from a Variant that holds a copy of one.
     fixed_array: bool = False
 
@@ -1746,6 +1748,10 @@ class Interpreter:
             # object's default member.
             if not ((value.vba_let_as_object or target.takes_objects) and isinstance(statement.target, A.Member)):
                 value = value.vba_value()
+        if isinstance(statement.target, A.Name) and isinstance(value, VBAArray):
+            held = frame.locals.get(_bare(statement.target.name))
+            if held is not None and held.fixed_array:
+                raise VBACompileError("Can't assign to array")
         target.put(value, statement.kind == "set")
 
     def _check_let_into_object(self, name: str, frame: Frame) -> None:
@@ -1788,7 +1794,7 @@ class Interpreter:
     def _do_const(self, statement: A.ConstDecl, frame: Frame) -> None:
         for name, declared, expression in statement.names:
             frame.locals[name.lower()] = Slot(
-                coerce(self.evaluate(expression, frame), declared), declared
+                coerce(self.evaluate(expression, frame), declared), declared, constant=True
             )
 
     def _do_redim(self, statement: A.ReDim, frame: Frame) -> None:
@@ -2190,7 +2196,8 @@ class Interpreter:
         if isinstance(expression, A.Binary):
             if expression.op == "&":
                 return "string"
-            return "number" if expression.op in ("=", "<>", "<", ">", "<=", ">=", "like", "is") else "variant"
+            # A comparison's answer against text orders as a Variant does, below it (tests/fixtures/vba_syntax.json).
+            return "variant"
         if isinstance(expression, A.Name):
             return self._name_kind(expression.name, frame, called=False)
         if isinstance(expression, A.Index) and isinstance(expression.target, A.Name):
@@ -2422,6 +2429,7 @@ class Interpreter:
                 return self._index_or_call(module.constants[key], args, frame)
             procedure = module.procedure(key)
             if procedure is not None:
+                _a_value_from(procedure, statement_context)
                 positional, named = self._arguments(args, frame, procedure=procedure)
                 return self.call_value(procedure, module, positional, named, me=frame.me if module.is_class else None)
             host = _host_of(frame)
@@ -2442,6 +2450,7 @@ class Interpreter:
                 return self._index_or_call(runtime.variables[key].get(), args, frame)
             procedure = runtime.procedure(key)
             if procedure is not None and procedure.scope != "private":
+                _a_value_from(procedure, statement_context)
                 positional, named = self._arguments(args, frame, procedure=procedure)
                 return self.call_value(procedure, runtime, positional, named)
             if key in runtime.declares and runtime.declares[key].name:
@@ -2472,7 +2481,8 @@ class Interpreter:
             # The statements that load and unload a UserForm, which the interpreter does not run (issue #251).
             raise VBAUnsupportedError(f"{callee.name}, which loads or unloads a UserForm, is not implemented: "
                                       "UserForms do not run")
-        raise VBARuntimeError(35, f"Sub or Function not defined: {callee.name}")
+        # A compile error: Excel will not start a procedure that names one (tests/fixtures/vba_syntax.json).
+        raise VBACompileError(f"Sub or Function not defined: {callee.name}")
 
     def _len_of_declared(self, args: list[A.Argument], frame: Frame | None, *,
                          in_bytes: bool = False) -> object | None:
@@ -2685,6 +2695,9 @@ class Interpreter:
 
                     return Assignable(put=put_on_instance, take=lambda: instance.vba_get(key))
             procedure, runtime = self.find_procedure(key)
+            if procedure is not None and runtime is not None and procedure.kind == "get":
+                # A module's own Property Let, whichever order it and its Get come in.
+                procedure = runtime.procedure(key, "let") or runtime.procedure(key, "set") or procedure
             if procedure is not None and procedure.kind in ("let", "set") and runtime is not None:
                 found = procedure
                 owner = runtime
@@ -2705,6 +2718,8 @@ class Interpreter:
                 )
             slot = self._implicit_slot(expression.name, frame)
         target = slot
+        if target.constant:
+            raise VBACompileError("Assignment to constant not permitted")
         return Assignable(put=lambda value, by_ref: target.set(value), take=target.get, declared=target.declared)
 
     def _implicit_slot(self, name: str, frame: Frame) -> Slot:
@@ -2730,6 +2745,15 @@ class Interpreter:
         positional = [value for argument, value in zip(expression.args, args) if not argument.name]
         if isinstance(inner, A.Name):
             key = _bare(inner.name)
+            if key == frame.procedure.name.lower() and frame.procedure.kind in ("function", "get") and (positional or named):
+                # F("k") = 5 inside F calls F, as reading F("k") does, and sets what that answers.
+                def put_on_call(value: object, by_ref: bool) -> None:
+                    answer = self.call_value(frame.procedure, frame.module, positional, named, me=frame.me)
+                    if not isinstance(answer, VBAObject):
+                        raise error(ERR_MEMBER_NOT_FOUND)
+                    _dispatch_set(answer, "Item", value, [], {}, by_ref)
+
+                return Assignable(put=put_on_call, take=lambda: self.call_value(frame.procedure, frame.module, positional, named, me=frame.me))
             slot = frame.locals.get(key)
             if slot is None and isinstance(frame.me, UserClassInstance):
                 slot = frame.me.variables.get(key)
@@ -3067,6 +3091,12 @@ def _call_value(value: object, args: list[object], named: dict[str, object]) -> 
     if args:
         raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
     return value
+
+
+def _a_value_from(procedure: A.Procedure, statement: bool) -> None:
+    """A Sub gives nothing to read: i = P() does not compile (tests/fixtures/vba_syntax.json)."""
+    if procedure.kind == "sub" and not statement:
+        raise VBACompileError("Expected Function or variable")
 
 
 def _iterate(subject: object) -> Iterator[object]:

@@ -1428,8 +1428,10 @@ def vba_vartype(interpreter: Interpreter, value: object) -> object:
 
 
 def vba_array_dispatch(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
-    """Array() takes any number of arguments, so it binds its own."""
-    return VBAArray([(0, len(args) - 1)] if args else [(0, -1)], items=list(args))
+    """Array() takes any number of arguments, so it binds its own. It starts where Option Base says
+    (tests/fixtures/vba_syntax.json, option_base)."""
+    base = interpreter.frames[-1].module.parsed.option_base if interpreter.frames else 0
+    return VBAArray([(base, base + len(args) - 1)] if args else [(base, base - 1)], items=list(args))
 
 
 INTRINSICS["array"] = vba_array_dispatch

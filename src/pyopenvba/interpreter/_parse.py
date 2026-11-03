@@ -120,6 +120,11 @@ _PRECEDENCE: Final[dict[str, int]] = {
 _RIGHT_ASSOCIATIVE: Final[frozenset[str]] = frozenset()
 
 
+_BUILT_IN_TYPES = {name.lower(): name for name in (
+    "Boolean", "Byte", "Currency", "Date", "Decimal", "Double", "Integer", "Long", "LongLong", "LongPtr", "Object", "Single", "String",
+    "Variant",
+)}
+
 class Parser:
     """A recursive-descent parser over one module's tokens."""
 
@@ -385,6 +390,8 @@ class Parser:
         if self.token.kind != "ident":
             self.fail(f"expected a type name but found {self.token.text!r}")
         name = self.advance().text
+        # VBA reads AS LONG as Long, and the type's own spelling is what the rest of the interpreter looks for.
+        name = _BUILT_IN_TYPES.get(name.lower(), name)
         while self.accept_op("."):
             name += "." + self.expect_name()
         if self.at_op("*"):
@@ -879,6 +886,8 @@ class Parser:
         target = self._parse_target()
         self.expect_op("=")
         value = self._parse_expression()
+        if isinstance(value, A.Literal) and value.value is not NOTHING:
+            self.fail("Object required")
         self.end_statement()
         return A.Assign(line=line, target=target, value=value, kind="set")
 
@@ -943,6 +952,10 @@ class Parser:
         condition = self._parse_expression()
         if not self.accept_word("then"):
             self.fail("If has to be followed by Then")
+        if self.token.kind == "eos" and self.token.text == ":":
+            # Then and a colon begin no block: the rest of the line belongs to the If, and an End If there has nothing to end.
+            self.advance()
+            return self._single_line_if(line, condition)
         if not self.at_eos():
             return self._single_line_if(line, condition)
         self.end_statement()
@@ -1459,7 +1472,7 @@ class Parser:
                 continue
             if self.at_op("!"):
                 self.advance()
-                if self.token.kind != "ident":
+                if self.token.kind not in ("ident", "bracket"):
                     self.fail(f"expected a name after '!' but found {self.token.text!r}")
                 target = A.Bang(line=self.token.line, target=target, name=self.advance().text)
                 continue

@@ -2399,7 +2399,7 @@ class Workbook(ExcelObject):
     def ApplyTheme(self, Filename: object = MISSING) -> object:
         from pyopenvba.apps.excel._workbook_more import apply_theme
 
-        apply_theme(Filename)
+        apply_theme(self, Filename)
         return EMPTY
 
     @member

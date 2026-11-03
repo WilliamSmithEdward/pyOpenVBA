@@ -20,6 +20,7 @@ from pyopenvba.interpreter._values import MISSING, NOTHING, VBAArray, VBAInt, er
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
+    from pyopenvba.apps.excel._page_setup import PageSetup
     from pyopenvba.powerquery._opc import OpcFile
 
 _APP_DEFINED = "Application-defined or object-defined error"
@@ -181,11 +182,12 @@ def write_theme(book: Workbook, package: OpcFile) -> None:
     book.theme_colours_changed = False
 
 
-def apply_theme(file_name: object) -> None:
+def apply_theme(book: Workbook, file_name: object) -> None:
     from pathlib import Path
 
     if file_name is MISSING:
         raise error(450, "Wrong number of arguments or invalid property assignment")
+    book.application.outside("Workbook.ApplyTheme")
     text = to_text(file_name)
     if not text or not Path(text).is_file():
         raise app_defined()
@@ -453,7 +455,7 @@ class Graphic(ExcelObject):
 
     vba_type_name = "Graphic"
 
-    def __init__(self, page_setup: object) -> None:
+    def __init__(self, page_setup: PageSetup) -> None:
         self.page_setup = page_setup
 
     @member
@@ -468,6 +470,7 @@ class Graphic(ExcelObject):
     def _set_filename(self, value: object) -> None:
         from pathlib import Path
 
+        self.page_setup.sheet.book.application.outside("A picture in a header or a footer")
         if Path(to_text(value)).is_file():
             raise VBAUnsupportedError("a picture in a header or a footer is not implemented")
         raise app_defined()

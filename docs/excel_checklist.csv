@@ -605,7 +605,7 @@ Chart,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,PA
 Chart,SeriesNameLevel,property,As XlSeriesNameLevel,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter. Labels of several levels are refused.
 Chart,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,MISSING,,
 Chart,SetDefaultChart,method,SetDefaultChart(Name As Variant),,MISSING,,
-Chart,SetElement,method,SetElement(Element As MsoChartElementType),,PARTIAL,tests/test_excel_chart_set_element.py,"Every element on column, line-with-markers and pie charts, as live Excel; other kinds, a data label callout and taking away the plot area are refused."
+Chart,SetElement,method,SetElement(Element As MsoChartElementType),,PARTIAL,tests/test_excel_chart_set_element.py,"Every element on column, bar, line, scatter, area, pie and doughnut charts, as live Excel. A data label callout, taking away the plot area and an area chart's error bars are refused."
 Chart,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 Chart,SetSourceData,method,"SetSourceData(Source As Range, [PlotBy As Variant])",,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_source_arguments.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Chart,Shapes,"property, read-only",As Shapes,,MISSING,,

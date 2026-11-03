@@ -7,7 +7,11 @@ recorded as scripts/measure_chart_markup.py records it.
 
     python scripts/measure_chart_set_element.py
 
-writes tests/fixtures/chart_set_element.json, which tests/test_excel_chart_set_element.py replays.
+writes tests/fixtures/chart_set_element.json, which tests/test_excel_chart_set_element.py replays. Given kinds of chart
+
+    python scripts/measure_chart_set_element.py bar line
+
+it measures those alone, with no prepared cases, into tests/fixtures/chart_set_element_<kinds>.json.
 """
 from __future__ import annotations
 
@@ -26,14 +30,19 @@ sys.path.insert(0, str(ROOT / 'src'))
 from pyopenvba.interpreter._constants_data import __dict__ as _DATA  # noqa: E402
 
 OUT = ROOT / 'tests/fixtures/chart_set_element.json'
-TYPES = {'column': 'xlColumnClustered', 'line': 'xlLineMarkers', 'pie': 'xlPie'}
+OTHER_TYPES = {'bar': 'xlBarClustered', 'plain': 'xlLine', 'scatter': 'xlXYScatter', 'area': 'xlArea', 'doughnut': 'xlDoughnut'}
+CHOSEN = sys.argv[1:]
+TYPES = {kind: OTHER_TYPES[kind] for kind in CHOSEN} or {'column': 'xlColumnClustered', 'line': 'xlLineMarkers', 'pie': 'xlPie'}
+if CHOSEN:
+    OUT = OUT.with_name(f'chart_set_element_{"_".join(CHOSEN)}.json')
 ELEMENTS = sorted(name for table in _DATA.values() if isinstance(table, dict) for name in table if str(name).startswith('msoElement'))
 PREPARED = [('column', 'ch.HasTitle = True', 'msoElementChartTitleNone'), ('column', 'ch.HasLegend = True', 'msoElementLegendNone'),
             ('column', 'ch.SeriesCollection(1).HasDataLabels = True', 'msoElementDataLabelNone'),
             ('column', 'ch.SetElement msoElementChartTitleAboveChart', 'msoElementChartTitleCenteredOverlay'), ('column', 'ch.SetElement msoElementLegendTop', 'msoElementLegendLeft'),
             ('column', 'ch.SetElement msoElementDataLabelShow', 'msoElementDataLabelCenter'), ('column', 'ch.SetElement msoElementPrimaryValueAxisTitleRotated', 'msoElementPrimaryValueAxisTitleNone'),
             ('column', 'ch.HasTitle = True: ch.ChartTitle.Text = "T"', 'msoElementChartTitleAboveChart'), ('column', 'ch.Axes(xlValue).HasMajorGridlines = False', 'msoElementPrimaryValueGridLinesMajor')]
-CASES = [(kind, '', element) for kind in TYPES for element in ELEMENTS] + PREPARED + [('column', '', '0'), ('column', '', '9999')]
+CASES = [(kind, '', element) for kind in TYPES for element in ELEMENTS]
+CASES += [] if CHOSEN else [*PREPARED, ('column', '', '0'), ('column', '', '9999')]
 READS = ['ch.HasTitle', 'ch.ChartTitle.Text', 'ch.ChartTitle.IncludeInLayout', 'ch.HasLegend', 'ch.Legend.Position', 'ch.Legend.IncludeInLayout', 'ch.HasAxis(xlCategory)', 'ch.HasAxis(xlValue)',
          'ch.Axes(xlValue).HasMajorGridlines', 'ch.Axes(xlValue).HasMinorGridlines', 'ch.Axes(xlCategory).HasMajorGridlines', 'ch.Axes(xlCategory).HasMinorGridlines', 'ch.Axes(xlValue).HasTitle',
          'ch.Axes(xlCategory).HasTitle', 'ch.Axes(xlValue).DisplayUnit', 'ch.Axes(xlValue).ScaleType', 'ch.Axes(xlCategory).ReversePlotOrder', 'ch.SeriesCollection(1).HasDataLabels',

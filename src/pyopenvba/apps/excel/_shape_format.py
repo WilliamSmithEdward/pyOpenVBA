@@ -180,6 +180,10 @@ class _Format(Created):
 
     def style(self) -> tuple[int | None, int, int, int, float]:
         shape = self.shape
+        if not shape.source and shape.kind == "freeform":
+            # An open path has a line's style and a closed one an AutoShape's (tests/fixtures/shape_builders.json).
+            closed = any(command == "close" for command, _ in shape.path)
+            return STYLE["shape" if closed else "line"]
         if shape.source or shape.kind not in STYLE:
             raise VBAUnsupportedError("The fill and line of this shape are not implemented")
         if self.owner.sheet.book.stylesheet.colors.theme != DEFAULT_THEME:
@@ -191,6 +195,8 @@ class _Format(Created):
 
     def change(self) -> FillLine:
         self.style()
+        if self.shape.kind == "freeform":
+            raise _unmeasured("Changing the fill or line of a freeform")
         self.owner.guard("Fill" if isinstance(self, FillFormat) else "Line")
         if self.shape.fill_line is None:
             self.shape.fill_line = FillLine()

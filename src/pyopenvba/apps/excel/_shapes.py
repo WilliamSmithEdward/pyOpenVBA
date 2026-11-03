@@ -269,6 +269,30 @@ class Shapes(VBACollection, ItemDefault, Created):
         return ShapeObject(self.sheet, shape)
 
     @method
+    def AddCallout(
+        self,
+        Type: object = MISSING,
+        Left: object = MISSING,
+        Top: object = MISSING,
+        Width: object = MISSING,
+        Height: object = MISSING,
+    ) -> object:
+        """A callout, which is the AutoShape its type stands for: 1 and 2 make the same one
+        (tests/fixtures/shape_builders.json)."""
+        chosen = int(to_number(Type))
+        if chosen not in CALLOUTS:
+            raise error(1004, "Application-defined or object-defined error")
+        return self.vba_call("AddShape", (CALLOUTS[chosen], Left, Top, Width, Height))
+
+    @method
+    def BuildFreeform(self, EditingType: object = MISSING, X1: object = MISSING, Y1: object = MISSING) -> object:
+        """A FreeformBuilder starting at this point; its editing type changes nothing measured
+        (tests/fixtures/shape_builders.json)."""
+        if int(to_number(EditingType)) not in (0, 1):
+            raise error(1004, "BuildFreeform method of Shapes class failed")
+        return FreeformBuilder(self, (emu(_number(X1)), emu(_number(Y1))))
+
+    @method
     def AddConnector(
         self,
         Type: object = MISSING,
@@ -1506,6 +1530,61 @@ class ShapeObject(_Drawn):
         return Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
 
 
+#: Shapes.AddCallout's types and the AutoShape type each makes.
+CALLOUTS = {1: 113, 2: 113, 3: 119, 4: 120}
+
+
+class FreeformBuilder(Created):
+    """Shapes.BuildFreeform (tests/fixtures/shape_builders.json): nodes kept until ConvertToShape, which can be called
+    again and makes another shape each time. The result is what AddPolyline and AddCurve make of the same points: a
+    line back to the start closes the path and is not written, and a curve back to it closes it after the curve. A
+    curve with msoEditingAuto is smoothed by a rule not measured, and reports itself."""
+
+    vba_type_name = "FreeformBuilder"
+
+    def __init__(self, shapes: Shapes, start: tuple[int, int]) -> None:
+        self.shapes, self.start = shapes, start
+        self.nodes: list[tuple[str, tuple[tuple[int, int], ...]]] = []
+
+    @member
+    def Parent(self) -> object:
+        return self.shapes
+
+    @member
+    def Application(self) -> object:
+        return self.shapes.sheet.book.application
+
+    @method
+    def AddNodes(self, SegmentType: object = MISSING, EditingType: object = MISSING, X1: object = MISSING,
+                 Y1: object = MISSING, X2: object = MISSING, Y2: object = MISSING, X3: object = MISSING,
+                 Y3: object = MISSING) -> object:
+        segment, editing = int(to_number(SegmentType)), int(to_number(EditingType))
+        if segment not in (0, 1) or editing not in (0, 1):
+            raise error(-2147024809, "The specified value is out of range.")
+        first = (emu(_number(X1)), emu(_number(Y1)))
+        if segment == 0:
+            # A line takes only its first point.
+            self.nodes.append(("lnTo", (first,)))
+            return EMPTY
+        if editing == 0:
+            raise _unsupported("a smoothed curve in BuildFreeform")
+        second = first if X2 is MISSING else (emu(_number(X2)), emu(_number(Y2)))
+        third = second if X3 is MISSING else (emu(_number(X3)), emu(_number(Y3)))
+        self.nodes.append(("cubicBezTo", (first, second, third)))
+        return EMPTY
+
+    @method
+    def ConvertToShape(self) -> object:
+        if not self.nodes:
+            raise error(1004, "ConvertToShape method of FreeformBuilder class failed")
+        steps = [("moveTo", (self.start,)), *self.nodes]
+        found = [point for _, points in steps for point in points]
+        last_command, last_points = steps[-1]
+        if last_points[-1] == self.start and (last_command == "cubicBezTo" or len(steps) > 2):
+            steps = steps + [("close", ())] if last_command == "cubicBezTo" else [*steps[:-1], ("close", ())]
+        return ShapeObject(self.shapes.sheet, self.shapes._freeform(found, steps))  # pyright: ignore[reportPrivateUsage]
+
+
 #: Shapes.AddConnector's types: the geometry each saves and what a new one is called.
 CONNECTORS = {1: ("straightConnector1", "Straight Arrow Connector"), 2: ("bentConnector3", "Elbow Connector"),
               3: ("curvedConnector3", "Curved Connector")}
@@ -1514,7 +1593,7 @@ CONNECTORS = {1: ("straightConnector1", "Straight Arrow Connector"), 2: ("bentCo
 def _adjustable(owner: ShapeObject) -> tuple[tuple[str, int, bool], ...]:
     """The adjustments of a shape the model made."""
     shape = owner.shape
-    if shape.source or shape.kind not in ("shape", "textBox", "line"):
+    if shape.source or shape.kind not in ("shape", "textBox", "line", "freeform"):
         raise _unsupported("the adjustments of this shape")
     return ADJUSTMENTS.get(shape.geometry, ())
 

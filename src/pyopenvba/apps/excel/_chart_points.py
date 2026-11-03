@@ -10,9 +10,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._chart_format import FILLED, SeriesFill, SeriesLine, accent_colour, look_markup, unmeasured
-from pyopenvba.apps.excel._chart_xml import UNIQUE_END
-from pyopenvba.apps.excel._charts import CHART_TYPES, PointState, shown_type
+from pyopenvba._xml import escape as escape_attribute, escape_text
+from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, UNIQUE_END, LabelLook, default_run
+from pyopenvba.apps.excel._charts import CHART_TYPES, PointLabel, PointState, shown_type
 from pyopenvba.apps.excel._creator import Created, ItemDefault
+from pyopenvba.apps.excel._number_format import to_file
 from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -52,17 +54,74 @@ def points_markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, .
     return written
 
 
+def _label_body(point: PointState, entry: SeriesState) -> str:
+    """What a point's dLbl says after its idx: its text, number format, look, place and flags, in the file's order."""
+    own = point.label_own
+    tx = ""
+    if own.text is not None:
+        run = '<a:endParaRPr lang="en-US"/>'
+        if own.text:
+            run = f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(own.text)}</a:t></a:r>'
+        tx = f"<c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p>{run}</a:p></c:rich></c:tx>"
+    number = "" if own.number_format is None else (
+        f'<c:numFmt formatCode="{escape_attribute(to_file(own.number_format))}" sourceLinked="0"/>')
+    look = ""
+    if own.has_look():
+        fill = "<a:noFill/>"
+        if own.fill_rgb is not None:
+            fill = f'<a:solidFill><a:srgbClr val="{own.fill_rgb}"/></a:solidFill>'
+        effects = "<a:effectLst/>"
+        if own.shadow:
+            effects = ('<a:effectLst><a:outerShdw dist="35921" dir="2700000" algn="br"><a:srgbClr val="000000"/>'
+                       "</a:outerShdw></a:effectLst>")
+        turn = {-4171: 90, -4170: -90, -4128: 0}.get(own.orientation, own.orientation)
+        rotated = f' rot="{-turn * 60000}" vert="horz"' if own.orientation != -4128 else ""
+        paragraph = "" if own.horizontal == -4108 else f' algn="{ {-4131: "l", -4152: "r"}[own.horizontal] }"'
+        if own.reading == -5004:
+            paragraph += ' rtl="1"'
+        look = (f"<c:spPr>{fill}<a:ln><a:noFill/></a:ln>{effects}</c:spPr><c:txPr>"
+                f'<a:bodyPr{rotated} wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
+                f"<a:spAutoFit/></a:bodyPr><a:lstStyle/><a:p><a:pPr{paragraph}>{default_run(own.font)}</a:pPr>"
+                '<a:endParaRPr lang="en-US"/></a:p></c:txPr>')
+    place = "" if own.position is None else f'<c:dLblPos val="{LABEL_POSITIONS[own.position]}"/>'
+    series = entry.label_look
+    base = {"value": series.value, "category": series.category, "series": series.series,
+            "legend_key": series.legend_key, "percent": series.percent, "bubble": series.bubble}
+    if not entry.data_labels:
+        base = {"value": True, "category": False, "series": False, "legend_key": False, "percent": False,
+                "bubble": False}
+    flags = {**base, **own.shows}
+    shows = "".join(f'<c:{tag} val="{int(flags[field])}"/>' for tag, field in (
+        ("showLegendKey", "legend_key"), ("showVal", "value"), ("showCatName", "category"), ("showSerName", "series"),
+        ("showPercent", "percent"), ("showBubbleSize", "bubble")))
+    separator = "" if own.separator is None else f"<c:separator>{escape_text(own.separator)}</c:separator>"
+    return f"{tx}{number}{look}{place}{shows}{separator}"
+
+
+def _range_extension(own: PointLabel, deleted: bool) -> str:
+    if deleted:
+        return "/>"
+    if own.show_range:
+        return '><c15:dlblFieldTable/><c15:showDataLabelsRange val="1"/></c:ext>'
+    return '><c15:showDataLabelsRange val="0"/></c:ext>' if own.text is not None else "/>"
+
+
 def point_labels_markup(entry: SeriesState) -> str:
     """The series' dLbl elements: a point's own label, or where the series has labels, one it took away."""
     written = ""
     for index, point in sorted(entry.points.items()):
-        if point.label is None or (not point.label and not entry.data_labels):
+        if point.label_unique < 0 or (point.label is None and point.label_own.empty()):
             continue
-        body = ('<c:showLegendKey val="0"/><c:showVal val="1"/><c:showCatName val="0"/><c:showSerName val="0"/>'
-                '<c:showPercent val="0"/><c:showBubbleSize val="0"/>') if point.label else '<c:delete val="1"/>'
-        written += (f'<c:dLbl><c:idx val="{index}"/>{body}<c:extLst>'
-                    '<c:ext uri="{CE6537A1-D6FC-4f65-9D91-7224C49458BB}"'
-                    ' xmlns:c15="http://schemas.microsoft.com/office/drawing/2012/chart"/>'
+        if point.label is False and not entry.data_labels:
+            continue
+        body = '<c:delete val="1"/>' if point.label is False else _label_body(point, entry)
+        own = point.label_own
+        # On a series with labels, one with a look of its own has no such extension; a typed one says it shows no range.
+        extension = "" if entry.data_labels and point.label is not False and own.has_look() else (
+            '<c:ext uri="{CE6537A1-D6FC-4f65-9D91-7224C49458BB}"'
+            ' xmlns:c15="http://schemas.microsoft.com/office/drawing/2012/chart"'
+            + _range_extension(own, point.label is False))
+        written += (f'<c:dLbl><c:idx val="{index}"/>{body}<c:extLst>{extension}'
                     f"{_unique_tail(point.label_unique)}</c:extLst></c:dLbl>")
     return written
 
@@ -181,8 +240,10 @@ class Point(Created):
         self.kind()
         point = self.own()
         entry = self.series.entry
-        if point is not None and point.label is not None:
-            return point.label
+        if point is not None and point.label is False:
+            return False
+        if point is not None and (point.label is True or not point.label_own.empty()):
+            return True
         return entry.data_labels and entry.label_look.shown()
 
     @setter("HasDataLabel")
@@ -190,9 +251,16 @@ class Point(Created):
         wanted = to_bool(value)
         self.kind()
         entry = self.series.entry
-        if wanted and entry.data_labels:
-            raise unmeasured("A point's data label on a series with labels of its own")
         point = self.held()
+        if wanted and entry.data_labels:
+            # Back to what its series' labels give, whatever it had of its own.
+            point.label, point.label_own = None, PointLabel()
+            entry.leader_lines = True
+            return
+        if wanted:
+            # Labels on some points alone: the series' own show nothing.
+            entry.label_look = LabelLook(value=False)
+            point.label_own = PointLabel()
         point.label = wanted
         if point.label_unique < 0 and (wanted or entry.data_labels):
             state = self.series.chart.state
@@ -203,10 +271,9 @@ class Point(Created):
         from pyopenvba.apps.excel._chart_data_labels import DataLabel
 
         self.kind()
-        point = self.own()
-        if not self.series.entry.data_labels and (point is None or point.label is None):
+        if not self.series.has_labels():
             raise error(-2147467259, "Automation error\nUnspecified error")
-        return DataLabel(None, self.index + 1)
+        return DataLabel(self.series, self.index + 1, self.series.entry.label_generation)
 
     def marked(self) -> bool:
         return self.kind() in ("lineMarkers", "scatter")

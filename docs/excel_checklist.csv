@@ -921,43 +921,47 @@ DataBarBorder,Color,"property, read-only",As Object,,PARTIAL,tests/fixtures/data
 DataBarBorder,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 DataBarBorder,Parent,"property, read-only",As Object,,MISSING,,
 DataBarBorder,Type,property,As XlDataBarBorderType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-DataLabel,Application,"property, read-only",As Application,,MISSING,,
-DataLabel,AutoText,property,As Boolean,,MISSING,,
-DataLabel,Caption,property,As String,,MISSING,,
-DataLabel,Characters,"property, read-only",As Characters,,MISSING,,
-DataLabel,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,Read.
-DataLabel,Delete,method,Delete() As Variant,,MISSING,,
-DataLabel,Format,"property, read-only",As ChartFormat,,MISSING,,
-DataLabel,Formula,property,As String,,MISSING,,
-DataLabel,FormulaLocal,property,As String,,MISSING,,
-DataLabel,FormulaR1C1,property,As String,,MISSING,,
-DataLabel,FormulaR1C1Local,property,As String,,MISSING,,
+DataLabel,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Read.
+DataLabel,AutoText,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Reads and goes back; False writes a random id and is refused.
+DataLabel,Border,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its type name alone.
+DataLabel,Caption,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,As Text.
+DataLabel,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Reads back once the label is touched.
+DataLabel,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Read.
+DataLabel,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,A dLbl with delete.
+DataLabel,Fill,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its type name alone.
+DataLabel,Font,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own or its series'; error 1004 once deleted.
+DataLabel,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Fill colour; the line is not there.
+DataLabel,Formula,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Reads its text; setting a reference is refused.
+DataLabel,FormulaLocal,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,As Formula.
+DataLabel,FormulaR1C1,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,As Formula.
+DataLabel,FormulaR1C1Local,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,As Formula.
 DataLabel,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 DataLabel,Height,property,As Double,,MISSING,,
-DataLabel,HorizontalAlignment,property,As Variant,,MISSING,,
+DataLabel,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,"Left, right, centre in the txPr."
+DataLabel,Interior,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its type name alone.
 DataLabel,Left,property,As Double,,MISSING,,
-DataLabel,Name,"property, read-only",As String,,MISSING,,
-DataLabel,NumberFormat,property,As String,,MISSING,,
-DataLabel,NumberFormatLinked,property,As Boolean,,MISSING,,
-DataLabel,NumberFormatLocal,property,As Variant,,MISSING,,
-DataLabel,Orientation,property,As Variant,,MISSING,,
-DataLabel,Parent,"property, read-only",As Object,,MISSING,,
-DataLabel,Position,property,As XlDataLabelPosition,,MISSING,,
-DataLabel,ReadingOrder,property,As Long,,MISSING,,
-DataLabel,Select,method,Select() As Variant,,MISSING,,
-DataLabel,Separator,property,As Variant,,MISSING,,
+DataLabel,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Text SnPm.
+DataLabel,NumberFormat,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own or its series'.
+DataLabel,NumberFormatLinked,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Follows its number format.
+DataLabel,NumberFormatLocal,property,As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,As NumberFormat.
+DataLabel,Orientation,property,As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,A rot in the txPr.
+DataLabel,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,The point.
+DataLabel,Position,property,As XlDataLabelPosition,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,"dLblPos, by chart type."
+DataLabel,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,rtl in the txPr.
+DataLabel,Select,method,Select() As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,"Does nothing the file shows; refused on a pie, where it adds a title."
+DataLabel,Separator,property,As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,c:separator.
 DataLabel,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
-DataLabel,Shadow,property,As Boolean,,MISSING,,
-DataLabel,ShowBubbleSize,property,As Boolean,,MISSING,,
-DataLabel,ShowCategoryName,property,As Boolean,,MISSING,,
-DataLabel,ShowLegendKey,property,As Boolean,,MISSING,,
-DataLabel,ShowPercentage,property,As Boolean,,MISSING,,
-DataLabel,ShowRange,property,As Boolean,,MISSING,,
-DataLabel,ShowSeriesName,property,As Boolean,,MISSING,,
-DataLabel,ShowValue,property,As Boolean,,MISSING,,
-DataLabel,Text,property,As String,,MISSING,,
+DataLabel,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,outerShdw in the spPr.
+DataLabel,ShowBubbleSize,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Error on these charts.
+DataLabel,ShowCategoryName,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own over its series'.
+DataLabel,ShowLegendKey,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own over its series'.
+DataLabel,ShowPercentage,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,On a pie.
+DataLabel,ShowRange,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its extension.
+DataLabel,ShowSeriesName,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own over its series'.
+DataLabel,ShowValue,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own over its series'; nothing left shown deletes it.
+DataLabel,Text,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its parts or what was typed.
 DataLabel,Top,property,As Double,,MISSING,,
-DataLabel,VerticalAlignment,property,As Variant,,MISSING,,
+DataLabel,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,"Reads centre; a set changes nothing, as measured."
 DataLabel,Width,property,As Double,,MISSING,,
 DataLabels,_Default,method,_Default(Index As Variant) As DataLabel,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,As Item.
 DataLabels,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,

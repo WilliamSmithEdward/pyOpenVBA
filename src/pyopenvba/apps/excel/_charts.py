@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 import math
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState
@@ -42,6 +42,39 @@ SERIES_KINDS = {'column': 3, 'bar': 2, 'line': 4, 'lineMarkers': 4, 'pie': 5, 'd
                 'area': 1}
 
 @dataclass
+class PointLabel:
+    """What was set of one point's label, each left as it is while its series' labels give it."""
+
+    shows: dict[str, bool] = field(default_factory=lambda: {})
+    show_range: bool = False
+    text: str | None = None
+    number_format: str | None = None
+    linked: bool | None = None
+    position: int | None = None
+    separator: str | None = None
+    orientation: int = -4128
+    horizontal: int = -4108
+    reading: int = -5002
+    shadow: bool = False
+    font: TextLook | None = None
+    fill_rgb: str | None = None
+    #: Whether anything has made its Characters read back.
+    touched: bool = False
+
+    def has_look(self) -> bool:
+        return (self.number_format is not None or self.orientation != -4128 or self.horizontal != -4108
+                or self.reading != -5002 or self.shadow or self.font is not None or self.fill_rgb is not None)
+
+    @property
+    def plain_format(self) -> bool:
+        return not self.has_look()
+
+    def empty(self) -> bool:
+        return not (self.shows or self.show_range or self.text is not None
+                    or self.position is not None or self.separator is not None or self.has_look())
+
+
+@dataclass
 class PointState:
     """What was set of one point, each None while its series gives it, and the unique ids of its dPt and dLbl."""
 
@@ -49,6 +82,7 @@ class PointState:
     invert: bool | None = None
     explosion: int | None = None
     label: bool | None = None
+    label_own: PointLabel = field(default_factory=lambda: PointLabel())
     unique: int = -1
     label_unique: int = -1
 
@@ -1136,7 +1170,7 @@ class Chart(Created):
         return ElementFormat(element, self, key)
 
     def font_of(self, element: object, key: str, *, size: float = 10.0, bold: bool = False,
-                labels: LabelLook | None = None) -> object:
+                labels: Any = None) -> object:
         """The Font of the element's text, whose defaults are given."""
         from pyopenvba.apps.excel._chart_fonts import ChartFont
 
@@ -2162,6 +2196,10 @@ class Series(Created):
         self.chart.changed()
         self.entry.category_reference, self.entry.categories = reference, values
 
+    def has_labels(self) -> bool:
+        """Whether it has labels at all: its own, or a point's that was given one."""
+        return self.entry.data_labels or any(point.label is not None for point in self.entry.points.values())
+
     def values(self) -> list[object]:
         self.position()
         return referenced_values(self.chart.sheet, self.entry.value_reference) if self.entry.value_reference else self.entry.values
@@ -2267,7 +2305,7 @@ class Series(Created):
         from pyopenvba.apps.excel._chart_data_labels import DataLabels
 
         self.position()
-        if not self.entry.data_labels:
+        if not self.has_labels():
             raise error(-2147467259, 'Automation error\nUnspecified error')
         labels = DataLabels(self, self.entry.label_generation)
         return labels if Index is MISSING else labels.vba_get('Item', [Index])

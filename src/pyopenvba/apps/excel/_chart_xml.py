@@ -318,7 +318,9 @@ def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook, points:
         ("showLegendKey", look.legend_key), ("showVal", look.value), ("showCatName", look.category),
         ("showSerName", look.series), ("showPercent", look.percent), ("showBubbleSize", look.bubble)))
     separator = "" if look.separator is None else f"<c:separator>{escape_text(look.separator)}</c:separator>"
-    leaders = "" if alone else f'<c:showLeaderLines val="{shown}"/>'
+    # Only a pie or doughnut says it in the element; the others say it in their extension alone.
+    plain = shown if kind in ("pie", "doughnut") else 0
+    leaders = "" if alone else f'<c:showLeaderLines val="{plain}"/>'
     text = text_properties(look.font, _LABEL_BODY)
     return (f'<c:dLbls>{points}{number}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>{text}{place}'
             f'{flags}'

@@ -5,30 +5,6 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
-### Fixed
-
-- `StrConv(text, vbFromUnicode)` is a String, as in Excel, not a Byte array. A String
-  can now hold an odd count of bytes, so `LenB`, `MidB`, `LeftB`, `RightB`, `AscB`,
-  `InStrB` and `&` count the last byte. `ChrB` exists. `StrConv(x, vbUnicode)` reads a
-  String's own bytes. `AscB` answers a Byte, `VarType` a Long, and `LenB` of a
-  fixed-length string an Integer.
-
-### Added
-
-- Text files and the file system from VBA with `sandbox=False`: `Open` for Input,
-  Output and Append, `Print #`, `Write #`, `Input #`, `Line Input #`, `Close`,
-  `Seek`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `Kill`, `MkDir`, `RmDir`,
-  `ChDir`, `CurDir`, `FileCopy`, `Name`, `Dir`, `FileLen`, `FileDateTime`, `GetAttr`,
-  `SetAttr` and `Environ`, as live Excel answers them.
-- `ADODB.Stream`: bytes and text in memory through its charsets, as live Excel
-  answers them. `SaveToFile` and `LoadFromFile` need `sandbox=False`.
-- `Scripting.FileSystemObject` with `sandbox=False`: its files, folders and text
-  streams, with the errors live Excel gives. Its path functions still work in the
-  sandbox.
-- Binary and Random files from VBA with `sandbox=False`: `Open` in those modes,
-  `Get`, `Put`, `Lock` and `Unlock`, with each type laid out byte for byte as
-  Excel lays it out.
-
 ### Changed
 
 - VBA runs in a sandbox by default. Running VBA can no longer save, open or
@@ -39,6 +15,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- One point's `DataLabel`: `Text`, `Caption`, `AutoText`, the `Show` members, `Position`,
+  `NumberFormat`, `Separator`, `Orientation`, `HorizontalAlignment`, `ReadingOrder`,
+  `Shadow`, `Font`, `Characters`, `Delete`, and a fill through `Format`. What is set of a
+  label stands apart from its series' labels and saves as Excel writes it. `AutoText =
+  False`, a formula, and a label's place and size are refused.
+- `ADODB.Stream`: bytes and text in memory through its charsets, as live Excel
+  answers them. `SaveToFile` and `LoadFromFile` need `sandbox=False`.
+- Text files and the file system from VBA with `sandbox=False`: `Open` for Input,
+  Output and Append, `Print #`, `Write #`, `Input #`, `Line Input #`, `Close`,
+  `Seek`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `Kill`, `MkDir`, `RmDir`,
+  `ChDir`, `CurDir`, `FileCopy`, `Name`, `Dir`, `FileLen`, `FileDateTime`, `GetAttr`,
+  `SetAttr` and `Environ`, as live Excel answers them.
+- `Scripting.FileSystemObject` with `sandbox=False`: its files, folders and text
+  streams, with the errors live Excel gives. Its path functions still work in the
+  sandbox.
+- Binary and Random files from VBA with `sandbox=False`: `Open` in those modes,
+  `Get`, `Put`, `Lock` and `Unlock`, with each type laid out byte for byte as
+  Excel lays it out.
 - HTTP from VBA with `sandbox=False`: `CreateObject` makes `MSXML2.XMLHTTP`,
   `MSXML2.ServerXMLHTTP` and `WinHttp.WinHttpRequest.5.1` on Python's own
   sockets, on any platform. Each sends and answers as its Windows stack does,
@@ -755,6 +749,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `StrConv(text, vbFromUnicode)` is a String, as in Excel, not a Byte array. A String
+  can now hold an odd count of bytes, so `LenB`, `MidB`, `LeftB`, `RightB`, `AscB`,
+  `InStrB` and `&` count the last byte. `ChrB` exists. `StrConv(x, vbUnicode)` reads a
+  String's own bytes. `AscB` answers a Byte, `VarType` a Long, and `LenB` of a
+  fixed-length string an Integer.
 - A saved line takes the style Excel gives a line. It was written with an
   AutoShape's style: a dark outline, a fill reference and light text.
 

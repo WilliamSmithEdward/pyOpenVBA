@@ -691,6 +691,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
                                smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion,
+                               scatter_line=item.scatter_line,
                                look=series_look(item, CHART_TYPES.get(shown_type(chart.state), ''), series.position(),
                                                 sheet.book.stylesheet.colors.theme),
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,

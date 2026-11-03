@@ -250,6 +250,8 @@ class FillLine:
     line_width: int | None = None
     line_dash: str | None = None
     line_cap: str | None = None
+    #: Excel: Border.LineStyle = xlNone on a chart element, which writes the line as a width and no fill.
+    line_off: bool = False
     #: Whether the fill or line is hidden, each kept in the spPr's extLst meanwhile.
     fill_hidden: bool = False
     line_hidden: bool = False

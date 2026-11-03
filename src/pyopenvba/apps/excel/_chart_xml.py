@@ -39,6 +39,8 @@ def corner_markup(which: str, grid: SheetGrid, across: float, down: float) -> st
             f'<xdr:row>{row}</xdr:row><xdr:rowOff>{row_offset}</xdr:rowOff></xdr:{which}>')
 
 #: The kinds of chart Excel's Insert Chart makes that can be written here.
+#: A scatter series' line until something is set of it, or ClearFormats gives it one.
+_NO_SCATTER_LINE = '<c:spPr><a:ln w="38100"><a:noFill/></a:ln></c:spPr>'
 ChartKind = Literal["column", "bar", "line", "lineMarkers", "pie", "doughnut", "scatter", "area"]
 CHART_KINDS: tuple[ChartKind, ...] = ("column", "bar", "line", "lineMarkers", "pie", "doughnut", "scatter", "area")
 
@@ -68,6 +70,8 @@ class SeriesData:
     series_id: int | None = None
     #: The first group of its unique id, when that is not its series_id.
     unique_id: int | None = None
+    #: In a scatter chart: whether its series shows a line it was given no look for.
+    scatter_line: bool = False
     #: In a line or scatter chart: the marker element, none for an automatic marker, and whether the line is smoothed.
     marker: str = ""
     smooth: bool = False
@@ -386,7 +390,7 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         body = f'{data.marker}{categories}{values}<c:smooth val="{int(data.smooth)}"/>'
     elif kind == "scatter":
         body = (
-            f'<c:spPr><a:ln w="38100"><a:noFill/></a:ln></c:spPr>{data.marker}{categories}{values}'
+            f'{"" if data.look or data.scatter_line else _NO_SCATTER_LINE}{data.marker}{categories}{values}'
             f'<c:smooth val="{int(data.smooth)}"/>'
         )
     elif kind == "pie" and data.explosion:

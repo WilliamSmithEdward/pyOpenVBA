@@ -781,6 +781,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A chart leaves out hidden and filtered cells while `PlotVisibleOnly` is on, in what its series read
+  and in what it saves. A series or its categories wholly hidden, and a point's look or label on a
+  series with hidden cells, are refused.
+- `Series.XValues` on a scatter chart with text categories reads their places, as Excel does.
 - A chart's series, title links and custom error bars follow the cells they read when rows and
   columns are inserted or deleted, cells shift or are cut, and the sheet is renamed, as a point's
   look and label do. Before, they stayed put and the saved file read the wrong cells. Taking away

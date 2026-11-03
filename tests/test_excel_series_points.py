@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from pathlib import Path
 from typing import Any
 
@@ -15,17 +14,18 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from test_excel_chart_markup import chart_part
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/series_points.json').read_text(encoding='utf-8'))
-#: What the model refuses, the replay running those cases with no statements and leaving their answers out: a look or
-#: InvertIfNegative on a point of a line or scatter chart, whose reads move onto its marker members, Delete, which takes
-#: away a series, and ChartType with a point set apart.
+#: What the model refuses, the replay running those cases with no statements and leaving their answers out, on a point
+#: of a line or scatter chart: hiding its line, any setting of a scatter chart's point's line, and InvertIfNegative; and
+#: ChartType with a point set apart.
 LINES = ('4', '65', '-4169')
-LOOK = re.compile(r'pt\.(Format\.|InvertIfNegative)')
-OTHER = ('51: pt.Delete', '51: pt.Format.Fill.ForeColor.RGB = 255: ch.ChartType = xlLine')
+OTHER = ('51: pt.Format.Fill.ForeColor.RGB = 255: ch.ChartType = xlLine',)
 
 
 def refused(case: str) -> bool:
     kind, statements = case.split(': ', 1)
-    return (kind in LINES and bool(LOOK.search(statements))) or case in OTHER
+    if kind in LINES and ('pt.InvertIfNegative' in statements or 'pt.Format.Line.Visible = msoFalse' in statements):
+        return True
+    return (kind == '-4169' and 'pt.Format.Line.' in statements) or case in OTHER
 
 
 KEPT = [index for index, (case, _, _) in enumerate(RECORD['cases']) if not refused(case)]

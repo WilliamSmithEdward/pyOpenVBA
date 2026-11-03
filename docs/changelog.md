@@ -15,6 +15,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A point's `Format.Fill` and `Format.Line` on line and scatter charts, where the fill and
+  line reach its marker as Excel writes them. Hiding the line, `Solid` on a marker and a
+  scatter point's line are refused. `Point.ClearFormats` on every kind of chart, and
+  `Point.Delete`, which as in Excel takes away the series.
 - One point's marker: `MarkerStyle`, `MarkerSize`, `MarkerBackgroundColor`,
   `MarkerForegroundColor` and their `ColorIndex` forms, over its series' and given way to
   when the series sets the same, on line, scatter and other charts. `Series.MarkerStyle`

@@ -55,8 +55,10 @@ def _admit_content(source: Worksheet) -> None:
     from pyopenvba.apps.excel._outline import admit_sheet_copy
 
     admit_sheet_copy(source)
-    if source.shapes_:
-        raise VBAUnsupportedError("Worksheet.Copy with drawings or controls is not implemented")
+    if any(shape.kind != "chart" or shape.shape_id not in source.chart_states or shape.children
+           or source.chart_states[shape.shape_id].original for shape in source.shapes_):
+        raise VBAUnsupportedError(
+            "Worksheet.Copy with drawings other than new charts or with controls is not implemented")
     if source.tables:
         raise VBAUnsupportedError("Worksheet.Copy with tables is not implemented")
     if source.validations:
@@ -104,6 +106,12 @@ def _staged(source: Worksheet, name: str, renamed: dict[str, str], external: boo
         dxf_id = rule.root.get('dxfId')
         if external and dxf_id is not None:
             rule.dxf = rule.dxf if rule.dxf is not None else source.book.stylesheet.dxf(int(dxf_id))
+    # What the copy's charts will read, refused now if it cannot be, before anything is made.
+    for state in source.chart_states.values():
+        for entry in state.full_series or state.series:
+            for text in (entry.name_reference, entry.category_reference, entry.value_reference):
+                if text:
+                    formula(f"={text}", renamed, external)
     cells = {position: replace(cell) for position, cell in source.cells_.items()}
     for cell in cells.values():
         if cell.formula:
@@ -199,7 +207,7 @@ def copy_sheets(sources: list[Worksheet], before: object, after: object) -> obje
     if anchor is MISSING:
         app.workbooks_.books.append(destination)
     at = destination.sheets_.index(anchor) + (0 if before is not MISSING else 1) if isinstance(anchor, Worksheet) else None
-    copies = [_published(stage, destination, None if at is None else at + offset, external)
+    copies = [_published(stage, destination, None if at is None else at + offset, external, renamed)
               for offset, stage in enumerate(staged)]
     destination.names_.entries.extend(names)
     destination.names_.changed = True
@@ -209,7 +217,27 @@ def copy_sheets(sources: list[Worksheet], before: object, after: object) -> obje
     return EMPTY
 
 
-def _published(stage: _Staged, destination: Workbook, at: int | None, external: bool) -> Worksheet:
+def _charts_copied(source: Worksheet, copied: Worksheet, renamed: dict[str, str], external: bool) -> None:
+    """The sheet's charts, each its own, reading the copies of the sheets copied with it
+    (tests/fixtures/chart_copies.json)."""
+    from pyopenvba.apps.excel._chart_references import changed_in
+    from pyopenvba.apps.excel._shapes import numbered_afresh
+
+    copied.shape_count = source.shape_count
+    for shape in source.shapes_:
+        copied.shapes_.append(replace(shape, source="", source_at=0, text_look=deepcopy(shape.text_look),
+                                         fill_line=deepcopy(shape.fill_line)))
+        state = deepcopy(source.chart_states[shape.shape_id])
+        state.part, state.dirty = "", True
+        changed_in(copied, state, lambda text, _owner: formula(text, renamed, external))
+        numbered_afresh(state)
+        copied.chart_states[shape.shape_id] = state
+    if source.shapes_:
+        copied.drawing_changed()
+
+
+def _published(stage: _Staged, destination: Workbook, at: int | None, external: bool,
+               renamed: dict[str, str]) -> Worksheet:
     """Make one staged copy in ``destination`` at ``at``, the end with None."""
     source, name, conditional = stage.source, stage.name, stage.conditional
     copied = destination.add_sheet(name, at=at)
@@ -217,6 +245,7 @@ def _published(stage: _Staged, destination: Workbook, at: int | None, external: 
 
     copy_document(source, copied)
     copied.cells_ = stage.cells
+    _charts_copied(source, copied, renamed, external)
     from pyopenvba.apps.excel._differential import renumber
 
     # The copy's rules take dxfs of their own, as Excel makes for each rule it makes (tests/fixtures/dxf_table/).

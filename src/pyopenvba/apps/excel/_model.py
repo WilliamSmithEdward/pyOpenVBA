@@ -362,6 +362,8 @@ class Application(ExcelObject):
         self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
+        #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
+        self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
         self.user_name = "pyOpenVBA"
         self.interpreter: Interpreter | None = None
         self.executing_projects: list[Interpreter] = []
@@ -2716,8 +2718,6 @@ class Worksheet(ExcelObject):
         #: The shapes on the sheet, in the order the drawing holds them.
         self.shapes_: list[ShapeState] = []
         self.chart_states: dict[int, ChartState] = {}
-        #: A chart copied, with the selection and the clipboard then, which it lasts as long as.
-        self.copied_chart: tuple[ShapeValue, object, object] | None = None
         #: The cells ShowPrecedents and ShowDependents have traced, by (row, column, dependents), and how deep.
         self.traced: dict[tuple[int, int, bool], int] = {}
         self.deleted_chart_parts: set[str] = set()

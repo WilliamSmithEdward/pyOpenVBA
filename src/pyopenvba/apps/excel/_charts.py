@@ -843,6 +843,7 @@ class ChartArea(Created):
         """Selects the chart, and puts nothing that Worksheet.Paste will take (tests/fixtures/chart_copies.json)."""
         self.chart.admit_read()
         ChartObject(self.chart.sheet, self.chart.shape).made_active('area')
+        self.chart.sheet.book.application.copied_chart = None
         return EMPTY
 
     @method

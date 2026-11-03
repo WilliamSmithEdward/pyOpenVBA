@@ -1,0 +1,198 @@
+{
+ "measured_at": "2026-11-03T17:14:20.276753+00:00",
+ "source": "Private Function Fill() As Object\n    Dim ws As Object, i As Long\n    Set ws = Workbooks.Add(xlWBATWorksheet).Worksheets(1)\n    ws.Range(\"A1:E1\").Value = Array(\"Name\", \"Team\", \"Unit\", \"Qty\", \"Cost\")\n    For i = 2 To 9\n        ws.Cells(i, 1).Value = \"n\" & i: ws.Cells(i, 2).Value = \"t\" & i: ws.Cells(i, 3).Value = \"u\" & i\n        ws.Cells(i, 4).Value = i: ws.Cells(i, 5).Value = i * 2\n    Next\n    Set Fill = ws\nEnd Function\n\nPrivate Function ByValue(ByVal r As Range, ByVal ws As Object) As String\n    ws.Rows(1).Insert\n    ByValue = r.Address\nEnd Function\n\nPrivate Function ByReference(ByRef r As Range, ByVal ws As Object) As String\n    ws.Rows(1).Insert\n    ByReference = r.Address\nEnd Function\n\nPrivate Function AsVariant(ByVal r As Variant, ByVal ws As Object) As String\n    ws.Rows(1).Insert\n    AsVariant = r.Address\nEnd Function\n\nPrivate Function AsObject(ByVal r As Object, ByVal ws As Object) As String\n    ws.Rows(1).Insert\n    AsObject = r.Address\nEnd Function\n\nPrivate Function Found(ByVal ws As Object) As Range\n    Set Found = ws.Range(\"B3\")\nEnd Function\n\nPrivate Function Deleted(ByVal r As Range, ByVal ws As Object) As String\n    ws.Rows(3).Delete\n    Deleted = TypeName(r) & r.Address\nEnd Function\n\n\nPublic Function Held(ByVal which As Long) As String\n    Dim ws As Object\n    Dim r As Range, q As Range, c As Range, s As String, i As Long, v As Variant, o As Object, a(1 To 2) As Variant, cc As New Collection\n    Application.DisplayAlerts = False\n    Set ws = Fill()\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        With ws.Range(\"B3\")\nws.Rows(1).Insert\ns = .Address\nEnd With\n    Case 1\n        With ws.Range(\"B3\")\nws.Rows(3).Delete\ns = TypeName(.Parent) & .Address\nEnd With\n    Case 2\n        With ws.Range(\"B3:C5\")\nws.Rows(4).Insert\ns = .Address & .Count\nEnd With\n    Case 3\n        Set r = ws.Range(\"B3\")\nWith r\nws.Rows(1).Insert\ns = .Address\nEnd With\n    Case 4\n        s = ByValue(ws.Range(\"B3\"), ws)\n    Case 5\n        s = ByReference(ws.Range(\"B3\"), ws)\n    Case 6\n        s = AsVariant(ws.Range(\"B3\"), ws)\n    Case 7\n        s = AsObject(ws.Range(\"B3\"), ws)\n    Case 8\n        s = Deleted(ws.Range(\"B3\"), ws)\n    Case 9\n        Set r = ws.Range(\"B3\")\ns = ByValue(r, ws) & r.Address\n    Case 10\n        Set r = ws.Range(\"B3\")\ns = ByReference(r, ws) & r.Address\n    Case 11\n        Set r = Found(ws)\nws.Rows(1).Insert\ns = r.Address\n    Case 12\n        s = Found(ws).Address\nws.Rows(1).Insert\ns = s & Found(ws).Address\n    Case 13\n        cc.Add ws.Range(\"B3\")\nws.Rows(1).Insert\ns = cc(1).Address\n    Case 14\n        cc.Add ws.Range(\"B3\"), \"k\"\nws.Rows(3).Delete\ns = TypeName(cc(\"k\"))\nOn Error Resume Next\ns = s & cc(\"k\").Address & Err.Number\n    Case 15\n        Set a(1) = ws.Range(\"B3\")\nws.Rows(1).Insert\ns = a(1).Address\n    Case 16\n        Set v = ws.Range(\"B3\")\nws.Rows(1).Insert\ns = v.Address\n    Case 17\n        Set o = ws.Range(\"B3\")\nws.Rows(1).Insert\ns = o.Address\n    Case 18\n        Set o = CreateObject(\"Scripting.Dictionary\")\no.Add \"k\", ws.Range(\"B3\")\nws.Rows(1).Insert\ns = o(\"k\").Address\n    Case 19\n        Set r = ws.Range(\"B3\")\nSet q = r\nws.Rows(1).Insert\ns = r.Address & q.Address & (r Is q)\n    Case 20\n        Set r = ws.Range(\"B3\")\nSet q = r.Offset(1)\nws.Rows(1).Insert\ns = r.Address & q.Address\n    Case 21\n        Set r = ws.Range(\"B3:B4\").Cells(2)\nws.Rows(1).Insert\ns = r.Address\n    Case 22\n        Set r = ws.Range(\"B3,D5\")\nws.Rows(1).Insert\ns = r.Address & r.Areas.Count\n    Case 23\n        Set r = ws.Range(\"B3,D5\")\nws.Rows(3).Delete\ns = r.Address & r.Areas.Count\n    Case 24\n        Set r = ws.Range(\"B3,D5\")\nSet q = r.Areas(2)\nws.Rows(1).Insert\ns = q.Address\n    Case 25\n        Set r = Union(ws.Range(\"B3\"), ws.Range(\"B5\"))\nws.Rows(4).Insert\ns = r.Address\n    Case 26\n        Set r = Application.Intersect(ws.Range(\"A1:C5\"), ws.Range(\"B3:D9\"))\nws.Rows(1).Insert\ns = r.Address\n    Case 27\n        Set r = ws.Cells(3, 2)\nws.Columns(1).Insert\ns = r.Address\n    Case 28\n        Set r = ws.UsedRange\nws.Rows(1).Insert\ns = r.Address\n    Case 29\n        Set r = ws.Range(\"A1\").CurrentRegion\nws.Rows(5).Insert\ns = r.Address\n    Case 30\n        For Each c In ws.Range(\"B3:B4\")\nws.Rows(1).Insert\ns = s & c.Address & \"|\"\nNext\n    Case 31\n        For Each c In ws.Range(\"A2:A9\")\nIf c.Row Mod 2 = 0 Then c.EntireRow.Delete\ns = s & \"|\"\nNext\ns = s & ws.Range(\"A2\").Value & ws.Range(\"A3\").Value & ws.Range(\"A4\").Value & ws.Cells(ws.Rows.Count, 1).End(xlUp).Row\n    Case 32\n        For Each c In ws.Range(\"A2:A9\")\nIf c.Value = \"n3\" Or c.Value = \"n4\" Then c.EntireRow.Delete\nNext\nFor i = 2 To 8\ns = s & ws.Cells(i, 1).Value & \",\"\nNext\n    Case 33\n        For Each c In ws.Range(\"D2:D5\")\ni = i + 1\nIf i > 6 Then Exit For\ns = s & c.Address & \"|\"\nc.EntireRow.Insert\nNext\ns = s & ws.UsedRange.Address\n    Case 34\n        For Each c In ws.Range(\"D2:D5\")\ns = s & c.Address\nc.Delete xlShiftUp\nNext\n    Case 35\n        For Each c In ws.Range(\"D2:D5\")\ns = s & c.Value & \",\"\nIf c.Value = 3 Then ws.Rows(4).Delete\nNext\n    Case 36\n        For Each c In ws.Range(\"A2:A9\").Rows\nIf c.Row Mod 2 = 0 Then c.EntireRow.Delete\ns = s & c.Row & \"|\"\nNext\n    Case 37\n        For Each c In ws.Range(\"A:B\").Columns\ns = s & c.Address & \"|\"\nc.Delete\nNext\n    Case 38\n        For Each c In ws.Range(\"A2:A4,C2:C3\")\ns = s & c.Address & \"|\"\nws.Rows(1).Insert\nNext\n    Case 39\n        Set r = ws.Range(\"A2:A4\")\nFor Each c In r\nr.Rows(1).EntireRow.Delete\ns = s & \"|\"\nNext\ns = s & r.Address\n    Case 40\n        ws.Activate\nws.Range(\"B3\").Select\nSet r = Selection\nws.Rows(1).Insert\ns = r.Address & Selection.Address & ActiveCell.Address\n    Case 41\n        For Each c In ws.Range(\"A2:A4\")\nc.Cut ws.Cells(c.Row + 20, 8)\ns = s & c.Address & \"|\"\nNext\n    Case 42\n        Set r = ws.Range(\"B3\")\nws.Range(\"B3\").Cut ws.Range(\"H1\")\nws.Range(\"H1\").Cut ws.Range(\"J2\")\ns = r.Address\n    Case 43\n        Set r = ws.Range(\"B3\")\nws.Rows(3).Delete\nOn Error Resume Next\ns = (r Is Nothing) & TypeName(r)\nSet q = r\ns = s & Err.Number\nErr.Clear\nSet q = r.Offset(1)\ns = s & Err.Number\nErr.Clear\nv = r.Value\ns = s & Err.Number\nErr.Clear\nr.Value = 1\ns = s & Err.Number\nErr.Clear\nFor Each c In r\ns = s & \"in\"\nNext\ns = s & Err.Number & IsObject(r)\nErr.Clear\ns = s & IsError(r) & IsEmpty(r) & (ws.Range(\"A1\").Address = \"x\")\n    Case 44\n        Set r = ws.Range(\"B3\")\nws.Rows(3).Delete\nOn Error Resume Next\nws.Range(\"A1\").Value = r\ns = Err.Number & Err.Description\n    Case 45\n        Set r = ws.Range(\"B3\")\nws.Rows(3).Delete\nws.Rows(3).Insert\nOn Error Resume Next\ns = r.Address & Err.Number\n    Case 46\n        Set r = ws.Range(\"B3\")\nSet q = ws.Range(\"B3\")\ns = (r Is q)\nws.Rows(1).Insert\ns = s & (r Is q) & r.Address & q.Address\n    Case 47\n        Dim wb2 As Object\nSet r = ws.Range(\"B3\")\nSet wb2 = ws.Parent\nws.Copy After:=wb2.Worksheets(wb2.Worksheets.Count)\ns = r.Worksheet.Name & r.Address\n    End Select\n    s = \"ok \" & s\nAnswered:\n    On Error GoTo 0\n    ws.Parent.Close False\n    Application.DisplayAlerts = True\n    Held = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \" & s\n    Resume Answered\nEnd Function\n",
+ "cases": [
+  [
+   "With ws.Range(\"B3\")\nws.Rows(1).Insert\ns = .Address\nEnd With",
+   "ok $B$4"
+  ],
+  [
+   "With ws.Range(\"B3\")\nws.Rows(3).Delete\ns = TypeName(.Parent) & .Address\nEnd With",
+   "Err 424 "
+  ],
+  [
+   "With ws.Range(\"B3:C5\")\nws.Rows(4).Insert\ns = .Address & .Count\nEnd With",
+   "ok $B$3:$C$68"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nWith r\nws.Rows(1).Insert\ns = .Address\nEnd With",
+   "ok $B$4"
+  ],
+  [
+   "s = ByValue(ws.Range(\"B3\"), ws)",
+   "ok $B$4"
+  ],
+  [
+   "s = ByReference(ws.Range(\"B3\"), ws)",
+   "ok $B$4"
+  ],
+  [
+   "s = AsVariant(ws.Range(\"B3\"), ws)",
+   "ok $B$4"
+  ],
+  [
+   "s = AsObject(ws.Range(\"B3\"), ws)",
+   "ok $B$4"
+  ],
+  [
+   "s = Deleted(ws.Range(\"B3\"), ws)",
+   "Err 424 "
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\ns = ByValue(r, ws) & r.Address",
+   "ok $B$4$B$4"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\ns = ByReference(r, ws) & r.Address",
+   "ok $B$4$B$4"
+  ],
+  [
+   "Set r = Found(ws)\nws.Rows(1).Insert\ns = r.Address",
+   "ok $B$4"
+  ],
+  [
+   "s = Found(ws).Address\nws.Rows(1).Insert\ns = s & Found(ws).Address",
+   "ok $B$3$B$3"
+  ],
+  [
+   "cc.Add ws.Range(\"B3\")\nws.Rows(1).Insert\ns = cc(1).Address",
+   "ok $B$4"
+  ],
+  [
+   "cc.Add ws.Range(\"B3\"), \"k\"\nws.Rows(3).Delete\ns = TypeName(cc(\"k\"))\nOn Error Resume Next\ns = s & cc(\"k\").Address & Err.Number",
+   "ok Range"
+  ],
+  [
+   "Set a(1) = ws.Range(\"B3\")\nws.Rows(1).Insert\ns = a(1).Address",
+   "ok $B$4"
+  ],
+  [
+   "Set v = ws.Range(\"B3\")\nws.Rows(1).Insert\ns = v.Address",
+   "ok $B$4"
+  ],
+  [
+   "Set o = ws.Range(\"B3\")\nws.Rows(1).Insert\ns = o.Address",
+   "ok $B$4"
+  ],
+  [
+   "Set o = CreateObject(\"Scripting.Dictionary\")\no.Add \"k\", ws.Range(\"B3\")\nws.Rows(1).Insert\ns = o(\"k\").Address",
+   "ok $B$4"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nSet q = r\nws.Rows(1).Insert\ns = r.Address & q.Address & (r Is q)",
+   "ok $B$4$B$4True"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nSet q = r.Offset(1)\nws.Rows(1).Insert\ns = r.Address & q.Address",
+   "ok $B$4$B$5"
+  ],
+  [
+   "Set r = ws.Range(\"B3:B4\").Cells(2)\nws.Rows(1).Insert\ns = r.Address",
+   "ok $B$5"
+  ],
+  [
+   "Set r = ws.Range(\"B3,D5\")\nws.Rows(1).Insert\ns = r.Address & r.Areas.Count",
+   "ok $B$4,$D$62"
+  ],
+  [
+   "Set r = ws.Range(\"B3,D5\")\nws.Rows(3).Delete\ns = r.Address & r.Areas.Count",
+   "ok $D$41"
+  ],
+  [
+   "Set r = ws.Range(\"B3,D5\")\nSet q = r.Areas(2)\nws.Rows(1).Insert\ns = q.Address",
+   "ok $D$6"
+  ],
+  [
+   "Set r = Union(ws.Range(\"B3\"), ws.Range(\"B5\"))\nws.Rows(4).Insert\ns = r.Address",
+   "ok $B$3,$B$6"
+  ],
+  [
+   "Set r = Application.Intersect(ws.Range(\"A1:C5\"), ws.Range(\"B3:D9\"))\nws.Rows(1).Insert\ns = r.Address",
+   "ok $B$4:$C$6"
+  ],
+  [
+   "Set r = ws.Cells(3, 2)\nws.Columns(1).Insert\ns = r.Address",
+   "ok $C$3"
+  ],
+  [
+   "Set r = ws.UsedRange\nws.Rows(1).Insert\ns = r.Address",
+   "ok $A$2:$E$10"
+  ],
+  [
+   "Set r = ws.Range(\"A1\").CurrentRegion\nws.Rows(5).Insert\ns = r.Address",
+   "ok $A$1:$E$10"
+  ],
+  [
+   "For Each c In ws.Range(\"B3:B4\")\nws.Rows(1).Insert\ns = s & c.Address & \"|\"\nNext",
+   "ok $B$4|$B$6|"
+  ],
+  [
+   "For Each c In ws.Range(\"A2:A9\")\nIf c.Row Mod 2 = 0 Then c.EntireRow.Delete\ns = s & \"|\"\nNext\ns = s & ws.Range(\"A2\").Value & ws.Range(\"A3\").Value & ws.Range(\"A4\").Value & ws.Cells(ws.Rows.Count, 1).End(xlUp).Row",
+   "ok |||||n3n4n66"
+  ],
+  [
+   "For Each c In ws.Range(\"A2:A9\")\nIf c.Value = \"n3\" Or c.Value = \"n4\" Then c.EntireRow.Delete\nNext\nFor i = 2 To 8\ns = s & ws.Cells(i, 1).Value & \",\"\nNext",
+   "ok n2,n4,n5,n6,n7,n8,n9,"
+  ],
+  [
+   "For Each c In ws.Range(\"D2:D5\")\ni = i + 1\nIf i > 6 Then Exit For\ns = s & c.Address & \"|\"\nc.EntireRow.Insert\nNext\ns = s & ws.UsedRange.Address",
+   "ok $D$2|$D$4|$D$5|$D$6|$D$7|$D$8|$A$1:$E$15"
+  ],
+  [
+   "For Each c In ws.Range(\"D2:D5\")\ns = s & c.Address\nc.Delete xlShiftUp\nNext",
+   "ok $D$2$D$3"
+  ],
+  [
+   "For Each c In ws.Range(\"D2:D5\")\ns = s & c.Value & \",\"\nIf c.Value = 3 Then ws.Rows(4).Delete\nNext",
+   "ok 2,3,5,"
+  ],
+  [
+   "For Each c In ws.Range(\"A2:A9\").Rows\nIf c.Row Mod 2 = 0 Then c.EntireRow.Delete\ns = s & c.Row & \"|\"\nNext",
+   "Err 424 "
+  ],
+  [
+   "For Each c In ws.Range(\"A:B\").Columns\ns = s & c.Address & \"|\"\nc.Delete\nNext",
+   "ok $A:$A|"
+  ],
+  [
+   "For Each c In ws.Range(\"A2:A4,C2:C3\")\ns = s & c.Address & \"|\"\nws.Rows(1).Insert\nNext",
+   "ok $A$2|$A$4|$A$6|$C$5|$C$7|"
+  ],
+  [
+   "Set r = ws.Range(\"A2:A4\")\nFor Each c In r\nr.Rows(1).EntireRow.Delete\ns = s & \"|\"\nNext\ns = s & r.Address",
+   "ok ||$A$2"
+  ],
+  [
+   "ws.Activate\nws.Range(\"B3\").Select\nSet r = Selection\nws.Rows(1).Insert\ns = r.Address & Selection.Address & ActiveCell.Address",
+   "ok $B$4$B$3$B$3"
+  ],
+  [
+   "For Each c In ws.Range(\"A2:A4\")\nc.Cut ws.Cells(c.Row + 20, 8)\ns = s & c.Address & \"|\"\nNext",
+   "ok $H$22|$H$23|$H$24|"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nws.Range(\"B3\").Cut ws.Range(\"H1\")\nws.Range(\"H1\").Cut ws.Range(\"J2\")\ns = r.Address",
+   "ok $J$2"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nws.Rows(3).Delete\nOn Error Resume Next\ns = (r Is Nothing) & TypeName(r)\nSet q = r\ns = s & Err.Number\nErr.Clear\nSet q = r.Offset(1)\ns = s & Err.Number\nErr.Clear\nv = r.Value\ns = s & Err.Number\nErr.Clear\nr.Value = 1\ns = s & Err.Number\nErr.Clear\nFor Each c In r\ns = s & \"in\"\nNext\ns = s & Err.Number & IsObject(r)\nErr.Clear\ns = s & IsError(r) & IsEmpty(r) & (ws.Range(\"A1\").Address = \"x\")",
+   "ok FalseRange0424424424in92TrueFalseFalseFalse"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nws.Rows(3).Delete\nOn Error Resume Next\nws.Range(\"A1\").Value = r\ns = Err.Number & Err.Description",
+   "ok 1004Application-defined or object-defined error"
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nws.Rows(3).Delete\nws.Rows(3).Insert\nOn Error Resume Next\ns = r.Address & Err.Number",
+   "ok "
+  ],
+  [
+   "Set r = ws.Range(\"B3\")\nSet q = ws.Range(\"B3\")\ns = (r Is q)\nws.Rows(1).Insert\ns = s & (r Is q) & r.Address & q.Address",
+   "ok FalseFalse$B$4$B$4"
+  ],
+  [
+   "Dim wb2 As Object\nSet r = ws.Range(\"B3\")\nSet wb2 = ws.Parent\nws.Copy After:=wb2.Worksheets(wb2.Worksheets.Count)\ns = r.Worksheet.Name & r.Address",
+   "ok Sheet1$B$3"
+  ]
+ ]
+}

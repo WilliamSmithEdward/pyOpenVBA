@@ -1,0 +1,350 @@
+{
+ "measured_at": "2026-11-03T16:52:43.544759+00:00",
+ "reads": [
+  "p.Address",
+  "q.Address",
+  "e.Address",
+  "w.Address",
+  "p.Worksheet.Name",
+  "p.Value",
+  "q.Count",
+  "TypeName(p)",
+  "p Is Nothing",
+  "p.Row",
+  "q.Rows.Count",
+  "p.Offset(1).Address"
+ ],
+ "source": "Private Function Fill(ByVal wb As Object) As Object\n    Dim ws As Object, i As Long\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:E1\").Value = Array(\"Name\", \"Team\", \"Unit\", \"Qty\", \"Cost\")\n    For i = 2 To 9\n        ws.Cells(i, 1).Value = \"n\" & i: ws.Cells(i, 2).Value = \"t\" & i: ws.Cells(i, 3).Value = \"u\" & i\n        ws.Cells(i, 4).Value = i: ws.Cells(i, 5).Value = i * 2\n    Next\n    Set Fill = ws\nEnd Function\n\nPublic Function Moved(ByVal edit As Long) As String\n    Dim wb As Object, ws As Object, wo As Object, p As Object, q As Object, e As Object, w As Object, v As String, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets.Add After:=wb.Worksheets(1)\n    Set ws = Fill(wb)\n    Set wo = wb.Worksheets(2)\n    Set p = ws.Range(\"B3\")\n    Set q = ws.Range(\"B3:C5\")\n    Set e = ws.Rows(3)\n    Set w = ws.Columns(2)\n    On Error GoTo Failed\n    Select Case edit\n    Case 0\n        ws.Rows(1).Insert\n    Case 1\n        ws.Rows(3).Insert\n    Case 2\n        ws.Rows(5).Insert\n    Case 3\n        ws.Rows(\"2:3\").Insert\n    Case 4\n        ws.Rows(9).Insert\n    Case 5\n        ws.Rows(1).Delete\n    Case 6\n        ws.Rows(3).Delete\n    Case 7\n        ws.Rows(4).Delete\n    Case 8\n        ws.Rows(\"3:4\").Delete\n    Case 9\n        ws.Rows(\"2:6\").Delete\n    Case 10\n        ws.Rows(\"1:2\").Delete\n    Case 11\n        ws.Rows(9).Delete\n    Case 12\n        ws.Columns(1).Insert\n    Case 13\n        ws.Columns(2).Insert\n    Case 14\n        ws.Columns(3).Insert\n    Case 15\n        ws.Columns(1).Delete\n    Case 16\n        ws.Columns(2).Delete\n    Case 17\n        ws.Columns(\"B:C\").Delete\n    Case 18\n        ws.Columns(\"A:D\").Delete\n    Case 19\n        ws.Range(\"B1\").Insert xlShiftDown\n    Case 20\n        ws.Range(\"B3\").Insert xlShiftDown\n    Case 21\n        ws.Range(\"A3\").Insert xlShiftDown\n    Case 22\n        ws.Range(\"B1\").Insert xlShiftToRight\n    Case 23\n        ws.Range(\"A3\").Insert xlShiftToRight\n    Case 24\n        ws.Range(\"B3\").Insert xlShiftToRight\n    Case 25\n        ws.Range(\"B1\").Delete xlShiftUp\n    Case 26\n        ws.Range(\"B3\").Delete xlShiftUp\n    Case 27\n        ws.Range(\"A1\").Delete xlShiftToLeft\n    Case 28\n        ws.Range(\"A3\").Delete xlShiftToLeft\n    Case 29\n        ws.Range(\"B3\").Delete xlShiftToLeft\n    Case 30\n        ws.Range(\"B3:C4\").Delete xlShiftUp\n    Case 31\n        ws.Range(\"B3:C4\").Insert xlShiftDown\n    Case 32\n        ws.Range(\"A1:E1\").Delete xlShiftUp\n    Case 33\n        ws.Range(\"B3\").Cut ws.Range(\"H1\")\n    Case 34\n        ws.Range(\"B3:C4\").Cut ws.Range(\"H1\")\n    Case 35\n        ws.Range(\"B2:C5\").Cut ws.Range(\"H1\")\n    Case 36\n        ws.Range(\"A1\").Cut ws.Range(\"B3\")\n    Case 37\n        ws.Range(\"B3\").Copy ws.Range(\"H1\")\n    Case 38\n        ws.Range(\"B3\").Clear\n    Case 39\n        ws.Range(\"B3:C4\").ClearContents\n    Case 40\n        ws.Sort.SortFields.Clear\n    Case 41\n        ws.Range(\"A1:E9\").Sort ws.Range(\"A1\"), xlDescending\n    Case 42\n        ws.Range(\"B3\").Value = 1\n    Case 43\n        ws.Name = \"Moved\"\n    Case 44\n        wo.Move\n    Case 45\n        ws.Move After:=wb.Worksheets(wb.Worksheets.Count)\n    Case 46\n        wb.Worksheets.Add Before:=ws\n    Case 47\n        ws.Delete\n    End Select\n    s = \"ok \"\nAnswered:\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = p.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = q.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = e.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = w.Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = p.Worksheet.Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = p.Value\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = q.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(p)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = p Is Nothing\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = p.Row\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = q.Rows.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    Err.Clear\n    v = \"\"\n    v = p.Offset(1).Address\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    On Error GoTo 0\n    wb.Close False\n    Application.DisplayAlerts = True\n    Moved = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \"\n    Resume Answered\nEnd Function\n\nPublic Function Charted(ByVal which As Long) As String\n    Dim wb As Object, ws As Object, ch As Object, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = Fill(wb)\n    ws.Range(\"H20\").Select\n    If which < 100 Then Set ch = ws.ChartObjects.Add(10, 10, 200, 100).Chart\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ch.SetSourceData ws.Range(\"A1:A9,D1:D9\")\n    Case 1\n        ch.SetSourceData ws.Range(\"A1:A9,D1:E9\")\n    Case 2\n        ch.SetSourceData ws.Range(\"A2:A9,D2:D9\")\n    Case 3\n        ch.SetSourceData ws.Range(\"D1:D9,E1:E9\")\n    Case 4\n        ch.SetSourceData ws.Range(\"A1:B9,D1:D9\")\n    Case 5\n        ch.SetSourceData ws.Range(\"A1:E1,A3:E3\")\n    Case 6\n        ch.SetSourceData ws.Range(\"A1:E1,A3:E4\")\n    Case 7\n        ch.SetSourceData ws.Range(\"A1:A5,D1:D9\")\n    Case 8\n        ch.SetSourceData ws.Range(\"A1:A9,D3:D9\")\n    Case 9\n        ch.SetSourceData ws.Range(\"D1:D9,A1:A9\")\n    Case 10\n        ch.SetSourceData ws.Range(\"E1:E9,A1:A9,D1:D9\")\n    Case 11\n        ch.SetSourceData ws.Range(\"A1,D1\")\n    Case 12\n        ch.SetSourceData ws.Range(\"A1:A9,D1:D9,B1:B9\")\n    Case 13\n        ch.SetSourceData ws.Range(\"A1:A9,A1:A9\")\n    Case 14\n        ch.SetSourceData ws.Range(\"D2:D9,E2:E9\")\n    Case 15\n        ch.SetSourceData ws.Range(\"A:A,D:D\")\n    Case 16\n        ch.SetSourceData ws.Range(\"1:1,3:3\")\n    Case 100\n        ws.Range(\"A1:A9,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 101\n        ws.Range(\"A1:A9,D1:E9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 102\n        ws.Range(\"A2:A9,D2:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 103\n        ws.Range(\"D1:D9,E1:E9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 104\n        ws.Range(\"A1:B9,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 105\n        ws.Range(\"A1:E1,A3:E3\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 106\n        ws.Range(\"A1:E1,A3:E4\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 107\n        ws.Range(\"A1:A5,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 108\n        ws.Range(\"A1:A9,D3:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 109\n        ws.Range(\"D1:D9,A1:A9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 110\n        ws.Range(\"E1:E9,A1:A9,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 111\n        ws.Range(\"A1,D1\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 112\n        ws.Range(\"A1:A9,D1:D9,B1:B9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 113\n        ws.Range(\"A1:A9,A1:A9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 114\n        ws.Range(\"D2:D9,E2:E9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 115\n        ws.Range(\"A:A,D:D\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Case 116\n        ws.Range(\"1:1,3:3\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    End Select\n    s = \"ok \" & ch.SeriesCollection.Count & \" \" & ch.PlotBy\n    For i = 1 To ch.SeriesCollection.Count\n        s = s & \"|\" & ch.SeriesCollection(i).Formula\n    Next\nAnswered:\n    On Error GoTo 0\n    wb.Close False\n    Application.DisplayAlerts = True\n    Charted = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Answered\nEnd Function\n",
+ "moved": [
+  [
+   "ws.Rows(1).Insert",
+   "ok |$B$4|$B$4:$C$6|$4:$4|$B:$B|Sheet1|t3|6|Range|False|4|3|$B$5"
+  ],
+  [
+   "ws.Rows(3).Insert",
+   "ok |$B$4|$B$4:$C$6|$4:$4|$B:$B|Sheet1|t3|6|Range|False|4|3|$B$5"
+  ],
+  [
+   "ws.Rows(5).Insert",
+   "ok |$B$3|$B$3:$C$6|$3:$3|$B:$B|Sheet1|t3|8|Range|False|3|4|$B$4"
+  ],
+  [
+   "ws.Rows(\"2:3\").Insert",
+   "ok |$B$5|$B$5:$C$7|$5:$5|$B:$B|Sheet1|t3|6|Range|False|5|3|$B$6"
+  ],
+  [
+   "ws.Rows(9).Insert",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Rows(1).Delete",
+   "ok |$B$2|$B$2:$C$4|$2:$2|$B:$B|Sheet1|t3|6|Range|False|2|3|$B$3"
+  ],
+  [
+   "ws.Rows(3).Delete",
+   "ok |E424|$B$3:$C$4|E424|$B:$B|E424|E424|4|Range|False|E424|2|E424"
+  ],
+  [
+   "ws.Rows(4).Delete",
+   "ok |$B$3|$B$3:$C$4|$3:$3|$B:$B|Sheet1|t3|4|Range|False|3|2|$B$4"
+  ],
+  [
+   "ws.Rows(\"3:4\").Delete",
+   "ok |E424|$B$3:$C$3|E424|$B:$B|E424|E424|2|Range|False|E424|1|E424"
+  ],
+  [
+   "ws.Rows(\"2:6\").Delete",
+   "ok |E424|E424|E424|$B:$B|E424|E424|E424|Range|False|E424|E424|E424"
+  ],
+  [
+   "ws.Rows(\"1:2\").Delete",
+   "ok |$B$1|$B$1:$C$3|$1:$1|$B:$B|Sheet1|t3|6|Range|False|1|3|$B$2"
+  ],
+  [
+   "ws.Rows(9).Delete",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Columns(1).Insert",
+   "ok |$C$3|$C$3:$D$5|$3:$3|$C:$C|Sheet1|t3|6|Range|False|3|3|$C$4"
+  ],
+  [
+   "ws.Columns(2).Insert",
+   "ok |$C$3|$C$3:$D$5|$3:$3|$C:$C|Sheet1|t3|6|Range|False|3|3|$C$4"
+  ],
+  [
+   "ws.Columns(3).Insert",
+   "ok |$B$3|$B$3:$D$5|$3:$3|$B:$B|Sheet1|t3|9|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Columns(1).Delete",
+   "ok |$A$3|$A$3:$B$5|$3:$3|$A:$A|Sheet1|t3|6|Range|False|3|3|$A$4"
+  ],
+  [
+   "ws.Columns(2).Delete",
+   "ok |E424|$B$3:$B$5|$3:$3|E424|E424|E424|3|Range|False|E424|3|E424"
+  ],
+  [
+   "ws.Columns(\"B:C\").Delete",
+   "ok |E424|E424|$3:$3|E424|E424|E424|E424|Range|False|E424|E424|E424"
+  ],
+  [
+   "ws.Columns(\"A:D\").Delete",
+   "ok |E424|E424|$3:$3|E424|E424|E424|E424|Range|False|E424|E424|E424"
+  ],
+  [
+   "ws.Range(\"B1\").Insert xlShiftDown",
+   "ok |$B$4|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|4|3|$B$5"
+  ],
+  [
+   "ws.Range(\"B3\").Insert xlShiftDown",
+   "ok |$B$4|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|4|3|$B$5"
+  ],
+  [
+   "ws.Range(\"A3\").Insert xlShiftDown",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Range(\"B1\").Insert xlShiftToRight",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Range(\"A3\").Insert xlShiftToRight",
+   "ok |$C$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$C$4"
+  ],
+  [
+   "ws.Range(\"B3\").Insert xlShiftToRight",
+   "ok |$C$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$C$4"
+  ],
+  [
+   "ws.Range(\"B1\").Delete xlShiftUp",
+   "ok |$B$2|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|2|3|$B$3"
+  ],
+  [
+   "ws.Range(\"B3\").Delete xlShiftUp",
+   "ok |E424|$B$3:$C$5|$3:$3|$B:$B|E424|E424|6|Range|False|E424|3|E424"
+  ],
+  [
+   "ws.Range(\"A1\").Delete xlShiftToLeft",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Range(\"A3\").Delete xlShiftToLeft",
+   "ok |$A$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$A$4"
+  ],
+  [
+   "ws.Range(\"B3\").Delete xlShiftToLeft",
+   "ok |E424|$B$3:$C$5|$3:$3|$B:$B|E424|E424|6|Range|False|E424|3|E424"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Delete xlShiftUp",
+   "ok |E424|$B$3:$C$3|$3:$3|$B:$B|E424|E424|2|Range|False|E424|1|E424"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Insert xlShiftDown",
+   "ok |$B$5|$B$5:$C$7|$3:$3|$B:$B|Sheet1|t3|6|Range|False|5|3|$B$6"
+  ],
+  [
+   "ws.Range(\"A1:E1\").Delete xlShiftUp",
+   "ok |$B$2|$B$2:$C$4|$3:$3|$B:$B|Sheet1|t3|6|Range|False|2|3|$B$3"
+  ],
+  [
+   "ws.Range(\"B3\").Cut ws.Range(\"H1\")",
+   "ok |$H$1|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|1|3|$H$2"
+  ],
+  [
+   "ws.Range(\"B3:C4\").Cut ws.Range(\"H1\")",
+   "ok |$H$1|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|1|3|$H$2"
+  ],
+  [
+   "ws.Range(\"B2:C5\").Cut ws.Range(\"H1\")",
+   "ok |$H$2|$H$2:$I$4|$3:$3|$B:$B|Sheet1|t3|6|Range|False|2|3|$H$3"
+  ],
+  [
+   "ws.Range(\"A1\").Cut ws.Range(\"B3\")",
+   "ok |E424|$B$3:$C$5|$3:$3|$B:$B|E424|E424|6|Range|False|E424|3|E424"
+  ],
+  [
+   "ws.Range(\"B3\").Copy ws.Range(\"H1\")",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Range(\"B3\").Clear",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1||6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Range(\"B3:C4\").ClearContents",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1||6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Sort.SortFields.Clear",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Range(\"A1:E9\").Sort ws.Range(\"A1\"), xlDescending",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t8|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Range(\"B3\").Value = 1",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|1|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Name = \"Moved\"",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Moved|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "wo.Move",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Move After:=wb.Worksheets(wb.Worksheets.Count)",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "wb.Worksheets.Add Before:=ws",
+   "ok |$B$3|$B$3:$C$5|$3:$3|$B:$B|Sheet1|t3|6|Range|False|3|3|$B$4"
+  ],
+  [
+   "ws.Delete",
+   "ok |E424|E424|E424|E424|E424|E424|E424|Range|False|E424|E424|E424"
+  ]
+ ],
+ "charted": [
+  [
+   "ch.SetSourceData ws.Range(\"A1:A9,D1:D9\")",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:A9,D1:E9\")",
+   "ok 2 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)|=SERIES(Sheet1!$E$1,Sheet1!$A$2:$A$9,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A2:A9,D2:D9\")",
+   "ok 1 2|=SERIES(,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"D1:D9,E1:E9\")",
+   "ok 2 2|=SERIES(Sheet1!$D$1,,Sheet1!$D$2:$D$9,1)|=SERIES(Sheet1!$E$1,,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:B9,D1:D9\")",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$B$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:E1,A3:E3\")",
+   "ok 1 1|=SERIES(Sheet1!$A$3:$C$3,Sheet1!$D$1:$E$1,Sheet1!$D$3:$E$3,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:E1,A3:E4\")",
+   "ok 2 1|=SERIES(Sheet1!$A$3:$C$3,Sheet1!$D$1:$E$1,Sheet1!$D$3:$E$3,1)|=SERIES(Sheet1!$A$4:$C$4,Sheet1!$D$1:$E$1,Sheet1!$D$4:$E$4,2)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:A5,D1:D9\")",
+   "ok 2 0|=SERIES(Sheet1!$A$1:$A$4,,Sheet1!$A$5,1)|=SERIES(Sheet1!$D$1:$D$4,,Sheet1!$D$5:$D$9,2)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:A9,D3:D9\")",
+   "ok 1 2|=SERIES(Sheet1!$A$1:$A$8,,Sheet1!$A$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"D1:D9,A1:A9\")",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"E1:E9,A1:A9,D1:D9\")",
+   "ok 2 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)|=SERIES(Sheet1!$E$1,Sheet1!$A$2:$A$9,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1,D1\")",
+   "ok 1 1|=SERIES(Sheet1!$A$1,,Sheet1!$D$1,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:A9,D1:D9,B1:B9\")",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$B$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A1:A9,A1:A9\")",
+   "ok 1 0|=SERIES(Sheet1!$A$9,Sheet1!$A$1:$A$9,Sheet1!$A$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"D2:D9,E2:E9\")",
+   "ok 2 2|=SERIES(,,Sheet1!$D$2:$D$9,1)|=SERIES(,,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"A:A,D:D\")",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ch.SetSourceData ws.Range(\"1:1,3:3\")",
+   "ok 1 1|=SERIES(Sheet1!$A$3:$C$3,Sheet1!$D$1:$E$1,Sheet1!$D$3:$E$3,1)"
+  ],
+  [
+   "ws.Range(\"A1:A9,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ws.Range(\"A1:A9,D1:E9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 2 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)|=SERIES(Sheet1!$E$1,Sheet1!$A$2:$A$9,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ws.Range(\"A2:A9,D2:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 2|=SERIES(,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ws.Range(\"D1:D9,E1:E9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 2 2|=SERIES(Sheet1!$D$1,,Sheet1!$D$2:$D$9,1)|=SERIES(Sheet1!$E$1,,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ws.Range(\"A1:B9,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$B$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ws.Range(\"A1:E1,A3:E3\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 1|=SERIES(Sheet1!$A$3:$C$3,Sheet1!$D$1:$E$1,Sheet1!$D$3:$E$3,1)"
+  ],
+  [
+   "ws.Range(\"A1:E1,A3:E4\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 2 1|=SERIES(Sheet1!$A$3:$C$3,Sheet1!$D$1:$E$1,Sheet1!$D$3:$E$3,1)|=SERIES(Sheet1!$A$4:$C$4,Sheet1!$D$1:$E$1,Sheet1!$D$4:$E$4,2)"
+  ],
+  [
+   "ws.Range(\"A1:A5,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 2 0|=SERIES(Sheet1!$A$1:$A$4,,Sheet1!$A$5,1)|=SERIES(Sheet1!$D$1:$D$4,,Sheet1!$D$5:$D$9,2)"
+  ],
+  [
+   "ws.Range(\"A1:A9,D3:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 2|=SERIES(Sheet1!$A$1:$A$8,,Sheet1!$A$9,1)"
+  ],
+  [
+   "ws.Range(\"D1:D9,A1:A9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ws.Range(\"E1:E9,A1:A9,D1:D9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 2 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)|=SERIES(Sheet1!$E$1,Sheet1!$A$2:$A$9,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ws.Range(\"A1,D1\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 1|=SERIES(Sheet1!$A$1,,Sheet1!$D$1,1)"
+  ],
+  [
+   "ws.Range(\"A1:A9,D1:D9,B1:B9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$B$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ws.Range(\"A1:A9,A1:A9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 0|=SERIES(Sheet1!$A$9,Sheet1!$A$1:$A$9,Sheet1!$A$9,1)"
+  ],
+  [
+   "ws.Range(\"D2:D9,E2:E9\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 2 2|=SERIES(,,Sheet1!$D$2:$D$9,1)|=SERIES(,,Sheet1!$E$2:$E$9,2)"
+  ],
+  [
+   "ws.Range(\"A:A,D:D\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 2|=SERIES(Sheet1!$D$1,Sheet1!$A$2:$A$9,Sheet1!$D$2:$D$9,1)"
+  ],
+  [
+   "ws.Range(\"1:1,3:3\").Select: Set ch = ws.Shapes.AddChart2(201, xlColumnClustered).Chart",
+   "ok 1 1|=SERIES(Sheet1!$A$3:$C$3,Sheet1!$D$1:$E$1,Sheet1!$D$3:$E$3,1)"
+  ]
+ ]
+}

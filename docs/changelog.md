@@ -15,6 +15,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Chart data from several areas with the same rows or columns, through `SetSourceData` and `AddChart2`'s selection, and
+  `AdvancedFilter` over a whole column.
 - `ListObject.Unlist`, which turns a table into cells: each of the 60 built-in styles becomes the cells' own formats
   beneath what was set on them, and formulas naming the table name its cells. Compared with Excel for every style
   under four sets of the table's options.
@@ -848,6 +850,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A Range now follows its cells however it is held, by a variable, a `With` block, an argument or a collection, through
+  rows and columns inserted or deleted, cells shifted and `Cut`, and raises 424 once they have gone. It used to stay at
+  its old address. `For Each` over a range counts through it as it stands at each step, as Excel does, so deleting rows
+  in the loop skips some, and inserting one above the current cell can go on for ever.
+- `AdvancedFilter` with no criteria uses the ones last given on the sheet.
 - `Range.Cut` through a table. A block holding a whole table now takes the table along, to another sheet too, where it
   used to leave the table behind. Cells cut out of a table keep the look its style gave them, the header row names its
   columns afresh, and cells landing beside a table make it grow.

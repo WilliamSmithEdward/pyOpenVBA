@@ -151,6 +151,7 @@ def main() -> None:
     if excel is not None:
         excel.__exit__(None, None, None)
     OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(),
+                               'source': module(list(range(len(cases))), cases),
                                'cases': [[*cases[number], answers[number]] for number in range(len(cases))]},
                               indent=0) + '\n', encoding='utf-8')
 

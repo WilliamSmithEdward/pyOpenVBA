@@ -1,6 +1,7 @@
 """The error a collection's Item raises for each kind of index, late bound (tests/fixtures/collection_items.json). No rule
 gives these: Sheets answers 13 for Null and Names 1004, and an out-of-range index is 9, 1004 or something else by class.
-A kind is listed only where every way of reaching the class agrees; otherwise the class's own lookup answers."""
+A kind is listed only where every way of reaching the class agrees; otherwise the class's own lookup answers. A chart's
+Points and series are left out: o.Item(x) on an Object answers otherwise than sr.Points(x), which their own fixtures hold."""
 from __future__ import annotations
 
 from pyopenvba.interpreter._objects import VBAObject
@@ -38,8 +39,6 @@ ITEM_ERRORS: dict[str, dict[str, int]] = {
         'empty': 9, 'null': 13, 'true': 9, 'object': 13},
     'FormatConditions': {'missing': 450, 'past': 9, 'zero': 9, 'negative': 9, 'lacking': 9, 'blank': 9, 'empty': 9,
         'null': 9, 'true': 9, 'object': 9},
-    'FullSeriesCollection': {'missing': 450, 'past': 1004, 'zero': 1004, 'negative': 1004, 'lacking': 13,
-        'blank': 13, 'empty': 1004, 'null': 13, 'true': 1004, 'object': 13},
     'GroupShapes': {'missing': 450, 'past': 1004, 'zero': 1004, 'negative': 1004, 'text': 1004, 'lacking': 1004,
         'blank': 1004, 'empty': 1004, 'null': 1004, 'true': 1004, 'object': 1004},
     'HPageBreaks': {'missing': 450, 'past': 9, 'zero': 9, 'negative': 9, 'fraction': 9, 'lacking': 13, 'blank': 13,
@@ -75,14 +74,10 @@ ITEM_ERRORS: dict[str, dict[str, int]] = {
         'blank': 1004, 'empty': 1004, 'null': 1004, 'object': 1004},
     'PivotTables': {'missing': 449, 'past': 1004, 'zero': 1004, 'negative': 1004, 'text': 1004, 'lacking': 1004,
         'blank': 1004, 'empty': 1004, 'null': 1004, 'object': 1004},
-    'Points': {'missing': 450, 'past': -2147467259, 'zero': -2147467259, 'negative': -2147467259, 'lacking': 13,
-        'blank': 13, 'empty': -2147467259, 'null': 13, 'true': -2147467259, 'object': 13},
     'Queries': {'missing': 450, 'past': -2147352565, 'zero': -2147352565, 'negative': -2147352565,
         'fraction': -2147352565, 'text': -2147319765, 'lacking': -2147319765, 'blank': -2147319765, 'empty': -2147352565, 'null': 13, 'true': -2147352565, 'object': 13},
     'Scenarios': {'missing': 449, 'past': 1004, 'zero': 1004, 'negative': 1004, 'text': 1004, 'lacking': 1004,
         'blank': 1004, 'empty': 1004, 'object': 1004},
-    'SeriesCollection': {'missing': 450, 'past': 1004, 'zero': 1004, 'negative': 1004, 'lacking': 13, 'blank': 13,
-        'empty': 1004, 'null': 13, 'true': 1004, 'object': 13},
     'ShapeRange': {'missing': 450, 'past': -2147352565, 'zero': -2147352565, 'negative': -2147352565,
         'fraction': -2147352565, 'text': -2147352565, 'lacking': -2147352565, 'blank': -2147352565, 'empty': -2147352565, 'null': -2147352565, 'true': -2147352565, 'object': -2147352565},
     'Shapes': {'missing': 450, 'past': -2147024809, 'zero': -2147024809, 'negative': -2147024809,

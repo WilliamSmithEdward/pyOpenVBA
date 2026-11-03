@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import pytest
@@ -12,7 +11,6 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / 'scripts'))
 RECORD = json.loads((ROOT / 'tests/fixtures/collection_items.json').read_text(encoding='utf-8'))
 #: Collections whose answers the model does not all reproduce yet: an index it reads otherwise, or a member it lacks.
 #: Their checklist rows stay PARTIAL.
@@ -25,12 +23,9 @@ CASES = [(number, *case) for number, case in enumerate(RECORD['cases']) if case[
 
 @pytest.fixture(scope='module')
 def app() -> ExcelApplication:
-    import measure_collection_items as probe  # noqa: PLC0415 - the script holds the probe's source
-
-    cases = [tuple(one[:3]) for one in RECORD['cases']]
     made = ExcelApplication(sandbox=False)
     made.add_workbook()
-    made.add_module(probe.module(list(range(len(cases))), cases), name='Items')
+    made.add_module(RECORD['source'], name='Items')
     made.run('Items.Setup')
     return made
 

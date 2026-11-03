@@ -4,12 +4,14 @@ tests/fixtures/range_tracking.json, tests/fixtures/range_holding.json)."""
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/range_tracking.json').read_text(encoding='utf-8'))
@@ -59,3 +61,38 @@ def holding() -> ExcelApplication:
 @pytest.mark.parametrize('index', KEPT, ids=[HOLDING['cases'][index][0] for index in KEPT])
 def test_however_a_range_is_held_as_excel_had_it(holding: ExcelApplication, index: int) -> None:
     assert str(holding.run('HoldProbe.Held', index)) == HOLDING['cases'][index][1]
+
+
+AUDIT: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/range_audit.json').read_text(encoding='utf-8'))
+
+
+@pytest.fixture(scope='module')
+def audit() -> ExcelApplication:
+    made = ExcelApplication(sandbox=False)
+    made.add_workbook()
+    made.add_module(AUDIT['source'], name='AuditProbe')
+    return made
+
+
+# A copy of cells into whole columns would fill a million cells each.
+FILLS_COLUMNS = {
+    index for index, (case, _) in enumerate(AUDIT['cases'])
+    if re.search(r'Range\("[^"]+"\)\.Copy\s+On Error Resume Next\s+ws\.Columns\([^)]*\)\.Insert', case)
+    and not AUDIT['cases'][index][1].startswith('ok |1004') and not AUDIT['cases'][index][1].startswith('ok 1004')
+}
+
+
+@pytest.mark.parametrize('index', sorted(set(range(len(AUDIT['cases']))) - FILLS_COLUMNS))
+def test_what_keeps_a_range_as_excel_had_it(audit: ExcelApplication, index: int) -> None:
+    assert str(audit.run('AuditProbe.Audit', index)) == AUDIT['cases'][index][1]
+
+
+def test_filling_whole_columns_with_copied_cells_says_it_is_not_implemented() -> None:
+    assert len(FILLS_COLUMNS) >= 8
+    for index in FILLS_COLUMNS:
+        made = ExcelApplication(sandbox=False)
+        made.add_workbook()
+        made.add_module(AUDIT['source'], name='AuditProbe')
+        with pytest.raises(VBAUnsupportedError, match='whole columns'):
+            made.run('AuditProbe.Audit', index)
+

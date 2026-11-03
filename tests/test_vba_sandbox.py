@@ -30,6 +30,10 @@ WRITES_OR_READS = [
     'Workbooks.Open folder & "/not there.xlsx"',
     'Workbooks.OpenText folder & "/there.csv"',
     'ActiveSheet.SetBackgroundPicture folder & "/there.png"',
+    'ActiveWorkbook.Connections.AddFromFile folder & "/there.png"',
+    'Workbooks.CheckOut folder & "/there.xlsx"',
+    'Workbooks.OpenXML folder & "/there.xlsx"',
+    'Workbooks.OpenDatabase folder & "/there.xlsx"',
 ]
 NOT_YET = [
     'x = Shell("cmd")',

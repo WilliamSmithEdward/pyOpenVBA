@@ -10,17 +10,23 @@ Power Query connection and on a new one, which holds none:
   connection's settings from their attributes, keepAlive as MaintainConnection; ODBCConnection, TextConnection,
   ModelConnection and WorksheetDataConnection are error 1004 there.
 
-The model refreshes, adds and changes no connection: each reports itself unsupported, as does a connection of
-another type.
+Connections.Add2 adds an OLE DB or ODBC connection and Delete takes one away, each named and described as asked, with
+Excel's rules for a name there already and for a connection string it does not take
+(scripts/measure_connection_members.py, tests/fixtures/connection_members.json). A workbook keeps these for the session;
+saving one reports itself.
+
+The model refreshes no connection, and it reports itself unsupported, as does a connection of another type.
 """
 from __future__ import annotations
 
+import xml.etree.ElementTree as ElementTree
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import MemberSpec, VBACollection, member
-from pyopenvba.interpreter._values import VBAInt, error, to_integer
+from pyopenvba.interpreter._objects import MemberSpec, VBACollection, member, method, setter
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -37,9 +43,14 @@ def entries(book: Workbook) -> list[XmlElement]:
     from pyopenvba.apps.excel._charts_file import xml_tree
 
     package = book.package
-    if package is None or not package.has(PART):
-        return []
-    return list(xml_tree(package.read(PART)).findall(NS + 'connection'))
+    read = [] if package is None or not package.has(PART) else xml_tree(package.read(PART)).findall(NS + 'connection')
+    return [entry for entry in read if entry.get('name', '') not in book.connections_deleted] + book.connections_added
+
+
+def refuse_changed(book: Workbook) -> None:
+    """Report a connection a save would have to add or take away."""
+    if book.connections_added or book.connections_deleted:
+        raise VBAUnsupportedError('saving a data connection a macro added or deleted is not implemented')
 
 
 class Connections(VBACollection, ExcelObject):
@@ -59,6 +70,44 @@ class Connections(VBACollection, ExcelObject):
                     return item
             raise error(9, 'Subscript out of range')
         return super().vba_lookup(index, items)
+
+    @method
+    def Add2(self, Name: object = MISSING, Description: object = MISSING, ConnectionString: object = MISSING,
+             CommandText: object = MISSING, lCmdtype: object = MISSING, CreateModelConnection: object = MISSING,
+             ImportRelationships: object = MISSING) -> object:
+        """A new connection. An empty name is Connection; one there already, in any case, takes the next number."""
+        if MISSING in (Name, Description, ConnectionString, CommandText, lCmdtype):
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        if CreateModelConnection is not MISSING or ImportRelationships is not MISSING:
+            raise VBAUnsupportedError('Connections.Add2 into the data model is not implemented')
+        prefix, _, rest = to_text(ConnectionString).partition(';')
+        kind = {'OLEDB': '5', 'ODBC': '1'}.get(prefix.upper())
+        command_type = int(to_integer(lCmdtype, 'Long'))
+        if kind is None or not 1 <= command_type <= 8:
+            raise error(5, 'Invalid procedure call or argument')
+        taken = {entry.get('name', '').casefold() for entry in entries(self.book)}
+        base = to_text(Name) or 'Connection'
+        name, number = base, 0
+        while name.casefold() in taken:
+            number += 1
+            name = f'{base}{number}'
+        entry = ElementTree.Element(NS + 'connection', {'name': name, 'description': to_text(Description), 'type': kind,
+                                                        'background': '1', 'added': '1'})
+        ElementTree.SubElement(entry, NS + 'dbPr', {'connection': rest, 'command': to_text(CommandText),
+                                                    'commandType': str(command_type)})
+        self.book.connections_added.append(entry)
+        self.book.saved = False
+        return WorkbookConnection(self.book, entry)
+
+    @method
+    def AddFromFile(self, Filename: object = MISSING, CreateModelConnection: object = MISSING,
+                    ImportRelationships: object = MISSING) -> object:
+        self.book.application.outside('Connections.AddFromFile')
+        if Filename is MISSING:
+            raise error(449, 'Argument not optional')
+        if Path(to_text(Filename)).is_file():
+            raise VBAUnsupportedError('Connections.AddFromFile of a connection file is not implemented')
+        raise error(-2147417848, "Method 'AddFromFile' of object 'Connections' failed")
 
     @member
     def Parent(self) -> object:
@@ -89,17 +138,56 @@ class WorkbookConnection(ExcelObject):
     def Application(self) -> object:
         return self.book.application
 
-    @member
+    def _added(self) -> None:
+        if self.entry not in self.book.connections_added:
+            raise VBAUnsupportedError("changing a data connection a file holds is not implemented")
+
+    @member(default=True)
     def Name(self) -> object:
         return self.entry.get('name', '')
+
+    @setter('Name')
+    def _set_name(self, value: object) -> None:
+        self._added()
+        self.entry.set('name', to_text(value))
 
     @member
     def Description(self) -> object:
         return self.entry.get('description', '')
 
+    @setter('Description')
+    def _set_description(self, value: object) -> None:
+        self._added()
+        self.entry.set('description', to_text(value))
+
     @member
     def Type(self) -> object:
+        if self.entry.get('type') == '1':
+            return VBAInt(2, 'Long')
         return VBAInt(self._type(), 'Long')
+
+    @method
+    def Delete(self) -> object:
+        if self.entry in self.book.connections_added:
+            self.book.connections_added.remove(self.entry)
+        else:
+            self.book.connections_deleted.add(self.entry.get('name', ''))
+        self.book.saved = False
+        return EMPTY
+
+    @member
+    def Ranges(self) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        return EmptyCollection(self.book, self.book, 'Ranges', set())
+
+    @member
+    def DataFeedConnection(self) -> object:
+        raise error(1004)
+
+    @member
+    def ModelTables(self) -> object:
+        raise error(1004)
 
     @member
     def OLEDBConnection(self) -> object:
@@ -205,6 +293,38 @@ class OLEDBConnection(ExcelObject):
         return False
 
     @member
+    def OLAP(self) -> object:
+        return False
+
+    @member
+    def Refreshing(self) -> object:
+        return False
+
+    @member
+    def RobustConnect(self) -> object:
+        return VBAInt(0, 'Long')
+
+    @member
+    def ServerSSOApplicationID(self) -> object:
+        return ''
+
+    @member
+    def SourceDataFile(self) -> object:
+        return ''
+
+    @method
+    def CancelRefresh(self) -> object:
+        raise error(1004, 'Not currently refreshing.')
+
+    @method
+    def Reconnect(self) -> object:
+        return EMPTY
+
+    @method
+    def MakeConnection(self) -> object:
+        raise error(1004)
+
+    @member
     def UseLocalConnection(self) -> object:
         return False
 
@@ -221,10 +341,25 @@ for _name, _attribute, _default in (('BackgroundQuery', 'background', False),
     OLEDBConnection.vba_add_member(MemberSpec(name=_name, kind='property', getter=_spec.getter, setter=_spec.setter))
 
 
+def _failing(name: str, number: int) -> MemberSpec:
+    """A member that fails on a connection that is not to a data cube, or was never refreshed."""
+    def get(connection: OLEDBConnection) -> object:
+        raise error(number)
+
+    return MemberSpec(name=name, kind='property', getter=get)
+
+
+for _name, _number in (('LocaleID', 1004), ('MaxDrillthroughRecords', 1004), ('RetrieveInOfficeUILang', 1004),
+                       ('RefreshDate', 1004), ('ADOConnection', 1004), ('CalculatedMembers', 1004),
+                       ('ServerFillColor', 5), ('ServerFontStyle', 5), ('ServerNumberFormat', 5),
+                       ('ServerTextColor', 5)):
+    OLEDBConnection.vba_add_member(_failing(_name, _number))
+
+
 def _enable_refresh() -> MemberSpec:
     def get(connection: OLEDBConnection) -> object:
-        """True: a connection element has no attribute that turns refreshing off."""
-        return True
+        """True: a connection element has no attribute that turns refreshing off. A connection a macro added is off."""
+        return connection.connection.entry.get('added') != '1'
 
     def put(connection: OLEDBConnection, value: object) -> None:
         raise VBAUnsupportedError("changing a data connection's settings is not implemented")

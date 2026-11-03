@@ -1092,7 +1092,7 @@ ErrorBars,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 ErrorBars,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
 ErrorBars,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
 ErrorBars,EndStyle,property,As XlEndStyleCap,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
-ErrorBars,Format,"property, read-only",As ChartFormat,,MISSING,,
+ErrorBars,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_line_format.json; tests/test_excel_chart_line_format.py,"Its Line. Theme colours, arrowheads, and effects are refused; Fill raises as in Excel."
 ErrorBars,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 ErrorBars,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
 ErrorBars,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
@@ -2920,7 +2920,7 @@ Trendline,DataLabel,"property, read-only",As DataLabel,,MISSING,,
 Trendline,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,DisplayEquation,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,DisplayRSquared,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
-Trendline,Format,"property, read-only",As ChartFormat,,MISSING,,
+Trendline,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_line_format.json; tests/test_excel_chart_line_format.py,"Its Line. Theme colours, arrowheads, and effects are refused; Fill raises as in Excel."
 Trendline,Forward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Forward2,property,As Double,,MISSING,,
 Trendline,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,

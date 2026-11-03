@@ -64,10 +64,11 @@ def accent_colour(theme: tuple[str, ...], place: int) -> str:
 
 def plain_line(look: FillLine) -> str:
     """A line as Excel writes what was set of it."""
-    if look.line_rgb is None and look.line_width is None and look.line_dash is None:
+    if look.line_rgb is None and look.line_width is None and look.line_dash is None and look.line_compound is None:
         return ""
     attributes = ("" if look.line_width is None else f' w="{look.line_width}"') + (
-        "" if look.line_cap is None else f' cap="{look.line_cap}"')
+        "" if look.line_cap is None else f' cap="{look.line_cap}"') + (
+        "" if look.line_compound is None else f' cmpd="{look.line_compound}"')
     inside = ("<a:noFill/>" if look.line_off else "" if look.line_rgb is None else _solid(look.line_rgb)) + (
         "" if look.line_dash is None else f'<a:prstDash val="{look.line_dash}"/>')
     return f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"

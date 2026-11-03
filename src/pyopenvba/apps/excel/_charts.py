@@ -1430,6 +1430,10 @@ class Chart(Created):
         for entry in state.series:
             entry.format_look = None
             entry.points.clear()
+            for line in entry.trendlines:
+                line.look = FillLine()
+            for bar in entry.error_bars:
+                bar.look = FillLine()
         return True
 
     @method

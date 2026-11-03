@@ -15,6 +15,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Format.Line` on a trendline and on error bars: `ForeColor.RGB`, `Weight`, all
+  twelve `DashStyle` values, `Style`, and hiding with `Visible`. It shares its look
+  with their `Border`. `Format.Fill` raises the error Excel raises, since a line has
+  no fill. Theme colours, arrowheads, transparency on a line with a look, showing a
+  hidden line again, and a line's shadow, glow and soft edge are refused.
 - `Border` on a trendline and on error bars. Error bars refuse to hide their line, as
   Excel's do, raising an error for `LineStyle` or `ColorIndex` set to `xlNone`.
 - `Border` on a chart's axes, gridlines, series, points, chart area, plot area,

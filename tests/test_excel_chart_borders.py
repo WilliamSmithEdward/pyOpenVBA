@@ -21,8 +21,7 @@ LEFT_OUT = ('Trendlines(1).Format', '.ErrorBars.Format')
 #: Refused: ClearFormats on a line series with a look, which Excel moves to its marker, on an area series with a point set
 #: apart, which leaves it an empty dPt, and a line colour on these kinds, which Format.Line does not set. A fill on a line
 #: series is not refused: the model takes none, where Excel keeps it for the marker ClearFormats leaves.
-REFUSED = ('line: ch.SeriesCollection(1).Format.', 'lineMarkers: ch.SeriesCollection(1).Format.Line.',
-           'scatter: ch.SeriesCollection(1).Format.Line.', 'area: ch.SeriesCollection(1).Points(2).')
+REFUSED = ('line: ch.SeriesCollection(1).Format.', 'area: ch.SeriesCollection(1).Points(2).')
 KEPT = [index for index, name in enumerate(NAMES)
         if not any(text in name for text in LEFT_OUT) and not name.startswith(REFUSED)]
 

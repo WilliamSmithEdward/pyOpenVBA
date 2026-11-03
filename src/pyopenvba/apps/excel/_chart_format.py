@@ -435,7 +435,20 @@ class SeriesColor(Created):
         if not self.fore:
             raise unmeasured("Setting a series' back colour")
         if isinstance(self.owner, SeriesLine):
-            self.owner.settable("colour")
+            entry = self.owner.series.entry
+            if entry.marker_line is not None and type(self.owner) is not SeriesLine:
+                raise unmeasured("A line on a point of a series whose line colour reached its marker")
+            if type(self.owner) is SeriesLine and kind in ("lineMarkers", "scatter") and entry.points:
+                raise unmeasured("A series' line colour beside a look on one of its points")
+            if type(self.owner) is SeriesLine and kind == "scatter" and self.owner.look() == FillLine():
+                # A scatter series keeps no line, and its marker an empty one (tests/fixtures/series_format.json).
+                self.owner.series.chart.changed()
+                entry.marker_line = ""
+                return
+            if type(self.owner) is SeriesLine and kind == "lineMarkers" and not self.owner.look().line_full:
+                entry.marker_line = wanted
+            else:
+                self.owner.settable("colour")
             self.owner.change().line_rgb = wanted
             return
         if self.owner.marker_took(wanted):

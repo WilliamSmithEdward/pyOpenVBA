@@ -15,6 +15,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A colour on a series' line with a marker: setting `Format.Line.ForeColor.RGB` on a line series with markers or a
+  scatter series, and `MarkerStyle` on a line series with a line colour, reach the marker as they do in Excel.
 - `Shapes.AddChart2` and `Shapes.AddChart`, so a recorded macro that makes a chart runs. Each picks up the data round
   its sheet's selection. A chart at a style some chart type takes by default (201, 216, 227, 240, 251, 262, 269, 276,
   286, 297, 307, 317, 332, 333) saves as Excel saves it, with its style and colours parts, for the chart types the

@@ -141,6 +141,8 @@ class SeriesState:
     #: imported marker filled in a way the model does not read (tests/fixtures/chart_marker_colours.json).
     marker_fore: str | None = None
     marker_back: str | None = None
+    #: The colour its line gave its marker, "" for a line of no colour; None when it gave none.
+    marker_line: str | None = None
     #: Its Y error bar and, in a scatter chart, its X one (tests/fixtures/chart_error_bars.json).
     error_bars: list[ErrorBarState] = field(default_factory=lambda: [])
     #: Its trendlines, in the order they were added (tests/fixtures/chart_trendlines.json).
@@ -506,7 +508,10 @@ def marker_markup(entry: SeriesState) -> str:
     """The series' marker element: none for an automatic marker, a symbol for the rest, with its size where it has
     one."""
     symbol = MARKER_SYMBOLS[entry.marker]
-    look = marker_look(entry)
+    # A colour set on the series' line reaches its marker (tests/fixtures/series_format.json).
+    stroke = {None: '', '': '<a:ln/>'}.get(
+        entry.marker_line, f'<a:ln><a:solidFill><a:srgbClr val="{entry.marker_line}"/></a:solidFill></a:ln>')
+    look = marker_look(entry, stroke)
     if not symbol:
         return f'<c:marker>{look}</c:marker>' if look else ''
     if symbol in ('none', 'picture'):
@@ -3219,7 +3224,7 @@ class Series(Created):
         if kind in ('line', 'lineMarkers', 'scatter'):
             # They all come back automatic.
             self.entry.marker, self.entry.marker_size = MARKER_AUTOMATIC, None
-            self.entry.marker_fore, self.entry.marker_back = None, None
+            self.entry.marker_fore, self.entry.marker_back, self.entry.marker_line = None, None, None
             self.entry.smooth = False
             self.entry.scatter_line = kind == 'scatter'
         for place, point in list(self.entry.points.items()):
@@ -3253,11 +3258,14 @@ class Series(Created):
         wanted = MARKER_ALIASES.get(wanted, wanted)
         if wanted not in MARKER_SYMBOLS:
             raise error(1004, 'Unable to set the MarkerStyle property of the Series class')
-        if entry.format_look is not None:
-            # Excel then copies the line's look into the marker (tests/fixtures/series_format.json).
-            raise VBAUnsupportedError('A marker on a series with a look of its own is not implemented')
+        look = entry.format_look
+        if look is not None and (look.line_rgb is None or look != FillLine(line_rgb=look.line_rgb)):
+            # Excel copies the line's look into the marker, measured only for a colour (tests/fixtures/series_format.json).
+            raise VBAUnsupportedError('A marker on a series with a look other than a line colour is not implemented')
         self.chart.changed()
         entry.marker = wanted
+        if look is not None:
+            entry.marker_line = look.line_rgb
         self.taken_from_points('marker')
 
     # -- the marker's colours (tests/fixtures/chart_marker_colours.json)

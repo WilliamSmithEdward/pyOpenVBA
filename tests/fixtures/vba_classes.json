@@ -1,0 +1,294 @@
+{
+ "measured_at": "2026-11-03T21:54:15.658631+00:00",
+ "logger": "Public Log As String\nPublic Sub Note(ByVal text As String)\n    Log = Log & text & \",\"\nEnd Sub\n",
+ "classes": {
+  "CLog": "Public Name As String\nPrivate Sub Class_Initialize()\n    Note \"init\"\nEnd Sub\nPrivate Sub Class_Terminate()\n    Note \"term\" & Name\nEnd Sub\nPublic Function Hello() As String\n    Hello = \"hi\" & Name\nEnd Function\n",
+  "CProp": "Private m As Long\nPrivate arr(2) As Long\nPrivate Const Limit As Long = 5\nPublic Property Get V() As Long\n    V = m\nEnd Property\nPublic Property Let V(ByVal x As Long)\n    If x > Limit Then Err.Raise 1000 + vbObjectError, \"CProp\", \"too big\"\n    m = x\nEnd Property\nPublic Property Get Item(ByVal i As Long) As Long\n    Item = arr(i)\nEnd Property\nPublic Property Let Item(ByVal i As Long, ByVal x As Long)\n    arr(i) = x\nEnd Property\nPublic Property Get Self() As CProp\n    Set Self = Me\nEnd Property\nPublic Function Add(ByVal n As Long) As CProp\n    m = m + n\n    Set Add = Me\nEnd Function\nFriend Function Secret() As Long\n    Secret = 7\nEnd Function\nPublic Sub Bump(ByRef n As Long)\n    n = n + 1\nEnd Sub\nPublic Function Fail() As Long\n    Fail = 1 / 0\nEnd Function\nPrivate Function Hidden() As Long\n    Hidden = 1\nEnd Function\nPublic Function Counter() As Long\n    Static n As Long\n    n = n + 1\n    Counter = n\nEnd Function\n",
+  "IShape": "Public Function Area() As Double\nEnd Function\nPublic Property Get Name() As String\nEnd Property\n",
+  "CSquare": "Implements IShape\nPublic Side As Double\nPrivate Function IShape_Area() As Double\n    IShape_Area = Side * Side\nEnd Function\nPrivate Property Get IShape_Name() As String\n    IShape_Name = \"square\"\nEnd Property\nPublic Function Own() As String\n    Own = \"own\"\nEnd Function\n",
+  "CSource": "Public Event Done(ByVal n As Long, ByRef answer As Long)\nPublic Event Plain()\nPublic Sub Fire(ByVal n As Long)\n    Dim a As Long\n    a = n\n    RaiseEvent Done(n, a)\n    Note \"after\" & a\n    RaiseEvent Plain\nEnd Sub\n",
+  "CSink": "Public WithEvents S As CSource\nPrivate Sub S_Done(ByVal n As Long, ByRef answer As Long)\n    Note \"done\" & n\n    answer = answer * 2\nEnd Sub\nPrivate Sub S_Plain()\n    Note \"plain\"\nEnd Sub\n"
+ },
+ "probes": [
+  {
+   "name": "new_order",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As CLog\nNote \"before\"\nSet a = New CLog\nNote \"made\"\na.Name = \"a\"\nSet a = Nothing\nNote \"gone\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#before,init,made,terma,gone,"
+  },
+  {
+   "name": "new_auto_lazy",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As New CLog\nNote \"declared\"\na.Name = \"a\"\nNote \"used\"\nSet a = Nothing\nNote \"cleared\"\ns = (a Is Nothing)\nNote \"checked\"\na.Name = \"b\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "False#declared,init,used,terma,cleared,init,checked,"
+  },
+  {
+   "name": "new_auto_is_nothing",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As New CLog\ns = (a Is Nothing)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "False#init,"
+  },
+  {
+   "name": "replace_terminates",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As CLog\nSet a = New CLog\na.Name = \"1\"\nSet a = New CLog\na.Name = \"2\"\nNote \"end\"\nSet a = Nothing\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,init,term1,end,term2,"
+  },
+  {
+   "name": "two_refs",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As CLog, b As CLog\nSet a = New CLog\na.Name = \"x\"\nSet b = a\nSet a = Nothing\nNote \"one\"\nSet b = Nothing\nNote \"two\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,one,termx,two,"
+  },
+  {
+   "name": "local_terminates",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nLocalOne\nNote \"back\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,termlocal,back,"
+  },
+  {
+   "name": "temporary",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nNote Make(\"t\").Hello\nNote \"after\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,hit,termt,after,"
+  },
+  {
+   "name": "with_temporary",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nWith New CLog\n.Name = \"w\"\nNote \"in\"\nEnd With\nNote \"out\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,in,termw,out,"
+  },
+  {
+   "name": "collection_holds",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\nc.Add Make(\"c\")\nNote \"added\"\nc.Remove 1\nNote \"removed\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,added,termc,removed,"
+  },
+  {
+   "name": "array_of_objects",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a(1) As CLog\nSet a(0) = Make(\"z\")\nNote \"set\"\nErase a\nNote \"erased\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,set,termz,erased,"
+  },
+  {
+   "name": "variant_holds",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim v As Variant\nSet v = Make(\"v\")\nNote TypeName(v)\nv = 1\nNote \"let\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,CLog,termv,let,"
+  },
+  {
+   "name": "byval_object",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As CLog\nSet a = Make(\"a\")\nTakes a\nNote a.Name\nSet a = Nothing\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,changed,termchanged,"
+  },
+  {
+   "name": "byref_object",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As CLog\nSet a = Make(\"a\")\nTakesRef a\nNote a.Name\nSet a = Nothing\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#init,init,terma,swapped,termswapped,"
+  },
+  {
+   "name": "nothing_call",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As CLog\nNote a.Name\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 91
+  },
+  {
+   "name": "is_same",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As CLog, b As CLog\nSet a = New CLog\nSet b = a\ns = (a Is b) & (a Is Nothing)\nSet b = New CLog\ns = s & (a Is b)\nSet a = Nothing\nSet b = Nothing\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "TrueFalseFalse#init,init,term,term,"
+  },
+  {
+   "name": "typename_class",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim a As Object\nSet a = New CProp\ns = TypeName(a) & (TypeOf a Is CProp) & (TypeOf a Is CLog) & (TypeOf a Is Object) & VarType(a) & IsObject(a)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "CPropTrueFalseTrue9True#"
+  },
+  {
+   "name": "property_let_get",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\np.V = 3\ns = p.V\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "3#"
+  },
+  {
+   "name": "property_args",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\np.Item(1) = 9\ns = p.Item(1) & p.Item(0)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "90#"
+  },
+  {
+   "name": "property_bounds",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\ns = p.Item(9)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 9
+  },
+  {
+   "name": "property_raises",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\nOn Error Resume Next\np.V = 9\ns = (Err.Number - vbObjectError) & Err.Source & Err.Description & p.V\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "1000CProptoo big0#"
+  },
+  {
+   "name": "class_const",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\ns = p.Limit\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "compile": true
+  },
+  {
+   "name": "chain_me",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\ns = p.Add(1).Add(2).Self.V\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "3#"
+  },
+  {
+   "name": "friend_call",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\ns = p.Secret\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "7#"
+  },
+  {
+   "name": "friend_late",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As Object\nSet p = New CProp\ns = p.Secret\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "private_late",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As Object\nSet p = New CProp\ns = p.Hidden\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "missing_late",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As Object\nSet p = New CProp\ns = p.Nope\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "byref_through_method",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp, n As Long\np.Bump n\np.Bump (n)\ns = n\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "1#"
+  },
+  {
+   "name": "error_in_method",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\nOn Error Resume Next\ns = p.Fail\ns = s & Err.Number & Err.Source\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "11VBAProject#"
+  },
+  {
+   "name": "static_per_instance",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp, q As New CProp\nn1 = p.Counter\nn1 = p.Counter\ns = n1 & q.Counter\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "21#"
+  },
+  {
+   "name": "callbyname",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\nCallByName p, \"V\", VbLet, 2\ns = CallByName(p, \"V\", VbGet) & CallByName(p, \"Add\", VbMethod, 1).V\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "23#"
+  },
+  {
+   "name": "callbyname_missing",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\ns = CallByName(p, \"Nope\", VbGet)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "set_property_value",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim p As New CProp\nSet p.Self = p\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "implements_call",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim i As IShape, q As New CSquare\nq.Side = 2\nSet i = q\ns = i.Area & i.Name & TypeName(i) & (TypeOf i Is IShape) & (TypeOf i Is CSquare) & (TypeOf q Is IShape) & (i Is q)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "4squareCSquareTrueTrueTrueTrue#"
+  },
+  {
+   "name": "implements_own_through_interface_late",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim i As IShape, o As Object\nSet i = New CSquare\nSet o = i\ns = o.Own\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "implements_interface_late",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim o As Object\nSet o = New CSquare\ns = o.Area\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 438
+  },
+  {
+   "name": "implements_back",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim i As IShape, q As CSquare\nSet i = New CSquare\nSet q = i\nq.Side = 3\ns = i.Area\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "9#"
+  },
+  {
+   "name": "implements_mismatch",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim i As IShape\nSet i = New CProp\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 13
+  },
+  {
+   "name": "interface_new_itself",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim i As IShape\nSet i = New IShape\ns = i.Area & \"|\" & i.Name\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "0|#"
+  },
+  {
+   "name": "events_fire",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim k As New CSink\nSet k.S = New CSource\nk.S.Fire 3\ns = Log\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "done3,after6,plain,#done3,after6,plain,"
+  },
+  {
+   "name": "events_no_sink",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New CSource\nc.Fire 1\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#after1,"
+  },
+  {
+   "name": "events_unhooked",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim k As New CSink, c As New CSource\nSet k.S = c\nSet k.S = Nothing\nc.Fire 1\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#after1,"
+  },
+  {
+   "name": "events_two_sinks",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim j As New CSink, k As New CSink, c As New CSource\nSet j.S = c\nSet k.S = c\nc.Fire 1\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "#done1,done1,after4,plain,plain,"
+  },
+  {
+   "name": "collection_keys",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\nc.Add 1, \"a\"\nc.Add 2, \"B\"\ns = c(\"A\") & c.Item(\"b\") & c.Count & c(1)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "1221#"
+  },
+  {
+   "name": "collection_dup_key",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\nc.Add 1, \"a\"\nc.Add 2, \"A\"\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 457
+  },
+  {
+   "name": "collection_missing",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\ns = c(1)\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 5
+  },
+  {
+   "name": "collection_missing_key",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\ns = c(\"x\")\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 5
+  },
+  {
+   "name": "collection_before_after",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection, v As Variant\nc.Add \"a\"\nc.Add \"b\", , 1\nc.Add \"c\", , , 1\nFor Each v In c\ns = s & v\nNext\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "bca#"
+  },
+  {
+   "name": "collection_numeric_key",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\nc.Add \"a\", \"1\"\nc.Add \"b\", CStr(2)\ns = c(\"1\") & c(2)\nc.Add \"x\", 5\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 13
+  },
+  {
+   "name": "collection_remove_in_loop",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection, v As Variant\nc.Add 1\nc.Add 2\nc.Add 3\nFor Each v In c\ns = s & v\nc.Remove 1\nNext\ns = s & c.Count\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "1230#"
+  },
+  {
+   "name": "collection_assign",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\nc.Add 1\nc(1) = 2\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 424
+  },
+  {
+   "name": "collection_object_member",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\nc.Add Make(\"m\")\ns = c(1).Name\nc(1).Name = \"n\"\ns = s & c(1).Name\nSet c = Nothing\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "mn#init,termn,"
+  },
+  {
+   "name": "collection_type_key_number",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim c As New Collection\nc.Add 1, Key:=\"k\", Before:=Empty\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 5
+  },
+  {
+   "name": "dictionary_basics",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim d As Object, k As Variant\nSet d = CreateObject(\"Scripting.Dictionary\")\nd(\"a\") = 1\nd.Add \"b\", 2\nd.Item(\"c\") = 3\nFor Each k In d.Keys\ns = s & k & d(k)\nNext\ns = s & d.Count & d.Exists(\"a\") & d.Exists(\"z\") & UBound(d.Items)\nd.Remove \"a\"\ns = s & d.Count & TypeName(d(\"new\")) & d.Count\nd.RemoveAll\ns = s & d.Count\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "a1b2c33TrueFalse22Empty30#"
+  },
+  {
+   "name": "dictionary_dup",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim d As Object\nSet d = CreateObject(\"Scripting.Dictionary\")\nd.Add \"a\", 1\nd.Add \"a\", 2\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 457
+  },
+  {
+   "name": "dictionary_compare",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim d As Object\nSet d = CreateObject(\"Scripting.Dictionary\")\nd.CompareMode = vbTextCompare\nd(\"a\") = 1\ns = d.Exists(\"A\") & d.Count\nd.CompareMode = vbBinaryCompare\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "error": 5
+  },
+  {
+   "name": "dictionary_key_types",
+   "macro": "\nPrivate Function Make(ByVal name As String) As CLog\n    Set Make = New CLog\n    Make.Name = name\nEnd Function\nPrivate Sub Takes(ByVal a As CLog)\n    a.Name = \"changed\"\nEnd Sub\nPrivate Sub TakesRef(ByRef a As CLog)\n    Set a = New CLog\n    a.Name = \"swapped\"\nEnd Sub\nPrivate Sub LocalOne()\n    Dim a As New CLog\n    a.Name = \"local\"\nEnd Sub\n\nFunction Probe() As String\nDim s As String\nLog = \"\"\nDim d As Object\nSet d = CreateObject(\"Scripting.Dictionary\")\nd(1) = \"n\"\nd(\"1\") = \"s\"\nd(1.5) = \"f\"\ns = d.Count & d(1) & d(\"1\")\nProbe = s & \"#\" & Log\nEnd Function\n",
+   "result": "3ns#"
+  }
+ ]
+}

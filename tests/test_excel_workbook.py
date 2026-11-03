@@ -167,10 +167,10 @@ def test_a_class_whose_members_sit_on_its_interface_still_tells_a_gap_from_a_typ
     """Range keeps its members on IRange, and Font on IFont rather than on Word's Font."""
     app = fresh()
     with pytest.raises(VBAUnsupportedError) as gap:
-        macro(app, '    Range("A1").FlashFill', name="Gap")
-    assert "FlashFill" in str(gap.value)
+        macro(app, '    Range("A1").CopyPicture', name="Gap")
+    assert "CopyPicture" in str(gap.value)
     with pytest.raises(VBARuntimeError) as typo:
-        macro(app, '    Range("A1").FlashFil', name="Typo")
+        macro(app, '    Range("A1").CopyPictur', name="Typo")
     assert typo.value.number == 438
     # Background is Excel's Font's alone, and a name Font does not have is still no member.
     macro(app, '    x = Range("A1").Font.Background', name="ExcelOnly")

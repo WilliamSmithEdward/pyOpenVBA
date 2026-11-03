@@ -442,6 +442,8 @@ class Procedure:
     returns_array: bool = False
     scope: str = "public"
     static: bool = False
+    #: Declared Friend: its scope is public, and a call through Object cannot reach it.
+    friend: bool = False
     line: int = 0
     attributes: dict[str, str] = field(default_factory=lambda: {})
 

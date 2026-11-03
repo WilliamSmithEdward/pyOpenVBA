@@ -258,6 +258,8 @@ class Frame:
     module: ModuleRuntime
     locals: dict[str, Slot] = field(default_factory=lambda: {})
     me: object = None
+    #: Objects calls answered, kept until the statement using them ends.
+    held: list[object] = field(default_factory=lambda: [])
     with_stack: list[object] = field(default_factory=lambda: [])
     program: F.Program | None = None
     with_values: dict[int, object] = field(default_factory=lambda: {})
@@ -572,6 +574,28 @@ class Collection(VBACollection):
     def __init__(self) -> None:
         self._items: list[object] = []
         self._keys: list[str | None] = []
+        #: The next position of each For Each under way, kept right as items come and go.
+        self._walkers: list[list[int]] = []
+
+    def vba_iterate(self) -> Iterator[object]:
+        """A walk through the items as they stand: taking out the one just visited, or any before it, loses nothing
+        (tests/fixtures/vba_classes.json, collection_remove_in_loop)."""
+        walker = [0]
+        self._walkers.append(walker)
+        try:
+            while walker[0] < len(self._items):
+                item = self._items[walker[0]]
+                walker[0] += 1
+                yield item
+        finally:
+            self._walkers.remove(walker)
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        # c(1) = 2: Item is a method, and its answer takes no value (tests/fixtures/vba_classes.json).
+        if name.lower() == "item":
+            raise error(424)
+        super().vba_set(name, value, args, named, by_ref=by_ref)
 
     def __del__(self) -> None:
         # VBA releases a freed collection's items first to last, so their
@@ -607,6 +631,9 @@ class Collection(VBACollection):
             at = self._position(After)
         self._items.insert(at, Item)
         self._keys.insert(at, key)
+        for walker in self._walkers:
+            if at < walker[0]:
+                walker[0] += 1
         return EMPTY
 
     @method
@@ -614,6 +641,9 @@ class Collection(VBACollection):
         at = self._position(Index)
         self._items.pop(at - 1)
         self._keys.pop(at - 1)
+        for walker in self._walkers:
+            if at - 1 < walker[0]:
+                walker[0] -= 1
         return EMPTY
 
     def _position(self, index: object) -> int:
@@ -863,6 +893,7 @@ class UserClassInstance(VBAObject):
         #: For a document module, the object it is the code of -- a worksheet, the workbook -- which Me is.
         self.host: VBAObject | None = None
         self.variables: dict[str, Slot] = {}
+        self.statics: dict[str, dict[str, Slot]] = {}
         for group in module.parsed.variables:
             for declaration in group.decls:
                 key = declaration.name.lower()
@@ -1406,7 +1437,7 @@ class Interpreter:
         self._declare_locals(frame, frame.procedure.body)
         for declaration in program.arrays:
             key = declaration.name.lower()
-            store = frame.module.statics.setdefault(frame.procedure.name.lower(), {}) if frame.procedure.static else frame.locals
+            store = _statics_of(frame) if frame.procedure.static else frame.locals
             if key not in store:
                 store[key] = self.make_slot(declaration, frame.module)
             frame.locals[key] = store[key]
@@ -1446,6 +1477,8 @@ class Interpreter:
                     raise self._unknown_label(jump.label, frame) from None
                 following = program.labels[F.label_key(jump.label)]
                 scopes = None
+            if frame.held:
+                frame.held.clear()
             pc = following
 
     def _flow_step(self, instruction: F.Instruction, frame: Frame, pc: int) -> int:
@@ -1630,7 +1663,7 @@ class Interpreter:
                 for declaration in statement.decls:
                     key = declaration.name.lower()
                     if statement.static or frame.procedure.static:
-                        store = frame.module.statics.setdefault(frame.procedure.name.lower(), {})
+                        store = _statics_of(frame)
                         if key not in store:
                             store[key] = self.make_slot(declaration, frame.module, frame)
                         frame.locals[key] = store[key]
@@ -2327,6 +2360,7 @@ class Interpreter:
 
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
         target = self._member_target(expression, frame)
+        _within_reach(target, expression, frame)
         return _dispatch_get(target, expression.name, [], {})
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
@@ -2347,6 +2381,9 @@ class Interpreter:
         value = self.evaluate(expression.target, frame, want_object=True)
         if value is NOTHING:
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
+        if frame is not None and isinstance(value, UserClassInstance) and not isinstance(expression.target, A.Name):
+            # An object a call answered lives to the end of the statement (tests/fixtures/vba_classes.json, temporary).
+            frame.held.append(value)
         return value
 
     def _read_bang(self, expression: A.Bang, frame: Frame | None) -> object:
@@ -2374,6 +2411,7 @@ class Interpreter:
             return self._call_name(callee, args, frame, statement_context=statement_context)
         if isinstance(callee, A.Member):
             target = self._member_target(callee, frame)
+            _within_reach(target, callee, frame)
             procedure = target.procedure(strip_suffix(callee.name)) if isinstance(target, StandardModuleNamespace) else target.module.procedure(strip_suffix(callee.name)) if isinstance(target, UserClassInstance) else None
             positional, named = self._arguments(args, frame, procedure=procedure, target=target, name=callee.name)
             if (procedure is not None and isinstance(target, UserClassInstance) and named and frame is not None
@@ -2725,7 +2763,7 @@ class Interpreter:
     def _implicit_slot(self, name: str, frame: Frame) -> Slot:
         key = _bare(name)
         declared = default_type(name, frame.module.parsed.default_types)
-        store = frame.module.statics.setdefault(frame.procedure.name.lower(), {}) if frame.procedure.static else frame.locals
+        store = _statics_of(frame) if frame.procedure.static else frame.locals
         if key not in store:
             store[key] = self.make_slot(A.VarDecl(name=key, declared=declared), frame.module)
         frame.locals[key] = store[key]
@@ -3091,6 +3129,32 @@ def _call_value(value: object, args: list[object], named: dict[str, object]) -> 
     if args:
         raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
     return value
+
+
+def _within_reach(target: object, expression: A.Member, frame: Frame | None) -> None:
+    """Whether code outside a class may use this member. What is private is hidden; a Friend procedure is hidden only from a call through
+    Object. Naming a hidden one through a variable of the class does not compile, and late it is error 438 (tests/fixtures/vba_classes.json)."""
+    if not isinstance(target, UserClassInstance) or target.host is not None or frame is None or frame.module is target.module:
+        return
+    module = target.module
+    key = strip_suffix(expression.name).lower()
+    procedure = module.procedure(key)
+    late = frame.program is not None and id(expression) in frame.program.late_bound_members
+    if procedure is not None:
+        hidden = procedure.scope == "private" or (procedure.friend and late)
+    else:
+        hidden = key in module.constants or (key in target.variables and key not in module.public_variables)
+    if not hidden:
+        return
+    if late:
+        raise error(ERR_MEMBER_NOT_FOUND, f"{target.vba_type_name} has no member named {expression.name}")
+    raise VBACompileError("Method or data member not found")
+
+
+def _statics_of(frame: Frame) -> dict[str, Slot]:
+    """Where a procedure's Static variables live: each instance of a class has its own (tests/fixtures/vba_classes.json)."""
+    held = frame.me.statics if isinstance(frame.me, UserClassInstance) else frame.module.statics
+    return held.setdefault(frame.procedure.name.lower(), {})
 
 
 def _a_value_from(procedure: A.Procedure, statement: bool) -> None:

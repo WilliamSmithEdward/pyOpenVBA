@@ -137,6 +137,7 @@ class Parser:
         self._pending_next: list[str] = []
         self.default_types: dict[str, str] = {}
         self._declarations_started = False
+        self._friend = False
         #: Greater than zero while parsing the statements a single-line
         #: If carries, where the line's end closes the If rather than
         #: the statement.
@@ -241,12 +242,14 @@ class Parser:
         start = self.at
         scope = "public"
         static = False
+        self._friend = False
         while self.at_word("public", "private", "global", "friend", "static"):
             word = self.advance().lower
             if word == "static":
                 static = True
             elif word == "friend":
                 scope = "public"
+                self._friend = True
             elif word == "global":
                 scope = "public"
             else:
@@ -551,6 +554,7 @@ class Parser:
         if name_token.kind != "ident":
             self.fail(f"expected a procedure name but found {name_token.text!r}")
         procedure = A.Procedure(
+            friend=self._friend,
             kind=kind,
             name=strip_suffix(name_token.text),
             scope=scope,

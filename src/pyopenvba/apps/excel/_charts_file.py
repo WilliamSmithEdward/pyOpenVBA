@@ -20,7 +20,8 @@ from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, DA
                                              chart_frame, chart_part, legend_markup, text_properties)
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
-                                          category_levels, linked_title, referenced_values, shown_cells, shown_type)
+                                          category_levels, linked_title, lost, referenced_values, shown_cells,
+                                          shown_type)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.apps.excel._chart_trendlines import TYPES as TRENDLINE_TYPES, TrendlineState, markup as trendlines_markup
@@ -436,7 +437,7 @@ def dated_categories(sheet: Worksheet, state: ChartState) -> bool:
 def source_format(sheet: Worksheet, formula: str) -> str:
     from pyopenvba.apps.excel._model import Range
 
-    if not formula:
+    if not formula or lost(formula):
         return 'General'
     area = parse_reference(formula)[0]
     owner = sheet.book.sheet_named(area.sheet) if area.sheet else sheet
@@ -464,6 +465,8 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
             if formula is None or cached is None:
                 return raw
             numeric = cached.group(1) == 'numCache'
+            if lost(unescape(formula.group(1))):
+                return raw
             try:
                 source = referenced_values(sheet, unescape(formula.group(1)), visible=chart.visible_only)
                 if not source:
@@ -546,6 +549,67 @@ def _with_filtered_series(xml: str, kind: object, places: list[int]) -> str:
     xml = xml[:close.start()] + extension + xml[close.start():]
     # With nothing drawn the axes have no number format to follow.
     return xml if '<c:ser>' in xml else xml.replace('<c:numFmt formatCode="General" sourceLinked="1"/>', '')
+
+
+_LOST_NAME = '<c:strCache><c:ptCount val="1"/><c:pt idx="0"><c:v>#REF!</c:v></c:pt></c:strCache>'
+
+
+def _filtered_title(kind: str, element: str, reference: str, cache: str) -> str:
+    """The extension that keeps a reference taken away from all a chart's series, as Excel writes it."""
+    return (f'<c:ext uri="{_C15}" xmlns:c15="http://schemas.microsoft.com/office/drawing/2012/chart"><c15:{kind}>'
+            f'<c15:{element}><c:strRef><c:extLst><c:ext uri="{_C15}"><c15:formulaRef><c15:sqref>'
+            f'{escape_text(reference)}</c15:sqref></c15:formulaRef></c:ext></c:extLst>{cache}</c:strRef>'
+            f'</c15:{element}></c15:{kind}></c:ext>')
+
+
+def _with_lost_references(xml: str, state: ChartState) -> str:
+    """The chart with its series' lost names and categories as Excel spells them, which depends on the others: a name
+    lost from every series leaves the series for an extension, and categories too except on a scatter chart, which has
+    no such extension; lost from only some, they stay as references to nothing
+    (tests/fixtures/chart_lost_cells.json)."""
+    every = state.full_series or state.series
+    names_gone = state.names_lost()
+    categories_gone = bool(every) and all(lost(entry.category_reference) for entry in every)
+    found = list(re.finditer(r'<c:ser>.*?</c:ser>', xml, re.DOTALL))
+    for match, entry in reversed(list(zip(found, every, strict=False))):
+        series = match.group(0)
+        added = ''
+        if names_gone:
+            series = re.sub(r'<c:tx>.*?</c:tx>', '', series, count=1, flags=re.DOTALL)
+            added += _filtered_title('filteredSeriesTitle', 'tx', entry.name_reference, _LOST_NAME)
+        if lost(entry.category_reference):
+            kind = 'numRef' if entry.lost_numbers else 'strRef'
+            spelled = f'<c:{kind}><c:f>{escape_text(entry.category_reference)}</c:f></c:{kind}>'
+            scatter = '<c:xVal>' in series
+            if categories_gone and not scatter:
+                series = re.sub(r'<c:cat>.*?</c:cat>', '', series, count=1, flags=re.DOTALL)
+                added += _filtered_title('filteredCategoryTitle', 'cat', entry.category_reference, '')
+            else:
+                series = re.sub(r'<c:(cat|xVal)>.*?</c:\1>',
+                                lambda hit: f'<c:{hit.group(1)}>{spelled}</c:{hit.group(1)}>', series, count=1,
+                                flags=re.DOTALL)
+        if added:
+            at = series.rindex('<c:extLst>') + len('<c:extLst>') if '<c:extLst>' in series else -1
+            series = (series[:at] + added + series[at:] if at >= 0
+                      else series.replace('</c:ser>', f'<c:extLst>{added}</c:extLst></c:ser>'))
+        xml = xml[:match.start()] + series + xml[match.end():]
+    if every and lost(every[0].category_reference) and '<c:xVal>' not in xml:
+        # The axis follows the first series', and without them has no number format to follow.
+        xml = re.sub(r'<c:catAx>.*?</c:catAx>', lambda hit: hit.group(0).replace(
+            '<c:numFmt formatCode="General" sourceLinked="1"/>', ''), xml, count=1, flags=re.DOTALL)
+    return xml
+
+
+def _with_lost_values(xml: str, state: ChartState) -> str:
+    """An area chart gives the area of a series with its values gone no line (tests/fixtures/chart_lost_cells.json)."""
+    found = list(re.finditer(r'<c:ser>.*?</c:ser>', xml, re.DOTALL))
+    for match, entry in reversed(list(zip(found, state.full_series or state.series, strict=False))):
+        if lost(entry.value_reference):
+            series = re.sub(r'(<c:order val="[0-9]+"/>(?:<c:tx>.*?</c:tx>)?)',
+                            r'\1<c:spPr><a:ln w="25400"><a:noFill/></a:ln></c:spPr>', match.group(0), count=1,
+                            flags=re.DOTALL)
+            xml = xml[:match.start()] + series + xml[match.end():]
+    return xml
 
 
 def _with_element_labels(xml: str, shown: bool, place: int | None) -> str:
@@ -639,6 +703,10 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     if state.full_series:
         xml = _with_filtered_series(xml, kind, [index for index, item in enumerate(state.full_series)
                                                 if not any(item is drawn for drawn in state.series)])
+    if '<c:areaChart>' in xml:
+        xml = _with_lost_values(xml, state)
+    if any(lost(entry.name_reference) or lost(entry.category_reference) for entry in state.full_series or state.series):
+        xml = _with_lost_references(xml, state)
     if state.layout_chart_labels and '</c:ser>' in xml:
         at = xml.rindex('</c:ser>')
         xml = xml[:at] + re.sub(r'<c:dLbls>.*?</c:dLbls>', lambda _: state.layout_chart_labels, xml[at:], count=1,

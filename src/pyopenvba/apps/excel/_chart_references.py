@@ -2,10 +2,10 @@
 (tests/fixtures/chart_references.json).
 
 The movers work out what every reference becomes before anything moves, and carry it out afterwards. A point's look
-and label stay with its cell, and moved to another place they lose their unique ids. A reference that would become
-#REF! is refused, because Excel then writes extensions the model does not hold. A chart read from a file keeps its part,
-with only the references in it rewritten (tests/fixtures/loaded_chart_references.json); its points are numbered inside
-that part, so cells moving between them are refused."""
+and label stay with its cell, and moved to another place they lose their unique ids. A series' values becoming #REF!
+take its points' looks and labels with them (tests/fixtures/chart_lost_cells.json). A chart read from a file keeps its
+part, with only the references in it rewritten (tests/fixtures/loaded_chart_references.json); its points are numbered
+inside that part, so cells moving between them are refused, and so is taking its cells away."""
 from __future__ import annotations
 
 import re
@@ -99,6 +99,27 @@ def _points_step(entry: SeriesState, turned: str, sheet: str, change: Change) ->
     return step
 
 
+def _values_gone(entry: SeriesState) -> Step:
+    """What goes with a series' values: its points' looks and labels, its labels and its own look."""
+    def step() -> None:
+        entry.points = {}
+        entry.data_labels = False
+        entry.format_look = None
+    return step
+
+
+def _categories_gone(sheet: Worksheet, entry: SeriesState) -> Step:
+    from pyopenvba.apps.excel._charts import lost, referenced_values
+
+    numbers = not lost(entry.category_reference) and all(
+        isinstance(value, (int, float)) and not isinstance(value, bool)
+        for value in referenced_values(sheet, entry.category_reference))
+
+    def step() -> None:
+        entry.lost_numbers = numbers
+    return step
+
+
 def _extent(reference: str) -> tuple[int, int] | None:
     """How many rows and columns a reference to one area covers."""
     area = _single(reference)
@@ -147,8 +168,8 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
 
     def turned_text(text: str) -> str:
         turned = change(f'={text}', sheet.name)[1:]
-        if turned != text and '#REF!' in turned:
-            raise VBAUnsupportedError('Taking away the cells a chart reads is not implemented')
+        if turned != text and '#REF!' in turned and state.original:
+            raise VBAUnsupportedError('Taking away the cells a chart from a file reads is not implemented')
         return turned
 
     def setting(holder: object, field: str, value: str) -> Step:
@@ -164,7 +185,11 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
         turned = turned_text(text)
         if turned == text:
             continue
-        if field == 'value_reference':
+        if field == 'category_reference' and '#REF!' in turned:
+            steps.append(_categories_gone(sheet, holder))  # pyright: ignore[reportArgumentType]
+        if field == 'value_reference' and '#REF!' in turned:
+            steps.append(_values_gone(holder))  # pyright: ignore[reportArgumentType]
+        elif field == 'value_reference':
             moving = _points_step(holder, turned, sheet.name, change)  # pyright: ignore[reportArgumentType]
             if moving is not None:
                 steps.append(moving)
@@ -175,6 +200,8 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
                 reference, values = getattr(bar, field)
                 if reference:
                     turned = turned_text(reference)
+                    if '#REF!' in turned:
+                        raise VBAUnsupportedError('Taking away the cells an error bar reads is not implemented')
                     if turned != reference:
                         steps.append(setting(bar, field, (turned, values)))  # pyright: ignore[reportArgumentType]
     if state.original:

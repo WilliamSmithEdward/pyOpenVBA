@@ -781,6 +781,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Taking away the cells a chart reads now does what Excel does instead of being
+  refused. A reference becomes `#REF!`. A series whose values go keeps one point
+  and loses its own look, its points' looks and its labels, and `Formula` raises
+  error 2023. A name lost from every series leaves them named `Series1` and so
+  on, while one lost from only some reads `#REF!`. The saved chart part matches
+  Excel's in 127 measured cases. Still refused: cells an error bar reads, cells
+  a chart from a file reads, and deleting a sheet a chart reads.
+- `Series.Values` reads a text cell as 0, as Excel does, and `LegendEntries`
+  counts a chart's trendlines.
 - A chart read from a file now follows the cells it reads, as a new chart does:
   rows and columns inserted or deleted, cells shifted or cut, and its sheet
   renamed. Only the references and cached points in its part change. A sheet

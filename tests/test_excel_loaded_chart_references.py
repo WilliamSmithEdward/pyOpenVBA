@@ -100,7 +100,7 @@ def test_a_second_save_keeps_the_rewritten_references(tmp_path: Path) -> None:
 
 
 def test_taking_away_the_cells_a_loaded_chart_reads_is_refused(tmp_path: Path) -> None:
-    with pytest.raises(VBAUnsupportedError, match='Taking away the cells'):
+    with pytest.raises(VBAUnsupportedError, match='Taking away the cells a chart from a file'):
         _opened(_built(tmp_path), 'd.Columns(3).Delete')
 
 

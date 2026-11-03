@@ -384,6 +384,8 @@ def category_levels(sheet: Worksheet, entry: SeriesState) -> list[list[str]] | N
     height, width = area.bottom - area.top + 1, area.right - area.left + 1
     if height * width > MAX_CHART_POINTS:
         raise VBAUnsupportedError('Chart references exceed the supported cell budget')
+    if height == 1 or width == 1:
+        return None
     points = len(referenced_values(sheet, entry.value_reference)) if entry.value_reference else len(entry.values)
     down = height == points if (height == points) != (width == points) else height >= width
     if (width if down else height) == 1:
@@ -2511,6 +2513,20 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
         return self.chart.sheet.book.application
 
     @method
+    def Add(self, Source: object = MISSING, Rowcol: object = MISSING, SeriesLabels: object = MISSING,  # noqa: N803
+            CategoryLabels: object = MISSING, Replace: object = MISSING) -> object:  # noqa: N803 - native named args
+        from pyopenvba.apps.excel._series_add import add
+
+        return add(self.chart, Source, Rowcol, SeriesLabels, CategoryLabels)
+
+    @method
+    def Extend(self, Source: object = MISSING, Rowcol: object = MISSING,  # noqa: N803 - native named args
+               CategoryLabels: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._series_add import extend
+
+        return extend(self.chart, Source, Rowcol, CategoryLabels)
+
+    @method
     def NewSeries(self) -> object:
         self.chart.admit_change()
         self.chart.nothing_filtered('NewSeries')
@@ -2541,6 +2557,14 @@ class FullSeriesCollection(SeriesCollection):
 
     @method
     def NewSeries(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def Add(self, *_: object) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def Extend(self, *_: object) -> object:
         raise error(438, "Object doesn't support this property or method")
 
 

@@ -258,6 +258,9 @@ def parse_reference(text: str, *, sheet: str = "") -> list[Area]:
     """Every rectangle in a reference, which a comma may list several of. A space between two references is where
     they meet, and binds tighter than a comma: A1:C3 B2:D4,E5 is B2:C3 and E5; references that do not meet are no
     reference (tests/fixtures/excel_model/)."""
+    if text.startswith("(") and text.endswith(")"):
+        # A union in parentheses, as a chart series holds several areas.
+        text = text[1:-1]
     pieces = [piece for piece in _split_areas(text) if piece.strip()]
     if not pieces:
         raise ValueError("an empty reference")

@@ -15,6 +15,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `SeriesCollection.Add` and `Extend`. A series can now read several areas, as in
+  `=SERIES(,,(Data!$B$2:$B$5,Data!$C$6),1)`.
 - `ChartObject.Duplicate`, `ChartObjects.Duplicate` and `Shape.Duplicate` of a chart, each
   with a chart and part of its own. `ChartObject.Duplicate` answers a `Shape`, as in Excel.
 - `ChartObject.Copy`, `Cut` and `Shape.Copy`, `Cut` of a chart with `Worksheet.Paste`. The copy

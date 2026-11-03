@@ -78,6 +78,28 @@ Failed:
     Shape = "E" & Err.Number
 End Function
 
+Private Function Alerts(ByVal given As Variant) As String
+    Dim was As Boolean
+    was = Application.DisplayAlerts
+    On Error Resume Next
+    Application.DisplayAlerts = given
+    Alerts = Application.DisplayAlerts & "/E" & Err.Number
+    On Error GoTo 0
+    Application.DisplayAlerts = was
+End Function
+
+Public Function Direct() As String
+    Dim s As String
+    s = TypeName(Application.Build) & "|" & (Application.Build > 0) & "|" & TypeName(Application.ThisWorkbook)
+    s = s & "|" & (Application.ThisWorkbook Is ThisWorkbook)
+    Application.DisplayAlerts = False
+    s = s & "|" & Alerts(True) & "|" & Alerts(False) & "|" & Alerts(0) & "|" & Alerts(1) & "|" & Alerts("True")
+    Application.DisplayAlerts = True
+    s = s & "|" & Alerts("x") & "|" & Alerts(Null) & "|" & Alerts(Empty)
+    Application.DisplayAlerts = False
+    Direct = s
+End Function
+
 Public Function Probe() As String
     Dim s As String, o As Object
 {lines}
@@ -102,8 +124,12 @@ def main() -> None:
         excel.new_document()
         result = excel.run_vba(source, "Probe", timeout=120.0)
         assert result.ok, result
+        direct = excel.run_vba(source, "Direct", timeout=60.0)
+        assert direct.ok, direct
+    print("direct", direct.value, flush=True)
     rows = dict(item.split("=", 1) for item in str(result.value).split("@@@"))
-    OUT.write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "probe": source, "rows": rows},
+    OUT.write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "probe": source, "direct": str(direct.value),
+                               "rows": rows},
                               indent=1) + "\n",
                    encoding="utf-8")
     for name, value in rows.items():

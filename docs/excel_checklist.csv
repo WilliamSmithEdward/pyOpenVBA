@@ -47,7 +47,7 @@ Application,AutoFormatAsYouTypeReplaceHyperlinks,property,As Boolean,,PARTIAL,te
 Application,AutomationSecurity,property,As MsoAutomationSecurity,no setter,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Reads 1; setting is not implemented.
 Application,AutoPercentEntry,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,AutoRecover,"property, read-only",As AutoRecover,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
-Application,Build,"property, read-only",As Long,,UNASSESSED,,
+Application,Build,"property, read-only",As Long,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"A Long, the build measured against; CallByName's Double is not copied"
 Application,Calculate,method,Calculate(),,PARTIAL,tests/fixtures/udf_source_lifetime.json; tests/fixtures/full_calculation.json; tests/fixtures/calculation_scope.json,"UDF edits, cached results and dependent invalidation are measured within and across macro calls; manual Text displays dirty cached values. Broader scheduling remains incomplete. Native full/ordinary calculation and initial manual formula entry are measured; broader combinations remain partial. Calculation scope, cached precedents, deferred notifications and saved dirty states have 192 native probes, 1080 additional UDF observations and four XLSM file gates. Broader graph, reentrancy and event-error behavior remains partial."
 Application,CalculateBeforeSave,property,As Boolean,,PARTIAL,tests/fixtures/manual_spill_edits.json,Manual save flags and mode switching; nine native files. Wider save-event and external-workbook interactions remain partial.
 Application,CalculateFull,method,CalculateFull(),,PARTIAL,tests/fixtures/full_calculation.json; tests/fixtures/calculation_scope.json,"Forces all formulas in open workbooks; native clean/dirty UDF, manual/automatic, dependency and repeated-call probes plus six persisted files. Broader scheduling, external links and iteration remain incomplete. Calculation scope, cached precedents, deferred notifications and saved dirty states have 192 native probes, 1080 additional UDF observations and four XLSM file gates. Broader graph, reentrancy and event-error behavior remains partial."
@@ -99,7 +99,7 @@ Application,DefaultWebOptions,"property, read-only",As DefaultWebOptions,,PARTIA
 Application,DeferAsyncQueries,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads False as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,Excel's own lists error 1004; a number past the last does nothing.
 Application,Dialogs,"property, read-only",As Dialogs,,MISSING,,
-Application,DisplayAlerts,property,As Boolean,,UNASSESSED,,
+Application,DisplayAlerts,property,As Boolean,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Takes what VBA makes a Boolean of; text that is none raises 13, Null 94, Empty is False"
 Application,DisplayClipboardWindow,property,As Boolean,no setter,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,"Reads False, as Excel started on the measuring machine; the setter is not implemented, since measuring it would change the user's profile."
 Application,DisplayCommentIndicator,property,As XlCommentDisplayMode,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlNoIndicator, xlCommentIndicatorOnly and xlCommentAndIndicator read back, other values change nothing, over 19 live settings; notes' display is not modelled"
 Application,DisplayDocumentActionTaskPane,property,As Boolean,no setter,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,Reads False; the setter is not implemented.
@@ -278,7 +278,7 @@ Application,StartupPath,"property, read-only",As String,,MISSING,,
 Application,StatusBar,property,As Variant,,PARTIAL,tests/fixtures/excel_everyday_3.json; tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"False, a Boolean, until a macro sets it, then text: what a macro set as Excel spells it, FALSE once a macro gives the bar back"
 Application,TemplatesPath,"property, read-only",As String,,MISSING,,
 Application,ThisCell,"property, read-only",As Range,,VERIFIED,tests/fixtures/application_members.json,"The cell whose formula runs the Function, an array formula's first cell; error 1004 from a macro."
-Application,ThisWorkbook,"property, read-only",As Workbook,,UNASSESSED,,
+Application,ThisWorkbook,"property, read-only",As Workbook,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,The workbook whose macro is running
 Application,ThousandsSeparator,property,As String,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,Reads the en-US separator; setting another is refused as unsupported.
 Application,Top,property,As Double,,MISSING,,
 Application,TransitionMenuKey,property,As String,no setter,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Reads /; setting is not implemented.
@@ -1693,7 +1693,7 @@ PageSetup,Zoom,property,As Variant,,PARTIAL,tests/test_excel_page_setup.py; test
 Pane,Activate,method,Activate() As Boolean,,MISSING,,
 Pane,Application,"property, read-only",As Application,,UNASSESSED,,
 Pane,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
-Pane,Index,"property, read-only",As Long,,UNASSESSED,,
+Pane,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/window_members.json; tests/test_excel_window_members.py,"1, the one pane of a window with no split; a split window reports itself"
 Pane,LargeScroll,method,"LargeScroll([Down As Variant], [Up As Variant], [ToRight As Variant], [ToLeft As Variant]) As Variant",,MISSING,,
 Pane,Parent,"property, read-only",As Object,,UNASSESSED,,
 Pane,PointsToScreenPixelsX,method,PointsToScreenPixelsX(Points As Long) As Long,,MISSING,,

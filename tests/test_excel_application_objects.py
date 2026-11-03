@@ -37,6 +37,13 @@ def test_reads_as_excel_does(name: str) -> None:
     assert _read(name) == ROWS[name]
 
 
+def test_build_this_workbook_and_display_alerts() -> None:
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(MEASURED["probe"], name="Probe")
+    assert app.run("Direct") == MEASURED["direct"]
+
+
 def test_setting_an_option_reports_itself() -> None:
     app = ExcelApplication()
     app.add_workbook()

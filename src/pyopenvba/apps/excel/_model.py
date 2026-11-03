@@ -481,7 +481,9 @@ class Application(ExcelObject):
 
     @member
     def Build(self) -> object:
-        return VBAInt(0, "Long")
+        """The build of the Excel the model is measured against, a Long; CallByName alone reads it as a Double, which
+        the model does not copy (tests/fixtures/application_objects.json)."""
+        return VBAInt(20527, "Long")
 
     @member
     def Application(self) -> object:

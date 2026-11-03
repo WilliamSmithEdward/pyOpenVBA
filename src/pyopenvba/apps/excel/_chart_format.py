@@ -16,7 +16,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape
-from pyopenvba.apps.excel._chart_styled import is_styled, line_read, series_line_weight
+from pyopenvba.apps.excel._chart_styled import is_styled, line_read, point_line_weight, series_line_weight
 from pyopenvba.apps.excel._charts import CHART_TYPES, shown_type
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._styles import bgr
@@ -340,6 +340,9 @@ class SeriesLine(_Part):
 
     @member
     def Weight(self) -> object:
+        style = self.series.chart.state.chart_style
+        if is_styled(style) and self.look().line_width is None and self.kind() in FILLED and point_line_weight(style):
+            return VBASingle(point_line_weight(style))
         if self.absent() or self.reads_hidden():
             return VBASingle(_MIXED)
         width = self.look().line_width

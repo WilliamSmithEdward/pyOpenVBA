@@ -205,6 +205,8 @@ class ChartState:
     chart_style: int = 2
     #: Whether AddChart2 made it a scatter chart, which differs from another chart turned into one.
     made_scatter: bool = False
+    #: The data labels its style gives its series: their value, category, name and percentage, and their place.
+    style_labels: list[Any] | None = None
     #: Every series in order, while any is filtered out of ``series``, which keeps those drawn.
     full_series: list[SeriesState] = field(default_factory=lambda: [])
     #: Those whose cells are all hidden, who leave SeriesCollection and FullSeriesCollection until they are shown
@@ -634,9 +636,13 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
     source = _picked_up(sheet)
     if settled:
         _set_out(chart, settled)
+        if source is None and fresh.style_labels:
+            # A chart made with nothing to plot keeps its labels' parts and loses their place.
+            fresh.style_labels = [*fresh.style_labels[:4], '']
     if source is not None:
         fresh.unique_base = fresh.next_unique = 0
         chart.SetSourceData(source)
+        _labelled(fresh)
         if CHART_TYPES[fresh.chart_type] == 'scatter':
             _across_first(fresh)
     new = new_layout is MISSING or to_bool(new_layout)
@@ -646,7 +652,7 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
         fresh.title_typed = False
         fresh.legend = len(fresh.series) > 1 or CHART_TYPES[fresh.chart_type] in ('pie', 'doughnut')
     if settled:
-        said = extras(chosen)
+        said = extras(chosen, CHART_TYPES[fresh.chart_type])
         if new and not said[0]:
             fresh.title, fresh.title_deleted = None, True
         if new and not said[1]:
@@ -654,6 +660,21 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
         if fresh.legend:
             fresh.legend_position = said[1] or 'b'
     return shape
+
+
+def _labelled(chart: ChartState) -> None:
+    """Series take the data labels a style has: what they show, and where (tests/fixtures/chart_style_parts.json)."""
+    from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS
+
+    if chart.style_labels is None:
+        return
+    value, category, name, percent, place = chart.style_labels
+    position = next((number for number, spelled in LABEL_POSITIONS.items() if spelled == place), None)
+    for entry in chart.series:
+        if entry.data_labels:
+            continue
+        entry.data_labels = True
+        entry.label_look = LabelLook(value=value, category=category, series=name, percent=percent, position=position)
 
 
 def _across_first(chart: ChartState) -> None:
@@ -696,7 +717,7 @@ def _picked_up(sheet: Worksheet) -> Range | None:
 
 def _set_out(chart: Chart, settled: list[str]) -> None:
     """A chart as its style lays it out (tests/fixtures/chart_style_parts.json)."""
-    from pyopenvba.apps.excel._chart_axes import TICK_MARKS, states
+    from pyopenvba.apps.excel._chart_axes import TICK_MARKS, TitleState, states
     from pyopenvba.apps.excel._chart_style_table import DOUGHNUTS, extras
 
     _, gap, overlap, category_tick, value_tick, _, _, category_grid, value_grid = settled
@@ -713,11 +734,16 @@ def _set_out(chart: Chart, settled: list[str]) -> None:
         if tick != 'E':
             axis.major_tick = TICK_MARKS[int(tick)]
             axis.major_gridlines = grid == 'True'
-    said = extras(chart.state.chart_style)
-    if len(said) > 3:
+    said = extras(chart.state.chart_style, kind)
+    if kind not in ('pie', 'doughnut'):
         for axis, (minor_grid, minor_tick, deleted) in zip((axes[1], axes[2]), (said[2:5], said[5:8]), strict=True):
-            if axis.present:
-                axis.minor_gridlines, axis.minor_tick, axis.present = minor_grid, minor_tick, not deleted
+            axis.minor_gridlines, axis.minor_tick, axis.present = minor_grid, minor_tick, not deleted
+    labels, chart.state.drop_lines, chart.state.hi_lo_lines, category_title, value_title = said[8:13]
+    if kind not in ('pie', 'doughnut'):
+        for axis, titled in ((axes[1], category_title), (axes[2], value_title)):
+            axis.title = TitleState() if titled else None
+    # An area has no place to put them but its own.
+    chart.state.style_labels = ([*labels[:4], ''] if kind == 'area' else labels) if labels else None
 
 
 class ChartObjects(VBACollection, ItemDefault, Created):
@@ -1503,7 +1529,7 @@ class Chart(Created):
 
     @setter('ChartStyle')
     def _chart_style(self, value: object) -> None:
-        from pyopenvba.apps.excel._chart_style_table import PROVEN
+        from pyopenvba.apps.excel._chart_style_table import DEFAULT_STYLES, PROVEN, extras, layout
         from pyopenvba.apps.excel._chart_styled import is_styled
 
         wanted = int(to_integer(value, 'Long'))
@@ -1515,6 +1541,15 @@ class Chart(Created):
             raise VBAUnsupportedError('A chart style past 48 is not implemented')
         self.changed()
         self.state.chart_style = wanted
+        kind = self.state.chart_type
+        if wanted > 48 and (wanted not in DEFAULT_STYLES.values() or wanted == DEFAULT_STYLES.get(kind)):
+            # A style is a layout too, but a style that is another chart type's default brings only its looks
+            # (tests/fixtures/add_chart2.json, three cases).
+            _set_out(self, layout(wanted, kind))
+            _labelled(self.state)
+            place = extras(wanted, CHART_TYPES[kind])[1]
+            if self.state.legend and place:
+                self.state.legend_position = place
 
     @member
     def ChartColor(self) -> object:
@@ -1769,8 +1804,13 @@ class Chart(Created):
             # Stacking a column or bar chart overlaps its bars fully, and unstacking it parts them
             # (tests/fixtures/chart_stacked.json).
             self.state.overlap = 100 if wanted in STACKED else 0
-        elif (self.state.chart_style > 48
-              and {CHART_TYPES[wanted], CHART_TYPES.get(self.state.chart_type)} == {'column', 'bar'}):
+        if self.state.style_labels:
+            # A style's labels keep what they show and lose their place (tests/fixtures/add_chart2.json).
+            self.state.style_labels = [*self.state.style_labels[:4], '']
+            for entry in self.state.series:
+                entry.label_look.position = None
+        if (self.state.chart_style > 48 and wanted not in STACKED and self.state.chart_type not in STACKED
+                and {CHART_TYPES[wanted], CHART_TYPES.get(self.state.chart_type)} == {'column', 'bar'}):
             # A style's overlap does not survive its bars turning (tests/fixtures/add_chart2.json).
             self.state.overlap = 0
         self.state.chart_type = wanted
@@ -2034,6 +2074,7 @@ class Chart(Created):
         place = -1 if selected is None else selected.position() - 1
         self.state.series[:] = series_plan
         self.state.full_series, self.state.out_of_sight = [], []
+        _labelled(self.state)
         if selected is not None and place < len(series_plan):
             # What is selected stays selected, in the same place among the new series.
             selected.entry = series_plan[place]
@@ -2693,6 +2734,7 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
         self.chart.changed()
         self.chart.state.next_unique += 1
         self.chart.state.series.append(entry)
+        _labelled(self.chart.state)
         return Series(self.chart, entry)
 
 
@@ -3384,7 +3426,10 @@ class Series(Created):
         entry = self.entry
         drawn = CHART_TYPES.get(shown_type(self.chart.state)) in _DRAWS_MARKERS
         style = self.chart.state.chart_style
-        size = entry.marker_size or (9 if drawn and style <= 48 and self.lines().marker == MARKER_AUTOMATIC else 5)
+        from pyopenvba.apps.excel._chart_styled import is_styled, marker_size
+
+        size = entry.marker_size or (marker_size(style) if is_styled(style) else
+                                     9 if drawn and self.lines().marker == MARKER_AUTOMATIC else 5)
         return VBAInt(size, 'Long')
 
     @setter('MarkerSize')

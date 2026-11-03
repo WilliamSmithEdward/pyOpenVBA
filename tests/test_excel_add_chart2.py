@@ -28,9 +28,8 @@ LEFT_OUT: tuple[str, ...] = (
     'xlRadar',
     'xl3DColumn',
     'ChartObjects(1).RoundedCorners',
-    # The other styles, which AddChart2 refuses here.
-    'AddChart2(202,',
-    'AddChart2(205,',
+    # A size the style does not give, which the engine refuses to read.
+    'AddChart2(353, xlColumnClustered): r = n.Chart.ChartTitle.Font.Size',
     # Its legend's paragraph says rtl only after other cases in one run: alone, it does not (live, 2026-11-03).
     'ws.Range("A1:E2").Select',
 )
@@ -154,7 +153,7 @@ def test_a_pair_not_proven_says_so(style_app: ExcelApplication, tmp_path: Path, 
         style_app.run('StyleProbe.Probe', str(tmp_path / 'p.xlsx'), int(style), int(kind))
 
 
-@pytest.mark.parametrize('style', [202, 205, 238])
+@pytest.mark.parametrize('style', sorted(set(range(201, 498)) - PROVEN[51])[:4])
 def test_the_other_styles_say_they_are_not_implemented(style: int) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

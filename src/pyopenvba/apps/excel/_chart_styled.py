@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._chart_style_table import FIRST_STYLE, THEME_EFFECTS, THEME_FILLS, style_part
 from pyopenvba.apps.excel._chart_xml import TextLook
+from pyopenvba.exceptions import VBAUnsupportedError
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import ChartState, SeriesState
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
 _NO_FILL = '<a:noFill/>'
 _NO_LINE = '<a:ln><a:noFill/></a:ln>'
 _NO_EFFECTS = '<a:effectLst/>'
+#: The symbols of automatic markers, in the order the series take them.
+_SYMBOLS_IN_TURN = ('diamond', 'square', 'triangle', 'x', 'star', 'circle', 'plus', 'dot', 'dash')
 #: What in a style's run stands for its colour.
 _RUN_FILLS = ('<a:gradFill', '<a:solidFill', '<a:noFill', '<a:pattFill')
 #: The theme colours a series takes in turn, then again through the colours part's variations.
@@ -102,8 +105,8 @@ def _split(inner: str) -> tuple[str, str, str]:
     line = re.search(r'<a:ln\b[^>]*?/>|<a:ln\b.*?</a:ln>', inner, re.S)
     if line is None:
         found = re.search(r'<a:(?:effectLst|scene3d|sp3d)\b', inner)
-        return (inner[:found.start()], '', inner[found.start():]) if found else (inner, '', '')
-    return inner[:line.start()], line.group(0), inner[line.end():]
+        return (inner[: found.start()], '', inner[found.start() :]) if found else (inner, '', '')
+    return inner[: line.start()], line.group(0), inner[line.end() :]
 
 
 def _theme_item(entry: str, tag: str, items: tuple[str, ...]) -> str:
@@ -146,7 +149,9 @@ def _text_fields(style: int, name: str) -> dict[str, str]:
 
 def _text_colour(style: int, name: str) -> str:
     found = re.search(r'<cs:fontRef idx="\w+">(.*?)</cs:fontRef>', _entries(style)[name], re.S)
-    return found.group(1) if found else '<a:scrgbClr r="0" g="0" b="0"/>'
+    if found is None:
+        return '<a:scrgbClr r="0" g="0" b="0"/>'
+    return found.group(1).replace('<cs:styleClr val="auto"/>', '<a:schemeClr val="phClr"/>')
 
 
 def _run_children(style: int, name: str) -> str:
@@ -222,7 +227,7 @@ def _point_box(style: int, index: int, own: str = '') -> str:
 
 def _line(style: int, index: int, own: str = '') -> str:
     _, line, after = _shape(_entries(style)['dataPointLine'])
-    return _painted(f'<c:spPr>{_own_shape(own)[1] or line}{after or _NO_EFFECTS}</c:spPr>', _accent(index))
+    return _painted(f'<c:spPr>{_own_shape(own)[1] or line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr>', _accent(index))
 
 
 def _width(line: str) -> int:
@@ -230,11 +235,17 @@ def _width(line: str) -> int:
     return int(found.group(1)) if found else 0
 
 
-def _scatter_line(made_scatter: bool) -> str:
-    """A scatter chart's series have a line of no colour, of a width that depends on whether it was made a scatter chart
-    or turned into one (tests/fixtures/add_chart2.json)."""
-    width = 38100 if made_scatter else 25400
-    return f'<c:spPr><a:ln w="{width}" cap="rnd"><a:noFill/><a:round/></a:ln><a:effectLst/></c:spPr>'
+def _scatter_line(style: int, index: int, made_scatter: bool) -> str:
+    """A scatter chart's series have a line of no colour. Made a scatter chart, it is the style's line, with its effects,
+    at a width of its own; another chart turned into one has a line of its own (tests/fixtures/add_chart2.json)."""
+    if not made_scatter:
+        return '<c:spPr><a:ln w="25400" cap="rnd"><a:noFill/><a:round/></a:ln><a:effectLst/></c:spPr>'
+    _, line, after = _shape(_entries(style)['dataPointLine'])
+    if not line:
+        return _painted(f'<c:spPr><a:ln w="38100"><a:noFill/></a:ln>{after or _NO_EFFECTS}</c:spPr>', _accent(index))
+    drawn = re.sub(r'<a:(solidFill|gradFill|pattFill)\b.*?</a:\1>', '<a:noFill/>', line, count=1, flags=re.S)
+    wide = re.sub(r'\bw="\d+"', 'w="38100"', drawn, count=1)
+    return _painted(f'<c:spPr>{wide}{after or _NO_EFFECTS}</c:spPr>', _accent(index))
 
 
 def _marker(style: int, index: int) -> str:
@@ -242,9 +253,13 @@ def _marker(style: int, index: int) -> str:
     layout = dict(re.findall(r'(\w+)="([^"]*)"', entry['dataPointMarkerLayout']))
     fill, line, after = _shape(entry['dataPointMarker'])
     colour = _accent(index)
+    # A size alone leaves the symbol to the series' turn, and with neither the marker says only its look.
+    drawn = ''
+    if layout:
+        symbol = layout.get('symbol') or _SYMBOLS_IN_TURN[index % len(_SYMBOLS_IN_TURN)]
+        drawn = f'<c:symbol val="{symbol}"/><c:size val="{layout.get("size", "5")}"/>'
     return _painted(
-        f'<c:marker><c:symbol val="{layout.get("symbol", "circle")}"/><c:size val="{layout.get("size", "5")}"/><c:spPr>'
-        f'{fill or f"<a:solidFill>{colour}</a:solidFill>"}{line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr></c:marker>',
+        f'<c:marker>{drawn}<c:spPr>{fill or _NO_FILL}{line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr></c:marker>',
         colour,
     )
 
@@ -278,25 +293,73 @@ def _dressed_points(series: str, style: int, index: int, slices: bool) -> str:
     return plain[: head.end()] + ''.join(held[point] for point in sorted(held)) + plain[head.end() :]
 
 
-def _dressed_labels(series: str, style: int) -> str:
-    """Data labels' text, which fits its box, and their leader lines."""
-    body = (
-        '<a:bodyPr rot="0" spcFirstLastPara="1" vertOverflow="ellipsis" vert="horz" wrap="square" lIns="38100"'
-        ' tIns="19050"'
-        ' rIns="38100" bIns="19050" anchor="ctr" anchorCtr="1"><a:spAutoFit/></a:bodyPr>'
-    )
+def _label_body(style: int) -> str:
+    """Data labels' text fits its box, unless the style says otherwise of it."""
+    found = re.search(r'<cs:bodyPr\b.*?</cs:bodyPr>|<cs:bodyPr\b[^>]*/>', _entries(style)['dataLabel'], re.S)
+    said = dict(re.findall(r'(\w+)="([^"]*)"', found.group(0)[: found.group(0).index('>')])) if found else {}
+    fields = {
+        'rot': '0',
+        'spcFirstLastPara': '1',
+        'vertOverflow': 'ellipsis',
+        'horzOverflow': '',
+        'vert': 'horz',
+        'wrap': 'square',
+        'lIns': '38100',
+        'tIns': '19050',
+        'rIns': '38100',
+        'bIns': '19050',
+        'anchor': 'ctr',
+        'anchorCtr': '1',
+    } | said
+    spelled = ' '.join(f'{key}="{value}"' for key, value in fields.items() if value)
+    return f'<a:bodyPr {spelled}><a:spAutoFit/></a:bodyPr>'
+
+
+def _dressed_labels(series: str, style: int, index: int) -> str:
+    """Data labels' box and text, and their leader lines."""
 
     def dressed_one(found: re.Match[str]) -> str:
         labels = found.group(0)
         if '<c:txPr>' not in labels:
-            labels = labels.replace('</c:spPr>', '</c:spPr>' + _text(style, 'dataLabel', body), 1)
+            labels = re.sub(
+                r'<c:spPr>.*?</c:spPr>', lambda hit: _box(style, 'dataLabel', ''), labels, count=1, flags=re.S
+            )
+            text = _painted(_text(style, 'dataLabel', _label_body(style)), _accent(index))
+            labels = labels.replace('</c:spPr>', '</c:spPr>' + text, 1)
         return labels.replace(
             '<c15:showLeaderLines val="1"/></c:ext>',
             f'<c15:showLeaderLines val="1"/><c15:leaderLines>{_stroke(style, "leaderLine")}</c15:leaderLines></c:ext>',
             1,
         )
 
-    return re.sub(r'<c:dLbls>.*?</c:dLbls>', dressed_one, series, flags=re.S)
+    series = re.sub(r'<c:dLbls>.*?</c:dLbls>', dressed_one, series, flags=re.S)
+    # On a pie the file's own element holds them.
+    return re.sub(
+        r'(<c:showLeaderLines val="1"/>)(<c:extLst><c:ext uri="[^"]*" xmlns:c15="[^"]*"/></c:extLst>)',
+        lambda hit: f'{hit.group(1)}<c:leaderLines>{_stroke(style, "leaderLine")}</c:leaderLines>{hit.group(2)}',
+        series,
+    )
+
+
+def _group_labels(xml: str, state: ChartState) -> str:
+    """The chart's own labels say what its style's say."""
+    if state.style_labels is None:
+        return xml
+    value, category, name, percent, place = state.style_labels
+    where = f'<c:dLblPos val="{place}"/>' if place else ''
+    flags = (
+        f'{where}<c:showLegendKey val="0"/><c:showVal val="{int(value)}"/>'
+        f'<c:showCatName val="{int(category)}"/><c:showSerName val="{int(name)}"/><c:showPercent val="{int(percent)}"/>'
+        '<c:showBubbleSize val="0"/>'
+    )
+    at = xml.rindex('</c:ser>') if '</c:ser>' in xml else xml.index('<c:plotArea>')
+    return xml[:at] + re.sub(
+        r'<c:dLbls>(?:<c:dLblPos val="\w+"/>)?<c:showLegendKey val="0"/>.*?<c:showBubbleSize val="0"/>',
+        lambda _: '<c:dLbls>' + flags,
+        xml[at:],
+        count=1,
+        flags=re.S,
+    )
 
 
 def _dressed_series(xml: str, state: ChartState) -> str:
@@ -317,17 +380,23 @@ def _dressed_series(xml: str, state: ChartState) -> str:
         mine = own.group(0) if own else ''
         rest = rest[len(mine) :]
         if kind == '<c:scatterChart>' and entry.format_look is None:
-            look = _scatter_line(state.made_scatter)
+            look = _scatter_line(style, index, state.made_scatter)
         elif kind in ('<c:lineChart>', '<c:scatterChart>'):
             look = _line(style, index, mine)
         elif kind in ('<c:pieChart>', '<c:doughnutChart>'):
-            look = _box(style, 'dataPoint', mine) if mine else ''
+            # A look that takes no colour of the point's is the series' too.
+            point_fill, point_line, _ = _shape(_entries(style)['dataPoint'])
+            plain = 'phClr' not in point_fill and (point_fill != '' or 'phClr' not in point_line)
+            look = _painted(_box(style, 'dataPoint', mine), _accent(index)) if mine or plain else ''
         else:
             look = _point_box(style, index, mine)
         if kind in ('<c:lineChart>', '<c:scatterChart>') and not rest.startswith('<c:marker>'):
             look += _marker(style, index)
+        if state.style_labels is not None and not entry.data_labels and '<c:dLbls>' not in rest:
+            # Labels the style gave and a macro took away.
+            rest = re.sub(r'(?=<c:(?:cat|xVal|val|yVal)>)', '<c:dLbls><c:delete val="1"/></c:dLbls>', rest, count=1)
         series = _dressed_points(series[: head.end()] + look + rest, style, index, kind in _SERIES_KINDS[2:4])
-        series = _dressed_labels(series, style)
+        series = _dressed_labels(series, style, index)
         series = series.replace(
             '<c:trendline><c:trendlineType',
             '<c:trendline>' + _painted(_stroke(style, 'trendline'), _accent(index)) + '<c:trendlineType',
@@ -412,6 +481,9 @@ def dressed(xml: str, state: ChartState) -> str:
         flags=re.S,
     )
     xml = _dressed_series(xml, state)
+    xml = _group_labels(xml, state)
+    xml = xml.replace('<c:dropLines/>', f'<c:dropLines>{_stroke(style, "dropLine")}</c:dropLines>')
+    xml = xml.replace('<c:hiLowLines/>', f'<c:hiLowLines>{_stroke(style, "hiLoLine")}</c:hiLowLines>')
     xml = _dressed_axes(xml, state)
     if '<c:ser>' not in xml:
         # With nothing drawn the leader lines are off.
@@ -427,7 +499,8 @@ def dressed(xml: str, state: ChartState) -> str:
     plot_own = plot.group(0) if plot else ''
     if plot is not None:
         xml = xml[: plot.start()] + xml[plot.end() :]
-    xml = xml.replace('</c:plotArea>', _box(style, 'plotArea', plot_own) + '</c:plotArea>', 1)
+    plot_entry = 'plotArea3D' if '<c:pieChart>' in xml or '<c:doughnutChart>' in xml else 'plotArea'
+    xml = xml.replace('</c:plotArea>', _box(style, plot_entry, plot_own) + '</c:plotArea>', 1)
 
     def legend(found: re.Match[str]) -> str:
         whole = found.group(0)
@@ -449,7 +522,7 @@ def dressed(xml: str, state: ChartState) -> str:
     text = area.group(2) or (
         '<c:txPr><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr/></a:pPr><a:endParaRPr lang="en-US"/></a:p></c:txPr>'
     )
-    made = xml[:area.start()] + _box(style, 'chartArea', area.group(1) or '') + text + xml[area.end():]
+    made = xml[: area.start()] + _box(style, 'chartArea', area.group(1) or '') + text + xml[area.end() :]
     # The elements that are no series' take the first colour for the style's placeholder.
     return _painted(made, _accent(0))
 
@@ -483,7 +556,10 @@ def font_read(style: int, key: str, theme: tuple[str, ...]) -> tuple[float, bool
     """What the font of the element reads while nothing was set of it: size, bold and colour."""
     name = _font_entry(key)
     fields = _text_fields(style, name)
-    return int(fields.get('sz', '1000')) / 100, fields.get('b', '0') == '1', _rgb(_text_colour(style, name), theme)
+    if 'sz' not in fields:
+        # It reads something no rule here explains: 1027.6 at one style (tests/fixtures/add_chart2.json).
+        raise VBAUnsupportedError('The font size of a chart element whose style gives none is not implemented')
+    return int(fields['sz']) / 100, fields.get('b', '0') == '1', _rgb(_text_colour(style, name), theme)
 
 
 def line_read(style: int, key: str, theme: tuple[str, ...]) -> tuple[float, str] | None:
@@ -500,6 +576,16 @@ def line_read(style: int, key: str, theme: tuple[str, ...]) -> tuple[float, str]
         return None
     line = _shape(_entries(style)[name])[1]
     return (_width(line) / 12700, _rgb(line, theme)) if _width(line) else None
+
+
+def marker_size(style: int) -> int:
+    """The size of a series' marker."""
+    return int(dict(re.findall(r'(\w+)="([^"]*)"', _entries(style)['dataPointMarkerLayout'])).get('size', '5'))
+
+
+def point_line_weight(style: int) -> float:
+    """The weight of the line round a series' columns or area, none where the style gives none."""
+    return _width(_shape(_entries(style)['dataPoint'])[1]) / 12700
 
 
 def series_line_weight(style: int) -> float:

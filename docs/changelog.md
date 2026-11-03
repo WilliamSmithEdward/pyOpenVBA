@@ -15,6 +15,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Trendline.Forward2`, `Backward2` and setting `Backward`, which only a scatter chart runs
+  past half a category. `Trendline.DataLabel` reads and deletes; changing it is refused.
+  `Axis.MinorUnitScale` reads as on a category axis over numbers.
 - `SeriesCollection.Add` and `Extend`. A series can now read several areas, as in
   `=SERIES(,,(Data!$B$2:$B$5,Data!$C$6),1)`.
 - `ChartObject.Duplicate`, `ChartObjects.Duplicate` and `Shape.Duplicate` of a chart, each

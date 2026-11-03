@@ -34,6 +34,7 @@ class TrendlineState:
     order: int = 2
     period: int = 2
     forward: float = 0.0
+    backward: float = 0.0
     #: None while Excel works the intercept out.
     intercept: float | None = None
     #: None while the name is automatic.
@@ -94,6 +95,8 @@ def markup(lines: list[TrendlineState]) -> str:
             body += f'<c:period val="{line.period}"/>'
         if line.forward:
             body += f'<c:forward val="{_number_text(line.forward)}"/>'
+        if line.backward:
+            body += f'<c:backward val="{_number_text(line.backward)}"/>'
         if line.intercept is not None:
             body += f'<c:intercept val="{_number_text(line.intercept)}"/>'
         body += f'<c:dispRSqr val="{int(line.r_squared)}"/><c:dispEq val="{int(line.equation)}"/>'
@@ -180,6 +183,34 @@ class _TrendlineLine:
     def change(self) -> FillLine:
         self.owner.series.chart.changed()
         return self.look()
+
+
+class TrendlineLabel(Created):
+    """A trendline's equation and R-squared label, read while no window has drawn it (tests/fixtures/
+    trendline_members.json). Changing it is not implemented."""
+
+    vba_type_name = 'DataLabel'
+
+    def __init__(self, owner: Trendline) -> None:
+        self.owner = owner
+
+    @member
+    def Text(self) -> object:
+        return ''
+
+    @member
+    def NumberFormat(self) -> object:
+        return 'General'
+
+    @member
+    def Name(self) -> object:
+        return f'Text S{self.owner.series.position()}T{self.owner.vba_get("Index", [])}'
+
+    @method
+    def Delete(self) -> object:
+        self.owner.vba_set('DisplayEquation', False)
+        self.owner.vba_set('DisplayRSquared', False)
+        return EMPTY
 
 
 class Trendline(Created):
@@ -295,18 +326,41 @@ class Trendline(Created):
         self.line.forward = wanted
 
     @member
+    def Forward2(self) -> object:
+        return self.vba_get('Forward', [])
+
+    @setter('Forward2')
+    def _forward2(self, value: object) -> None:
+        self.vba_set('Forward', value)
+
+    @member
     def Backward(self) -> object:
         self._index()
-        return 0.0
+        return self.line.backward
 
     @setter('Backward')
     def _backward(self, value: object) -> None:
-        from pyopenvba.apps.excel._charts import CHART_TYPES, shown_type
-
         self._change()
-        if CHART_TYPES.get(shown_type(self.series.chart.state)) == 'scatter':
-            raise VBAUnsupportedError("A scatter chart trendline's Backward is not implemented")
-        raise error(-2147467259, 'Automation error\nUnspecified error ')
+        wanted = _checked_forward(value)
+        # Only a chart with a value axis both ways runs back more than half a category
+        # (tests/fixtures/trendline_members.json).
+        if wanted > 0.5 and self.series.chart.vba_get('ChartType', []) != -4169:
+            raise error(-2147467259, 'Automation error\nUnspecified error ')
+        self.series.chart.changed()
+        self.line.backward = wanted
+
+    @member
+    def Backward2(self) -> object:
+        return self.vba_get('Backward', [])
+
+    @setter('Backward2')
+    def _backward2(self, value: object) -> None:
+        self.vba_set('Backward', value)
+
+    @member
+    def DataLabel(self) -> object:
+        self._index()
+        return TrendlineLabel(self)
 
     @member
     def Intercept(self) -> object:

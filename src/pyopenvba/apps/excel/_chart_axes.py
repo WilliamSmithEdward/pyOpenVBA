@@ -244,6 +244,22 @@ class Axis(Created):
         entry.base_unit, entry.base_auto = None, True
 
     @member
+    def MinorUnitScale(self) -> object:
+        """Reads 0 on a category axis over numbers, even with a time scale, and raises elsewhere
+        (tests/fixtures/trendline_members.json)."""
+        self.category_read()
+        return VBAInt(0, "Long")
+
+    @setter("MinorUnitScale")
+    def _minor_unit_scale(self, value: object) -> None:
+        raise error(-2147467259, "Automation error\nUnspecified error ")
+
+    def category_read(self) -> None:
+        self.read()
+        if self.entry.kind == 2 or self.chart.state.chart_type == -4169:
+            raise error(-2147467259, "Automation error\nUnspecified error ")
+
+    @member
     def MajorUnitScale(self) -> object:
         entry = self.category()
         if entry.major_scale is None or entry.major is None:

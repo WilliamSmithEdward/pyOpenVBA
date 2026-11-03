@@ -402,7 +402,7 @@ Axis,MinorGridlines,"property, read-only",As Gridlines,,PARTIAL,tests/fixtures/c
 Axis,MinorTickMark,property,As XlTickMark,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"None by default; none, in, out and cross. Other values raise -2147467259. Imported charts read only."
 Axis,MinorUnit,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Value axes; written as minorUnit. Zero or less raises -2147467259. The automatic value needs native layout and is refused.
 Axis,MinorUnitIsAuto,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,True clears MinorUnit. Value axes only.
-Axis,MinorUnitScale,property,As XlTimeUnit,,MISSING,,
+Axis,MinorUnitScale,property,As XlTimeUnit,,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,Over numbers only; dates were not measured.
 Axis,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,ReversePlotOrder,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,ScaleType,property,As XlScaleType,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"Anything but xlScaleLinear makes the scale logarithmic, written as logBase 10 until LogBase is set."
@@ -2936,17 +2936,17 @@ Top10,TopBottom,property,As XlTopBottom,,PARTIAL,tests/test_excel_conditional_st
 Top10,Type,"property, read-only",As Long,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 Trendline,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Backward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
-Trendline,Backward2,property,As Double,,MISSING,,
+Trendline,Backward2,property,As Double,,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,
 Trendline,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_borders.json; tests/test_excel_chart_borders.py,"Color, ColorIndex, Weight and LineStyle, with the markup Excel writes."
 Trendline,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
 Trendline,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
-Trendline,DataLabel,"property, read-only",As DataLabel,,MISSING,,
+Trendline,DataLabel,"property, read-only",As DataLabel,,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,Reads and Delete; changing it is refused.
 Trendline,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,DisplayEquation,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,DisplayRSquared,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_line_format.json; tests/test_excel_chart_line_format.py,"Its Line. Theme colours, arrowheads, and effects are refused; Fill raises as in Excel."
 Trendline,Forward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
-Trendline,Forward2,property,As Double,,MISSING,,
+Trendline,Forward2,property,As Double,,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,
 Trendline,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Trendline,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Intercept,property,As Double,no setter,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.

@@ -188,6 +188,13 @@ class Trendline(Created):
     def __init__(self, series: Series, line: TrendlineState) -> None:
         self.series, self.line = series, line
 
+    @method
+    def ClearFormats(self) -> object:
+        self._index()
+        self.series.chart.changed()
+        self.line.look = FillLine()
+        return EMPTY
+
     @member
     def Format(self) -> object:
         from pyopenvba.apps.excel._chart_line_format import LineChartFormat

@@ -625,8 +625,8 @@ Chart,Walls,"property, read-only",As Walls,,PARTIAL,tests/fixtures/chart_members
 ChartArea,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 ChartArea,Border,not in the type library,,,UNASSESSED,,
 ChartArea,Clear,method,Clear() As Variant,,MISSING,,
-ChartArea,ClearContents,method,ClearContents() As Variant,,MISSING,,
-ChartArea,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+ChartArea,ClearContents,method,ClearContents() As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,"With an axis look, Excel keeps a number format the model drops."
+ChartArea,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
 ChartArea,Copy,method,Copy() As Variant,,MISSING,,
 ChartArea,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 ChartArea,Font,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,A txPr after the chart. Whether it reaches the other elements was not measured: refused beside theirs.
@@ -746,7 +746,7 @@ ChartObjects,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/char
 ChartObjects,Placement,property,As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
 ChartObjects,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
 ChartObjects,ProtectChartObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Reads False. No setter.
-ChartObjects,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
+ChartObjects,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,Several together are refused.
 ChartObjects,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The sheet's charts as one range.
 ChartObjects,Top,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
@@ -1409,16 +1409,38 @@ LegendEntries,Parent,"property, read-only",As Object,,MISSING,,
 LegendEntry,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 LegendEntry,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
 LegendEntry,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"A legendEntry with delete, by series or point index; answers Empty. Deleting the last entry takes the legend away and raises 1004."
-LegendEntry,Font,"property, read-only",As Font,,MISSING,,
+LegendEntry,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
 LegendEntry,Format,"property, read-only",As ChartFormat,,MISSING,,
 LegendEntry,Height,"property, read-only",As Double,,MISSING,,
-LegendEntry,Index,"property, read-only",As Long,,MISSING,,
+LegendEntry,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
 LegendEntry,Left,"property, read-only",As Double,,MISSING,,
-LegendEntry,LegendKey,"property, read-only",As LegendKey,,MISSING,,
+LegendEntry,LegendKey,"property, read-only",As LegendKey,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,Refused for a trendline or pie slice.
 LegendEntry,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,The Legend.
 LegendEntry,Select,method,Select() As Variant,,UNASSESSED,,
 LegendEntry,Top,"property, read-only",As Double,,MISSING,,
 LegendEntry,Width,"property, read-only",As Double,,MISSING,,
+LegendKey,Application,"property, read-only",As Application,,MISSING,,
+LegendKey,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+LegendKey,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+LegendKey,Delete,method,Delete() As Variant,,UNASSESSED,,
+LegendKey,Format,"property, read-only",As ChartFormat,,UNASSESSED,,
+LegendKey,Height,"property, read-only",As Double,,MISSING,,
+LegendKey,InvertIfNegative,property,As Boolean,no setter,UNASSESSED,,
+LegendKey,Left,"property, read-only",As Double,,MISSING,,
+LegendKey,MarkerBackgroundColor,property,As Long,,MISSING,,
+LegendKey,MarkerBackgroundColorIndex,property,As XlColorIndex,,MISSING,,
+LegendKey,MarkerForegroundColor,property,As Long,,MISSING,,
+LegendKey,MarkerForegroundColorIndex,property,As XlColorIndex,,MISSING,,
+LegendKey,MarkerSize,property,As Long,,MISSING,,
+LegendKey,MarkerStyle,property,As XlMarkerStyle,no setter,UNASSESSED,,
+LegendKey,Parent,"property, read-only",As Object,,UNASSESSED,,
+LegendKey,PictureType,property,As Long,,MISSING,,
+LegendKey,PictureUnit2,property,As Double,,MISSING,,
+LegendKey,Select,not in the type library,,,UNASSESSED,,
+LegendKey,Shadow,property,As Boolean,,MISSING,,
+LegendKey,Smooth,property,As Boolean,no setter,UNASSESSED,,
+LegendKey,Top,"property, read-only",As Double,,MISSING,,
+LegendKey,Width,"property, read-only",As Double,,MISSING,,
 LineFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
 LineFormat,BackColor,property,As ColorFormat,,MISSING,,
 LineFormat,BeginArrowheadLength,property,As MsoArrowheadLength,,MISSING,,
@@ -2044,7 +2066,7 @@ PivotTables,Item,method,Item(Index As Variant) As PivotTable,,PARTIAL,tests/test
 PivotTables,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PlotArea,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 PlotArea,Border,not in the type library,,,UNASSESSED,,
-PlotArea,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+PlotArea,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
 PlotArea,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 PlotArea,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 PlotArea,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
@@ -2914,7 +2936,7 @@ Trendline,Application,"property, read-only",As Application,,PARTIAL,tests/fixtur
 Trendline,Backward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Backward2,property,As Double,,MISSING,,
 Trendline,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_borders.json; tests/test_excel_chart_borders.py,"Color, ColorIndex, Weight and LineStyle, with the markup Excel writes."
-Trendline,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+Trendline,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
 Trendline,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,DataLabel,"property, read-only",As DataLabel,,MISSING,,
 Trendline,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.

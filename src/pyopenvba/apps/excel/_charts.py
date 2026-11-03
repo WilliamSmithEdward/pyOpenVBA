@@ -709,6 +709,15 @@ class ChartObjects(VBACollection, ItemDefault, Created):
             item.Delete()
         return EMPTY
 
+    @method
+    def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
+        items = self.vba_items()
+        if len(items) != 1:
+            raise VBAUnsupportedError('Selecting several chart objects together is not implemented')
+        # Alone, it is the chart that is selected, not its frame.
+        cast(ChartObject, items[0]).made_active('area')
+        return EMPTY
+
 
 def active_chart(sheet: Worksheet) -> object:
     """The sheet's active embedded chart, Nothing once a range is selected or the chart is gone
@@ -821,6 +830,25 @@ class ChartArea(Created):
     def Font(self) -> object:
         return self.chart.font_of(self, 'area')
 
+    # -- tests/fixtures/chart_clears.json
+
+    @method
+    def ClearFormats(self) -> object:
+        self.chart.changed()
+        self.chart.state.element_looks.pop('area', None)
+        return EMPTY
+
+    @method
+    def ClearContents(self) -> object:
+        """Takes away the series, leaving the chart's looks, its title and its legend."""
+        self.chart.changed()
+        state = self.chart.state
+        state.series[:] = []
+        state.full_series, state.out_of_sight = [], []
+        # Series made afterwards go on numbering from those that went.
+        state.unique_base = state.next_unique
+        return EMPTY
+
     @method
     def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
         # Selecting the chart area makes its chart the active one.
@@ -862,6 +890,12 @@ class PlotArea(Created):
     @member
     def Format(self) -> object:
         return self.chart.format_of(self, 'plot')
+
+    @method
+    def ClearFormats(self) -> object:
+        self.chart.changed()
+        self.chart.state.element_looks.pop('plot', None)
+        return EMPTY
 
     @member
     def Border(self) -> object:
@@ -2064,6 +2098,44 @@ class LegendEntries(VBACollection, Created):
         return items[position - 1]
 
 
+class LegendKey(Created):
+    """The key beside a legend entry, which is its series under another name: what is done to it is done to the series,
+    its deletion and selection included (tests/fixtures/chart_clears.json)."""
+
+    vba_type_name = 'LegendKey'
+
+    def __init__(self, series: Series) -> None:
+        self.series = series
+
+    @member
+    def Parent(self) -> object:
+        return self.series.chart.sheet.book.application
+
+    @member
+    def Format(self) -> object:
+        return self.series.vba_get('Format', [])
+
+    @member
+    def MarkerStyle(self) -> object:
+        return self.series.vba_get('MarkerStyle', [])
+
+    @member
+    def Smooth(self) -> object:
+        return self.series.vba_get('Smooth', [])
+
+    @member
+    def InvertIfNegative(self) -> object:
+        return self.series.vba_get('InvertIfNegative', [])
+
+    @method
+    def Delete(self) -> object:
+        return self.series.Delete()
+
+    @method
+    def Select(self) -> object:
+        return self.series.Select()
+
+
 class LegendEntry(Created):
     vba_type_name = 'LegendEntry'
 
@@ -2073,6 +2145,29 @@ class LegendEntry(Created):
     @method
     def Select(self) -> object:
         return select_element(self.legend.chart, self, True)
+
+    # -- tests/fixtures/chart_clears.json
+
+    @member
+    def Index(self) -> object:
+        return VBAInt(self.index + 1, 'Long')
+
+    @member
+    def Font(self) -> object:
+        """Its own, which starts as the legend's."""
+        from pyopenvba.apps.excel._chart_fonts import ChartFont
+
+        chart = self.legend.chart
+        shown = cast(ChartFont, self.legend.Font())
+        return chart.font_of(self, f'legend{self.index}', size=float(cast(float, to_number(shown.vba_get('Size', [])))),
+                             bold=bool(shown.vba_get('Bold', [])))
+
+    @member
+    def LegendKey(self) -> object:
+        state = self.legend.shown()
+        if self.index >= len(state.series) or CHART_TYPES.get(shown_type(state)) in ('pie', 'doughnut'):
+            raise VBAUnsupportedError('The legend key of a trendline or of a pie slice is not implemented')
+        return LegendKey(Series(self.legend.chart, state.series[self.index]))
 
     @member
     def Parent(self) -> object:

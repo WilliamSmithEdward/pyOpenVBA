@@ -149,12 +149,17 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
         text = rewrite(entry.refers_to, name_scope(sheet.book, entry) or sheet.name, sheet.name,
                        rows=rows, start=start, count=count, delete=delete)
         names.append((entry, text))
+    from pyopenvba.apps.excel import _chart_references
+
+    chart_references = _chart_references.plan(sheet.book, lambda text, owner: rewrite(
+        text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
     # All validation/conversion precedes mutation.
     from pyopenvba.apps.excel._shape_anchors import anchors, lines_edited
 
     held = anchors(sheet)
     merges = _merges.lines_planned(sheet, rows=rows, start=start, count=count, delete=delete)
     sheet.cells_ = moved
+    _chart_references.carry_out(chart_references)
     _merges.replaced(sheet, merges)
     for owner, cell, text in formulas:
         cell.formula = text
@@ -287,6 +292,10 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     for entry in sheet.book.names_.entries:
         names.append((entry, rewrite_shift(entry.refers_to, name_scope(sheet.book, entry) or sheet.name, sheet.name,
                                            shift)))
+    from pyopenvba.apps.excel import _chart_references
+
+    chart_references = _chart_references.plan(sheet.book, lambda text, owner: rewrite_shift(
+        text, owner, sheet.name, shift))
     from pyopenvba.apps.excel._autofilter import filter_shifted
 
     follow = filter_shifted(sheet, shift)
@@ -308,6 +317,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
         if text != entry.refers_to:
             entry.refers_to = text
             sheet.book.names_.changed = True
+    _chart_references.carry_out(chart_references)
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _arrays.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _data_tables.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))

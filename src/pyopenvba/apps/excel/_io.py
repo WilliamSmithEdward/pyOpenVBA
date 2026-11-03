@@ -1570,6 +1570,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         from pyopenvba.apps.excel._scenarios import written as with_scenarios
 
         patched = with_scenarios(sheet, patched)
+        from pyopenvba.apps.excel._allow_edit_ranges import written as with_allow_edit_ranges
+
+        patched = with_allow_edit_ranges(sheet, patched)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
             if outline_changes and sheet.outline_state is not None:

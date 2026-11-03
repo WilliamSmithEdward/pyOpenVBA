@@ -1,0 +1,355 @@
+{
+ "measured_at": "2026-11-03T21:30:15.519882+00:00",
+ "source": "Option Explicit\n\nPrivate Function Shown(ByVal v As Variant) As String\n    On Error Resume Next\n    If IsError(v) Then\n        Shown = CStr(v)\n    ElseIf IsArray(v) Then\n        Shown = \"array\"\n    Else\n        Shown = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPublic Function Tried(ByVal which As Long, ByVal path As String) As String\n    Dim w2 As Object, ws As Object, other As Object, r As Variant, s As String\n    Application.DisplayAlerts = False\n    Set w2 = Workbooks.Add(xlWBATWorksheet)\n    Set ws = w2.Worksheets(1)\n    Set other = w2.Worksheets.Add(After:=ws)\n    other.Name = \"Other\"\n    ws.Activate\n    w2.SaveAs path, xlOpenXMLWorkbook\n    On Error GoTo Failed\n    Run which, w2, ws, other, r\n    s = \"ok \" & Shown(r)\nAnswered:\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    Tried = s\n    w2.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Answered\nEnd Function\n\nPrivate Sub Run(ByVal which As Long, w2 As Object, ws As Object, other As Object, r As Variant)\n    Dim x As Object, i As Long, n As String\n    Select Case which\n    Case 0\n        r = TypeName(ws.Protection.AllowEditRanges)\n    Case 1\n        r = ws.Protection.AllowEditRanges.Count\n    Case 2\n        r = ws.Protection.AllowEditRanges(1).Title\n    Case 3\n        r = ws.Protection.AllowEditRanges(\"x\").Title\n    Case 4\n        r = ws.Protection.AllowEditRanges.Item(0).Title\n    Case 5\n        For Each x In ws.Protection.AllowEditRanges: i = i + 1: Next: r = i\n    Case 6\n        r = TypeName(ws.Protection.AllowEditRanges.Parent)\n    Case 7\n        r = TypeName(ws.Protection.AllowEditRanges.Application)\n    Case 8\n        r = TypeName(ws.Protection.AllowEditRanges.Add(\"One\", ws.Range(\"A1\")))\n    Case 9\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges.Count\n    Case 10\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Title\n    Case 11\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(\"One\").Title\n    Case 12\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(\"ONE\").Title\n    Case 13\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges.Item(1).Title\n    Case 14\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1)\n    Case 15\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1))\n    Case 16\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 17\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Range.Parent.Name\n    Case 18\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1).Users)\n    Case 19\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Users.Count\n    Case 20\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1).Parent)\n    Case 21\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1).Application)\n    Case 22\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): For Each x In ws.Protection.AllowEditRanges: r = TypeName(x): Next\n    Case 23\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\")\n    Case 24\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"ONE\", ws.Range(\"C1\"): r = ws.Protection.AllowEditRanges.Count\n    Case 25\n        ws.Protection.AllowEditRanges.Add \"\", ws.Range(\"A1\")\n    Case 26\n        ws.Protection.AllowEditRanges.Add \"One\"\n    Case 27\n        ws.Protection.AllowEditRanges.Add\n    Case 28\n        ws.Protection.AllowEditRanges.Add \"One\", \"A1\"\n    Case 29\n        ws.Protection.AllowEditRanges.Add \"One\", Nothing\n    Case 30\n        ws.Protection.AllowEditRanges.Add 5, ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges(1).Title\n    Case 31\n        ws.Protection.AllowEditRanges.Add String(255, \"a\"), ws.Range(\"A1\"): r = Len(ws.Protection.AllowEditRanges(1).Title)\n    Case 32\n        ws.Protection.AllowEditRanges.Add String(256, \"a\"), ws.Range(\"A1\")\n    Case 33\n        ws.Protection.AllowEditRanges.Add \"A B\", ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges(1).Title\n    Case 34\n        ws.Protection.AllowEditRanges.Add \"1a\", ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges(1).Title\n    Case 35\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1,C3\"): r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 36\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": r = ws.Protection.AllowEditRanges(1).Title\n    Case 37\n        ws.Protection.AllowEditRanges.Add \"One\", other.Range(\"A1\")\n    Case 38\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A:A\"): r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 39\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges.Count\n    Case 40\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Title = \"New\": r = ws.Protection.AllowEditRanges(1).Title\n    Case 41\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1\"): ws.Protection.AllowEditRanges(1).Title = \"Two\"\n    Case 42\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Title = \"\"\n    Case 43\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Range = ws.Range(\"D4\"): r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 44\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): Set ws.Protection.AllowEditRanges(1).Range = ws.Range(\"D4\"): r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 45\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Range = \"D4\"\n    Case 46\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).ChangePassword \"pw\": r = ws.Protection.AllowEditRanges(1).Title\n    Case 47\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).ChangePassword\n    Case 48\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Unprotect\n    Case 49\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protection.AllowEditRanges(1).Unprotect \"pw\": r = ws.Protection.AllowEditRanges(1).Title\n    Case 50\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protection.AllowEditRanges(1).Unprotect \"no\"\n    Case 51\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Delete: r = ws.Protection.AllowEditRanges.Count\n    Case 52\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Delete\n    Case 53\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1\"): ws.Protection.AllowEditRanges(1).Delete: r = ws.Protection.AllowEditRanges(1).Title\n    Case 54\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): Set x = ws.Protection.AllowEditRanges(1): x.Delete: r = x.Title\n    Case 55\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Everyone\", True: r = ws.Protection.AllowEditRanges(1).Users.Count & \"/\" & ws.Protection.AllowEditRanges(1).Users(1).Name & \"/\" & ws.Protection.AllowEditRanges(1).Users(1).AllowEdit\n    Case 56\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Nobody Here\", True\n    Case 57\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Everyone\", False: ws.Protection.AllowEditRanges(1).Users.RemoveAll: r = ws.Protection.AllowEditRanges(1).Users.Count\n    Case 58\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1\").Value = 1: r = ws.Range(\"A1\").Value\n    Case 59\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"C1\").Value = 1\n    Case 60\n        ws.Protect: ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\")\n    Case 61\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: r = ws.Protection.AllowEditRanges.Count\n    Case 62\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Protection.AllowEditRanges(1).Delete\n    Case 63\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Protection.AllowEditRanges(1).Title = \"New\"\n    Case 64\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: r = ws.Protection.AllowEditRanges(1).Title\n    Case 65\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Unprotect: ws.Protection.AllowEditRanges(1).Delete: r = ws.Protection.AllowEditRanges.Count\n    Case 66\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protect: ws.Range(\"A1\").Value = 1\n    Case 67\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protect: ws.Protection.AllowEditRanges(1).Unprotect \"pw\": ws.Range(\"A1\").Value = 1: r = ws.Range(\"A1\").Value\n    Case 68\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: r = ws.Range(\"A1\").Locked\n    Case 69\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1\").Clear\n    Case 70\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1:C1\").Value = 1\n    Case 71\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1:B2\").Value = 1: r = ws.Range(\"B2\").Value\n    Case 72\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1\").Interior.ColorIndex = 3\n    Case 73\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Rows(1).Insert: r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 74\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Columns(1).Delete: r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 75\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"): ws.Columns(1).Delete: r = ws.Protection.AllowEditRanges.Count\n    Case 76\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Range(\"A1:B2\").Cut ws.Range(\"D5\"): r = ws.Protection.AllowEditRanges(1).Range.Address\n    Case 77\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Copy After:=ws: r = ActiveSheet.Protection.AllowEditRanges.Count & \"/\" & ActiveSheet.Protection.AllowEditRanges(1).Title & \"/\" & ActiveSheet.Protection.AllowEditRanges(1).Range.Parent.Name\n    Case 78\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): w2.Save\n    Case 79\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1,E5\"): w2.Save\n    Case 80\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": w2.Save\n    Case 81\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: w2.Save\n    Case 82\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Everyone\", True: w2.Save\n    Case 83\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Delete: w2.Save\n    Case 84\n        ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1\"), \"pw\": w2.Save: n = w2.FullName: w2.Close False: Set w2 = Workbooks.Open(n): Set ws = w2.Worksheets(1): r = ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address & \"/\" & ws.Protection.AllowEditRanges(2).Title & \"/\" & ws.Protection.AllowEditRanges(2).Range.Address\n    End Select\nEnd Sub\n",
+ "saved": {
+  "78": "<protectedRanges><protectedRange sqref=\"A1:B2\" name=\"One\"/></protectedRanges>",
+  "79": "<protectedRanges><protectedRange sqref=\"A1:B2\" name=\"One\"/><protectedRange sqref=\"C1 E5\" name=\"Two\"/></protectedRanges>",
+  "80": "<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"lNDN6LMbO+4uHCb+WtMicX8Xo9AjG7Co4QPaLWQ6XvCgxfmGGGQ3EW+91vdSMahvNzzBSTa7BbQfzb3OG1c7Iw==\" saltValue=\"WiPEK4tXsoBBLq+LN+TFYQ==\" spinCount=\"100000\" sqref=\"A1\" name=\"One\"/></protectedRanges>",
+  "81": "<protectedRanges><protectedRange sqref=\"A1:B2\" name=\"One\"/></protectedRanges>",
+  "82": "<protectedRanges><protectedRange sqref=\"A1:B2\" name=\"One\" securityDescriptor=\"O:WDG:WDD:(A;;CC;;;WD)\"/></protectedRanges>",
+  "83": "",
+  "84": "<protectedRanges><protectedRange sqref=\"A1:B2\" name=\"One\"/><protectedRange algorithmName=\"SHA-512\" hashValue=\"VkaFukFtILhLVdwj6NXsXzjkpegniejmFdCf6irKJqocQKl0uQTQFAMfbIhG57UsD+vkC+efO5r4M+KEsQmDdg==\" saltValue=\"fR+aEQI+Uj+F/j80uoLbfg==\" spinCount=\"100000\" sqref=\"C1\" name=\"Two\"/></protectedRanges>"
+ },
+ "cases": [
+  [
+   "r = TypeName(ws.Protection.AllowEditRanges)",
+   "ok String:AllowEditRanges"
+  ],
+  [
+   "r = ws.Protection.AllowEditRanges.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = ws.Protection.AllowEditRanges(1).Title",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = ws.Protection.AllowEditRanges(\"x\").Title",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = ws.Protection.AllowEditRanges.Item(0).Title",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "For Each x In ws.Protection.AllowEditRanges: i = i + 1: Next: r = i",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(ws.Protection.AllowEditRanges.Parent)",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = TypeName(ws.Protection.AllowEditRanges.Application)",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = TypeName(ws.Protection.AllowEditRanges.Add(\"One\", ws.Range(\"A1\")))",
+   "ok String:AllowEditRange"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges.Count",
+   "ok Long:1"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Title",
+   "ok String:One"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(\"One\").Title",
+   "ok String:One"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(\"ONE\").Title",
+   "ok String:One"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges.Item(1).Title",
+   "ok String:One"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1)",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1))",
+   "ok String:AllowEditRange"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$A$1:$B$2"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Range.Parent.Name",
+   "ok String:Sheet1"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1).Users)",
+   "ok String:UserAccessList"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Users.Count",
+   "ok Long:0"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1).Parent)",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = TypeName(ws.Protection.AllowEditRanges(1).Application)",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): For Each x In ws.Protection.AllowEditRanges: r = TypeName(x): Next",
+   "ok String:AllowEditRange"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\")",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"ONE\", ws.Range(\"C1\"): r = ws.Protection.AllowEditRanges.Count",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"\", ws.Range(\"A1\")",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\"",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", \"A1\"",
+   "Err 13 Type mismatch"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", Nothing",
+   "Err -2147417848 Method 'Add' of object 'AllowEditRanges' failed"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add 5, ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges(1).Title",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add String(255, \"a\"), ws.Range(\"A1\"): r = Len(ws.Protection.AllowEditRanges(1).Title)",
+   "ok Long:255"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add String(256, \"a\"), ws.Range(\"A1\")",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"A B\", ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges(1).Title",
+   "ok String:A B"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"1a\", ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges(1).Title",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1,C3\"): r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$A$1,$C$3"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": r = ws.Protection.AllowEditRanges(1).Title",
+   "ok String:One"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", other.Range(\"A1\")",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A:A\"): r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$A:$A"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"A1\"): r = ws.Protection.AllowEditRanges.Count",
+   "ok Long:2"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Title = \"New\": r = ws.Protection.AllowEditRanges(1).Title",
+   "ok String:New"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1\"): ws.Protection.AllowEditRanges(1).Title = \"Two\"",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Title = \"\"",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Range = ws.Range(\"D4\"): r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$A$1:$B$2"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): Set ws.Protection.AllowEditRanges(1).Range = ws.Range(\"D4\"): r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$D$4"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Range = \"D4\"",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).ChangePassword \"pw\": r = ws.Protection.AllowEditRanges(1).Title",
+   "ok String:One"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).ChangePassword",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Unprotect",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protection.AllowEditRanges(1).Unprotect \"pw\": r = ws.Protection.AllowEditRanges(1).Title",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protection.AllowEditRanges(1).Unprotect \"no\"",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Delete: r = ws.Protection.AllowEditRanges.Count",
+   "ok Long:0"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): r = ws.Protection.AllowEditRanges(1).Delete",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1\"): ws.Protection.AllowEditRanges(1).Delete: r = ws.Protection.AllowEditRanges(1).Title",
+   "ok String:Two"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): Set x = ws.Protection.AllowEditRanges(1): x.Delete: r = x.Title",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Everyone\", True: r = ws.Protection.AllowEditRanges(1).Users.Count & \"/\" & ws.Protection.AllowEditRanges(1).Users(1).Name & \"/\" & ws.Protection.AllowEditRanges(1).Users(1).AllowEdit",
+   "ok String:1/Everyone/True"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Nobody Here\", True",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Everyone\", False: ws.Protection.AllowEditRanges(1).Users.RemoveAll: r = ws.Protection.AllowEditRanges(1).Users.Count",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1\").Value = 1: r = ws.Range(\"A1\").Value",
+   "ok Double:1"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"C1\").Value = 1",
+   "Err 1004 The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password."
+  ],
+  [
+   "ws.Protect: ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\")",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: r = ws.Protection.AllowEditRanges.Count",
+   "ok Long:1"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Protection.AllowEditRanges(1).Delete",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Protection.AllowEditRanges(1).Title = \"New\"",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: r = ws.Protection.AllowEditRanges(1).Title",
+   "ok String:One"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Unprotect: ws.Protection.AllowEditRanges(1).Delete: r = ws.Protection.AllowEditRanges.Count",
+   "ok Long:0"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protect: ws.Range(\"A1\").Value = 1",
+   "Err 1004 The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password."
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": ws.Protect: ws.Protection.AllowEditRanges(1).Unprotect \"pw\": ws.Range(\"A1\").Value = 1: r = ws.Range(\"A1\").Value",
+   "ok Double:1"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: r = ws.Range(\"A1\").Locked",
+   "ok Boolean:True"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1\").Clear",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1:C1\").Value = 1",
+   "Err 1004 The cell or chart you're trying to change is on a protected sheet. To make a change, unprotect the sheet. You might be requested to enter a password."
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1:B2\").Value = 1: r = ws.Range(\"B2\").Value",
+   "ok Double:1"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: ws.Range(\"A1\").Interior.ColorIndex = 3",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Rows(1).Insert: r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$A$2:$B$3"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Columns(1).Delete: r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$A$1:$A$2"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"): ws.Columns(1).Delete: r = ws.Protection.AllowEditRanges.Count",
+   "ok Long:1"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Range(\"A1:B2\").Cut ws.Range(\"D5\"): r = ws.Protection.AllowEditRanges(1).Range.Address",
+   "ok String:$D$5:$E$6"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Copy After:=ws: r = ActiveSheet.Protection.AllowEditRanges.Count & \"/\" & ActiveSheet.Protection.AllowEditRanges(1).Title & \"/\" & ActiveSheet.Protection.AllowEditRanges(1).Range.Parent.Name",
+   "ok String:1/One/Sheet1 (2)"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): w2.Save",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1,E5\"): w2.Save",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1\"), \"pw\": w2.Save",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protect: w2.Save",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Users.Add \"Everyone\", True: w2.Save",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges(1).Delete: w2.Save",
+   "ok Empty:"
+  ],
+  [
+   "ws.Protection.AllowEditRanges.Add \"One\", ws.Range(\"A1:B2\"): ws.Protection.AllowEditRanges.Add \"Two\", ws.Range(\"C1\"), \"pw\": w2.Save: n = w2.FullName: w2.Close False: Set w2 = Workbooks.Open(n): Set ws = w2.Worksheets(1): r = ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address & \"/\" & ws.Protection.AllowEditRanges(2).Title & \"/\" & ws.Protection.AllowEditRanges(2).Range.Address",
+   "ok String:2/One/$A$1:$B$2/Two/$C$1"
+  ]
+ ]
+}

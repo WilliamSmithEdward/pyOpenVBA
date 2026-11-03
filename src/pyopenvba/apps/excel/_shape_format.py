@@ -12,15 +12,16 @@ The style's colours are the default Office theme's; a workbook with another them
 that were not measured report themselves unsupported."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._creator import Created
-from pyopenvba.apps.excel._styles import DEFAULT_THEME, bgr
+from pyopenvba.apps.excel._styles import DEFAULT_THEME
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import member, method, setter
+from pyopenvba.interpreter._objects import MISSING, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number
-from pyopenvba.shapes._values import FillLine, emu, points
+from pyopenvba.shapes._values import FillGradient, FillLine, GradientPoint, emu, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange
@@ -59,6 +60,45 @@ _THEME_SLOT = {"lt1": 0, "dk1": 1, "lt2": 2, "dk2": 3, "accent1": 4, "accent2": 
 _LINE_SHADES = {"shape": 15000, "textBox": 50000, "line": 0}
 #: SchemeColor past the palette: Windows' own colours, of which these three do not vary (66 to 79 are refused).
 _SCHEME_EXTRAS = {64: "000000", 65: "FFFFFF", 80: "FFFFE1"}
+
+#: PresetGradient 1 to 24 as stops: position and colour (tests/fixtures/shape_fill_gradients.json).
+GRADIENT_PRESETS: tuple[tuple[tuple[int, str], ...], ...] = (
+    ((0, "000082"), (30000, "66008F"), (64999, "BA0066"), (89999, "FF0000"), (100000, "FF8200"),),
+    ((0, "000000"), (20000, "000040"), (50000, "400040"), (75000, "8F0040"), (89999, "F27300"), (100000, "FFBF00"),),
+    ((0, "000000"), (39999, "0A128C"), (70000, "181CC7"), (88000, "7005D4"), (100000, "8C3D91"),),
+    ((0, "5E9EFF"), (39999, "85C2FF"), (70000, "C4D6EB"), (100000, "FFEBFA"),),
+    ((0, "DCEBF5"), (8000, "83A7C3"), (13000, "768FB9"), (21001, "83A7C3"), (52000, "FFFFFF"), (56000, "9C6563"),
+     (58000, "80302D"), (71001, "C0524E"), (94000, "EBDAD4"), (100000, "55261C"),),
+    ((0, "FC9FCB"), (13000, "F8B049"), (21001, "F8B049"), (63000, "FEE7F2"), (67000, "F952A0"), (69000, "C50849"),
+     (82001, "B43E85"), (100000, "F8B049"),),
+    ((0, "03D4A8"), (25000, "21D6E0"), (75000, "0087E6"), (100000, "005CBF"),),
+    ((0, "CCCCFF"), (17999, "99CCFF"), (36000, "9966FF"), (61000, "CC99FF"), (82001, "99CCFF"), (100000, "CCCCFF"),),
+    ((0, "FFF200"), (45000, "FF7A00"), (70000, "FF0300"), (100000, "4D0808"),),
+    ((0, "8488C4"), (53000, "D4DEFF"), (83000, "D4DEFF"), (100000, "96AB94"),),
+    ((0, "DDEBCF"), (50000, "9CB86E"), (100000, "156B13"),),
+    ((0, "3399FF"), (16000, "00CCCC"), (47000, "9999FF"), (60001, "2E6792"), (71001, "3333CC"), (81000, "1170FF"),
+     (100000, "006699"),),
+    ((0, "FBEAC7"), (17999, "FEE7F2"), (36000, "FAC77D"), (61000, "FBA97D"), (82001, "FBD49C"), (100000, "FEE7F2"),),
+    ((0, "FFEFD1"), (64999, "F0EBD5"), (100000, "D1C39F"),),
+    ((0, "D6B19C"), (30000, "D49E6C"), (70000, "A65528"), (100000, "663012"),),
+    ((0, "A603AB"), (21001, "0819FB"), (35001, "1A8D48"), (52000, "FFFF00"), (73000, "EE3F17"), (88000, "E81766"),
+     (100000, "A603AB"),),
+    ((0, "FF3399"), (25000, "FF6633"), (50000, "FFFF00"), (75000, "01A78F"), (100000, "3366FF"),),
+    ((0, "E6DCAC"), (12000, "E6D78A"), (30000, "C7AC4C"), (45000, "E6D78A"), (77000, "C7AC4C"), (100000, "E6DCAC"),),
+    ((0, "FBE4AE"), (13000, "BD922A"), (21001, "BD922A"), (63000, "FBE4AE"), (67000, "BD922A"), (69000, "835E17"),
+     (82001, "A28949"), (100000, "FAE3B7"),),
+    ((0, "825600"), (13000, "FFA800"), (28000, "825600"), (42999, "FFA800"), (58000, "825600"), (72000, "FFA800"),
+     (87000, "825600"), (100000, "FFA800"),),
+    ((0, "FFFFFF"), (16000, "1F1F1F"), (17999, "FFFFFF"), (42000, "636363"), (53000, "CFCFCF"), (66000, "CFCFCF"),
+     (75999, "1F1F1F"), (78999, "FFFFFF"), (100000, "7F7F7F"),),
+    ((0, "CBCBCB"), (13000, "5F5F5F"), (21001, "5F5F5F"), (63000, "FFFFFF"), (67000, "B2B2B2"), (69000, "292929"),
+     (82001, "777777"), (100000, "EAEAEA"),),
+    ((0, "FFFFFF"), (7001, "E6E6E6"), (32001, "7D8496"), (47000, "E6E6E6"), (85001, "7D8496"), (100000, "E6E6E6"),),
+    ((0, "000082"), (13000, "0047FF"), (28000, "000082"), (42999, "0047FF"), (58000, "000082"), (72000, "0047FF"),
+     (87000, "000082"), (100000, "0047FF"),),
+)
+#: The lengthways styles' angles at variant 1.
+_GRADIENT_ANGLES = {1: 90, 2: 0, 3: 45, 4: 135}
 
 
 def _linear(channel: float) -> float:
@@ -219,7 +259,10 @@ class FillFormat(_Format):
 
     @member
     def Type(self) -> object:
-        # msoFillSolid or msoFillPatterned, or the mixed value for a line, which has no fill, or one hidden bare.
+        # msoFillSolid, msoFillPatterned or msoFillGradient, or the mixed value for a line, which has no fill, or one
+        # hidden bare.
+        if self.filled() and self.look().fill_gradient is not None:
+            return VBAInt(3, "Long")
         if self.filled() and self.look().fill_pattern is not None:
             return VBAInt(2, "Long")
         return VBAInt(1 if self.filled() and not self.look().fill_bare else -2, "Long")
@@ -230,6 +273,13 @@ class FillFormat(_Format):
             # No fill to see through: it reads fully transparent.
             return VBASingle(1.0)
         alpha = self.look().fill_alpha
+        found = self.look().fill_gradient
+        if found is not None:
+            # Each stop has its own, and stops that differ read as mixed.
+            alphas = {stop.alpha for stop in found.stops}
+            if len(alphas) > 1:
+                return VBASingle(_MIXED)
+            alpha = alphas.pop()
         return VBASingle(0.0 if alpha is None else (100000 - alpha) / 100000)
 
     @setter("Transparency")
@@ -243,6 +293,10 @@ class FillFormat(_Format):
         # Setting it shows a hidden fill.
         look = self.change()
         look.fill_alpha, look.fill_hidden = round((1 - wanted) * 100000), False
+        if look.fill_gradient is not None:
+            alpha = None if wanted == 0 else look.fill_alpha
+            look.fill_gradient = replace(
+                look.fill_gradient, stops=tuple(replace(stop, alpha=alpha) for stop in look.fill_gradient.stops))
 
     @method
     def Solid(self) -> object:
@@ -250,9 +304,12 @@ class FillFormat(_Format):
         before = self.look()
         if self.shape.kind != "shape" or before.fill_hidden or before.line_hidden or before.fill_bare:
             raise _unmeasured("Solid on this kind of shape, or with the fill or line hidden,")
+        if before.fill_gradient is not None and any(stop.alpha is not None for stop in before.fill_gradient.stops):
+            raise _unmeasured("Solid on a gradient with a transparency")
         look = self.change()
         look.fill_solid = True
-        look.fill_pattern = look.fill_back_rgb = look.fill_back_scheme = None
+        look.fill_pattern = look.fill_back_rgb = look.fill_back_scheme = look.fill_gradient = None
+        look.fill_back_mods = ()
         return EMPTY
 
     @method
@@ -265,12 +322,192 @@ class FillFormat(_Format):
             raise error(*_INVALID)
         if before.line_hidden or before.fill_bare:
             raise _unmeasured("A pattern under a hidden line, or on a fill hidden bare,")
+        if before.fill_gradient is not None and any(stop.alpha is not None for stop in before.fill_gradient.stops):
+            raise _unmeasured("A pattern on a gradient with a transparency")
         look = self.change()
-        # A back colour set before now is forgotten; the new pattern starts on white.
-        if before.fill_pattern is None:
-            look.fill_back_rgb = look.fill_back_scheme = None
-        look.fill_pattern, look.fill_hidden = PATTERNS[wanted - 1], False
+        # It keeps the back colour a pattern or gradient had; a solid fill has none and starts on white.
+        look.fill_pattern, look.fill_hidden, look.fill_gradient = PATTERNS[wanted - 1], False, None
         return EMPTY
+
+    def gradient(self) -> FillGradient:
+        """The gradient a stop or angle belongs to; other fills have no stops."""
+        self.style()
+        found = self.look().fill_gradient
+        if found is None:
+            raise error(*_INVALID)
+        return found
+
+    def start_gradient(self, style: object, variant: object, stops: tuple[GradientPoint, ...], *, degree: float | None = None,
+                       preset: int | None = None) -> None:
+        """Any of the three gradients: the fore and back colours become its first and last stops. A hidden fill stays
+        hidden, and a transparency goes."""
+        chosen_style, chosen_variant = int(to_integer(style, "Long")), int(to_integer(variant, "Long"))
+        if not self.filled() or chosen_style not in (1, 2, 3, 4, 5, 7) or not 1 <= chosen_variant <= 4:
+            raise error(*_INVALID)
+        if self.look().fill_bare or self.look().fill_index is not None:
+            raise _unmeasured("A gradient on a fill hidden bare, or from a SchemeColor,")
+        look = self.change()
+        made = laid_out(stops, chosen_style, chosen_variant)
+        turned = chosen_style in (5, 7) or chosen_variant in (1, 3)
+        whole = chosen_style == 5 or (chosen_variant < 3 and (chosen_style != 7 or chosen_variant == 1))
+        look.fill_gradient = FillGradient(
+            made, None if chosen_style in (5, 7) else (_GRADIENT_ANGLES[chosen_style] + (0 if turned else 180)) * 60000,
+            chosen_style if chosen_style in (5, 7) else None, chosen_variant if chosen_style == 5 else None,
+            True, degree, preset if whole else None,
+            chosen_variant if chosen_style != 5 and chosen_variant > 2 else None)
+        look.fill_pattern, look.fill_alpha = None, None
+        synced(look)
+
+    def first_colour(self) -> GradientPoint:
+        """The fill's fore colour as a stop."""
+        look, style = self.look(), self.style()
+        scheme = look.fill_scheme if look.fill_rgb is not None or look.fill_scheme else SCHEMES[style[1]]
+        return GradientPoint(0, look.fill_rgb, None if look.fill_rgb is not None else scheme, look.fill_mods)
+
+    def back_colour(self) -> GradientPoint:
+        look = self.look()
+        if look.fill_back_rgb is None and look.fill_back_scheme is None:
+            return GradientPoint(100000, "FFFFFF")
+        return GradientPoint(100000, look.fill_back_rgb, look.fill_back_scheme, look.fill_back_mods)
+
+    @method
+    def TwoColorGradient(self, style: object, variant: object) -> object:
+        self.alone()
+        self.style()
+        if self.filled():
+            self.start_gradient(style, variant, (self.first_colour(), self.back_colour()))
+        else:
+            raise error(*_INVALID)
+        return EMPTY
+
+    @method
+    def OneColorGradient(self, style: object, variant: object, degree: object) -> object:
+        self.alone()
+        self.style()
+        wanted = float(VBASingle(float(to_number(degree))))
+        if not self.filled() or not 0 <= wanted <= 1:
+            raise error(*_INVALID)
+        first = self.first_colour()
+        # Past the middle it tints towards white, before it shades towards black; each reaches the end at 0 and 1.
+        change = (("shade", round(wanted * 200000)),) if wanted < 0.5 else (
+            (("tint", round((1 - wanted) * 200000)),) if wanted > 0.5 else ())
+        second = GradientPoint(100000, first.rgb, first.scheme, first.mods + change)
+        self.start_gradient(style, variant, (first, second), degree=_degree_read(wanted))
+        return EMPTY
+
+    @method
+    def PresetGradient(self, style: object, variant: object, preset: object) -> object:
+        self.alone()
+        self.style()
+        chosen = int(to_integer(preset, "Long"))
+        if not self.filled() or not 1 <= chosen <= len(GRADIENT_PRESETS):
+            raise error(*_INVALID)
+        stops = tuple(GradientPoint(position, colour) for position, colour in GRADIENT_PRESETS[chosen - 1])
+        self.start_gradient(style, variant, stops, preset=chosen)
+        return EMPTY
+
+    def read_only(self) -> None:
+        raise error(450, "Wrong number of arguments or invalid property assignment")
+
+    @member
+    def GradientColorType(self) -> object:
+        self.alone()
+        self.style()
+        found = self.look().fill_gradient
+        return VBAInt(-2 if found is None else found.colour_type(), "Long")
+
+    @setter("GradientColorType")
+    def _gradient_colour_type(self, value: object) -> None:
+        self.read_only()
+
+    @member
+    def GradientStyle(self) -> object:
+        self.alone()
+        self.style()
+        found = self.look().fill_gradient
+        return VBAInt(-2 if found is None else found.shown_style(), "Long")
+
+    @setter("GradientStyle")
+    def _gradient_style(self, value: object) -> None:
+        self.read_only()
+
+    @member
+    def GradientVariant(self) -> object:
+        self.alone()
+        self.style()
+        found = self.look().fill_gradient
+        return VBAInt(0 if found is None else found.shown_variant(), "Long")
+
+    @setter("GradientVariant")
+    def _gradient_variant(self, value: object) -> None:
+        self.read_only()
+
+    @member
+    def GradientDegree(self) -> object:
+        self.alone()
+        self.style()
+        found = self.look().fill_gradient
+        if found is not None and found.degree is not None:
+            return VBASingle(found.degree)
+        if found is not None and found.stops[0].colour() == found.stops[-1].colour():
+            return VBASingle(0.5)
+        raise error(70, "Permission denied")
+
+    @setter("GradientDegree")
+    def _gradient_degree(self, value: object) -> None:
+        self.read_only()
+
+    @member
+    def PresetGradientType(self) -> object:
+        self.alone()
+        self.style()
+        found = self.look().fill_gradient
+        return VBAInt(-2 if found is None or found.preset is None else found.preset, "Long")
+
+    @setter("PresetGradientType")
+    def _preset_gradient_type(self, value: object) -> None:
+        self.read_only()
+
+    @member
+    def GradientAngle(self) -> object:
+        self.alone()
+        self.style()
+        found = self.look().fill_gradient
+        if found is None or found.angle is None:
+            raise error(-2147467259, "Method 'GradientAngle' of object 'FillFormat' failed")
+        return VBASingle(found.angle / 60000)
+
+    @setter("GradientAngle")
+    def _gradient_angle(self, value: object) -> None:
+        self.alone()
+        self.style()
+        wanted = float(VBASingle(float(to_number(value))))
+        found = self.look().fill_gradient
+        if found is None or found.angle is None or wanted < 0:
+            raise error(-2147467259, "Method 'GradientAngle' of object 'FillFormat' failed")
+        look = self.change()
+        look.fill_gradient = replace(found, angle=round(wanted * 60000) % 21600000, mirror=None)
+
+    @member
+    def RotateWithObject(self) -> object:
+        self.alone()
+        self.style()
+        found = self.look().fill_gradient
+        if not self.filled():
+            return VBAInt(-2, "Long")
+        return VBAInt(-1 if found is not None and found.rotate else 0, "Long")
+
+    @setter("RotateWithObject")
+    def _rotate_with_object(self, value: object) -> None:
+        self.alone()
+        wanted = _shown(value)
+        found = self.gradient()
+        self.change().fill_gradient = replace(found, rotate=wanted)
+
+    @member
+    def GradientStops(self) -> object:
+        self.alone()
+        return GradientStops(self)
 
     @member
     def Pattern(self) -> object:
@@ -546,7 +783,22 @@ class ColorFormat(Created):
 
     def has_pattern(self) -> bool:
         look = self.owner.look()
-        return (look.fill_pattern if isinstance(self.owner, FillFormat) else look.line_pattern) is not None
+        if isinstance(self.owner, FillFormat):
+            return look.fill_pattern is not None or look.fill_gradient is not None
+        return look.line_pattern is not None
+
+    def regraded(self, look: FillLine, *, fore: bool) -> None:
+        """A fill's fore or back colour set on a gradient is its first or last stop, which then has no transparency,
+        and the gradient is no longer the preset or one-colour one it was made as."""
+        found = look.fill_gradient
+        if found is None:
+            return
+        stops = list(found.stops)
+        if fore:
+            stops[0] = GradientPoint(stops[0].position, look.fill_rgb, look.fill_scheme, look.fill_mods)
+        else:
+            stops[-1] = GradientPoint(stops[-1].position, look.fill_back_rgb, look.fill_back_scheme, look.fill_back_mods)
+        look.fill_gradient = replace(found, stops=tuple(stops), degree=None, preset=None, mirror=None)
 
     def back(self) -> tuple[str | None, str | None]:
         """A pattern's back colour: its RGB, and its theme colour."""
@@ -554,6 +806,9 @@ class ColorFormat(Created):
         if isinstance(self.owner, FillFormat):
             return look.fill_back_rgb, look.fill_back_scheme
         return look.line_back_rgb, look.line_back_scheme
+
+    def back_mods(self) -> tuple[tuple[str, int], ...]:
+        return self.owner.look().fill_back_mods if isinstance(self.owner, FillFormat) else ()
 
     def style_shade(self) -> int:
         """The shade the style still gives this colour."""
@@ -585,9 +840,9 @@ class ColorFormat(Created):
         if not self.fore:
             back_rgb, back_scheme = self.back()
             if back_rgb is not None:
-                return VBAInt(bgr(back_rgb), "Long")
+                return VBAInt(painted(back_rgb, self.back_mods()), "Long")
             if back_scheme is not None:
-                return VBAInt(painted(self.theme_hex(back_scheme), ()), "Long")
+                return VBAInt(painted(self.theme_hex(back_scheme), self.back_mods()), "Long")
             # A new shape's back colour is white; a line, with no fill, reads 0.
             return VBAInt(0 if colour is None else 16777215, "Long")
         if self.lost() or self.bare():
@@ -616,11 +871,12 @@ class ColorFormat(Created):
         if isinstance(self.owner, FillFormat):
             if colour is None:
                 raise error(*_INVALID)
-            if before.fill_pattern is not None:
+            if before.fill_pattern is not None or before.fill_gradient is not None:
                 if before.fill_hidden:
-                    raise _unmeasured("The back colour of a hidden pattern")
+                    raise _unmeasured("The back colour of a hidden pattern or gradient")
                 look = self.owner.change()
-                look.fill_back_rgb, look.fill_back_scheme = rgb, scheme
+                look.fill_back_rgb, look.fill_back_scheme, look.fill_back_mods = rgb, scheme, ()
+                self.regraded(look, fore=False)
             elif self.owner.shape.kind == "shape":
                 self.owner.vba_get("Solid")
             return
@@ -651,9 +907,12 @@ class ColorFormat(Created):
             return
         if before.line_hidden:
             raise _unmeasured("A fill's theme colour while the line is hidden")
+        if index is not None and before.fill_gradient is not None:
+            raise _unmeasured("A SchemeColor on a gradient")
         look = self.owner.change()
         look.fill_rgb, look.fill_scheme, look.fill_index, look.fill_mods = rgb, scheme, index, ()
         look.fill_hidden = False
+        self.regraded(look, fore=True)
 
     def set_mods(self, mods: tuple[tuple[str, int], ...]) -> None:
         """A brightness or tint, which on a fill shows a hidden fill as a colour does."""
@@ -677,6 +936,7 @@ class ColorFormat(Created):
             raise _unmeasured("A fill's brightness or tint while the line is hidden")
         look = self.owner.change()
         look.fill_mods, look.fill_hidden, look.fill_solid = mods, False, True
+        self.regraded(look, fore=True)
 
     @setter("RGB")
     def _rgb(self, value: object) -> None:
@@ -701,12 +961,13 @@ class ColorFormat(Created):
             look.line_rgb, look.line_scheme, look.line_index = _rgb(wanted), None, None
             look.line_mods, look.line_plain = (), False
             return
-        if before.line_hidden and self.owner.shape.kind != "shape":
-            raise _unmeasured("A fill colour for this kind of shape while its line is hidden")
+        if before.line_hidden and (self.owner.shape.kind != "shape" or before.fill_gradient is not None):
+            raise _unmeasured("A fill colour for this kind of shape, or on a gradient, while its line is hidden")
         # Setting it shows a hidden fill, and loses a hidden line.
         look = self.owner.change()
         look.fill_rgb, look.fill_hidden, look.fill_bare, look.line_lost = _rgb(wanted), False, False, look.line_hidden
         look.fill_scheme, look.fill_index, look.fill_mods = None, None, ()
+        self.regraded(look, fore=True)
 
     @member
     def ObjectThemeColor(self) -> object:
@@ -853,6 +1114,240 @@ class ColorFormat(Created):
             raise _unmeasured("The SchemeColor of a text box, or one of Windows' own colours,")
         palette = self.owner.owner.sheet.book.stylesheet.colors.indexed
         self.set_own(_SCHEME_EXTRAS.get(wanted) or palette[wanted], None, wanted)
+
+
+class GradientStops(Created):
+    """A gradient's stops, in the order the file lists them, which their positions need not follow. A fill with no
+    gradient gives this object, but every use of it fails. It has no Parent."""
+
+    vba_type_name = "GradientStops"
+
+    def __init__(self, fill: FillFormat) -> None:
+        self.fill = fill
+
+    def vba_iterate(self) -> Iterator[object]:
+        return iter([GradientStop(self.fill, index) for index in range(len(self.fill.gradient().stops))])
+
+    @member
+    def Parent(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(len(self.fill.gradient().stops), "Long")
+
+    @member(default=True, kind="method")
+    def Item(self, index: object) -> object:
+        chosen = int(to_integer(index, "Long"))
+        if not 1 <= chosen <= len(self.fill.gradient().stops):
+            raise error(*_INVALID)
+        return GradientStop(self.fill, chosen - 1)
+
+    @method
+    def Insert(self, rgb: object, position: object, transparency: object = MISSING, index: object = MISSING) -> object:
+        found = self.fill.gradient()
+        where = float(VBASingle(float(to_number(position))))
+        see_through = 0.0 if transparency is MISSING else float(VBASingle(float(to_number(transparency))))
+        chosen = -1 if index is MISSING else int(to_integer(index, "Long"))
+        if not 0 <= where <= 1 or not 0 <= see_through <= 1 or not (chosen == -1 or 1 <= chosen <= len(found.stops) + 1):
+            raise error(*_INVALID)
+        added = GradientPoint(round(where * 100000), _rgb(int(to_integer(rgb, "Long")) & 0xFFFFFF), None, (),
+                              None if see_through == 0 else round((1 - see_through) * 100000))
+        at = len(found.stops) if chosen == -1 else chosen - 1
+        changed(self.fill, found.stops[:at] + (added,) + found.stops[at:])
+        return EMPTY
+
+    @method
+    def Delete(self, index: object = MISSING) -> object:
+        found = self.fill.gradient()
+        chosen = -1 if index is MISSING else int(to_integer(index, "Long"))
+        # Two stops are as few as a gradient has.
+        if len(found.stops) <= 2 or not (chosen == -1 or 1 <= chosen <= len(found.stops)):
+            raise error(*_INVALID)
+        at = len(found.stops) - 1 if chosen == -1 else chosen - 1
+        changed(self.fill, found.stops[:at] + found.stops[at + 1:])
+        return EMPTY
+
+
+class GradientStop(Created):
+    vba_type_name = "GradientStop"
+
+    def __init__(self, fill: FillFormat, index: int) -> None:
+        self.fill, self.index = fill, index
+
+    def stop(self) -> GradientPoint:
+        return self.fill.gradient().stops[self.index]
+
+    def put(self, stop: GradientPoint) -> None:
+        stops = self.fill.gradient().stops
+        changed(self.fill, stops[:self.index] + (stop,) + stops[self.index + 1:])
+
+    @member
+    def Color(self) -> object:
+        return StopColor(self)
+
+    @member
+    def Position(self) -> object:
+        return VBASingle(self.stop().position / 100000)
+
+    @setter("Position")
+    def _position(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        if not 0 <= wanted <= 1:
+            raise error(*_INVALID)
+        self.put(replace(self.stop(), position=round(wanted * 100000)))
+
+    @member
+    def Transparency(self) -> object:
+        alpha = self.stop().alpha
+        return VBASingle(0.0 if alpha is None else (100000 - alpha) / 100000)
+
+    @setter("Transparency")
+    def _transparency(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        if not 0 <= wanted <= 1:
+            raise error(*_INVALID)
+        self.put(replace(self.stop(), alpha=None if wanted == 0 else round((1 - wanted) * 100000)))
+
+
+class StopColor(Created):
+    """A gradient stop's colour, with what a fill's ForeColor has."""
+
+    vba_type_name = "ColorFormat"
+
+    def __init__(self, stop: GradientStop) -> None:
+        self.stop = stop
+
+    def put(self, stop: GradientPoint) -> None:
+        if self.stop.stop().alpha is not None:
+            raise _unmeasured("Changing the colour of a stop with a transparency")
+        self.stop.put(stop)
+
+    @member
+    def RGB(self) -> object:
+        stop = self.stop.stop()
+        colours = self.stop.fill.owner.sheet.book.stylesheet.colors.theme
+        base = stop.rgb if stop.rgb is not None else colours[_THEME_SLOT[stop.scheme or "accent1"]]
+        return VBAInt(painted(base, stop.mods), "Long")
+
+    @setter("RGB")
+    def _rgb(self, value: object) -> None:
+        wanted = _rgb(int(to_integer(value, "Long")) & 0xFFFFFF)
+        self.put(replace(self.stop.stop(), rgb=wanted, scheme=None, mods=()))
+
+    @member
+    def ObjectThemeColor(self) -> object:
+        scheme = self.stop.stop().scheme
+        return VBAInt(0 if scheme is None else _scheme_number(scheme), "Long")
+
+    @setter("ObjectThemeColor")
+    def _object_theme_color(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in SCHEMES:
+            raise error(*_INVALID)
+        self.put(replace(self.stop.stop(), rgb=None, scheme=SCHEMES[wanted], mods=()))
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(2 if self.stop.stop().scheme is not None else 1, "Long")
+
+    @member
+    def Brightness(self) -> object:
+        found = dict(self.stop.stop().mods)
+        if "lumOff" in found:
+            return VBASingle(found["lumOff"] / 100000)
+        return VBASingle(found["lumMod"] / 100000 - 1 if "lumMod" in found else 0.0)
+
+    @setter("Brightness")
+    def _brightness(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        if not -1 <= wanted <= 1:
+            raise error(*_INVALID)
+        stop = self.stop.stop()
+        kept = tuple(one for one in stop.mods if one[0] not in ("lumMod", "lumOff"))
+        self.put(replace(stop, mods=kept + _lum(wanted)))
+
+    @member
+    def TintAndShade(self) -> object:
+        found = dict(self.stop.stop().mods)
+        if "tint" in found:
+            return VBASingle(1 - found["tint"] / 100000)
+        return VBASingle(found["shade"] / 100000 - 1 if "shade" in found else 0.0)
+
+    @setter("TintAndShade")
+    def _tint_and_shade(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        if not -1 <= wanted <= 1:
+            raise error(*_INVALID)
+        stop = self.stop.stop()
+        kept = tuple(one for one in stop.mods if one[0] not in ("tint", "shade"))
+        self.put(replace(stop, mods=kept + _tint(wanted)))
+
+
+def laid_out(stops: tuple[GradientPoint, ...], style: int, variant: int) -> tuple[GradientPoint, ...]:
+    """Where a new gradient puts its stops. A corner gradient keeps them. Variant 2 from the centre runs them backwards.
+    Variants 3 and 4 fold them into each half, with the last stop or the first not repeated (tests/fixtures/shape_fill_gradients.json)."""
+    if style == 5 or variant == 1 or (variant == 2 and style != 7):
+        return stops
+    if variant == 2:
+        return tuple(replace(stop, position=100000 - stop.position) for stop in stops)
+    if variant == 3:
+        return (tuple(replace(stop, position=_folded(0, 1, stop)) for stop in stops)
+                + tuple(replace(stop, position=_folded(100000, -1, stop)) for stop in stops[:-1]))
+    return (tuple(replace(stop, position=_folded(50000, -1, stop)) for stop in stops)
+            + tuple(replace(stop, position=_folded(50000, 1, stop)) for stop in stops[1:]))
+
+
+def _single(value: float) -> float:
+    return float(VBASingle(value))
+
+
+#: The folds that round a half down: position, the fold's start, and which way it runs. Every other odd position of all 24
+#: presets rounds up at all four folds. No rounding rule fits these, so they are as measured.
+_FOLDS_DOWN = {(32001, 0, 1), (64999, 0, 1), (35001, 50000, -1), (71001, 50000, -1), (82001, 50000, -1),
+               (85001, 50000, -1)}
+
+
+def _folded(start: int, sign: int, stop: GradientPoint) -> int:
+    """A stop's place in half of a folded gradient, half its position from one end of that half."""
+    exact = start * 2 + sign * stop.position
+    return (exact - 1) // 2 if (stop.position, start, sign) in _FOLDS_DOWN and exact % 2 else (exact + 1) // 2
+
+
+def _degree_read(wanted: float) -> float:
+    """The degree a one-colour gradient reads, which comes back through Excel's Singles below the middle."""
+    return wanted if wanted >= 0.5 else _single(_single(1 - _single(1 - _single(2 * wanted))) / 2)
+
+
+def synced(look: FillLine) -> None:
+    """The fore and back colours are a gradient's first and last stops."""
+    found = look.fill_gradient
+    if found is None:
+        return
+    first, last = found.stops[0], found.stops[-1]
+    look.fill_rgb, look.fill_scheme, look.fill_mods = first.rgb, first.scheme, first.mods
+    look.fill_back_rgb, look.fill_back_scheme, look.fill_back_mods = last.rgb, last.scheme, last.mods
+
+
+def changed(fill: FillFormat, stops: tuple[GradientPoint, ...]) -> None:
+    """New stops: it is no longer the preset or one-colour gradient it was made as."""
+    look = fill.change()
+    found = look.fill_gradient
+    assert found is not None
+    look.fill_gradient = replace(found, stops=stops, degree=None, preset=None, mirror=None)
+    synced(look)
+
+
+def _lum(wanted: float) -> tuple[tuple[str, int], ...]:
+    if wanted > 0:
+        return (("lumMod", round((1 - wanted) * 100000)), ("lumOff", round(wanted * 100000)))
+    return (("lumMod", round((1 + wanted) * 100000)),)
+
+
+def _tint(wanted: float) -> tuple[tuple[str, int], ...]:
+    if wanted == 0:
+        return ()
+    return (("tint", round((1 - wanted) * 100000)),) if wanted > 0 else (("shade", round((1 + wanted) * 100000)),)
 
 
 def _scheme_number(scheme: str) -> int:

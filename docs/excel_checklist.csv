@@ -1125,22 +1125,22 @@ FillFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/s
 FillFormat,BackColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Reads only.
 FillFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
 FillFormat,ForeColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The fill colour.
-FillFormat,GradientAngle,property,As Single,,MISSING,,
-FillFormat,GradientColorType,"property, read-only",As MsoGradientColorType,,MISSING,,
-FillFormat,GradientDegree,"property, read-only",As Single,,MISSING,,
-FillFormat,GradientStops,"property, read-only",As GradientStops,,MISSING,,
-FillFormat,GradientStyle,"property, read-only",As MsoGradientStyle,,MISSING,,
-FillFormat,GradientVariant,"property, read-only",As Long,,MISSING,,
-FillFormat,OneColorGradient,method,"OneColorGradient(Style As MsoGradientStyle, Variant As Long, Degree As Single)",,MISSING,,
+FillFormat,GradientAngle,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Set wraps at 360; negative, a path or no gradient is -2147467259."
+FillFormat,GradientColorType,"property, read-only",As MsoGradientColorType,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Follows from the stops: 2 until they stop fitting two colours, then 4; 1 and 3 only as made. Read only."
+FillFormat,GradientDegree,"property, read-only",As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"As made on a one-colour gradient, 0.5 where the first and last stops match, else error 70. Read only."
+FillFormat,GradientStops,"property, read-only",As GradientStops,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"A fill with no gradient gives the object, and every use of it is -2147024809."
+FillFormat,GradientStyle,"property, read-only",As MsoGradientStyle,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Follows from the angle; -2 at any angle no style has. Read only.
+FillFormat,GradientVariant,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Follows from the stops and angle; 0 where the style reads -2. Read only.
+FillFormat,OneColorGradient,method,"OneColorGradient(Style As MsoGradientStyle, Variant As Long, Degree As Single)",,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Below degree 0.5 shades the second stop, above tints it. ShapeRange refused."
 FillFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The shape.
 FillFormat,Pattern,"property, read-only",As MsoPatternType,,PARTIAL,tests/fixtures/shape_fill_patterns.json; tests/test_excel_shape_fill_patterns.py,"Read: -2 until Patterned. Setting it is error 450, as in Excel. ShapeRange refused."
 FillFormat,Patterned,method,Patterned(Pattern As MsoPatternType),,PARTIAL,tests/fixtures/shape_fill_patterns.json; tests/test_excel_shape_fill_patterns.py,"1 to 54 on a new AutoShape or text box; a line is -2147024809. Keeps the fore colour, starts the back colour on white, and shows a hidden fill. ShapeRange refused."
 FillFormat,PictureEffects,"property, read-only",As PictureEffects,,MISSING,,
-FillFormat,PresetGradient,method,"PresetGradient(Style As MsoGradientStyle, Variant As Long, PresetGradientType As MsoPresetGradientType)",,MISSING,,
-FillFormat,PresetGradientType,"property, read-only",As MsoPresetGradientType,,MISSING,,
+FillFormat,PresetGradient,method,"PresetGradient(Style As MsoGradientStyle, Variant As Long, PresetGradientType As MsoPresetGradientType)",no PresetGradientType,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Presets 1-24; variants 3 and 4 fold the stops, measured for every preset. ShapeRange refused."
+FillFormat,PresetGradientType,"property, read-only",As MsoPresetGradientType,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Until a stop changes or the stops are folded or reversed. Read only.
 FillFormat,PresetTexture,"property, read-only",As MsoPresetTexture,,MISSING,,
 FillFormat,PresetTextured,method,PresetTextured(PresetTexture As MsoPresetTexture),,MISSING,,
-FillFormat,RotateWithObject,property,As MsoTriState,,MISSING,,
+FillFormat,RotateWithObject,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Writes rotWithShape; a new gradient resets it.
 FillFormat,Solid,method,Solid(),,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Writes the theme colour out; AutoShapes only.
 FillFormat,TextureAlignment,property,As MsoTextureAlignment,,MISSING,,
 FillFormat,TextureHorizontalScale,property,As Single,,MISSING,,
@@ -1151,7 +1151,7 @@ FillFormat,TextureTile,property,As MsoTriState,,MISSING,,
 FillFormat,TextureType,"property, read-only",As MsoTextureType,,MISSING,,
 FillFormat,TextureVerticalScale,property,As Single,,MISSING,,
 FillFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Written as the alpha, showing a hidden fill; outside 0 to 1 raises -2147024809. A line's fill, or under a hidden line, is refused."
-FillFormat,TwoColorGradient,method,"TwoColorGradient(Style As MsoGradientStyle, Variant As Long)",,MISSING,,
+FillFormat,TwoColorGradient,method,"TwoColorGradient(Style As MsoGradientStyle, Variant As Long)",,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Styles 1-5 and 7, variants 1-4, on a new AutoShape or text box; style 6 and a line are -2147024809. ShapeRange refused."
 FillFormat,Type,"property, read-only",As MsoFillType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused."
 FillFormat,UserPicture,method,UserPicture(PictureFile As String),,MISSING,,
 FillFormat,UserTextured,method,UserTextured(TextureFile As String),,MISSING,,
@@ -1247,6 +1247,20 @@ FullSeriesCollection,Extend,not in the type library,,,UNASSESSED,,
 FullSeriesCollection,Item,method,Item(Index As Variant) As Series,,UNASSESSED,,
 FullSeriesCollection,NewSeries,not in the type library,,,UNASSESSED,,
 FullSeriesCollection,Parent,"property, read-only",As Object,,UNASSESSED,,
+GradientStop,Application,"property, read-only",As Object,,MISSING,,
+GradientStop,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
+GradientStop,Creator,"property, read-only",As Long,,UNASSESSED,,
+GradientStop,Position,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
+GradientStop,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
+GradientStops,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+GradientStops,Application,"property, read-only",As Object,,MISSING,,
+GradientStops,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Creator,"property, read-only",As Long,,UNASSESSED,,
+GradientStops,Delete,method,Delete([Index As Long]),,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long])",,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,MISSING,,
+GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 Gridlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_borders.json; tests/test_excel_chart_borders.py,"Color, ColorIndex, Weight and LineStyle, with the markup Excel writes."
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.

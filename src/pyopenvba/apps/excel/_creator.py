@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from pyopenvba.apps.excel._item_indexes import item_error
 from pyopenvba.apps.excel._read_only import let_error, set_parent_error
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._inventory import member_exists, type_known
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method
 from pyopenvba.interpreter._values import MISSING, VBAInt, error
@@ -32,6 +33,20 @@ class Created(VBAObject):
             owner = parent.vba_type_name if isinstance(parent, VBAObject) else ""
             raise error(set_parent_error(self.vba_type_name, owner), f"{self.vba_type_name}.Parent cannot be set")
         super().vba_set(name, value, args, named, by_ref=by_ref)
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        if name.lower() != "item" or not isinstance(self, VBACollection):
+            return super().vba_get(name, args, named)
+        try:
+            return super().vba_get(name, args, named)
+        except VBARuntimeError as failed:
+            index = (args[0] if args else None) if not named else None
+            if not args and not named:
+                index = MISSING
+            number = None if index is None else item_error(self.vba_type_name, index, len(self.vba_items()))
+            if number is None:
+                raise
+            raise error(number, failed.description) from failed
 
     def vba_read_only(self, name: str) -> Exception:
         """Assigning to a read-only member: a gap where the real class lets a macro set it, and otherwise Excel's error,

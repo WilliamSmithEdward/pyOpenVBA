@@ -1,0 +1,173 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-11-03T19:05:49.831069+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "for_each_nothing",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nSet o = Nothing\nFor Each k In o\ns = s & \"in\"\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|92"
+    },
+    {
+      "name": "for_each_number",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor Each k In a\ns = s & \"in\"\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|92"
+    },
+    {
+      "name": "for_each_text",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor Each k In w\ns = s & \"in\"\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|92"
+    },
+    {
+      "name": "for_each_empty_variant",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor Each k In v\ns = s & \"in\"\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|92"
+    },
+    {
+      "name": "for_each_uninitialised_array",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nDim u() As Long\nFor Each k In u\ns = s & \"in\"\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|92"
+    },
+    {
+      "name": "for_each_gone_range",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nSet r = ws.Range(\"B3\")\nws.Rows(3).Delete\nFor Each c In r\ns = s & \"in\"\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|92"
+    },
+    {
+      "name": "for_each_gone_range_var",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nSet r = ws.Range(\"B3\")\nws.Rows(3).Delete\nFor Each k In r\ns = s & TypeName(k)\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Emptyout|92"
+    },
+    {
+      "name": "for_each_clears_after",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor Each k In a\nErr.Clear\ns = s & Err.Number\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0out|92"
+    },
+    {
+      "name": "for_each_twice_body",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor Each k In a\ns = s & \"a\"\ns = s & \"b\"\nNext\ns = s & \"c\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "abc|92"
+    },
+    {
+      "name": "for_each_error_stops_without_resume",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nSet o = Nothing\nFor Each k In o\ns = s & \"in\"\nNext\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "error": 424
+    },
+    {
+      "name": "for_bad_bound",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor i = 1 To \"x\"\ns = s & \"in\" & i\nIf Len(s) > 20 Then Exit For\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "in0out|13"
+    },
+    {
+      "name": "for_bad_start",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor i = \"x\" To 2\ns = s & \"in\" & i\nIf Len(s) > 20 Then Exit For\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "in0out|13"
+    },
+    {
+      "name": "for_bad_step",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor i = 1 To 2 Step \"x\"\ns = s & \"in\" & i\nIf Len(s) > 20 Then Exit For\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "in0in0in0in0in0in0in0out|13"
+    },
+    {
+      "name": "for_division_bound",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor i = 1 To 1 / d\ns = s & \"in\" & i\nIf Len(s) > 20 Then Exit For\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "in0out|11"
+    },
+    {
+      "name": "do_while_top",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nDo While 1 / d\nn = n + 1\ns = s & \"in\"\nIf n > 3 Then Exit Do\nLoop\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "ininininout|11"
+    },
+    {
+      "name": "do_until_top",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nDo Until 1 / d\nn = n + 1\ns = s & \"in\"\nIf n > 3 Then Exit Do\nLoop\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "ininininout|11"
+    },
+    {
+      "name": "loop_while_bottom",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nDo\nn = n + 1\ns = s & \"in\"\nIf n > 3 Then Exit Do\nLoop While 1 / d\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|11"
+    },
+    {
+      "name": "loop_until_bottom",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nDo\nn = n + 1\ns = s & \"in\"\nIf n > 3 Then Exit Do\nLoop Until 1 / d\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|11"
+    },
+    {
+      "name": "while_wend",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nWhile 1 / d\nn = n + 1\ns = s & \"in\"\nIf n > 3 Then GoTo Done\nWend\nDone:\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "ininininout|11"
+    },
+    {
+      "name": "if_block",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nIf 1 / d Then\ns = \"then\"\nElse\ns = \"else\"\nEnd If\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "thenout|11"
+    },
+    {
+      "name": "if_block_no_else",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nIf 1 / d Then\ns = \"then\"\nEnd If\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "thenout|11"
+    },
+    {
+      "name": "if_line",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nIf 1 / d Then s = \"then\" Else s = \"else\"\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "thenout|11"
+    },
+    {
+      "name": "elseif",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nIf False Then\ns = \"one\"\nElseIf 1 / d Then\ns = \"two\"\nElse\ns = \"three\"\nEnd If\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "twoout|11"
+    },
+    {
+      "name": "elseif_after_true",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nIf True Then\ns = \"one\"\nElseIf 1 / d Then\ns = \"two\"\nElse\ns = \"three\"\nEnd If\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "oneout|0"
+    },
+    {
+      "name": "select_header",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nSelect Case 1 / d\nCase 1\ns = \"one\"\nCase Else\ns = \"else\"\nEnd Select\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "out|11"
+    },
+    {
+      "name": "select_case_label",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nSelect Case 1\nCase 1 / d\ns = \"one\"\nCase Else\ns = \"else\"\nEnd Select\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "oneout|11"
+    },
+    {
+      "name": "select_second_label",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nSelect Case 2\nCase 1\ns = \"one\"\nCase 1 / d\ns = \"two\"\nCase Else\ns = \"else\"\nEnd Select\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "twoout|11"
+    },
+    {
+      "name": "with_header",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nSet o = Nothing\nWith o\ns = s & \"in\"\ns = s & .Name\nEnd With\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|91"
+    },
+    {
+      "name": "with_number",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nWith a\ns = s & \"in\"\nEnd With\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|0"
+    },
+    {
+      "name": "exit_for_after_failed_header",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor Each k In a\ns = s & \"in\"\nExit For\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|92"
+    },
+    {
+      "name": "exit_do_after_failed_header",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nDo While 1 / d\ns = s & \"in\"\nExit Do\nLoop\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "inout|11"
+    },
+    {
+      "name": "nested_for_each_failed",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nDim w As Variant\nOn Error Resume Next\nd = 0\na = 5\nw = \"abc\"\nFor i = 1 To 2\nFor Each k In a\ns = s & \"in\" & i\nNext\ns = s & \"mid\"\nNext\ns = s & \"out\"\ns = s & \"|\" & Err.Number\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "in1midin2midout|92"
+    },
+    {
+      "name": "goto_handler_for_each",
+      "macro": "\nFunction Probe() As String\nDim ws As Worksheet, ws2 As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long\nDim v As Variant, o As Object, a As Variant, t As String, d As Double, k As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\na = 5\nOn Error GoTo Bad\nFor Each k In a\ns = s & \"in\"\nNext\ns = s & \"out\"\nGoTo Done\nBad:\ns = s & \"bad\" & Err.Number\nResume Next\nDone:\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "bad13inbad92out"
+    }
+  ]
+}

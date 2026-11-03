@@ -856,6 +856,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `For Each` over something that cannot be walked is error 13, and over `Nothing` or a Range that has gone error 424,
+  raised at the header, so that under `On Error Resume Next` the body runs once and `Next` raises 92. `Exit For` from
+  such a loop raises 92 too.
 - Copy and Cut end on the members that end them in Excel, a list that follows no rule and stands in
   `_clipboard_ends.py` as measured: `Font.Bold` ends them and `Font.Color` does not, `Calculate` ends them and
   `CalculateFull` does not, and so on through 140 edits (`tests/fixtures/excel_everyday_7.json` and `_8.json`).

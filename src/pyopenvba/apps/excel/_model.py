@@ -6318,8 +6318,11 @@ class Range(ExcelObject):
     def vba_iterate(self) -> Iterator[object]:
         """For Each counts its way through the range as it stands at each step, so cells moved by the loop's body change
         what comes next: a row deleted skips one, and one inserted above can go on for ever
-        (tests/fixtures/range_holding.json)."""
+        (tests/fixtures/range_holding.json). One that has gone fails here, at the loop's header."""
         self._check_alive()
+        return self._walking()
+
+    def _walking(self) -> Iterator[object]:
         place, seen = 0, self.sheet.cells_moved
         items = self._walked()
         for item in iter(lambda: next(items, None), None):

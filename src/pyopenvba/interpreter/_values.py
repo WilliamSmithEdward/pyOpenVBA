@@ -1446,6 +1446,9 @@ def coerce(value: object, declared: str) -> object:
             raise error(ERR_INVALID_USE_OF_NULL)
         raise error(ERR_INVALID_USE_OF_NULL)
     if base == "String":
+        if isinstance(value, VBAErrorValue):
+            # CStr spells an Error, but a String variable will not hold one (tests/fixtures/excel_everyday_4.json).
+            raise error(ERR_TYPE_MISMATCH)
         return to_text(value)
     if base == "Boolean":
         return to_bool(value) if not isinstance(value, bool) else value

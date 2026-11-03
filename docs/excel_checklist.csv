@@ -1133,8 +1133,8 @@ FillFormat,GradientStyle,"property, read-only",As MsoGradientStyle,,MISSING,,
 FillFormat,GradientVariant,"property, read-only",As Long,,MISSING,,
 FillFormat,OneColorGradient,method,"OneColorGradient(Style As MsoGradientStyle, Variant As Long, Degree As Single)",,MISSING,,
 FillFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The shape.
-FillFormat,Pattern,"property, read-only",As MsoPatternType,,MISSING,,
-FillFormat,Patterned,method,Patterned(Pattern As MsoPatternType),,MISSING,,
+FillFormat,Pattern,"property, read-only",As MsoPatternType,,PARTIAL,tests/fixtures/shape_fill_patterns.json; tests/test_excel_shape_fill_patterns.py,"Read: -2 until Patterned. Setting it is error 450, as in Excel. ShapeRange refused."
+FillFormat,Patterned,method,Patterned(Pattern As MsoPatternType),,PARTIAL,tests/fixtures/shape_fill_patterns.json; tests/test_excel_shape_fill_patterns.py,"1 to 54 on a new AutoShape or text box; a line is -2147024809. Keeps the fore colour, starts the back colour on white, and shows a hidden fill. ShapeRange refused."
 FillFormat,PictureEffects,"property, read-only",As PictureEffects,,MISSING,,
 FillFormat,PresetGradient,method,"PresetGradient(Style As MsoGradientStyle, Variant As Long, PresetGradientType As MsoPresetGradientType)",,MISSING,,
 FillFormat,PresetGradientType,"property, read-only",As MsoPresetGradientType,,MISSING,,

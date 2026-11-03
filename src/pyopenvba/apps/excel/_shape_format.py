@@ -200,7 +200,8 @@ class FillFormat(_Format):
         if before.line_hidden:
             raise _unmeasured("Showing or hiding a fill while the line is hidden")
         unset = (self.shape.kind == "shape" and before.fill_rgb is None and before.fill_alpha is None
-                 and before.fill_scheme is None and not before.fill_mods and before.fill_index is None)
+                 and before.fill_scheme is None and not before.fill_mods and before.fill_index is None
+                 and before.fill_pattern is None)
         if unset and not before.fill_solid and before.line_cap is not None:
             raise _unmeasured("Hiding a fill under a line with a round cap")
         look = self.change()
@@ -218,7 +219,9 @@ class FillFormat(_Format):
 
     @member
     def Type(self) -> object:
-        # msoFillSolid, or the mixed value for a line, which has no fill, or one hidden bare.
+        # msoFillSolid or msoFillPatterned, or the mixed value for a line, which has no fill, or one hidden bare.
+        if self.filled() and self.look().fill_pattern is not None:
+            return VBAInt(2, "Long")
         return VBAInt(1 if self.filled() and not self.look().fill_bare else -2, "Long")
 
     @member
@@ -247,8 +250,39 @@ class FillFormat(_Format):
         before = self.look()
         if self.shape.kind != "shape" or before.fill_hidden or before.line_hidden or before.fill_bare:
             raise _unmeasured("Solid on this kind of shape, or with the fill or line hidden,")
-        self.change().fill_solid = True
+        look = self.change()
+        look.fill_solid = True
+        look.fill_pattern = look.fill_back_rgb = look.fill_back_scheme = None
         return EMPTY
+
+    @method
+    def Patterned(self, pattern: object) -> object:
+        self.alone()
+        wanted = int(to_integer(pattern, "Long"))
+        before = self.look()
+        self.style()
+        if not self.filled() or not 1 <= wanted <= len(PATTERNS):
+            raise error(*_INVALID)
+        if before.line_hidden or before.fill_bare:
+            raise _unmeasured("A pattern under a hidden line, or on a fill hidden bare,")
+        look = self.change()
+        # A back colour set before now is forgotten; the new pattern starts on white.
+        if before.fill_pattern is None:
+            look.fill_back_rgb = look.fill_back_scheme = None
+        look.fill_pattern, look.fill_hidden = PATTERNS[wanted - 1], False
+        return EMPTY
+
+    @member
+    def Pattern(self) -> object:
+        self.alone()
+        self.style()
+        chosen = self.look().fill_pattern
+        return VBAInt(-2 if chosen is None else PATTERNS.index(chosen) + 1, "Long")
+
+    @setter("Pattern")
+    def _pattern(self, value: object) -> None:
+        # Patterned sets it; this has no Let.
+        raise error(450, "Wrong number of arguments or invalid property assignment")
 
 
 class LineFormat(_Format):
@@ -510,6 +544,17 @@ class ColorFormat(Created):
     def patterned(self) -> bool:
         return isinstance(self.owner, LineFormat) and self.owner.look().line_pattern is not None
 
+    def has_pattern(self) -> bool:
+        look = self.owner.look()
+        return (look.fill_pattern if isinstance(self.owner, FillFormat) else look.line_pattern) is not None
+
+    def back(self) -> tuple[str | None, str | None]:
+        """A pattern's back colour: its RGB, and its theme colour."""
+        look = self.owner.look()
+        if isinstance(self.owner, FillFormat):
+            return look.fill_back_rgb, look.fill_back_scheme
+        return look.line_back_rgb, look.line_back_scheme
+
     def style_shade(self) -> int:
         """The shade the style still gives this colour."""
         if (not isinstance(self.owner, LineFormat) or self.own() is not None or self.scheme() is not None
@@ -537,12 +582,12 @@ class ColorFormat(Created):
     @member
     def RGB(self) -> object:
         colour, theme = self.styled()
-        look = self.owner.look()
         if not self.fore:
-            if look.line_back_rgb is not None and isinstance(self.owner, LineFormat):
-                return VBAInt(bgr(look.line_back_rgb), "Long")
-            if look.line_back_scheme is not None and isinstance(self.owner, LineFormat):
-                return VBAInt(painted(self.theme_hex(look.line_back_scheme), ()), "Long")
+            back_rgb, back_scheme = self.back()
+            if back_rgb is not None:
+                return VBAInt(bgr(back_rgb), "Long")
+            if back_scheme is not None:
+                return VBAInt(painted(self.theme_hex(back_scheme), ()), "Long")
             # A new shape's back colour is white; a line, with no fill, reads 0.
             return VBAInt(0 if colour is None else 16777215, "Long")
         if self.lost() or self.bare():
@@ -571,7 +616,12 @@ class ColorFormat(Created):
         if isinstance(self.owner, FillFormat):
             if colour is None:
                 raise error(*_INVALID)
-            if self.owner.shape.kind == "shape":
+            if before.fill_pattern is not None:
+                if before.fill_hidden:
+                    raise _unmeasured("The back colour of a hidden pattern")
+                look = self.owner.change()
+                look.fill_back_rgb, look.fill_back_scheme = rgb, scheme
+            elif self.owner.shape.kind == "shape":
                 self.owner.vba_get("Solid")
             return
         if self.patterned():
@@ -664,7 +714,7 @@ class ColorFormat(Created):
         if colour is None:
             return VBAInt(-2 if isinstance(self.owner, FillFormat) else theme, "Long")
         if not self.fore:
-            scheme = self.owner.look().line_back_scheme if isinstance(self.owner, LineFormat) else None
+            scheme = self.back()[1]
             return VBAInt(0 if scheme is None else _scheme_number(scheme), "Long")
         scheme = self.scheme()
         if scheme is not None:
@@ -692,8 +742,7 @@ class ColorFormat(Created):
         if colour is None:
             return VBAInt(-2, "Long")
         if not self.fore:
-            scheme = self.owner.look().line_back_scheme if isinstance(self.owner, LineFormat) else None
-            return VBAInt(1 if scheme is None else 2, "Long")
+            return VBAInt(1 if self.back()[1] is None else 2, "Long")
         if self.scheme() is not None or self.index() is not None:
             return VBAInt(2, "Long")
         return VBAInt(1 if self.own() is not None or self.lost() or self.bare() or self.patterned() else 2, "Long")
@@ -768,7 +817,7 @@ class ColorFormat(Created):
     def set_back_only(self) -> None:
         """A back colour's brightness or tint, which only writes the fill or line out."""
         colour, _ = self.styled()
-        if colour is None or self.patterned():
+        if colour is None or self.has_pattern():
             raise _unmeasured("The brightness or tint of this back colour")
         self.set_back(None, None)
 

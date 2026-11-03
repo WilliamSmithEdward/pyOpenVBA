@@ -1008,12 +1008,20 @@ def _fill_line(shape: Shape) -> str:
         return _TEXT_BOX_FILL if text_box else ""
     fill_colour = _colour(look.fill_rgb, look.fill_scheme or ("lt1" if text_box else "accent1"), 0, look.fill_alpha,
                           look.fill_mods, look.fill_index)
+    fill_paint = f"<a:solidFill>{fill_colour}</a:solidFill>"
+    if look.fill_pattern is not None:
+        back = _colour(look.fill_back_rgb or (None if look.fill_back_scheme else "FFFFFF"), look.fill_back_scheme or "",
+                       0, look.fill_alpha)
+        fill_paint = (f'<a:pattFill prst="{look.fill_pattern}"><a:fgClr>{fill_colour}</a:fgClr><a:bgClr>{back}</a:bgClr>'
+                      "</a:pattFill>")
     fill = ""
     if look.fill_hidden or look.fill_bare:
         fill = "<a:noFill/>"
+    elif look.fill_pattern is not None:
+        fill = fill_paint
     elif (look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box
           or look.fill_scheme is not None or look.fill_mods or look.fill_index is not None):
-        fill = f"<a:solidFill>{fill_colour}</a:solidFill>"
+        fill = fill_paint
     elif look.no_fill:
         fill = "<a:noFill/>"
     scheme, shade = {"textBox": ("lt1", 50000), "line": ("accent1", 0)}.get(shape.kind, ("accent1", 15000))
@@ -1040,8 +1048,8 @@ def _fill_line(shape: Shape) -> str:
         line = f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"
     extensions = ""
     if look.fill_hidden:
-        extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}><a:solidFill>'
-                       f"{fill_colour}</a:solidFill></a14:hiddenFill></a:ext>")
+        extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}>'
+                       f"{fill_paint}</a14:hiddenFill></a:ext>")
     if look.line_hidden and not look.line_lost:
         width = look.line_width or (9525 if text_box else 19050)
         extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'

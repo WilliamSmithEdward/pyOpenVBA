@@ -292,6 +292,11 @@ class FillLine:
     line_pattern: str | None = None
     line_back_rgb: str | None = None
     line_back_scheme: str | None = None
+    #: A patterned fill's prst and back colour, white until set; its fore colour is the fill's own
+    #: (tests/fixtures/shape_fill_patterns.json).
+    fill_pattern: str | None = None
+    fill_back_rgb: str | None = None
+    fill_back_scheme: str | None = None
     #: InsetPen's algn.
     line_align: str | None = None
     #: Each end's type, w and len as set, and those a hidden line had when it was hidden.

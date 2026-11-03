@@ -149,9 +149,19 @@ def _colors(unset: object) -> list[MemberSpec]:
 class CellFormatFont(_Part):
     vba_type_name = "Font"
 
+    @member
+    def Parent(self) -> object:
+        """The CellFormat, which is made fresh and keeps nothing of its own (tests/fixtures/object_trio.json)."""
+        return CellFormat(self.application, self.kept)
+
 
 class CellFormatInterior(_Part):
     vba_type_name = "Interior"
+
+    @member
+    def Parent(self) -> object:
+        """The CellFormat, as a Font's (tests/fixtures/object_trio.json)."""
+        return CellFormat(self.application, self.kept)
 
 
 class CellFormat(_Part):

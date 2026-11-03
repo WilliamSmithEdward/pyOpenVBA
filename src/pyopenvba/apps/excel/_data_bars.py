@@ -311,7 +311,7 @@ class Databar(PointRule):
 
     @member
     def BarColor(self) -> object:
-        return FormatColor(self, self.bar().color)
+        return FormatColor(self, self.bar().color, parent=self)
 
     @member
     def BarFillType(self) -> object:
@@ -373,7 +373,7 @@ class Databar(PointRule):
 
     @member
     def AxisColor(self) -> object:
-        return FormatColor(self, self.bar().axis_color)
+        return FormatColor(self, self.bar().axis_color, parent=self)
 
     @member
     def NegativeBarFormat(self) -> object:

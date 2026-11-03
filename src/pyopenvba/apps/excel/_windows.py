@@ -599,7 +599,7 @@ class Windows(VBACollection, ItemDefault, ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.application
+        return self.application if self.book is None else self.book
 
 
 def pane_count(view: SheetViewState) -> int:

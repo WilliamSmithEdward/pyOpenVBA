@@ -1,0 +1,1001 @@
+{
+ "measured_at": "2026-11-03T21:57:02.621777+00:00",
+ "source": "Private wb As Object, ws As Object, ws2 As Object, pt As Object, lo As Object, fc As Object, t10 As Object\nPrivate av As Object, cs As Object, db As Object, ic As Object, uv As Object, co As Object, ch As Object\nPrivate sr As Object, co2 As Object, sh As Object, sh2 As Object, sh3 As Object, gr As Object, sg As Object\n\nPrivate Function Trio(o As Object) As String\n    Dim a As String, c As String, p As String, n As String, la As String, lc As String, sp As String\n    Dim v As Variant, q As Object\n    On Error Resume Next\n    Set q = o.Application\n    If Err.Number <> 0 Then\n        a = \"e\" & Err.Number\n        Err.Clear\n    Else\n        a = TypeName(q) & \" \" & (q Is Application)\n    End If\n    v = o.Creator\n    If Err.Number <> 0 Then\n        c = \"e\" & Err.Number\n        Err.Clear\n    Else\n        c = v & \" \" & TypeName(v)\n    End If\n    Set q = Nothing\n    Set q = o.Parent\n    If Err.Number <> 0 Then\n        p = \"e\" & Err.Number\n        Err.Clear\n    Else\n        p = TypeName(q)\n        If InStr(\"FillFormat LineFormat Chart\", TypeName(q)) = 0 Then n = q.Name\n        If Err.Number <> 0 Then\n            n = \"e\" & Err.Number\n            Err.Clear\n        End If\n    End If\n    o.Application = 1\n    la = \"e\" & Err.Number\n    Err.Clear\n    o.Creator = 1\n    lc = \"e\" & Err.Number\n    Err.Clear\n    Set o.Parent = Application\n    sp = \"e\" & Err.Number\n    Err.Clear\n    Trio = a & \"~\" & c & \"~\" & p & \"~\" & n & \"~\" & la & \"~\" & lc & \"~\" & sp\nEnd Function\n\nPublic Sub Setup()\n\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set ws2 = wb.Worksheets.Add(After:=ws)\n    ws.Name = \"Main\"\n    ws2.Name = \"Second\"\n    ws.Activate\n    ws.Range(\"A1:B1\").Value = Array(\"k\", \"v\")\n    ws.Range(\"A2:B2\").Value = Array(\"a\", 1)\n    ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    ws.Range(\"A4:B4\").Value = Array(\"a\", 3)\n    ws.Range(\"A5:B5\").Value = Array(\"c\", 4)\n    ws.Range(\"D1\").Value = 1: ws.Range(\"D2\").Value = 2: ws.Range(\"D3\").Value = 3: ws.Range(\"D4\").Value = 4\n    ws.Range(\"D5\").Value = 5\n    ws.Range(\"F1\").Validation.Add xlValidateWholeNumber, xlValidAlertStop, xlBetween, \"1\", \"9\"\n    ws.Range(\"G1\").Formula = \"=1/0\"\n    ws.Range(\"G2\").Value = \"'12\"\n    ws.Range(\"H1\").AddComment \"note\"\n    ws.Range(\"H2\").AddCommentThreaded \"thread\"\n    Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws2.Range(\"A3\"), \"PT\")\n    pt.PivotFields(\"k\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum\n    pt.PivotFields(\"k\").PivotFilters.Add2 xlCaptionEquals, , \"a\"\n    pt.PivotFields(\"k\").ClearAllFilters\n    ws.Range(\"L1:M1\").Value = Array(\"x\", \"y\")\n    ws.Range(\"L2:M2\").Value = Array(1, 2)\n    Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"L1:M2\"), , xlYes)\n    Set fc = ws.Range(\"D1:D5\").FormatConditions.Add(xlCellValue, xlGreater, \"=2\")\n    Set t10 = ws.Range(\"D1:D5\").FormatConditions.AddTop10\n    Set av = ws.Range(\"D1:D5\").FormatConditions.AddAboveAverage\n    Set cs = ws.Range(\"D1:D5\").FormatConditions.AddColorScale(3)\n    Set db = ws.Range(\"D1:D5\").FormatConditions.AddDatabar\n    Set ic = ws.Range(\"D1:D5\").FormatConditions.AddIconSetCondition\n    Set uv = ws.Range(\"D1:D5\").FormatConditions.AddUniqueValues\n    ws.Range(\"O1:Q1\").Value = Array(\"c\", \"s1\", \"s2\")\n    ws.Range(\"O2:Q2\").Value = Array(\"p\", 1, 2)\n    ws.Range(\"O3:Q3\").Value = Array(\"q\", 3, 1)\n    ws.Range(\"O4:Q4\").Value = Array(\"r\", 2, 5)\n    Set co = ws.ChartObjects.Add(10, 200, 300, 200)\n    Set ch = co.Chart\n    ch.ChartType = xlLineMarkers\n    ch.SetSourceData ws.Range(\"O1:Q4\")\n    ch.HasTitle = True\n    ch.HasLegend = True\n    ch.Axes(xlValue).HasTitle = True\n    ch.Axes(xlValue).HasMajorGridlines = True\n    ch.ChartGroups(1).HasHiLoLines = True\n    ch.ChartGroups(1).HasUpDownBars = True\n    ch.ChartGroups(1).HasDropLines = True\n    Set sr = ch.SeriesCollection(1)\n    sr.HasDataLabels = True\n    sr.Trendlines.Add\n    sr.ErrorBar xlY, xlBoth, xlFixedValue, 1\n    Set co2 = ws.ChartObjects.Add(320, 200, 300, 200)\n    co2.Chart.ChartType = xlColumnStacked\n    co2.Chart.SetSourceData ws.Range(\"O1:Q4\")\n    co2.Chart.ChartGroups(1).HasSeriesLines = True\n    Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 20)\n    Set sh2 = ws.Shapes.AddShape(msoShapeOval, 70, 10, 50, 20)\n    Set sh3 = ws.Shapes.AddShape(msoShapeOval, 130, 10, 50, 20)\n    Set gr = ws.Shapes.Range(Array(sh2.Name, sh3.Name)).Group\n    Set sg = ws.Range(\"U1\").SparklineGroups.Add(xlSparkLine, \"Main!D1:D5\")\n    ws.Scenarios.Add \"Sc\", ws.Range(\"D1\"), Array(5)\n    ws.Sort.SortFields.Add ws.Range(\"A1\")\n    ws2.Range(\"H1:H2\").Value = Application.Transpose(Array(\"h\", 1))\n    ws2.Range(\"H1:H2\").AutoFilter\n    ws.Range(\"A12\").Value = 1\n    ws.HPageBreaks.Add ws.Range(\"A10\")\n    ws.VPageBreaks.Add ws.Range(\"C1\")\n    ws.Hyperlinks.Add ws.Range(\"V1\"), \"http://example.com/\"\n    wb.Names.Add \"Nm\", \"=1\"\n    ws.Names.Add \"Lc\", \"=2\"\n    ws.CustomProperties.Add \"cp\", \"v\"\n    wb.CustomDocumentProperties.Add \"dp\", False, msoPropertyTypeString, \"v\"\n    ws.Range(\"W1\").Interior.Pattern = xlPatternLinearGradient\n    ws.Range(\"W2\").Interior.Pattern = xlPatternRectangularGradient\n    wb.Queries.Add \"Qy\", \"let Source = 1 in Source\"\n\nEnd Sub\n\nPublic Function Reached(ByVal i As Long) As Object\n    Select Case i\n    Case 0: Set Reached = av\n    Case 1: Set Reached = Application\n    Case 2: Set Reached = ws.Range(\"A1:B2,D4\").Areas\n    Case 3: Set Reached = ws.Range(\"H2\").CommentThreaded.Author\n    Case 4: Set Reached = ws2.AutoFilter\n    Case 5: Set Reached = ch.Axes\n    Case 6: Set Reached = ch.Axes(xlValue)\n    Case 7: Set Reached = ch.Axes(xlValue).AxisTitle\n    Case 8: Set Reached = ws.Range(\"A1\").Borders(xlEdgeTop)\n    Case 9: Set Reached = wb.Styles(1).Borders(xlEdgeTop)\n    Case 10: Set Reached = fc.Borders(xlTop)\n    Case 11: Set Reached = ch.ChartArea.Border\n    Case 12: Set Reached = ch.Axes(xlValue).MajorGridlines.Border\n    Case 13: Set Reached = ws.Range(\"A1\").Borders\n    Case 14: Set Reached = wb.Styles(1).Borders\n    Case 15: Set Reached = fc.Borders\n    Case 16: Set Reached = Application.FindFormat.Borders\n    Case 17: Set Reached = pt.CalculatedFields\n    Case 18: Set Reached = pt.PivotFields(\"k\").CalculatedItems\n    Case 19: Set Reached = Application.FindFormat\n    Case 20: Set Reached = Application.ReplaceFormat\n    Case 21: Set Reached = ch\n    Case 22: Set Reached = ch.ChartArea\n    Case 23: Set Reached = ch.ChartArea.Format\n    Case 24: Set Reached = ch.ChartGroups(1)\n    Case 25: Set Reached = ch.ChartGroups\n    Case 26: Set Reached = co\n    Case 27: Set Reached = ws.ChartObjects\n    Case 28: Set Reached = ch.ChartTitle\n    Case 29: Set Reached = sh.Fill.ForeColor\n    Case 30: Set Reached = sh.Line.ForeColor\n    Case 31: Set Reached = cs\n    Case 32: Set Reached = cs.ColorScaleCriteria\n    Case 33: Set Reached = cs.ColorScaleCriteria(1)\n    Case 34: Set Reached = ws.Range(\"W1\").Interior.Gradient.ColorStops(1)\n    Case 35: Set Reached = ws.Range(\"W1\").Interior.Gradient.ColorStops\n    Case 36: Set Reached = ws.Range(\"H1\").Comment\n    Case 37: Set Reached = ws.Range(\"H2\").CommentThreaded\n    Case 38: Set Reached = ws.Comments\n    Case 39: Set Reached = ws.CommentsThreaded\n    Case 40: Set Reached = ws.Range(\"H2\").CommentThreaded.Replies\n    Case 41: Set Reached = db.MinPoint\n    Case 42: Set Reached = wb.Connections\n    Case 43: Set Reached = ws.CustomProperties\n    Case 44: Set Reached = ws.CustomProperties(1)\n    Case 45: Set Reached = db.BarBorder\n    Case 46: Set Reached = sr.Points(1).DataLabel\n    Case 47: Set Reached = sr.DataLabels\n    Case 48: Set Reached = db\n    Case 49: Set Reached = ws.Range(\"A1\").DisplayFormat\n    Case 50: Set Reached = wb.BuiltinDocumentProperties\n    Case 51: Set Reached = wb.CustomDocumentProperties\n    Case 52: Set Reached = wb.BuiltinDocumentProperties(1)\n    Case 53: Set Reached = wb.CustomDocumentProperties(1)\n    Case 54: Set Reached = ch.ChartGroups(1).DownBars\n    Case 55: Set Reached = ch.ChartGroups(1).DropLines\n    Case 56: Set Reached = ws.Range(\"G2\").Errors(xlNumberAsText)\n    Case 57: Set Reached = sr.ErrorBars\n    Case 58: Set Reached = Application.ErrorCheckingOptions\n    Case 59: Set Reached = ws.Range(\"G2\").Errors\n    Case 60: Set Reached = sh.Fill\n    Case 61: Set Reached = ch.ChartArea.Format.Fill\n    Case 62: Set Reached = ws2.AutoFilter.Filters(1)\n    Case 63: Set Reached = ws2.AutoFilter.Filters\n    Case 64: Set Reached = ws.Range(\"A1\").Font\n    Case 65: Set Reached = wb.Styles(1).Font\n    Case 66: Set Reached = fc.Font\n    Case 67: Set Reached = ch.ChartTitle.Font\n    Case 68: Set Reached = ch.Legend.Font\n    Case 69: Set Reached = sr.DataLabels.Font\n    Case 70: Set Reached = ch.ChartArea.Font\n    Case 71: Set Reached = Application.FindFormat.Font\n    Case 72: Set Reached = ws.Range(\"A1\").Characters(1, 1).Font\n    Case 73: Set Reached = cs.ColorScaleCriteria(1).FormatColor\n    Case 74: Set Reached = db.BarColor\n    Case 75: Set Reached = db.AxisColor\n    Case 76: Set Reached = fc\n    Case 77: Set Reached = ws.Range(\"D1:D5\").FormatConditions\n    Case 78: Set Reached = ch.FullSeriesCollection\n    Case 79: Set Reached = ch.Axes(xlValue).MajorGridlines\n    Case 80: Set Reached = gr.GroupItems\n    Case 81: Set Reached = ws.HPageBreaks(1)\n    Case 82: Set Reached = ws.HPageBreaks\n    Case 83: Set Reached = ch.ChartGroups(1).HiLoLines\n    Case 84: Set Reached = ic.IconCriteria\n    Case 85: Set Reached = ic.IconCriteria(1)\n    Case 86: Set Reached = wb.IconSets(1)\n    Case 87: Set Reached = ic\n    Case 88: Set Reached = wb.IconSets\n    Case 89: Set Reached = ws.Range(\"A1\").Interior\n    Case 90: Set Reached = wb.Styles(1).Interior\n    Case 91: Set Reached = fc.Interior\n    Case 92: Set Reached = ch.ChartArea.Interior\n    Case 93: Set Reached = Application.FindFormat.Interior\n    Case 94: Set Reached = ch.Legend\n    Case 95: Set Reached = ch.Legend.LegendEntries\n    Case 96: Set Reached = ch.Legend.LegendEntries(1)\n    Case 97: Set Reached = ch.Legend.LegendEntries(1).LegendKey\n    Case 98: Set Reached = sh.Line\n    Case 99: Set Reached = ws.Range(\"W1\").Interior.Gradient\n    Case 100: Set Reached = lo.ListColumns(1)\n    Case 101: Set Reached = lo.ListColumns\n    Case 102: Set Reached = lo\n    Case 103: Set Reached = ws.ListObjects\n    Case 104: Set Reached = lo.ListRows(1)\n    Case 105: Set Reached = lo.ListRows\n    Case 106: Set Reached = wb.Names(\"Nm\")\n    Case 107: Set Reached = ws.Names(\"Lc\")\n    Case 108: Set Reached = wb.Names\n    Case 109: Set Reached = ws.Names\n    Case 110: Set Reached = Application.Names\n    Case 111: Set Reached = db.NegativeBarFormat\n    Case 112: Set Reached = ws.Outline\n    Case 113: Set Reached = ws.PageSetup.Pages(1)\n    Case 114: Set Reached = ws.PageSetup\n    Case 115: Set Reached = ActiveWindow.Panes\n    Case 116: Set Reached = pt.PivotCache\n    Case 117: Set Reached = wb.PivotCaches\n    Case 118: Set Reached = pt.TableRange1.Cells(2, 1).PivotCell\n    Case 119: Set Reached = pt.PivotFields(\"k\")\n    Case 120: Set Reached = pt.PivotFields\n    Case 121: Set Reached = pt.PivotFields(\"k\").PivotFilters\n    Case 122: Set Reached = pt.ActiveFilters\n    Case 123: Set Reached = pt.PivotFields(\"k\").PivotItems(1)\n    Case 124: Set Reached = pt.TableRange1.Cells(2, 2).PivotCell.RowItems\n    Case 125: Set Reached = pt.PivotFields(\"k\").PivotItems\n    Case 126: Set Reached = pt\n    Case 127: Set Reached = ws2.PivotTables\n    Case 128: Set Reached = ch.PlotArea\n    Case 129: Set Reached = sr.Points(1)\n    Case 130: Set Reached = sr.Points\n    Case 131: Set Reached = ws.Protection\n    Case 132: Set Reached = wb.Queries\n    Case 133: Set Reached = ws.Range(\"A1\")\n    Case 134: Set Reached = ws2.Cells\n    Case 135: Set Reached = ws.Rows(1)\n    Case 136: Set Reached = ws.Range(\"A1\").EntireColumn\n    Case 137: Set Reached = lo.Range\n    Case 138: Set Reached = pt.TableRange1\n    Case 139: Set Reached = ws.Range(\"W2\").Interior.Gradient\n    Case 140: Set Reached = ws.Scenarios(1)\n    Case 141: Set Reached = ws.Scenarios\n    Case 142: Set Reached = sr\n    Case 143: Set Reached = ch.SeriesCollection\n    Case 144: Set Reached = co2.Chart.ChartGroups(1).SeriesLines\n    Case 145: Set Reached = sh\n    Case 146: Set Reached = gr\n    Case 147: Set Reached = gr.GroupItems(1)\n    Case 148: Set Reached = ch.Parent.ShapeRange(1)\n    Case 149: Set Reached = ws.Shapes.Range(Array(1))\n    Case 150: Set Reached = ws.Shapes\n    Case 151: Set Reached = ch.Shapes\n    Case 152: Set Reached = ch.ChartObjects\n    Case 153: Set Reached = ch.Hyperlinks\n    Case 154: Set Reached = ActiveWindow.SheetViews\n    Case 155: Set Reached = wb.Sheets\n    Case 156: Set Reached = wb.Worksheets\n    Case 157: Set Reached = wb.Charts\n    Case 158: Set Reached = pt.Slicers\n    Case 159: Set Reached = lo.Slicers\n    Case 160: Set Reached = ws.Sort\n    Case 161: Set Reached = lo.Sort\n    Case 162: Set Reached = ws.Sort.SortFields(1)\n    Case 163: Set Reached = ws.Sort.SortFields\n    Case 164: Set Reached = sg.Axes\n    Case 165: Set Reached = sg.Points.Markers\n    Case 166: Set Reached = sg.Axes.Horizontal.Axis\n    Case 167: Set Reached = sg.Axes.Horizontal\n    Case 168: Set Reached = sg.Points\n    Case 169: Set Reached = sg.Axes.Vertical\n    Case 170: Set Reached = sg.Item(1)\n    Case 171: Set Reached = sg\n    Case 172: Set Reached = ws.Range(\"U1\").SparklineGroups\n    Case 173: Set Reached = wb.Styles(1)\n    Case 174: Set Reached = ws.Range(\"A1\").Style\n    Case 175: Set Reached = wb.Styles\n    Case 176: Set Reached = ws.Tab\n    Case 177: Set Reached = wb.TableStyles(1)\n    Case 178: Set Reached = wb.TableStyles\n    Case 179: Set Reached = sh.TextFrame\n    Case 180: Set Reached = sh.TextFrame2\n    Case 181: Set Reached = ch.Axes(xlValue).TickLabels\n    Case 182: Set Reached = t10\n    Case 183: Set Reached = sr.Trendlines(1)\n    Case 184: Set Reached = sr.Trendlines\n    Case 185: Set Reached = uv\n    Case 186: Set Reached = ch.ChartGroups(1).UpBars\n    Case 187: Set Reached = ws.VPageBreaks(1)\n    Case 188: Set Reached = ws.VPageBreaks\n    Case 189: Set Reached = ws.Range(\"F1\").Validation\n    Case 190: Set Reached = ActiveWindow\n    Case 191: Set Reached = Application.Windows\n    Case 192: Set Reached = wb.Windows\n    Case 193: Set Reached = wb\n    Case 194: Set Reached = wb.Queries(1)\n    Case 195: Set Reached = Application.Workbooks\n    Case 196: Set Reached = ws\n    Case 197: Set Reached = Application.WorksheetFunction\n    Case 198: Set Reached = ActiveWindow.SheetViews(1)\n    End Select\nEnd Function\n\nPublic Function One(ByVal i As Long) As String\n    Dim o As Object\n    On Error Resume Next\n    Set o = Reached(i)\n    If Err.Number <> 0 Then\n        One = \"e\" & Err.Number\n    Else\n        One = Replace(Trio(o), wb.Name, \"<book>\")\n    End If\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, out As String\n    Setup\n    For i = 0 To 198\n        out = out & \"@@\" & One(i)\n    Next i\n    Probe = Mid(out, 3)\nEnd Function\n",
+ "answers": [
+  [
+   "AboveAverage",
+   "av",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Application",
+   "Application",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "Areas",
+   "ws.Range(\"A1:B2,D4\").Areas",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Author",
+   "ws.Range(\"H2\").CommentThreaded.Author",
+   "Application True~1480803660 Long~CommentThreaded~e438~e450~e450~e438"
+  ],
+  [
+   "AutoFilter",
+   "ws2.AutoFilter",
+   "Application True~1480803660 Long~Worksheet~Second~e450~e450~e438"
+  ],
+  [
+   "Axes",
+   "ch.Axes",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "Axis",
+   "ch.Axes(xlValue)",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "AxisTitle",
+   "ch.Axes(xlValue).AxisTitle",
+   "Application True~1480803660 Long~Axis~e438~e450~e450~e438"
+  ],
+  [
+   "Border",
+   "ws.Range(\"A1\").Borders(xlEdgeTop)",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Border",
+   "wb.Styles(1).Borders(xlEdgeTop)",
+   "Application True~1480803660 Long~Style~20% - Accent1~e450~e450~e450"
+  ],
+  [
+   "Border",
+   "fc.Borders(xlTop)",
+   "Application True~1480803660 Long~FormatCondition~e438~e450~e450~e438"
+  ],
+  [
+   "Border",
+   "ch.ChartArea.Border",
+   "Application True~1480803660 Long~ChartArea~Chart~e450~e450~e438"
+  ],
+  [
+   "Border",
+   "ch.Axes(xlValue).MajorGridlines.Border",
+   "Application True~1480803660 Long~Gridlines~Gridline 1~e450~e450~e438"
+  ],
+  [
+   "Borders",
+   "ws.Range(\"A1\").Borders",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Borders",
+   "wb.Styles(1).Borders",
+   "Application True~1480803660 Long~Style~20% - Accent1~e450~e450~e450"
+  ],
+  [
+   "Borders",
+   "fc.Borders",
+   "Application True~1480803660 Long~FormatCondition~e438~e450~e450~e438"
+  ],
+  [
+   "Borders",
+   "Application.FindFormat.Borders",
+   "Application True~1480803660 Long~CellFormat~e438~e450~e450~e438"
+  ],
+  [
+   "CalculatedFields",
+   "pt.CalculatedFields",
+   "Application True~1480803660 Long~PivotTable~PT~e450~e450~e438"
+  ],
+  [
+   "CalculatedItems",
+   "pt.PivotFields(\"k\").CalculatedItems",
+   "Application True~1480803660 Long~PivotField~k~e450~e450~e13"
+  ],
+  [
+   "CellFormat",
+   "Application.FindFormat",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "CellFormat",
+   "Application.ReplaceFormat",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "Chart",
+   "ch",
+   "Application True~1480803660 Long~ChartObject~Chart 1~e450~e450~e438"
+  ],
+  [
+   "ChartArea",
+   "ch.ChartArea",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "ChartFormat",
+   "ch.ChartArea.Format",
+   "Application True~1480803660 Long~ChartArea~Chart~e450~e450~e438"
+  ],
+  [
+   "ChartGroup",
+   "ch.ChartGroups(1)",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "ChartGroups",
+   "ch.ChartGroups",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "ChartObject",
+   "co",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "ChartObjects",
+   "ws.ChartObjects",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "ChartTitle",
+   "ch.ChartTitle",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "ColorFormat",
+   "sh.Fill.ForeColor",
+   "Application True~1480803660 Long~FillFormat~~e450~e450~e438"
+  ],
+  [
+   "ColorFormat",
+   "sh.Line.ForeColor",
+   "Application True~1480803660 Long~LineFormat~~e450~e450~e438"
+  ],
+  [
+   "ColorScale",
+   "cs",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "ColorScaleCriteria",
+   "cs.ColorScaleCriteria",
+   "e438~e438~e438~~e438~e438~e438"
+  ],
+  [
+   "ColorScaleCriterion",
+   "cs.ColorScaleCriteria(1)",
+   "e438~e438~e438~~e438~e438~e438"
+  ],
+  [
+   "ColorStop",
+   "ws.Range(\"W1\").Interior.Gradient.ColorStops(1)",
+   "Application True~1480803660 Long~LinearGradient~e438~e450~e450~e438"
+  ],
+  [
+   "ColorStops",
+   "ws.Range(\"W1\").Interior.Gradient.ColorStops",
+   "Application True~1480803660 Long~LinearGradient~e438~e450~e450~e438"
+  ],
+  [
+   "Comment",
+   "ws.Range(\"H1\").Comment",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "CommentThreaded",
+   "ws.Range(\"H2\").CommentThreaded",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Comments",
+   "ws.Comments",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "CommentsThreaded",
+   "ws.CommentsThreaded",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "CommentsThreaded",
+   "ws.Range(\"H2\").CommentThreaded.Replies",
+   "Application True~1480803660 Long~CommentThreaded~e438~e450~e450~e438"
+  ],
+  [
+   "ConditionValue",
+   "db.MinPoint",
+   "Application True~1480803660 Long~Databar~e438~e450~e450~e438"
+  ],
+  [
+   "Connections",
+   "wb.Connections",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "CustomProperties",
+   "ws.CustomProperties",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "CustomProperty",
+   "ws.CustomProperties(1)",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "DataBarBorder",
+   "db.BarBorder",
+   "Application True~1480803660 Long~Databar~e438~e450~e450~e438"
+  ],
+  [
+   "DataLabel",
+   "sr.Points(1).DataLabel",
+   "Application True~1480803660 Long~Point~S1P1~e450~e450~e438"
+  ],
+  [
+   "DataLabels",
+   "sr.DataLabels",
+   "Application True~1480803660 Long~Series~s1~e450~e450~e438"
+  ],
+  [
+   "Databar",
+   "db",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "DisplayFormat",
+   "ws.Range(\"A1\").DisplayFormat",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "DocumentProperties",
+   "wb.BuiltinDocumentProperties",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "DocumentProperties",
+   "wb.CustomDocumentProperties",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "DocumentProperty",
+   "wb.BuiltinDocumentProperties(1)",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "DocumentProperty",
+   "wb.CustomDocumentProperties(1)",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "DownBars",
+   "ch.ChartGroups(1).DownBars",
+   "Application True~1480803660 Long~ChartGroup~e438~e450~e450~e438"
+  ],
+  [
+   "DropLines",
+   "ch.ChartGroups(1).DropLines",
+   "Application True~1480803660 Long~ChartGroup~e438~e450~e450~e438"
+  ],
+  [
+   "Error",
+   "ws.Range(\"G2\").Errors(xlNumberAsText)",
+   "Application True~1480803660 Long~Errors~e438~e450~e450~e438"
+  ],
+  [
+   "ErrorBars",
+   "sr.ErrorBars",
+   "Application True~1480803660 Long~Series~s1~e450~e450~e438"
+  ],
+  [
+   "ErrorCheckingOptions",
+   "Application.ErrorCheckingOptions",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "Errors",
+   "ws.Range(\"G2\").Errors",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "FillFormat",
+   "sh.Fill",
+   "Application True~1480803660 Long~Shape~Rectangle 3~e450~e450~e438"
+  ],
+  [
+   "FillFormat",
+   "ch.ChartArea.Format.Fill",
+   "Application True~1480803660 Long~ChartFormat~e438~e450~e450~e438"
+  ],
+  [
+   "Filter",
+   "ws2.AutoFilter.Filters(1)",
+   "Application True~1480803660 Long~AutoFilter~e438~e450~e450~e438"
+  ],
+  [
+   "Filters",
+   "ws2.AutoFilter.Filters",
+   "Application True~1480803660 Long~AutoFilter~e438~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "ws.Range(\"A1\").Font",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "wb.Styles(1).Font",
+   "Application True~1480803660 Long~Style~20% - Accent1~e450~e450~e450"
+  ],
+  [
+   "Font",
+   "fc.Font",
+   "Application True~1480803660 Long~FormatCondition~e438~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "ch.ChartTitle.Font",
+   "Application True~1480803660 Long~ChartTitle~Title~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "ch.Legend.Font",
+   "Application True~1480803660 Long~Legend~Legend~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "sr.DataLabels.Font",
+   "Application True~1480803660 Long~DataLabels~Text S1~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "ch.ChartArea.Font",
+   "Application True~1480803660 Long~ChartArea~Chart~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "Application.FindFormat.Font",
+   "Application True~1480803660 Long~CellFormat~e438~e450~e450~e438"
+  ],
+  [
+   "Font",
+   "ws.Range(\"A1\").Characters(1, 1).Font",
+   "Application True~1480803660 Long~Characters~e438~e450~e450~e438"
+  ],
+  [
+   "FormatColor",
+   "cs.ColorScaleCriteria(1).FormatColor",
+   "Application True~1480803660 Long~ColorScaleCriterion~e438~e450~e450~e438"
+  ],
+  [
+   "FormatColor",
+   "db.BarColor",
+   "Application True~1480803660 Long~Databar~e438~e450~e450~e438"
+  ],
+  [
+   "FormatColor",
+   "db.AxisColor",
+   "Application True~1480803660 Long~Databar~e438~e450~e450~e438"
+  ],
+  [
+   "FormatCondition",
+   "fc",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "FormatConditions",
+   "ws.Range(\"D1:D5\").FormatConditions",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "FullSeriesCollection",
+   "ch.FullSeriesCollection",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "Gridlines",
+   "ch.Axes(xlValue).MajorGridlines",
+   "Application True~1480803660 Long~Axis~e438~e450~e450~e438"
+  ],
+  [
+   "GroupShapes",
+   "gr.GroupItems",
+   "Application True~1480803660 Long~Shape~Group 6~e450~e450~e438"
+  ],
+  [
+   "HPageBreak",
+   "ws.HPageBreaks(1)",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "HPageBreaks",
+   "ws.HPageBreaks",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "HiLoLines",
+   "ch.ChartGroups(1).HiLoLines",
+   "Application True~1480803660 Long~ChartGroup~e438~e450~e450~e438"
+  ],
+  [
+   "IconCriteria",
+   "ic.IconCriteria",
+   "e438~e438~e438~~e438~e438~e438"
+  ],
+  [
+   "IconCriterion",
+   "ic.IconCriteria(1)",
+   "e438~e438~e438~~e438~e438~e438"
+  ],
+  [
+   "IconSet",
+   "wb.IconSets(1)",
+   "Application True~1480803660 Long~IconSets~e438~e450~e450~e438"
+  ],
+  [
+   "IconSetCondition",
+   "ic",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "IconSets",
+   "wb.IconSets",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Interior",
+   "ws.Range(\"A1\").Interior",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Interior",
+   "wb.Styles(1).Interior",
+   "Application True~1480803660 Long~Style~20% - Accent1~e450~e450~e450"
+  ],
+  [
+   "Interior",
+   "fc.Interior",
+   "Application True~1480803660 Long~FormatCondition~e438~e450~e450~e438"
+  ],
+  [
+   "Interior",
+   "ch.ChartArea.Interior",
+   "Application True~1480803660 Long~ChartArea~Chart~e450~e450~e438"
+  ],
+  [
+   "Interior",
+   "Application.FindFormat.Interior",
+   "Application True~1480803660 Long~CellFormat~e438~e450~e450~e438"
+  ],
+  [
+   "Legend",
+   "ch.Legend",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "LegendEntries",
+   "ch.Legend.LegendEntries",
+   "Application True~1480803660 Long~Legend~Legend~e450~e450~e438"
+  ],
+  [
+   "LegendEntry",
+   "ch.Legend.LegendEntries(1)",
+   "Application True~1480803660 Long~Legend~Legend~e450~e450~e438"
+  ],
+  [
+   "LegendKey",
+   "ch.Legend.LegendEntries(1).LegendKey",
+   "Application True~1480803660 Long~LegendEntry~e438~e450~e450~e438"
+  ],
+  [
+   "LineFormat",
+   "sh.Line",
+   "Application True~1480803660 Long~Shape~Rectangle 3~e450~e450~e438"
+  ],
+  [
+   "LinearGradient",
+   "ws.Range(\"W1\").Interior.Gradient",
+   "Application True~1480803660 Long~Interior~e438~e450~e450~e438"
+  ],
+  [
+   "ListColumn",
+   "lo.ListColumns(1)",
+   "Application True~1480803660 Long~ListObject~Table1~e450~e450~e450"
+  ],
+  [
+   "ListColumns",
+   "lo.ListColumns",
+   "Application True~1480803660 Long~ListObject~Table1~e450~e450~e450"
+  ],
+  [
+   "ListObject",
+   "lo",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "ListObjects",
+   "ws.ListObjects",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "ListRow",
+   "lo.ListRows(1)",
+   "Application True~1480803660 Long~ListObject~Table1~e450~e450~e450"
+  ],
+  [
+   "ListRows",
+   "lo.ListRows",
+   "Application True~1480803660 Long~ListObject~Table1~e450~e450~e450"
+  ],
+  [
+   "Name",
+   "wb.Names(\"Nm\")",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Name",
+   "ws.Names(\"Lc\")",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Names",
+   "wb.Names",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Names",
+   "ws.Names",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Names",
+   "Application.Names",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "NegativeBarFormat",
+   "db.NegativeBarFormat",
+   "Application True~1480803660 Long~Databar~e438~e450~e450~e438"
+  ],
+  [
+   "Outline",
+   "ws.Outline",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Page",
+   "ws.PageSetup.Pages(1)",
+   "e438~e438~e438~~e438~e438~e438"
+  ],
+  [
+   "PageSetup",
+   "ws.PageSetup",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Panes",
+   "ActiveWindow.Panes",
+   "Application True~1480803660 Long~Window~e438~e450~e450~e438"
+  ],
+  [
+   "PivotCache",
+   "pt.PivotCache",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "PivotCaches",
+   "wb.PivotCaches",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "PivotCell",
+   "pt.TableRange1.Cells(2, 1).PivotCell",
+   "Application True~1480803660 Long~PivotTable~PT~e450~e450~e438"
+  ],
+  [
+   "PivotField",
+   "pt.PivotFields(\"k\")",
+   "Application True~1480803660 Long~PivotTable~PT~e450~e450~e13"
+  ],
+  [
+   "PivotFields",
+   "pt.PivotFields",
+   "Application True~1480803660 Long~PivotTable~PT~e450~e450~e13"
+  ],
+  [
+   "PivotFilters",
+   "pt.PivotFields(\"k\").PivotFilters",
+   "Application True~1480803660 Long~PivotField~k~e450~e450~e13"
+  ],
+  [
+   "PivotFilters",
+   "pt.ActiveFilters",
+   "Application True~1480803660 Long~PivotTable~PT~e450~e450~e438"
+  ],
+  [
+   "PivotItem",
+   "pt.PivotFields(\"k\").PivotItems(1)",
+   "Application True~1480803660 Long~PivotField~k~e450~e450~e13"
+  ],
+  [
+   "PivotItemList",
+   "pt.TableRange1.Cells(2, 2).PivotCell.RowItems",
+   "Application True~1480803660 Long~PivotCell~e438~e450~e450~e438"
+  ],
+  [
+   "PivotItems",
+   "pt.PivotFields(\"k\").PivotItems",
+   "Application True~1480803660 Long~PivotField~k~e450~e450~e13"
+  ],
+  [
+   "PivotTable",
+   "pt",
+   "Application True~1480803660 Long~Worksheet~Second~e450~e450~e438"
+  ],
+  [
+   "PivotTables",
+   "ws2.PivotTables",
+   "Application True~1480803660 Long~Worksheet~Second~e450~e450~e438"
+  ],
+  [
+   "PlotArea",
+   "ch.PlotArea",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "Point",
+   "sr.Points(1)",
+   "Application True~1480803660 Long~Series~s1~e450~e450~e438"
+  ],
+  [
+   "Points",
+   "sr.Points",
+   "Application True~1480803660 Long~Series~s1~e450~e450~e438"
+  ],
+  [
+   "Protection",
+   "ws.Protection",
+   "e438~e438~e438~~e438~e438~e438"
+  ],
+  [
+   "Queries",
+   "wb.Queries",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Range",
+   "ws.Range(\"A1\")",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Range",
+   "ws2.Cells",
+   "Application True~1480803660 Long~Worksheet~Second~e450~e450~e438"
+  ],
+  [
+   "Range",
+   "ws.Rows(1)",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Range",
+   "ws.Range(\"A1\").EntireColumn",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Range",
+   "lo.Range",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Range",
+   "pt.TableRange1",
+   "Application True~1480803660 Long~Worksheet~Second~e450~e450~e438"
+  ],
+  [
+   "RectangularGradient",
+   "ws.Range(\"W2\").Interior.Gradient",
+   "Application True~1480803660 Long~Interior~e438~e450~e450~e438"
+  ],
+  [
+   "Scenario",
+   "ws.Scenarios(1)",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Scenarios",
+   "ws.Scenarios",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Series",
+   "sr",
+   "Application True~1480803660 Long~ChartGroup~e438~e450~e450~e438"
+  ],
+  [
+   "SeriesCollection",
+   "ch.SeriesCollection",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "SeriesLines",
+   "co2.Chart.ChartGroups(1).SeriesLines",
+   "Application True~1480803660 Long~ChartGroup~e438~e450~e450~e438"
+  ],
+  [
+   "Shape",
+   "sh",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Shape",
+   "gr",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Shape",
+   "gr.GroupItems(1)",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Shape",
+   "ch.Parent.ShapeRange(1)",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "ShapeRange",
+   "ws.Shapes.Range(Array(1))",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Shapes",
+   "ws.Shapes",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Shapes",
+   "ch.Shapes",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "ChartObjects",
+   "ch.ChartObjects",
+   "Application True~1480803660 Long~e-2147417848~~e450~e450~e-2147417848"
+  ],
+  [
+   "Hyperlinks",
+   "ch.Hyperlinks",
+   "Application True~1480803660 Long~Chart~~e450~e450~e438"
+  ],
+  [
+   "SheetViews",
+   "ActiveWindow.SheetViews",
+   "Application True~1480803660 Long~Window~e438~e450~e450~e438"
+  ],
+  [
+   "Sheets",
+   "wb.Sheets",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Sheets",
+   "wb.Worksheets",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Sheets",
+   "wb.Charts",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Slicers",
+   "pt.Slicers",
+   "Application True~1480803660 Long~PivotTable~PT~e450~e450~e438"
+  ],
+  [
+   "Slicers",
+   "lo.Slicers",
+   "Application True~1480803660 Long~ListObject~Table1~e450~e450~e450"
+  ],
+  [
+   "Sort",
+   "ws.Sort",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Sort",
+   "lo.Sort",
+   "Application True~1480803660 Long~ListObject~Table1~e450~e450~e450"
+  ],
+  [
+   "SortField",
+   "ws.Sort.SortFields(1)",
+   "Application True~1480803660 Long~SortFields~e438~e450~e450~e438"
+  ],
+  [
+   "SortFields",
+   "ws.Sort.SortFields",
+   "Application True~1480803660 Long~Sort~e438~e450~e450~e438"
+  ],
+  [
+   "SparkAxes",
+   "sg.Axes",
+   "Application True~1480803660 Long~SparklineGroup~e438~e450~e450~e438"
+  ],
+  [
+   "SparkColor",
+   "sg.Points.Markers",
+   "Application True~1480803660 Long~SparkPoints~e438~e450~e450~e438"
+  ],
+  [
+   "SparkColor",
+   "sg.Axes.Horizontal.Axis",
+   "Application True~1480803660 Long~SparkHorizontalAxis~e438~e450~e450~e438"
+  ],
+  [
+   "SparkHorizontalAxis",
+   "sg.Axes.Horizontal",
+   "Application True~1480803660 Long~SparkAxes~e438~e450~e450~e438"
+  ],
+  [
+   "SparkPoints",
+   "sg.Points",
+   "Application True~1480803660 Long~SparklineGroup~e438~e450~e450~e438"
+  ],
+  [
+   "SparkVerticalAxis",
+   "sg.Axes.Vertical",
+   "Application True~1480803660 Long~SparkAxes~e438~e450~e450~e438"
+  ],
+  [
+   "Sparkline",
+   "sg.Item(1)",
+   "Application True~1480803660 Long~SparklineGroup~e438~e450~e450~e438"
+  ],
+  [
+   "SparklineGroup",
+   "sg",
+   "Application True~1480803660 Long~SparklineGroups~e438~e450~e450~e438"
+  ],
+  [
+   "SparklineGroups",
+   "ws.Range(\"U1\").SparklineGroups",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Style",
+   "wb.Styles(1)",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Style",
+   "ws.Range(\"A1\").Style",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Styles",
+   "wb.Styles",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Tab",
+   "ws.Tab",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "TableStyle",
+   "wb.TableStyles(1)",
+   "Application True~1480803660 Long~TableStyles~e438~e450~e450~e438"
+  ],
+  [
+   "TableStyles",
+   "wb.TableStyles",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "TextFrame",
+   "sh.TextFrame",
+   "Application True~1480803660 Long~Shape~Rectangle 3~e450~e450~e438"
+  ],
+  [
+   "TextFrame2",
+   "sh.TextFrame2",
+   "Application True~1480803660 Long~Shape~Rectangle 3~e450~e450~e438"
+  ],
+  [
+   "TickLabels",
+   "ch.Axes(xlValue).TickLabels",
+   "Application True~1480803660 Long~Axis~e438~e450~e450~e438"
+  ],
+  [
+   "Top10",
+   "t10",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Trendline",
+   "sr.Trendlines(1)",
+   "Application True~1480803660 Long~Series~s1~e450~e450~e438"
+  ],
+  [
+   "Trendlines",
+   "sr.Trendlines",
+   "Application True~1480803660 Long~Series~s1~e450~e450~e438"
+  ],
+  [
+   "UniqueValues",
+   "uv",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "UpBars",
+   "ch.ChartGroups(1).UpBars",
+   "Application True~1480803660 Long~ChartGroup~e438~e450~e450~e438"
+  ],
+  [
+   "VPageBreak",
+   "ws.VPageBreaks(1)",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "VPageBreaks",
+   "ws.VPageBreaks",
+   "Application True~1480803660 Long~Worksheet~Main~e450~e450~e438"
+  ],
+  [
+   "Validation",
+   "ws.Range(\"F1\").Validation",
+   "Application True~1480803660 Long~Range~e1004~e450~e450~e438"
+  ],
+  [
+   "Window",
+   "ActiveWindow",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Windows",
+   "Application.Windows",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "Windows",
+   "wb.Windows",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "Workbook",
+   "wb",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "WorkbookQuery",
+   "wb.Queries(1)",
+   "Application True~1480803660 Long~Queries~e438~e450~e450~e438"
+  ],
+  [
+   "Workbooks",
+   "Application.Workbooks",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "Worksheet",
+   "ws",
+   "Application True~1480803660 Long~Workbook~<book>~e450~e450~e438"
+  ],
+  [
+   "WorksheetFunction",
+   "Application.WorksheetFunction",
+   "Application True~1480803660 Long~Application~Microsoft Excel~e450~e450~e450"
+  ],
+  [
+   "WorksheetView",
+   "ActiveWindow.SheetViews(1)",
+   "Application True~1480803660 Long~Window~e438~e450~e450~e438"
+  ]
+ ]
+}

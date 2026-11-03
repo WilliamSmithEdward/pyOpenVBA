@@ -1471,6 +1471,10 @@ class GroupItems(VBACollection, Created):
         """The group itself, as Excel answers it (tests/fixtures/shape_group_items.json)."""
         return ShapeObject(self.sheet, self.group)
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     @method
     def Range(self, Index: object = MISSING) -> object:
         return _chosen(self, Index)

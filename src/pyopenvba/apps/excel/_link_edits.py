@@ -57,6 +57,7 @@ def _read(book: Workbook, path: str) -> tuple[tuple[str, ...], tuple[dict[tuple[
 
     source = _open_book(book, path)
     if source is None:
+        book.application.outside("Reading a linked workbook")
         file = Path(path)
         if not file.is_file():
             return None
@@ -148,6 +149,7 @@ def open_links(book: Workbook, name: object, read_only: object, kind: object) ->
     """Workbook.OpenLinks: on a workbook with links, the files named, which need not be its links' files."""
     if name is MISSING:
         raise error(449, "Argument not optional")
+    book.application.outside("Workbook.OpenLinks")
     if link_kind(kind) != _EXCEL_LINKS or not links_of(book):
         raise _failed("OpenLinks")
     for one in _wanted(name):
@@ -164,6 +166,7 @@ def change_link(book: Workbook, name: object, new_name: object, kind: object) ->
     the workbook to the front; pointing a link where it points already, or at this workbook, does nothing."""
     if name is MISSING or new_name is MISSING:
         raise error(449, "Argument not optional")
+    book.application.outside("Workbook.ChangeLink")
     if link_kind(kind) != _EXCEL_LINKS:
         raise _failed("ChangeLink")
     target = to_text(new_name)
@@ -182,7 +185,6 @@ def change_link(book: Workbook, name: object, new_name: object, kind: object) ->
     if book.foreign_links:
         raise VBAUnsupportedError("ChangeLink in a workbook with OLE or DDE links is not implemented")
     refuse_elsewhere(book)
-    book.application.outside("Workbook.ChangeLink")
     _refuse_book_names(book, linked.number)
     sheets_read = read_sheets(book, linked)
     found = _read(book, target)

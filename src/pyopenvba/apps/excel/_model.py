@@ -353,7 +353,9 @@ class Application(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "WorkbookOpen", "WorkbookBeforeSave", "WorkbookAfterSave", "WorkbookBeforeClose",
         "WorkbookActivate", "WorkbookDeactivate", "WorkbookNewSheet", "SheetChange", "SheetCalculate",
-        "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate"})
+        "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate",
+        "NewWorkbook", "SheetBeforeDelete", "SheetFollowHyperlink", "WindowActivate", "WindowDeactivate",
+        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart"})
 
     def vba_information_value(self) -> object:
         return self.Name()
@@ -1296,6 +1298,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project
 
         attach_project(book)
+        _events.new_workbook(book)
         self.application.activate_book(book)
         return book
 
@@ -1466,7 +1469,8 @@ class Workbook(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
-        "SheetPivotTableUpdate"})
+        "SheetPivotTableUpdate", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
+        "WindowActivate", "WindowDeactivate", "WindowResize"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
@@ -2158,14 +2162,30 @@ class Workbook(ExcelObject):
         if saving and Filename is MISSING:
             if not self._save():
                 return EMPTY
+        from pyopenvba.apps.excel._windows import front_to_back
+
+        behind = next((book for book in front_to_back(self.application) if book is not self), None)
+        _events.book_left(self)
         from pyopenvba.apps.excel._link_edits import closing
 
         closing(self)
         self.application.workbooks_.remove(self)
+        if behind is not None:
+            _events.book_entered(behind)
         from pyopenvba.apps.excel._held_ranges import closed
 
         closed(self)
         return True
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self, None, Preview, ActivePrinter, PrintToFile)
+        return EMPTY
 
     @method
     def Save(self) -> object:
@@ -2961,7 +2981,8 @@ class Worksheet(ExcelObject):
     vba_type_name = "Worksheet"
     #: The events the model raises in the sheet's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
-        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate"})
+        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "BeforeDelete",
+        "FollowHyperlink"})
     #: True once Delete took the sheet out of its workbook.
     deleted = False
 
@@ -3684,6 +3705,16 @@ class Worksheet(ExcelObject):
 
         refuse_sparklines(self, "Deleting")
         delete(self.book, [self], "Cannot delete the only worksheet")
+        return EMPTY
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self.book, self, Preview, ActivePrinter, PrintToFile)
         return EMPTY
 
     @method
@@ -5674,6 +5705,68 @@ class Range(ExcelObject):
         return EMPTY
 
     @method
+    def ResetContents(self) -> object:
+        """On a cell with no control in it, which is every cell here, the same as ClearContents
+        (tests/fixtures/range_missing.json)."""
+        return self.ClearContents()
+
+    @method
+    def RemoveControls(self) -> object:
+        return EMPTY
+
+    @method
+    def TogglePythonMarshalMode(self) -> object:
+        return EMPTY
+
+    def _no_data_for_it(self) -> object:
+        """What these need, a data model's writeback, a linked data type or an edition, no cell here has."""
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def AllocateChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DiscardChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DataTypeToText(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def RefreshLinkedDataType(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def SetCellDataTypeFromCell(self, Range: object = MISSING, Language: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @method
+    def EditionOptions(self, Type: object = MISSING, Option: object = MISSING, Name: object = MISSING,
+                       Reference: object = MISSING, Appearance: object = MISSING, ChartSize: object = MISSING,
+                       Format: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @member
+    def SoundNote(self) -> object:
+        from pyopenvba.apps.excel._range_members import SoundNote
+
+        return SoundNote(self)
+
+    @member
+    def XPath(self) -> object:
+        from pyopenvba.apps.excel._range_members import XPath
+
+        return XPath(self)
+
+    @member
+    def CellControl(self) -> object:
+        from pyopenvba.apps.excel._range_members import CellControl
+
+        return CellControl(self)
+
+    @method
     def ClearContents(self) -> object:
         self.clear_contents_checked()
         _events.after_edit(self)
@@ -5800,6 +5893,15 @@ class Range(ExcelObject):
             else:
                 out.extend(sorted(position for position in cells if area.contains(*position)))
         return out
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self.sheet.book, self.sheet, Preview, ActivePrinter, PrintToFile)
+        return EMPTY
 
     @method
     def Delete(self, Shift: object = MISSING) -> object:

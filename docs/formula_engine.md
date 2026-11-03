@@ -172,6 +172,10 @@ name looking like a cell is not read as the cell.
     sign is ¥, three numbers are the year, the month and the day and
     nothing else, and a month's name reports itself unsupported
     (`tests/fixtures/excel_locale_live.json`).
+19. **FILTERXML and PHONETIC.** `xpath.py` is an XPath 1.0 engine for FILTERXML,
+    which reads what it selects as typing it into a cell would; a document with a
+    DOCTYPE fails. PHONETIC is #N/A, the answer for a cell a macro wrote; the model
+    does not keep furigana (`tests/fixtures/range_missing.json`).
 18. **A copied range that turns over.** `parse.shift_reference` respells a
     range whose corners have crossed, top-left first, each axis on its own
     and each dollar sign staying with its value: `=SUM($D$3:D4)` copied up

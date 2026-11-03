@@ -1,0 +1,550 @@
+{
+ "measured_at": "2026-11-03T20:10:23.794619+00:00",
+ "source": "Private Function Show(ByVal v As Variant) As String\n    If IsObject(v) Then\n        Show = \"object\"\n    ElseIf IsArray(v) Then\n        Show = \"array\"\n    ElseIf IsError(v) Then\n        Show = CStr(v)\n    Else\n        Show = CStr(v)\n    End If\nEnd Function\n\nPublic Function Missing(ByVal which As Long) As String\n    Dim ws As Object, t As String, v As Variant, o As Object, n As Long\n    Application.DisplayAlerts = False\n    Set ws = Workbooks.Add(xlWBATWorksheet).Worksheets(1)\n    On Error Resume Next\n    Select Case which\n    Case 0\n        Set v = ws.Range(\"A1\").SoundNote\n    Case 1\n        Set v = ws.Range(\"A1\").XPath\n    Case 2\n        v = ws.Range(\"A1\").XPath.Value\n    Case 3\n        v = ws.Range(\"A1\").XPath.Map Is Nothing\n    Case 4\n        Set v = ws.Range(\"A1\").CellControl\n    Case 5\n        v = ws.Range(\"A1\").ResetContents\n    Case 6\n        v = ws.Range(\"A1\").RemoveControls\n    Case 7\n        v = ws.Range(\"A1\").AllocateChanges\n    Case 8\n        v = ws.Range(\"A1\").DiscardChanges\n    Case 9\n        v = ws.Range(\"A1\").DataTypeToText\n    Case 10\n        v = ws.Range(\"A1\").RefreshLinkedDataType\n    Case 11\n        v = ws.Range(\"A1\").SetCellDataTypeFromCell(ws.Range(\"B1\"))\n    Case 12\n        v = ws.Range(\"A1\").EditionOptions(1, 1, 1)\n    Case 13\n        v = ws.Range(\"A1\").TogglePythonMarshalMode\n    Case 14\n        ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").ResetContents\nv = ws.Range(\"A1\").Value\n    Case 15\n        ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").RemoveControls\nv = ws.Range(\"A1\").Value\n    Case 16\n        ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").DataTypeToText\nv = ws.Range(\"A1\").Value\n    Case 17\n        ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").DiscardChanges\nv = ws.Range(\"A1\").Value\n    Case 18\n        ws.Range(\"A1\").Value = \"Name\"\nws.Range(\"B1\").Value = \"First\"\nws.Range(\"A2\").Value = \"Ann Lee\"\nws.Range(\"A3\").Value = \"Bob Ray\"\nws.Range(\"A4\").Value = \"Cy Poe\"\nws.Range(\"B2\").Value = \"Ann\"\nws.Range(\"B2:B4\").FlashFill\nv = ws.Range(\"B3\").Value & \",\" & ws.Range(\"B4\").Value\n    Case 19\n        ws.Range(\"A1\").Value = \"Name\"\nws.Range(\"B1\").Value = \"First\"\nws.Range(\"A2\").Value = \"Ann Lee\"\nws.Range(\"A3\").Value = \"Bob Ray\"\nws.Range(\"A4\").Value = \"Cy Poe\"\nws.Range(\"B2\").Value = \"Ann\"\nws.Range(\"B2\").FlashFill\nv = ws.Range(\"B3\").Value & \",\" & ws.Range(\"B4\").Value\n    Case 20\n        ws.Range(\"B2:B4\").FlashFill\nv = ws.Range(\"B3\").Value\n    Case 21\n        Set o = CreateObject(\"ADODB.Recordset\")\no.Fields.Append \"N\", 200, 10\no.Fields.Append \"Q\", 3\no.Open\no.AddNew\no(\"N\") = \"a\"\no(\"Q\") = 1\no.Update\no.AddNew\no(\"N\") = \"b\"\no(\"Q\") = 2\no.Update\no.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(o)\nv = v & ws.Range(\"A1\").Value & ws.Range(\"B2\").Value\n    Case 22\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 23\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 24\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 25\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b[2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 26\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 27\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 28\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id='1']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 29\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b/@id\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 30\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/c/b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 31\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 32\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//e\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 33\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//f\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 34\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//z\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 35\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/*\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 36\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/c/*\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 37\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"count(//b)\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 38\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[last()]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 39\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[position()>1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 40\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"sum(//d)\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 41\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.>3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 42\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[text()='y']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 43\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"string(//e)\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 44\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//e/text()\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 45\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 46\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"[\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 47\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text\n    Case 48\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"not xml\"\",\"\"//a\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 49\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><n:b xmlns:n=''u''>1</n:b></a>\"\",\"\"//b\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 50\n        v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//e\")\n    Case 51\n        v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//d\")\n    Case 52\n        v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//b\")\nv = UBound(v, 1) & LBound(v, 1) & v(2, 1)\n    Case 53\n        v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//z\")\n    Case 54\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b | //d\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 55\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b/..\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 56\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d/parent::c/b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 57\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d/preceding-sibling::b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 58\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b/following-sibling::*[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 59\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"a\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 60\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 61\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\".//b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 62\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a//b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 63\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//c//*\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 64\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[contains(.,'y')]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 65\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[starts-with(@id,'1')]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 66\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[not(@id)]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 67\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id='1' or @id='2']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 68\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id='1' and .='x']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 69\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*[self::d]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 70\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 71\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"(//b)[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 72\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"(//b)[3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 73\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 74\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[0]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 75\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id>1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 76\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id!=1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 77\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//@id\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 78\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*/@id\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 79\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b/@id[.=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 80\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//B\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 81\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*[name()='d']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 82\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*[local-name()='d']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 83\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[number(.)=4]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 84\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[string-length(.)=1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 85\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[translate(.,'x','q')='q']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 86\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[concat(.,'!')='x!']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 87\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/e[.=1.5]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 88\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.+1=5]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 89\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.*2=8]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 90\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[. div 2=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 91\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[. mod 3=1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 92\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.-1=3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 93\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[position()=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 94\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[position()<2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 95\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"true()\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 96\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"'x'\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 97\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"1\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text\n    Case 98\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>TRUE</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>TRUE</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 99\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>true</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>true</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 100\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>1e3</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>1e3</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 101\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x> 5 </x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x> 5 </x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 102\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>&lt;</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>&lt;</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 103\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>12/2/2020</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>12/2/2020</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 104\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>5%</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>5%</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 105\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>$5</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>$5</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 106\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>1,000</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>1,000</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 107\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>-3</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>-3</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 108\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>007</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>007</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 109\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>.5</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>.5</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 110\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>abc</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>abc</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 111\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>  a  </x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>  a  </x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 112\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>#N/A</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>#N/A</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 113\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>=1+1</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>=1+1</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 114\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x><![CDATA[q]]></x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x><![CDATA[q]]></x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 115\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x><y/>t</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x><y/>t</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 116\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>t<y/>u</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>t<y/>u</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 117\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>\u00e9</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>\u00e9</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 118\n        ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>&#65;</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>&#65;</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 119\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<?xml version=''1.0''?><a><x>1</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 120\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<!DOCTYPE a><a><x>1</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 121\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><x>1</x>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 122\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 123\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(5,\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text\n    Case 124\n        ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a>5</a>\"\",5)\"\nv = ws.Range(\"A1\").Text\n    Case 125\n        ws.Range(\"C1\").Value = \"<a><x>7</x></a>\"\nws.Range(\"A1\").Formula2 = \"=FILTERXML(C1,\"\"//x\"\")+1\"\nv = ws.Range(\"A1\").Text\n    Case 126\n        ws.Range(\"A1\").Formula = \"=FILTERXML(\"\"<a><x>1</x><x>2</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A1\").Formula\n    Case 127\n        ws.Range(\"A1\").Formula2 = \"=SUM(FILTERXML(\"\"<a><x>1</x><x>2</x></a>\"\",\"\"//x\"\"))\"\nv = ws.Range(\"A1\").Text\n    Case 128\n        ws.Range(\"A1\").Value = \"abc\"\nws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text\n    Case 129\n        ws.Range(\"A1\").Value = 12\nws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text\n    Case 130\n        ws.Range(\"A1\").Value = \"a\"\nws.Range(\"A2\").Value = \"b\"\nws.Range(\"B1\").Formula = \"=PHONETIC(A1:A2)\"\nv = ws.Range(\"B1\").Text\n    Case 131\n        ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text\n    Case 132\n        ws.Range(\"A1\").Value = \"abc\"\nv = WorksheetFunction.Phonetic(ws.Range(\"A1\"))\n    Case 133\n        Set o = Application.WorksheetFunction\nv = o.Phonetic(\"abc\")\n    Case 134\n        ws.Range(\"B1\").Formula = \"=PHONETIC(\"\"abc\"\")\"\nv = ws.Range(\"B1\").Text\n    Case 135\n        ws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text\n    End Select\n    n = Err.Number\n    t = TypeName(v) & \"=\" & Show(v) & \"|\" & n\n    Err.Clear\n    ws.Parent.Close False\n    Application.DisplayAlerts = True\n    Missing = t\nEnd Function\n",
+ "cases": [
+  [
+   "Set v = ws.Range(\"A1\").SoundNote",
+   "SoundNote=object|0"
+  ],
+  [
+   "Set v = ws.Range(\"A1\").XPath",
+   "XPath=object|0"
+  ],
+  [
+   "v = ws.Range(\"A1\").XPath.Value",
+   "String=|0"
+  ],
+  [
+   "v = ws.Range(\"A1\").XPath.Map Is Nothing",
+   "Empty=|-2147467259"
+  ],
+  [
+   "Set v = ws.Range(\"A1\").CellControl",
+   "CellControl=object|0"
+  ],
+  [
+   "v = ws.Range(\"A1\").ResetContents",
+   "Empty=|0"
+  ],
+  [
+   "v = ws.Range(\"A1\").RemoveControls",
+   "Empty=|0"
+  ],
+  [
+   "v = ws.Range(\"A1\").AllocateChanges",
+   "Empty=|1004"
+  ],
+  [
+   "v = ws.Range(\"A1\").DiscardChanges",
+   "Empty=|1004"
+  ],
+  [
+   "v = ws.Range(\"A1\").DataTypeToText",
+   "Empty=|1004"
+  ],
+  [
+   "v = ws.Range(\"A1\").RefreshLinkedDataType",
+   "Empty=|1004"
+  ],
+  [
+   "v = ws.Range(\"A1\").SetCellDataTypeFromCell(ws.Range(\"B1\"))",
+   "Empty=|1004"
+  ],
+  [
+   "v = ws.Range(\"A1\").EditionOptions(1, 1, 1)",
+   "Empty=|1004"
+  ],
+  [
+   "v = ws.Range(\"A1\").TogglePythonMarshalMode",
+   "Empty=|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").ResetContents\nv = ws.Range(\"A1\").Value",
+   "Empty=|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").RemoveControls\nv = ws.Range(\"A1\").Value",
+   "Double=5|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").DataTypeToText\nv = ws.Range(\"A1\").Value",
+   "Double=5|1004"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5\nws.Range(\"A1\").DiscardChanges\nv = ws.Range(\"A1\").Value",
+   "Double=5|1004"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"Name\"\nws.Range(\"B1\").Value = \"First\"\nws.Range(\"A2\").Value = \"Ann Lee\"\nws.Range(\"A3\").Value = \"Bob Ray\"\nws.Range(\"A4\").Value = \"Cy Poe\"\nws.Range(\"B2\").Value = \"Ann\"\nws.Range(\"B2:B4\").FlashFill\nv = ws.Range(\"B3\").Value & \",\" & ws.Range(\"B4\").Value",
+   "String=Bob,Cy|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"Name\"\nws.Range(\"B1\").Value = \"First\"\nws.Range(\"A2\").Value = \"Ann Lee\"\nws.Range(\"A3\").Value = \"Bob Ray\"\nws.Range(\"A4\").Value = \"Cy Poe\"\nws.Range(\"B2\").Value = \"Ann\"\nws.Range(\"B2\").FlashFill\nv = ws.Range(\"B3\").Value & \",\" & ws.Range(\"B4\").Value",
+   "String=Bob,Cy|0"
+  ],
+  [
+   "ws.Range(\"B2:B4\").FlashFill\nv = ws.Range(\"B3\").Value",
+   "Empty=|1004"
+  ],
+  [
+   "Set o = CreateObject(\"ADODB.Recordset\")\no.Fields.Append \"N\", 200, 10\no.Fields.Append \"Q\", 3\no.Open\no.AddNew\no(\"N\") = \"a\"\no(\"Q\") = 1\no.Update\no.AddNew\no(\"N\") = \"b\"\no(\"Q\") = 2\no.Update\no.MoveFirst\nv = ws.Range(\"A1\").CopyFromRecordset(o)\nv = v & ws.Range(\"A1\").Value & ws.Range(\"B2\").Value",
+   "String=2a2|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=x/y/z/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=x/y//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=x///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b[2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=y///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=x/y//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=y///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id='1']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=x///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b/@id\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=1/2//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/c/b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=z///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=4///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//e\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=1.5///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//f\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//z\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/*\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=x/y/#VALUE!/1.5|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/c/*\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=z/4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"count(//b)\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[last()]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=y/z//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[position()>1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=y///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"sum(//d)\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.>3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=4///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[text()='y']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=y///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"string(//e)\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//e/text()\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"[\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text & \"/\" & ws.Range(\"A4\").Text",
+   "String=#VALUE!///|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"not xml\"\",\"\"//a\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><n:b xmlns:n=''u''>1</n:b></a>\"\",\"\"//b\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//e\")",
+   "Double=1.5|0"
+  ],
+  [
+   "v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//d\")",
+   "Double=4|0"
+  ],
+  [
+   "v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//b\")\nv = UBound(v, 1) & LBound(v, 1) & v(2, 1)",
+   "String=31y|0"
+  ],
+  [
+   "v = WorksheetFunction.FilterXML(\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\", \"//z\")",
+   "Empty=|1004"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b | //d\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x/y/z|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b/..\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!/#VALUE!/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d/parent::c/b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=z//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d/preceding-sibling::b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=z//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b/following-sibling::*[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=y/#VALUE!/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"a\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\".//b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x/y/z|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a//b\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x/y/z|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//c//*\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=z/4/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[contains(.,'y')]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=y//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[starts-with(@id,'1')]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[not(@id)]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=z//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id='1' or @id='2']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x/y/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id='1' and .='x']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*[self::d]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x/z/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"(//b)[1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"(//b)[3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=z//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[0]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id>1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=y//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[@id!=1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=y//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//@id\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=1/2/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*/@id\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=1/2/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/b/@id[.=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=2//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//B\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*[name()='d']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//*[local-name()='d']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[number(.)=4]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[string-length(.)=1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x/y/z|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[translate(.,'x','q')='q']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[concat(.,'!')='x!']\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"/a/e[.=1.5]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=1.5//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.+1=5]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.*2=8]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[. div 2=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[. mod 3=1]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//d[.-1=3]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=4//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[position()=2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=y//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"//b[position()<2]\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=x/z/|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"true()\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"'x'\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><b id='1'>x</b><b id='2'>y</b><c><b>z</b><d>4</d></c><e>1.5</e><f></f></a>\"\",\"\"1\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A3\").Text",
+   "String=#VALUE!//|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>TRUE</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>TRUE</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=4~TRUE|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>true</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>true</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=4~TRUE|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>1e3</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>1e3</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~1000|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x> 5 </x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x> 5 </x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~5|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>&lt;</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>&lt;</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~<|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>12/2/2020</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>12/2/2020</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~44167|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>5%</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>5%</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~0.05|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>$5</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>$5</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~5|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>1,000</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>1,000</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~1000|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>-3</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>-3</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~-3|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>007</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>007</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~7|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>.5</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>.5</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=1~0.5|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>abc</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>abc</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~abc|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>  a  </x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>  a  </x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~a|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>#N/A</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>#N/A</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~#N/A|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>=1+1</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>=1+1</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~=1+1|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x><![CDATA[q]]></x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x><![CDATA[q]]></x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~q|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x><y/>t</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x><y/>t</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~t|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>t<y/>u</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>t<y/>u</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~tu|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>\u00e9</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>\u00e9</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~\u00e9|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=TYPE(FILTERXML(\"\"<a><x>&#65;</x></a>\"\",\"\"//x\"\"))&\"\"~\"\"&FILTERXML(\"\"<a><x>&#65;</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=2~A|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<?xml version=''1.0''?><a><x>1</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<!DOCTYPE a><a><x>1</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a><x>1</x>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(5,\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=FILTERXML(\"\"<a>5</a>\"\",5)\"\nv = ws.Range(\"A1\").Text",
+   "String=#VALUE!|0"
+  ],
+  [
+   "ws.Range(\"C1\").Value = \"<a><x>7</x></a>\"\nws.Range(\"A1\").Formula2 = \"=FILTERXML(C1,\"\"//x\"\")+1\"\nv = ws.Range(\"A1\").Text",
+   "String=8|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula = \"=FILTERXML(\"\"<a><x>1</x><x>2</x></a>\"\",\"\"//x\"\")\"\nv = ws.Range(\"A1\").Text & \"/\" & ws.Range(\"A2\").Text & \"/\" & ws.Range(\"A1\").Formula",
+   "String=1//=FILTERXML(\"<a><x>1</x><x>2</x></a>\",\"//x\")|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula2 = \"=SUM(FILTERXML(\"\"<a><x>1</x><x>2</x></a>\"\",\"\"//x\"\"))\"\nv = ws.Range(\"A1\").Text",
+   "String=3|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\"\nws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text",
+   "String=#N/A|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 12\nws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text",
+   "String=#N/A|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"a\"\nws.Range(\"A2\").Value = \"b\"\nws.Range(\"B1\").Formula = \"=PHONETIC(A1:A2)\"\nv = ws.Range(\"B1\").Text",
+   "String=#N/A|0"
+  ],
+  [
+   "ws.Range(\"A1\").Formula = \"=1+1\"\nws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text",
+   "String=#N/A|0"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\"\nv = WorksheetFunction.Phonetic(ws.Range(\"A1\"))",
+   "Empty=|1004"
+  ],
+  [
+   "Set o = Application.WorksheetFunction\nv = o.Phonetic(\"abc\")",
+   "Empty=|1004"
+  ],
+  [
+   "ws.Range(\"B1\").Formula = \"=PHONETIC(\"\"abc\"\")\"\nv = ws.Range(\"B1\").Text",
+   "String=|1004"
+  ],
+  [
+   "ws.Range(\"B1\").Formula = \"=PHONETIC(A1)\"\nv = ws.Range(\"B1\").Text",
+   "String=#N/A|0"
+  ]
+ ]
+}

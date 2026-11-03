@@ -9,6 +9,7 @@ import re
 from typing import TYPE_CHECKING, Any, cast
 
 from pyopenvba._a1 import Area, parse_reference
+from pyopenvba.apps.excel import _events
 from pyopenvba.apps.excel._chart_axes import AxisState
 from pyopenvba.apps.excel._chart_error_bars import ErrorBars, ErrorBarState, error_bar, has_error_bars, set_has_error_bars
 from pyopenvba.apps.excel._chart_trendlines import Trendlines, TrendlineState
@@ -719,6 +720,7 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
             fresh.legend = False
         if fresh.legend:
             fresh.legend_position = said[1] or 'b'
+    _events.new_chart(sheet.book, ChartObject(sheet, shape).Chart())
     return shape
 
 
@@ -845,7 +847,9 @@ class ChartObjects(VBACollection, ItemDefault, Created):
         shape = Shapes(self.sheet).new_chart_shape(left, top, width, height)
         base = plotted_before(self.sheet)
         self.sheet.chart_states[shape.shape_id] = ChartState(unique_base=base, next_unique=base)
-        return ChartObject(self.sheet, shape)
+        made = ChartObject(self.sheet, shape)
+        _events.new_chart(self.sheet.book, made.Chart())
+        return made
 
     @member
     def Parent(self) -> object:

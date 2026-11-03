@@ -32,6 +32,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel import _events
 from pyopenvba.apps.excel._model import ExcelObject, Worksheet
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._parse import FormulaError, split_sheet, tokenize
@@ -338,6 +339,10 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
     names = {sheet.name.casefold() for sheet in going}
     _refused_carriers(book, names, staying)
     after = survivor(book, going)
+    was_active = book.active_sheet
+    for sheet in reversed(going):
+        _events.before_delete(sheet)
+    _events.sheet_left(sheets[0])
     for sheet in going:
         remove_document(sheet)
         book.sheets_.remove(sheet)
@@ -357,3 +362,5 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
         # name never takes its place (tests/fixtures/deleted_sheet.json).
         sheet.deleted = True
         sheet.invalidated = True
+    if book.active_sheet is not None and book.active_sheet is not was_active:
+        _events.sheet_entered(book.active_sheet)

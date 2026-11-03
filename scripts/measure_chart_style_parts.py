@@ -138,33 +138,52 @@ def main() -> None:
     print(len(parts), 'parts')
 
 
-def checks() -> None:
+def layout_of(part: str) -> list[object]:
+    """What a chart part says of a style's layout: a title, the legend's place, each axis's minor gridlines, minor tick
+    marks and whether it is deleted, and whether its series have data labels."""
+    legend = re.search(r'<c:legendPos val="(\w+)"', part)
+    axes = re.findall(r'<c:(?:catAx|valAx|dateAx)>.*?</c:(?:catAx|valAx|dateAx)>', part, re.S)
+    said: list[object] = ['<c:chart><c:title>' in part, legend.group(1) if legend else '']
+    for axis in axes[:2]:
+        tick = re.search(r'<c:minorTickMark val="(\w+)"', axis)
+        said += ['<c:minorGridlines>' in axis, tick.group(1) if tick else 'none', '<c:delete val="1"/>' in axis]
+    said.append('<c:ser>' in part and '<c:dLbls>' in part[part.index('<c:ser>'):part.index('</c:ser>')])
+    return said
+
+
+def checks(kinds: list[int]) -> None:
+    """A digest of the chart part of each kind at each style with no data labels in its layout, and at each style some kind
+    takes by default; added to what the file holds, as this takes minutes a kind. A column chart also gives the layouts."""
     record = json.loads(OUT.read_text(encoding='utf-8'))
-    styles = sorted({int(answer.split()[0]) for answer in record['defaults'].values() if not answer.startswith('Err')})
-    digests: dict[str, str] = {}
-    doughnuts: dict[str, list[int]] = {}
+    defaults = {int(answer.split()[0]) for answer in record['defaults'].values() if not answer.startswith('Err')}
+    laid = record.get('layouts', {})
+    styles = sorted(defaults | {int(style) for style, said in laid.items() if not said[-1]}) if laid else list(range(201, 498))
+    digests: dict[str, str] = record.setdefault('checks', {})
+    doughnuts: dict[str, list[int]] = record.setdefault('doughnuts', {})
     with tempfile.TemporaryDirectory() as folder, ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
         excel.new_document()
-        for kind in WRITTEN:
+        for kind in kinds:
             for style in styles:
                 result = excel.run_vba(PROBE, 'Probe', (folder, style, kind), timeout=60.0)
                 assert result.ok and not result.dialogs, result
                 with zipfile.ZipFile(Path(folder) / 'p.xlsx') as package:
                     part = normalized(package.read('xl/charts/chart1.xml').decode('utf-8'))
                 digests[f'{kind},{style}'] = hashlib.sha256(part.encode('utf-8')).hexdigest()
+                if kind == 51:
+                    laid[str(style)] = layout_of(part)
                 if kind == -4120:
                     hole = re.search(r'<c:holeSize val="(\d+)"', part)
                     first = re.search(r'<c:firstSliceAng val="(\d+)"', part)
                     assert hole is not None and first is not None
                     doughnuts[str(style)] = [int(hole.group(1)), int(first.group(1))]
             print(kind, flush=True)
-    record['checks'], record['doughnuts'] = digests, doughnuts
-    OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
-    print(len(digests), 'digests', doughnuts)
+            record['layouts'] = laid
+            OUT.write_text(json.dumps(record, indent=0) + '\n', encoding='utf-8')
+    print(len(digests), 'digests')
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] == ['checks']:
-        checks()
+    if sys.argv[1:2] == ['checks']:
+        checks([int(kind) for kind in sys.argv[2:]])
     else:
         main()

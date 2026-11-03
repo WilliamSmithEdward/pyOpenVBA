@@ -15,7 +15,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.apps.excel._chart_style_table import COLORS_PART
+from pyopenvba.apps.excel._chart_style_table import COLORS_PART, PROVEN
 from pyopenvba.exceptions import VBAUnsupportedError
 from test_excel_chart_markup import normalized
 
@@ -105,8 +105,9 @@ def test_each_part_as_excel_saved_it(run: tuple[dict[int, str], Path], index: in
 STYLES: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_style_parts.json').read_text(encoding='utf-8')
 )
-#: At this style a scatter chart has no markers, a type the engine does not write.
-CHECKED = [key for key in STYLES['checks'] if key != '-4169,227']
+#: What the table says the engine matches, and what it says it does not, which must refuse.
+CHECKED = [key for key in STYLES['checks'] if int(key.split(',')[1]) in PROVEN.get(int(key.split(',')[0]), ())]
+REFUSED = [key for key in STYLES['checks'] if key not in CHECKED]
 STYLE_PROBE = """Public Function Probe(ByVal path As String, ByVal style As Long, ByVal kind As Long) As String
     Dim wb As Workbook, ws As Object
     Set wb = Workbooks.Add(xlWBATWorksheet)
@@ -142,7 +143,18 @@ def test_each_type_at_each_default_style_as_excel_saved_it(
     assert hashlib.sha256(part.encode('utf-8')).hexdigest() == STYLES['checks'][key]
 
 
-@pytest.mark.parametrize('style', [202, 205, 209, 497])
+def test_most_styles_are_proven_for_the_common_types() -> None:
+    assert all(len(PROVEN[kind]) >= 75 for kind in (51, 57, 4, 65, 1, 5, -4120, -4169, 52))
+
+
+@pytest.mark.parametrize('key', REFUSED[::40])
+def test_a_pair_not_proven_says_so(style_app: ExcelApplication, tmp_path: Path, key: str) -> None:
+    kind, style = key.split(',')
+    with pytest.raises(VBAUnsupportedError, match='is not implemented'):
+        style_app.run('StyleProbe.Probe', str(tmp_path / 'p.xlsx'), int(style), int(kind))
+
+
+@pytest.mark.parametrize('style', [202, 205, 238])
 def test_the_other_styles_say_they_are_not_implemented(style: int) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

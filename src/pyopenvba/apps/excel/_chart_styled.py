@@ -9,7 +9,7 @@ import re
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from pyopenvba.apps.excel._chart_style_table import FIRST_STYLE, style_part
+from pyopenvba.apps.excel._chart_style_table import FIRST_STYLE, THEME_EFFECTS, THEME_FILLS, style_part
 from pyopenvba.apps.excel._chart_xml import TextLook
 
 if TYPE_CHECKING:
@@ -17,6 +17,9 @@ if TYPE_CHECKING:
 
 _NO_FILL = '<a:noFill/>'
 _NO_LINE = '<a:ln><a:noFill/></a:ln>'
+_NO_EFFECTS = '<a:effectLst/>'
+#: What in a style's run stands for its colour.
+_RUN_FILLS = ('<a:gradFill', '<a:solidFill', '<a:noFill', '<a:pattFill')
 #: The theme colours a series takes in turn, then again through the colours part's variations.
 _VARIATIONS = (
     '',
@@ -37,12 +40,12 @@ _LAYOUT_NO_LINE = '<c:spPr><a:ln w="12700"><a:noFill/></a:ln></c:spPr>'
 #: The attributes of a style's text, in the order the chart part spells them, and what each is where the style says
 #: nothing.
 _TEXT_FIELDS = (
-    ('sz', '1000'),
+    ('sz', ''),
     ('b', '0'),
     ('i', '0'),
     ('u', 'none'),
     ('strike', 'noStrike'),
-    ('kern', '1200'),
+    ('kern', ''),
     ('cap', ''),
     ('spc', ''),
     ('normalizeH', ''),
@@ -92,41 +95,63 @@ def _entries(style: int) -> dict[str, str]:
     return held
 
 
-def _split(inner: str) -> tuple[str, str]:
-    """The fill and the line of a shape's properties, each empty where it names none."""
+def _split(inner: str) -> tuple[str, str, str]:
+    """The fill, the line and what follows the line, its effects and the rest, of a shape's properties, each empty where
+    it names none."""
     inner = inner.replace('<a:effectLst/>', '')
     line = re.search(r'<a:ln\b[^>]*?/>|<a:ln\b.*?</a:ln>', inner, re.S)
-    return (inner.replace(line.group(0), '') if line else inner), (line.group(0) if line else '')
+    if line is None:
+        found = re.search(r'<a:(?:effectLst|scene3d|sp3d)\b', inner)
+        return (inner[:found.start()], '', inner[found.start():]) if found else (inner, '', '')
+    return inner[:line.start()], line.group(0), inner[line.end():]
 
 
-def _shape(entry: str) -> tuple[str, str]:
+def _theme_item(entry: str, tag: str, items: tuple[str, ...]) -> str:
+    """What the entry's reference to the theme's list comes to, the theme's colour left as its placeholder."""
+    found = re.search(rf'<cs:{tag} idx="(\d+)"', entry)
+    place = int(found.group(1)) if found else 0
+    return items[place - 1] if 1 <= place <= len(items) else ''
+
+
+def _shape(entry: str) -> tuple[str, str, str]:
+    """What the entry says of a shape: its own properties first, then the theme's where it refers to it."""
     found = re.search(r'<cs:spPr>(.*?)</cs:spPr>', entry, re.S)
-    return _split(found.group(1) if found else '')
+    fill, line, after = _split(found.group(1) if found else '')
+    if 'effectLst' not in after:
+        after = (_theme_item(entry, 'effectRef', THEME_EFFECTS) or _NO_EFFECTS) + after
+    return fill or _theme_item(entry, 'fillRef', THEME_FILLS), line, after
 
 
-def _own_shape(own: str) -> tuple[str, str]:
+def _own_shape(own: str) -> tuple[str, str, str]:
     return _split(own[len('<c:spPr>') : -len('</c:spPr>')] if own else '')
 
 
 def _box(style: int, name: str, own: str = '') -> str:
     """An element with an area: what was set of it, what the style says, and no fill and no line where neither says."""
-    fill, line = _shape(_entries(style)[name])
-    mine_fill, mine_line = _own_shape(own)
-    return f'<c:spPr>{mine_fill or fill or _NO_FILL}{mine_line or line or _NO_LINE}<a:effectLst/></c:spPr>'
+    fill, line, after = _shape(_entries(style)[name])
+    mine_fill, mine_line, _ = _own_shape(own)
+    return f'<c:spPr>{mine_fill or fill or _NO_FILL}{mine_line or line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr>'
 
 
 def _stroke(style: int, name: str, own: str = '') -> str:
     """An element that is only a line."""
-    return f'<c:spPr>{_own_shape(own)[1] or _shape(_entries(style)[name])[1]}<a:effectLst/></c:spPr>'
+    _, line, after = _shape(_entries(style)[name])
+    return f'<c:spPr>{_own_shape(own)[1] or line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr>'
 
 
 def _text_fields(style: int, name: str) -> dict[str, str]:
-    found = re.search(r'<cs:defRPr\b([^>]*)/>', _entries(style)[name])
+    found = re.search(r'<cs:defRPr\b([^>]*?)/?>', _entries(style)[name])
     return dict(re.findall(r'(\w+)="([^"]*)"', found.group(1))) if found else {}
 
 
 def _text_colour(style: int, name: str) -> str:
-    found = re.search(r'<cs:fontRef idx="minor">(.*?)</cs:fontRef>', _entries(style)[name], re.S)
+    found = re.search(r'<cs:fontRef idx="\w+">(.*?)</cs:fontRef>', _entries(style)[name], re.S)
+    return found.group(1) if found else '<a:scrgbClr r="0" g="0" b="0"/>'
+
+
+def _run_children(style: int, name: str) -> str:
+    """What the style's run holds besides its attributes, after its colour."""
+    found = re.search(r'<cs:defRPr\b[^>]*?[^/]>(.*?)</cs:defRPr>', _entries(style)[name], re.S)
     return found.group(1) if found else ''
 
 
@@ -150,10 +175,14 @@ def _paragraph_font(style: int, name: str, font: TextLook | None) -> str:
     colour = (
         f'<a:srgbClr val="{font.rgb}"/>' if font is not None and font.rgb is not None else _text_colour(style, name)
     )
-    latin = '+mn-lt' if font is None or font.name is None else font.name
+    theme = 'mj' if '<cs:fontRef idx="major"' in _entries(style)[name] else 'mn'
+    children = _run_children(style, name)
+    latin = f'+{theme}-lt' if font is None or font.name is None else font.name
     return (
-        f'<a:defRPr {spelled}><a:solidFill>{colour}</a:solidFill><a:latin typeface="{latin}"/><a:ea typeface="+mn-ea"/>'
-        '<a:cs typeface="+mn-cs"/></a:defRPr>'
+        f'<a:defRPr {spelled}>{"" if children.startswith(_RUN_FILLS) else f"<a:solidFill>{colour}</a:solidFill>"}'
+        f'{children}'
+        f'<a:latin typeface="{latin}"/>'
+        f'<a:ea typeface="+{theme}-ea"/><a:cs typeface="+{theme}-cs"/></a:defRPr>'
     )
 
 
@@ -182,21 +211,18 @@ def _painted(spelled: str, colour: str) -> str:
 
 
 def _point_box(style: int, index: int, own: str = '') -> str:
-    fill, line = _shape(_entries(style)['dataPoint'])
-    mine_fill, mine_line = _own_shape(own)
+    fill, line, after = _shape(_entries(style)['dataPoint'])
+    mine_fill, mine_line, _ = _own_shape(own)
     colour = _accent(index)
     return _painted(
-        f'<c:spPr>{mine_fill or fill or f"<a:solidFill>{colour}</a:solidFill>"}{mine_line or line or _NO_LINE}'
-        '<a:effectLst/></c:spPr>',
+        f'<c:spPr>{mine_fill or fill or _NO_FILL}{mine_line or line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr>',
         colour,
     )
 
 
 def _line(style: int, index: int, own: str = '') -> str:
-    return _painted(
-        f'<c:spPr>{_own_shape(own)[1] or _shape(_entries(style)["dataPointLine"])[1]}<a:effectLst/></c:spPr>',
-        _accent(index),
-    )
+    _, line, after = _shape(_entries(style)['dataPointLine'])
+    return _painted(f'<c:spPr>{_own_shape(own)[1] or line}{after or _NO_EFFECTS}</c:spPr>', _accent(index))
 
 
 def _width(line: str) -> int:
@@ -214,11 +240,11 @@ def _scatter_line(made_scatter: bool) -> str:
 def _marker(style: int, index: int) -> str:
     entry = _entries(style)
     layout = dict(re.findall(r'(\w+)="([^"]*)"', entry['dataPointMarkerLayout']))
-    fill, line = _shape(entry['dataPointMarker'])
+    fill, line, after = _shape(entry['dataPointMarker'])
     colour = _accent(index)
     return _painted(
         f'<c:marker><c:symbol val="{layout.get("symbol", "circle")}"/><c:size val="{layout.get("size", "5")}"/><c:spPr>'
-        f'{fill or f"<a:solidFill>{colour}</a:solidFill>"}{line or _NO_LINE}<a:effectLst/></c:spPr></c:marker>',
+        f'{fill or f"<a:solidFill>{colour}</a:solidFill>"}{line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr></c:marker>',
         colour,
     )
 
@@ -367,9 +393,10 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
             mine = ''
         axis = re.sub(r'<c:txPr>(?:(?!<c:txPr>).)*?</c:txPr>(?=<c:crossAx)', '', axis, count=1, flags=re.S)
         font = state.element_fonts.get(f'tick{kind}')
-        return axis.replace(
-            '<c:crossAx', _box(style, name, mine) + _text(style, name, _body(_TURNED), font) + '<c:crossAx', 1
-        )
+        if '<c:delete val="1"/>' in axis:
+            return axis
+        look = _box(style, name, mine) + _text(style, name, _body(_TURNED), font)
+        return axis.replace('<c:crossAx', look + '<c:crossAx', 1)
 
     return re.sub(r'<c:(valAx|catAx|dateAx)>.*?</c:\1>', dressed_one, xml, flags=re.S)
 
@@ -422,7 +449,9 @@ def dressed(xml: str, state: ChartState) -> str:
     text = area.group(2) or (
         '<c:txPr><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr/></a:pPr><a:endParaRPr lang="en-US"/></a:p></c:txPr>'
     )
-    return xml[: area.start()] + _box(style, 'chartArea', area.group(1) or '') + text + xml[area.end() :]
+    made = xml[:area.start()] + _box(style, 'chartArea', area.group(1) or '') + text + xml[area.end():]
+    # The elements that are no series' take the first colour for the style's placeholder.
+    return _painted(made, _accent(0))
 
 
 def _rgb(spelled: str, theme: tuple[str, ...]) -> str:

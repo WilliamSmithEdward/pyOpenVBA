@@ -1026,6 +1026,13 @@ class Application(ExcelObject):
         raise error(440, 'Automation error')
 
     @method
+    def ExecuteExcel4Macro(self, String: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._application_more import execute_excel4, required
+
+        required(String)
+        return execute_excel4(self, to_text(String))
+
+    @method
     def OnTime(self, EarliestTime: object = MISSING, Procedure: object = MISSING, LatestTime: object = MISSING,  # noqa: N803
                Schedule: object = MISSING) -> object:  # noqa: N803
         from pyopenvba.apps.excel._application_more import on_time

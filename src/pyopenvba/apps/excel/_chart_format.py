@@ -13,7 +13,7 @@ A series the model made has no look of its own until one is set, and reads what 
 Combinations no case measured, a series past the sixth accent, and an imported chart report themselves unsupported."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba._xml import escape
 from pyopenvba.apps.excel._chart_styled import is_styled, line_read, point_line_weight, series_line_weight
@@ -485,7 +485,176 @@ class SeriesColor(Created):
         return VBAInt(-2 if self.colourless() else 1, "Long")
 
 
-class ChartFormat(Created):
+#: The elements whose Format has a 3-D look and a picture, and those with a text frame, by their type
+#: (tests/fixtures/chart_protection.json).
+_SOLID = ("Series", "Point", "ChartArea", "PlotArea", "Legend", "ChartTitle", "AxisTitle")
+_TEXTUAL = ("ChartArea", "Legend", "ChartTitle", "AxisTitle")
+_NO_MEMBER = (-2147467259, "Automation error\nUnspecified error")
+
+
+class _EffectRead(Created):
+    """An effect of a chart element as it reads with nothing set. Setting one is not built, so its setters report so."""
+
+    vba_type_name = ""
+
+    def __init__(self, owner: object) -> None:
+        self.owner = owner
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    def vba_set(self, name: str, value: object, *args: Any, **named: Any) -> None:
+        del value, args, named
+        raise unmeasured(f"Setting {self.vba_type_name}.{name} on a chart element")
+
+
+class EffectColorRead(_EffectRead):
+    vba_type_name = "ColorFormat"
+
+    @member
+    def RGB(self) -> object:
+        return VBAInt(-2147483648, "Long")
+
+
+class GlowRead(_EffectRead):
+    vba_type_name = "GlowFormat"
+
+    @member
+    def Radius(self) -> object:
+        return VBASingle(0.0)
+
+    @member
+    def Color(self) -> object:
+        return EffectColorRead(self)
+
+    @member
+    def Transparency(self) -> object:
+        return VBASingle(_MIXED)
+
+
+class ShadowRead(_EffectRead):
+    vba_type_name = "ShadowFormat"
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(-2, "Long")
+
+    @member
+    def Blur(self) -> object:
+        return VBASingle(5.0)
+
+    @member
+    def OffsetX(self) -> object:
+        return VBASingle(2.079952)
+
+    @member
+    def OffsetY(self) -> object:
+        return VBASingle(2.079952)
+
+
+class SoftEdgeRead(_EffectRead):
+    vba_type_name = "SoftEdgeFormat"
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
+    def Radius(self) -> object:
+        return VBASingle(0.0)
+
+
+class ThreeDRead(_EffectRead):
+    vba_type_name = "ThreeDFormat"
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
+    def BevelTopType(self) -> object:
+        return VBAInt(1, "Long")
+
+
+class PictureRead(_EffectRead):
+    vba_type_name = "PictureFormat"
+
+
+class TextFrameRead(_EffectRead):
+    vba_type_name = "TextFrame2"
+
+    def __init__(self, owner: object, titled: bool) -> None:
+        super().__init__(owner)
+        self.titled = titled
+
+    @member
+    def HasText(self) -> object:
+        return VBAInt(-1 if self.titled else 0, "Long")
+
+
+class EffectMembers(Created):
+    """What every chart element's Format offers beyond its fill and line."""
+
+    vba_type_name = ""
+
+    def _element_type(self) -> str:
+        element = self.vba_get("Parent", [])
+        return str(getattr(element, "vba_type_name", ""))
+
+    def _solid(self) -> None:
+        if self._element_type() not in _SOLID:
+            raise error(*_NO_MEMBER)
+
+    @member
+    def Glow(self) -> object:
+        return GlowRead(self)
+
+    @member
+    def Shadow(self) -> object:
+        return ShadowRead(self)
+
+    @member
+    def SoftEdge(self) -> object:
+        return SoftEdgeRead(self)
+
+    @member
+    def ThreeD(self) -> object:
+        self._solid()
+        return ThreeDRead(self)
+
+    @member
+    def PictureFormat(self) -> object:
+        if self._element_type() not in (*_SOLID, "TickLabels"):
+            raise error(*_NO_MEMBER)
+        return PictureRead(self)
+
+    @member
+    def TextFrame2(self) -> object:
+        kind = self._element_type()
+        if kind not in _TEXTUAL:
+            raise error(*_NO_MEMBER)
+        return TextFrameRead(self, kind in ("ChartTitle", "AxisTitle"))
+
+    @member
+    def Adjustments(self) -> object:
+        raise error(*_NO_MEMBER)
+
+    @member
+    def AutoShapeType(self) -> object:
+        raise error(*_NO_MEMBER)
+
+    @setter("AutoShapeType")
+    def _auto_shape_type(self, value: object) -> None:
+        del value
+        raise error(*_NO_MEMBER)
+
+
+class ChartFormat(EffectMembers, Created):
     """A series' look; ElementFormat is the same type for the chart's other elements."""
 
     vba_type_name = "ChartFormat"
@@ -564,7 +733,7 @@ def element_markup(key: str, look: FillLine | None) -> str:
     return f"<c:spPr>{body}</c:spPr>" if body else ""
 
 
-class ElementFormat(Created):
+class ElementFormat(EffectMembers, Created):
     """The Format of a chart's element, other than a series."""
 
     vba_type_name = "ChartFormat"
@@ -818,6 +987,14 @@ class EntryFormat(ElementFormat):
     @member
     def Line(self) -> object:
         raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @member
+    def Glow(self) -> object:
+        raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @member
+    def TextFrame2(self) -> object:
+        return TextFrameRead(self, False)
 
 
 class ElementColor(Created):

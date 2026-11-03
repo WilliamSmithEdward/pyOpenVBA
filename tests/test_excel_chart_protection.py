@@ -16,15 +16,16 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_protection.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Refused, which each case below checks: the effects and shape of a chart element's Format, which are yet to be built, a
+#: Refused, which each case below checks: setting an effect, which needs its markup built, the effects of data labels, a
 #: page's print quality, and edits to a chart on a protected sheet.
-EFFECTS = ('.Format.Glow', '.Format.Shadow', '.Format.SoftEdge', '.Format.ThreeD', '.Format.AutoShapeType', '.Format.Adjustments', '.Format.TextFrame2', '.Format.PictureFormat')
+EFFECTS = ('.Format.Glow.Radius = ', '.Format.Glow.Color.RGB = ', '.Format.Shadow.Visible = ', '.Format.Shadow.Type = ', '.Format.SoftEdge.Type = ', '.Format.SoftEdge.Radius = ', '.Format.ThreeD.BevelTopType = ')
+LABELS = ('DataLabels.Format.Glow', 'DataLabels.Format.Shadow', 'DataLabels.Format.SoftEdge', 'DataLabels.Format.ThreeD', 'DataLabels.Format.TextFrame2', 'DataLabels.Format.Adjustments', 'DataLabels.Format.PictureFormat', 'DataLabels.Format.AutoShapeType')
 PROTECTED_EDITS = ('ws.Protect: ch.SeriesCollection', 'ws.Protect: ch.HasTitle', 'ws.Protect: ch.ChartType', 'ws.Protect: ch.HasLegend', 'ws.Protect: ch.SetSourceData', 'ws.Protect: ch.ChartArea', 'ws.Protect: ch.Parent')
-REFUSED = (*EFFECTS, *PROTECTED_EDITS, 'PageSetup.PrintQuality')
+REFUSED = (*EFFECTS, *LABELS, *PROTECTED_EDITS, 'PageSetup.PrintQuality')
 #: A pie's automatic title, which working out a read of its page brings about in Excel and not here.
 UNTAKEN = 'pie: ch.PageSetup.Orientation = xlLandscape'
-#: A trendline's and error bars' Format has no 3-D or text, as Excel says.
-ANSWERED = ('.ErrorBars.Format.ThreeD', '.ErrorBars.Format.TextFrame2', '.Trendlines(1).Format.ThreeD', '.Trendlines(1).Format.TextFrame2')
+#: Effects a line's or axis's Format does not have, which answer Excel's error before any setting.
+ANSWERED = ('.ErrorBars.Format.ThreeD', '.Trendlines(1).Format.ThreeD', 'ch.Axes(xlValue).Format.ThreeD', 'MajorGridlines.Format.ThreeD', 'TickLabels.Format.ThreeD')
 REFUSALS = [index for index, name in enumerate(NAMES)
             if any(text in name for text in REFUSED) and not any(text in name for text in ANSWERED)]
 KEPT = [index for index in range(len(NAMES)) if index not in REFUSALS and not NAMES[index].startswith(UNTAKEN)]

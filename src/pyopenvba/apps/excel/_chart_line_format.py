@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from pyopenvba.apps.excel._chart_borders import Line
-from pyopenvba.apps.excel._chart_format import ElementColor, ElementFill, ElementFormat, plain_line
+from pyopenvba.apps.excel._chart_format import EffectMembers, ElementColor, ElementFill, ElementFormat, plain_line
 from pyopenvba.apps.excel._chart_format import solid_fill
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -222,7 +222,7 @@ class LineLineFormat(Created):
         return VBAInt(1, 'Long')
 
 
-class LineChartFormat(Created):
+class LineChartFormat(EffectMembers, Created):
     vba_type_name = 'ChartFormat'
 
     def __init__(self, parent: object, line: Line) -> None:

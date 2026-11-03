@@ -16,10 +16,10 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_members_more.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Refused, which each case below checks: a point's own shadow, the fonts of some of a title's characters, a filtered category, changing or selecting leader lines, a data table's Border and Format, a legend
-#: entry's text frame, and where a slice lies, which needs the chart's layout.
+#: Refused, which each case below checks: a point's own shadow, the fonts of some of a title's characters, a filtered category, changing or selecting leader lines, a data table's Border and Format, and
+#: where a slice lies, which needs the chart's layout.
 REFUSED = ('.Points(2).Shadow =', '.Font.Bold', 'IsFiltered = True', 'LeaderLines.Border.Color = 255', 'LeaderLines.Select', 'DataTable.Border',
-           'Format.TextFrame2', 'Format.Glow', 'PieSliceLocation(xlHorizontalCoordinate) ', 'PieSliceLocation(xlVerticalCoordinate)')
+           'PieSliceLocation(xlHorizontalCoordinate) ', 'PieSliceLocation(xlVerticalCoordinate)')
 
 def _refused(name: str) -> bool:
     if 'DataTable.Font.Bold' in name or 'LE.Font.Bold' in name or 'LegendEntries(1).Font.Bold' in name:

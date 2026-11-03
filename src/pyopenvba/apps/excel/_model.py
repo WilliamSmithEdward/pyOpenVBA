@@ -352,7 +352,9 @@ class Application(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "WorkbookOpen", "WorkbookBeforeSave", "WorkbookAfterSave", "WorkbookBeforeClose",
         "WorkbookActivate", "WorkbookDeactivate", "WorkbookNewSheet", "SheetChange", "SheetCalculate",
-        "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate"})
+        "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate",
+        "NewWorkbook", "SheetBeforeDelete", "SheetFollowHyperlink", "WindowActivate", "WindowDeactivate",
+        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart"})
 
     def vba_information_value(self) -> object:
         return self.Name()
@@ -481,7 +483,9 @@ class Application(ExcelObject):
 
     @member
     def Build(self) -> object:
-        return VBAInt(0, "Long")
+        """The build of the Excel the model is measured against, a Long; CallByName alone reads it as a Double, which
+        the model does not copy (tests/fixtures/application_objects.json)."""
+        return VBAInt(20527, "Long")
 
     @member
     def Application(self) -> object:
@@ -944,6 +948,92 @@ class Application(ExcelObject):
     def Repeat(self) -> object:
         raise error(1004, "Repeat method of Application class failed")
 
+    # -- what Application reads with no screen here (tests/fixtures/application_objects.json)
+
+    def _profile(self, type_name: str) -> object:
+        from pyopenvba.apps.excel._application_more import ProfileObject
+
+        return ProfileObject(self, type_name)
+
+    @member
+    def AutoRecover(self) -> object:
+        return self._profile('AutoRecover')
+
+    @member
+    def MultiThreadedCalculation(self) -> object:
+        return self._profile('MultiThreadedCalculation')
+
+    @member
+    def SpellingOptions(self) -> object:
+        return self._profile('SpellingOptions')
+
+    @member
+    def AutoCorrect(self) -> object:
+        return self._profile('AutoCorrect')
+
+    @member
+    def DefaultWebOptions(self) -> object:
+        return self._profile('DefaultWebOptions')
+
+    @member
+    def DefaultPivotTableLayoutOptions(self) -> object:
+        return self._profile('DefaultPivotTableLayoutOptions')
+
+    @member
+    def FileValidation(self) -> object:
+        return VBAInt(0, 'Long')
+
+    @member
+    def FileValidationPivot(self) -> object:
+        return VBAInt(0, 'Long')
+
+    @member
+    def WindowsForPens(self) -> object:
+        return False
+
+    @member
+    def ClusterConnector(self) -> object:
+        return ''
+
+    @member
+    def DDEAppReturnCode(self) -> object:
+        return 0.0
+
+    @member
+    def AlwaysUseClearType(self) -> object:
+        return False
+
+    @member
+    def FormulaBarHeight(self) -> object:
+        return VBAInt(1, 'Long')
+
+    @member
+    def RegisteredFunctions(self) -> object:
+        return NULL
+
+    @member
+    def MailSession(self) -> object:
+        return NULL
+
+    @member
+    def FileConverters(self) -> object:
+        return NULL
+
+    @member
+    def ActiveEncryptionSession(self) -> object:
+        raise error(5, 'Invalid procedure call or argument')
+
+    @member
+    def SensitivityLabelPolicy(self) -> object:
+        raise error(440, 'Automation error')
+
+    @method
+    def ExecuteExcel4Macro(self, String: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._application_more import execute_excel4, required
+
+        required(String)
+        return execute_excel4(self, to_text(String))
+
     @method
     def OnTime(self, EarliestTime: object = MISSING, Procedure: object = MISSING, LatestTime: object = MISSING,  # noqa: N803
                Schedule: object = MISSING) -> object:  # noqa: N803
@@ -1295,6 +1385,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project
 
         attach_project(book)
+        _events.new_workbook(book)
         self.application.activate_book(book)
         return book
 
@@ -1465,7 +1556,8 @@ class Workbook(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
-        "SheetPivotTableUpdate"})
+        "SheetPivotTableUpdate", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
+        "WindowActivate", "WindowDeactivate", "WindowResize"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
@@ -2152,14 +2244,30 @@ class Workbook(ExcelObject):
         if saving and Filename is MISSING:
             if not self._save():
                 return EMPTY
+        from pyopenvba.apps.excel._windows import front_to_back
+
+        behind = next((book for book in front_to_back(self.application) if book is not self), None)
+        _events.book_left(self)
         from pyopenvba.apps.excel._link_edits import closing
 
         closing(self)
         self.application.workbooks_.remove(self)
+        if behind is not None:
+            _events.book_entered(behind)
         from pyopenvba.apps.excel._held_ranges import closed
 
         closed(self)
         return True
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self, None, Preview, ActivePrinter, PrintToFile)
+        return EMPTY
 
     @method
     def Save(self) -> object:
@@ -2759,7 +2867,8 @@ class Worksheet(ExcelObject):
     vba_type_name = "Worksheet"
     #: The events the model raises in the sheet's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
-        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate"})
+        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "BeforeDelete",
+        "FollowHyperlink"})
     #: True once Delete took the sheet out of its workbook.
     deleted = False
 
@@ -3464,6 +3573,16 @@ class Worksheet(ExcelObject):
 
         refuse_sparklines(self, "Deleting")
         delete(self.book, [self], "Cannot delete the only worksheet")
+        return EMPTY
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self.book, self, Preview, ActivePrinter, PrintToFile)
         return EMPTY
 
     @method
@@ -5642,6 +5761,15 @@ class Range(ExcelObject):
             else:
                 out.extend(sorted(position for position in cells if area.contains(*position)))
         return out
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self.sheet.book, self.sheet, Preview, ActivePrinter, PrintToFile)
+        return EMPTY
 
     @method
     def Delete(self, Shift: object = MISSING) -> object:

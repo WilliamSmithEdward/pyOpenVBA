@@ -1,0 +1,101 @@
+{
+ "measured_at": "2026-11-03T20:39:06.753523+00:00",
+ "probe": "Dim Log As String\nSub Note(ByVal s As String)\nLog = Log & s & \"|\"\nEnd Sub\nFunction Probe() As String\nApplication.DisplayAlerts = False\nDim book As Workbook, home As Workbook\nSet home = ActiveWorkbook\nOn Error GoTo Failed\n{action}\nGoTo Done\nFailed:\nLog = Log & \"!E\" & Err.Number\nDone:\nOn Error Resume Next\nFor Each book In Workbooks\nIf book.Name <> home.Name Then book.Close False\nNext\nProbe = Log\nEnd Function\n",
+ "rows": [
+  {
+   "name": "active_pane_plain",
+   "action": "Note TypeName(ActiveWindow.ActivePane) & \",\" & ActiveWindow.ActivePane.Index",
+   "result": "Pane,1|"
+  },
+  {
+   "name": "active_pane_is_item",
+   "action": "Note ActiveWindow.ActivePane.Index & \",\" & ActiveWindow.Panes.Count",
+   "result": "1,1|"
+  },
+  {
+   "name": "active_pane_set",
+   "action": "ActiveWindow.ActivePane = ActiveWindow.Panes(1)",
+   "result": "!E438"
+  },
+  {
+   "name": "walk_windows",
+   "action": "Dim w As Window\nFor Each w In Windows\nNote w.Caption\nNext",
+   "result": "Book4|"
+  },
+  {
+   "name": "walk_two",
+   "action": "Workbooks.Add\nDim w As Window\nFor Each w In Windows\nNote TypeName(w) & w.Index\nNext",
+   "result": "Window1|Window2|"
+  },
+  {
+   "name": "walk_book_windows",
+   "action": "Dim w As Window\nFor Each w In ActiveWorkbook.Windows\nNote w.Index\nNext",
+   "result": "1|"
+  },
+  {
+   "name": "enable_resize_read",
+   "action": "Note ActiveWindow.EnableResize",
+   "result": "True|"
+  },
+  {
+   "name": "scroll_tabs_position",
+   "action": "ActiveWindow.ScrollWorkbookTabs Position:=xlFirst\nNote \"ok\"",
+   "result": "ok|"
+  },
+  {
+   "name": "scroll_tabs_sheets",
+   "action": "ActiveWindow.ScrollWorkbookTabs Sheets:=1\nNote \"ok\"",
+   "result": "ok|"
+  },
+  {
+   "name": "scroll_tabs_none",
+   "action": "ActiveWindow.ScrollWorkbookTabs\nNote \"ok\"",
+   "result": "!E1004"
+  },
+  {
+   "name": "scroll_tabs_both",
+   "action": "ActiveWindow.ScrollWorkbookTabs Sheets:=1, Position:=xlFirst\nNote \"ok\"",
+   "result": "ok|"
+  },
+  {
+   "name": "scroll_tabs_bad_position",
+   "action": "ActiveWindow.ScrollWorkbookTabs Position:=7\nNote \"ok\"",
+   "result": "ok|"
+  },
+  {
+   "name": "data_type_icons",
+   "action": "Note ActiveWindow.DisplayDataTypeIcons",
+   "result": "True|"
+  },
+  {
+   "name": "arrange_count",
+   "action": "Note Windows.Count",
+   "result": "1|"
+  },
+  {
+   "name": "sync_read",
+   "action": "Note Windows.SyncScrollingSideBySide",
+   "result": "False|"
+  },
+  {
+   "name": "break_side_none",
+   "action": "Note Windows.BreakSideBySide",
+   "result": "False|"
+  },
+  {
+   "name": "reset_side_none",
+   "action": "Windows.ResetPositionsSideBySide\nNote \"ok\"",
+   "result": "ok|"
+  },
+  {
+   "name": "compare_self",
+   "action": "Note Windows.CompareSideBySideWith(ActiveWindow.Caption)",
+   "result": "False|"
+  },
+  {
+   "name": "compare_nothing",
+   "action": "Note Windows.CompareSideBySideWith(\"Nowhere\")",
+   "result": "!E9"
+  }
+ ]
+}

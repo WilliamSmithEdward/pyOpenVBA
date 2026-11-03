@@ -296,6 +296,10 @@ class CalculatedFields(VBACollection, ItemDefault, ExcelObject):
     def Parent(self) -> object:
         return self.table
 
+    @member
+    def Application(self) -> object:
+        return self.table.sheet.book.application
+
     @method
     def Add(self, Name: object, Formula: object, UseStandardFormula: object = MISSING) -> object:
         return add(self.table, Name, Formula)

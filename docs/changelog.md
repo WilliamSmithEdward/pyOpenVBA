@@ -15,6 +15,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- One point's marker: `MarkerStyle`, `MarkerSize`, `MarkerBackgroundColor`,
+  `MarkerForegroundColor` and their `ColorIndex` forms, over its series' and given way to
+  when the series sets the same, on line, scatter and other charts. `Series.MarkerStyle`
+  and `MarkerSize` now read on a chart without lines, as Excel's do.
 - `ApplyDataLabels` on a chart, a series and a point: its type, each named part and the
   separator, the way a type overrides what is already shown, and what stays of labels
   already changed. `AutoText:=False` is refused.

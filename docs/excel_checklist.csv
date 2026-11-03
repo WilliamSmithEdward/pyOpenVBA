@@ -2052,7 +2052,7 @@ Point,ApplyPictToSides,property,As Boolean,,MISSING,,
 Point,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Takes the fill and leaves a black 2-point line; column and bar charts only.
 Point,Copy,method,Copy() As Variant,,MISSING,,
 Point,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
-Point,DataLabel,"property, read-only",As DataLabel,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"There while it or its series has a label, else -2147467259; no members yet."
+Point,DataLabel,"property, read-only",As DataLabel,,PARTIAL,tests/test_excel_data_label.py,"One point's label: there while it or its series has a label, else -2147467259. See DataLabel for its members."
 Point,Delete,method,Delete() As Variant,,MISSING,,
 Point,Explosion,property,As Long,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; written on a pie or doughnut; negative raises 1004.
 Point,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Fill and Line over the series'; setting on line and scatter charts is refused.
@@ -2063,12 +2063,12 @@ Point,Height,"property, read-only",As Double,,MISSING,,
 Point,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; line and scatter charts are refused.
 Point,IsTotal,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Raises 445. No setter.
 Point,Left,"property, read-only",As Double,,MISSING,,
-Point,MarkerBackgroundColor,property,As Long,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Automatic; an area point echoes its fill. No setter.
-Point,MarkerBackgroundColorIndex,property,As XlColorIndex,,MISSING,,
-Point,MarkerForegroundColor,property,As Long,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Automatic; an area point echoes its line. No setter.
-Point,MarkerForegroundColorIndex,property,As XlColorIndex,,MISSING,,
-Point,MarkerSize,property,As Long,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,What a point reads with no marker set. No setter.
-Point,MarkerStyle,property,As XlMarkerStyle,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,What a point reads with no marker set. No setter.
+Point,MarkerBackgroundColor,property,As Long,,PARTIAL,tests/test_excel_point_markers.py,Its own or its series'; brings out the marker of a point drawn without one; an area point echoes its fill.
+Point,MarkerBackgroundColorIndex,property,As XlColorIndex,,PARTIAL,tests/test_excel_point_markers.py,"Slots 1 to 57, none and automatic; past 57 raises an automation error."
+Point,MarkerForegroundColor,property,As Long,,PARTIAL,tests/test_excel_point_markers.py,Its own or its series'; an area point echoes its line.
+Point,MarkerForegroundColorIndex,property,As XlColorIndex,,PARTIAL,tests/test_excel_point_markers.py,"Slots 1 to 57, none and automatic; past 57 raises an automation error."
+Point,MarkerSize,property,As Long,,PARTIAL,tests/test_excel_point_markers.py,"Its own or its series', 2 to 72; fixes an automatic marker. Radar and bubble charts are refused."
+Point,MarkerStyle,property,As XlMarkerStyle,,PARTIAL,tests/test_excel_point_markers.py,"Its own or its series', as live Excel. A chart of another kind keeps it to read back. Radar and bubble charts are refused."
 Point,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"S and the series number, P and the point number."
 Point,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,The series.
 Point,Paste,method,Paste() As Variant,,MISSING,,

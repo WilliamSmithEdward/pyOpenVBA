@@ -4,7 +4,7 @@ A point reads what its series gives until something is set of it, which the seri
 the point's index, with a unique id from the chart's count in the order they were set. A pie's or doughnut's point
 takes its own place's accent, where another chart's takes its series'. A change to the series' fill or line takes that
 part from its points. Setting a point's look on a line chart moves reads onto its marker members, so that is refused,
-and so are marker settings and Delete, which takes away a series."""
+and so is Delete, which takes away a series. A marker keeps tests/fixtures/point_markers.json."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -12,7 +12,18 @@ from typing import TYPE_CHECKING
 from pyopenvba.apps.excel._chart_format import FILLED, SeriesFill, SeriesLine, accent_colour, look_markup, unmeasured
 from pyopenvba._xml import escape as escape_attribute, escape_text
 from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, UNIQUE_END, LabelLook, default_run
-from pyopenvba.apps.excel._charts import CHART_TYPES, PointLabel, PointState, shown_type
+from pyopenvba.apps.excel._charts import (
+    AUTOMATIC_MARKERS,
+    CHART_TYPES,
+    MARKER_ALIASES,
+    MARKER_AUTOMATIC,
+    MARKER_NONE,
+    MARKER_SYMBOLS,
+    PointLabel,
+    PointState,
+    marker_look,
+    shown_type,
+)
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._number_format import to_file
 from pyopenvba.apps.excel._styles import bgr
@@ -25,6 +36,9 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import Series, SeriesState
 
 _PIES = ("pie", "doughnut")
+_LINES = ("line", "lineMarkers", "scatter")
+#: The kinds of chart whose points' markers were measured: a chart without lines keeps them to read back alone.
+_MARKER_KINDS = (*_LINES, *_PIES, "column", "bar", "area")
 #: ClearFormats leaves a point this line: black, 2 points and solid (tests/fixtures/series_points.json).
 _CLEARED = FillLine(line_rgb="000000", line_width=25400, line_dash="solid")
 
@@ -35,12 +49,35 @@ def _unique_tail(number: int) -> str:
             f'<c16:uniqueId val="{{{number:08X}{UNIQUE_END}}}"/></c:ext>')
 
 
+def _has_marker(point: PointState) -> bool:
+    return not (point.marker is None and point.marker_size is None and point.marker_fore is None
+                and point.marker_back is None)
+
+
+def _marker_markup(point: PointState, entry: SeriesState, kind: str) -> str:
+    """A point's c:marker: where it has a symbol or a size of its own a symbol, as its series' is written, else only its
+    colours, which a series drawn without markers does not write. Other charts have nothing to write it in."""
+    if kind not in _LINES or not _has_marker(point):
+        return ""
+    shown = entry.marker if point.marker is None else point.marker
+    look = "" if shown == MARKER_NONE else marker_look(point)
+    if point.marker is None and point.marker_size is None:
+        return f"<c:marker>{look}</c:marker>" if look else "<c:marker/>"
+    symbol = MARKER_SYMBOLS[shown]
+    if not symbol:
+        return f'<c:marker><c:symbol val="auto"/>{look}</c:marker>'
+    if symbol in ("none", "picture"):
+        return f'<c:marker><c:symbol val="{symbol}"/>{look}</c:marker>'
+    size = point.marker_size or entry.marker_size or 5
+    return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{size}"/>{look}</c:marker>'
+
+
 def points_markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, ...]) -> str:
     """The series' dPt elements, by the points' index."""
     written = ""
     for index, point in sorted(entry.points.items()):
         explosion = point.explosion if kind in _PIES and point.explosion else None
-        if point.look is None and point.invert is None and explosion is None:
+        if point.look is None and point.invert is None and explosion is None and not _has_marker(point):
             continue
         invert = ""
         if kind in ("column", "bar"):
@@ -49,7 +86,8 @@ def points_markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, .
         burst = "" if explosion is None else f'<c:explosion val="{explosion}"/>'
         accent = accent_colour(theme, index + 1 if kind in _PIES else place)
         look = "" if point.look is None else look_markup(point.look, kind, accent)
-        written += (f'<c:dPt><c:idx val="{index}"/>{invert}<c:bubble3D val="0"/>{burst}{look}'
+        marker = _marker_markup(point, entry, kind)
+        written += (f'<c:dPt><c:idx val="{index}"/>{invert}{marker}<c:bubble3D val="0"/>{burst}{look}'
                     f"<c:extLst>{_unique_tail(point.unique)}</c:extLst></c:dPt>")
     return written
 
@@ -294,41 +332,163 @@ class Point(Created):
             raise error(-2147467259, "Automation error\nUnspecified error")
         return DataLabel(self.series, self.index + 1, self.series.entry.label_generation)
 
-    def marked(self) -> bool:
-        return self.kind() in ("lineMarkers", "scatter")
+    # -- its marker (tests/fixtures/point_markers.json)
+
+    def marker_shown(self) -> int:
+        point = self.own()
+        self.kind()
+        return self.series.entry.marker if point is None or point.marker is None else point.marker
+
+    def marker_held(self) -> PointState:
+        """The point's state, for a marker setting, which needs a kind of chart it was measured on."""
+        if self.kind() not in _MARKER_KINDS:
+            raise unmeasured("The marker of a point on this kind of chart")
+        return self.held()
 
     @member
     def MarkerStyle(self) -> object:
-        return VBAInt(-4105 if self.marked() else -4142, "Long")
+        return VBAInt(self.marker_shown(), "Long")
+
+    @setter("MarkerStyle")
+    def _marker_style(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        wanted = MARKER_ALIASES.get(wanted, wanted)
+        if wanted not in MARKER_SYMBOLS:
+            raise error(1004, "Unable to set the MarkerStyle property of the Point class")
+        point = self.marker_held()
+        entry = self.series.entry
+        if wanted == entry.marker and (point.marker is None or wanted == MARKER_AUTOMATIC):
+            point.marker = None
+            return
+        point.marker = wanted
+        self.numbered(point)
 
     @member
     def MarkerSize(self) -> object:
-        return VBAInt(9 if self.marked() else 5, "Long")
-
-    def plain_marker(self) -> FillLine | None:
-        """The look an area chart's point echoes in its marker colours (tests/fixtures/series_points.json), or None."""
-        kind = self.kind()
-        entry = self.series.entry
-        if entry.marker_fore is not None or entry.marker_back is not None:
-            raise unmeasured("The marker colour of a point of a series with marker colours")
         point = self.own()
-        return point.look if kind == "area" and point is not None else None
+        if point is not None and point.marker_size is not None:
+            return VBAInt(point.marker_size, "Long")
+        automatic = self.marker_shown() == MARKER_AUTOMATIC and self.kind() in _LINES
+        return VBAInt(self.series.entry.marker_size or (9 if automatic else 5), "Long")
+
+    @setter("MarkerSize")
+    def _marker_size(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        if not 2 <= wanted <= 72:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        point = self.marker_held()
+        entry = self.series.entry
+        if self.kind() in _LINES and self.marker_shown() == MARKER_AUTOMATIC:
+            # A size fixes the marker an automatic one shows, as it does for a series.
+            identity = entry.series_id if entry.series_id >= 0 else self.series.position() - 1
+            if identity >= len(AUTOMATIC_MARKERS):
+                raise unmeasured("The automatic marker of a series past the ninth")
+            point.marker = AUTOMATIC_MARKERS[identity]
+        point.marker_size = wanted
+        self.numbered(point)
+
+    def _coloured(self, field_name: str, wanted: str | None) -> None:
+        point = self.marker_held()
+        setattr(point, field_name, wanted)
+        # A background brings out the marker of a point drawn without one, even an automatic background.
+        if field_name == "marker_back" and self.marker_shown() == MARKER_NONE:
+            point.marker = MARKER_AUTOMATIC
+        if _has_marker(point):
+            self.numbered(point)
+
+    def _marker_colour(self, field_name: str) -> str | None:
+        point = self.own()
+        found: str | None = None if point is None else getattr(point, field_name)
+        return getattr(self.series.entry, field_name) if found is None else found
+
+    def _read_colour(self, field_name: str) -> object:
+        self.kind()
+        found = self._marker_colour(field_name)
+        if found is None or found == "none":
+            return VBAInt(-1 if found is None else -2, "Long")
+        return VBAInt(bgr(found), "Long")
+
+    def _set_colour(self, field_name: str, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        if wanted < -2:
+            raise unmeasured(f"Marker colour {wanted}")
+        if wanted < 0:
+            self._coloured(field_name, None if wanted == -1 else "none")
+            return
+        # Excel keeps the low 24 bits: 16777216 is black.
+        blue, green, red = (wanted >> 16) & 255, (wanted >> 8) & 255, wanted & 255
+        self._coloured(field_name, f"{red:02X}{green:02X}{blue:02X}")
+
+    def _read_index(self, field_name: str) -> object:
+        self.kind()
+        found = self._marker_colour(field_name)
+        if found is None or found == "none":
+            # An automatic marker colour answers slot 2.
+            return VBAInt(2 if found is None else -4142, "Long")
+        return VBAInt(self.series.chart.sheet.book.stylesheet.colors.nearest(found), "Long")
+
+    def _set_index(self, field_name: str, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        if wanted in (-4105, -4142):
+            self._coloured(field_name, None if wanted == -4105 else "none")
+            return
+        palette = self.series.chart.sheet.book.stylesheet.colors.indexed
+        if wanted == 57:
+            # One past the 56 slots, Excel writes black: the system foreground.
+            self._coloured(field_name, "000000")
+            return
+        if wanted > 57:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        if wanted < 1 or wanted + 7 >= len(palette):
+            raise unmeasured(f"Marker colour index {wanted}")
+        self._coloured(field_name, palette[wanted + 7])
+
+    def _echoed(self) -> FillLine | None:
+        """The look an area chart's point echoes in marker colours it has none of (tests/fixtures/series_points.json).
+        """
+        point = self.own()
+        return point.look if self.kind() == "area" and point is not None else None
 
     @member
     def MarkerBackgroundColor(self) -> object:
-        look = self.plain_marker()
-        if look is None or not (look.fill_rgb or look.fill_hidden or look.fill_solid):
-            return VBAInt(-1, "Long")
+        look = self._echoed()
+        if self._marker_colour("marker_back") is not None or look is None or not (
+                look.fill_rgb or look.fill_hidden or look.fill_solid):
+            return self._read_colour("marker_back")
         if look.fill_hidden:
             return VBAInt(-2, "Long")
         return PointFill(PointFormat(self)).vba_get("ForeColor").vba_get("RGB")  # pyright: ignore
 
+    @setter("MarkerBackgroundColor")
+    def _marker_background_color(self, value: object) -> None:
+        self._set_colour("marker_back", value)
+
     @member
     def MarkerForegroundColor(self) -> object:
-        look = self.plain_marker()
-        if look is None or not (look.line_rgb or look.line_hidden):
-            return VBAInt(-1, "Long")
+        look = self._echoed()
+        if self._marker_colour("marker_fore") is not None or look is None or not (look.line_rgb or look.line_hidden):
+            return self._read_colour("marker_fore")
         return VBAInt(-2 if look.line_hidden else bgr(look.line_rgb or "000000"), "Long")
+
+    @setter("MarkerForegroundColor")
+    def _marker_foreground_color(self, value: object) -> None:
+        self._set_colour("marker_fore", value)
+
+    @member
+    def MarkerBackgroundColorIndex(self) -> object:
+        return self._read_index("marker_back")
+
+    @setter("MarkerBackgroundColorIndex")
+    def _marker_background_color_index(self, value: object) -> None:
+        self._set_index("marker_back", value)
+
+    @member
+    def MarkerForegroundColorIndex(self) -> object:
+        return self._read_index("marker_fore")
+
+    @setter("MarkerForegroundColorIndex")
+    def _marker_foreground_color_index(self, value: object) -> None:
+        self._set_index("marker_fore", value)
 
     @member
     def Shadow(self) -> object:

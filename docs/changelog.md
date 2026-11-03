@@ -854,6 +854,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Copy and Cut end on the members that end them in Excel, a list that follows no rule and stands in
+  `_clipboard_ends.py` as measured: `Font.Bold` ends them and `Font.Color` does not, `Calculate` ends them and
+  `CalculateFull` does not, and so on through 140 edits (`tests/fixtures/excel_everyday_7.json` and `_8.json`).
+  `Application.CutCopyMode` set to anything ends them. A `Range.Copy` to a destination ends what was on the clipboard.
+- `Worksheet.Paste` and `Range.PasteSpecial` into the selection grow the selection to what they pasted.
 - `Range.Delete` ends Copy and Cut, whatever it deletes. A `Font`, `Interior`, `Borders` or `Comment` taken from a range
   goes when its cells go, a `Comment` follows its cell, and Ranges go when their workbook closes.
 - `Columns("8:9")` is error 1004. Copying several whole columns no longer says the destination is too large. A copied

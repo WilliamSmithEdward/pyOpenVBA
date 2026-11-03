@@ -47,7 +47,7 @@ Measured in live Excel (scripts/measure_autofilter_edits.py):
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number, quote_sheet
 from pyopenvba.apps.excel._protection import whole
@@ -58,7 +58,7 @@ from pyopenvba.formula._values import ERRORS, ExcelError, number_text
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Cell, Range, Worksheet
+    from pyopenvba.apps.excel._model import Application, Cell, Range, Worksheet
     from pyopenvba.apps.excel._styles import Style
 
 ALL, VALUES, FORMULAS, FORMATS = -4104, -4163, -4123, -4122
@@ -120,6 +120,8 @@ class Clip:
 
     source: Range
     cut: bool
+    #: Its workbook has closed. Excel shows no mode and still pastes the cells, which is not implemented.
+    orphaned: bool = False
 
     @property
     def block(self) -> Block:
@@ -133,7 +135,7 @@ class Clip:
 
 
 def mode(clip: Clip | None) -> VBAInt:
-    return VBAInt(0 if clip is None else 2 if clip.cut else 1, "Long")
+    return VBAInt(0 if clip is None or clip.orphaned else 2 if clip.cut else 1, "Long")
 
 
 def copy(target: Range) -> object:
@@ -203,6 +205,8 @@ def copy_range(target: Range, destination: object) -> object:
             Range(target.sheet, [first]).copy_to(Range(destination.sheet, [area]))
     # The cells copied to change, as Excel reports them.
     after_edit(Range(destination.sheet, [landed]))
+    # A copy straight to somewhere ends what was on the clipboard (tests/fixtures/excel_everyday_7.json).
+    target.sheet.book.application.clipboard = None
     return True
 
 
@@ -283,7 +287,21 @@ def _clip(target: Range, empty: str = "There is nothing to paste") -> Clip:
     clip = target.sheet.book.application.clipboard
     if clip is None:
         raise error(1004, empty)
+    if clip.orphaned:
+        raise VBAUnsupportedError("pasting cells copied from a workbook that has closed is not implemented")
     return clip
+
+
+def application_of(owner: object) -> Application | None:
+    """The application an object of the model belongs to, through whatever it holds on to: a named style's Font has
+    none."""
+    if hasattr(owner, "clipboard"):
+        return cast("Application", owner)
+    for name in ("application", "book", "sheet", "target"):
+        found = getattr(owner, name, None)
+        if found is not None:
+            return application_of(found)
+    return None
 
 
 def paste(sheet: Worksheet, destination: object, link: object) -> object:
@@ -318,13 +336,24 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
     return paste_block(clip.source.sheet, clip.block, destination)
 
 
-def pasted_selection(sheet: Worksheet) -> None:
-    """The selection grown to the block just pasted into it."""
+def landed_selection(sheet: Worksheet) -> Range | None:
+    """What the selection grows to with a paste into it, worked out before the paste: a Cut goes off the clipboard."""
     from pyopenvba.apps.excel._model import Range
 
     destination = sheet.selection
-    if isinstance(destination, Range):
-        Range(sheet, [landing_of(_clip(destination).block, destination)]).Select()
+    clip = sheet.book.application.clipboard
+    if not isinstance(destination, Range) or clip is None or clip.orphaned or sheet is not sheet.book.active_sheet:
+        return None
+    made = Range(sheet, [landing_of(clip.block, destination)])
+    sheet.held_ranges.discard(made)
+    return made
+
+
+def pasted_selection(sheet: Worksheet) -> None:
+    """The selection grown to the block just pasted into it."""
+    grown = landed_selection(sheet)
+    if grown is not None:
+        grown.Select()
 
 
 def paste_special(target: Range, what: object, operation: object, skip_blanks: object, transpose: object) -> object:
@@ -443,6 +472,12 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         _paste_links(source_sheet, made, sheet, corner, height, width, turned)
     if conditional_plan is not None:
         conditional_plan.commit()
+    from pyopenvba.apps.excel._model import Range
+
+    selected = sheet.selection
+    if sheet is sheet.book.active_sheet and isinstance(selected, Range) and selected.areas == target.areas:
+        # Pasted into the selection, which grows to what it pasted (tests/fixtures/excel_everyday_7.json).
+        Range(sheet, [Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1, sheet.name)]).Select()
     return True
 
 

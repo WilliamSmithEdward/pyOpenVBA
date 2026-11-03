@@ -30,6 +30,7 @@ from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntim
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
+from pyopenvba.apps.excel._clipboard_ends import ENDING
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
@@ -122,6 +123,25 @@ class ExcelObject(Created):
         self.guard_set(member)
         super().vba_set(name, value, args, named, by_ref=by_ref)
         self.after_set(member)
+        self._ending_clipboard(member)
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        answer = super().vba_get(name, args, named)
+        if self.vba_type_name in ENDING:
+            spec = self._vba_members.get(name.lower())
+            # Reading a property ends nothing, and Style and Locked are in the table for being set.
+            if spec is not None and spec.kind == "method":
+                self._ending_clipboard(name)
+        return answer
+
+    def _ending_clipboard(self, member: str) -> None:
+        ending = ENDING.get(self.vba_type_name)
+        if ending is not None and member.lower() in ending:
+            from pyopenvba.apps.excel._clipboard import application_of
+
+            application = application_of(self)
+            if application is not None:
+                application.clipboard = None
 
     def guard_set(self, member: str) -> None:
         """Refuse a property a protected sheet does not let a macro set: the classes of cells say which."""
@@ -684,8 +704,9 @@ class Application(ExcelObject):
 
     @setter("CutCopyMode")
     def _set_cut_copy_mode(self, value: object) -> None:
-        if not to_bool(value):
-            self.clipboard = None
+        # Whatever it is set to, xlCopy and xlCut too (tests/fixtures/excel_everyday_7.json, mode_set_values).
+        to_bool(value)
+        self.clipboard = None
 
     @member
     def UserName(self) -> object:
@@ -3357,9 +3378,14 @@ class Worksheet(ExcelObject):
     @method
     def Paste(self, Destination: object = MISSING, Link: object = MISSING) -> object:
         """What Copy or Cut put on the clipboard, at Destination or the selection."""
-        from pyopenvba.apps.excel._clipboard import paste
+        from pyopenvba.apps.excel._clipboard import landed_selection, paste
 
-        return paste(self, Destination, Link)
+        # With no destination it goes to the selection, which grows to what it pasted (excel_everyday_7.json).
+        selected = landed_selection(self) if Destination is MISSING else None
+        answer = paste(self, Destination, Link)
+        if selected is not None:
+            selected.Select()
+        return answer
 
     @method
     def PasteSpecial(self, Format: object = MISSING, Link: object = MISSING,  # noqa: N803 - native named args

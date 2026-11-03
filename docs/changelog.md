@@ -15,6 +15,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `ListObject.Unlist`, which turns a table into cells: each of the 60 built-in styles becomes the cells' own formats
+  beneath what was set on them, and formulas naming the table name its cells. Compared with Excel for every style
+  under four sets of the table's options.
 - A colour on a series' line with a marker: setting `Format.Line.ForeColor.RGB` on a line series with markers or a
   scatter series, and `MarkerStyle` on a line series with a line colour, reach the marker as they do in Excel.
 - `Shapes.AddChart2` and `Shapes.AddChart`, so a recorded macro that makes a chart runs. Each picks up the data round

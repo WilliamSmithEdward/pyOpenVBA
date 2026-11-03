@@ -32,7 +32,6 @@ _STRING = re.compile(r"<si>(.*?)</si>", re.DOTALL)
 
 #: Workbooks the model edits differently, and why.
 KNOWN: dict[str, str] = {
-    "unlisted": "Unlist turns the table's style into each cell's own format, which the model does not do",
     "calculated_one/part": "a column made calculated from one cell brings a General dxf into styles.xml, "
                            "dataDxfId=\"0\" on the column, which the model does not add",
 }

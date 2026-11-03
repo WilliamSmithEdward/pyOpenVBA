@@ -3453,6 +3453,11 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
         sheet.chart_states[copy.shape_id] = own
     sheet.shapes_.append(copy)
     sheet.drawing_changed()
+    if chart is not None:
+        from pyopenvba.apps.excel import _events
+        from pyopenvba.apps.excel._charts import ChartObject
+
+        _events.new_chart(sheet.book, ChartObject(sheet, copy).Chart())
     return copy
 
 

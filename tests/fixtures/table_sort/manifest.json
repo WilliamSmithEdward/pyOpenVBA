@@ -1,8 +1,8 @@
 {
   "raw_files": {
-    "initial.json": "ec685b530df48ee8e79f7006853900b65dfdca1d92a3c121b5a06f65e071709f",
-    "followup.json": "e39ccdb73e5144322e0ad07d134333e141bdfd25b190a2ef2a6e7fc5689f31b5",
-    "clarifiers.json": "2a25c83610e6f3f79e7d9b281491780e20a0b9ecb06cf66dce726a4ef2f85e8a",
+    "initial.json": "d292344141ff01e876624bd23a7b6e0631dc03c1002c71e880d6abb52001f0ba",
+    "followup.json": "42560b0f5659c4b11ac8c6cf9a527e261447f39bb6b6481491aef22d37cc2fad",
+    "clarifiers.json": "abb8a82dc5ae3ad6a926eac34e4c0b025ad0adc72057201555b8966abb99bed9",
     "granular.json": "a530588111971074021add26fe3733c42a94834729d9e71de906ecd76e8f575d"
   },
   "cases": {
@@ -16,7 +16,7 @@
       "source_sha256": "a776bf729a5495ae46271a8ef7bcb3658c97238dbb5ec0a32b80c715082412d1",
       "result_sha256": "5c0ed9bfdc1b334f64ed9ba162dddb4c0c152c78a647bc946914102210ed74c4",
       "sample": "ascending-formulas-styles-totals.xlsx",
-      "sample_sha256": "3ca2ee50990e04a37efc1c33fe403cbe897275a84e9f90dfcdb6b0a454487a8a",
+      "sample_sha256": "d212adb258d42404564ca439fc89347b5ff61628f4963f24e1c615bd0406e74c",
       "reopened_sha256": "6100b3e669f0e47fab35a9c416652effea9f92232fd674d03f2ae64c6b20124e",
       "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
     },
@@ -25,7 +25,7 @@
       "source_sha256": "0223064821d8a75c834a03c5c30a37b7a82aa682ae3060554da65443b7d10d7b",
       "result_sha256": "82c3f6cf85c10358b300b3306d65e99da8b4da888b8239852479f9b1ec80cc0a",
       "sample": "stable-multiple-text-numbers.xlsx",
-      "sample_sha256": "e8e71ae94601f6e32fea834212141f25a7304afe98c089ee45e0dda815e08b04",
+      "sample_sha256": "a9d4c21185b986b6bec5f062130ad15d83f81e56641afbcf3e38663c80f8dd9e",
       "reopened_sha256": "521c194095b6836f6337f934ff03b8841452ab365a4b8598afad447ca81b9184",
       "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
     },
@@ -34,7 +34,7 @@
       "source_sha256": "6ec00b1447cb9d4e43ea2364b4e904e2127d6c68d42a83723055c033fb826ba2",
       "result_sha256": "8a2d49ad96c0baa345c5127b9ce7e4d945a78af003c41cb10c75ec70ba806f5e",
       "sample": "hidden-headers.xlsx",
-      "sample_sha256": "c6a220f4a1b12957a39d9f35a67963612d2feda0d45f29917583bc8b0bff6dd6",
+      "sample_sha256": "593463e710827f686a7322935fceb4fc1a74803071db176334a9bfb71d0aec31",
       "reopened_sha256": "9945a50f6d00edb69e30f488394fd6b97ba48bd78d839811eb04d1abcdbecf9d",
       "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
     },
@@ -43,7 +43,7 @@
       "source_sha256": "7fd6c43994998c149dbd741ff4c4c6cfd50aa089e2d62ad1bb472af1e06367dc",
       "result_sha256": "533305c6a196f5f68e419554a6ce6d1178049970376ca8755c36e52db85246d9",
       "sample": "table-filtered-sort.xlsx",
-      "sample_sha256": "5af42422e23370afe9fbde442c1a532b6927a1f7abe45f142fe17c1962178e8d",
+      "sample_sha256": "3ee4ed9d22bd535684337a60014e73df137e4cc2f5cd115e6b3ffef5a5231a02",
       "reopened_sha256": "7e5faaa1d148cc282e2332f2ed3a12a573987832d8dd22b8981d46fc14321f21",
       "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
     },
@@ -52,7 +52,7 @@
       "source_sha256": "26edf9937d550496f4fb568290ef49b9380e99e7010dfa730e6ad474fa11a834",
       "result_sha256": "9360142e8d359dc4a179718615ad08be8d376cf8ebce5905edee43b76dd5a734",
       "sample": "held-resize-add-move.xlsx",
-      "sample_sha256": "2e646a69cfb2e9824dd20dbac15f696b185c1b2e307449063749483bba68489c",
+      "sample_sha256": "063315c209200feb554791fbdef96b106196c375031ac940f7e5c8ada48e04b3",
       "reopened_sha256": "d37d848fd38f4adca27c776a683e166e279c9d0b5610d74ff608fcaba7eca800",
       "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
     },
@@ -86,7 +86,7 @@
       "source_sha256": "426af65d235534ec6f4975821f2bf8e5133840c0392e23115a529a1496806cfa",
       "result_sha256": "9b255d552cb4f4809f2422cb5ba6e08253fe482466b231df5d27a564378879b6",
       "sample": "independent-table-sheet-settings.xlsx",
-      "sample_sha256": "5c96b3332bf47271febbec894bd466709e39bab4ac59edd68f02b7810850567e",
+      "sample_sha256": "4562f9113b45aef67987465fd7f24a179d55f08a2b088c9ffbcdbdf857cd01a5",
       "reopened_sha256": "f45f33a4b3148107651386cfcc17c8d4180b987d489f85a6e2dca880ed8eef08",
       "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
     },
@@ -95,7 +95,7 @@
       "source_sha256": "de925183b10e65533212619f1f2caa26f83f33001cb53a5ed21fb9cdcbc1f65d",
       "result_sha256": "4df034744b7037f2c43a4a7c7fa47edc7a7106c2ee20356e3588cde29572714f",
       "sample": "direct-getters-and-key-span.xlsx",
-      "sample_sha256": "1045c1064470e155f586f0af8ca41e781b14b6f0054fbf0e4439dd4d842a3033",
+      "sample_sha256": "7c33ac467855253fed62b92bb98866660c986309260b05dcb16e118aae19f8b6",
       "reopened_sha256": "da251ac63b297417fa6794746c8f528be69c602c211c1c34e65fecd106865919",
       "inspection_source_sha256": "484fe88952c7b4b628de794f40bbac70caa2780d6fb67f749cc599c583d04988"
     },
@@ -109,7 +109,7 @@
       "source_sha256": "e426088db46bb4b9f778cc8ee7cfcb5290da7410aa716e81175a1f0133e19404",
       "result_sha256": "b858cb5cb229d2297e5cf9d69ac432dbc6337ac1cbf8e64ef9202185f13a9391",
       "sample": "direct-held-lifecycle.xlsx",
-      "sample_sha256": "7b9b190472273894772f762e4cf45ffbfdb34fb9214f4401e2a013da060c09ca",
+      "sample_sha256": "cfe51be9409fb0c9977e44034f741e10d5460090ce8a7fad1719f20e82177069",
       "reopened_sha256": "d37d848fd38f4adca27c776a683e166e279c9d0b5610d74ff608fcaba7eca800",
       "inspection_source_sha256": "484fe88952c7b4b628de794f40bbac70caa2780d6fb67f749cc599c583d04988"
     },
@@ -118,7 +118,7 @@
       "source_sha256": "94eae569ecc06b3d9de80bba7d09e92955434d85ba387e0e0aba30bdd5c63e0e",
       "result_sha256": "c29f11ad37dc7d6e5f44eb8c3d884c4bb0e12eddd52d18ce4a24d3bd1f6e5223",
       "sample": "filtered-descending-blank-tails.xlsx",
-      "sample_sha256": "37bd9d1b49b1dcbb6fc65dbd4946c798019c833ba6119507c7b7b8b02a19feff",
+      "sample_sha256": "ab264038749d4d6433116d83d9c8bb62e7b3c0b2c8c4b9fb3acbef2158075d5f",
       "reopened_sha256": "b122569ae3313b1c3d889a2f2a173851913163b6bbc0ff0e06759d74ba7cb06c",
       "inspection_source_sha256": "484fe88952c7b4b628de794f40bbac70caa2780d6fb67f749cc599c583d04988"
     },
@@ -127,7 +127,7 @@
       "source_sha256": "56d5fd0c3404f005b2fa000e5b07f858ca2775b608dde085034b3c571ee6a564",
       "result_sha256": "f4e870f2a334168d66aedba916f5d865d74a6aaf59dd35038795c7c43eb8de4b",
       "sample": "typed-versus-dynamic-hidden-getters.xlsx",
-      "sample_sha256": "bc49b36cf2a84c06272cd4265ee587cf1c02a8d7a14882c8c8651c1e6ee87f3f",
+      "sample_sha256": "8e8fb08417e04f3445b0e0309fa6dbcd4bf276d06afbf00cb770ef73c7c48184",
       "reopened_sha256": "035224e684a1666a4a73cfaa79373d83e710deb0958fa6bd142439fd65cf3654",
       "inspection_source_sha256": "649a4b0b67a80c5b17f45893fc20b43211c1787e5614f8bfa567f383e27a387b"
     },
@@ -136,7 +136,7 @@
       "source_sha256": "5b4b2c84c91283f4685bebebf6f1487524c4f4e5f95df2b7ef5655594015ddc5",
       "result_sha256": "2e32d0fa3622c0ef0f44c691e3d8741fd677a53c548ce4b0812db2a67f2119a3",
       "sample": "fresh-versus-held-options.xlsx",
-      "sample_sha256": "91b4d105826c29102097a68f956740d1724c5082d182e8d9ab7d3778af32965b",
+      "sample_sha256": "ea4aecdb5ad416762bd70a33adce1946748dffe00994082ddee94ceb2b9fe71a",
       "reopened_sha256": "035224e684a1666a4a73cfaa79373d83e710deb0958fa6bd142439fd65cf3654",
       "inspection_source_sha256": "649a4b0b67a80c5b17f45893fc20b43211c1787e5614f8bfa567f383e27a387b"
     },

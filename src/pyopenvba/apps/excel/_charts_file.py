@@ -395,6 +395,23 @@ def _read_group(result: ChartState, group: ET.Element) -> None:
     result.series_lines = group.find('c:serLines', NS) is not None
 
 
+_NO_LINE = '<c:spPr><a:ln w="38100"><a:noFill/></a:ln></c:spPr>'
+
+
+def shadowed(look: str, shadow: bool | None) -> str:
+    """A series' spPr with its Shadow, once that was set: the same effect as a chart's, or none spelled out
+    (tests/fixtures/chart_members_more.json)."""
+    if shadow is None:
+        return look
+    effect = (CHART_SHADOW.removeprefix('<c:spPr>').removesuffix('</c:spPr>') if shadow else '<a:effectLst/>')
+    if not look:
+        return f'<c:spPr>{effect}</c:spPr>'
+    if '<a:effectLst' in look:
+        return re.sub(r'<a:effectLst(?:/>|>.*?</a:effectLst>)', lambda _: effect, look, count=1)
+    place = look.find('<a:extLst>')
+    return look[:place] + effect + look[place:] if place >= 0 else look.replace('</c:spPr>', effect + '</c:spPr>', 1)
+
+
 def _grouped(xml: str, state: ChartState, kind: str) -> str:
     """The chart group's settings in the part (tests/fixtures/chart_groups.json): varyColors once set, a bar or column
     chart's gapWidth with any overlap after it, a pie's or doughnut's firstSliceAng, and a doughnut's holeSize. A kind
@@ -698,8 +715,11 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
                                smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion,
                                scatter_line=item.scatter_line,
-                               look=series_look(item, CHART_TYPES.get(shown_type(chart.state), ''), series.position(),
-                                                sheet.book.stylesheet.colors.theme),
+                               look=shadowed(series_look(item, CHART_TYPES.get(shown_type(chart.state), ''), series.position(),
+                                                         sheet.book.stylesheet.colors.theme) or
+                                             (_NO_LINE if chart.state.series and item.shadow is not None and not item.scatter_line
+                                              and CHART_TYPES.get(shown_type(chart.state)) == 'scatter' else ''),
+                                             item.shadow),
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
                                points=points_markup(_shown_points(sheet, chart.state, item),
                                                     CHART_TYPES.get(shown_type(chart.state), ''),
@@ -726,9 +746,11 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted,
                      legend=legend_markup(state.legend_position, overlay=state.legend_overlay, shadow=state.legend_shadow,
                                           deleted=state.legend_deleted, frame=frame,
-                                          entry_text={int(key[6:]): text_properties(font)
-                                                      for key, font in state.element_fonts.items()
-                                                      if key.startswith('legend') and key[6:].isdigit()},
+                                          entry_text={**{int(key[11:]): '' for key in state.element_looks
+                                                         if key.startswith('legendEntry')},
+                                                      **{int(key[6:]): text_properties(font)
+                                                         for key, font in state.element_fonts.items()
+                                                         if key.startswith('legend') and key[6:].isdigit()}},
                                           text=text_properties(state.element_fonts.get('legend')))
                      if state.legend else "", axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,
@@ -785,6 +807,10 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     if state.data_table:
         # The data table closes the plot area, after the axes, on every kind (tests/fixtures/chart_series_more.json).
         table = DATA_TABLE if state.data_table_keys else DATA_TABLE_WITHOUT_KEYS
+        for tag, shown in zip(('Horz', 'Vert', 'Outline'), state.data_table_borders, strict=True):
+            name = f'show{tag}' if tag == 'Outline' else f'show{tag}Border'
+            table = table.replace(f'<c:{name} val="1"/>', f'<c:{name} val="{int(shown)}"/>')
+        table = table.replace('</c:dTable>', text_properties(state.element_fonts.get('dataTable')) + '</c:dTable>')
         xml = xml.replace('</c:plotArea>', table + '</c:plotArea>', 1)
     # The plot area's look follows all of that, and the chart area's follows the chart
     # (tests/fixtures/chart_element_format.json).

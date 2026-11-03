@@ -278,7 +278,10 @@ def test_unique_native_input_and_source_inventory_are_pinned() -> None:
     assert hashlib.sha256(path.read_bytes()).hexdigest() == item['sha256']
     inventory = json.loads((ROOT / item['module_inventory']).read_text(encoding='utf-8'))
     with ExcelFile(path) as workbook:
-        assert workbook.vba_modules() == inventory['modules']
+        # The inventory masks the folder the recorded macro saved into, which the project itself still names.
+        modules = {name: re.sub(r'[A-Za-z]:\\[^"]*\\', r'<folder>\\', source)
+                   for name, source in workbook.vba_modules().items()}
+    assert modules == inventory['modules']
     assert inventory['external_relationships'] == []
     for name, expected in manifest['additional_raw_evidence'].items():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected

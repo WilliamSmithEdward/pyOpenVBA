@@ -298,7 +298,7 @@ def _refused_carriers(book: Workbook, names: set[str], staying: list[Worksheet])
                 refuse("that a control")
             chart = sheet.chart_states.get(shape.shape_id)
             if chart is not None:
-                if any(text and _reads(text, names) for series in chart.series
+                if any(text and _reads(text, names) for series in chart.full_series or chart.series
                        for text in (series.name_reference, series.category_reference, series.value_reference)):
                     refuse("that a chart")
             elif shape.source:

@@ -311,7 +311,7 @@ def _refuse_elsewhere(book: Workbook) -> None:
     for sheet in book.sheets_:
         texts: list[str] = [text for rule in sheet.validations for text in (rule.formula1, rule.formula2)]
         texts += ["".join(rule.root.itertext()) for rule in sheet.conditional_formats]
-        texts += [text for chart in sheet.chart_states.values() for series in chart.series
+        texts += [text for chart in sheet.chart_states.values() for series in chart.full_series or chart.series
                   for text in (series.name_reference, series.category_reference, series.value_reference)]
         texts += [text for shape in sheet.shapes_ if shape.control is not None
                   for text in (shape.control.linked_cell, shape.control.list_range)]

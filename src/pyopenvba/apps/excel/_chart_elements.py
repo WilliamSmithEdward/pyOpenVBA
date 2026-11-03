@@ -84,7 +84,7 @@ def _legend(place: str, overlaid: bool) -> Step:
 
 
 def _each_series(chart: Chart) -> list[Any]:
-    return list(_object(chart.vba_call('SeriesCollection')).vba_items())
+    return list(_object(chart.vba_call('FullSeriesCollection')).vba_items())
 
 
 def _labels(place: str | None) -> Step:

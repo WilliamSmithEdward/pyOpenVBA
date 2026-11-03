@@ -1287,11 +1287,11 @@ Gridlines,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_b
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,As HasMajorGridlines or HasMinorGridlines set False.
 Gridlines,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Line only, a fill raises -2147467259; major gridlines; minor are refused."
-Gridlines,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Gridlines,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 Gridlines,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"Gridline 1 to 4: the value axis major and minor, then the category axis."
 Gridlines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,The axis.
 Gridlines,Select,method,Select() As Variant,,UNASSESSED,,
-Gridlines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Gridlines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 GroupShapes,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 GroupShapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 GroupShapes,Application,"property, read-only",As Application,,MISSING,,
@@ -3066,7 +3066,7 @@ Trendline,DisplayRSquared,property,As Boolean,,PARTIAL,tests/fixtures/chart_tren
 Trendline,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_line_format.json; tests/test_excel_chart_line_format.py,"Its Line. Theme colours, arrowheads, and effects are refused; Fill raises as in Excel."
 Trendline,Forward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Forward2,property,As Double,,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,
-Trendline,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Trendline,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 Trendline,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Intercept,property,As Double,no setter,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,InterceptIsAuto,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
@@ -3076,7 +3076,7 @@ Trendline,Order,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; 
 Trendline,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Period,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Select,method,Select() As Variant,,UNASSESSED,,
-Trendline,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Trendline,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 Trendline,Type,property,As XlTrendlineType,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendlines,_Default,method,_Default([Index As Variant]) As Trendline,,MISSING,,
 Trendlines,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,

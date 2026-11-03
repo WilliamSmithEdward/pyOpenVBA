@@ -22,6 +22,8 @@ for name, values in MEMBERS.items():
     CASES += [('column', f'{G}.{name} = {value}: r = {G}.{name}') for value in values]
 CASES += [('column', f'{G}.BinsType = 1: r = {G}.BinWidthValue'), ('column', f'{G}.BinWidthValue = 2: r = {G}.BinsType'), ('column', f'{G}.BinsCountValue = 3: r = {G}.BinsType'), ('column', f'{G}.BinsOverflowValue = 5: r = {G}.BinsOverflowEnabled'), ('column', f'{G}.BinsUnderflowValue = 5: r = {G}.BinsUnderflowEnabled'),
           ('column', f'{G}.BinWidthValue = 2: ch.ChartType = xlLine: r = {G}.BinWidthValue')]
+for owner, before in (('ch.Axes(xlValue).MajorGridlines', ''), ('ch.SeriesCollection(1).Trendlines(1)', 'ch.SeriesCollection(1).Trendlines.Add: ')):
+    CASES += [('column', f'{before}r = {owner}.GetProperty("Name")'), ('column', f'{before}r = {owner}.GetProperty("x")'), ('column', f'{before}{owner}.SetProperty "Name", "z": r = {owner}.Name'), ('column', f'{before}{owner}.SetProperty "x", 1: r = 1')]
 
 
 def main() -> None:

@@ -28,8 +28,9 @@ from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillLine, Shape, ShapeEffects, TextLook,
-                                      child_space, emu, points, to_child)
+from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects,
+                                      TextLook, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
 ANCHORS = ("xdr:twoCellAnchor", "xdr:oneCellAnchor", "xdr:absoluteAnchor", "mc:AlternateContent")
@@ -962,6 +963,9 @@ def _new_element(shape: Shape) -> str:
     if shape.kind == "textBox":
         # A text box's text runs across, as Excel writes it.
         body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
+    if shape.kind == "shape" and shape.geometry in DARK_TEXT:
+        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
+                            '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
     if shape.text_look is not None and body:
         body = _laid_out(body, shape.text_look)
     box = ' txBox="1"' if shape.kind == "textBox" else ""
@@ -976,7 +980,12 @@ def _new_element(shape: Shape) -> str:
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
     )
     turn = _xfrm_attributes(shape)
-    geometry = f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>'
+    guides = ""
+    if shape.adjustments is not None:
+        guides = "".join(f'<a:gd name="{name}" fmla="val {value}"/>' for (name, _, _), value in zip(
+            ADJUSTMENTS[shape.geometry], shape.adjustments, strict=True))
+    geometry = (f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst>{guides}</a:avLst></a:prstGeom>'
+                if guides else f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>')
     style = _TEXT_BOX_STYLE if shape.kind == "textBox" else _STYLE
     if shape.kind == "line":
         # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json).
@@ -1008,12 +1017,22 @@ def _fill_line(shape: Shape) -> str:
         return _TEXT_BOX_FILL if text_box else ""
     fill_colour = _colour(look.fill_rgb, look.fill_scheme or ("lt1" if text_box else "accent1"), 0, look.fill_alpha,
                           look.fill_mods, look.fill_index)
+    fill_paint = f"<a:solidFill>{fill_colour}</a:solidFill>"
+    if look.fill_pattern is not None:
+        back = _colour(look.fill_back_rgb or (None if look.fill_back_scheme else "FFFFFF"), look.fill_back_scheme or "",
+                       0, look.fill_alpha, look.fill_back_mods)
+        fill_paint = (f'<a:pattFill prst="{look.fill_pattern}"><a:fgClr>{fill_colour}</a:fgClr><a:bgClr>{back}</a:bgClr>'
+                      "</a:pattFill>")
+    if look.fill_gradient is not None:
+        fill_paint = _gradient(look.fill_gradient)
     fill = ""
     if look.fill_hidden or look.fill_bare:
         fill = "<a:noFill/>"
+    elif look.fill_pattern is not None or look.fill_gradient is not None:
+        fill = fill_paint
     elif (look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box
           or look.fill_scheme is not None or look.fill_mods or look.fill_index is not None):
-        fill = f"<a:solidFill>{fill_colour}</a:solidFill>"
+        fill = fill_paint
     elif look.no_fill:
         fill = "<a:noFill/>"
     scheme, shade = {"textBox": ("lt1", 50000), "line": ("accent1", 0)}.get(shape.kind, ("accent1", 15000))
@@ -1040,8 +1059,8 @@ def _fill_line(shape: Shape) -> str:
         line = f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"
     extensions = ""
     if look.fill_hidden:
-        extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}><a:solidFill>'
-                       f"{fill_colour}</a:solidFill></a14:hiddenFill></a:ext>")
+        extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}>'
+                       f"{fill_paint}</a14:hiddenFill></a:ext>")
     if look.line_hidden and not look.line_lost:
         width = look.line_width or (9525 if text_box else 19050)
         extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
@@ -1120,6 +1139,26 @@ def _colour(rgb: str | None, scheme: str, shade: int, alpha: int | None,
         ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="a14" '
         f'{_A14} a14:legacySpreadsheetColorIndex="{index}"')
     return f'<{tag} val="{value}"{legacy}>{inside}</{tag}>' if inside else f'<{tag} val="{value}"{legacy}/>'
+
+
+#: What a corner gradient's path and tile hold for each variant.
+_CORNERS = {1: ('r="100000" b="100000"', 'l="-100000" t="-100000"'), 2: ('l="100000" b="100000"', 't="-100000" r="-100000"'),
+            3: ('t="100000" r="100000"', 'l="-100000" b="-100000"'), 4: ('l="100000" t="100000"', 'r="-100000" b="-100000"')}
+
+
+def _gradient(gradient: FillGradient) -> str:
+    """A gradient fill as Excel writes it (tests/fixtures/shape_fill_gradients.json)."""
+    stops = "".join(f'<a:gs pos="{stop.position}">{_colour(stop.rgb, stop.scheme or "", 0, stop.alpha, stop.mods)}</a:gs>'
+                    for stop in gradient.stops)
+    if gradient.path is None:
+        shape = f'<a:lin ang="{gradient.angle}" scaled="1"/><a:tileRect/>'
+    elif gradient.corner is None:
+        shape = '<a:path path="rect"><a:fillToRect l="50000" t="50000" r="50000" b="50000"/></a:path><a:tileRect/>'
+    else:
+        to, tile = _CORNERS[gradient.corner]
+        shape = f'<a:path path="rect"><a:fillToRect {to}/></a:path><a:tileRect {tile}/>'
+    return (f'<a:gradFill flip="none" rotWithShape="{1 if gradient.rotate else 0}"><a:gsLst>{stops}</a:gsLst>{shape}'
+            "</a:gradFill>")
 
 
 def _line_paint(look: FillLine, scheme: str, shade: int, own: bool) -> str:

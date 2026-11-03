@@ -1528,7 +1528,7 @@ ListObject,TableObject,"property, read-only",As TableObject,,PARTIAL,tests/fixtu
 ListObject,TableStyle,property,As Variant,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,TotalsRowRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,Nothing with no totals row.
 ListObject,Unlink,method,Unlink(),,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"Does nothing on a table of the sheet's own cells, as measured."
-ListObject,Unlist,method,Unlist(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"Reports itself: Excel turns the table's style into each cell's format, which the model does not."
+ListObject,Unlist,method,Unlist(),,PARTIAL,tests/test_excel_list_unlist.py,Every built-in style under four sets of options; a custom table style is refused.
 ListObject,XmlMap,"property, read-only",As XmlMap,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,Nothing for a table of the sheet's own cells.
 ListObjects,_Default,"property, read-only",As ListObject,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,Item.
 ListObjects,_NewEnum,"property, read-only",As IUnknown,,MISSING,,

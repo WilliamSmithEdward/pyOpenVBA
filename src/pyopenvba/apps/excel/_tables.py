@@ -1030,8 +1030,10 @@ class ListObject(ExcelObject):
 
     @method
     def Unlist(self) -> object:
-        raise VBAUnsupportedError("ListObject.Unlist, which turns the table's style into each cell's format, is not "
-                                  "implemented")
+        from pyopenvba.apps.excel._table_unlist import unlist
+
+        unlist(self.table)
+        return EMPTY
 
     @member
     def ShowTotals(self) -> object:

@@ -976,7 +976,7 @@ DataLabels,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_labe
 DataLabels,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,Read.
 DataLabels,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,As HasDataLabels set False.
 DataLabels,Font,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,"10 point, with the labels' own txPr body. Reads the theme's body font; size, bold, italic, single underline, strikethrough, colour and name save in the paragraph's defRPr. Refused on an imported chart, beside a chart area font, and on removing the element."
-DataLabels,Format,"property, read-only",As ChartFormat,,MISSING,,
+DataLabels,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,Fill colour and outline weight.
 DataLabels,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 DataLabels,HorizontalAlignment,property,As Variant,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
 DataLabels,Item,method,Item(Index As Variant) As DataLabel,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"A point's label, -2147024809 out of range."
@@ -987,7 +987,7 @@ DataLabels,NumberFormatLocal,property,As Variant,,PARTIAL,tests/fixtures/data_la
 DataLabels,Orientation,property,As Variant,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
 DataLabels,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,The series; -2147417848 once the labels have gone.
 DataLabels,Position,property,As XlDataLabelPosition,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Each type's default and the positions it takes, measured per type; others refused."
-DataLabels,Propagate,method,Propagate(Index As Variant),,MISSING,,
+DataLabels,Propagate,method,Propagate(Index As Variant),,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,No argument raises 450; with one it is refused.
 DataLabels,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
 DataLabels,Select,method,Select() As Variant,,UNASSESSED,,
 DataLabels,Separator,property,As Variant,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Reads 1 until set to text, then written; constants are refused."

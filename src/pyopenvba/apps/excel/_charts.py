@@ -110,6 +110,8 @@ class SeriesState:
     values: list[object] = field(default_factory=lambda: [])
     category_reference: str = ''
     value_reference: str = ''
+    #: Whether categories whose cells were taken away held numbers, which the file's empty reference still says.
+    lost_numbers: bool = False
     series_id: int = -1
     #: The first group of the series' unique id; -1 to take its series_id.
     unique: int = -1
@@ -213,6 +215,11 @@ class ChartState:
     #: its axis's kind (tests/fixtures/chart_fonts.json).
     element_fonts: dict[str, TextLook] = field(default_factory=lambda: {})
 
+    def names_lost(self) -> bool:
+        """Whether every series' name has lost its cell, which leaves them all named by number."""
+        every = self.full_series or self.series
+        return bool(every) and all(lost(entry.name_reference) for entry in every)
+
 
 def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
     """How many of a block's top rows and left columns label the rest, as SetSourceData reads it
@@ -304,11 +311,16 @@ def shown_cells(sheet: Worksheet, formula: str) -> list[list[str]]:
     return grid
 
 
+def lost(reference: str) -> bool:
+    """Whether the cells a chart's reference read have been taken away (tests/fixtures/chart_lost_cells.json)."""
+    return reference.endswith('#REF!')
+
+
 def category_levels(sheet: Worksheet, entry: SeriesState) -> list[list[str]] | None:
     """A series' categories when they take several rows or columns, one list of texts for each level, the outer
     first; None for categories of one level. Its points run along the side as long as its values, down the rows
     where both sides are (tests/fixtures/chart_multilevel_categories.json)."""
-    if not entry.category_reference:
+    if not entry.category_reference or lost(entry.value_reference):
         return None
     try:
         areas = parse_reference(entry.category_reference)
@@ -467,6 +479,9 @@ def plot_by(chart: ChartState) -> int:
         return 1
     # A series filtered out counts, though it is not drawn.
     every = chart.full_series or chart.series
+    if any(lost(text) for entry in every
+           for text in (entry.name_reference, entry.category_reference, entry.value_reference)):
+        return 0
     try:
         values = [parse_reference(entry.value_reference) for entry in every]
         names = [parse_reference(entry.name_reference) if entry.name_reference else None for entry in every]
@@ -1439,7 +1454,8 @@ class Chart(Created):
     @member
     def ChartTitle(self) -> object:
         if self.state.title is None:
-            pie = CHART_TYPES.get(shown_type(self.state)) == 'pie' and self.state.series
+            pie = (CHART_TYPES.get(shown_type(self.state)) == 'pie' and self.state.series
+                   and not self.state.names_lost())
             if len(self.state.series) != 1 and not pie and (self.state.series or self.state.full_series):
                 # Only a chart that draws one series has an automatic title to give
                 # (tests/fixtures/chart_set_element.json).
@@ -1828,9 +1844,12 @@ class LegendEntries(VBACollection, Created):
         state = self.legend.shown()
         if CHART_TYPES.get(shown_type(state)) in ('pie', 'doughnut'):
             first = state.series[0] if state.series else None
-            total = len(Series(self.legend.chart, first).values()) if first is not None else 0
+            # Values lost from the series it shows leave the categories their entries, while another keeps its own.
+            total = (0 if first is None else len(Series(self.legend.chart, first).categories())
+                     if lost(first.value_reference) and not all(lost(entry.value_reference) for entry in state.series)
+                     else len(Series(self.legend.chart, first).values()))
         else:
-            total = len(state.series)
+            total = len(state.series) + sum(len(entry.trendlines) for entry in state.series)
         return [LegendEntry(self.legend, index) for index in range(total) if index not in state.legend_deleted]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
@@ -2397,7 +2416,7 @@ class Series(Created):
     @member
     def Name(self) -> object:
         self.position()
-        if self.entry.name_reference:
+        if self.entry.name_reference and not self.chart.state.names_lost():
             values = referenced_values(self.chart.sheet, self.entry.name_reference)
             if len(values) > 1:
                 # A name of several cells reads their texts with a space between (tests/fixtures/
@@ -2406,7 +2425,7 @@ class Series(Created):
                                 for text in row if text)
             return to_text(values[0]) if values else ''
         identity = self.entry.series_id + 1 if self.entry.series_id >= 0 else self.position()
-        return self.entry.name if self.entry.name is not None else f'Series{identity}'
+        return self.entry.name if self.entry.name is not None and not self.entry.name_reference else f'Series{identity}'
 
     @setter('Name')
     def _name(self, value: object) -> None:
@@ -2424,7 +2443,8 @@ class Series(Created):
     def Values(self, Index: object = MISSING) -> object:  # noqa: N803 - it takes none, as Excel answers
         if Index is not MISSING:
             raise error(451, 'Property let procedure not defined and property get procedure did not return an object')
-        values = [float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
+        values = [0.0 if isinstance(value, str) else
+                  float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
                   for value in self.values()]
         return VBAArray([(1, len(values))], items=values)
 
@@ -2440,7 +2460,14 @@ class Series(Created):
     @member
     def XValues(self) -> object:
         values = self.categories()
-        if self.entry.category_reference and category_levels(self.chart.sheet, self.entry) is None:
+        if lost(self.entry.category_reference):
+            # They read as the first series' that still has its own.
+            other = next((entry for entry in self.chart.state.series
+                          if entry.category_reference and not lost(entry.category_reference)), None)
+            if other is not None:
+                return Series(self.chart, other).XValues()
+        if (self.entry.category_reference and not lost(self.entry.category_reference)
+                and category_levels(self.chart.sheet, self.entry) is None):
             # Categories with text among them read every cell as it shows, a blank as ""; numbers with a blank among
             # them cannot be read at all (tests/fixtures/chart_multilevel_categories.json).
             if any(isinstance(value, str) for value in values):
@@ -2458,6 +2485,9 @@ class Series(Created):
                 raise error(-2147467259, 'Automation error\nUnspecified error ')
         values = [float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
                   for value in values]
+        if lost(self.entry.value_reference):
+            # Excel reads them as far as the one point left.
+            values = values[:1]
         return VBAArray([(1, len(values))], items=values)
 
     @setter('XValues', objects=True)
@@ -2477,6 +2507,8 @@ class Series(Created):
         self.refuse_hidden()
         if not self.entry.value_reference:
             return self.entry.values
+        if lost(self.entry.value_reference):
+            return [1.0]
         return referenced_values(self.chart.sheet, self.entry.value_reference, visible=self.chart.state.visible_only)
 
     def refuse_hidden(self) -> None:
@@ -2485,7 +2517,7 @@ class Series(Created):
         leave the series, and a point's look and label stay with a cell, not a place."""
         self.position()
         entry, sheet = self.entry, self.chart.sheet
-        if not self.chart.state.visible_only or not entry.value_reference:
+        if not self.chart.state.visible_only or not entry.value_reference or lost(entry.value_reference):
             return
         shown = referenced_values(sheet, entry.value_reference, visible=True)
         if not shown:
@@ -2497,6 +2529,8 @@ class Series(Created):
 
     def categories(self) -> list[object]:
         self.position()
+        if lost(self.entry.category_reference):
+            return ['' for _ in self.values()]
         if self.entry.category_reference:
             levels = category_levels(self.chart.sheet, self.entry)
             if levels is not None:
@@ -2509,8 +2543,11 @@ class Series(Created):
     def Formula(self) -> object:
         # Its number among them all, filtered or not.
         order = self.full_place()
+        if lost(self.entry.name_reference) or lost(self.entry.value_reference):
+            raise VBARuntimeError(2023, 'Application-defined or object-defined error')
         name = self.entry.name_reference or (quoted(self.entry.name) if self.entry.name is not None else '')
-        categories = self.entry.category_reference or literal_array(self.entry.categories)
+        categories = ('' if lost(self.entry.category_reference)
+                      else self.entry.category_reference or literal_array(self.entry.categories))
         values = self.entry.value_reference or literal_array(self.entry.values)
         return f'=SERIES({name},{categories},{values},{order})'
 
@@ -2884,6 +2921,8 @@ def referenced_values(sheet: Worksheet, formula: str, *, visible: bool = False) 
     """What a reference holds, ``visible`` keeping only the cells not hidden."""
     from pyopenvba.apps.excel._model import Range
 
+    if lost(formula):
+        return ['#REF!']
     if len(formula) > MAX_CHART_REFERENCE_TEXT:
         raise VBAUnsupportedError('Chart references exceed the supported text budget')
     try:

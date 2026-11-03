@@ -12,7 +12,7 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._format import vba_format
-from pyopenvba.interpreter._values import MISSING, VBAInt, error, to_bool, to_integer, to_number, to_text
+from pyopenvba.interpreter._values import MISSING, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._chart_points import Point
@@ -131,6 +131,16 @@ class DataLabels(VBACollection, ItemDefault, Created):
 
     def __init__(self, series: Series, generation: int) -> None:
         self.series, self.generation = series, generation
+
+    @member
+    def Format(self) -> object:
+        return _LabelsFormat(self)
+
+    @method
+    def Propagate(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        if Index is MISSING:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        raise VBAUnsupportedError('DataLabels.Propagate from a point is not implemented')
 
     def look(self, name: str = '') -> LabelLook:
         """The labels' look, or the error a DataLabels raises once its labels have gone: -2147417848 for its Parent,
@@ -943,6 +953,114 @@ class _Unmodelled(Created):
         self.vba_type_name = type_name
 
 
+class _LabelsFormat(Created):
+    """The Format of a series' labels, a fill and an outline, shared with each point's until that has its own
+    (tests/fixtures/trendline_members.json)."""
+
+    vba_type_name = "ChartFormat"
+
+    def __init__(self, labels: DataLabels) -> None:
+        self.labels = labels
+
+    @member
+    def Parent(self) -> object:
+        return self.labels
+
+    @member
+    def Fill(self) -> object:
+        return _LabelsFill(self.labels)
+
+    @member
+    def Line(self) -> object:
+        return _LabelsLine(self.labels)
+
+
+class _LabelsFill(Created):
+    vba_type_name = "FillFormat"
+
+    def __init__(self, labels: DataLabels) -> None:
+        self.labels = labels
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0 if self.labels.look().fill_rgb is None else -1, "Long")
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        if int(to_integer(value, "Long")) != 0 or self.labels.look().fill_rgb is not None:
+            raise VBAUnsupportedError("Showing the labels' fill, or hiding one with a colour, is not implemented")
+
+    @member
+    def ForeColor(self) -> object:
+        return _LabelsColour(self.labels)
+
+
+class _LabelsColour(Created):
+    vba_type_name = "ColorFormat"
+
+    def __init__(self, labels: DataLabels) -> None:
+        self.labels = labels
+
+    @member
+    def RGB(self) -> object:
+        rgb = self.labels.look().fill_rgb or "FFFFFF"
+        return VBAInt(int(rgb[4:6] + rgb[2:4] + rgb[:2], 16), "Long")
+
+    @setter("RGB")
+    def _rgb(self, value: object) -> None:
+        colour = int(to_integer(value, "Long")) & 0xFFFFFF
+        look = self.labels.look()
+        self.labels.series.chart.changed()
+        look.fill_rgb = f"{colour & 0xFF:02X}{colour >> 8 & 0xFF:02X}{colour >> 16 & 0xFF:02X}"
+
+
+class _LabelsLine(Created):
+    """The labels' outline, which a colour does not bring, nor read back, and a weight does."""
+
+    vba_type_name = "LineFormat"
+
+    def __init__(self, labels: DataLabels) -> None:
+        self.labels = labels
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0 if self.labels.look().line_width is None else -1, "Long")
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        if int(to_integer(value, "Long")) != 0 or self.labels.look().line_width is not None:
+            raise VBAUnsupportedError("Showing the labels' outline, or hiding one with a weight, is not implemented")
+
+    @member
+    def Weight(self) -> object:
+        width = self.labels.look().line_width
+        if width is None:
+            raise VBAUnsupportedError("The weight of labels with no outline is not implemented")
+        return VBASingle(width / 12700)
+
+    @setter("Weight")
+    def _weight(self, value: object) -> None:
+        look = self.labels.look()
+        self.labels.series.chart.changed()
+        look.line_width = round(float(to_number(value)) * 12700)
+
+    @member
+    def ForeColor(self) -> object:
+        return _LabelsLineColour()
+
+
+class _LabelsLineColour(Created):
+    vba_type_name = "ColorFormat"
+
+    @member
+    def RGB(self) -> object:
+        return VBAInt(16777215, "Long")
+
+    @setter("RGB")
+    def _rgb(self, value: object) -> None:
+        to_integer(value, "Long")
+
+
 class _LabelFormat(Created):
     vba_type_name = "ChartFormat"
 
@@ -978,6 +1096,12 @@ class _LabelColour(Created):
 
     def __init__(self, label: DataLabel) -> None:
         self.label = label
+
+    @member
+    def RGB(self) -> object:
+        """Its own colour, or its series' labels' (tests/fixtures/trendline_members.json)."""
+        rgb = self.label.own().fill_rgb or self.label.series.entry.label_look.fill_rgb or "FFFFFF"
+        return VBAInt(int(rgb[4:6] + rgb[2:4] + rgb[:2], 16), "Long")
 
     @setter("RGB")
     def _rgb(self, value: object) -> None:

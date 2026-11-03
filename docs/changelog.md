@@ -15,6 +15,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `DataLabels.Format`: the fill's colour and the outline's weight. A colour on the outline
+  does nothing, as in Excel.
 - `Trendline.Forward2`, `Backward2` and setting `Backward`, which only a scatter chart runs
   past half a category. `Trendline.DataLabel` reads and deletes; changing it is refused.
   `Axis.MinorUnitScale` reads as on a category axis over numbers.

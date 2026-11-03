@@ -16,9 +16,9 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/trendline_members.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Left out: the labels' Format, a trendline label's text, number format, font and Format set or read, and Propagate.
-LEFT_OUT = ('DataLabels.Format', 'DataLabels.Propagate', 'DataLabel.Text = ', 'DataLabel.NumberFormat = ',
-            'DataLabel.Font', 'DataLabel.Format')
+#: Left out: a trendline label's text, number format, font and Format set or read.
+LEFT_OUT = ('Trendlines(1).DataLabel.Text = ', 'Trendlines(1).DataLabel.NumberFormat = ',
+            'Trendlines(1).DataLabel.Font', 'Trendlines(1).DataLabel.Format')
 KEPT = [index for index, name in enumerate(NAMES) if not any(text in name for text in LEFT_OUT)]
 
 

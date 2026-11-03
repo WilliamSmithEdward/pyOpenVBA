@@ -303,6 +303,9 @@ class LabelLook:
     linked: bool = True
     separator: str | None = None
     font: TextLook | None = None
+    #: Their fill as RRGGBB and their outline's width in EMU, once Format has set them.
+    fill_rgb: str | None = None
+    line_width: int | None = None
 
     def shown(self) -> bool:
         return any((self.value, self.category, self.series, self.percent, self.legend_key, self.bubble))
@@ -331,7 +334,10 @@ def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook, points:
     plain = shown if kind in ("pie", "doughnut") else 0
     leaders = "" if alone else f'<c:showLeaderLines val="{plain}"/>'
     text = text_properties(look.font, _LABEL_BODY)
-    return (f'<c:dLbls>{points}{number}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>{text}{place}'
+    fill = "<a:noFill/>" if look.fill_rgb is None else f'<a:solidFill><a:srgbClr val="{look.fill_rgb}"/></a:solidFill>'
+    outline = ("<a:ln><a:noFill/></a:ln>" if look.line_width is None else
+               f'<a:ln w="{look.line_width}"><a:solidFill><a:schemeClr val="tx1"/></a:solidFill></a:ln>')
+    return (f'<c:dLbls>{points}{number}<c:spPr>{fill}{outline}<a:effectLst/></c:spPr>{text}{place}'
             f'{flags}'
             f'{separator}{leaders}<c:extLst>{tail}</c:extLst></c:dLbls>')
 

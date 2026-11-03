@@ -35,9 +35,8 @@ from pyopenvba.interpreter._values import (
     to_number,
     to_text,
 )
+from pyopenvba.shapes._adjustments import ADJUSTMENTS, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
 from pyopenvba.shapes._values import (
-    PRESET_GEOMETRY,
-    SHAPE_NAMES,
     Box,
     EMU_PER_POINT,
     ControlInfo,
@@ -58,7 +57,7 @@ if TYPE_CHECKING:
 #: What Excel calls a new shape, by the msoShapeType it was asked for.
 #: Measured in live Excel by scripts/measure_shape_types.py, which is
 #: also where PowerPoint's identical list comes from.
-AUTO_SHAPE_NAMES = SHAPE_NAMES
+AUTO_SHAPE_NAMES = EXCEL_SHAPE_NAMES
 
 #: What Excel calls a new one of each other kind.
 KIND_NAMES: dict[str, str] = {
@@ -214,10 +213,12 @@ class Shapes(VBACollection, ItemDefault, Created):
             # Measured: what AddShape says on a sheet protecting its drawing objects.
             raise error(1004, "The specified value is out of range.")
         wanted = int(to_number(Type)) if Type is not MISSING else 1
+        if wanted not in EXCEL_GEOMETRY:
+            raise error(1004, "Application-defined or object-defined error")
         shape = self._made(
             kind="shape",
-            geometry=PRESET_GEOMETRY.get(wanted, "rect"),
-            stem=AUTO_SHAPE_NAMES.get(wanted, "Rectangle"),
+            geometry=EXCEL_GEOMETRY[wanted],
+            stem=AUTO_SHAPE_NAMES[wanted],
             box=(Left, Top, Width, Height),
         )
         shape.auto_shape_type = wanted
@@ -265,6 +266,59 @@ class Shapes(VBACollection, ItemDefault, Created):
                 abs(end_y - start_y),
             ),
         )
+        return ShapeObject(self.sheet, shape)
+
+    @method
+    def AddCallout(
+        self,
+        Type: object = MISSING,
+        Left: object = MISSING,
+        Top: object = MISSING,
+        Width: object = MISSING,
+        Height: object = MISSING,
+    ) -> object:
+        """A callout, which is the AutoShape its type stands for: 1 and 2 make the same one
+        (tests/fixtures/shape_builders.json)."""
+        chosen = int(to_number(Type))
+        if chosen not in CALLOUTS:
+            raise error(1004, "Application-defined or object-defined error")
+        return self.vba_call("AddShape", (CALLOUTS[chosen], Left, Top, Width, Height))
+
+    @method
+    def BuildFreeform(self, EditingType: object = MISSING, X1: object = MISSING, Y1: object = MISSING) -> object:
+        """A FreeformBuilder starting at this point; its editing type changes nothing measured
+        (tests/fixtures/shape_builders.json)."""
+        if int(to_number(EditingType)) not in (0, 1):
+            raise error(1004, "BuildFreeform method of Shapes class failed")
+        return FreeformBuilder(self, (emu(_number(X1)), emu(_number(Y1))))
+
+    @method
+    def AddConnector(
+        self,
+        Type: object = MISSING,
+        BeginX: object = MISSING,
+        BeginY: object = MISSING,
+        EndX: object = MISSING,
+        EndY: object = MISSING,
+    ) -> object:
+        """A connector, placed by its two ends, flipped where the end comes before the beginning
+        (tests/fixtures/shape_adjustments.json)."""
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        guard_drawing(self.sheet, "Shapes.AddConnector")
+        chosen = int(to_number(Type))
+        if chosen not in CONNECTORS:
+            raise error(1004, "Application-defined or object-defined error")
+        start_x, start_y = _number(BeginX), _number(BeginY)
+        end_x, end_y = _number(EndX), _number(EndY)
+        geometry, stem = CONNECTORS[chosen]
+        shape = self._made(
+            kind="line",
+            geometry=geometry,
+            stem=stem,
+            box=(min(start_x, end_x), min(start_y, end_y), abs(end_x - start_x), abs(end_y - start_y)),
+        )
+        shape.flip_h, shape.flip_v = end_x < start_x, end_y < start_y
         return ShapeObject(self.sheet, shape)
 
     @method
@@ -399,6 +453,19 @@ class ShapeRange(VBACollection, Created):
 
     def vba_items(self) -> list[object]:
         return list(self.shapes)
+
+    @member
+    def Adjustments(self, Index: object = MISSING) -> object:
+        found = RangeAdjustments(self)
+        return found if Index is MISSING else found.vba_call("Item", (Index,))
+
+    @setter("Adjustments")
+    def _adjustments(self, Index: object, value: object) -> None:
+        RangeAdjustments(self).vba_set("Item", value, (Index,))
+
+    @member
+    def ConnectorFormat(self) -> object:
+        return RangeConnector(self)
 
     @member
     def Type(self) -> object:
@@ -884,7 +951,9 @@ class ShapeObject(_Drawn):
 
     @member
     def AutoShapeType(self) -> object:
-        """Which AutoShape it is, which a text box answers as a rectangle."""
+        """Which AutoShape it is, which a text box answers as a rectangle, and a line or connector as mixed."""
+        if self.shape.kind == "line":
+            return VBAInt(-2, "Long")
         return VBAInt(getattr(self.shape, "auto_shape_type", 1), "Long")
 
     @setter("AutoShapeType")
@@ -892,10 +961,30 @@ class ShapeObject(_Drawn):
         """Another AutoShape in the same place, which only swaps the saved preset geometry
         (tests/fixtures/shape_range_more.json)."""
         wanted = int(to_number(value))
-        if self.shape.source or self.shape.kind != "shape" or wanted not in PRESET_GEOMETRY:
+        if self.shape.source or self.shape.kind != "shape" or wanted not in EXCEL_GEOMETRY:
             raise _unsupported("this AutoShapeType")
+        before = AUTO_SHAPE_NAMES.get(getattr(self.shape, "auto_shape_type", 1))
         self.shape.auto_shape_type = wanted
-        self.restyled().geometry = PRESET_GEOMETRY[wanted]
+        self.restyled().geometry = EXCEL_GEOMETRY[wanted]
+        self.shape.adjustments = None
+        # A default name follows the new type, keeping its number (tests/fixtures/shape_adjustments.json).
+        found = re.fullmatch(rf"{re.escape(before or '')} (\d+)", self.shape.name)
+        if found:
+            self.shape.name = f"{AUTO_SHAPE_NAMES[wanted]} {found.group(1)}"
+
+    @member
+    def Adjustments(self, Index: object = MISSING) -> object:
+        """The shape's Adjustments, or with an index the one value, as its default Item."""
+        found = Adjustments(self)
+        return found if Index is MISSING else found.vba_call("Item", (Index,))
+
+    @setter("Adjustments")
+    def _adjustments(self, Index: object, value: object) -> None:
+        Adjustments(self).vba_set("Item", value, (Index,))
+
+    @member
+    def ConnectorFormat(self) -> object:
+        return ConnectorFormat(self)
 
     @member
     def ZOrderPosition(self) -> object:
@@ -1215,9 +1304,9 @@ class ShapeObject(_Drawn):
     def Connector(self) -> object:
         """Whether the shape is a connector, which no shape the model makes but a line is
         (tests/fixtures/missing_reads.json)."""
-        if self.shape.source or self.shape.kind == "line":
-            raise _unsupported("Connector of a line or a loaded shape")
-        return VBAInt(0, "Long")
+        if self.shape.source:
+            raise _unsupported("Connector of a loaded shape")
+        return VBAInt(-1 if self.shape.kind == "line" else 0, "Long")
 
     @member
     def FormControlType(self) -> object:
@@ -1452,6 +1541,259 @@ class ShapeObject(_Drawn):
             down += self.sheet.row_height_points(row)
             row += 1
         return Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
+
+
+#: Shapes.AddCallout's types and the AutoShape type each makes.
+CALLOUTS = {1: 113, 2: 113, 3: 119, 4: 120}
+
+
+class FreeformBuilder(Created):
+    """Shapes.BuildFreeform (tests/fixtures/shape_builders.json): nodes kept until ConvertToShape, which can be called
+    again and makes another shape each time. The result is what AddPolyline and AddCurve make of the same points: a
+    line back to the start closes the path and is not written, and a curve back to it closes it after the curve. A
+    curve with msoEditingAuto is smoothed by a rule not measured, and reports itself."""
+
+    vba_type_name = "FreeformBuilder"
+
+    def __init__(self, shapes: Shapes, start: tuple[int, int]) -> None:
+        self.shapes, self.start = shapes, start
+        self.nodes: list[tuple[str, tuple[tuple[int, int], ...]]] = []
+
+    @member
+    def Parent(self) -> object:
+        return self.shapes
+
+    @member
+    def Application(self) -> object:
+        return self.shapes.sheet.book.application
+
+    @method
+    def AddNodes(self, SegmentType: object = MISSING, EditingType: object = MISSING, X1: object = MISSING,
+                 Y1: object = MISSING, X2: object = MISSING, Y2: object = MISSING, X3: object = MISSING,
+                 Y3: object = MISSING) -> object:
+        segment, editing = int(to_number(SegmentType)), int(to_number(EditingType))
+        if segment not in (0, 1) or editing not in (0, 1):
+            raise error(-2147024809, "The specified value is out of range.")
+        first = (emu(_number(X1)), emu(_number(Y1)))
+        if segment == 0:
+            # A line takes only its first point.
+            self.nodes.append(("lnTo", (first,)))
+            return EMPTY
+        if editing == 0:
+            raise _unsupported("a smoothed curve in BuildFreeform")
+        second = first if X2 is MISSING else (emu(_number(X2)), emu(_number(Y2)))
+        third = second if X3 is MISSING else (emu(_number(X3)), emu(_number(Y3)))
+        self.nodes.append(("cubicBezTo", (first, second, third)))
+        return EMPTY
+
+    @method
+    def ConvertToShape(self) -> object:
+        if not self.nodes:
+            raise error(1004, "ConvertToShape method of FreeformBuilder class failed")
+        steps = [("moveTo", (self.start,)), *self.nodes]
+        found = [point for _, points in steps for point in points]
+        last_command, last_points = steps[-1]
+        if last_points[-1] == self.start and (last_command == "cubicBezTo" or len(steps) > 2):
+            steps = steps + [("close", ())] if last_command == "cubicBezTo" else [*steps[:-1], ("close", ())]
+        return ShapeObject(self.shapes.sheet, self.shapes._freeform(found, steps))  # pyright: ignore[reportPrivateUsage]
+
+
+#: Shapes.AddConnector's types: the geometry each saves and what a new one is called.
+CONNECTORS = {1: ("straightConnector1", "Straight Arrow Connector"), 2: ("bentConnector3", "Elbow Connector"),
+              3: ("curvedConnector3", "Curved Connector")}
+
+
+def _adjustable(owner: ShapeObject) -> tuple[tuple[str, int, bool], ...]:
+    """The adjustments of a shape the model made."""
+    shape = owner.shape
+    if shape.source or shape.kind not in ("shape", "textBox", "line", "freeform"):
+        raise _unsupported("the adjustments of this shape")
+    return ADJUSTMENTS.get(shape.geometry, ())
+
+
+class Adjustments(Created):
+    """A shape's adjustment values (tests/fixtures/shape_adjustments.json): each read as a fraction, or as an angle
+    from -180 to 180. Past the end is error 5, and an index below 1 is out of range. Setting one writes them all, unless
+    every one is back at its default."""
+
+    vba_type_name = "Adjustments"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(len(_adjustable(self.owner)), "Long")
+
+    def values(self) -> tuple[int, ...]:
+        kept = self.owner.shape.adjustments
+        return kept if kept is not None else tuple(default for _, default, _ in _adjustable(self.owner))
+
+    def place(self, index: object) -> int:
+        table = _adjustable(self.owner)
+        chosen = int(to_number(index))
+        if chosen < 1:
+            raise error(-2147024809, "The specified value is out of range.")
+        if chosen > len(table):
+            raise error(5, "Invalid procedure call or argument")
+        return chosen - 1
+
+    @member(default=True, kind="method")
+    def Item(self, Index: object = MISSING) -> object:
+        at = self.place(Index)
+        value = self.values()[at]
+        if _adjustable(self.owner)[at][2]:
+            degrees = value / 60000
+            return VBASingle(degrees - 360 if degrees > 180 else degrees)
+        return VBASingle(value / 100000)
+
+    @setter("Item")
+    def _item(self, Index: object, value: object) -> None:
+        at = self.place(Index)
+        table = _adjustable(self.owner)
+        number = float(VBASingle(float(to_number(value))))
+        written = round(number * 60000) % 21600000 if table[at][2] else round(number * 100000)
+        values = list(self.values())
+        values[at] = written
+        self.owner.restyled()
+        self.owner.shape.adjustments = None if values == [default for _, default, _ in table] else tuple(values)
+
+
+class RangeAdjustments(Created):
+    """A ShapeRange's Adjustments (tests/fixtures/shape_range_more_format.json): what its shapes share, or the mixed
+    value. Past any shape's end is error 5, and a set stops there, the shapes before it having taken it."""
+
+    vba_type_name = "Adjustments"
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    def parts(self) -> list[Adjustments]:
+        return [Adjustments(one) for one in self.range.shapes]
+
+    @member
+    def Parent(self) -> object:
+        return self.range
+
+    @member
+    def Count(self) -> object:
+        counts = [part.vba_get("Count") for part in self.parts()]
+        return counts[0] if all(one == counts[0] for one in counts) else VBAInt(-2147483648, "Long")
+
+    @member(default=True, kind="method")
+    def Item(self, Index: object = MISSING) -> object:
+        found = [part.vba_call("Item", (Index,)) for part in self.parts()]
+        return found[0] if all(one == found[0] for one in found) else VBASingle(-2147483648.0)
+
+    @setter("Item")
+    def _item(self, Index: object, value: object) -> None:
+        for part in self.parts():
+            part.vba_set("Item", value, (Index,))
+
+
+class RangeConnector(Created):
+    """A ShapeRange's ConnectorFormat (tests/fixtures/shape_range_more_format.json): reads its first line's, and is
+    out of range with no line among them. Setting its Type is always out of range."""
+
+    vba_type_name = "ConnectorFormat"
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    def first(self) -> ConnectorFormat:
+        for one in self.range.shapes:
+            if one.shape.kind == "line":
+                return ConnectorFormat(one)
+        raise error(-2147024809, "The specified value is out of range.")
+
+    @member
+    def Parent(self) -> object:
+        return self.range
+
+    @member
+    def Type(self) -> object:
+        return self.first().vba_get("Type")
+
+    @setter("Type")
+    def _type(self, value: object) -> None:
+        raise error(-2147024809, "The specified value is out of range.")
+
+    @member
+    def BeginConnected(self) -> object:
+        return self.first().vba_get("BeginConnected")
+
+    @member
+    def EndConnected(self) -> object:
+        return self.first().vba_get("EndConnected")
+
+
+class ConnectorFormat(Created):
+    """A line or connector's connections (tests/fixtures/shape_adjustments.json). Every other shape gives this object,
+    but reading or setting anything on it is out of range. Connecting to shapes is not implemented."""
+
+    vba_type_name = "ConnectorFormat"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    def connector(self) -> Shape:
+        shape = self.owner.shape
+        if shape.source:
+            raise _unsupported("the ConnectorFormat of a loaded shape")
+        if shape.kind != "line":
+            raise error(-2147024809, "The specified value is out of range.")
+        return shape
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Type(self) -> object:
+        geometry = self.connector().geometry
+        return VBAInt(next((key for key, (name, _) in CONNECTORS.items() if name == geometry), 1), "Long")
+
+    @setter("Type")
+    def _type(self, value: object) -> None:
+        shape = self.connector()
+        wanted = int(to_number(value))
+        if wanted not in CONNECTORS:
+            raise error(-2147024809, "The specified value is out of range.")
+        current = int(to_number(self.vba_get("Type")))
+        if (current, wanted) not in ((1, 2), (2, 3)) or shape.adjustments is not None:
+            raise _unsupported("this change of connector type")
+        self.owner.restyled()
+        if current == 2:
+            # An elbow's default name changes as a curve is made of it, keeping its number.
+            found = re.fullmatch(r"Elbow Connector (\d+)", shape.name)
+            if found:
+                shape.name = f"Connector: Elbow {found.group(1)}"
+        else:
+            # A straight line has no adjustment to leave at its default, so this one is written.
+            shape.adjustments = (50000,)
+        shape.geometry = CONNECTORS[wanted][0]
+
+    @member
+    def BeginConnected(self) -> object:
+        self.connector()
+        return VBAInt(0, "Long")
+
+    @member
+    def EndConnected(self) -> object:
+        self.connector()
+        return VBAInt(0, "Long")
 
 
 class GroupItems(VBACollection, Created):
@@ -2121,7 +2463,8 @@ class ListDrawingObject(_Drawn):
 
 
 #: Every stem a shape the model makes is named from, so a copy can tell a default name from one given.
-_STEMS = frozenset({*SHAPE_NAMES.values(), "TextBox", "Straight Connector"})
+_STEMS = frozenset({*EXCEL_SHAPE_NAMES.values(), "TextBox", "Straight Connector", "Straight Arrow Connector",
+                    "Elbow Connector", "Curved Connector"})
 
 
 def duplicated(sheet: Worksheet, shape: Shape) -> Shape:

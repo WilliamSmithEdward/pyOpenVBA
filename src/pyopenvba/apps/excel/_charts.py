@@ -1,7 +1,7 @@
 """Embedded charts share their worksheet's drawing and cell state."""
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 import math
@@ -17,7 +17,7 @@ from pyopenvba.apps.excel._chart_xml import LabelLook, TextLook
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
-from pyopenvba.apps.excel._chart_borders import INVALID_CALL, NOT_A_PROPERTY, UNSPECIFIED, ElementProperties
+from pyopenvba.apps.excel._chart_borders import INVALID_CALL, NOT_A_PROPERTY, UNSPECIFIED, ElementProperties, PictureMembers
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
@@ -126,6 +126,8 @@ class SeriesState:
     #: MarkerSize once given; until then 9 for an automatic marker and 5 for the rest.
     marker_size: int | None = None
     invert_if_negative: bool = False
+    #: Shadow: None until set, which a shadow turned off differs from in the file.
+    shadow: bool | None = None
     explosion: int = 0
     #: HasDataLabels, and HasLeaderLines, which turning the labels on turns off (tests/fixtures/chart_data_labels.json).
     data_labels: bool = False
@@ -222,6 +224,8 @@ class ChartState:
     #: again and stay in the file (tests/fixtures/chart_hidden_cells.json); kept in full_series meanwhile.
     out_of_sight: list[SeriesState] = field(default_factory=lambda: [])
     data_table: bool = False
+    #: A data table's HasBorderHorizontal, HasBorderVertical and HasBorderOutline.
+    data_table_borders: tuple[bool, bool, bool] = (True, True, True)
     #: Whether its data table shows legend keys, as it does until SetElement says otherwise.
     data_table_keys: bool = True
     #: What SetElement last said of the chart's labels: whether they show, and where. The chart's own c:dLbls holds
@@ -996,6 +1000,85 @@ def select_element(chart: Chart, element: object, plotted: bool) -> object:
     framed.made_active('element')
     sheet.chart_element = element
     return True
+
+
+class ChartDataTable(Created):
+    """The table of values under a chart (tests/fixtures/chart_members_more.json)."""
+
+    vba_type_name = 'DataTable'
+
+    def __init__(self, chart: Chart) -> None:
+        self.chart = chart
+
+    @member
+    def Parent(self) -> object:
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def Font(self) -> object:
+        return self.chart.font_of(self, 'dataTable')
+
+    @member
+    def ShowLegendKey(self) -> object:
+        self.chart.admit_read()
+        return self.chart.state.data_table_keys
+
+    @setter('ShowLegendKey')
+    def _show_legend_key(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.chart.admit_change()
+        self.chart.changed()
+        self.chart.state.data_table_keys = wanted
+
+    def _border(self, place: int) -> object:
+        self.chart.admit_read()
+        return self.chart.state.data_table_borders[place]
+
+    def _set_border(self, place: int, value: object) -> None:
+        wanted = to_bool(value)
+        self.chart.admit_change()
+        self.chart.changed()
+        borders = list(self.chart.state.data_table_borders)
+        borders[place] = wanted
+        self.chart.state.data_table_borders = (borders[0], borders[1], borders[2])
+
+    @member
+    def HasBorderHorizontal(self) -> object:
+        return self._border(0)
+
+    @setter('HasBorderHorizontal')
+    def _has_border_horizontal(self, value: object) -> None:
+        self._set_border(0, value)
+
+    @member
+    def HasBorderVertical(self) -> object:
+        return self._border(1)
+
+    @setter('HasBorderVertical')
+    def _has_border_vertical(self, value: object) -> None:
+        self._set_border(1, value)
+
+    @member
+    def HasBorderOutline(self) -> object:
+        return self._border(2)
+
+    @setter('HasBorderOutline')
+    def _has_border_outline(self, value: object) -> None:
+        self._set_border(2, value)
+
+    @method
+    def Select(self) -> object:
+        self.chart.admit_read()
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def Delete(self) -> object:
+        self.chart.vba_set('HasDataTable', False)
+        return EMPTY
 
 
 class ChartArea(Created):
@@ -1915,10 +1998,19 @@ class Chart(ElementProperties, Created):
         return groups if Index is MISSING else groups.vba_lookup(Index, groups.vba_items())
 
     @member
-    def HasDataTable(self) -> object:
-        """Whether the chart shows a data table, on any kind, a pie's included (tests/fixtures/chart_series_more.json)."""
+    def DataTable(self) -> object:
         self.admit_read()
-        return self.state.data_table
+        if not self.state.data_table:
+            raise error(1004, 'Unable to get the DataTable property of the Chart class')
+        return ChartDataTable(self)
+
+    @member
+    def HasDataTable(self) -> object:
+        """Whether the chart shows a data table (tests/fixtures/chart_series_more.json)."""
+        self.admit_read()
+        # A pie, a doughnut or a scatter chart keeps the table in its file and answers that it has none
+        # (tests/fixtures/chart_members_more.json).
+        return self.state.data_table and CHART_TYPES.get(shown_type(self.state)) not in ('pie', 'doughnut', 'scatter')
 
     @setter('HasDataTable')
     def _has_data_table(self, value: object) -> None:
@@ -2469,6 +2561,14 @@ class LegendKey(Created):
         self.series.vba_set('MarkerForegroundColorIndex', value)
 
     @member
+    def Shadow(self) -> object:
+        return self.series.vba_get('Shadow', [])
+
+    @setter('Shadow')
+    def _shadow(self, value: object) -> None:
+        self.series.vba_set('Shadow', value)
+
+    @member
     def PictureType(self) -> object:
         return VBAInt(1, 'Long')
 
@@ -2512,6 +2612,14 @@ class LegendEntry(Created):
     @member
     def Index(self) -> object:
         return VBAInt(self.index + 1, 'Long')
+
+    @member
+    def Format(self) -> object:
+        """A fill that reads as set and reaches no file, and no line (tests/fixtures/chart_members_more.json)."""
+        from pyopenvba.apps.excel._chart_format import EntryFormat
+
+        self.legend.shown()
+        return EntryFormat(self, self.legend.chart, f'legendEntry{self.index}')
 
     @member
     def Font(self) -> object:
@@ -2688,6 +2796,19 @@ class ChartGroup(Created):
         self.chart.admit_change()
         self.chart.changed()
         setattr(self.chart.state, field_name, wanted)
+
+    def _categories(self, index: object) -> object:
+        self._kind()
+        found = CategoryCollection(self)
+        return found if index is MISSING else found.Item(index)
+
+    @method
+    def CategoryCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._categories(Index)
+
+    @method
+    def FullCategoryCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._categories(Index)
 
     @member
     def BubbleScale(self) -> object:
@@ -2987,6 +3108,134 @@ class SeriesLines(_Properties, _GroupLines):
     flag, name, key = 'HasSeriesLines', 'Seriesline 1', 'serLines'
 
 
+class _NoLook:
+    """A look that can be read as new and not yet be changed."""
+
+    def look(self) -> FillLine:
+        return FillLine()
+
+    def change(self) -> FillLine:
+        raise VBAUnsupportedError('Changing the look of leader lines is not implemented')
+
+
+class LeaderLines(Created):
+    """A series' leader lines (tests/fixtures/chart_members_more.json)."""
+
+    vba_type_name = 'LeaderLines'
+
+    def __init__(self, series: Series) -> None:
+        self.series = series
+
+    @member
+    def Parent(self) -> object:
+        return self.series
+
+    @member
+    def Application(self) -> object:
+        return self.series.chart.sheet.book.application
+
+    @member
+    def Border(self) -> object:
+        from pyopenvba.apps.excel._chart_borders import GROUP_LINES, ChartBorder
+
+        return ChartBorder(_NoLook(), GROUP_LINES, self, self.series.chart.sheet.book.stylesheet.colors)
+
+    @member
+    def Format(self) -> object:
+        from pyopenvba.apps.excel._chart_line_format import LineChartFormat
+
+        return LineChartFormat(self, _NoLook())
+
+    @method
+    def Delete(self) -> object:
+        self.series.vba_set('HasLeaderLines', False)
+        return EMPTY
+
+
+class ChartCategory(Created):
+    """One category of a chart group (tests/fixtures/chart_members_more.json)."""
+
+    vba_type_name = 'ChartCategory'
+
+    def __init__(self, group: ChartGroup, name: str) -> None:
+        self.group, self.name = group, name
+
+    @member
+    def Parent(self) -> object:
+        return NOTHING
+
+    @member
+    def Application(self) -> object:
+        return self.group.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        return self.name
+
+    @setter('Name')
+    def _name(self, value: object) -> None:
+        del value
+        raise error(450, 'Wrong number of arguments or invalid property assignment')
+
+    @member
+    def IsFiltered(self) -> object:
+        return False
+
+    @setter('IsFiltered')
+    def _is_filtered(self, value: object) -> None:
+        if to_bool(value):
+            raise VBAUnsupportedError('Filtering a chart category is not implemented')
+
+
+class CategoryCollection(ItemDefault, Created):
+    """A chart group's categories, those of its first series. They cannot be walked with For Each: Excel raises 438."""
+
+    vba_type_name = 'CategoryCollection'
+
+    def __init__(self, group: ChartGroup) -> None:
+        self.group = group
+
+    def vba_iterate(self) -> Iterator[object]:
+        self.names()
+        raise error(438, "Object doesn't support this property or method")
+
+    def names(self) -> list[str]:
+        chart = self.group.chart
+        chart.admit_read()
+        if not chart.state.series:
+            return []
+        series = Series(chart, chart.state.series[0])
+        if CHART_TYPES.get(shown_type(chart.state)) == 'scatter':
+            return [str(place + 1) for place in range(len(series.values()))]
+        names = [to_text(name) for name in series.categories()]
+        # As many as the series has values, whatever the names given.
+        return names + [''] * (len(series.values()) - len(names))
+
+    @member
+    def Parent(self) -> object:
+        self.group.chart.admit_read()
+        raise error(1004, 'Unable to get the Parent property of the CategoryCollection class')
+
+    @member
+    def Application(self) -> object:
+        return self.group.chart.sheet.book.application
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(len(self.names()), 'Long')
+
+    @method
+    def Item(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return ChartCategory(self.group, self._named(Index))
+
+    def _named(self, index: object) -> str:
+        position = int(to_integer(index, 'Long'))
+        names = self.names()
+        if not 1 <= position <= len(names):
+            raise error(1004, 'Unable to get the Item property of the CategoryCollection class')
+        return names[position - 1]
+
+
 class SeriesCollection(VBACollection, ItemDefault, Created):
     vba_type_name = 'SeriesCollection'
 
@@ -3074,7 +3323,7 @@ class FullSeriesCollection(SeriesCollection):
         raise error(438, "Object doesn't support this property or method")
 
 
-class Series(Created):
+class Series(PictureMembers, Created):
     @method
     def GetProperty(self, Name: object) -> object:  # noqa: N803 - native named argument
         """Its Name by that name; any other name it does not know raises (tests/fixtures/chart_group_looks.json)."""
@@ -3230,24 +3479,106 @@ class Series(Created):
     @member
     def Shadow(self) -> object:
         self.position()
-        return False
+        return bool(self.entry.shadow)
+
+    @setter('Shadow')
+    def _shadow(self, value: object) -> None:
+        self.position()
+        wanted = to_bool(value)
+        self.chart.admit_change()
+        self.chart.changed()
+        self.entry.shadow = wanted
+
+    @member
+    def LeaderLines(self) -> object:
+        """There unless labels on the series turned them off (tests/fixtures/chart_members_more.json)."""
+        self.position()
+        if self.entry.data_labels and not self.entry.leader_lines:
+            raise error(5, 'Invalid procedure call or argument')
+        return LeaderLines(self)
+
+    # What only the newer kinds of chart have (tests/fixtures/chart_members_more.json).
+
+    @member
+    def GeoMappingLevel(self) -> object:
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('GeoMappingLevel')
+    def _geomappinglevel(self, value: object) -> None:
+        del value
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def GeoProjectionType(self) -> object:
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('GeoProjectionType')
+    def _geoprojectiontype(self, value: object) -> None:
+        del value
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def ParentDataLabelOption(self) -> object:
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('ParentDataLabelOption')
+    def _parentdatalabeloption(self, value: object) -> None:
+        del value
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def QuartileCalculationInclusiveMedian(self) -> object:
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('QuartileCalculationInclusiveMedian')
+    def _quartilecalculationinclusivemedian(self, value: object) -> None:
+        del value
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def RegionLabelOption(self) -> object:
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('RegionLabelOption')
+    def _regionlabeloption(self, value: object) -> None:
+        del value
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def SeriesColorGradientStyle(self) -> object:
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('SeriesColorGradientStyle')
+    def _seriescolorgradientstyle(self, value: object) -> None:
+        del value
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def ValueSortOrder(self) -> object:
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('ValueSortOrder')
+    def _valuesortorder(self, value: object) -> None:
+        del value
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def SeriesColorMaxGradientStop(self) -> object:
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @member
+    def SeriesColorMidGradientStop(self) -> object:
+        raise error(UNSPECIFIED, 'Automation error')
+
+    @member
+    def SeriesColorMinGradientStop(self) -> object:
+        raise error(UNSPECIFIED, 'Automation error')
 
     @member
     def BarShape(self) -> object:
         # xlBox (tests/fixtures/chart_series_reads.json).
         self.position()
         return VBAInt(0, 'Long')
-
-    @member
-    def PictureType(self) -> object:
-        # xlStretch (tests/fixtures/chart_series_reads.json).
-        self.position()
-        return VBAInt(1, 'Long')
-
-    @member
-    def PictureUnit2(self) -> object:
-        self.position()
-        return 0.0
 
     @member
     def InvertColorIndex(self) -> object:

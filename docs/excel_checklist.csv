@@ -19,6 +19,11 @@ AboveAverage,SetFirstPriority,method,SetFirstPriority(),,PARTIAL,tests/test_exce
 AboveAverage,SetLastPriority,method,SetLastPriority(),,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Loaded child order and representative are captured independently of mutable priority; broader lifecycle interactions remain partial."
 AboveAverage,StopIfTrue,property,As Boolean,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 AboveAverage,Type,"property, read-only",As Long,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
+Adjustments,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Values as fractions, or angles from -180 to 180. Past the end is error 5, below 1 out of range."
+Adjustments,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Values as fractions, or angles from -180 to 180. Past the end is error 5, below 1 out of range."
+Adjustments,Creator,"property, read-only",As Long,,UNASSESSED,,
+Adjustments,Item,property,As Single,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Values as fractions, or angles from -180 to 180. Past the end is error 5, below 1 out of range."
+Adjustments,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Values as fractions, or angles from -180 to 180. Past the end is error 5, below 1 out of range."
 Application,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Name, Microsoft Excel."
 Application,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Answers as Evaluate does.
 Application,_Run2,method,"_Run2([Macro As Variant], [Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,MISSING,,
@@ -199,7 +204,7 @@ Application,ODBCTimeout,property,As Long,,PARTIAL,tests/fixtures/application_set
 Application,OLEDBErrors,"property, read-only",As OLEDBErrors,,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Count 0.
 Application,OnKey,method,"OnKey(Key As String, [Procedure As Variant])",,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,"Checked, held nowhere; no keyboard here."
 Application,OnRepeat,method,"OnRepeat(Text As String, Procedure As String)",,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,"Checked, held nowhere."
-Application,OnTime,method,"OnTime(EarliestTime As Variant, Procedure As String, [LatestTime As Variant], [Schedule As Variant])",,MISSING,,
+Application,OnTime,method,"OnTime(EarliestTime As Variant, Procedure As String, [LatestTime As Variant], [Schedule As Variant])",,PARTIAL,tests/fixtures/on_time.json; tests/test_excel_on_time.py,"Runs what is due once no macro is running and at DoEvents, not at Wait, the last scheduled first; Schedule:=False takes every match of time and name, 1004 where none; a later time waits for ExcelApplication.run_on_time; an argument that is not a number or text reports itself"
 Application,OnUndo,method,"OnUndo(Text As String, Procedure As String)",,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,"Checked, held nowhere."
 Application,OnWindow,property,As String,,MISSING,,
 Application,OperatingSystem,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,"Windows (64-bit) NT 10.00, as Excel answers on 64-bit Windows 10 and 11."
@@ -419,7 +424,7 @@ Axis,Width,"property, read-only",As Double,,MISSING,,
 AxisTitle,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 AxisTitle,Border,not in the type library,,,UNASSESSED,,
 AxisTitle,Caption,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
-AxisTitle,Characters,"property, read-only",As Characters,,MISSING,,
+AxisTitle,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 AxisTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 AxisTitle,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 AxisTitle,Font,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,"Bold, 10 point. Reads the theme's body font; size, bold, italic, single underline, strikethrough, colour and name save in the paragraph's defRPr. Refused on an imported chart, beside a chart area font, and on removing the element."
@@ -484,6 +489,12 @@ CalculatedItems,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/pivo
 CalculatedItems,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
 CalculatedItems,Item,method,Item(Index As Variant) As PivotItem,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
 CalculatedItems,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
+CategoryCollection,_Default,method,_Default(Index As Variant) As ChartCategory,,UNASSESSED,,
+CategoryCollection,Application,"property, read-only",As Application,,UNASSESSED,,
+CategoryCollection,Count,"property, read-only",As Long,,UNASSESSED,,
+CategoryCollection,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+CategoryCollection,Item,method,Item(Index As Variant) As ChartCategory,,UNASSESSED,,
+CategoryCollection,Parent,"property, read-only",As Object,,UNASSESSED,,
 CellFormat,AddIndent,property,As Variant,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Reads Null; a set, whose finding is not measured, is unsupported."
 CellFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,The application.
 CellFormat,Borders,property,As Borders,no setter,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,Unsupported.
@@ -543,7 +554,7 @@ Chart,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/missing_r
 Chart,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"Raises 1004 on an embedded chart, as Excel does."
 Chart,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat], [Size As XlPictureAppearance])",,MISSING,,
 Chart,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Chart,DataTable,"property, read-only",As DataTable,,MISSING,,
+Chart,DataTable,"property, read-only",As DataTable,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Chart,Deactivate,event,Deactivate(),,MISSING,,
 Chart,Delete,method,Delete(),,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"Raises 1004 on an embedded chart, as Excel does."
 Chart,DepthPercent,property,As Long,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
@@ -640,6 +651,11 @@ ChartArea,Select,method,Select() As Variant,,PARTIAL,tests/fixtures/chart_areas.
 ChartArea,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's. No setter.
 ChartArea,Top,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's Top.
 ChartArea,Width,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,"The chart object's width in whole EMU, less 5 points."
+ChartCategory,Application,"property, read-only",As Application,,UNASSESSED,,
+ChartCategory,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+ChartCategory,IsFiltered,property,As Boolean,,UNASSESSED,,
+ChartCategory,Name,"property, read-only",As String,,UNASSESSED,,
+ChartCategory,Parent,"property, read-only",As Object,,UNASSESSED,,
 ChartFormat,Adjustments,"property, read-only",As Adjustments,,MISSING,,
 ChartFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,Read.
 ChartFormat,AutoShapeType,property,As MsoAutoShapeType,,MISSING,,
@@ -663,13 +679,13 @@ ChartGroup,BinsUnderflowEnabled,property,As Boolean,,MISSING,,
 ChartGroup,BinsUnderflowValue,property,As Double,,MISSING,,
 ChartGroup,BinWidthValue,property,As Double,,MISSING,,
 ChartGroup,BubbleScale,property,As Long,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
-ChartGroup,CategoryCollection,method,CategoryCollection([Index As Variant]) As Object,,MISSING,,
+ChartGroup,CategoryCollection,method,CategoryCollection([Index As Variant]) As Object,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
 ChartGroup,DoughnutHoleSize,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"10 to 90, a doughnut's holeSize, 50 until set; other kinds read 0 and keep it unwritten. Out of range raises 1004."
 ChartGroup,DownBars,"property, read-only",As DownBars,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,"There while the group's Has member reads True, else 424."
 ChartGroup,DropLines,"property, read-only",As DropLines,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,"There while the group's Has member reads True, else 424."
 ChartGroup,FirstSliceAngle,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"0 to 360, a pie's or doughnut's firstSliceAng; out of range raises 1004."
-ChartGroup,FullCategoryCollection,method,FullCategoryCollection([Index As Variant]) As Object,,MISSING,,
+ChartGroup,FullCategoryCollection,method,FullCategoryCollection([Index As Variant]) As Object,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,GapWidth,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"150 until set, 0 to 500, a bar or column chart's gapWidth; other kinds keep it unwritten. Out of range raises 1004."
 ChartGroup,Has3DShading,property,As Boolean,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,HasDropLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_group_lines.json; tests/test_excel_chart_group_lines.py,"Read and set on any kind; written as dropLines in line and area charts only, so other kinds keep it until saved. The DropLines object is not implemented."
@@ -756,7 +772,7 @@ ChartSurface,Name,not in the type library,,,UNASSESSED,,
 ChartTitle,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartTitle,Border,not in the type library,,,UNASSESSED,,
 ChartTitle,Caption,property,As String,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,Reads and sets as Text.
-ChartTitle,Characters,"property, read-only",As Characters,,MISSING,,
+ChartTitle,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 ChartTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ChartTitle,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Removes the title and writes autoTitleDeleted 1, which HasTitle = False does not; HasTitle = True clears it."
 ChartTitle,Font,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,"Bold, 18 point. Reads the theme's body font; size, bold, italic, single underline, strikethrough, colour and name save in the paragraph's defRPr. Refused on an imported chart, beside a chart area font, and on removing the element."
@@ -884,6 +900,20 @@ Connections,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/connecti
 Connections,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
 Connections,Item,method,Item(Index As Variant) As WorkbookConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"By number from 1 or by name, any case; anything else error 9."
 Connections,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The workbook.
+ConnectorFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
+ConnectorFormat,BeginConnect,method,"BeginConnect(ConnectedShape As Shape, ConnectionSite As Long)",,MISSING,,
+ConnectorFormat,BeginConnected,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
+ConnectorFormat,BeginConnectedShape,"property, read-only",As Shape,,MISSING,,
+ConnectorFormat,BeginConnectionSite,"property, read-only",As Long,,MISSING,,
+ConnectorFormat,BeginDisconnect,method,BeginDisconnect(),,MISSING,,
+ConnectorFormat,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+ConnectorFormat,EndConnect,method,"EndConnect(ConnectedShape As Shape, ConnectionSite As Long)",,MISSING,,
+ConnectorFormat,EndConnected,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
+ConnectorFormat,EndConnectedShape,"property, read-only",As Shape,,MISSING,,
+ConnectorFormat,EndConnectionSite,"property, read-only",As Long,,MISSING,,
+ConnectorFormat,EndDisconnect,method,EndDisconnect(),,MISSING,,
+ConnectorFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
+ConnectorFormat,Type,property,As MsoConnectorType,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
 ControlFormat,_Default,property,As Long,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Value, read and set."
 ControlFormat,AddItem,method,"AddItem(Text As String, [Index As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,Application,"property, read-only",As Application,,MISSING,,
@@ -1033,6 +1063,18 @@ DataLabels,ShowRange,property,As Boolean,no setter,PARTIAL,tests/fixtures/data_l
 DataLabels,ShowSeriesName,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False."
 DataLabels,ShowValue,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False."
 DataLabels,VerticalAlignment,property,As Variant,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
+DataTable,Application,"property, read-only",As Application,,UNASSESSED,,
+DataTable,Border,"property, read-only",As Border,,MISSING,,
+DataTable,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+DataTable,Delete,method,Delete(),,UNASSESSED,,
+DataTable,Font,"property, read-only",As Font,,UNASSESSED,,
+DataTable,Format,"property, read-only",As ChartFormat,,MISSING,,
+DataTable,HasBorderHorizontal,property,As Boolean,,UNASSESSED,,
+DataTable,HasBorderOutline,property,As Boolean,,UNASSESSED,,
+DataTable,HasBorderVertical,property,As Boolean,,UNASSESSED,,
+DataTable,Parent,"property, read-only",As Object,,UNASSESSED,,
+DataTable,Select,method,Select(),,UNASSESSED,,
+DataTable,ShowLegendKey,property,As Boolean,,UNASSESSED,,
 Databar,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Databar,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,AxisColor,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -1163,22 +1205,22 @@ FillFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/s
 FillFormat,BackColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Reads only.
 FillFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
 FillFormat,ForeColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The fill colour.
-FillFormat,GradientAngle,property,As Single,,MISSING,,
-FillFormat,GradientColorType,"property, read-only",As MsoGradientColorType,,MISSING,,
-FillFormat,GradientDegree,"property, read-only",As Single,,MISSING,,
-FillFormat,GradientStops,"property, read-only",As GradientStops,,MISSING,,
-FillFormat,GradientStyle,"property, read-only",As MsoGradientStyle,,MISSING,,
-FillFormat,GradientVariant,"property, read-only",As Long,,MISSING,,
-FillFormat,OneColorGradient,method,"OneColorGradient(Style As MsoGradientStyle, Variant As Long, Degree As Single)",,MISSING,,
+FillFormat,GradientAngle,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Set wraps at 360; negative, a path or no gradient is -2147467259."
+FillFormat,GradientColorType,"property, read-only",As MsoGradientColorType,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Follows from the stops: 2 until they stop fitting two colours, then 4; 1 and 3 only as made. Read only."
+FillFormat,GradientDegree,"property, read-only",As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"As made on a one-colour gradient, 0.5 where the first and last stops match, else error 70. Read only."
+FillFormat,GradientStops,"property, read-only",As GradientStops,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"A fill with no gradient gives the object, and every use of it is -2147024809."
+FillFormat,GradientStyle,"property, read-only",As MsoGradientStyle,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Follows from the angle; -2 at any angle no style has. Read only.
+FillFormat,GradientVariant,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Follows from the stops and angle; 0 where the style reads -2. Read only.
+FillFormat,OneColorGradient,method,"OneColorGradient(Style As MsoGradientStyle, Variant As Long, Degree As Single)",,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py; tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"Below degree 0.5 shades the second stop, above tints it. A ShapeRange spreads it."
 FillFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The shape.
-FillFormat,Pattern,"property, read-only",As MsoPatternType,,MISSING,,
-FillFormat,Patterned,method,Patterned(Pattern As MsoPatternType),,MISSING,,
+FillFormat,Pattern,"property, read-only",As MsoPatternType,,PARTIAL,tests/fixtures/shape_fill_patterns.json; tests/test_excel_shape_fill_patterns.py; tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"Read: -2 until Patterned. Setting it is error 450, as in Excel. A ShapeRange spreads it."
+FillFormat,Patterned,method,Patterned(Pattern As MsoPatternType),,PARTIAL,tests/fixtures/shape_fill_patterns.json; tests/test_excel_shape_fill_patterns.py; tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"1 to 54 on a new AutoShape or text box; a line is -2147024809. Keeps the fore colour, starts the back colour on white, and shows a hidden fill. A ShapeRange spreads it."
 FillFormat,PictureEffects,"property, read-only",As PictureEffects,,MISSING,,
-FillFormat,PresetGradient,method,"PresetGradient(Style As MsoGradientStyle, Variant As Long, PresetGradientType As MsoPresetGradientType)",,MISSING,,
-FillFormat,PresetGradientType,"property, read-only",As MsoPresetGradientType,,MISSING,,
+FillFormat,PresetGradient,method,"PresetGradient(Style As MsoGradientStyle, Variant As Long, PresetGradientType As MsoPresetGradientType)",no PresetGradientType,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py; tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"Presets 1-24; variants 3 and 4 fold the stops, measured for every preset. A ShapeRange spreads it."
+FillFormat,PresetGradientType,"property, read-only",As MsoPresetGradientType,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Until a stop changes or the stops are folded or reversed. Read only.
 FillFormat,PresetTexture,"property, read-only",As MsoPresetTexture,,MISSING,,
 FillFormat,PresetTextured,method,PresetTextured(PresetTexture As MsoPresetTexture),,MISSING,,
-FillFormat,RotateWithObject,property,As MsoTriState,,MISSING,,
+FillFormat,RotateWithObject,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,Writes rotWithShape; a new gradient resets it.
 FillFormat,Solid,method,Solid(),,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Writes the theme colour out; AutoShapes only.
 FillFormat,TextureAlignment,property,As MsoTextureAlignment,,MISSING,,
 FillFormat,TextureHorizontalScale,property,As Single,,MISSING,,
@@ -1189,7 +1231,7 @@ FillFormat,TextureTile,property,As MsoTriState,,MISSING,,
 FillFormat,TextureType,"property, read-only",As MsoTextureType,,MISSING,,
 FillFormat,TextureVerticalScale,property,As Single,,MISSING,,
 FillFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Written as the alpha, showing a hidden fill; outside 0 to 1 raises -2147024809. A line's fill, or under a hidden line, is refused."
-FillFormat,TwoColorGradient,method,"TwoColorGradient(Style As MsoGradientStyle, Variant As Long)",,MISSING,,
+FillFormat,TwoColorGradient,method,"TwoColorGradient(Style As MsoGradientStyle, Variant As Long)",,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py; tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"Styles 1-5 and 7, variants 1-4, on a new AutoShape or text box; style 6 and a line are -2147024809. A ShapeRange spreads it."
 FillFormat,Type,"property, read-only",As MsoFillType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused."
 FillFormat,UserPicture,method,UserPicture(PictureFile As String),,MISSING,,
 FillFormat,UserTextured,method,UserTextured(TextureFile As String),,MISSING,,
@@ -1275,6 +1317,11 @@ FormatConditions,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtu
 FormatConditions,Delete,method,Delete(),,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Native loaded-group controls cover individual deletion with target tombstone and one shared survivor group, versus bulk deletion retaining the prior group representative."
 FormatConditions,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Loaded identities can be shared by multiple rules without merging their object roots or owner styles; representative order follows captured load mode."
 FormatConditions,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch."
+FreeformBuilder,AddNodes,method,"AddNodes(SegmentType As MsoSegmentType, EditingType As MsoEditingType, X1 As Single, Y1 As Single, [X2 As Variant], [Y2 As Variant], [X3 As Variant], [Y3 As Variant])",,PARTIAL,tests/fixtures/shape_builders.json; tests/test_excel_shape_builders.py,"Lines and corner curves. A curve with msoEditingAuto is smoothed by a rule not measured, and reports itself."
+FreeformBuilder,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/shape_builders.json; tests/test_excel_shape_builders.py,"Lines and corner curves. A curve with msoEditingAuto is smoothed by a rule not measured, and reports itself."
+FreeformBuilder,ConvertToShape,method,ConvertToShape() As Shape,,PARTIAL,tests/fixtures/shape_builders.json; tests/test_excel_shape_builders.py,"Lines and corner curves. A curve with msoEditingAuto is smoothed by a rule not measured, and reports itself."
+FreeformBuilder,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+FreeformBuilder,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_builders.json; tests/test_excel_shape_builders.py,"Lines and corner curves. A curve with msoEditingAuto is smoothed by a rule not measured, and reports itself."
 FullSeriesCollection,_Default,method,_Default(Index As Variant) As Series,,UNASSESSED,,
 FullSeriesCollection,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 FullSeriesCollection,Add,not in the type library,,,UNASSESSED,,
@@ -1299,6 +1346,20 @@ Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_memb
 Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Graphic,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Graphic,Width,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+GradientStop,Application,"property, read-only",As Object,,MISSING,,
+GradientStop,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
+GradientStop,Creator,"property, read-only",As Long,,UNASSESSED,,
+GradientStop,Position,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
+GradientStop,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
+GradientStops,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+GradientStops,Application,"property, read-only",As Object,,MISSING,,
+GradientStops,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Creator,"property, read-only",As Long,,UNASSESSED,,
+GradientStops,Delete,method,Delete([Index As Long]),,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long])",,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,MISSING,,
+GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 Gridlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_borders.json; tests/test_excel_chart_borders.py,"Color, ColorIndex, Weight and LineStyle, with the markup Excel writes."
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
@@ -1434,6 +1495,13 @@ Interior,PatternThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_for
 Interior,PatternTintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic pattern colour or an unfilled cell reports unsupported.
 Interior,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic colour reports unsupported.
+LeaderLines,Application,"property, read-only",As Application,,UNASSESSED,,
+LeaderLines,Border,"property, read-only",As Border,,UNASSESSED,,
+LeaderLines,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+LeaderLines,Delete,method,Delete(),,UNASSESSED,,
+LeaderLines,Format,"property, read-only",As ChartFormat,,UNASSESSED,,
+LeaderLines,Parent,"property, read-only",As Object,,UNASSESSED,,
+LeaderLines,Select,method,Select(),,MISSING,,
 Legend,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Legend,Border,not in the type library,,,UNASSESSED,,
 Legend,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"Takes the legend away, as Delete does."
@@ -1465,7 +1533,7 @@ LegendEntry,Application,"property, read-only",As Application,,PARTIAL,tests/fixt
 LegendEntry,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
 LegendEntry,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"A legendEntry with delete, by series or point index; answers Empty. Deleting the last entry takes the legend away and raises 1004."
 LegendEntry,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
-LegendEntry,Format,"property, read-only",As ChartFormat,,MISSING,,
+LegendEntry,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 LegendEntry,Height,"property, read-only",As Double,,MISSING,,
 LegendEntry,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_clears.json; tests/test_excel_chart_clears.py,
 LegendEntry,Left,"property, read-only",As Double,,MISSING,,
@@ -1492,7 +1560,7 @@ LegendKey,Parent,"property, read-only",As Object,,UNASSESSED,,
 LegendKey,PictureType,property,As Long,no setter,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 LegendKey,PictureUnit2,property,As Double,no setter,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 LegendKey,Select,not in the type library,,,UNASSESSED,,
-LegendKey,Shadow,property,As Boolean,,MISSING,,
+LegendKey,Shadow,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 LegendKey,Smooth,property,As Boolean,no setter,UNASSESSED,,
 LegendKey,Top,"property, read-only",As Double,,MISSING,,
 LegendKey,Width,"property, read-only",As Double,,MISSING,,
@@ -2182,9 +2250,9 @@ PlotArea,Top,property,As Double,,MISSING,,
 PlotArea,Width,property,As Double,,MISSING,,
 Point,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
 Point,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,PARTIAL,tests/test_excel_apply_data_labels.py,"As live Excel on column, pie and line charts. AutoText:=False is refused."
-Point,ApplyPictToEnd,property,As Boolean,,MISSING,,
-Point,ApplyPictToFront,property,As Boolean,,MISSING,,
-Point,ApplyPictToSides,property,As Boolean,,MISSING,,
+Point,ApplyPictToEnd,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Point,ApplyPictToFront,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Point,ApplyPictToSides,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Point,Border,not in the type library,,,UNASSESSED,,
 Point,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/test_excel_point_line_format.py,"Takes the fill and leaves a 2-point line, black or on a chart of lines its series' colour; a marker keeps what it had."
 Point,Copy,method,Copy() As Variant,,MISSING,,
@@ -2209,9 +2277,9 @@ Point,MarkerStyle,property,As XlMarkerStyle,,PARTIAL,tests/test_excel_point_mark
 Point,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"S and the series number, P and the point number."
 Point,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,The series.
 Point,Paste,method,Paste() As Variant,,MISSING,,
-Point,PictureType,property,As XlChartPictureType,,MISSING,,
-Point,PictureUnit2,property,As Double,,MISSING,,
-Point,PieSliceLocation,method,"PieSliceLocation(loc As XlPieSliceLocation, [Index As XlPieSliceIndex]) As Double",,MISSING,,
+Point,PictureType,property,As XlChartPictureType,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Point,PictureUnit2,property,As Double,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Point,PieSliceLocation,method,"PieSliceLocation(loc As XlPieSliceLocation, [Index As XlPieSliceIndex]) As Double",,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Point,SecondaryPlot,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"False on a pie or doughnut, else 1004. No setter."
 Point,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_element_select.py,"Selection answers the point; nothing on a sheet not active; an area chart's point, or a pie's second series, fails with the chart area selected."
 Point,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
@@ -2480,9 +2548,9 @@ Scenarios,Merge,method,Merge(Source As Variant) As Variant,,PARTIAL,tests/fixtur
 Scenarios,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The sheet.
 Series,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The Application.
 Series,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,PARTIAL,tests/test_excel_apply_data_labels.py,"As live Excel on column, pie and line charts; position, number format, separator and font stay. AutoText:=False is refused."
-Series,ApplyPictToEnd,property,As Boolean,,MISSING,,
-Series,ApplyPictToFront,property,As Boolean,,MISSING,,
-Series,ApplyPictToSides,property,As Boolean,,MISSING,,
+Series,ApplyPictToEnd,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Series,ApplyPictToFront,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Series,ApplyPictToSides,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
 Series,BarShape,property,As XlBarShape,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlBox; the setter is not implemented.
 Series,Border,not in the type library,,,UNASSESSED,,
@@ -2501,8 +2569,8 @@ Series,Formula,property,As String,no setter,PARTIAL,tests/fixtures/excel_chart_o
 Series,FormulaLocal,property,As String,no setter,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,"Measured under en-US, where it reads as Formula. Read only."
 Series,FormulaR1C1,property,As String,no setter,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,Formula with its absolute references spelled R1C1. Read only; relative references are refused.
 Series,FormulaR1C1Local,property,As String,no setter,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,"Measured under en-US, where it reads as FormulaR1C1. Read only."
-Series,GeoMappingLevel,property,As XlGeoMappingLevel,,MISSING,,
-Series,GeoProjectionType,property,As XlGeoProjectionType,,MISSING,,
+Series,GeoMappingLevel,property,As XlGeoMappingLevel,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Series,GeoProjectionType,property,As XlGeoProjectionType,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 Series,Has3DEffect,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False.
 Series,HasDataLabels,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"The series' dLbls showing values, before its categories, on every kind; setting it either way turns HasLeaderLines off."
@@ -2512,7 +2580,7 @@ Series,InvertColor,property,As Long,no setter,PARTIAL,tests/fixtures/chart_serie
 Series,InvertColorIndex,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 2; the setter is not implemented.
 Series,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The ser's invertIfNegative on column and bar charts; other kinds take the setting silently and write nothing.
 Series,IsFiltered,property,As Boolean,,PARTIAL,tests/test_excel_series_filter.py,"As live Excel on eight kinds of chart. NewSeries, SetSourceData and setting PlotOrder are refused while a series is filtered out."
-Series,LeaderLines,"property, read-only",As LeaderLines,,MISSING,,
+Series,LeaderLines,"property, read-only",As LeaderLines,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,MarkerBackgroundColor,property,As Long,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The marker's fill colour; -1 while automatic, -2 for none. Setting it writes the marker's fill and gives a series without markers automatic ones. Line and scatter charts only; others raise 1004."
 Series,MarkerBackgroundColorIndex,property,As XlColorIndex,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The palette slot nearest the fill colour; 2 while automatic, -4142 for none. Slots 1 to 56, 57 for black, none and automatic can be set."
 Series,MarkerForegroundColor,property,As Long,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The marker's line colour; -1 while automatic, -2 for none. Setting it writes the marker's ln and gives a series without markers automatic ones. Line and scatter charts only; others raise 1004."
@@ -2521,27 +2589,27 @@ Series,MarkerSize,property,As Long,,PARTIAL,tests/fixtures/chart_series_lines.js
 Series,MarkerStyle,property,As XlMarkerStyle,,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,"Line and scatter series. The first series decides xlLine or xlLineMarkers. 0, 4, 6 and 7 take older meanings; others raise 1004."
 Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete
 Series,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The chart's ChartGroup.
-Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,MISSING,,
+Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,Paste,method,Paste() As Variant,,MISSING,,
 Series,PictureType,property,As XlChartPictureType,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlStretch; the setter is not implemented.
 Series,PictureUnit2,property,As Double,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 0; the setter is not implemented.
 Series,PlotColorIndex,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The series' idx plus 1.
 Series,PlotOrder,property,As Long,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,Points,method,Points([Index As Variant]) As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"One per value; by number, 1004 out of range and 13 for text."
-Series,QuartileCalculationInclusiveMedian,property,As Boolean,,MISSING,,
-Series,RegionLabelOption,property,As XlRegionLabelOptions,,MISSING,,
+Series,QuartileCalculationInclusiveMedian,property,As Boolean,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Series,RegionLabelOption,property,As XlRegionLabelOptions,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_element_select.py,Selection answers the series; nothing on a sheet not active; a pie's second series fails with the chart area selected.
-Series,SeriesColorGradientStyle,property,As XlSeriesColorGradientStyle,,MISSING,,
-Series,SeriesColorMaxGradientStop,"property, read-only",As ChartSeriesGradientStopData,,MISSING,,
-Series,SeriesColorMidGradientStop,"property, read-only",As ChartSeriesGradientStopData,,MISSING,,
-Series,SeriesColorMinGradientStop,"property, read-only",As ChartSeriesGradientStopData,,MISSING,,
+Series,SeriesColorGradientStyle,property,As XlSeriesColorGradientStyle,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Series,SeriesColorMaxGradientStop,"property, read-only",As ChartSeriesGradientStopData,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Series,SeriesColorMidGradientStop,"property, read-only",As ChartSeriesGradientStopData,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
+Series,SeriesColorMinGradientStop,"property, read-only",As ChartSeriesGradientStopData,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 Series,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; the setter is not implemented.
 Series,Smooth,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,Line and scatter series; 1004 on other kinds. Kept through ChartType.
 Series,Trendlines,method,Trendlines([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,"Trendlines.Add of every type, with order, period, forward, intercept, the equation and R-squared flags and a name; Count, Item, Parent. The Trendline object reads and sets Type, Order, Period, Forward, Name, NameIsAuto, DisplayEquation and DisplayRSquared, reads Backward, Intercept, InterceptIsAuto and Index, and deletes. Out-of-range values raise as Excel raises them; pie and stacked column charts raise -2147467259. Doughnut and other stacked charts, an automatic intercept's value, a scatter chart's Backward and the label's formatting are not implemented."
 Series,Type,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"The gallery constant of the chart's kind: xlColumn for any column chart, xlLine with markers or without."
 Series,Values,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
-Series,ValueSortOrder,property,As XlValueSortOrder,,MISSING,,
+Series,ValueSortOrder,property,As XlValueSortOrder,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,XValues,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_lifecycle.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit; category readback returns independent array storage
 SeriesCollection,_Default,method,_Default(Index As Variant) As Series,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/fixtures/hidden_defaults_more.json,"Item, bound early. Bound late Excel raises 438, which the model does not tell apart."
 SeriesCollection,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
@@ -2564,7 +2632,7 @@ SeriesLines,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_t
 SeriesLines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,The chart group.
 SeriesLines,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 SeriesLines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
-Shape,Adjustments,"property, read-only",As Adjustments,,MISSING,,
+Shape,Adjustments,"property, read-only",As Adjustments,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,Every AutoShape type measured; a loaded shape is refused.
 Shape,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"Written as cNvPr descr, on new and loaded shapes; empty removes it."
 Shape,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Shape,Apply,method,Apply(),,MISSING,,
@@ -2577,7 +2645,7 @@ Shape,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/core_reads.js
 Shape,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Whether the shape is inside a group.
 Shape,ConnectionSiteCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused."
 Shape,Connector,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,0 for shapes the model makes; lines and loaded shapes are refused.
-Shape,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
+Shape,ConnectorFormat,"property, read-only",As ConnectorFormat,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"A line or connector; any other shape gives the object, and using it is -2147024809."
 Shape,ControlFormat,"property, read-only",As ControlFormat,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
 Shape,Copy,method,Copy(),,PARTIAL,tests/fixtures/chart_copies.json; tests/test_excel_chart_copies.py,Charts only.
 Shape,CopyPicture,method,"CopyPicture([Appearance As Variant], [Format As Variant])",,MISSING,,
@@ -2646,7 +2714,7 @@ Shape,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/sh
 Shape,ZOrderPosition,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 ShapeRange,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 ShapeRange,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-ShapeRange,Adjustments,"property, read-only",As Adjustments,,MISSING,,
+ShapeRange,Adjustments,"property, read-only",As Adjustments,,PARTIAL,tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"What its shapes share, or the mixed value. Past any shape's end is error 5, and a set stops there."
 ShapeRange,Align,method,"Align(AlignCmd As MsoAlignCmd, RelativeTo As MsoTriState)",,PARTIAL,tests/fixtures/shape_align.json; tests/test_excel_shape_align.py,"Lefts, centers, rights, tops, middles and bottoms of the shapes' box together; RelativeTo is ignored but must be -1, 0 or 1. One shape or a bad command raises -2147024809."
 ShapeRange,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared text; a set gives every shape the text. Differing texts are refused.
 ShapeRange,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
@@ -2659,7 +2727,7 @@ ShapeRange,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/shape_sc
 ShapeRange,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,ConnectionSiteCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ."
 ShapeRange,Connector,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
-ShapeRange,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
+ShapeRange,ConnectorFormat,"property, read-only",As ConnectorFormat,,PARTIAL,tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"Reads its first line's, out of range with none. Setting Type is always out of range."
 ShapeRange,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 ShapeRange,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ShapeRange,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,The shared value or -2; a set reaches every shape.
@@ -2718,10 +2786,10 @@ ShapeRange,ZOrderPosition,"property, read-only",As Long,,PARTIAL,tests/fixtures/
 Shapes,_Default,method,_Default(Index As Variant) As Shape,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Item: a shape by number or name, -2147024809 out of range."
 Shapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Shapes,Add3DModel,method,"Add3DModel(Filename As String, [LinkToFile As Variant], [SaveWithDocument As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
-Shapes,AddCallout,method,"AddCallout(Type As MsoCalloutType, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
+Shapes,AddCallout,method,"AddCallout(Type As MsoCalloutType, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/shape_builders.json; tests/test_excel_shape_builders.py,"Types 1-4 make AutoShapes 113, 113, 119, 120; another type is 1004."
 Shapes,AddChart,not in the type library,,,UNASSESSED,,
 Shapes,AddChart2,method,"AddChart2([Style As Variant], [XlChartType As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant], [NewLayout As Variant]) As Shape",,PARTIAL,tests/test_excel_add_chart2.py,"Styles compared with Excel per chart type, 279 to 292 of the 297 for the common types, and 1 to 48; other styles are refused, as are several selected areas."
-Shapes,AddConnector,method,"AddConnector(Type As MsoConnectorType, BeginX As Single, BeginY As Single, EndX As Single, EndY As Single) As Shape",,MISSING,,
+Shapes,AddConnector,method,"AddConnector(Type As MsoConnectorType, BeginX As Single, BeginY As Single, EndX As Single, EndY As Single) As Shape",,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Types 1-3, flipped where the end comes first; another type is 1004."
 Shapes,AddCurve,method,AddCurve(SafeArrayOfPoints As Variant) As Shape,,PARTIAL,tests/fixtures/shape_polyline.json; tests/test_excel_shape_polyline.py,"A freeform of cubic Bezier curves, a start and three points each, kept on the sheet; any other count raises 1004."
 Shapes,AddFormControl,method,"AddFormControl(Type As XlFormControl, Left As Long, Top As Long, Width As Long, Height As Long) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/radio_controls.json,
 Shapes,AddLabel,method,"AddLabel(Orientation As MsoTextOrientation, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
@@ -2735,7 +2803,7 @@ Shapes,AddSmartArt,method,"AddSmartArt(Layout As SmartArtLayout, [Left As Varian
 Shapes,AddTextbox,method,"AddTextbox(Orientation As MsoTextOrientation, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,AddTextEffect,method,"AddTextEffect(PresetTextEffect As MsoPresetTextEffect, Text As String, FontName As String, FontSize As Single, FontBold As MsoTriState, FontItalic As MsoTriState, Left As Single, Top As Single) As Shape",,MISSING,,
 Shapes,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
-Shapes,BuildFreeform,method,"BuildFreeform(EditingType As MsoEditingType, X1 As Single, Y1 As Single) As FreeformBuilder",,MISSING,,
+Shapes,BuildFreeform,method,"BuildFreeform(EditingType As MsoEditingType, X1 As Single, Y1 As Single) As FreeformBuilder",,PARTIAL,tests/fixtures/shape_builders.json; tests/test_excel_shape_builders.py,"Editing type 0 or 1, else 1004. ShapeRange and loaded shapes not involved."
 Shapes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Shapes,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -3048,10 +3116,10 @@ ThemeFonts,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbo
 TickLabels,Alignment,property,As Long,no setter,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"What a new chart reads; refused on imported, scatter and deleted axes. The value axis raises -2147467259. No setter."
 TickLabels,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 TickLabels,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
-TickLabels,Delete,method,Delete() As Variant,,MISSING,,
+TickLabels,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 TickLabels,Depth,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"What a new chart reads; refused on imported, scatter and deleted axes. Several category levels are refused."
 TickLabels,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,"10 point. Reads the theme's body font; size, bold, italic, single underline, strikethrough, colour and name save in the paragraph's defRPr. Refused on an imported chart, beside a chart area font, and on removing the element."
-TickLabels,Format,"property, read-only",As ChartFormat,,MISSING,,
+TickLabels,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 TickLabels,MultiLevel,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"What a new chart reads; refused on imported, scatter and deleted axes. The value axis raises -2147467259. No setter."
 TickLabels,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"Axis 1 on the value axis, Axis 2 on the category axis."
 TickLabels,NumberFormat,property,As String,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Linked to the first source cell until set; a set unlinks; bad codes raise 1004.
@@ -3061,7 +3129,7 @@ TickLabels,Offset,property,As Long,no setter,PARTIAL,tests/fixtures/chart_axis_p
 TickLabels,Orientation,property,As XlTickLabelOrientation,no setter,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"What a new chart reads; refused on imported, scatter and deleted axes. No setter."
 TickLabels,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,The axis.
 TickLabels,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"What a new chart reads; refused on imported, scatter and deleted axes. No setter."
-TickLabels,Select,method,Select() As Variant,,MISSING,,
+TickLabels,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Top10,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Top10,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native conditional API projections preserve stored XML: measured escaped-space/hyphen number-format spelling and row-first generic applicability on plain loads (including measured FileFormat52 packages without VBA), raw statistical applicability, and serialized ordering on VBA-bearing macro-enabled imports. Native plain-load and VBA-bearing load controls cover family-specific area projection, full ordered population keys and loaded group identity; generic supplied union order is retained after ModifyAppliesToRange."
 Top10,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Foreign statistical border-color lookups select the matching group and compact captured child position while every rule retains its own stored style. Worksheet.Copy initializes independent dense groups and recaptures child order by priority. Three initial copy-context snapshots, broader retained-proxy behavior and post-deletion contexts remain partial; foreign reads of absent group members report unsupported because native defaults are inconsistent. Missing group identities retain error 440. A worksheet-local group member/rank index is invalidated on successful mutations; repeated foreign reads and failed mutation staging have count-based/atomicity controls."

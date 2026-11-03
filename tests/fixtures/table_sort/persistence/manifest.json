@@ -1,5 +1,5 @@
 {
-  "raw_sha256": "40b5d2840bd9061c547b2ebbe4c97541c2b9163369ec8ed8bdf9b71d438a26f4",
+  "raw_sha256": "d471430404d209dc3c95d94f5d3d17ff44b027c725c3ffd8ca654aeb4335862e",
   "cases": {
     "fresh-unapplied-options": {
       "source_sha256": "4bae10579c436466adc56038f613ba806cb28debc83c9c8f92a9b308e732875f",
@@ -27,15 +27,15 @@
     }
   },
   "samples": {
-    "fresh-unapplied-options.xlsx": "5850eda9f495053382acf08e4e1f71f1cef7f6503028ea9dfd11e0b5f201deb6",
-    "fresh-applied-edited-field.xlsx": "2e78e0065386e2e957fdd67927d4225a8fd5b0d6015a0bb35f82db035df24596",
-    "loaded-options-before.xlsx": "760163e9a0edb800e882f6290461b2357352e846b9e97576d2a61a5e0969019a",
-    "loaded-options.xlsx": "c7c0180b12e37d0b968cd04443851b1a55ad1882fbc7bef596d026046478ed7e",
-    "loaded-field-order-option-before.xlsx": "125a0e5164fdf11849324bc7f6c9c519bb38edff376c1f5f74981238ffd642ef",
-    "loaded-field-order-option.xlsx": "cc79f24c2a3db522a3e8fd9a6b05fe29c8128dcd4a6f849308720b522c4f3831",
-    "loaded-clear-before.xlsx": "4132b82aec3f5b1af2089c4955e4a882fa6f9eee09085b6ade109c17e642e22c",
-    "loaded-clear.xlsx": "c44a1f6ab3475345d3338409628e3ce99283a662626f6de46363220be3f988d1",
-    "loaded-replace-range-fields-before.xlsx": "c4cf38a8e8621776494033a72c423e4dc702cb7ab77db8ee7a1889ca6b034514",
-    "loaded-replace-range-fields.xlsx": "814f4c590ce45d14f82c4c853a0675909f986112e1803626e511a2049ef2493b"
+    "fresh-unapplied-options.xlsx": "bc92ed1076f54943d0f73ed513a83a7d3cb3c2c63201124bc74d300cab7e9272",
+    "fresh-applied-edited-field.xlsx": "360cf773be5c6f01190a02d5402886f5757f9cb02c5140c41f8a82b26cf16116",
+    "loaded-options-before.xlsx": "2fd7dec504cd37221e4b8328c5ee41fcb5b9153f4dd44021b731677ce017c45b",
+    "loaded-options.xlsx": "27aef2179720b80464462b10ad130fcbe84fb33e103cfebd4df1d5f27896f52e",
+    "loaded-field-order-option-before.xlsx": "d8e368cd31a9d1f043bfe1312ae98ed739165e7c901d88fffb0dbe4ace21a093",
+    "loaded-field-order-option.xlsx": "51fc8ca5fb595cd8d050d84a9feea5f89d68332376a3b325a3e01571830c8c8d",
+    "loaded-clear-before.xlsx": "b158c40f8a09a67099586d11283ab4d366337c6f36bf69a0518e557a84f506c2",
+    "loaded-clear.xlsx": "16afabc6a8aac68b03975830b06379c57109b805bb905485bca000748af242e2",
+    "loaded-replace-range-fields-before.xlsx": "bc393d20683fdb7954db6ef811734f3d63d50db137d4a4e3fcc383b3aefc308a",
+    "loaded-replace-range-fields.xlsx": "0b67eb620afcb45d8ebd799cc56ed1ef41411acec2e3ce7c0b92b61232e8d2f5"
   }
 }

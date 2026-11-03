@@ -434,10 +434,20 @@ class ExcelApplication(NamedRangeAPI):
     # --- running --------------------------------------------------------------------
 
     def run(self, macro: str, *args: object) -> object:
-        """Run a macro by name, as Application.Run would."""
+        """Run a macro by name, as Application.Run would, then what Application.OnTime has due, as Excel does once no
+        macro is running."""
         if "!" in macro:
-            return _plain(self.application.Run(macro, *args))
-        return _plain(self.interpreter.run(macro, list(args)))
+            answer = _plain(self.application.Run(macro, *args))
+        else:
+            answer = _plain(self.interpreter.run(macro, list(args)))
+        self.run_on_time()
+        return answer
+
+    def run_on_time(self) -> None:
+        """Run what Application.OnTime has due by now; freeze_clock moves a later one's time along."""
+        from pyopenvba.apps.excel._application_more import run_due
+
+        run_due(self.application)
 
     def evaluate(self, expression: str) -> object:
         """Evaluate one VBA expression against the current state."""

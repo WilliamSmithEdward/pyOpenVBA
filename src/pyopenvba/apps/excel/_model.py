@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
+    from pyopenvba.apps.excel._application_more import Timer
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
@@ -383,6 +384,8 @@ class Application(ExcelObject):
         #: Whether PageSetup settings take effect at once, and those held back while they do not (see _page_setup).
         self.print_communication = True
         self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
+        #: What Application.OnTime has waiting, oldest first (see _application_more).
+        self.timers: list[Timer] = []
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
@@ -941,6 +944,21 @@ class Application(ExcelObject):
     @method
     def Repeat(self) -> object:
         raise error(1004, "Repeat method of Application class failed")
+
+    @method
+    def OnTime(self, EarliestTime: object = MISSING, Procedure: object = MISSING, LatestTime: object = MISSING,  # noqa: N803
+               Schedule: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._application_more import on_time
+
+        on_time(self, EarliestTime, Procedure, LatestTime, Schedule)
+        return EMPTY
+
+    def pump_timers(self) -> None:
+        """DoEvents runs what is due, Wait does not (tests/fixtures/on_time.json). Excel's first DoEvents of a macro
+        now and then lets it wait for the next, 1 time in 12 over a measured loop, which the model does not guess at."""
+        from pyopenvba.apps.excel._application_more import run_due
+
+        run_due(self)
 
     @method
     def OnUndo(self, Text: object = MISSING, Procedure: object = MISSING) -> object:  # noqa: N803 - native named args

@@ -1,4 +1,4 @@
-"""Chart.SetElement, measured on column, line-with-markers and pie charts (tests/fixtures/chart_set_element.json).
+"""Chart.SetElement, measured on eight kinds of chart (tests/fixtures/chart_set_element*.json).
 
 Each element does what the members it names do, so this is a table of those members. An element a chart has no such
 thing to apply to fails, and so does every element of the secondary axes, which the model does not have."""
@@ -19,7 +19,8 @@ _UPWARD = -4171
 _VERTICAL = -4166
 _LOGARITHMIC = -4133
 _THOUSANDS, _MILLIONS, _BILLIONS = -3, -6, -9
-_Y, _BOTH = 1, 1
+_X, _Y, _BOTH = -4168, 1, 1
+_SCATTER = -4169
 _PERCENT, _ST_DEV, _ST_ERROR = 2, -4155, 4
 _LEGEND_PLACES = {'Right': -4152, 'Left': -4131, 'Top': -4160, 'Bottom': -4107}
 _LABEL_PLACES = {'Center': -4108, 'InsideEnd': 3, 'InsideBase': 4, 'OutSideEnd': 2, 'BestFit': 5, 'Bottom': 1,
@@ -105,8 +106,13 @@ def _no_labels(chart: Chart) -> None:
 
 def _error_bars(kind: int, amount: object = MISSING) -> Step:
     def step(chart: Chart) -> None:
+        # A scatter chart takes them both ways, X first in the file, where Series.ErrorBar keeps Y first.
+        directions = (_X, _Y) if chart.state.chart_type == _SCATTER else (_Y,)
         for series in _each_series(chart):
-            series.vba_call('ErrorBar', [VBAInt(_Y, 'Long'), VBAInt(_BOTH, 'Long'), VBAInt(kind, 'Long'), amount])
+            for direction in directions:
+                series.vba_call('ErrorBar', [VBAInt(direction, 'Long'), VBAInt(_BOTH, 'Long'), VBAInt(kind, 'Long'),
+                                             amount])
+            series.entry.error_bars = sorted(series.entry.error_bars, key=lambda bar: bar.direction != 'x')
     return step
 
 
@@ -152,18 +158,15 @@ _NAMES: dict[str, Step] = {
     'LegendRight': _legend('Right', False), 'LegendTop': _legend('Top', False), 'LegendLeft': _legend('Left', False),
     'LegendBottom': _legend('Bottom', False), 'LegendRightOverlay': _legend('Right', True),
     'LegendLeftOverlay': _legend('Left', True),
-    'DataLabelNone': _no_labels, 'DataLabelShow': _labels(None), 'DataLabelCenter': _labels('Center'),
+    'DataLabelNone': _no_labels, 'DataLabelShow': _labels(None),
     'DataLabelCallout': _refused('A data label callout'),
 }
 #: What a chart without a pie takes.
 _WITH_AXES: dict[str, Step] = {
-    'DataTableNone': lambda chart: chart.vba_set('HasDataTable', False),
-    'DataTableShow': lambda chart: _data_table(chart, False),
-    'DataTableWithLegendKeys': lambda chart: _data_table(chart, True),
     'ErrorBarNone': _no_error_bars, 'ErrorBarPercentage': _error_bars(_PERCENT, VBAInt(5, 'Long')),
     'ErrorBarStandardDeviation': _error_bars(_ST_DEV, VBAInt(1, 'Long')),
     'ErrorBarStandardError': _error_bars(_ST_ERROR),
-    'PlotAreaShow': _nothing, 'PlotAreaNone': _refused('Taking away the plot area'), 'TrendlineNone': _nothing,
+    'PlotAreaShow': _nothing, 'PlotAreaNone': _refused('Taking away the plot area'),
     'PrimaryCategoryAxisNone': _shown(_CATEGORY, False), 'PrimaryCategoryAxisShow': _shown(_CATEGORY, True),
     'PrimaryValueAxisNone': _shown(_VALUE, False), 'PrimaryValueAxisShow': _shown(_VALUE, True),
     'PrimaryCategoryAxisReverse': _on_axis(_CATEGORY, ('ReversePlotOrder', True)),
@@ -195,20 +198,51 @@ _WITH_AXES: dict[str, Step] = {
     'PrimaryValueGridLinesMinor': _grid(_VALUE, False, True),
     'PrimaryValueGridLinesMinorMajor': _grid(_VALUE, True, True),
 }
-_BY_KIND: dict[str, dict[str, Step]] = {
-    'column': {'DataLabelInsideEnd': _labels('InsideEnd'), 'DataLabelInsideBase': _labels('InsideBase'),
-               'DataLabelOutSideEnd': _labels('OutSideEnd')},
-    'lineMarkers': {'DataLabelBottom': _labels('Bottom'), 'DataLabelLeft': _labels('Left'),
-                    'DataLabelRight': _labels('Right'), 'DataLabelTop': _labels('Top'),
-                    'LineDropLine': _on_group(HasDropLines=True), 'LineHiLoLine': _on_group(HasHiLoLines=True),
-                    'LineNone': _on_group(HasDropLines=False, HasHiLoLines=False),
-                    'UpDownBarsShow': _on_group(HasUpDownBars=True), 'UpDownBarsNone': _on_group(HasUpDownBars=False)},
-    'pie': {'DataLabelInsideEnd': _labels('InsideEnd'), 'DataLabelOutSideEnd': _labels('OutSideEnd'),
-            'DataLabelBestFit': _labels('BestFit')},
+_LINES = ('line', 'lineMarkers')
+#: What takes only some kinds of chart: its step, and those kinds.
+_ONLY: dict[str, tuple[Step, tuple[str, ...]]] = {
+    'DataLabelCenter': (_labels('Center'), ('column', 'bar', *_LINES, 'scatter', 'pie')),
+    'DataLabelInsideEnd': (_labels('InsideEnd'), ('column', 'bar', 'pie')),
+    'DataLabelOutSideEnd': (_labels('OutSideEnd'), ('column', 'bar', 'pie')),
+    'DataLabelInsideBase': (_labels('InsideBase'), ('column', 'bar')),
+    'DataLabelBestFit': (_labels('BestFit'), ('pie',)),
+    'DataLabelBottom': (_labels('Bottom'), (*_LINES, 'scatter')),
+    'DataLabelLeft': (_labels('Left'), (*_LINES, 'scatter')),
+    'DataLabelRight': (_labels('Right'), (*_LINES, 'scatter')),
+    'DataLabelTop': (_labels('Top'), (*_LINES, 'scatter')),
+    'LineDropLine': (_on_group(HasDropLines=True), (*_LINES, 'area')),
+    'LineNone': (_on_group(HasDropLines=False, HasHiLoLines=False), (*_LINES, 'area')),
+    'LineHiLoLine': (_on_group(HasHiLoLines=True), _LINES),
+    'UpDownBarsShow': (_on_group(HasUpDownBars=True), _LINES),
+    'UpDownBarsNone': (_on_group(HasUpDownBars=False), _LINES),
+    'TrendlineNone': (_nothing, ('column', 'bar', *_LINES, 'scatter')),
+    'DataTableNone': (lambda chart: chart.vba_set('HasDataTable', False), ('column', 'bar', *_LINES, 'area')),
+    'DataTableShow': (lambda chart: _data_table(chart, False), ('column', 'bar', *_LINES, 'area')),
+    'DataTableWithLegendKeys': (lambda chart: _data_table(chart, True), ('column', 'bar', *_LINES, 'area')),
+    'PrimaryCategoryAxisLogScale': (_on_axis(_CATEGORY, ('ScaleType', VBAInt(_LOGARITHMIC, 'Long'))), ('scatter',)),
+    'PrimaryCategoryAxisThousands': (_on_axis(_CATEGORY, ('DisplayUnit', VBAInt(_THOUSANDS, 'Long'))), ('scatter',)),
+    'PrimaryCategoryAxisMillions': (_on_axis(_CATEGORY, ('DisplayUnit', VBAInt(_MILLIONS, 'Long'))), ('scatter',)),
+    'PrimaryCategoryAxisBillions': (_on_axis(_CATEGORY, ('DisplayUnit', VBAInt(_BILLIONS, 'Long'))), ('scatter',)),
 }
-#: These raise 1004 on a chart with axes, and the usual failure on a pie.
-_ANOTHER_FAILURE = ('PrimaryCategoryAxisLogScale', 'TrendlineAddExponential', 'TrendlineAddLinear',
-                    'TrendlineAddLinearForecast', 'TrendlineAddTwoPeriodMovingAverage')
+_NO_AXES = ('pie', 'doughnut')
+_KINDS = ('column', 'bar', *_LINES, 'scatter', 'area', *_NO_AXES)
+#: What raises 1004 on these kinds, where the others have the usual failure.
+_ANOTHER_FAILURE: dict[str, tuple[str, ...]] = {
+    'PrimaryCategoryAxisLogScale': ('column', 'bar', *_LINES, 'area'),
+    'TrendlineAddExponential': ('column', 'bar', *_LINES, 'scatter'),
+    'TrendlineAddLinear': ('column', 'bar', *_LINES, 'scatter'),
+    'TrendlineAddLinearForecast': ('column', 'bar', *_LINES, 'scatter'),
+    'TrendlineAddTwoPeriodMovingAverage': ('column', 'bar', *_LINES, 'scatter'),
+}
+
+
+def _step(name: str, kind: str) -> Step | None:
+    if name in _ONLY:
+        step, kinds = _ONLY[name]
+        return step if kind in kinds else None
+    if name in _NAMES:
+        return _NAMES[name]
+    return None if kind in _NO_AXES else _WITH_AXES.get(name)
 
 
 def set_element(chart: Chart, value: object) -> object:
@@ -219,13 +253,13 @@ def set_element(chart: Chart, value: object) -> object:
     wanted = int(to_integer(value, 'Long'))
     chart.admit_change()
     kind = CHART_TYPES.get(shown_type(chart.state), '')
-    if kind not in _BY_KIND:
+    if kind not in _KINDS:
         raise unmeasured('SetElement on this kind of chart')
     name = next((key[len('msoElement'):] for key, number in OFFICE_CONSTANTS.items()
                  if number == wanted and key.startswith('msoElement')), '')
-    step = _NAMES.get(name) or _BY_KIND[kind].get(name) or (None if kind == 'pie' else _WITH_AXES.get(name))
+    step = _step(name, kind)
     if step is None:
-        if name in _ANOTHER_FAILURE and kind != 'pie':
+        if kind in _ANOTHER_FAILURE.get(name, ()):
             raise error(1004, 'Application-defined or object-defined error')
         raise error(-2147467259, 'Automation error\nUnspecified error')
     step(chart)

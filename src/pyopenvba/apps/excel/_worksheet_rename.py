@@ -40,6 +40,14 @@ _RELATION_TYPES = {
 }
 _RESERVED = {'_xlnm.Print_Area', '_xlnm.Print_Titles', '_xlnm.Criteria', '_xlnm.Extract', '_xlnm._FilterDatabase'}
 _TABLE = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/table'
+_CHART_RELATIONS = {
+    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
+    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart',
+    'http://schemas.microsoft.com/office/2011/relationships/chartStyle',
+    'http://schemas.microsoft.com/office/2011/relationships/chartColorStyle',
+}
+#: A chart's style and colours, which name no sheet.
+_CHART_LOOKS = re.compile(r'xl/charts/(?:style|colors)[0-9]+\.xml')
 
 
 def _sheet_table(relationships: str, target: str) -> bool:
@@ -202,6 +210,23 @@ def _workbook_names(raw: bytes) -> None:
         raise unsupported('with out-of-range stored name scopes')
 
 
+def _charted(book: Workbook) -> tuple[set[str], set[str]]:
+    """The sheets whose drawings hold only charts, whose references the chart plan rewrites, and those drawings' and
+    charts' parts with their relationships."""
+    from pyopenvba.apps.excel._charts_file import rels_part
+
+    sheets: set[str] = set()
+    parts: set[str] = set()
+    for owner in book.sheets_:
+        if owner.shapes_ and owner.drawing_part and all(shape.kind == 'chart' and shape.shape_id in owner.chart_states
+                                                        for shape in owner.shapes_):
+            sheets.add(owner.part_name)
+            parts |= {owner.drawing_part, rels_part(owner.drawing_part), rels_part(owner.part_name)}
+            for chart in owner.chart_states.values():
+                parts |= {chart.part, rels_part(chart.part)}
+    return sheets, parts
+
+
 def _package(book: Workbook, budget: Budget, old: str, wanted: str) -> None:
     package = book.package
     if package is None:
@@ -212,15 +237,18 @@ def _package(book: Workbook, budget: Budget, old: str, wanted: str) -> None:
     forbidden = ('xl/charts/', 'xl/drawings/', 'xl/pivot', 'xl/externalLinks/',
                  'xl/queryTables/', 'xl/activeX/', 'xl/embeddings/', 'xl/ctrlProps/')
     worksheet_parts = {sheet.part_name for sheet in book.sheets_ if sheet.part_name}
+    charted_sheets, charted_parts = _charted(book)
     for entry in package.entries:
-        if entry.name.startswith(forbidden) or entry.name == 'xl/connections.xml':
+        if ((entry.name.startswith(forbidden) and entry.name not in charted_parts and not _CHART_LOOKS.fullmatch(entry.name))
+                or entry.name == 'xl/connections.xml'):
             raise unsupported('with unmeasured reference-bearing package parts')
         if entry.name.endswith('.rels'):
             relations = opc_part(metadata_bytes(entry, budget), RELS_NS, 'Relationships')
             for tag, attrs, _start, _end in relations.children:
                 kind = attrs.get('Type')
-                admitted = kind in _RELATION_TYPES or (kind == _TABLE
-                                                       and _sheet_table(entry.name, attrs.get('Target', '')))
+                admitted = (kind in _RELATION_TYPES
+                            or (kind == _TABLE and _sheet_table(entry.name, attrs.get('Target', '')))
+                            or (kind in _CHART_RELATIONS and entry.name in charted_parts))
                 if (tag != RELS_NS + '}Relationship' or not admitted
                         or attrs.get('TargetMode', '').casefold() not in ('', 'internal')):
                     raise unsupported('with unmeasured or external package relationships')
@@ -245,6 +273,8 @@ def _package(book: Workbook, budget: Budget, old: str, wanted: str) -> None:
                 guarded = {'hyperlinks', 'drawing', 'legacyDrawing',
                            'legacyDrawingHF', 'picture', 'oleObjects', 'controls', 'extLst',
                            'pivotTableParts', 'dataConsolidate', 'scenarios', 'customSheetViews', 'cellWatches', 'smartTags'}
+                if entry.name in charted_sheets:
+                    guarded.remove('drawing')
                 if any(tag.rsplit('}', 1)[-1] in guarded or not tag.startswith(NS + '}')
                        for tag, _attrs, _start, _end in part.children):
                     raise unsupported('with unmeasured worksheet reference metadata')

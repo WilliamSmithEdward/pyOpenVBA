@@ -3,14 +3,17 @@
 
 The movers work out what every reference becomes before anything moves, and carry it out afterwards. A point's look
 and label stay with its cell, and moved to another place they lose their unique ids. A reference that would become
-#REF! is refused, because Excel then writes extensions the model does not hold, and so is a moved reference of a chart
-read from a file, whose part is kept as it came."""
+#REF! is refused, because Excel then writes extensions the model does not hold. A chart read from a file keeps its part,
+with only the references in it rewritten (tests/fixtures/loaded_chart_references.json); its points are numbered inside
+that part, so cells moving between them are refused."""
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import column_letter, parse_reference, quote_sheet
+from pyopenvba._xml import escape_text, unescape
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 
@@ -23,6 +26,10 @@ Change = Callable[[str, str], str]
 Step = Callable[[], None]
 #: A point's label that has lost its unique id, and still has to be written.
 NO_ID = -2
+#: A reference where a chart part spells one.
+_PART_REFERENCE = re.compile(r'<(c:f|c15:f|c15:sqref)>(.*?)</\1>', re.DOTALL)
+#: What a chart part numbers by its place among the series' cells.
+_NUMBERED = re.compile(r'<c:(?:dPt|dLbl)>')
 
 
 def renamed(formula: str, old: str, new: str) -> str:
@@ -92,6 +99,35 @@ def _points_step(entry: SeriesState, turned: str, sheet: str, change: Change) ->
     return step
 
 
+def _extent(reference: str) -> tuple[int, int] | None:
+    """How many rows and columns a reference to one area covers."""
+    area = _single(reference)
+    return None if area is None else (area[3] - area[1], area[4] - area[2])
+
+
+def _part_step(state: ChartState, turned_text: Callable[[str], str]) -> Step | None:
+    """The references in the part of a chart read from a file going with their cells."""
+    numbered = _NUMBERED.search(state.original) is not None
+
+    def follow(match: re.Match[str]) -> str:
+        text = unescape(match.group(2))
+        turned = turned_text(text)
+        if turned == text:
+            return match.group(0)
+        if numbered and (_extent(text) is None or _extent(text) != _extent(turned)):
+            raise VBAUnsupportedError('Moving cells between the points of a chart from a file is not implemented')
+        return f'<{match.group(1)}>{escape_text(turned)}</{match.group(1)}>'
+
+    rewritten = _PART_REFERENCE.sub(follow, state.original)
+    if rewritten == state.original:
+        return None
+
+    def step() -> None:
+        state.original = rewritten
+        state.dirty = True
+    return step
+
+
 def plan(book: Workbook, change: Change) -> list[Step]:
     """All that moves, worked out before anything does; what cannot be done is refused here."""
     steps: list[Step] = []
@@ -106,15 +142,13 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
 
     def changed() -> None:
         state.dirty = True
-        sheet.drawing_changed()
+        if not state.original:
+            sheet.drawing_changed()
 
     def turned_text(text: str) -> str:
         turned = change(f'={text}', sheet.name)[1:]
-        if turned != text:
-            if state.original:
-                raise VBAUnsupportedError('Moving the cells a chart from a file reads is not implemented')
-            if '#REF!' in turned:
-                raise VBAUnsupportedError('Taking away the cells a chart reads is not implemented')
+        if turned != text and '#REF!' in turned:
+            raise VBAUnsupportedError('Taking away the cells a chart reads is not implemented')
         return turned
 
     def setting(holder: object, field: str, value: str) -> Step:
@@ -143,6 +177,10 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
                     turned = turned_text(reference)
                     if turned != reference:
                         steps.append(setting(bar, field, (turned, values)))  # pyright: ignore[reportArgumentType]
+    if state.original:
+        following = _part_step(state, turned_text)
+        if following is not None:
+            steps.append(following)
     return steps
 
 

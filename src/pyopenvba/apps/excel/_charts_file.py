@@ -445,7 +445,12 @@ def source_format(sheet: Worksheet, formula: str) -> str:
     return to_text(Range(owner, [Area(area.top, area.left, area.top, area.left)]).NumberFormat())
 
 def refresh(sheet: Worksheet, package: OpcFile) -> None:
-    """Refresh only changed reference caches; leave every other chart byte alone."""
+    """Refresh only changed reference caches; leave every other chart byte alone, but for the references a chart read
+    from a file has had rewritten as its cells moved."""
+    for chart in sheet.chart_states.values():
+        if chart.dirty and chart.original and chart.part and package.has(chart.part):
+            package.write(chart.part, chart.original.encode('utf-8'))
+            chart.dirty = False
     if not any(owner.dirty for owner in sheet.book.sheets_):
         return
     for chart in sheet.chart_states.values():
@@ -460,7 +465,9 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
                 return raw
             numeric = cached.group(1) == 'numCache'
             try:
-                source = referenced_values(sheet, unescape(formula.group(1)))
+                source = referenced_values(sheet, unescape(formula.group(1)), visible=chart.visible_only)
+                if not source:
+                    return raw
                 values: list[str | float | None] = [_number(value) if numeric else to_text(value) for value in source]
                 wanted_code = source_format(sheet, unescape(formula.group(1))) if numeric else 'General'
             except (ValueError, KeyError, VBAUnsupportedError, VBARuntimeError):

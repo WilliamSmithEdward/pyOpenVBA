@@ -23,7 +23,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArra
 from pyopenvba.shapes._values import FillLine, Shape, emu, points
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._model import Range, Worksheet
 
 # Engine admission bounds, not native Excel limits.
 MAX_CHART_POINTS = 1_000_000
@@ -669,6 +669,7 @@ def _whole(value: object, otherwise: int) -> int:
 def _picked_up(sheet: Worksheet) -> Range | None:
     """The cells a new chart takes for its data: those selected, or a single cell's region, on the sheet it goes on."""
     from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._region import current_region
 
     chosen = sheet.selection
     if not isinstance(chosen, Range):
@@ -676,11 +677,10 @@ def _picked_up(sheet: Worksheet) -> Range | None:
     if len(chosen.areas) != 1:
         raise VBAUnsupportedError('A chart made from several selected areas is not implemented')
     area = chosen.first
-    if (area.top, area.left) == (area.bottom, area.right):
-        if chosen.vba_get('Value') is EMPTY and chosen.vba_get('CurrentRegion').vba_get('Count') == 1:
-            return None
-        return cast(Range, chosen.vba_get('CurrentRegion'))
-    return chosen
+    if (area.top, area.left) != (area.bottom, area.right):
+        return chosen
+    region = current_region(sheet, area.top, area.left)
+    return None if trimmed(sheet, region) is None else Range(sheet, [region])
 
 
 def _set_out(chart: Chart, settled: list[str]) -> None:

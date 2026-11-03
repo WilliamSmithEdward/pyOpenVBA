@@ -17,7 +17,7 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 PROBES: list[dict[str, Any]] = json.loads(
     (Path(__file__).parent / 'fixtures/excel_everyday_4.json').read_text(encoding='utf-8'))['probes']
 #: What each probe the model cannot answer yet needs.
-GAPS: dict[str, str] = {'tables': 'ListObject.Unlist'}
+GAPS: dict[str, str] = {'tables': 'ListObject.Unlist', 'chart_series_by_hand': 'A marker on a series with a look'}
 
 
 def _answer(macro: str) -> object:

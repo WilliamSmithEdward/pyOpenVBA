@@ -2076,7 +2076,7 @@ Point,PictureType,property,As XlChartPictureType,,MISSING,,
 Point,PictureUnit2,property,As Double,,MISSING,,
 Point,PieSliceLocation,method,"PieSliceLocation(loc As XlPieSliceLocation, [Index As XlPieSliceIndex]) As Double",,MISSING,,
 Point,SecondaryPlot,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"False on a pie or doughnut, else 1004. No setter."
-Point,Select,method,Select() As Variant,,MISSING,,
+Point,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_element_select.py,"Selection answers the point; nothing on a sheet not active; an area chart's point, or a pie's second series, fails with the chart area selected."
 Point,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 Point,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,False. No setter.
 Point,Top,"property, read-only",As Double,,MISSING,,
@@ -2392,7 +2392,7 @@ Series,PlotOrder,property,As Long,,PARTIAL,tests/test_excel_chart_lifecycle.py; 
 Series,Points,method,Points([Index As Variant]) As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"One per value; by number, 1004 out of range and 13 for text."
 Series,QuartileCalculationInclusiveMedian,property,As Boolean,,MISSING,,
 Series,RegionLabelOption,property,As XlRegionLabelOptions,,MISSING,,
-Series,Select,method,Select() As Variant,,MISSING,,
+Series,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_element_select.py,Selection answers the series; nothing on a sheet not active; a pie's second series fails with the chart area selected.
 Series,SeriesColorGradientStyle,property,As XlSeriesColorGradientStyle,,MISSING,,
 Series,SeriesColorMaxGradientStop,"property, read-only",As ChartSeriesGradientStopData,,MISSING,,
 Series,SeriesColorMidGradientStop,"property, read-only",As ChartSeriesGradientStopData,,MISSING,,

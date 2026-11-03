@@ -2705,6 +2705,8 @@ class Worksheet(ExcelObject):
         #: the part of it selected: "" for its frame, "area" for its chart area, "plot" for its plot area.
         self.active_chart: ShapeState | None = None
         self.chart_part = ""
+        #: The series or point selected, where chart_part says one is.
+        self.chart_element: object = None
         #: What the sheet's XML part was called in the file it came from.
         self.part_name = ""
         #: False until a cell changes.  A sheet nobody wrote to is

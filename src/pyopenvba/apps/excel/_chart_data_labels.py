@@ -171,6 +171,13 @@ class DataLabels(VBACollection, ItemDefault, Created):
     def Count(self) -> object:
         return VBAInt(len(self.vba_items()), 'Long')
 
+    @method
+    def Select(self) -> object:
+        from pyopenvba.apps.excel._charts import select_element
+
+        self.look()
+        return select_element(self.series.chart, self, True)
+
     @member
     def Parent(self) -> object:
         self.look('Parent')
@@ -881,7 +888,9 @@ class DataLabel(Created):
         if self.series.chart.state.chart_type == 5:
             # On a pie it brings the chart a title (tests/fixtures/data_label.json).
             raise unmeasured("Selecting a pie's label")
-        return True
+        from pyopenvba.apps.excel._charts import select_element
+
+        return select_element(self.series.chart, self, True)
 
 
 #: The places a point's label can take, by chart type (tests/fixtures/data_label.json).

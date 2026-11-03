@@ -258,6 +258,13 @@ class Axis(Created):
         self.chart.changed()
         entry.major_scale = wanted
 
+    @method
+    def Select(self) -> object:
+        from pyopenvba.apps.excel._charts import select_element
+
+        self.read()
+        return select_element(self.chart, self, True)
+
     @member
     def Parent(self) -> object:
         self.chart.admit_read()
@@ -744,6 +751,13 @@ class AxisTitle(TitleMembers):
     def __init__(self, axis: Axis, entry: TitleState | None) -> None:
         self.axis, self.entry = axis, entry
 
+    @member
+    def Name(self) -> object:
+        self.read()
+        if self.axis.entry.kind != 2:
+            raise VBAUnsupportedError("The name of this axis' title is not implemented")
+        return "Text Axis 1"
+
     def read(self) -> None:
         self.axis.chart.admit_read()
         if self.entry is None:
@@ -763,6 +777,13 @@ class AxisTitle(TitleMembers):
         ):
             raise error(440, "Automation error")
         return super().vba_call_by_name(name, args, assignment=assignment, by_ref=by_ref)
+
+    @method
+    def Select(self) -> object:
+        from pyopenvba.apps.excel._charts import select_element
+
+        self.read()
+        return select_element(self.axis.chart, self, True)
 
     @member
     def Parent(self) -> object:
@@ -893,6 +914,12 @@ class Gridlines(Created):
         if not (entry.major_gridlines if self.major else entry.minor_gridlines):
             raise error(-2147467259, "Automation error\nUnspecified error")
         return entry
+
+    @method
+    def Select(self) -> object:
+        from pyopenvba.apps.excel._charts import select_element
+
+        return select_element(self.axis.chart, self, True)
 
     @member
     def Parent(self) -> object:

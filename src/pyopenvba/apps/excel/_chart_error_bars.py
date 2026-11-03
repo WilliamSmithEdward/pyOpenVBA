@@ -173,6 +173,12 @@ class ErrorBars(Created):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         return self.series.entry.error_bars
 
+    @method
+    def Select(self) -> object:
+        from pyopenvba.apps.excel._charts import select_element
+
+        return select_element(self.series.chart, self, True)
+
     @member
     def Parent(self) -> object:
         self._bars()

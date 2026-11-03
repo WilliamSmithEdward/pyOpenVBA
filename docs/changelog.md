@@ -15,6 +15,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Chart.FullSeriesCollection`, and a series found by name in it or in `SeriesCollection`.
+  `IsFiltered = True` is refused.
+- `Select` on a chart's legend, legend entries, title, axes, axis titles, gridlines,
+  data labels, trendlines and error bars, which `Selection` then answers.
 - `Point.Select` and `Series.Select`, which `Selection` then answers. A chart that cannot
   select the element fails as Excel does, with its chart area selected.
   `ActiveWindow.Selection` answers the chart's frame while a chart is active.

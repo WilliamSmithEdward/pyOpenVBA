@@ -47,13 +47,23 @@ NUMBERS, TEXT, LOGICAL, ERRORS = 1, 2, 4, 16
 def special_cells(target: Range, kind_value: object, which: object) -> Range:
     from pyopenvba.apps.excel._model import Range
 
+    from pyopenvba.apps.excel._protection import enforced
+
     kind = int(to_integer(kind_value, "Long"))
     sheet = target.sheet
+    # Whatever it asks for (tests/fixtures/excel_everyday_13.json).
+    if enforced(sheet) is not None:
+        raise error(1004, "SpecialCells method of Range class failed")
     if kind in _UNMODELLED:
         raise VBAUnsupportedError(f"SpecialCells for {_UNMODELLED[kind]} is not implemented")
     bounds = sheet.used_bounds()
     if kind == LAST_CELL:
         row, column = (bounds[2], bounds[3]) if bounds else (1, 1)
+        # The last cell that shows (tests/fixtures/excel_everyday_13.json).
+        while row > 1 and sheet.dims.row_hidden(row):
+            row -= 1
+        while column > 1 and sheet.dims.column_hidden(column):
+            column -= 1
         return Range(sheet, [Area(row, column, row, column, sheet.name)])
     if kind == VISIBLE:
         return Range(sheet, _visible(target))

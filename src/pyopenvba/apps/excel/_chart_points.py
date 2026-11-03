@@ -35,6 +35,7 @@ from pyopenvba.apps.excel._charts import (
     select_element,
     shown_type,
 )
+from pyopenvba.apps.excel._chart_borders import ElementProperties
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._number_format import to_file
 from pyopenvba.apps.excel._styles import bgr
@@ -210,7 +211,7 @@ class Points(VBACollection, ItemDefault, Created):
         return items[place - 1]
 
 
-class Point(Created):
+class Point(ElementProperties, Created):
     vba_type_name = "Point"
 
     def __init__(self, series: Series, index: int) -> None:

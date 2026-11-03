@@ -307,6 +307,9 @@ Run this from the repository root, with Python 3.10 or newer:
 python scripts/audit_excel_coverage.py --output excel-coverage.json
 ```
 
+The report walks every module under `pyopenvba.apps.excel`, and its `totals`
+are the counts [Excel API coverage](in_memory_engine/excel_api_coverage.md) gives.
+
 The report compares registered object members, cell formula functions
 and M library names with the committed reference inventories. It lists
 missing names, direct unsupported paths and unmapped reference types.

@@ -1541,6 +1541,9 @@ class Interpreter:
         elif kind == 'with_end':
             frame.with_values.pop(id(statement), None)
         elif kind == 'exit_loop':
+            # Exit For from a For Each whose header failed under On Error Resume Next has nothing to leave.
+            if isinstance(instruction.owner, A.ForEach) and id(instruction.owner) not in frame.each_loops:
+                raise error(92, 'For loop not initialized')
             return instruction.target
         elif kind in ('goto', 'computed'):
             assert isinstance(statement, (A.GoTo, A.OnGoto))
@@ -3072,8 +3075,8 @@ def _iterate(subject: object) -> Iterator[object]:
     if isinstance(subject, VBAObject):
         return subject.vba_iterate()
     if subject is NOTHING:
-        raise error(ERR_OBJECT_VARIABLE_NOT_SET)
-    raise error(451, f"{type_name(subject)} cannot be walked by For Each")
+        raise error(424, "Object required")
+    raise error(13, "Type mismatch")
 
 
 def _is_type(value: object, wanted: str) -> bool:

@@ -14,9 +14,11 @@ docs/host_completeness.md.
 from __future__ import annotations
 
 import argparse
+import importlib
 import inspect
 import json
 from pathlib import Path
+import pkgutil
 import sys
 
 
@@ -25,7 +27,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def report() -> dict[str, object]:
-    from pyopenvba.apps.excel import _autofilter, _formats, _model, _shapes, _sort
+    import pyopenvba.apps.excel as excel
+    from pyopenvba.apps.excel import _model
     from pyopenvba.formula._calc import functions as functions  # imported to register every function
     from pyopenvba.formula._calc.registry import FUNCTIONS
     from pyopenvba.formula._inventory import unimplemented
@@ -36,7 +39,10 @@ def report() -> dict[str, object]:
 
     bindings: list[dict[str, object]] = []
     matched_keys: set[str] = set()
-    for module in (_model, _shapes, _formats, _sort, _autofilter):
+    registered_by_key: dict[str, set[str]] = {}
+    # Every module of the model, so that charts, pivots and whatever comes next are counted.
+    modules = [importlib.import_module(info.name) for info in pkgutil.walk_packages(excel.__path__, excel.__name__ + ".")]
+    for module in [excel, *modules]:
         for name, cls in sorted(vars(module).items()):
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue
@@ -56,6 +62,8 @@ def report() -> dict[str, object]:
                 expected.update(MEMBERS.get(key) or ())
             matched_keys.update(keys)
             registered = set(cls._vba_members)
+            for key in keys:
+                registered_by_key.setdefault(key, set()).update(registered)
             unsupported_paths: set[str] = set()
             for member_name, spec in cls._vba_members.items():
                 for function in (spec.getter, spec.setter, spec.ref_setter):
@@ -80,8 +88,19 @@ def report() -> dict[str, object]:
 
     m_names = known()
     registered_m = {name.lower() for name in LIBRARY}
+    reference = {key: names for key, names in MEMBERS.items() if key.startswith("excel:")}
     return {
-        "schema_version": 1,
+        "schema_version": 2,
+        "totals": {
+            "reference_types": len(reference),
+            "reference_members": sum(len(names) for names in reference.values()),
+            "reference_types_with_a_class": len(registered_by_key),
+            "registered_reference_members": sum(
+                len(set(reference[key]) & names) for key, names in registered_by_key.items()
+            ),
+            "formula_functions_registered": len(FUNCTIONS),
+            "formula_functions_missing": len(unimplemented()),
+        },
         "meaning": "Name inventory only; registration does not prove implementation or conformance.",
         "limitations": [
             "Reference aliases, event interfaces and UI types are not distinct headless features.",

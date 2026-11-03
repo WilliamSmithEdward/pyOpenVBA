@@ -2,13 +2,19 @@
 (tests/fixtures/chart_line_format.json). It shares its look with their Border."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, cast
+
 from pyopenvba.apps.excel._chart_borders import Line
-from pyopenvba.apps.excel._chart_format import plain_line
+from pyopenvba.apps.excel._chart_format import ElementColor, ElementFill, ElementFormat, plain_line
+from pyopenvba.apps.excel._chart_format import solid_fill
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, setter
 from pyopenvba.interpreter._values import VBAInt, VBASingle, error, to_integer, to_number
 from pyopenvba.shapes._values import FillLine
+
+if TYPE_CHECKING:
+    from pyopenvba.apps.excel._charts import Chart
 
 _MIXED = -2147483648.0
 _INVALID = (5, 'Invalid procedure call or argument')
@@ -42,6 +48,32 @@ def shape_properties(look: FillLine, cap: str, painted: bool) -> str:
                 '</a14:hiddenLine></a:ext></a:extLst></c:spPr>')
     written = plain_line(look)
     return f'<c:spPr>{written}</c:spPr>' if written else ''
+
+
+#: What up and down bars are painted with until told otherwise: the window text colour, tinted, and how that reads.
+_BAR_TINTS = {'upBars': (5000, 0xF9F9F9), 'downBars': (95000, 0x3F3F3F)}
+
+
+def group_line_markup(key: str, look: FillLine | None) -> str:
+    """The spPr of a chart group's lines or bars, none while nothing was set of them."""
+    if look is None:
+        return ''
+    tint = _BAR_TINTS.get(key)
+    painted = ('' if tint is None else '<a:solidFill><a:sysClr val="windowText" lastClr="000000">'
+               f'<a:tint val="{tint[0]}"/></a:sysClr></a:solidFill>')
+    fill, extension = '', ''
+    if look.fill_hidden:
+        fill = '<a:noFill/>'
+        extension = ('<a:extLst><a:ext uri="{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}">'
+                     f'<a14:hiddenFill {_A14}>{painted}</a14:hiddenFill></a:ext></a:extLst>')
+    elif look.fill_rgb is not None:
+        fill = solid_fill(look.fill_rgb, look.fill_alpha)
+    elif look.fill_solid:
+        fill = painted
+    if look.line_hidden:
+        return shape_properties(look, 'flat', False).replace('<c:spPr>', f'<c:spPr>{fill or painted}', 1)
+    body = fill + plain_line(look) + extension
+    return f'<c:spPr>{body}</c:spPr>' if body else ''
 
 
 class LineColor(Created):
@@ -219,3 +251,68 @@ class LineChartFormat(Created):
     @member
     def PictureEffects(self) -> object:
         raise error(438, "Object doesn't support this property or method")
+
+
+class BarColor(ElementColor):
+    """The colour of an up or down bar's fill, which is the tint until one is set."""
+
+    vba_type_name = 'ColorFormat'
+
+    def colourless(self) -> bool:
+        return False
+
+    @member
+    def RGB(self) -> object:
+        if not self.fore:
+            return VBAInt(0xFFFFFF, 'Long')
+        owner = cast(ElementFill, self.owner)
+        look = owner.usable()
+        if look.fill_rgb is not None:
+            return VBAInt(int(look.fill_rgb[4:6] + look.fill_rgb[2:4] + look.fill_rgb[:2], 16), 'Long')
+        return VBAInt(_BAR_TINTS[owner.key][1], 'Long')
+
+    @setter('RGB')
+    def _bar_rgb(self, value: object) -> None:
+        self._rgb(value)
+
+
+class BarFill(ElementFill):
+    """An up or down bar's fill: spelled out once anything was set of it, which hiding its line also does."""
+
+    vba_type_name = 'FillFormat'
+
+    def spelled(self) -> bool:
+        return super().spelled() or self.usable().line_hidden
+
+    @member
+    def ForeColor(self) -> object:
+        return BarColor(self, fore=True)
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(1 if self.spelled() else -2, 'Long')
+
+    @member
+    def Transparency(self) -> object:
+        look = self.usable()
+        if not self.spelled():
+            return VBASingle(_MIXED)
+        return VBASingle(0.0 if look.fill_alpha is None else (100000 - look.fill_alpha) / 100000)
+
+    @setter('Transparency')
+    def _bar_transparency(self, value: object) -> None:
+        self._transparency(value)
+
+
+class BarChartFormat(LineChartFormat):
+    """The Format of up or down bars, which alone of a group's lines and bars have a fill."""
+
+    vba_type_name = 'ChartFormat'
+
+    def __init__(self, parent: object, line: Line, chart: Chart, key: str) -> None:
+        super().__init__(parent, line)
+        self.chart, self.key = chart, key
+
+    @member
+    def Fill(self) -> object:
+        return BarFill(ElementFormat(self.parent, self.chart, self.key))

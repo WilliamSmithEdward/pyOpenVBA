@@ -264,3 +264,46 @@ def set_element(chart: Chart, value: object) -> object:
         raise error(-2147467259, 'Automation error\nUnspecified error')
     step(chart)
     return True
+
+
+#: ChartWizard's Gallery as a chart type: xlBar, xlColumn, xlLine and xlPie (tests/fixtures/chart_layouts.json).
+_GALLERIES = {2: 57, 3: 51, 4: 65, 5: 5}
+_UNKNOWN_GALLERY = 999
+
+
+def chart_wizard(chart: Chart, source: object, gallery: object, shape: object, plot_by: object, category_labels: object,
+                 series_labels: object, has_legend: object, title: object, category_title: object,
+                 value_title: object) -> object:
+    """Chart.ChartWizard: what the members it names do. A gallery also takes away the value axis' major gridlines, and
+    a line gallery sets the axis to cross at the categories."""
+    chart.admit_change()
+    if category_labels is not MISSING or series_labels is not MISSING:
+        raise unmeasured('ChartWizard with CategoryLabels or SeriesLabels')
+    if shape is not MISSING and int(to_integer(shape, 'Long')) != 1:
+        raise unmeasured('ChartWizard with a Format but 1')
+    if source is not MISSING:
+        # With no PlotBy it keeps the chart's, where SetSourceData would work one out from the range.
+        chart.vba_call('SetSourceData', [source, chart.vba_get('PlotBy') if plot_by is MISSING else plot_by])
+    elif plot_by is not MISSING and int(to_integer(plot_by, 'Long')) != chart.vba_get('PlotBy'):
+        raise unmeasured('ChartWizard changing PlotBy with no Source')
+    if gallery is not MISSING:
+        wanted = int(to_integer(gallery, 'Long'))
+        if wanted in _GALLERIES:
+            chart.vba_set('ChartType', VBAInt(_GALLERIES[wanted], 'Long'))
+            if wanted != 5:
+                _axis(chart, _VALUE).vba_set('HasMajorGridlines', False)
+            if wanted == 4:
+                _axis(chart, _CATEGORY).vba_set('AxisBetweenCategories', False)
+        elif wanted != _UNKNOWN_GALLERY:
+            raise unmeasured('This ChartWizard gallery')
+    if has_legend is not MISSING:
+        chart.vba_set('HasLegend', has_legend)
+    if title is not MISSING:
+        chart.vba_set('HasTitle', True)
+        _object(chart.vba_get('ChartTitle')).vba_set('Text', title)
+    for kind, text in ((_CATEGORY, category_title), (_VALUE, value_title)):
+        if text is not MISSING:
+            found = _axis(chart, kind)
+            found.vba_set('HasTitle', True)
+            found.vba_get('AxisTitle').vba_set('Text', text)
+    return True

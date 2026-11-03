@@ -518,7 +518,7 @@ Chart,Activate,event,Activate(),,PARTIAL,tests/fixtures/active_chart.json; tests
 Chart,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 Chart,ApplyChartTemplate,method,ApplyChartTemplate(Filename As String),,MISSING,,
 Chart,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant])",,PARTIAL,tests/test_excel_apply_data_labels.py,"Every series, as live Excel; a type its series refuse does nothing and raises nothing. AutoText:=False is refused."
-Chart,ApplyLayout,method,"ApplyLayout(Layout As Long, [ChartType As Variant])",,MISSING,,
+Chart,ApplyLayout,method,"ApplyLayout(Layout As Long, [ChartType As Variant])",,PARTIAL,tests/test_excel_chart_layouts.py,Out of range raises 5. The layouts themselves differ by kind of chart and are refused.
 Chart,AutoScaling,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
 Chart,Axes,method,"Axes([Type As Variant], [AxisGroup As XlAxisGroup]) As Object",,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Chart,BackWall,"property, read-only",As Walls,,MISSING,,
@@ -528,16 +528,16 @@ Chart,BeforeRightClick,event,BeforeRightClick(Cancel As Boolean),,MISSING,,
 Chart,Calculate,event,Calculate(),,MISSING,,
 Chart,CategoryLabelLevel,property,As XlCategoryLabelLevel,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter. Labels of several levels are refused.
 Chart,ChartArea,"property, read-only",As ChartArea,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
-Chart,ChartColor,property,As Variant,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
+Chart,ChartColor,property,As Variant,,PARTIAL,tests/test_excel_chart_layouts.py,Reads from the style. Setting it brings style parts and is refused; out of range raises 5.
 Chart,ChartGroups,method,ChartGroups([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"The chart's one group, or it by index; any index but 1 raises 1004."
 Chart,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,MISSING,,
-Chart,ChartStyle,property,As Variant,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
+Chart,ChartStyle,property,As Variant,,PARTIAL,tests/test_excel_chart_layouts.py,"1 to 48, written as c:style, every look kept; 201 up brings style parts and is refused."
 Chart,ChartTitle,"property, read-only",As ChartTitle,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json,"Reading it gives a chart with no title Excel's automatic one, as Excel does. Imported chart content stays read only."
 Chart,ChartType,property,As XlChartType,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json; tests/fixtures/chart_stacked.json,"Clustered, stacked and 100% stacked column and bar charts, line charts with and without markers and stacked, area charts and stacked, pie, doughnut and scatter. A line chart with no series reads and is written as line with markers until a series is added; a stacked line chart follows its first series' marker the same way. Stacking a column or bar chart sets Overlap to 100 and unstacking it to 0. Imported chart content stays read only."
-Chart,ChartWizard,method,"ChartWizard([Source As Variant], [Gallery As Variant], [Format As Variant], [PlotBy As Variant], [CategoryLabels As Variant], [SeriesLabels As Variant], [HasLegend As Variant], [Title As Variant], [CategoryTitle As Variant], [ValueTitle As Variant], [ExtraTitle As Variant])",,MISSING,,
+Chart,ChartWizard,method,"ChartWizard([Source As Variant], [Gallery As Variant], [Format As Variant], [PlotBy As Variant], [CategoryLabels As Variant], [SeriesLabels As Variant], [HasLegend As Variant], [Title As Variant], [CategoryTitle As Variant], [ValueTitle As Variant], [ExtraTitle As Variant])",,PARTIAL,tests/test_excel_chart_layouts.py,"Source, Gallery (bar, column, line, pie), HasLegend and the titles, as live Excel. CategoryLabels, SeriesLabels and PlotBy changed with no Source are refused."
 Chart,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Chart,ClearToMatchColorStyle,method,ClearToMatchColorStyle(),,MISSING,,
-Chart,ClearToMatchStyle,method,ClearToMatchStyle(),,MISSING,,
+Chart,ClearToMatchStyle,method,ClearToMatchStyle(),,PARTIAL,tests/test_excel_chart_layouts.py,Takes away every look set on the chart; a chart with data labels is refused.
 Chart,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Copy,method,"Copy([Before As Variant], [After As Variant])",,MISSING,,
 Chart,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat], [Size As XlPictureAppearance])",,MISSING,,

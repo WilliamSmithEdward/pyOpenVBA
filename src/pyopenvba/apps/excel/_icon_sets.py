@@ -496,7 +496,7 @@ class IconSets(VBACollection, ItemDefault, ExcelObject):
         return self.book
 
 
-class IconSet(VBACollection, ExcelObject):
+class IconSet(VBACollection, ItemDefault, ExcelObject):
     """One of Excel's sets of icons, or a custom set's (ID -1); a property takes it by Let."""
 
     vba_type_name = 'IconSet'
@@ -532,6 +532,10 @@ class Icon(ExcelObject):
 
     def __init__(self, owner: IconSet, index: int) -> None:
         self.owner, self.index = owner, index
+
+    @member
+    def Application(self) -> object:
+        return self.owner.book.application
 
     @member
     def Index(self) -> object:

@@ -102,6 +102,10 @@ class TableStyle(ExcelObject):
     def family(self) -> tuple[str, str, str]:
         return next(family for family in _FAMILIES if self.name.startswith(family[0]))
 
+    @method(name="_Default")
+    def hidden_default(self) -> object:
+        return self.name
+
     @member(default=True)
     def Name(self) -> object:
         return self.name

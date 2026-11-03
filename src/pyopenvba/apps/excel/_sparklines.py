@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba._opc_xml import opc_part
 from pyopenvba._xml import escape, escape_text
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -318,7 +319,7 @@ def _ordered(attributes: dict[str, str]) -> dict[str, str]:
     return dict(sorted(attributes.items(), key=lambda item: rank.get(item[0], len(ORDER))))
 
 
-class SparklineGroups(VBACollection, ExcelObject):
+class SparklineGroups(VBACollection, ItemDefault, ExcelObject):
     """The sparkline groups a range reaches, newest first."""
 
     vba_type_name = 'SparklineGroups'

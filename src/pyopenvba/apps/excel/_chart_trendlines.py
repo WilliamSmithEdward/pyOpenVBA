@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape_text
-from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.shapes._values import FillLine
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -112,7 +112,7 @@ def _number_text(value: float) -> str:
     return format_number(value)
 
 
-class Trendlines(VBACollection, Created):
+class Trendlines(VBACollection, ItemDefault, Created):
     """A series' trendlines, in the order they were added."""
 
     vba_type_name = 'Trendlines'
@@ -218,6 +218,14 @@ class Trendline(Created):
 
     def __init__(self, series: Series, line: TrendlineState) -> None:
         self.series, self.line = series, line
+
+    @method
+    def GetProperty(self, IdsProperty: object = MISSING) -> object:
+        raise error(-2147220480, "Method 'GetProperty' of object 'Trendline' failed")
+
+    @method
+    def SetProperty(self, IdsProperty: object = MISSING, Value: object = MISSING) -> object:
+        raise error(-2147220480, "Method 'SetProperty' of object 'Trendline' failed")
 
     @method
     def ClearFormats(self) -> object:

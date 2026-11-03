@@ -612,7 +612,7 @@ def pane_count(view: SheetViewState) -> int:
     return 4 if view.rows and view.columns else 2
 
 
-class Panes(VBACollection, ExcelObject):
+class Panes(VBACollection, ItemDefault, ExcelObject):
     """A window's panes: one, two when it is split one way, four when both."""
 
     vba_type_name = "Panes"
@@ -676,6 +676,10 @@ class WorksheetView(ExcelObject):
 
     def __init__(self, window: Window, sheet: Worksheet) -> None:
         self.window, self.sheet = window, sheet
+
+    @member
+    def DisplayDataTypeIcons(self) -> object:
+        return True
 
     def view(self) -> SheetViewState:
         if not any(one is self.sheet for one in self.window.book.sheets_):

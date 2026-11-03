@@ -199,7 +199,7 @@ Application,ODBCTimeout,property,As Long,,PARTIAL,tests/fixtures/application_set
 Application,OLEDBErrors,"property, read-only",As OLEDBErrors,,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Count 0.
 Application,OnKey,method,"OnKey(Key As String, [Procedure As Variant])",,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,"Checked, held nowhere; no keyboard here."
 Application,OnRepeat,method,"OnRepeat(Text As String, Procedure As String)",,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,"Checked, held nowhere."
-Application,OnTime,method,"OnTime(EarliestTime As Variant, Procedure As String, [LatestTime As Variant], [Schedule As Variant])",,MISSING,,
+Application,OnTime,method,"OnTime(EarliestTime As Variant, Procedure As String, [LatestTime As Variant], [Schedule As Variant])",,PARTIAL,tests/fixtures/on_time.json; tests/test_excel_on_time.py,"Runs what is due once no macro is running and at DoEvents, not at Wait, the last scheduled first; Schedule:=False takes every match of time and name, 1004 where none; a later time waits for ExcelApplication.run_on_time; an argument that is not a number or text reports itself"
 Application,OnUndo,method,"OnUndo(Text As String, Procedure As String)",,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,"Checked, held nowhere."
 Application,OnWindow,property,As String,,MISSING,,
 Application,OperatingSystem,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,"Windows (64-bit) NT 10.00, as Excel answers on 64-bit Windows 10 and 11."

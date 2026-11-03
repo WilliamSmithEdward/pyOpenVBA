@@ -1,0 +1,223 @@
+{
+ "measured_at": "2026-11-03T20:15:55.634056+00:00",
+ "timers": "Public Sub Note(ByVal s As String)\n    ThisWorkbook.Worksheets(1).Range(\"Z1\").Value = \"'\" & Logged() & s & \"|\"\nEnd Sub\nPublic Function Logged() As String\n    Logged = ThisWorkbook.Worksheets(1).Range(\"Z1\").Value\nEnd Function\nPublic Sub A()\n    Note \"A\"\nEnd Sub\nPublic Sub B()\n    Note \"B\"\nEnd Sub\nPublic Sub WithArgument(ByVal x As Long)\n    Note \"arg\" & x\nEnd Sub\nPublic Sub Again()\n    Note \"again\"\n    Application.OnTime Now, \"A\"\nEnd Sub\nPrivate Sub Hidden()\n    Note \"hidden\"\nEnd Sub\n",
+ "probe": "Function Probe() As String\nOn Error GoTo Failed\n{action}\nProbe = Logged()\nExit Function\nFailed:\nProbe = Logged() & \"!E\" & Err.Number\nEnd Function\n",
+ "rows": [
+  {
+   "name": "due_now",
+   "action": "Application.OnTime Now, \"A\"",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "in_the_past",
+   "action": "Application.OnTime Now - 1, \"A\"",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "in_the_future",
+   "action": "Dim t As Date\nt = Now + 1\nApplication.OnTime t, \"A\"\nNote \"set\"\nApplication.OnTime t, \"A\", , False",
+   "during": "set|",
+   "after": "set|"
+  },
+  {
+   "name": "not_during_wait",
+   "action": "Application.OnTime Now, \"A\"\nApplication.Wait Now + TimeSerial(0, 0, 1)",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "not_during_do_events",
+   "action": "Application.OnTime Now, \"A\"\nDim i As Long\nFor i = 1 To 2000\nDoEvents\nNext",
+   "during": "A|",
+   "after": "A|"
+  },
+  {
+   "name": "twice_same",
+   "action": "Dim t As Date\nt = Now\nApplication.OnTime t, \"A\"\nApplication.OnTime t, \"A\"",
+   "during": "",
+   "after": "A|A|"
+  },
+  {
+   "name": "two_same_time",
+   "action": "Dim t As Date\nt = Now\nApplication.OnTime t, \"B\"\nApplication.OnTime t, \"A\"",
+   "during": "",
+   "after": "A|B|"
+  },
+  {
+   "name": "two_by_time",
+   "action": "Dim t As Date\nt = Now\nApplication.OnTime t - 1 / 86400, \"B\"\nApplication.OnTime t - 2 / 86400, \"A\"",
+   "during": "",
+   "after": "A|B|"
+  },
+  {
+   "name": "two_by_time_other_way",
+   "action": "Dim t As Date\nt = Now\nApplication.OnTime t - 2 / 86400, \"B\"\nApplication.OnTime t - 1 / 86400, \"A\"",
+   "during": "",
+   "after": "A|B|"
+  },
+  {
+   "name": "cancel",
+   "action": "Dim t As Date\nt = Now + 1\nApplication.OnTime t, \"A\"\nApplication.OnTime t, \"A\", , False",
+   "during": "",
+   "after": ""
+  },
+  {
+   "name": "cancel_due",
+   "action": "Dim t As Date\nt = Now\nApplication.OnTime t, \"A\"\nApplication.OnTime t, \"A\", , False",
+   "during": "",
+   "after": ""
+  },
+  {
+   "name": "cancel_none",
+   "action": "Application.OnTime Now + 1, \"A\", , False",
+   "during": "!E1004",
+   "after": ""
+  },
+  {
+   "name": "cancel_other_time",
+   "action": "Dim t As Date\nt = Now + 1\nApplication.OnTime t, \"A\"\nOn Error Resume Next\nApplication.OnTime t + 1, \"A\", , False\nNote \"E\" & Err.Number\nOn Error GoTo 0\nApplication.OnTime t, \"A\", , False",
+   "during": "E1004|",
+   "after": "E1004|"
+  },
+  {
+   "name": "cancel_other_name",
+   "action": "Dim t As Date\nt = Now + 1\nApplication.OnTime t, \"A\"\nOn Error Resume Next\nApplication.OnTime t, \"B\", , False\nNote \"E\" & Err.Number\nOn Error GoTo 0\nApplication.OnTime t, \"A\", , False",
+   "during": "E1004|",
+   "after": "E1004|"
+  },
+  {
+   "name": "cancel_other_case",
+   "action": "Dim t As Date\nt = Now + 1\nApplication.OnTime t, \"A\"\nOn Error Resume Next\nApplication.OnTime t, \"a\", , False\nNote \"E\" & Err.Number\nOn Error GoTo 0\nIf Err.Number = 0 Then Note \"ok\"\nOn Error Resume Next\nApplication.OnTime t, \"A\", , False",
+   "during": "E0|ok|",
+   "after": "E0|ok|"
+  },
+  {
+   "name": "cancel_twice",
+   "action": "Dim t As Date\nt = Now + 1\nApplication.OnTime t, \"A\"\nApplication.OnTime t, \"A\", , False\nApplication.OnTime t, \"A\", , False",
+   "during": "!E1004",
+   "after": ""
+  },
+  {
+   "name": "cancel_one_of_two",
+   "action": "Dim t As Date\nt = Now\nApplication.OnTime t, \"A\"\nApplication.OnTime t, \"A\"\nApplication.OnTime t, \"A\", , False",
+   "during": "",
+   "after": ""
+  },
+  {
+   "name": "schedule_true",
+   "action": "Application.OnTime Now, \"A\", , True",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "schedule_text",
+   "action": "Application.OnTime Now, \"A\", , \"True\"",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "latest_past",
+   "action": "Application.OnTime Now - 2, \"A\", Now - 1",
+   "during": "",
+   "after": ""
+  },
+  {
+   "name": "latest_future",
+   "action": "Application.OnTime Now - 2, \"A\", Now + 1",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "time_of_day_past",
+   "action": "Application.OnTime TimeValue(\"00:00:00\"), \"A\", , True\nApplication.OnTime TimeValue(\"00:00:00\"), \"A\", , False",
+   "during": "",
+   "after": ""
+  },
+  {
+   "name": "number",
+   "action": "Application.OnTime CDbl(Now), \"A\"",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "text_time",
+   "action": "Application.OnTime CStr(Now), \"A\"",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "bad_time",
+   "action": "Application.OnTime \"soon\", \"A\"",
+   "during": "!E1004",
+   "after": ""
+  },
+  {
+   "name": "null_time",
+   "action": "Application.OnTime Null, \"A\"",
+   "during": "",
+   "after": ""
+  },
+  {
+   "name": "empty_name",
+   "action": "Application.OnTime Now, \"\"",
+   "during": "!E1004",
+   "after": ""
+  },
+  {
+   "name": "qualified",
+   "action": "Application.OnTime Now, \"Timers.A\"",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "booked",
+   "action": "Application.OnTime Now, \"'\" & ActiveWorkbook.Name & \"'!A\"",
+   "during": "",
+   "after": "A|"
+  },
+  {
+   "name": "argument",
+   "action": "Application.OnTime Now, \"'WithArgument 7'\"",
+   "during": "",
+   "after": "arg7|"
+  },
+  {
+   "name": "private",
+   "action": "Application.OnTime Now, \"Timers.Hidden\"",
+   "during": "",
+   "after": "hidden|"
+  },
+  {
+   "name": "from_timer",
+   "action": "Application.OnTime Now, \"Again\"",
+   "during": "",
+   "after": "again|A|"
+  },
+  {
+   "name": "do_events_two_calls",
+   "action": "Application.OnTime Now - 1, \"A\"\nDoEvents\nDoEvents",
+   "during": "A|",
+   "after": "A|"
+  },
+  {
+   "name": "do_events_two",
+   "action": "Application.OnTime Now, \"A\"\nApplication.OnTime Now, \"B\"\nDim i As Long\nFor i = 1 To 2000\nDoEvents\nNext",
+   "during": "B|A|",
+   "after": "B|A|"
+  },
+  {
+   "name": "do_events_once",
+   "action": "Application.OnTime Now - 1, \"A\"\nDoEvents",
+   "during": "A|",
+   "after": "A|"
+  },
+  {
+   "name": "do_events_future",
+   "action": "Dim t As Date\nt = Now + 1\nApplication.OnTime t, \"A\"\nDoEvents\nApplication.OnTime t, \"A\", , False",
+   "during": "",
+   "after": ""
+  }
+ ]
+}

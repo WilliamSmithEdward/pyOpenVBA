@@ -9,8 +9,9 @@ from __future__ import annotations
 import posixpath
 import re
 from copy import deepcopy
+from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._creator import ItemDefault
@@ -227,8 +228,41 @@ def refuse_1904_dates(cache: PivotCache) -> None:
         raise VBAUnsupportedError('A PivotCache holding dates in a workbook on the 1904 calendar is not implemented')
 
 
+class PivotAxis(ExcelObject):
+    """A table's row or column axis; its lines are left alone, as reading a line's LineType stops Excel."""
+
+    vba_type_name = 'PivotAxis'
+
+    def __init__(self, table: PivotTable) -> None:
+        self.table = table
+
+    @member
+    def Parent(self) -> object:
+        return self.table
+
+    @member
+    def Application(self) -> object:
+        return self.table.sheet.book.application
+
+
 class PivotCache(ExcelObject):
     vba_type_name = 'PivotCache'
+
+    # -- tests/fixtures/pivot_reads.json
+
+    @member
+    def RefreshName(self) -> object:
+        """Who last refreshed the cache: the file's name for them, else the session's user."""
+        return decode_text(self.root.get('refreshedBy', '')) or self.book.application.user_name
+
+    @member
+    def RefreshDate(self) -> object:
+        """When the cache was last refreshed: the file's time, else now."""
+        kept = self.root.get('refreshedDate')
+        if kept:
+            return VBADate(float(kept))
+        interpreter = self.book.application.interpreter
+        return VBADate.from_datetime(interpreter.clock() if interpreter is not None else datetime.now())
 
     # A cache over a list, not OLAP and not refreshed on a timer, refuses both with 1004
     # (tests/fixtures/pivot_olap_members.json).
@@ -337,6 +371,46 @@ class PivotCache(ExcelObject):
 
 class PivotTable(ExcelObject):
     vba_type_name = 'PivotTable'
+
+    # -- tests/fixtures/pivot_reads.json
+
+    @member
+    def ActiveFilters(self) -> object:
+        from pyopenvba.apps.excel._pivot_criteria import ActiveFilters
+
+        return ActiveFilters(self)
+
+    @member
+    def RefreshName(self) -> object:
+        return cast(PivotCache, self.PivotCache()).RefreshName()
+
+    @member
+    def RefreshDate(self) -> object:
+        return cast(PivotCache, self.PivotCache()).RefreshDate()
+
+    @member
+    def PageRangeCells(self) -> object:
+        return self.PageRange()
+
+    @member
+    def PivotRowAxis(self) -> object:
+        return PivotAxis(self)
+
+    @member
+    def PivotColumnAxis(self) -> object:
+        return PivotAxis(self)
+
+    @member
+    def Slicers(self) -> object:
+        from pyopenvba.apps.excel._tables import TableSlicers
+
+        return TableSlicers(self)
+
+    @member
+    def PivotFormulas(self) -> object:
+        from pyopenvba.apps.excel._application_more import EmptyCollection
+
+        return EmptyCollection('PivotFormulas')
 
     # What-if changes belong to an OLAP table; a table over a list refuses each with 1004
     # (tests/fixtures/pivot_olap_members.json).
@@ -1466,6 +1540,38 @@ class PivotField(ExcelObject):
         list_on_reading(self)
         collection = PivotItems(self, items_showing(self, True))
         return collection if Index is MISSING else collection.Item(Index)
+
+    # -- tests/fixtures/pivot_reads.json
+
+    @member
+    def AllItemsVisible(self) -> object:
+        """False once an item is hidden by hand or a page chosen; a caption or value filter leaves it True."""
+        if any(item.get('h') == '1' for item in self.root.findall(f'{NS}items/{NS}item')):
+            return False
+        return not any(entry.get('fld') == str(self.index) and entry.get('item') is not None
+                       for entry in self.table.root.findall(f'{NS}pageFields/{NS}pageField'))
+
+    @setter('AllItemsVisible')
+    def _set_all_items_visible(self, value: object) -> None:
+        raise error(450, 'Wrong number of arguments or invalid property assignment')
+
+    @member
+    def ShowingInAxis(self) -> object:
+        return self.data or self.root.get('dataField') == '1' or bool(self.root.get('axis'))
+
+    @setter('ShowingInAxis')
+    def _set_showing_in_axis(self, value: object) -> None:
+        raise error(450, 'Wrong number of arguments or invalid property assignment')
+
+    @member
+    def ChildItems(self) -> object:
+        """Empty: a field over a list has no levels of items."""
+        return PivotItems(self, [])
+
+    @method
+    def AddPageItem(self, Item: object = MISSING, ClearList: object = MISSING) -> object:  # noqa: N803
+        """A table over a list refuses it, whatever the field."""
+        raise error(1004, 'AddPageItem method of PivotField class failed')
 
     @member
     def HiddenItems(self, Index: object = MISSING) -> object:

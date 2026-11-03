@@ -1227,6 +1227,42 @@ Font,ThemeColor,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; 
 Font,ThemeFont,property,As XlThemeFont,,PARTIAL,tests/fixtures/cell_styles/style_changes.json,Read; setting it on a range reports unsupported.
 Font,TintAndShade,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Underline,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Values other than the five styles, True, False and 3 report unsupported."
+Font2,Allcaps,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Application,"property, read-only",As Object,,MISSING,,
+Font2,AutorotateNumbers,property,As MsoTriState,,MISSING,,
+Font2,BaselineOffset,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Bold,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Caps,property,As MsoTextCaps,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Creator,"property, read-only",As Long,,UNASSESSED,,
+Font2,DoubleStrikeThrough,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Embeddable,"property, read-only",As MsoTriState,,MISSING,,
+Font2,Embedded,"property, read-only",As MsoTriState,,MISSING,,
+Font2,Equalize,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Fill,"property, read-only",As FillFormat,,MISSING,,
+Font2,Glow,"property, read-only",As GlowFormat,,MISSING,,
+Font2,Highlight,"property, read-only",As ColorFormat,,MISSING,,
+Font2,Italic,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Kerning,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Line,"property, read-only",As LineFormat,,MISSING,,
+Font2,Name,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,NameAscii,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,NameComplexScript,property,As String,,MISSING,,
+Font2,NameFarEast,property,As String,,MISSING,,
+Font2,NameOther,property,As String,,MISSING,,
+Font2,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
+Font2,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
+Font2,Size,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Smallcaps,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,SoftEdgeFormat,property,As MsoSoftEdgeType,,MISSING,,
+Font2,Spacing,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Strike,property,As MsoTextStrike,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,StrikeThrough,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Subscript,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Superscript,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,UnderlineColor,"property, read-only",As ColorFormat,,MISSING,,
+Font2,UnderlineStyle,property,As MsoTextUnderlineType,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 FormatColor,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 FormatColor,Color,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"The colour as it shows, a theme colour with its tint worked out."
 FormatColor,ColorIndex,property,As XlColorIndex,no setter,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,A colour scale's criterion colour.
@@ -2991,6 +3027,48 @@ TextFrame2,VerticalAnchor,property,As MsoVerticalAnchor,,PARTIAL,tests/fixtures/
 TextFrame2,WarpFormat,property,As MsoWarpFormat,,MISSING,,
 TextFrame2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 TextFrame2,WordWrap,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's wrap; any value but 0 wraps.
+TextRange2,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+TextRange2,AddPeriods,method,AddPeriods(),,MISSING,,
+TextRange2,Application,"property, read-only",As Object,,MISSING,,
+TextRange2,BoundHeight,"property, read-only",As Single,,MISSING,,
+TextRange2,BoundLeft,"property, read-only",As Single,,MISSING,,
+TextRange2,BoundTop,"property, read-only",As Single,,MISSING,,
+TextRange2,BoundWidth,"property, read-only",As Single,,MISSING,,
+TextRange2,ChangeCase,method,ChangeCase(Type As MsoTextChangeCase),,MISSING,,
+TextRange2,Characters,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Copy,method,Copy(),,MISSING,,
+TextRange2,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,Creator,"property, read-only",As Long,,UNASSESSED,,
+TextRange2,Cut,method,Cut(),,MISSING,,
+TextRange2,Delete,method,Delete(),,MISSING,,
+TextRange2,Find,method,"Find(FindWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
+TextRange2,Font,"property, read-only",As Font2,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,InsertAfter,method,InsertAfter([NewText As String]) As TextRange2,,MISSING,,
+TextRange2,InsertBefore,method,InsertBefore([NewText As String]) As TextRange2,,MISSING,,
+TextRange2,InsertChartField,method,"InsertChartField(ChartFieldType As MsoChartFieldType, [Formula As String], [Position As Long]) As TextRange2",,MISSING,,
+TextRange2,InsertSymbol,method,"InsertSymbol(FontName As String, CharNumber As Long, [Unicode As MsoTriState]) As TextRange2",,MISSING,,
+TextRange2,Item,method,Item(Index As Variant) As TextRange2,,MISSING,,
+TextRange2,LanguageID,property,As MsoLanguageID,,MISSING,,
+TextRange2,Length,"property, read-only",As Long,,MISSING,,
+TextRange2,Lines,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,LtrRun,method,LtrRun(),,MISSING,,
+TextRange2,MathZones,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,ParagraphFormat,"property, read-only",As ParagraphFormat2,,MISSING,,
+TextRange2,Paragraphs,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Parent,"property, read-only",As Object,,MISSING,,
+TextRange2,Paste,method,Paste() As TextRange2,,MISSING,,
+TextRange2,PasteSpecial,method,PasteSpecial(Format As MsoClipboardFormat) As TextRange2,,MISSING,,
+TextRange2,RemovePeriods,method,RemovePeriods(),,MISSING,,
+TextRange2,Replace,method,"Replace(FindWhat As String, ReplaceWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
+TextRange2,RotatedBounds,method,"RotatedBounds(X1 As Single, Y1 As Single, X2 As Single, Y2 As Single, X3 As Single, Y3 As Single, x4 As Single, y4 As Single)",,MISSING,,
+TextRange2,RtlRun,method,RtlRun(),,MISSING,,
+TextRange2,Runs,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Select,method,Select(),,MISSING,,
+TextRange2,Sentences,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Start,"property, read-only",As Long,,MISSING,,
+TextRange2,Text,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,TrimText,method,TrimText() As TextRange2,,MISSING,,
+TextRange2,Words,"property, read-only",As TextRange2,,MISSING,,
 TickLabels,Alignment,property,As Long,no setter,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"What a new chart reads; refused on imported, scatter and deleted axes. The value axis raises -2147467259. No setter."
 TickLabels,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 TickLabels,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.

@@ -2566,7 +2566,7 @@ class TextFrame2(_TextLayout):
 
     @member
     def TextRange(self) -> object:
-        return Characters(self.owner)
+        return TextRange2(self.owner)
 
     @member
     def HasText(self) -> object:
@@ -2678,10 +2678,10 @@ _FONT_LATIN = {"Arial": '<a:latin typeface="Arial" panose="020B0604020202020204"
                "": '<a:latin typeface=""/>'}
 
 
-class ShapeFont(Created):
-    """All of a shape's text's font (tests/fixtures/shape_font.json)."""
+class _ShapeFontBase(Created):
+    """What Characters.Font and TextRange2.Font share (tests/fixtures/shape_font.json)."""
 
-    vba_type_name = "Font"
+    vba_type_name = ""
 
     def __init__(self, characters: Characters) -> None:
         self.characters = characters
@@ -2701,6 +2701,29 @@ class ShapeFont(Created):
         return self.characters
 
     @member
+    def Size(self) -> object:
+        size = self.look().font_size
+        return VBAInt(int(size), "Long") if size == int(size) else size
+
+    @member
+    def Name(self) -> object:
+        latin = self.look().font_latin
+        return "Aptos Narrow" if latin is None else next(name for name, markup in _FONT_LATIN.items() if markup == latin)
+
+    @setter("Name")
+    def _name(self, value: object) -> None:
+        wanted = to_text(value)
+        if wanted not in _FONT_LATIN:
+            raise _unsupported(f"the font {wanted!r} in a shape")
+        self.changed().font_latin = _FONT_LATIN[wanted]
+
+
+class ShapeFont(_ShapeFontBase):
+    """All of a shape's text's font (tests/fixtures/shape_font.json)."""
+
+    vba_type_name = "Font"
+
+    @member
     def Bold(self) -> object:
         return bool(self.look().font_bold)
 
@@ -2716,29 +2739,12 @@ class ShapeFont(Created):
     def _italic(self, value: object) -> None:
         self.changed().font_italic = bool(to_number(value))
 
-    @member
-    def Size(self) -> object:
-        size = self.look().font_size
-        return VBAInt(int(size), "Long") if size == int(size) else size
-
     @setter("Size")
     def _size(self, value: object) -> None:
         wanted = float(to_number(value))
         # A size of 0 is left alone; others below the measured 10.5 go through as given.
         if wanted > 0:
             self.changed().font_size = wanted
-
-    @member
-    def Name(self) -> object:
-        latin = self.look().font_latin
-        return "Aptos Narrow" if latin is None else next(name for name, markup in _FONT_LATIN.items() if markup == latin)
-
-    @setter("Name")
-    def _name(self, value: object) -> None:
-        wanted = to_text(value)
-        if wanted not in _FONT_LATIN:
-            raise _unsupported(f"the font {wanted!r} in a shape")
-        self.changed().font_latin = _FONT_LATIN[wanted]
 
     @member
     def Color(self) -> object:
@@ -2783,7 +2789,12 @@ class ShapeFont(Created):
     @member
     def Underline(self) -> object:
         chosen = self.look().font_underline
-        return VBAInt(-4142 if chosen is None else next(key for key, name in _FONT_UNDERLINES.items() if name == chosen), "Long")
+        if chosen is None:
+            return VBAInt(-4142, "Long")
+        found = next((key for key, name in _FONT_UNDERLINES.items() if name == chosen), None)
+        if found is None:
+            raise _unsupported("this Underline of a shape's font")
+        return VBAInt(found, "Long")
 
     @setter("Underline")
     def _underline(self, value: object) -> None:
@@ -2794,13 +2805,13 @@ class ShapeFont(Created):
 
     @member
     def Strikethrough(self) -> object:
-        return self.look().font_strike
+        return self.look().font_strike is not None and self.look().font_strike != "noStrike"
 
     @setter("Strikethrough")
     def _strikethrough(self, value: object) -> None:
         if not to_number(value):
             raise _unsupported("taking Strikethrough off a shape's font")
-        self.changed().font_strike = True
+        self.changed().font_strike = "sngStrike"
 
     @member
     def Superscript(self) -> object:
@@ -2888,6 +2899,191 @@ class ShapeFont(Created):
     @member
     def Background(self) -> object:
         raise error(1004, "Unable to get the Background property of the Font class")
+
+
+def _tri(value: object) -> object:
+    return VBAInt(-1 if value else 0, "Long")
+
+
+class ShapeFont2(_ShapeFontBase):
+    """TextRange2.Font (tests/fixtures/shape_font2.json), the same settings as Characters.Font, read as MsoTriState, with a
+    few more. Its Fill, Line and effects, far-east and other font names are not built."""
+
+    vba_type_name = "Font2"
+
+    @member
+    def Bold(self) -> object:
+        return _tri(self.look().font_bold)
+
+    @setter("Bold")
+    def _bold(self, value: object) -> None:
+        self.changed().font_bold = bool(to_number(value))
+
+    @member
+    def Italic(self) -> object:
+        return _tri(self.look().font_italic)
+
+    @setter("Italic")
+    def _italic(self, value: object) -> None:
+        self.changed().font_italic = bool(to_number(value))
+
+    @setter("Size")
+    def _size(self, value: object) -> None:
+        wanted = float(to_number(value))
+        if not 0 < wanted <= 4000:
+            raise error(-2147024809, "The specified value is out of range.")
+        self.changed().font_size = wanted
+
+    @member
+    def NameAscii(self) -> object:
+        return self.vba_get("Name")
+
+    @setter("NameAscii")
+    def _name_ascii(self, value: object) -> None:
+        self.vba_set("Name", value)
+
+    @member
+    def UnderlineStyle(self) -> object:
+        chosen = self.look().font_underline
+        if chosen in (None, "none"):
+            return VBAInt(0, "Long")
+        found = {"sng": 2, "dbl": 3}.get(chosen or "")
+        if found is None:
+            raise _unsupported("this UnderlineStyle of a shape's font")
+        return VBAInt(found, "Long")
+
+    @setter("UnderlineStyle")
+    def _underline_style(self, value: object) -> None:
+        wanted = {0: "none", 2: "sng", 3: "dbl"}.get(int(to_number(value)))
+        if wanted is None:
+            raise _unsupported("this UnderlineStyle of a shape's font")
+        self.changed().font_underline = wanted
+
+    @member
+    def Strike(self) -> object:
+        return VBAInt({"sngStrike": 1, "dblStrike": 2}.get(self.look().font_strike or "", 0), "Long")
+
+    @setter("Strike")
+    def _strike(self, value: object) -> None:
+        wanted = {0: "noStrike", 1: "sngStrike", 2: "dblStrike"}.get(int(to_number(value)))
+        if wanted is None:
+            raise _unsupported("this Strike of a shape's font")
+        self.changed().font_strike = wanted
+
+    @member
+    def StrikeThrough(self) -> object:
+        return _tri(self.look().font_strike == "sngStrike")
+
+    @setter("StrikeThrough")
+    def _strike_through(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking StrikeThrough off a shape's font")
+        self.changed().font_strike = "sngStrike"
+
+    @member
+    def DoubleStrikeThrough(self) -> object:
+        return _tri(self.look().font_strike == "dblStrike")
+
+    @setter("DoubleStrikeThrough")
+    def _double_strike_through(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking DoubleStrikeThrough off a shape's font")
+        self.changed().font_strike = "dblStrike"
+
+    @member
+    def Superscript(self) -> object:
+        return _tri((self.look().font_baseline or 0) > 0)
+
+    @member
+    def Subscript(self) -> object:
+        return _tri((self.look().font_baseline or 0) < 0)
+
+    @setter("Superscript")
+    def _superscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Superscript off a shape's font")
+        self.changed().font_baseline = 30000
+
+    @setter("Subscript")
+    def _subscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Subscript off a shape's font")
+        self.changed().font_baseline = -25000
+
+    @member
+    def BaselineOffset(self) -> object:
+        return VBASingle((self.look().font_baseline or 0) / 100000)
+
+    @setter("BaselineOffset")
+    def _baseline_offset(self, value: object) -> None:
+        self.changed().font_baseline = round(float(VBASingle(float(to_number(value)))) * 100000)
+
+    @member
+    def Caps(self) -> object:
+        return VBAInt({"small": 1, "all": 2}.get(self.look().font_cap or "", 0), "Long")
+
+    @setter("Caps")
+    def _caps(self, value: object) -> None:
+        wanted = {1: "small", 2: "all"}.get(int(to_number(value)))
+        if wanted is None:
+            raise _unsupported("this Caps of a shape's font")
+        self.changed().font_cap = wanted
+
+    @member
+    def Allcaps(self) -> object:
+        return _tri(self.look().font_cap == "all")
+
+    @setter("Allcaps")
+    def _allcaps(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Allcaps off a shape's font")
+        self.changed().font_cap = "all"
+
+    @member
+    def Smallcaps(self) -> object:
+        return _tri(self.look().font_cap == "small")
+
+    @setter("Smallcaps")
+    def _smallcaps(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Smallcaps off a shape's font")
+        self.changed().font_cap = "small"
+
+    @member
+    def Spacing(self) -> object:
+        return VBASingle((self.look().font_spacing or 0) / 100)
+
+    @setter("Spacing")
+    def _spacing(self, value: object) -> None:
+        self.changed().font_spacing = round(float(to_number(value)) * 100)
+
+    @member
+    def Kerning(self) -> object:
+        return VBASingle((self.look().font_kern or 0) / 100)
+
+    @setter("Kerning")
+    def _kerning(self, value: object) -> None:
+        self.changed().font_kern = round(float(to_number(value)) * 100)
+
+    @member
+    def Equalize(self) -> object:
+        return _tri(self.look().font_normalize)
+
+    @setter("Equalize")
+    def _equalize(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Equalize off a shape's font")
+        self.changed().font_normalize = True
+
+
+class TextRange2(Characters):
+    """TextFrame2.TextRange, the same text as Characters."""
+
+    vba_type_name = "TextRange2"
+
+    @member
+    def Font(self) -> object:
+        return ShapeFont2(self)
 
 
 class ControlFormat(_Drawn):

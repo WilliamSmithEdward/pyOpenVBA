@@ -206,7 +206,11 @@ class TextLook:
     font_bold: bool | None = None
     font_italic: bool | None = None
     font_underline: str | None = None
-    font_strike: bool = False
+    font_strike: str | None = None
+    font_kern: int | None = None
+    font_cap: str | None = None
+    font_spacing: int | None = None
+    font_normalize: bool = False
     font_baseline: int | None = None
     font_rgb: str | None = None
     font_index: int | None = None

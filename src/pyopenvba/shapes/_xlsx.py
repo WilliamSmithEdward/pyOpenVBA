@@ -1258,8 +1258,16 @@ def _font_markup(look: TextLook) -> tuple[str, str]:
         attributes += f' i="{1 if look.font_italic else 0}"'
     if look.font_underline is not None:
         attributes += f' u="{look.font_underline}"'
-    if look.font_strike:
-        attributes += ' strike="sngStrike"'
+    if look.font_strike is not None:
+        attributes += f' strike="{look.font_strike}"'
+    if look.font_kern is not None:
+        attributes += f' kern="{look.font_kern}"'
+    if look.font_cap is not None:
+        attributes += f' cap="{look.font_cap}"'
+    if look.font_spacing is not None:
+        attributes += f' spc="{look.font_spacing}"'
+    if look.font_normalize:
+        attributes += ' normalizeH="1"'
     if look.font_baseline is not None:
         attributes += f' baseline="{look.font_baseline}"'
     children = ""

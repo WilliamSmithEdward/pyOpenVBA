@@ -36,7 +36,7 @@ def _names(text: str) -> str:
     return re.sub(r"Book\d+", renamed, text)
 
 
-def _run(action: str) -> str:
+def _run(action: str, folder: Path) -> str:
     app = ExcelApplication(sandbox=False)
     book = app.add_workbook()
     sheet = book.sheets_[0]
@@ -44,16 +44,19 @@ def _run(action: str) -> str:
     app.add_module(MEASURED["sink"], name="ExcelSink", kind="class")
     app.add_module(MEASURED["sheet"], name=sheet.code_name, kind="document")
     app.add_module(MEASURED["book"], name=book.code_name, kind="document")
-    app.add_module(LIVE_ONLY.sub("", MEASURED["probe"]).replace("{action}", action), name="ProbeModule")
+    # Each row's own file, as the rows run side by side and each one's probe deletes it.
+    probe = LIVE_ONLY.sub("", MEASURED["probe"]).replace("{action}", action)
+    probe = probe.replace('Environ("TEMP") & "\\pyopenvba_open_probe.xlsx"', f'"{folder.as_posix()}/pyopenvba_open_probe.xlsx"')
+    app.add_module(probe, name="ProbeModule")
     return str(app.run("Probe"))
 
 
 @pytest.mark.parametrize("row", ROWS, ids=lambda row: row["name"])
-def test_more_events(row: dict[str, str]) -> None:
+def test_more_events(row: dict[str, str], tmp_path: Path) -> None:
     expected = row["result"]
     if not row["name"].startswith(("resize_", "state_")):
         expected = STRAY_RESIZE.sub("", expected)
-    assert _names(_run(row["action"])) == _names(expected)
+    assert _names(_run(row["action"], tmp_path)) == _names(expected)
 
 
 def test_a_print_to_a_file_reports_itself() -> None:

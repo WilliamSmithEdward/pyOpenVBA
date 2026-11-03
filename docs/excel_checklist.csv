@@ -2049,13 +2049,13 @@ Point,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [Legen
 Point,ApplyPictToEnd,property,As Boolean,,MISSING,,
 Point,ApplyPictToFront,property,As Boolean,,MISSING,,
 Point,ApplyPictToSides,property,As Boolean,,MISSING,,
-Point,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Takes the fill and leaves a black 2-point line; column and bar charts only.
+Point,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/test_excel_point_line_format.py,"Takes the fill and leaves a 2-point line, black or on a chart of lines its series' colour; a marker keeps what it had."
 Point,Copy,method,Copy() As Variant,,MISSING,,
 Point,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
 Point,DataLabel,"property, read-only",As DataLabel,,PARTIAL,tests/test_excel_data_label.py,"One point's label: there while it or its series has a label, else -2147467259. See DataLabel for its members."
-Point,Delete,method,Delete() As Variant,,MISSING,,
+Point,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_point_line_format.py,As live Excel: takes away the point's series.
 Point,Explosion,property,As Long,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; written on a pie or doughnut; negative raises 1004.
-Point,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Fill and Line over the series'; setting on line and scatter charts is refused.
+Point,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/test_excel_point_line_format.py,"Fill and Line over the series'. On a chart of lines the fill and line go to its marker too. Hiding such a point's line, Solid on its marker and a scatter point's line are refused."
 Point,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Point,Has3DEffect,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,False. No setter.
 Point,HasDataLabel,property,As Boolean,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; on a series with labels only False is taken.

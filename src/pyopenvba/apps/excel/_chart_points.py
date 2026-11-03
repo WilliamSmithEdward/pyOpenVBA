@@ -3,13 +3,23 @@
 A point reads what its series gives until something is set of it, which the series then keeps a c:dPt for, in order of
 the point's index, with a unique id from the chart's count in the order they were set. A pie's or doughnut's point
 takes its own place's accent, where another chart's takes its series'. A change to the series' fill or line takes that
-part from its points. Setting a point's look on a line chart moves reads onto its marker members, so that is refused,
-and so is Delete, which takes away a series. A marker keeps tests/fixtures/point_markers.json."""
+part from its points. On a chart of lines its look reaches its marker too (tests/fixtures/point_line_format.json), and a
+marker keeps tests/fixtures/point_markers.json. Delete takes away its series, and a point held across that answers as
+tests/fixtures/series_points.json has it."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pyopenvba.apps.excel._chart_format import FILLED, SeriesFill, SeriesLine, accent_colour, look_markup, unmeasured
+from pyopenvba.apps.excel._chart_format import (
+    FILLED,
+    SeriesFill,
+    SeriesLine,
+    accent_colour,
+    hidden_fill,
+    look_markup,
+    plain_line,
+    unmeasured,
+)
 from pyopenvba._xml import escape as escape_attribute, escape_text
 from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, UNIQUE_END, LabelLook, default_run
 from pyopenvba.apps.excel._charts import (
@@ -49,18 +59,25 @@ def _unique_tail(number: int) -> str:
             f'<c16:uniqueId val="{{{number:08X}{UNIQUE_END}}}"/></c:ext>')
 
 
-def _has_marker(point: PointState) -> bool:
-    return not (point.marker is None and point.marker_size is None and point.marker_fore is None
-                and point.marker_back is None)
+def _marker_stroke(point: PointState) -> str:
+    """The marker's copy of the point's line, as Excel writes what was set of it."""
+    source = point.look if point.marker_line is None else point.marker_line
+    if source is None:
+        return ""
+    dash = "solid" if point.marker_solid and source.line_dash is None else source.line_dash
+    return plain_line(FillLine(line_rgb=source.line_rgb, line_width=source.line_width, line_dash=dash,
+                               line_cap=source.line_cap))
 
 
 def _marker_markup(point: PointState, entry: SeriesState, kind: str) -> str:
     """A point's c:marker: where it has a symbol or a size of its own a symbol, as its series' is written, else only its
     colours, which a series drawn without markers does not write. Other charts have nothing to write it in."""
-    if kind not in _LINES or not _has_marker(point):
+    stroke = "" if kind not in _LINES else _marker_stroke(point)
+    if kind not in _LINES or not (point.has_marker() or stroke):
         return ""
     shown = entry.marker if point.marker is None else point.marker
-    look = "" if shown == MARKER_NONE else marker_look(point)
+    tail = "" if point.marker_hidden is None else f"<a:extLst>{hidden_fill(point.marker_hidden)}</a:extLst>"
+    look = "" if shown == MARKER_NONE else marker_look(point, stroke, tail)
     if point.marker is None and point.marker_size is None:
         return f"<c:marker>{look}</c:marker>" if look else "<c:marker/>"
     symbol = MARKER_SYMBOLS[shown]
@@ -77,7 +94,7 @@ def points_markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, .
     written = ""
     for index, point in sorted(entry.points.items()):
         explosion = point.explosion if kind in _PIES and point.explosion else None
-        if point.look is None and point.invert is None and explosion is None and not _has_marker(point):
+        if point.look is None and point.invert is None and explosion is None and not point.has_marker():
             continue
         invert = ""
         if kind in ("column", "bar"):
@@ -212,6 +229,11 @@ class Point(Created):
         self.series.chart.changed()
         return self.series.entry.points.setdefault(self.index, PointState())
 
+    def gone(self) -> bool:
+        """Whether its series has been taken away."""
+        self.series.chart.admit_read()
+        return not any(entry is self.series.entry for entry in self.series.chart.state.series)
+
     def numbered(self, point: PointState) -> None:
         """Its dPt's unique id, from the chart's count, once it has a dPt."""
         if point.unique < 0:
@@ -220,6 +242,8 @@ class Point(Created):
 
     @member
     def Parent(self) -> object:
+        if self.gone():
+            raise error(-2147417848, "Automation error\nThe object invoked has disconnected from its clients.")
         return self.series
 
     @member
@@ -232,6 +256,8 @@ class Point(Created):
 
     @member
     def Format(self) -> object:
+        if self.gone():
+            raise error(-2147467259, "Automation error\nUnspecified error")
         self.kind()
         return PointFormat(self)
 
@@ -275,6 +301,8 @@ class Point(Created):
 
     @member
     def HasDataLabel(self) -> object:
+        if self.gone():
+            return False
         self.kind()
         point = self.own()
         entry = self.series.entry
@@ -356,6 +384,7 @@ class Point(Created):
         if wanted not in MARKER_SYMBOLS:
             raise error(1004, "Unable to set the MarkerStyle property of the Point class")
         point = self.marker_held()
+        self._no_line_look(point)
         entry = self.series.entry
         if wanted == entry.marker and (point.marker is None or wanted == MARKER_AUTOMATIC):
             point.marker = None
@@ -377,6 +406,7 @@ class Point(Created):
         if not 2 <= wanted <= 72:
             raise error(-2147467259, "Automation error\nUnspecified error")
         point = self.marker_held()
+        self._no_line_look(point)
         entry = self.series.entry
         if self.kind() in _LINES and self.marker_shown() == MARKER_AUTOMATIC:
             # A size fixes the marker an automatic one shows, as it does for a series.
@@ -387,19 +417,35 @@ class Point(Created):
         point.marker_size = wanted
         self.numbered(point)
 
+    def _no_line_look(self, point: PointState) -> None:
+        if self.kind() in _LINES and point.look is not None and _marker_stroke(point):
+            raise unmeasured("A marker setting on a point whose line was set")
+
     def _coloured(self, field_name: str, wanted: str | None) -> None:
         point = self.marker_held()
         setattr(point, field_name, wanted)
+        if field_name == "marker_back":
+            point.marker_hidden = None
         # A background brings out the marker of a point drawn without one, even an automatic background.
         if field_name == "marker_back" and self.marker_shown() == MARKER_NONE:
             point.marker = MARKER_AUTOMATIC
-        if _has_marker(point):
+        if point.has_marker():
             self.numbered(point)
 
     def _marker_colour(self, field_name: str) -> str | None:
         point = self.own()
         found: str | None = None if point is None else getattr(point, field_name)
-        return getattr(self.series.entry, field_name) if found is None else found
+        if found is not None:
+            return found
+        entry = self.series.entry
+        if field_name == "marker_fore" and self.kind() in _LINES:
+            # A line's colour is its marker's too, but for what ClearFormats took from the line.
+            source = None if point is None else (point.look if point.marker_line is None else point.marker_line)
+            if source is not None and source.line_rgb is not None:
+                return source.line_rgb
+            if entry.marker_fore is None and entry.format_look is not None:
+                return entry.format_look.line_rgb
+        return getattr(entry, field_name)
 
     def _read_colour(self, field_name: str) -> object:
         self.kind()
@@ -447,7 +493,7 @@ class Point(Created):
         """The look an area chart's point echoes in marker colours it has none of (tests/fixtures/series_points.json).
         """
         point = self.own()
-        return point.look if self.kind() == "area" and point is not None else None
+        return point.look if self.kind() == "area" and point is not None and point.marker_line is None else None
 
     @member
     def MarkerBackgroundColor(self) -> object:
@@ -508,18 +554,36 @@ class Point(Created):
 
     @member
     def IsTotal(self) -> object:
-        self.kind()
         raise error(445, "Object doesn't support this action")
 
     @method
     def ClearFormats(self) -> object:
-        """Not what its name says: it takes the point's fill and leaves it a black line of 2 points."""
-        if self.kind() not in ("column", "bar"):
+        """Not what its name says: it takes the point's fill and leaves it a black line of 2 points, or on a chart of
+        lines one of its series' colour, and a marker keeps what it had."""
+        kind = self.kind()
+        if kind not in _MARKER_KINDS:
             raise VBAUnsupportedError("ClearFormats on a point of this kind of chart is not implemented")
         point = self.held()
-        point.look = FillLine(line_rgb=_CLEARED.line_rgb, line_width=_CLEARED.line_width, line_dash=_CLEARED.line_dash)
+        colour = _CLEARED.line_rgb
+        if kind in _LINES:
+            if point.marker_line is None:
+                old = point.look or FillLine()
+                point.marker_line = FillLine(line_rgb=old.line_rgb, line_width=old.line_width, line_dash=old.line_dash,
+                                             line_cap=old.line_cap)
+            series_look = self.series.entry.format_look
+            colour = (series_look.line_rgb if series_look is not None else None) or colour
+        elif kind == "area":
+            # An area point's marker colours echo its line, but not this one.
+            point.marker_line = FillLine()
+        point.look = FillLine(line_rgb=colour, line_width=_CLEARED.line_width, line_dash=_CLEARED.line_dash)
         self.numbered(point)
         return EMPTY
+
+    @method
+    def Delete(self) -> object:
+        """Not what its name says: it takes away the point's series."""
+        self.kind()
+        return self.series.vba_get("Delete", [])
 
 
 class PointFormat(Created):
@@ -567,7 +631,7 @@ class _OfPoint:
                         line_hidden=line.line_hidden, effects=line.effects)
 
     def admit(self) -> None:
-        if self.owner.point.kind() not in FILLED:
+        if self.owner.point.kind() not in (*FILLED, *_LINES):
             raise unmeasured("Setting the look of a point of this kind of chart")
 
     def change(self) -> FillLine:
@@ -580,13 +644,87 @@ class _OfPoint:
 
     def accent(self) -> int:
         series = self.owner.series
-        place = self.owner.point.index + 1 if self.owner.point.kind() in _PIES else series.position()
+        identity = series.entry.series_id
+        place = identity + 1 if identity >= 0 else series.position()
+        if self.owner.point.kind() in _PIES:
+            place = self.owner.point.index + 1
         return bgr(accent_colour(series.chart.sheet.book.stylesheet.colors.theme, place))
 
 
 class PointFill(_OfPoint, SeriesFill):
     vba_type_name = "FillFormat"
 
+    def marker_took(self, wanted: str) -> bool:
+        if self.owner.point.kind() not in _LINES:
+            return False
+        point = self.owner.point.held()
+        point.marker_back, point.marker_hidden = wanted, None
+        self.owner.point.numbered(point)
+        return True
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        if self.owner.point.kind() not in _LINES:
+            SeriesFill._visible(self, value)  # pyright: ignore[reportPrivateUsage]
+            return
+        wanted = int(to_integer(value, "Long"))
+        own = self.owner.point.own()
+        if wanted == -1 and (own is None or own.marker_hidden is None):
+            return
+        if wanted != 0:
+            raise unmeasured("Showing a marker's hidden fill, or Visible set to anything but msoTrue or msoFalse")
+        point = self.owner.point.held()
+        series = self.owner.series
+        accent = accent_colour(series.chart.sheet.book.stylesheet.colors.theme, series.position())
+        kept = point.marker_hidden or (point.marker_back if point.marker_back not in (None, "none") else None)
+        point.marker_back, point.marker_hidden = "none", kept or accent
+        self.owner.point.numbered(point)
+
+    @setter("Transparency")
+    def _transparency(self, value: object) -> None:
+        point = self.owner.point
+        if point.kind() not in _LINES:
+            SeriesFill._transparency(self, value)  # pyright: ignore[reportPrivateUsage]
+            return
+        own = point.own()
+        if own is not None and own.marker_back is not None:
+            raise unmeasured("The transparency of a marker with a colour")
+        # A marker with no colour written takes none.
+
 
 class PointLine(_OfPoint, SeriesLine):
     vba_type_name = "LineFormat"
+
+    def admit(self) -> None:
+        if self.owner.point.kind() == "scatter":
+            raise unmeasured("Setting the line of a point of a scatter chart")
+        super().admit()
+
+    def reads_hidden(self) -> bool:
+        # ClearFormats gives a scatter chart's point a real line, whatever its series'.
+        return not self.own_look().line_rgb and super().reads_hidden()
+
+    def settable(self, what: str) -> None:
+        self.admit()
+        own = self.owner.point.own()
+        if own is not None and own.marker_line is not None:
+            raise unmeasured(f"The line {what} of a point after ClearFormats")
+        if self.owner.point.kind() not in _LINES:
+            super().settable(what)
+
+    def change(self) -> FillLine:
+        look = super().change()
+        point = self.owner.point.held()
+        if self.owner.point.kind() in _LINES and point.marker_fore is not None:
+            point.marker_solid = point.marker_fore != "none"
+            point.marker_fore = None
+        return look
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        if self.owner.point.kind() not in _LINES:
+            SeriesLine._visible(self, value)  # pyright: ignore[reportPrivateUsage]
+            return
+        self.admit()
+        if int(to_integer(value, "Long")) != -1:
+            raise unmeasured("Hiding the line of a point of a chart of lines")

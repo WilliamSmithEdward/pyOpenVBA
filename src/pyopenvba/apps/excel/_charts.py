@@ -88,8 +88,18 @@ class PointState:
     marker_size: int | None = None
     marker_fore: str | None = None
     marker_back: str | None = None
+    #: The colour Format.Fill.Visible = msoFalse keeps in the file for a marker's hidden fill.
+    marker_hidden: str | None = None
+    #: A line's look set over a foreground colour keeps that colour's solid dash in the marker.
+    marker_solid: bool = False
+    #: What ClearFormats left the marker of the point's line, once it has taken the line itself.
+    marker_line: FillLine | None = None
     unique: int = -1
     label_unique: int = -1
+
+    def has_marker(self) -> bool:
+        return not (self.marker is None and self.marker_size is None and self.marker_fore is None
+                    and self.marker_back is None)
 
 
 @dataclass
@@ -421,15 +431,16 @@ def marker_markup(entry: SeriesState) -> str:
     return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{entry.marker_size or 5}"/>{look}</c:marker>'
 
 
-def marker_look(entry: SeriesState | PointState) -> str:
+def marker_look(entry: SeriesState | PointState, stroke: str = '', tail: str = '') -> str:
     """The marker's spPr: its background as the fill, its foreground as the line, as Excel writes them
-    (tests/fixtures/chart_marker_colours.json)."""
+    (tests/fixtures/chart_marker_colours.json), or the stroke given where it has no foreground."""
     fill = {None: '', 'none': '<a:noFill/>'}.get(
         entry.marker_back, f'<a:solidFill><a:srgbClr val="{entry.marker_back}"/></a:solidFill>')
     line = {None: '', 'none': '<a:ln w="12700"><a:noFill/></a:ln>'}.get(
         entry.marker_fore,
         f'<a:ln><a:solidFill><a:srgbClr val="{entry.marker_fore}"/></a:solidFill><a:prstDash val="solid"/></a:ln>')
-    return f'<c:spPr>{fill}{line}</c:spPr>' if fill or line else ''
+    line = line or stroke
+    return f'<c:spPr>{fill}{line}{tail}</c:spPr>' if fill or line else ''
 
 
 def plot_by(chart: ChartState) -> int:
@@ -2314,7 +2325,10 @@ class Series(Created):
     def Format(self) -> object:
         from pyopenvba.apps.excel._chart_format import ChartFormat
 
-        self.position()
+        self.chart.admit_read()
+        if not any(entry is self.entry for entry in self.chart.state.series):
+            # A series taken away answers this one differently from its other members.
+            raise error(-2147467259, 'Automation error\nUnspecified error')
         return ChartFormat(self)
 
     @method
@@ -2411,7 +2425,7 @@ class Series(Created):
             raise VBAUnsupportedError('A marker on a series with a look of its own is not implemented')
         self.chart.changed()
         entry.marker = wanted
-        self._taken_from_points('marker')
+        self.taken_from_points('marker')
 
     # -- the marker's colours (tests/fixtures/chart_marker_colours.json)
 
@@ -2428,9 +2442,9 @@ class Series(Created):
         if wanted is not None and entry.marker == MARKER_NONE:
             # A series drawn without markers takes automatic ones once given a marker colour.
             entry.marker = MARKER_AUTOMATIC
-        self._taken_from_points(field_name)
+        self.taken_from_points(field_name)
 
-    def _taken_from_points(self, field_name: str) -> None:
+    def taken_from_points(self, field_name: str) -> None:
         """What is set of a series' marker it sets of its points too, and a marker left the same as the series' goes."""
         entry = self.entry
         for point in entry.points.values():
@@ -2440,6 +2454,10 @@ class Series(Created):
 
     def _read_colour(self, field_name: str) -> object:
         found = self._colour(field_name)
+        look = self.entry.format_look
+        if found is None and field_name == 'marker_fore' and look is not None:
+            # Its line's colour is its marker's too (tests/fixtures/point_line_format.json).
+            found = look.line_rgb
         if found is None or found == 'none':
             return VBAInt(-1 if found is None else -2, 'Long')
         return VBAInt(int(found[4:6] + found[2:4] + found[0:2], 16), 'Long')
@@ -2529,7 +2547,7 @@ class Series(Created):
         entry.marker_size = wanted
         if entry.marker == MARKER_AUTOMATIC:
             entry.marker = AUTOMATIC_MARKERS[identity]
-        self._taken_from_points('marker_size')
+        self.taken_from_points('marker_size')
 
 
 def r1c1_series(formula: str) -> str:

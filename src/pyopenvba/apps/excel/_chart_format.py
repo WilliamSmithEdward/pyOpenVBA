@@ -62,7 +62,7 @@ def accent_colour(theme: tuple[str, ...], place: int) -> str:
     return theme[3 + place]
 
 
-def _plain_line(look: FillLine) -> str:
+def plain_line(look: FillLine) -> str:
     """A line as Excel writes what was set of it."""
     if look.line_rgb is None and look.line_width is None and look.line_dash is None:
         return ""
@@ -71,6 +71,12 @@ def _plain_line(look: FillLine) -> str:
     inside = ("" if look.line_rgb is None else _solid(look.line_rgb)) + (
         "" if look.line_dash is None else f'<a:prstDash val="{look.line_dash}"/>')
     return f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"
+
+
+def hidden_fill(colour: str, alpha: int | None = None) -> str:
+    """The extension that keeps a hidden fill's colour."""
+    return ('<a:ext uri="{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}">'
+            f"<a14:hiddenFill {_A14}>{_solid(colour, alpha)}</a14:hiddenFill></a:ext>")
 
 
 def markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, ...]) -> str:
@@ -93,17 +99,16 @@ def look_markup(look: FillLine, kind: str, accent: str) -> str:
                 extensions = ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
                               f"<a14:hiddenLine {_A14} {stroke.format(_solid(accent))}</a14:hiddenLine></a:ext>")
         else:
-            body = _plain_line(look)
+            body = plain_line(look)
     else:
         colour = look.fill_rgb or accent
         fill = ""
         if look.fill_hidden:
             fill = "<a:noFill/>"
-            extensions = ('<a:ext uri="{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}">'
-                          f"<a14:hiddenFill {_A14}>{_solid(colour, look.fill_alpha)}</a14:hiddenFill></a:ext>")
+            extensions = hidden_fill(colour, look.fill_alpha)
         elif look.fill_rgb is not None or look.fill_solid:
             fill = _solid(colour, look.fill_alpha)
-        line = "<a:ln><a:noFill/></a:ln>" if look.line_full else _plain_line(look)
+        line = "<a:ln><a:noFill/></a:ln>" if look.line_full else plain_line(look)
         body = fill + line + ("<a:effectLst/>" if look.effects else "")
         if look.line_hidden:
             extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
@@ -153,14 +158,17 @@ class _Part(Created):
             self.wipe(point)
             if point.look == FillLine():
                 point.look = None
-            if point.look is None and point.invert is None and point.explosion is None and point.label is None:
+            if (point.look is None and point.invert is None and point.explosion is None and point.label is None
+                    and not point.has_marker()):
                 del points[place]
         return self.series.entry.format_look
 
     def accent(self) -> int:
-        """The series' accent, as a BGR Long."""
+        """The series' accent, as a BGR Long: of its idx, which it keeps when a series before it goes."""
         theme = self.series.chart.sheet.book.stylesheet.colors.theme
-        return bgr(accent_colour(theme, self.series.position()))
+        place = self.series.position()
+        identity = self.series.entry.series_id
+        return bgr(accent_colour(theme, identity + 1 if identity >= 0 else place))
 
     @member
     def Parent(self) -> object:
@@ -185,6 +193,11 @@ class SeriesFill(_Part):
         if point.look is not None:
             point.look.fill_rgb, point.look.fill_alpha = None, None
             point.look.fill_solid = point.look.fill_hidden = False
+
+    def marker_took(self, wanted: str) -> bool:
+        """Whether a point's marker took this colour, which a series' setter has done with."""
+        del wanted
+        return False
 
     @member
     def Visible(self) -> object:
@@ -276,6 +289,8 @@ class SeriesLine(_Part):
             look = point.look
             look.line_rgb, look.line_width, look.line_dash, look.line_cap = None, None, None, None
             point.look.line_full = point.look.line_hidden = point.look.effects = False
+        if self.kind() not in FILLED:
+            point.marker_fore, point.marker_line, point.marker_solid = None, None, False
 
     def settable(self, what: str) -> None:
         self.admit()
@@ -413,12 +428,15 @@ class SeriesColor(Created):
             self.owner.settable("colour")
             self.owner.change().line_rgb = wanted
             return
+        if self.owner.marker_took(wanted):
+            return
         if kind == "line":
             return  # A line series takes no fill.
         if kind in ("lineMarkers", "scatter"):
             # Its markers take it, as MarkerBackgroundColor does.
             self.owner.series.chart.changed()
             self.owner.series.entry.marker_back = wanted
+            self.owner.series.taken_from_points("marker_back")
             return
         if self.owner.look().fill_hidden or self.owner.look().line_full:
             raise unmeasured("A colour for a series' hidden fill, or once its line was hidden,")
@@ -501,7 +519,7 @@ def element_markup(key: str, look: FillLine | None) -> str:
     elif look.no_fill:
         fill = "<a:noFill/>"
     if not look.line_full:
-        line = _plain_line(look)
+        line = plain_line(look)
     elif _grey(key):
         line = f"<a:ln {_GREY_STROKE.format('<a:noFill/>')}</a:ln>"
     else:

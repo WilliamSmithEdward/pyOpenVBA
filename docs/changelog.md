@@ -15,6 +15,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.NavigateArrow`, following the levels `ShowPrecedents` and `ShowDependents`
+  have traced. Several dependents on one sheet are refused, since their order was
+  not worked out.
+- `Range.Justify`. A line about as wide as its column is refused, because where Excel
+  breaks those depends on the display.
+- `Range.SortSpecial`, `Range.Show`, `Range.Run`, `Range.Phonetic`, `Range.Phonetics`,
+  `Range.SetPhonetic` and `Worksheet.PasteSpecial` for cells on the clipboard.
 - `Format.Line` on a trendline and on error bars: `ForeColor.RGB`, `Weight`, all
   twelve `DashStyle` values, `Style`, and hiding with `Visible`. It shares its look
   with their `Border`. `Format.Fill` raises the error Excel raises, since a line has

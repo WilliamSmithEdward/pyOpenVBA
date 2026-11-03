@@ -140,15 +140,23 @@ def main() -> None:
 
 def layout_of(part: str) -> list[object]:
     """What a chart part says of a style's layout: a title, the legend's place, each axis's minor gridlines, minor tick
-    marks and whether it is deleted, and whether its series have data labels."""
+    marks and whether it is deleted, its first series' data labels, drop lines, high-low lines, each axis's title."""
     legend = re.search(r'<c:legendPos val="(\w+)"', part)
     axes = re.findall(r'<c:(?:catAx|valAx|dateAx)>.*?</c:(?:catAx|valAx|dateAx)>', part, re.S)
     said: list[object] = ['<c:chart><c:title>' in part, legend.group(1) if legend else '']
     for axis in axes[:2]:
         tick = re.search(r'<c:minorTickMark val="(\w+)"', axis)
         said += ['<c:minorGridlines>' in axis, tick.group(1) if tick else 'none', '<c:delete val="1"/>' in axis]
-    said.append('<c:ser>' in part and '<c:dLbls>' in part[part.index('<c:ser>'):part.index('</c:ser>')])
-    return said
+    said += [False, 'none', False] * (2 - len(axes[:2]))
+    labels: object = False
+    if '<c:ser>' in part:
+        found = re.search(r'<c:dLbls>.*?</c:dLbls>', part[part.index('<c:ser>'):part.index('</c:ser>')], re.S)
+        if found:
+            place = re.search(r'<c:dLblPos val="(\w+)"', found.group(0))
+            labels = [*('<c:show%s val="1"/>' % name in found.group(0) for name in ('Val', 'CatName', 'SerName', 'Percent')),
+                      place.group(1) if place else '']
+    return [*said, labels, '<c:dropLines>' in part, '<c:hiLowLines>' in part,
+            *('<c:title>' in axis for axis in (axes + ['', ''])[:2])]
 
 
 def checks(kinds: list[int]) -> None:
@@ -157,20 +165,22 @@ def checks(kinds: list[int]) -> None:
     record = json.loads(OUT.read_text(encoding='utf-8'))
     defaults = {int(answer.split()[0]) for answer in record['defaults'].values() if not answer.startswith('Err')}
     laid = record.get('layouts', {})
-    styles = sorted(defaults | {int(style) for style, said in laid.items() if not said[-1]}) if laid else list(range(201, 498))
+    styles = list(range(201, 498)) if kinds != [] else sorted(defaults)
     digests: dict[str, str] = record.setdefault('checks', {})
     doughnuts: dict[str, list[int]] = record.setdefault('doughnuts', {})
     with tempfile.TemporaryDirectory() as folder, ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
         excel.new_document()
         for kind in kinds:
             for style in styles:
+                if f'{kind},{style}' in digests:
+                    continue
                 result = excel.run_vba(PROBE, 'Probe', (folder, style, kind), timeout=60.0)
                 assert result.ok and not result.dialogs, result
                 with zipfile.ZipFile(Path(folder) / 'p.xlsx') as package:
                     part = normalized(package.read('xl/charts/chart1.xml').decode('utf-8'))
                 digests[f'{kind},{style}'] = hashlib.sha256(part.encode('utf-8')).hexdigest()
-                if kind == 51:
-                    laid[str(style)] = layout_of(part)
+                if kind in (51, 4, -4169, 5):
+                    laid.setdefault(str(kind), {})[str(style)] = layout_of(part)
                 if kind == -4120:
                     hole = re.search(r'<c:holeSize val="(\d+)"', part)
                     first = re.search(r'<c:firstSliceAng val="(\d+)"', part)

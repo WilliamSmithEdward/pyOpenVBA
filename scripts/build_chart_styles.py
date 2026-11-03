@@ -2,6 +2,8 @@
 in tests/fixtures/add_chart2.json, for the styles some chart type takes by default.
 
     python scripts/build_chart_styles.py
+
+With --every-style it stops before working out which pairs match, and lets all of them through: for looking at the rest.
 """
 
 from __future__ import annotations
@@ -50,10 +52,12 @@ def layout(style: int, kind: int) -> list[str]:
     return _unpacked()['looks'][str(kind)][str(style)].split(',')
 
 
-def extras(style: int) -> list[Any]:
-    """The rest of a style's layout: a title, the legend's place, each axis's minor gridlines, minor tick marks and whether
-    it is deleted, and whether the series have data labels."""
-    return _unpacked()['layouts'][str(style)]
+def extras(style: int, kind: str = 'column') -> list[Any]:
+    """The rest of a style's layout on a chart of the kind: a title, the legend's place, each axis's minor gridlines, minor
+    tick marks and whether it is deleted, whether the series have data labels, and its drop lines and high-low lines."""
+    family = {'scatter': '-4169', 'line': '4', 'lineMarkers': '4', 'area': '4'}.get(kind, '51')
+    layouts = _unpacked()['layouts']
+    return layouts[family].get(str(style)) or layouts['51'][str(style)]
 
 
 def style_part(style: int) -> str:
@@ -124,7 +128,8 @@ def main() -> None:
         looks = {kind: {style: row for style, row in rows.items() if int(style) in kept} for kind, rows in looks.items()}
         parts = {style: part for style, part in parts.items() if int(style) in kept}
     packed = base64.b85encode(
-        zlib.compress(json.dumps({'looks': looks, 'parts': parts, 'layouts': {style: record['layouts'][style] for style in parts}},
+        zlib.compress(json.dumps({'looks': looks, 'parts': parts, 'layouts': {kind: {style: said for style, said in held.items() if style in parts}
+                                                                                 for kind, held in record['layouts'].items()}},
                                  separators=(',', ':')).encode('utf-8'), 9)
     )
     body = HEAD + '#: The colours part, the same for every style.\n' + _wrapped('COLORS_PART', colours)
@@ -150,5 +155,6 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-    PROVE = True
-    main()
+    if sys.argv[1:] != ['--every-style']:
+        PROVE = True
+        main()

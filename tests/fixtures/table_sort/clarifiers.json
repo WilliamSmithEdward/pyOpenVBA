@@ -31,7 +31,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$A$1:$C$5:headers=True:totals=False;sort=ERR:438:Object doesn't support this property or method:h=Long:1:case=Boolean:False:orientation=Long:1:method=Long:1:fields=0[];cells=[A1:String:Name:f=Name:nf=General:b=False:fill=16777215|B1:String:Qty:f=Qty:nf=General:b=False:fill=16777215|C1:String:Double:f=Double:nf=General:b=False:fill=16777215|A2:String:pear:f=pear:nf=General:b=True:fill=65535|B2:Double:3:f=3:nf=0.00:b=False:fill=16777215|C2:Double:30:f==B2*10:nf=General:b=False:fill=16777215|A3:String:apple:f=apple:nf=General:b=False:fill=16777215|B3:Double:1:f=1:nf=General:b=False:fill=16777215|C3:Double:10:f==B3*10:nf=General:b=False:fill=16777215|A4:String:plum:f=plum:nf=General:b=False:fill=16777215|B4:Double:2:f=2:nf=General:b=False:fill=16777215|C4:Double:20:f==B4*10:nf=General:b=False:fill=16777215|A5:String:apple:f=apple:nf=General:b=False:fill=16777215|B5:Double:1:f=1:nf=General:b=False:fill=16777215|C5:Double:10:f==B5*10:nf=General:b=False:fill=16777215|];hidden=[1:False|2:False|3:False|4:False|5:False|];worksheet=ERR:1004:Application-defined or object-defined error:fields=0",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-final-clarifier-samples\\typed-versus-dynamic-hidden-getters.xlsx"
+      "file": "<folder>\\typed-versus-dynamic-hidden-getters.xlsx"
     },
     {
       "name": "fresh-versus-held-options",
@@ -59,7 +59,7 @@
         "error": "None"
       },
       "reopened": "table=Items:$A$1:$C$5:headers=True:totals=False;sort=ERR:438:Object doesn't support this property or method:h=Long:1:case=Boolean:False:orientation=Long:1:method=Long:1:fields=0[];cells=[A1:String:Name:f=Name:nf=General:b=False:fill=16777215|B1:String:Qty:f=Qty:nf=General:b=False:fill=16777215|C1:String:Double:f=Double:nf=General:b=False:fill=16777215|A2:String:pear:f=pear:nf=General:b=True:fill=65535|B2:Double:3:f=3:nf=0.00:b=False:fill=16777215|C2:Double:30:f==B2*10:nf=General:b=False:fill=16777215|A3:String:apple:f=apple:nf=General:b=False:fill=16777215|B3:Double:1:f=1:nf=General:b=False:fill=16777215|C3:Double:10:f==B3*10:nf=General:b=False:fill=16777215|A4:String:plum:f=plum:nf=General:b=False:fill=16777215|B4:Double:2:f=2:nf=General:b=False:fill=16777215|C4:Double:20:f==B4*10:nf=General:b=False:fill=16777215|A5:String:apple:f=apple:nf=General:b=False:fill=16777215|B5:Double:1:f=1:nf=General:b=False:fill=16777215|C5:Double:10:f==B5*10:nf=General:b=False:fill=16777215|];hidden=[1:False|2:False|3:False|4:False|5:False|];worksheet=ERR:1004:Application-defined or object-defined error:fields=0",
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\table-sort-final-clarifier-samples\\fresh-versus-held-options.xlsx"
+      "file": "<folder>\\fresh-versus-held-options.xlsx"
     }
   ],
   "session_id": "116e67e2325b",

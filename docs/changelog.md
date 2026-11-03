@@ -828,6 +828,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- An Error value assigned to a `String` variable, or passed to `Len`, `Format` or a
+  function's String argument, raises 13 as in VBA. `CStr` still spells it. `IndentLevel`
+  above 0 turns off a cell's `Orientation`, and `Orientation` on an indented cell changes
+  nothing, as in Excel.
 - `Chart.ChartTitle` raises as Excel does on a chart with nothing to name it: no series, or
   one series with no name. It used to give such a chart a title. The value axis of a chart
   whose series hold nothing no longer writes a number format.

@@ -1398,7 +1398,16 @@ def write_alignment(target: Range, what: str, value: object) -> None:
                                                  protection=replace(style.protection, **{field_name: on})))
         return
     change = alignment_change(what, value)
-    restyle(target, lambda style: S.applying(style, "alignment", alignment=change(style.alignment)))
+
+    def changed(alignment: S.Alignment) -> S.Alignment:
+        # A cell cannot be both indented and turned, where a style can: indenting straightens it, and turning an indented
+        # cell does nothing (tests/fixtures/excel_everyday_4.json).
+        if what == "Orientation" and alignment.indent:
+            return alignment
+        made = change(alignment)
+        return replace(made, text_rotation=0) if what == "IndentLevel" and made.indent else made
+
+    restyle(target, lambda style: S.applying(style, "alignment", alignment=changed(style.alignment)))
 
 
 def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alignment]:

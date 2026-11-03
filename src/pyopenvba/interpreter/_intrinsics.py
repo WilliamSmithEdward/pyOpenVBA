@@ -97,6 +97,10 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
 }
 
 
+#: VBA's names for the String parameters of its functions.
+_TEXT_PARAMETERS: Final = frozenset({"String", "String1", "String2"})
+
+
 def intrinsic(name: str, *parameters: str, minimum: int = 0) -> Callable[..., Any]:
     """Register a VBA function under ``name`` with VBA's parameter names."""
 
@@ -118,6 +122,10 @@ def intrinsic(name: str, *parameters: str, minimum: int = 0) -> Callable[..., An
             supplied = len(args) + len(named)
             if supplied < minimum:
                 raise error(449, f"{name} needs {minimum} argument{'s' if minimum != 1 else ''}")
+            # A String argument will not take an Error, as a String variable will not.
+            if any(isinstance(value, VBAErrorValue) and parameter in _TEXT_PARAMETERS
+                   for parameter, value in zip(parameters, laid, strict=False)):
+                raise error(ERR_TYPE_MISMATCH)
             return function(interpreter, *laid[: len(parameters)])
 
         INTRINSICS[name.lower()] = dispatch
@@ -531,6 +539,8 @@ def vba_len(interpreter: Interpreter, value: object) -> object:
 
     if isinstance(value, UserTypeValue):
         return VBAInt(value.record_layout(binary=False)[0], 'Integer')
+    if isinstance(value, VBAErrorValue):
+        raise error(ERR_TYPE_MISMATCH)
     if value is NULL:
         return NULL
     if isinstance(value, VBAObject):
@@ -1003,6 +1013,8 @@ def vba_format(
     interpreter: Interpreter, value: object, pattern: object, first_day: object, first_week: object
 ) -> object:
     """VBA's own Format (pyopenvba.interpreter._format), not Access's field formats."""
+    if isinstance(value, VBAErrorValue):
+        raise error(ERR_TYPE_MISMATCH)
     from pyopenvba.interpreter._format import vba_format as format_value
 
     day = 1 if first_day is MISSING else int(to_integer(first_day, "Integer")) or 1

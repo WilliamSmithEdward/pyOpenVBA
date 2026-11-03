@@ -12,9 +12,10 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._format import vba_format
-from pyopenvba.interpreter._values import VBAInt, error, to_bool, to_integer, to_number, to_text
+from pyopenvba.interpreter._values import MISSING, VBAInt, error, to_bool, to_integer, to_number, to_text
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._chart_points import Point
     from pyopenvba.apps.excel._charts import Series
 
 #: Where each chart type puts its labels until told: outside the end of a clustered column or bar, centred on stacks,
@@ -24,6 +25,105 @@ DEFAULT_POSITIONS = {51: 2, 57: 2, 52: -4108, 4: -4152, 65: -4152, 5: 5, -4120: 
 TAKEN = {51: {3, -4108, 4, 2}, 57: {3, -4108, 4, 2}, 4: {0, 1, -4131, -4152}, 65: {0, 1, -4131, -4152},
          5: {5, 2, 3, -4108}}
 REFUSING = {51: {0}, 57: {0}, 1: {-4108}}
+
+
+#: What ApplyDataLabels' Type shows of itself: value, category and percent (tests/fixtures/apply_data_labels.json). A
+#: bubble-size type shows the value on charts that have no bubbles.
+_APPLIED = {2: (True, False, False), 4: (False, True, False), 3: (False, False, True), 5: (False, True, True),
+            6: (True, False, False), -4142: (False, False, False)}
+_PIE = 5
+
+
+def _flag(value: object) -> bool | None:
+    return None if value is MISSING else to_bool(value)
+
+
+def applied_look(kind: int, label_type: object, legend_key: object, auto_text: object, series_name: object,
+                 category_name: object, value: object, percentage: object, separator: object) -> LabelLook:
+    """The parts ApplyDataLabels asks for: its Type's, with its named arguments over them. Percent is for a pie alone,
+    so another chart's percent type is error 1004, and a percent argument does nothing there."""
+    wanted = 2 if label_type is MISSING else int(to_integer(label_type, "Long"))
+    if wanted not in _APPLIED:
+        raise error(5, "Invalid procedure call or argument")
+    if _flag(auto_text) is False:
+        raise unmeasured("ApplyDataLabels with AutoText:=False")
+    shows_value, shows_category, shows_percent = _APPLIED[wanted]
+    if shows_percent and kind != _PIE:
+        raise error(1004, "Application-defined or object-defined error")
+    look = LabelLook(value=shows_value, category=shows_category, percent=shows_percent)
+    for field_name, given in (("legend_key", legend_key), ("series", series_name), ("category", category_name),
+                              ("value", value)):
+        chosen = _flag(given)
+        if chosen is not None:
+            setattr(look, field_name, chosen)
+    if kind == _PIE and _flag(percentage) is not None:
+        look.percent = bool(_flag(percentage))
+    if isinstance(separator, str):
+        look.separator = separator
+    return look
+
+
+def apply_to_series(series: Series, look: LabelLook, leader_lines: object) -> None:
+    """A series given these parts, or with none its labels gone. Its position, number format, separator and font stay,
+    and its points go back to what it gives, but for a typed text, whose parts follow."""
+    series.position()
+    entry = series.entry
+    series.chart.changed()
+    if not look.shown():
+        if entry.data_labels:
+            entry.label_generation += 1
+            entry.leader_lines = False
+        entry.data_labels = False
+        entry.label_look = LabelLook()
+        for point in entry.points.values():
+            point.label, point.label_own = None, PointLabel()
+        return
+    entry.data_labels = True
+    kept = entry.label_look
+    kept.value, kept.category, kept.series = look.value, look.category, look.series
+    kept.percent, kept.legend_key, kept.bubble = look.percent, look.legend_key, False
+    if look.separator is not None:
+        kept.separator = look.separator
+    entry.leader_lines = _flag(leader_lines) is not False
+    for point in entry.points.values():
+        if point.label_own.text is None:
+            point.label, point.label_own = None, PointLabel()
+        else:
+            point.label_own.shows = {}
+
+
+def apply_to_point(point: Point, look: LabelLook, leader_lines: object) -> None:
+    """One point given these parts, or with none its label gone."""
+    entry = point.series.entry
+    own = point.held()
+    chart = point.series.chart
+    if own.label_unique < 0:
+        own.label_unique, chart.state.next_unique = chart.state.next_unique, chart.state.next_unique + 1
+    if _flag(leader_lines) is False:
+        entry.leader_lines = False
+    if not entry.data_labels:
+        entry.label_look = LabelLook(value=False)
+    if not look.shown():
+        own.label, own.label_own = False, PointLabel()
+        return
+    if _flag(leader_lines) is not False:
+        entry.leader_lines = True
+    shows = {"value": look.value, "category": look.category, "series": look.series, "legend_key": look.legend_key,
+             "percent": look.percent}
+    series_look = entry.label_look
+    if entry.data_labels and own.label_own.text is None and all(
+            getattr(series_look, name) == shown for name, shown in shows.items()):
+        # What its series' labels give already: nothing of its own.
+        own.label, own.label_own = None, PointLabel()
+        return
+    own.label = True
+    own.label_own.shows = shows
+    if entry.data_labels:
+        # It writes down what it had from its series' labels.
+        own.label_own.position = series_look.position
+        own.label_own.separator = series_look.separator
+    if look.separator is not None:
+        own.label_own.separator = look.separator
 
 
 class DataLabels(VBACollection, ItemDefault, Created):
@@ -401,6 +501,9 @@ class DataLabel(Created):
             total = sum(float(to_number(one)) for one in self.series.values())
             parts.append(f"{round(float(to_number(value)) / total * 100)}%" if total else "0%")
         separator = self._separator()
+        if separator is None and len(parts) == 2 and flags["category"] and flags["percent"] and not self.own().shows:
+            # A pie's labels break the line here; a point's own do not.
+            separator = "\n"
         return (", " if separator is None else separator).join(parts)
 
     def _number(self, value: object) -> str:

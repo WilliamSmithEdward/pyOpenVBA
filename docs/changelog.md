@@ -15,6 +15,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `ApplyDataLabels` on a chart, a series and a point: its type, each named part and the
+  separator, the way a type overrides what is already shown, and what stays of labels
+  already changed. `AutoText:=False` is refused.
 - One point's `DataLabel`: `Text`, `Caption`, `AutoText`, the `Show` members, `Position`,
   `NumberFormat`, `Separator`, `Orientation`, `HorizontalAlignment`, `ReadingOrder`,
   `Shadow`, `Font`, `Characters`, `Delete`, and a fill through `Format`. What is set of a

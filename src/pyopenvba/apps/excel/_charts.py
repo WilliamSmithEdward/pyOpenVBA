@@ -83,6 +83,11 @@ class PointState:
     explosion: int | None = None
     label: bool | None = None
     label_own: PointLabel = field(default_factory=lambda: PointLabel())
+    #: Its marker, each None while its series gives it (tests/fixtures/point_markers.json).
+    marker: int | None = None
+    marker_size: int | None = None
+    marker_fore: str | None = None
+    marker_back: str | None = None
     unique: int = -1
     label_unique: int = -1
 
@@ -384,6 +389,7 @@ def shown_type(chart: ChartState) -> int:
 LINE_PAIRS = ((4, 65), (63, 66), (64, 67))
 #: The types drawn with markers.
 MARKED_TYPES = (65, 66, 67, -4169)
+_DRAWS_MARKERS = ('line', 'lineMarkers', 'scatter')
 
 
 #: Series.MarkerStyle and the symbol the file spells it with; automatic has no symbol of its own.
@@ -415,7 +421,7 @@ def marker_markup(entry: SeriesState) -> str:
     return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{entry.marker_size or 5}"/>{look}</c:marker>'
 
 
-def marker_look(entry: SeriesState) -> str:
+def marker_look(entry: SeriesState | PointState) -> str:
     """The marker's spPr: its background as the fill, its foreground as the line, as Excel writes them
     (tests/fixtures/chart_marker_colours.json)."""
     fill = {None: '', 'none': '<a:noFill/>'}.get(
@@ -2255,7 +2261,7 @@ class Series(Created):
     def lines(self) -> SeriesState:
         """The series, where its chart draws lines or markers; Excel raises 1004 for the other kinds."""
         self.position()
-        if CHART_TYPES.get(shown_type(self.chart.state)) not in ('line', 'lineMarkers', 'scatter'):
+        if CHART_TYPES.get(shown_type(self.chart.state)) not in _DRAWS_MARKERS:
             raise error(1004, 'Unable to get the property of the Series class')
         if self.entry.marker == MARKER_UNREAD:
             raise VBAUnsupportedError("Reading this imported series' marker is not implemented")
@@ -2388,7 +2394,10 @@ class Series(Created):
 
     @member
     def MarkerStyle(self) -> object:
-        return VBAInt(self.lines().marker, 'Long')
+        self.position()
+        if CHART_TYPES.get(shown_type(self.chart.state)) in _DRAWS_MARKERS:
+            return VBAInt(self.lines().marker, 'Long')
+        return VBAInt(self.entry.marker, 'Long')
 
     @setter('MarkerStyle')
     def _marker_style(self, value: object) -> None:
@@ -2402,6 +2411,7 @@ class Series(Created):
             raise VBAUnsupportedError('A marker on a series with a look of its own is not implemented')
         self.chart.changed()
         entry.marker = wanted
+        self._taken_from_points('marker')
 
     # -- the marker's colours (tests/fixtures/chart_marker_colours.json)
 
@@ -2418,6 +2428,15 @@ class Series(Created):
         if wanted is not None and entry.marker == MARKER_NONE:
             # A series drawn without markers takes automatic ones once given a marker colour.
             entry.marker = MARKER_AUTOMATIC
+        self._taken_from_points(field_name)
+
+    def _taken_from_points(self, field_name: str) -> None:
+        """What is set of a series' marker it sets of its points too, and a marker left the same as the series' goes."""
+        entry = self.entry
+        for point in entry.points.values():
+            setattr(point, field_name, None)
+            if point.marker == entry.marker:
+                point.marker = None
 
     def _read_colour(self, field_name: str) -> object:
         found = self._colour(field_name)
@@ -2491,8 +2510,10 @@ class Series(Created):
 
     @member
     def MarkerSize(self) -> object:
-        entry = self.lines()
-        size = entry.marker_size or (9 if entry.marker == MARKER_AUTOMATIC else 5)
+        self.position()
+        entry = self.entry
+        drawn = CHART_TYPES.get(shown_type(self.chart.state)) in _DRAWS_MARKERS
+        size = entry.marker_size or (9 if drawn and self.lines().marker == MARKER_AUTOMATIC else 5)
         return VBAInt(size, 'Long')
 
     @setter('MarkerSize')
@@ -2508,6 +2529,7 @@ class Series(Created):
         entry.marker_size = wanted
         if entry.marker == MARKER_AUTOMATIC:
             entry.marker = AUTOMATIC_MARKERS[identity]
+        self._taken_from_points('marker_size')
 
 
 def r1c1_series(formula: str) -> str:

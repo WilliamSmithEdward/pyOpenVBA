@@ -24,7 +24,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-default-persistence-native-samples\\unnamed-reorder-delete-save.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\unnamed-reorder-delete-save.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -33,12 +33,12 @@
         "message": ""
       },
       "save_result": "saved",
-      "file": "F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-default-persistence-native-samples\\unnamed-reorder-delete-save.xlsx",
-      "file_sha256": "abb03aea717a1c06d2cf878b138c2876259ed5c169d459f1569f360be28cccbf",
+      "file": "<folder>\\unnamed-reorder-delete-save.xlsx",
+      "file_sha256": "192ac61b8243fe4bfedbf4e89b1a7896207f7b2fcac0b33eaad8a4e4a967d247",
       "parts": {
         "[Content_Types].xml": "6b05d42d9af757abc978cdfddf399b181b04fd63cad8bcb2b6d9e5d9e1ea872d",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "c62683ec6b6c294d46253b608c39a2c36e0421dc19b124cccd4f6e4ad353ad2a",
+        "xl/workbook.xml": "9df7d0a3db7cdd55365b3298c138334b8020e2997faab1f7cc1d746e45b33ed8",
         "xl/_rels/workbook.xml.rels": "e52e2e8bce0cff8ed2d2e80a3d272a53e6f03f6a57b45f93369d323021e25805",
         "xl/worksheets/sheet1.xml": "64b9c074efa230e4f6059f44ecc4bdcc08129e7b05f0ada1e21cc8a2eba4c431",
         "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
@@ -84,7 +84,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-default-persistence-native-samples\\explicit-Series2-collision.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\explicit-Series2-collision.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -93,12 +93,12 @@
         "message": ""
       },
       "save_result": "saved",
-      "file": "F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-default-persistence-native-samples\\explicit-Series2-collision.xlsx",
-      "file_sha256": "9d62d9493a0fd48d0fb71e561e13f8971d157ddce9abf94b728d4b0614518a05",
+      "file": "<folder>\\explicit-Series2-collision.xlsx",
+      "file_sha256": "6dc502a403aaaf43076d16542dc4eb6c6a1def33f0a32e626f4e7290f75ac930",
       "parts": {
         "[Content_Types].xml": "6b05d42d9af757abc978cdfddf399b181b04fd63cad8bcb2b6d9e5d9e1ea872d",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "44ba7433020032d0597e92d53f93a70f72fc3500e8737fe643b1947c23a4a785",
+        "xl/workbook.xml": "4284cf229dbe3f41e46ac43808806c323153ae62c05ff11d906ea2d09742282b",
         "xl/_rels/workbook.xml.rels": "e52e2e8bce0cff8ed2d2e80a3d272a53e6f03f6a57b45f93369d323021e25805",
         "xl/worksheets/sheet1.xml": "269e85774c7ef2fdab72beb48a40fc2a9069f42360e1f28ae80ce6939fc624bf",
         "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
@@ -144,7 +144,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-default-persistence-native-samples\\source-header-Series1-collision.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\source-header-Series1-collision.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -153,12 +153,12 @@
         "message": ""
       },
       "save_result": "saved",
-      "file": "F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-default-persistence-native-samples\\source-header-Series1-collision.xlsx",
-      "file_sha256": "ea6830365be7a4498d83ec37afe32862387f889a96a1c39c8787f5942007f21c",
+      "file": "<folder>\\source-header-Series1-collision.xlsx",
+      "file_sha256": "f83ba5b2c7e7bf28b663b7f11b8698efa73d78ebb25a7332c32fef9193ce2c6a",
       "parts": {
         "[Content_Types].xml": "2fbfc70c3391b719732683afdba56158c4dd63aea7e528730245ac78f87e6799",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "4d0149e5654b4c2e4f0277d8cd9cd455de621cc17489cf647a8181b3457ce736",
+        "xl/workbook.xml": "c3aa452a9b26f523a81b3332cc8eac677fe8194d230388c2cadc20b2e93aa2a6",
         "xl/_rels/workbook.xml.rels": "353383fbe90f202be596bdf0a86439c704d7024f4f8c19ebc9d06b42a341dba1",
         "xl/worksheets/sheet1.xml": "6f29a124076253973cbcf11c05623e61bdb690b5db3d01ca8a5f6bf3356f4ed2",
         "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",

@@ -13,6 +13,7 @@ import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.shapes._adjustments import EXCEL_ALIASES
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'shape_adjustments.json').read_text(encoding='utf-8'))
@@ -71,6 +72,7 @@ def test_each_autoshape_has_excels_adjustments(number: int, tmp_path: Path) -> N
     app.add_workbook()
     app.add_module(source, name='Table')
     assert app.run('Table.Go') == '|'.join(fields[3:5 + 2 * count])
+    assert EXCEL_ALIASES.get(number, number) == int(fields[1])
     path = tmp_path / 'book.xlsx'
     app.save(path)
     with zipfile.ZipFile(path) as package:

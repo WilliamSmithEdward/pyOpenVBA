@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape_text
+from pyopenvba.apps.excel._chart_borders import NOT_A_PROPERTY
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.shapes._values import FillLine
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -214,6 +215,18 @@ class TrendlineLabel(Created):
 
 
 class Trendline(Created):
+    @method
+    def GetProperty(self, Name: object) -> object:  # noqa: N803 - native named argument
+        """Its Name by that name; any other name it does not know raises (tests/fixtures/chart_bins.json)."""
+        if to_text(Name).lower() != 'name':
+            raise error(NOT_A_PROPERTY, 'Automation error')
+        return self.vba_get('Name', [])
+
+    @method
+    def SetProperty(self, Name: object, Value: object) -> object:  # noqa: N803 - native named argument
+        del Name, Value
+        raise error(NOT_A_PROPERTY, 'Automation error')
+
     vba_type_name = 'Trendline'
 
     def __init__(self, series: Series, line: TrendlineState) -> None:

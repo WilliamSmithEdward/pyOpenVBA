@@ -875,10 +875,26 @@ class Page(ExcelObject):
         return HeaderFooter(self.sheet, self.kind + 'Footer', 'R')
 
 
+class SectionGraphic(ExcelObject):
+    """The picture of a section that has none: there to reach, and every read refused (tests/fixtures/small_rows.json)."""
+
+    vba_type_name = 'Graphic'
+
+    @member
+    def Height(self) -> object:
+        raise error(1004, 'Unable to get the Height property of the Graphic class')
+
+
 class HeaderFooter(ExcelObject):
     """One section of a first or even page's header or footer."""
 
     vba_type_name = 'HeaderFooter'
+
+    @member
+    def Picture(self) -> object:
+        if headers(self.sheet).pictures:
+            raise unsupported('the picture of a page section on a sheet with header pictures')
+        return SectionGraphic()
 
     def __init__(self, sheet: Worksheet, child: str, code: str) -> None:
         self.sheet = sheet

@@ -16,10 +16,10 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_protection.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Refused, which each case below checks: a bevel, the effects of data labels, a page's print quality, and edits to a chart on
+#: Refused, which each case below checks: a bevel, setting the effects of data labels, a page's print quality, and edits to a chart on
 #: a protected sheet.
 EFFECTS = ('.Format.ThreeD.BevelTopType = ',)
-LABELS = ('DataLabels.Format.Glow', 'DataLabels.Format.Shadow', 'DataLabels.Format.SoftEdge', 'DataLabels.Format.ThreeD', 'DataLabels.Format.TextFrame2', 'DataLabels.Format.Adjustments', 'DataLabels.Format.PictureFormat', 'DataLabels.Format.AutoShapeType')
+LABELS = ('DataLabels.Format.Glow.Radius =', 'DataLabels.Format.Glow.Color.RGB =', 'DataLabels.Format.Shadow.Visible =', 'DataLabels.Format.Shadow.Type =', 'DataLabels.Format.SoftEdge.Type =', 'DataLabels.Format.SoftEdge.Radius =', 'DataLabels.Format.AutoShapeType =')
 PROTECTED_EDITS = ('ws.Protect: ch.SeriesCollection', 'ws.Protect: ch.HasTitle', 'ws.Protect: ch.ChartType', 'ws.Protect: ch.HasLegend', 'ws.Protect: ch.SetSourceData', 'ws.Protect: ch.ChartArea', 'ws.Protect: ch.Parent')
 REFUSED = (*EFFECTS, *LABELS, *PROTECTED_EDITS, 'PageSetup.PrintQuality')
 #: A pie's automatic title, which working out a read of its page brings about in Excel and not here.

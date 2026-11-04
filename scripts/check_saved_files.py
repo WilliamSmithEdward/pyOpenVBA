@@ -27,7 +27,9 @@ FIXTURES = Path(__file__).resolve().parents[1] / 'tests/fixtures'
 #: Each fixture: the file its probe saves, where a case holds what Excel read after its own save, and its member's place.
 AUDITS = {'format_properties': ('formats.xlsx', 5, 2), 'member_audit': ('audit.xlsx', 5, 2),
           'method_audit': ('methods.xlsx', 4, 1), 'range_values': ('values.xlsx', 5, 0), 'range_more': ('more.xlsx', 5, 0),
-          'range_more_blocks': ('more.xlsx', 5, 0)}
+          'range_more_blocks': ('more.xlsx', 5, 0),
+          'range_areas': ('methods.xlsx', 4, 1),
+          **{f'range_methods_{group}': ('methods.xlsx', 4, 1) for group in ('moves', 'clipboard', 'search', 'order')}}
 
 
 def _probe(source: str, count: int) -> str:
@@ -69,7 +71,7 @@ def check(name: str, excel: ExcelSession) -> None:
         if not result.ok:
             print(name, 'REFUSED OR FAILED:', result.outcome, result.error, result.message[:120])
             return
-        answers = re.split(r'@@(?=\|)', str(result.value))
+        answers = re.split(r'@@(?=\||@@|$)', str(result.value))
         differ: collections.Counter[str] = collections.Counter()
         for number, case in enumerate(record['cases']):
             if number not in gaps and str(number) not in record.get('early', {}) and answers[number] != case[after]:

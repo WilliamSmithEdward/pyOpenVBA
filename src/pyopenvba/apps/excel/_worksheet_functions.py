@@ -237,6 +237,9 @@ def _year_frac_lifted(values: list[object], entry: Any, context: Context, books:
     from pyopenvba.formula._calc import registry
     from pyopenvba.formula._calc.values import ExcelError as EngineError
 
+    if values[1] is NULL and values[2] is NULL:
+        # With its basis left out, Null is the last it cannot do without.
+        raise error(1004, "Unable to get the YearFrac property of the WorksheetFunction class")
     if not late:
         raise error(13, "Type mismatch")
     arrays = {place: _given_array(value) for place, value in enumerate(values) if isinstance(value, VBAArray)}

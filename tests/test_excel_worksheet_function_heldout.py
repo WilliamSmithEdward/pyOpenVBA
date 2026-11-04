@@ -4,7 +4,8 @@ written down and their digest recorded before anything was measured, and only th
 
 The fixture keeps the cases of the functions with no difference at all, last digits included. Its `scores` say how each round
 went over every function it sampled, those that missed included: they stay PARTIAL, and fixing one against these cases would
-use them up, so it needs new cases.
+use them up, so it needs new cases. Its `array_cases` are the last round: an array in one place, and often a logical, Null, Empty,
+several cells or another array in a second, showing the whole of each answer.
 """
 from __future__ import annotations
 
@@ -20,6 +21,8 @@ from pyopenvba.apps.excel import ExcelApplication
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'worksheet_function_heldout.json').read_text(encoding='utf-8'))
 HELPER: str = json.loads((FIXTURES / 'worksheet_function_kinds.json').read_text(encoding='utf-8'))['helper']
+#: Kept from the second round: VERIFIED before this test. They were sampled with arrays apart (standing_arrays in the scores).
+STANDING = {'Average', 'Count', 'CountA', 'Max', 'Min', 'Round', 'Sum'}
 BY_FUNCTION: dict[str, list[dict[str, str]]] = defaultdict(list)
 for _case in RECORD['cases']:
     BY_FUNCTION[_case['function']].append(_case)
@@ -46,7 +49,38 @@ def test_each_function_as_excel_answered(name: str) -> None:
     assert [(case['call'], two) for case, two in zip(cases, typed, strict=True) if two != case['typed']] == []
 
 
+ARRAY_CASES: dict[str, list[dict[str, str]]] = defaultdict(list)
+for _case in RECORD['array_cases']:
+    ARRAY_CASES[_case['function']].append(_case)
+
+
+def _array_answers(calls: list[str], typed: bool) -> list[str]:
+    kind = 'WorksheetFunction' if typed else 'Object'
+    lines = ['Public Function Probe() As String', f'    Dim wb As Object, ws As Object, f As {kind}, v As Variant, x As Variant, y As Variant, s As String',
+             '    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)', '    Fill ws', '    Set f = Application.WorksheetFunction', '    On Error Resume Next']
+    lines += [f'    v = Empty: x = Empty: y = Empty: Err.Clear: {call}: s = s & "@@" & Show(Err.Number, v)' for call in calls]
+    source = HELPER + RECORD['show'] + '\n'.join([*lines, '    wb.Close False', '    Probe = Mid(s, 3)', 'End Function', ''])
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(source, name='Functions')
+    return str(app.run('Functions.Probe')).split('@@')
+
+
+@pytest.mark.parametrize('name', sorted(ARRAY_CASES))
+def test_each_function_with_arrays_as_excel_answered(name: str) -> None:
+    cases = ARRAY_CASES[name]
+    calls = [case['call'] for case in cases]
+    late, typed = _array_answers(calls, False), _array_answers(calls, True)
+    assert [(case['call'], one) for case, one in zip(cases, late, strict=True) if one != case['late']] == []
+    assert [(case['call'], two) for case, two in zip(cases, typed, strict=True) if two != case['typed']] == []
+
+
 def test_the_scores_count_the_misses() -> None:
     for score in RECORD['scores'].values():
         assert score['comparisons'] and score['functions_clean'] <= score['functions']
         assert len(score['missed']) == score['functions'] - score['functions_clean']
+
+
+def test_every_function_kept_has_its_array_cases() -> None:
+    held = {name for name in BY_FUNCTION if name not in STANDING}
+    assert held == set(ARRAY_CASES)

@@ -19,7 +19,7 @@ from __future__ import annotations
 import os
 import tempfile
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING
@@ -51,7 +51,6 @@ class HookRequest:
     workbook: Workbook
     arguments: Mapping[str, object]
     path: Path | None = None
-    _running: list[str] = field(default_factory=lambda: [], repr=False, compare=False)
 
     def saved_bytes(self) -> bytes:
         """What SaveCopyAs would write now, for a tool that converts files. Nothing about the workbook changes: not Saved, not its name or its path, and no event runs. A workbook never

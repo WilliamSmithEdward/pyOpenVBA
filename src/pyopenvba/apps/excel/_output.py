@@ -7,7 +7,8 @@ the function set with ExcelApplication.set_hook (see _hooks). The model makes no
 - A name left out, empty or Null is the workbook's, in the current folder: not the workbook's folder, nor the default file path. A relative one is in the current folder too. Any
   name but one ending in the type's extension has it added, so x.xps as a PDF is x.xps.pdf. A number or True is its text.
 - A folder not there or a character a file cannot hold is 1004, a read-only file -2147018887, and a name past what a path can hold 5.
-- PrintOut: a bad argument is 1004, Null passes as if left out, and any printer name passes. Cancelled in BeforePrint, it goes no further and raises nothing. It answers a Boolean.
+- PrintOut: a bad argument is 1004, Null passes as if left out, and any printer name passes. It answers True; cancelled in BeforePrint, it goes no further, raises nothing and answers False
+  (tests/fixtures/print_returns.json).
 - Window.PrintOut is always 1004, so it never reaches the function.
 
 Chosen, not measured: From or To below 1 going on to the file check's stage rather than before the event, as it reads as a failure to write; and the length a path can hold, the 259
@@ -187,7 +188,7 @@ def print_out(target: object, owner: str, book: Workbook, sheet: Worksheet | Non
         sheet.Activate()
     try:
         if not _events.before_print(book):
-            return True
+            return False
         if hook is None:
             if 'PrintToFile' in given and to_bool(given['PrintToFile']):
                 raise VBAUnsupportedError('PrintOut to a file, which a printer driver writes, is not implemented')

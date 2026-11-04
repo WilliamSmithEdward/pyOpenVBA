@@ -136,7 +136,7 @@ Trust `path`, not `arguments`. Every value in `arguments` comes from the macro, 
 current folder under the workbook's name, a relative one to the current folder, and `.pdf` or `.xps` is added unless the name ends in it.
 
 What a function makes is its own. **Its output is not claimed to match Excel**, and a library that draws needs its own layout: the model has no automatic page
-breaks, and Excel's own placing of text depends on its printer driver.
+breaks, and Excel's own placing of text depends on its printer driver. The model has no pages, so `From` past the last page, which Excel refuses on a sheet or a range, goes to the function: handle it there.
 
 **Under the sandbox**, a file a macro names must lie inside one of `folders`, or the function is not called. With links, junctions and `..` resolved, parts compare
 whole, so `C:/out2` is not in `C:/out`, and UNC and device paths are refused unless the folder is one. With no `folders`, no file passes. With `sandbox=False` there
@@ -144,6 +144,8 @@ is no limit. A `PrintOut` with no file runs its function under the sandbox, as r
 
 **With no function**, `ExportAsFixedFormat` reports itself. A plain `PrintOut` goes nowhere, as it always has, and a macro sees only `BeforePrint`; `Preview`, a printer and to-file report
 themselves. `Window.PrintOut` is 1004 in Excel, so it never reaches a function.
+
+Chosen rather than measured: `From` or `To` below 1 failing after `BeforePrint` on an export, the 259 characters a path can hold, and `FixedFormatExtClassPtr` or `WorkIdentity` being refused whatever they hold (measured with `Nothing`).
 
 **What a function raises** (chosen, based on the 1004 Excel gives when it cannot write a file): a `VBAError` goes on as it is, so `pyopenvba.interpreter._values.error(70)` is a trappable 70 and
 `VBADialogError` still stops the run. Any other `Exception` is a trappable 1004, with the original as `__cause__`. `KeyboardInterrupt` passes. A function that runs its own member again is refused.

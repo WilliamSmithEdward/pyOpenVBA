@@ -21,31 +21,19 @@ from pyopenvba.exceptions import VBAError, VBADialogError, VBARuntimeError, VBAS
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'output_members.json').read_text(encoding='utf-8'))
 CASES: list[dict[str, Any]] = [one for one in RECORD['cases'] if one['member'] in ('ExportAsFixedFormat', 'PrintOut')]
-OWNERS = {'Worksheet': 'wb.Worksheets(1)', 'Workbook': 'wb', 'Range': 'wb.Worksheets(1).Range("A1:B3")', 'Chart': 'wb.Worksheets(1).ChartObjects(1).Chart', 'Sheets': 'wb.Sheets', 'Window': 'wb.Windows(1)'}
-#: The model has no pages to count, so From past the last one goes to the function; and a compile error is the binding table's.
-NOT_THE_MODELS = {'from_past'}
+OWNERS = {'Worksheet': 'wb.Worksheets(1)', 'Workbook': 'wb', 'Range': 'wb.Worksheets(1).Range("A1:B3")', 'Chart': 'wb.Charts(1)', 'Sheets': 'wb.Sheets', 'Window': 'wb.Windows(1)'}
+#: The model has no pages to count, so From past the last one goes to the function, where Excel finds nothing to print on these.
+NO_PAGES = {('ExportAsFixedFormat', 'from_past', 'Worksheet'), ('ExportAsFixedFormat', 'from_past', 'Range')}
 
 
 def _book(folder: Path) -> tuple[ExcelApplication, list[HookRequest]]:
-    app = ExcelApplication(sandbox=False)
-    app.add_workbook()
-    app.add_module(f'''Public Sub Fill()
-    Dim r As Long
-    With ActiveWorkbook
-        .Worksheets(1).Name = "One"
-        .Worksheets.Add(After:=.Worksheets(1)).Name = "Two"
-        .Worksheets.Add(After:=.Worksheets(2)).Name = "Blank"
-        For r = 1 To 5
-            .Worksheets(1).Cells(r, 1).Value = r
-            .Worksheets(2).Cells(r, 1).Value = r
-        Next
-        .Worksheets(1).ChartObjects.Add(10, 10, 200, 100).Chart.SetSourceData .Worksheets(1).Range("A1:A5")
-        .Worksheets(1).Activate
-    End With
-    ChDir "{folder}"
-End Sub
-''', name='Fill')
-    app.run('Fill.Fill')
+    """The workbook Excel saved for these, with a chart sheet, its current folder the test's."""
+    copy = folder / 'book.xlsx'
+    copy.write_bytes((FIXTURES / 'output_members.xlsx').read_bytes())
+    app = ExcelApplication.open(copy, with_vba=False)
+    app.interpreter.sandbox = False
+    app.add_module(f'Public Sub Here()\n    ChDir "{folder}"\nEnd Sub\n', name='Here')
+    app.run('Here.Here')
     heard: list[HookRequest] = []
     return app, heard
 
@@ -66,8 +54,10 @@ def _prepared(folder: Path) -> None:
 
 @pytest.mark.parametrize('case', CASES, ids=[f'{one["member"]} {one["owner"]} {one["binding"]} {one["row"]}' for one in CASES])
 def test_each_call_answers_as_excel_did(case: dict[str, Any], tmp_path: Path) -> None:
-    if case['excel'].startswith('failed') or case['row'] in NOT_THE_MODELS:
-        pytest.skip('a form or a compile error in Excel, or what the model has no pages to answer')
+    if case['excel'].startswith('failed'):
+        pytest.skip('a form or a compile error in Excel')
+    if (case['member'], case['row'], case['owner']) in NO_PAGES:
+        pytest.xfail('The model has no pages, so this goes to the function')
     if (case['row'], case['owner'], case['binding']) == ('type_omitted', 'Range', 'Typed'):
         pytest.xfail('It runs to 450 in Excel; the compile step takes it from the library as not optional')
     _prepared(tmp_path)
@@ -85,8 +75,7 @@ def test_each_call_answers_as_excel_did(case: dict[str, Any], tmp_path: Path) ->
     if case['member'] == 'ExportAsFixedFormat' and case['files'] and heard:
         made = heard[0].path
         assert made is not None
-        # The workbook was book.xlsx there.
-        assert made.relative_to(tmp_path).as_posix().replace(Path(app.workbook.name).stem, 'book') == case['files'][0].removesuffix(' before')
+        assert made.relative_to(tmp_path).as_posix() == case['files'][0].removesuffix(' before')
 
 
 def _fill(book: Any) -> None:
@@ -433,3 +422,21 @@ def test_set_hook_takes_only_the_names_it_knows() -> None:
 
 def test_vbaerror_is_the_one_that_goes_on_as_it_is() -> None:
     assert issubclass(VBADialogError, VBAError)
+
+
+PRINT_RETURNS: list[dict[str, Any]] = json.loads((FIXTURES / 'print_returns.json').read_text(encoding='utf-8'))['cases']
+
+
+@pytest.mark.parametrize('case', PRINT_RETURNS, ids=lambda one: f'{one["owner"]} {one["cancel"]}')
+def test_what_printout_returns(case: dict[str, Any], tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """True, and False where BeforePrint cancels, with or without a function."""
+    from pyopenvba.apps.excel import _events
+
+    app, heard = _book(tmp_path)
+    app.set_hook('PrintOut', heard.append)
+    if case['cancel']:
+        monkeypatch.setattr(_events, 'before_print', _no_print)
+    app.add_module(f'Public Function Row(ByVal folder As String) As String\n    Dim wb As Workbook, o As Object, r As Variant\n    Set wb = ActiveWorkbook\n    Set o = {OWNERS[case["owner"]]}\n'
+                   '    r = o.PrintOut(PrintToFile:=True, PrToFileName:=folder & "\\p.prn")\n    Row = TypeName(r) & " " & CStr(r)\nEnd Function\n', name='Row')
+    assert str(app.run('Row.Row', str(tmp_path))) == case['answer']
+    assert bool(heard) != case['cancel']

@@ -16,8 +16,10 @@ from pyopenvba.exceptions import VBAUnsupportedError
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/member_audit.json').read_text(encoding='utf-8'))
 CASES = list(enumerate(cast('list[list[str]]', RECORD['cases'])))
 IDS = [f"{number}-{case[0]}.{case[2]}" for number, case in CASES]
-#: What a save and reopen leave of it is not modelled, so its checklist row stays PARTIAL.
-SAVED_DIFFERENTLY = {('ListColumn', 'TotalsCalculation')}
+#: What a save and reopen leave of it is not modelled, so its checklist row stays PARTIAL. A session's settings are not
+#: the file's: what they read after a reopen is whichever case set them last.
+SAVED_DIFFERENTLY = {('ListColumn', 'TotalsCalculation'), ('Application', 'Iteration'), ('Application', 'MaxChange'),
+                     ('Application', 'MaxIterations'), ('Application', 'SheetsInNewWorkbook')}
 
 
 @pytest.fixture(scope='module')

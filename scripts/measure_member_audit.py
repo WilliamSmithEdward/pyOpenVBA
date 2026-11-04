@@ -32,6 +32,7 @@ _WINDOW_FRESH = ('o.Caption = "Cap": o.DisplayFormulas = False: o.DisplayGridlin
 _WINDOW_CHANGED = ('o.Caption = "Other": o.DisplayFormulas = True: o.DisplayGridlines = False: o.DisplayHeadings = False: '
                    'o.DisplayHorizontalScrollBar = False: o.DisplayVerticalScrollBar = False: '
                    'o.DisplayWorkbookTabs = False: o.DisplayZeros = False: o.TabRatio = 0.3')
+FORMULAS = ['"=1+1"', '"=SEQUENCE(2)"', '"=RC[-1]"', '"text"', '"=("', '5', '1.5', 'True', 'Null', 'Empty', '""']
 #: Each family: its setup statements on sheet ws, the object, what is read back, and what a changed one has first.
 FAMILIES = {
     'Validation': ('ws.Range("B2").Validation.Add xlValidateList, xlValidAlertStop, xlBetween, "a,b"',
@@ -59,6 +60,12 @@ FAMILIES = {
                ['Caption', 'DisplayFormulas', 'DisplayGridlines', 'DisplayHeadings', 'DisplayHorizontalScrollBar',
                 'DisplayVerticalScrollBar', 'DisplayWorkbookTabs', 'DisplayZeros', 'TabRatio'],
                [_WINDOW_FRESH, _WINDOW_CHANGED]),
+    # Settings of the session, each case setting them first; Finish restores what the session had.
+    'Application': ('', 'Application', ['Iteration', 'MaxChange', 'MaxIterations', 'SheetsInNewWorkbook'],
+                    ['o.Iteration = False: o.MaxChange = 0.001: o.MaxIterations = 100: o.SheetsInNewWorkbook = 1',
+                     'o.Iteration = True: o.MaxChange = 0.5: o.MaxIterations = 7: o.SheetsInNewWorkbook = 3']),
+    'Range': ('ws.Range("B2").Value = 1', 'ws.Range("C2")', ['Formula2Local', 'Formula2R1C1', 'Formula2R1C1Local', 'Value'],
+              ['', 'o.Formula2 = "=1+2"']),
 }
 VALUES = {
     'Validation': {'ErrorMessage': TEXTS, 'ErrorTitle': TEXTS, 'InputMessage': TEXTS, 'InputTitle': TEXTS,
@@ -69,6 +76,10 @@ VALUES = {
                                                         'xlTotalsCalculationCustom', '11', '-1', '99', '"1"', *BAD]},
     'ListObject': {'ShowTotals': SWITCHES},
     'Sort': {'MatchCase': SWITCHES},
+    'Application': {'Iteration': SWITCHES, 'MaxChange': ['0', '0.5', '1', '100', '-1', '1.5', '"0.5"', *BAD],
+                    'MaxIterations': ['0', '1', '32767', '32768', '-1', '1.5', '"5"', *BAD],
+                    'SheetsInNewWorkbook': ['1', '2', '255', '256', '0', '-1', '1.5', '"2"', *BAD]},
+    'Range': {'Formula2Local': FORMULAS, 'Formula2R1C1': FORMULAS, 'Formula2R1C1Local': FORMULAS},
     'Window': {'Caption': ['"words"', '5', 'True', 'Null', 'Empty', '""', 'String(200, "a")', 'String(201, "a")',
                            'String(255, "a")'],
                'DisplayFormulas': SWITCHES, 'DisplayGridlines': SWITCHES, 'DisplayHeadings': SWITCHES,
@@ -96,11 +107,14 @@ def _state(family: str) -> str:
 def source() -> str:
     """Setup makes the book; S(i) makes case i on a sheet of its own; Reopen saves; A(i) reads the case again."""
     every = cases()
-    body = ('Private wb As Object\n\nPublic Sub Setup()\n    Set wb = Workbooks.Add(xlWBATWorksheet)\nEnd Sub\n'
+    body = ('Private wb As Object, kept As Variant\n\nPublic Sub Setup()\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n'
+            '    kept = Array(Application.Iteration, Application.MaxChange, Application.MaxIterations, '
+            'Application.SheetsInNewWorkbook)\nEnd Sub\n'
             '\nPublic Sub Reopen(ByVal folder As String)\n    Dim path As String\n'
             '    path = folder & Application.PathSeparator & "audit.xlsx"\n'
             '    wb.SaveAs path, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(path)\nEnd Sub\n'
-            '\nPublic Sub Finish()\n    wb.Close False\nEnd Sub\n'
+            '\nPublic Sub Finish()\n    wb.Close False\n    Application.Iteration = kept(0): Application.MaxChange = kept(1)\n'
+            '    Application.MaxIterations = kept(2): Application.SheetsInNewWorkbook = kept(3)\nEnd Sub\n'
             '\nPrivate Function Show(v As Variant) As String\n    If IsNull(v) Then\n        Show = "Null"\n'
             '    ElseIf IsEmpty(v) Then\n        Show = "Empty"\n    ElseIf Len(CStr(v)) > 40 Then\n'
             '        Show = TypeName(v) & " " & Len(CStr(v))\n    Else\n        Show = TypeName(v) & " " & CStr(v)\n'
@@ -110,7 +124,7 @@ def source() -> str:
         setup, target, _, _ = FAMILIES[family]
         body += (f'\nPublic Function S{number}() As String\n    Dim ws As Object, o As Object, e As Long\n'
                  f'    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n'
-                 f'    {setup}\n    Set o = {target}\n'
+                 + (f'    {setup}\n' if setup else '') + f'    Set o = {target}\n'
                  + (f'    {first}\n' if first else '')
                  + f'    On Error Resume Next\n    o.{prop} = {value}\n    e = Err.Number\n    Err.Clear\n'
                  f'    S{number} = "e" & e & State{family}(ws)\nEnd Function\n'
@@ -126,7 +140,10 @@ def _typed(probe: str) -> str:
         found = re.search(r'State(\w+)\(ws\)', part)
         if part.startswith('\nPublic Function S') and found:
             parts[at] = part.replace('o As Object', f'o As {found.group(1)}', 1)
-    return ''.join(parts)
+    typed = ''.join(parts)
+    # The session's settings read as their declared types too, Long where late binding hands back a Double.
+    return typed.replace('Private Function StateApplication(ws As Object) As String\n    Dim s As String, v As Variant, o As Object',
+                         'Private Function StateApplication(ws As Object) As String\n    Dim s As String, v As Variant, o As Application')
 
 
 def _runner(calls: list[str], name: str) -> str:

@@ -249,6 +249,11 @@ def _letters(run: str) -> Iterator[_Item]:
             count = len(run[index:]) - len(run[index:].lstrip("eE"))
             yield _Item("date", "e" * count)
             index += count
+        elif char == "b" or (char == "B" and run[index:index + 2] == "BB"):
+            # The Buddhist year: two digits for one or two letters, four for more.
+            count = len(run[index:]) - len(run[index:].lstrip("bB"))
+            yield _Item("date", "b" * count)
+            index += count
         elif char in "gG":
             # The era, which shows only in a Japanese section: ggge is 2026, [$-411]ggge 令和8.
             count = len(run[index:]) - len(run[index:].lstrip("gG"))
@@ -807,6 +812,9 @@ def _part(code: str, items: list[_Item], index: int, calendar: tuple[int, int, i
     letter, count = code[0], len(code)
     if letter == "y":
         return f"{year % 100:02d}" if count <= 2 else f"{year:04d}"
+    if letter == "b":
+        buddhist = year + 543
+        return f"{buddhist % 100:02d}" if count <= 2 else f"{buddhist:04d}"
     if letter in "ge":
         found = era_of(JA_JP, float(day), year) if eras else None
         if found is None:

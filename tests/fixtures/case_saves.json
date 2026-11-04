@@ -1,0 +1,8 @@
+{
+ "measured_at": "2026-11-04T13:19:18.346553+00:00",
+ "source": "Public Function Tried(ByVal folder As String) As String\n    Dim wb As Workbook, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.SaveAs folder & \"\\Alpha.xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.SaveAs folder & \"\\ALPHA.XLSX\", xlOpenXMLWorkbook\n    s = \"saveas \" & wb.Name & \" dir \" & Dir(folder & \"\\*.xlsx\")\n    wb.Save\n    wb.Close False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.SaveCopyAs folder & \"\\alpha.XLSX\"\n    s = s & \"|copy dir \" & Dir(folder & \"\\*.xlsx\")\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\ALPHA.xlsx\", 0)\n    s = s & \"|open \" & wb.Name\n    wb.Close False\n    Tried = s\nEnd Function\n",
+ "answer": "saveas ALPHA.XLSX dir Alpha.xlsx|copy dir ALPHA.XLSX|open ALPHA.XLSX",
+ "files": [
+  "ALPHA.XLSX"
+ ]
+}

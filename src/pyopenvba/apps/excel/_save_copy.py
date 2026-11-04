@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.interpreter._files import on_disk
 from pyopenvba.interpreter._values import MISSING, NULL, error
 
 if TYPE_CHECKING:
@@ -56,7 +57,7 @@ def save_copy(book: Workbook, filename: object) -> None:
         stamp(book)
         return
     book.application.outside("Workbook.SaveCopyAs")
-    target = Path(os.path.abspath(filename))
+    target = Path(os.path.abspath(on_disk(filename)))
     if not target.parent.is_dir() or _open_file(book, target):
         raise error(1004, CANNOT_ACCESS.format(target))
     if str(target.resolve().parent) != book.links_folder and _links_to_files(book):

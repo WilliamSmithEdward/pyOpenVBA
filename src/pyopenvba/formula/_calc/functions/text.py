@@ -314,7 +314,12 @@ def EXACT(context: Context, first: Scalar, second: Scalar) -> Value:
 def TEXT(context: Context, value: Scalar, code: Scalar) -> Value:
     if isinstance(value, CellError):
         return value
+    # A Boolean is no format, and nor are these letters alone (tests/fixtures/worksheet_function_edges.json).
+    if isinstance(code, bool):
+        return VALUE
     fmt = context.text(code)
+    if fmt == "B" or re.fullmatch(r"[nN]+|E+", fmt):
+        return VALUE
     subject: object = value
     if isinstance(value, str):
         number = text_to_number(value, context.today, epoch_1904=context.epoch_1904, locale=context.locale)
@@ -333,7 +338,9 @@ def VALUE_(context: Context, text: Scalar) -> Value:
 
 @function("NUMBERVALUE", V, V, V, minimum=1)
 def NUMBERVALUE(context: Context, text: Scalar, decimal: Scalar | None = None, group: Scalar | None = None) -> Value:
-    if isinstance(text, (float, bool)):
+    if isinstance(text, bool):
+        return VALUE
+    if isinstance(text, float):
         return context.number(text)
     source = "".join(context.text(text).split())
     point = "." if decimal is None else context.text(decimal)[:1]

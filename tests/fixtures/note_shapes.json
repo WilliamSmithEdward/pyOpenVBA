@@ -1,0 +1,240 @@
+{
+ "measured_at": "2026-11-04T11:41:28.509974+00:00",
+ "changes": [
+  "Locked = False",
+  "Locked = True",
+  "Placement = 1",
+  "Placement = 2",
+  "Placement = 3",
+  "Placement = 99",
+  "Fill.ForeColor.RGB = 255",
+  "Fill.ForeColor.RGB = 14811135"
+ ],
+ "source": "Private Function One(s As Object, ByVal which As Long) As String\n    Dim v As Variant\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = s.Locked\n    Case 1\n        v = s.Placement\n    Case 2\n        v = s.Fill.ForeColor.RGB\n    End Select\n    If Err.Number Then\n        One = \"E\" & Err.Number\n    Else\n        One = CStr(v)\n    End If\nEnd Function\n\nPublic Function ReadBox(c As Object) As String\n    ReadBox = One(c.Comment.Shape, 0) & \"|\" & One(c.Comment.Shape, 1) & \"|\" & One(c.Comment.Shape, 2)\nEnd Function\n\nPublic Function ReadAt(ByVal path As String, ByVal target As String) As String\n    Dim wb As Workbook\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    ReadAt = ReadBox(wb.Worksheets(1).Range(target))\n    wb.Close False\nEnd Function\n\nPrivate Sub Change(s As Object, ByVal which As Long)\n    Select Case which\n    Case 0\n        s.Locked = False\n    Case 1\n        s.Locked = True\n    Case 2\n        s.Placement = 1\n    Case 3\n        s.Placement = 2\n    Case 4\n        s.Placement = 3\n    Case 5\n        s.Placement = 99\n    Case 6\n        s.Fill.ForeColor.RGB = 255\n    Case 7\n        s.Fill.ForeColor.RGB = 14811135\n    End Select\nEnd Sub\n\nPublic Function Applied(ByVal wb As Object, ByVal target As String, ByVal which As Long) As String\n    Dim c As Object, t As String\n    Set c = wb.Worksheets(1).Range(target)\n    If c.Comment Is Nothing Then c.AddComment \"new\"\n    On Error Resume Next\n    Change c.Comment.Shape, which\n    t = \"E\" & Err.Number & \"@\"\n    Err.Clear\n    On Error GoTo 0\n    Applied = t & ReadBox(c)\nEnd Function\n\nPublic Function InModel(ByVal target As String, ByVal which As Long) As String\n    InModel = Applied(ActiveWorkbook, target, which)\nEnd Function\n",
+ "cases": [
+  {
+   "target": "A10",
+   "change": "Locked = False",
+   "excel": "E0@False|3|14811135",
+   "reopened": "False|3|14811135",
+   "model_reopened": "False|3|14811135"
+  },
+  {
+   "target": "A10",
+   "change": "Locked = True",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "A10",
+   "change": "Placement = 1",
+   "excel": "E0@True|1|14811135",
+   "reopened": "True|1|14811135",
+   "model_reopened": "True|1|14811135"
+  },
+  {
+   "target": "A10",
+   "change": "Placement = 2",
+   "excel": "E0@True|2|14811135",
+   "reopened": "True|2|14811135",
+   "model_reopened": "True|2|14811135"
+  },
+  {
+   "target": "A10",
+   "change": "Placement = 3",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "A10",
+   "change": "Placement = 99",
+   "excel": "E1004@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "A10",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@True|3|255",
+   "reopened": "True|3|255",
+   "model_reopened": "True|3|255"
+  },
+  {
+   "target": "A10",
+   "change": "Fill.ForeColor.RGB = 14811135",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "A11",
+   "change": "Locked = False",
+   "excel": "E0@False|3|65535",
+   "reopened": "False|3|65535",
+   "model_reopened": "False|3|65535"
+  },
+  {
+   "target": "A11",
+   "change": "Locked = True",
+   "excel": "E0@True|3|65535",
+   "reopened": "True|3|65535",
+   "model_reopened": "True|3|65535"
+  },
+  {
+   "target": "A11",
+   "change": "Placement = 1",
+   "excel": "E0@True|1|65535",
+   "reopened": "True|1|65535",
+   "model_reopened": "True|1|65535"
+  },
+  {
+   "target": "A11",
+   "change": "Placement = 2",
+   "excel": "E0@True|2|65535",
+   "reopened": "True|2|65535",
+   "model_reopened": "True|2|65535"
+  },
+  {
+   "target": "A11",
+   "change": "Placement = 3",
+   "excel": "E0@True|3|65535",
+   "reopened": "True|3|65535",
+   "model_reopened": "True|3|65535"
+  },
+  {
+   "target": "A11",
+   "change": "Placement = 99",
+   "excel": "E1004@True|3|65535",
+   "reopened": "True|3|65535",
+   "model_reopened": "True|3|65535"
+  },
+  {
+   "target": "A11",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@True|3|255",
+   "reopened": "True|3|255",
+   "model_reopened": "True|3|255"
+  },
+  {
+   "target": "A11",
+   "change": "Fill.ForeColor.RGB = 14811135",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "A12",
+   "change": "Locked = False",
+   "excel": "E0@False|3|14811135",
+   "reopened": "False|3|14811135",
+   "model_reopened": "False|3|14811135"
+  },
+  {
+   "target": "A12",
+   "change": "Locked = True",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "A12",
+   "change": "Placement = 1",
+   "excel": "E0@False|1|14811135",
+   "reopened": "False|1|14811135",
+   "model_reopened": "False|1|14811135"
+  },
+  {
+   "target": "A12",
+   "change": "Placement = 2",
+   "excel": "E0@False|2|14811135",
+   "reopened": "False|2|14811135",
+   "model_reopened": "False|2|14811135"
+  },
+  {
+   "target": "A12",
+   "change": "Placement = 3",
+   "excel": "E0@False|3|14811135",
+   "reopened": "False|3|14811135",
+   "model_reopened": "False|3|14811135"
+  },
+  {
+   "target": "A12",
+   "change": "Placement = 99",
+   "excel": "E1004@False|3|14811135",
+   "reopened": "False|3|14811135",
+   "model_reopened": "False|3|14811135"
+  },
+  {
+   "target": "A12",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@False|3|255",
+   "reopened": "False|3|255",
+   "model_reopened": "False|3|255"
+  },
+  {
+   "target": "A12",
+   "change": "Fill.ForeColor.RGB = 14811135",
+   "excel": "E0@False|3|14811135",
+   "reopened": "False|3|14811135",
+   "model_reopened": "False|3|14811135"
+  },
+  {
+   "target": "J30",
+   "change": "Locked = False",
+   "excel": "E0@False|3|14811135",
+   "reopened": "False|3|14811135",
+   "model_reopened": "False|3|14811135"
+  },
+  {
+   "target": "J30",
+   "change": "Locked = True",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "J30",
+   "change": "Placement = 1",
+   "excel": "E0@True|1|14811135",
+   "reopened": "True|1|14811135",
+   "model_reopened": "True|1|14811135"
+  },
+  {
+   "target": "J30",
+   "change": "Placement = 2",
+   "excel": "E0@True|2|14811135",
+   "reopened": "True|2|14811135",
+   "model_reopened": "True|2|14811135"
+  },
+  {
+   "target": "J30",
+   "change": "Placement = 3",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "J30",
+   "change": "Placement = 99",
+   "excel": "E1004@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  },
+  {
+   "target": "J30",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@True|3|255",
+   "reopened": "True|3|255",
+   "model_reopened": "True|3|255"
+  },
+  {
+   "target": "J30",
+   "change": "Fill.ForeColor.RGB = 14811135",
+   "excel": "E0@True|3|14811135",
+   "reopened": "True|3|14811135",
+   "model_reopened": "True|3|14811135"
+  }
+ ]
+}

@@ -100,25 +100,44 @@ def _decode(data: bytes) -> str:
     return "".join(bytes([byte]).decode("cp1252", errors="ignore") or chr(byte) for byte in data)
 
 
-def _native(path: str) -> str:
+def native_path(path: str) -> str:
+    """A path a macro gives, in VBA's backslashes, as this system spells it: off Windows, folder & "\\book.xlsx" is a file in
+    that folder, not a file with a backslash in its name."""
     return path.replace("\\", os.sep) if os.sep != "\\" else path
+
+
+def respell_file(path: str) -> None:
+    """Rename the file that differs from ``path`` only in case to ``path``. Where a file has that exact spelling there is nothing to do."""
+    folder, name = os.path.split(path)
+    listed = os.listdir(folder or ".")
+    if name not in listed:
+        for one in listed:
+            if one.casefold() == name.casefold():
+                os.replace(os.path.join(folder, one), path)
+                return
+
+
+def on_disk(path: str) -> str:
+    """The file a macro's path means on this system, in its spelling and with its case."""
+    return spelled(native_path(path))
 
 
 def spelled(path: str, separator: str = os.sep) -> str:
     """The path as the disk spells it, since VBA's paths have no case and some systems' files do. A part that matches
     nothing stays as given, for what is about to be made."""
-    if separator == "\\" or os.path.exists(path):
+    if separator == "\\":
         return path
     current = separator if path.startswith(separator) else ""
     for part in path.split(separator):
         if not part:
             continue
-        found = part
-        if not os.path.exists(os.path.join(current, part)):
-            try:
-                found = next((one for one in os.listdir(current or ".") if one.casefold() == part.casefold()), part)
-            except OSError:
-                pass
+        # By the folder's list, not by whether the name exists: a Mac's disk ignores case, so ALPHA.XLSX exists there,
+        # and a workbook is named after the file as the disk spells it.
+        try:
+            listed = os.listdir(current or ".")
+        except OSError:
+            listed = []
+        found = part if part in listed else next((one for one in listed if one.casefold() == part.casefold()), part)
         current = os.path.join(current, found)
     return current + separator if path.endswith(separator) else current
 
@@ -201,7 +220,7 @@ class FileTable:
     # -- paths
 
     def full(self, path: object) -> str:
-        return spelled(os.path.join(self.folder, _native(to_text(path))))
+        return spelled(os.path.join(self.folder, native_path(to_text(path))))
 
     def _key(self, path: str) -> str:
         return os.path.normcase(os.path.abspath(path))

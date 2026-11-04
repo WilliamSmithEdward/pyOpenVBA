@@ -330,7 +330,8 @@ def FACT(context: Context, number: Scalar) -> Value:
 @function("FACTDOUBLE", V)
 def FACTDOUBLE(context: Context, number: Scalar) -> Value:
     value = context.number(number)
-    if value < -1:
+    # Past 300 it overflows anyway, and the walk down from 1E+300 would never end.
+    if value < -1 or value > 1000:
         return NUM
     whole = int(value)
     result = 1.0

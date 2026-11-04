@@ -39,7 +39,7 @@ REFUSED = ('[_Default]',
 #: A fill on a line series, which the model does not take, where Excel keeps it for the marker ClearFormats leaves.
 UNTAKEN = 'line: ch.SeriesCollection(1).Format.Fill.ForeColor.RGB = 255: r = ch.Legend'
 DRAWN = [index for index, name in enumerate(NAMES) if not name.startswith(UNDRAWN)]
-REFUSALS = [index for index in DRAWN if any(text in NAMES[index] for text in REFUSED)]
+REFUSALS = [index for index in DRAWN if any(text in NAMES[index] for text in REFUSED) and '.[_Default]' not in NAMES[index]]
 KEPT = [index for index in DRAWN if index not in REFUSALS and not NAMES[index].startswith(UNTAKEN)]
 
 

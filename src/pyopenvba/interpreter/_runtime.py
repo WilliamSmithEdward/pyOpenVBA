@@ -35,7 +35,7 @@ from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import BINDING, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
-from pyopenvba.interpreter._type_library import LibraryClass, find_class, late_error, let_error
+from pyopenvba.interpreter._type_library import UNDESCRIBED, LibraryClass, find_class, late_error, late_let_error, let_error
 from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_INVALID_USE_OF_NULL,
@@ -1056,6 +1056,8 @@ class Assignable:
     declared: str = 'Variant'
     #: True for a property whose Let takes an object itself (setter(objects=True)).
     takes_objects: bool = False
+    #: What the property makes of a value given by Let, an object still whole, before anything else does.
+    given: Callable[[object], object] | None = None
 
 
 @dataclass(slots=True)
@@ -1767,6 +1769,8 @@ class Interpreter:
             # Nothing has no value to let: v = Range("A1:B1").Style, whose cells differ, is error 91.
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
+        if statement.kind == "let" and target.given is not None:
+            value = target.given(value)
         if statement.kind == "let" and isinstance(value, VBAObject):
             # Some objects, and some properties, take an object itself by Let; anything else hands over the
             # object's default member.
@@ -2388,9 +2392,26 @@ class Interpreter:
         if number is not None:
             raise error(number)
 
+    def _bracket_class(self, target: object, expression: A.Member) -> LibraryClass | None:
+        """The class of an object whose target.[name] is not a call of that member: one bound late, or a name it does not have.
+        VBA compiles those to the object's DISPID_EVALUATE, so that o.[_Default] is 438 on a Range and ws.[B2] is a cell
+        (tests/fixtures/vba_brackets.json)."""
+        library = getattr(self.host, "vba_type_library", None)
+        if not expression.bracketed or library is None or not isinstance(target, VBAObject) or isinstance(target, UserClassInstance):
+            return None
+        found = find_class(library, target.vba_type_name)
+        if found is None:
+            return UNDESCRIBED if BINDING.late else None
+        return found if BINDING.late or found.reading(strip_suffix(expression.name)) is None else None
+
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
         target = self._member_target(expression, frame)
         self._note_binding(expression, frame)
+        evaluating = self._bracket_class(target, expression)
+        if evaluating is not None:
+            if not evaluating.evaluates:
+                raise error(ERR_MEMBER_NOT_FOUND)
+            return _dispatch_get(target, "Evaluate", [expression.name], {})
         if BINDING.late:
             self._check_late_call(target, expression.name, [], {})
         return _dispatch_get(target, expression.name, [], {})
@@ -2457,6 +2478,11 @@ class Interpreter:
                        for index, parameter in enumerate(procedure.params)):
                     raise error(450)
             self._note_binding(callee, frame)
+            evaluating = self._bracket_class(target, callee)
+            if evaluating is not None:
+                if not evaluating.evaluates:
+                    raise error(ERR_MEMBER_NOT_FOUND)
+                return _call_value(_dispatch_get(target, "Evaluate", [callee.name], {}), positional, named)
             if BINDING.late:
                 self._check_late_call(target, callee.name, positional, named)
             return _dispatch_get(target, callee.name, positional, named)
@@ -2711,13 +2737,21 @@ class Interpreter:
         if isinstance(expression, A.Member):
             target = self._member_target(expression, frame)
             name = expression.name
+            self._note_binding(expression, frame)
+            evaluating = self._bracket_class(target, expression)
+            if evaluating is not None:
+                raise error(424 if evaluating.evaluates else ERR_MEMBER_NOT_FOUND)
             slot = self.member_variable(target, name, frame)
             spec = target.vba_member(name) if isinstance(target, VBAObject) else None
+            library = getattr(self.host, "vba_type_library", None)
+            late = (find_class(library, target.vba_type_name)
+                    if BINDING.late and library is not None and isinstance(target, VBAObject) and not isinstance(target, UserClassInstance) else None)
             return Assignable(
-                put=lambda value, by_ref: _dispatch_set(target, name, value, [], {}, by_ref),
+                put=lambda value, by_ref: _set_member(target, name, value, by_ref, late),
                 take=lambda: _dispatch_get(target, name, [], {}),
                 declared=slot.declared if slot is not None else 'Variant',
                 takes_objects=bool(spec is not None and getattr(spec.setter, '_vba_let_objects', False)),
+                given=(lambda value: target.vba_given(strip_suffix(name), value)) if isinstance(target, VBAObject) else None,
             )
         if isinstance(expression, A.Index):
             return self._index_target(expression, frame)
@@ -3105,6 +3139,21 @@ def _dispatch_get(target: object, name: str, args: list[object], named: dict[str
     if target is NOTHING:
         raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     raise error(424, f"{type_name(target)} has no member named {name}")
+
+
+def _set_member(target: object, name: str, value: object, by_ref: bool, late: LibraryClass | None) -> None:
+    """A property set. Bound early VBA turns the value into the parameter's type first, which the setters answer: Null is 94 and
+    text that is no number 13. Bound late the object takes the Variant itself and answers otherwise (tests/fixtures/settable_audit.json)."""
+    try:
+        _dispatch_set(target, name, value, [], {}, by_ref)
+    except VBARuntimeError as failed:
+        number = None if late is None else late_let_error(late, strip_suffix(name), failed.number, value is NULL, isinstance(value, str))
+        if number is None:
+            raise
+        if number == 1004:
+            raise error(1004, f"Unable to set the {strip_suffix(name)} property of the {target.vba_type_name} class") from failed  # type: ignore[attr-defined]
+        if number:
+            raise error(number) from failed
 
 
 def _dispatch_set(

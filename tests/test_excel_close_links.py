@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import base64
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -22,7 +21,6 @@ def _harness_free(answer: str) -> str:
     return '|'.join([value, *(event for event in events if event.split()[1] in ('Alpha.xlsx', 'Dest.xlsx'))])
 
 
-@pytest.mark.skipif(sys.platform != 'win32', reason='the macros name files by Windows paths')
 @pytest.mark.parametrize('mode', list(RECORD['answers']))
 def test_each_handler_as_excel_answered(tmp_path: Path, mode: str) -> None:
     for name, data in RECORD['files'].items():

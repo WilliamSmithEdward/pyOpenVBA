@@ -85,8 +85,8 @@ def present_value(rate: float, periods: float, payment: float, future: float, du
         return -precise.add(future, precise.multiply(payment, periods))
     growth, factor = _annuity(rate, periods, due)
     if growth == 0.0:
-        # A rate of -100% (tests/fixtures/worksheet_function_types.json).
-        raise ExcelError(NUM)
+        # A rate of -100% (tests/fixtures/worksheet_function_edges.json).
+        raise ExcelError(DIV0)
     return -precise.divide(precise.add(future, precise.multiply(payment, factor)), growth)
 
 
@@ -617,7 +617,8 @@ def RATE(
     future = _optional(context, fv, 0.0)
     due = _due(context, type_)
     start = _optional(context, guess, 0.1)
-    if periods <= 0:
+    # With nothing paid and nothing to reach, no rate does it (tests/fixtures/worksheet_function_edges.json).
+    if periods <= 0 or (paid == 0 and future == 0):
         return NUM
     return checked(_rate(periods, paid, present, future, due, start))
 
@@ -679,10 +680,14 @@ def MIRR(context: Context, values: Value, finance: Scalar, reinvest: Scalar) -> 
     flows = [item for item, _ in context.scalars(values) if isinstance(item, float)]
     borrowed = context.number(finance)
     earned = context.number(reinvest)
-    if borrowed == -1 or earned == -1:
-        # Nothing to discount by (tests/fixtures/worksheet_function_types.json).
-        return NUM
     count = len(flows)
+    # At -100% nothing can be discounted, but money borrowed at the start has no need to be
+    # (tests/fixtures/worksheet_function_edges.json).
+    if earned == -1 or (borrowed == -1 and (count < 2 or any(flow < 0 for flow in flows[1:]))):
+        return DIV0
+    if borrowed == -1:
+        ratio = (-_npv(earned, [flow if flow > 0 else 0.0 for flow in flows]) * _power(1 + earned, count)) / flows[0]
+        return checked(_power(ratio, 1 / (count - 1)) - 1)
     positive = _npv(earned, [flow if flow > 0 else 0.0 for flow in flows])
     negative = _npv(borrowed, [flow if flow < 0 else 0.0 for flow in flows])
     if positive == 0 or negative == 0 or count < 2:
@@ -800,7 +805,7 @@ def SLN(context: Context, cost: Scalar, salvage: Scalar, life: Scalar) -> Value:
 def SYD(context: Context, cost: Scalar, salvage: Scalar, life: Scalar, per: Scalar) -> Value:
     span = context.number(life)
     period = context.number(per)
-    if span <= 0 or period <= 0 or period > span:
+    if span <= 0 or period <= 0 or period > span or context.number(salvage) < 0:
         return NUM
     return checked((context.number(cost) - context.number(salvage)) * (span - period + 1) * 2 / (span * (span + 1)))
 
@@ -905,8 +910,12 @@ def VDB(
     last = context.number(end)
     rate = _optional(context, factor, 2.0)
     keep = no_switch is not None and not isinstance(no_switch, Empty) and context.logical(no_switch)
-    if first < 0 or last < first or last > span or value < 0 or rest > value or rate <= 0:
+    # Salvage may be more than the cost but not below nothing; the difference then comes off at once, measured from
+    # the start of the life (tests/fixtures/worksheet_function_edges.json).
+    if first < 0 or last < first or last > span or value < 0 or rest < 0 or rate <= 0:
         return NUM
+    if value < rest and first == 0 and last > 0:
+        return value - rest
     low = math.floor(first)
     high = math.ceil(last)
     if keep:

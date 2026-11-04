@@ -1751,11 +1751,11 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         that cancels, and then nothing closes. Only the front book's window then raises its leaving, and none comes in
         behind it. A macro in one of them ends there. With alerts off changes are lost; with
         them on Excel asks, which is not modelled (tests/fixtures/workbooks_close.json)."""
-        books = list(self.books)
+        books = [book for book in self.books if not book.is_addin]
         for book in books:
             if not _events.before_close(book):
                 return True
-        if self.application.display_alerts and any(not book.saved for book in self.books):
+        if self.application.display_alerts and any(not book.saved for book in books):
             raise VBAUnsupportedError("Workbooks.Close with a changed workbook and alerts on needs a save prompt; "
                                       "set DisplayAlerts False or save first")
         running = self.application.running_book()
@@ -1777,7 +1777,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             self.application.window_order.remove(book)
         if self.application.active_book is book:
             # The window behind comes to the front, measured.
-            self.application.active_book = front_to_back(self.application)[0] if self.books else None
+            behind = front_to_back(self.application)
+            self.application.active_book = behind[0] if behind else None
 
 
 def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., None]]:

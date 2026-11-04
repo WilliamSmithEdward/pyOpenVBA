@@ -624,6 +624,16 @@ def _area_of(reference: str) -> tuple[int, int, int, int]:
     return area.top, area.left, area.bottom, area.right
 
 
+def _read_shape_links(shapes: list[ShapeState], relationships: dict[str, tuple[str, str]]) -> None:
+    """Each shape's hyperlink, its relationship made the address it names."""
+    for shape in shapes:
+        if shape.link is not None:
+            relationship, tip, place = shape.link
+            target = relationships.get(relationship, ("", ""))[1]
+            shape.link = (target, tip, place)
+        _read_shape_links(shape.children, relationships)
+
+
 def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     """The sheet's drawing, read into the model.
 
@@ -641,6 +651,7 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     # Anchors are read against the model's own rows and columns, the ones
     # a save writes them against, so a shape nobody moved stays put.
     sheet.shapes_ = read_drawing(sheet.drawing_xml, sheet.drawing_grid())
+    _read_shape_links(sheet.shapes_, _sheet_relationships(package, part))
     from pyopenvba.apps.excel import _charts_file
 
     _charts_file.read(sheet, package)
@@ -2932,6 +2943,8 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     # Excel leaves Excel 4 macro names out of a workbook saved without macros (tests/fixtures/name_macro.json).
     macros = workbook_format(book) in (52, 53, 55)
     for entry in book.names_.entries:
+        if entry.macro_links_itself and macros:
+            raise VBAUnsupportedError("Saving a macro name whose RefersTo was set to a sheet's cells is not implemented")
         if (entry.macro_type and not macros) or any(entry is lost for lost in book.query_names_lost):
             continue
         # A name that came from the file keeps the attributes it came
@@ -2965,7 +2978,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         attributes = attributes.strip()
         refers_to = saved_name(without_dangling_references(prefixes.in_file(in_file(entry.refers_to, tables))).lstrip("="))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
-                        f"<definedName {attributes}>{_escape(refers_to)}</definedName>"))
+                        f"<definedName {attributes}>{_escape_text(refers_to)}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and
     # a name on a sheet before the workbook's of the same name, sheets in the order of their names.
     written.sort(key=lambda pair: pair[0])

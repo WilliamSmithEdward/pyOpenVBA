@@ -66,6 +66,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._application_more import Timer
+    from pyopenvba.apps.excel._dialogs import FileDialog as FileDialogObject
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
@@ -393,6 +394,8 @@ class Application(ExcelObject):
         self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
         #: What Application.OnTime has waiting, oldest first (see _application_more).
         self.timers: list[Timer] = []
+        #: The one file dialog, from when a macro first asks for it (see _dialogs).
+        self.file_dialog: FileDialogObject | None = None
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
@@ -605,6 +608,40 @@ class Application(ExcelObject):
         """Any number at all, 0 and negative ones among them, which then stop no iteration early."""
         self.max_change = float(to_number(value))
 
+    @method
+    def InputBox(self, Prompt: object = MISSING, Title: object = MISSING, Default: object = MISSING,  # noqa: N803
+                 Left: object = MISSING, Top: object = MISSING, HelpFile: object = MISSING,  # noqa: N803
+                 HelpContextID: object = MISSING, Type: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import input_box
+
+        return input_box(self, Prompt, Title, Default, Type)
+
+    @method
+    def GetOpenFilename(self, FileFilter: object = MISSING, FilterIndex: object = MISSING, Title: object = MISSING,  # noqa: N803
+                        ButtonText: object = MISSING, MultiSelect: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import get_open_filename
+
+        return get_open_filename(self, FileFilter, Title, MultiSelect)
+
+    @method
+    def GetSaveAsFilename(self, InitialFilename: object = MISSING, FileFilter: object = MISSING,  # noqa: N803
+                          FilterIndex: object = MISSING, Title: object = MISSING, ButtonText: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import get_save_as_filename
+
+        return get_save_as_filename(self, InitialFilename, FileFilter, Title)
+
+    @member
+    def FileDialog(self, fileDialogType: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import file_dialog
+
+        return file_dialog(self, fileDialogType)
+
+    @member
+    def Dialogs(self) -> object:
+        from pyopenvba.apps.excel._dialogs import Dialogs
+
+        return Dialogs(self)
+
     @member
     def International(self, Index: object = MISSING) -> object:
         """A setting of the Regional format, by its xlApplicationInternational index; any other index is error
@@ -777,14 +814,19 @@ class Application(ExcelObject):
 
     @member
     def ThisWorkbook(self) -> object:
+        book = self.running_book() or self._this_workbook or self.active_book
+        return book if book is not None else NOTHING
+
+    def running_book(self) -> Workbook | None:
+        """The workbook whose own project the running macro is in: one opened with a project, or named to add_module.
+        Code added with no workbook named is in none, as a measuring harness's is, and closing a book goes on past it."""
         from pyopenvba.apps.excel._projects import ExcelInterpreter
 
         if self.executing_projects:
             project = self.executing_projects[-1]
-            if isinstance(project, ExcelInterpreter) and project.bridge.workbook is not None:
+            if isinstance(project, ExcelInterpreter) and project.bridge.workbook is not None and project.bridge.workbook.code_is_its_own:
                 return project.bridge.workbook
-        book = self._this_workbook or self.active_book
-        return book if book is not None else NOTHING
+        return None
 
     @member
     def ActiveSheet(self) -> object:
@@ -848,6 +890,8 @@ class Application(ExcelObject):
     @member(default=True)
     def Range(self, Cell1: object = MISSING, Cell2: object = MISSING) -> object:
         """The active sheet's Range, but cells on another sheet are taken there (tests/fixtures/cross_sheet_ranges.json)."""
+        if self.active_book is None:  # tests/fixtures/workbooks_close.json
+            raise error(1004, "Method 'Range' of object '_Global' failed")
         return self._require_sheet().resolved_range(Cell1, Cell2, foreign=True)
 
     @member
@@ -1687,6 +1731,29 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
     def Parent(self) -> object:
         return self.application
 
+    @method
+    def Close(self) -> object:
+        """Every book, or none: BeforeClose in the collection's order, whichever window is in front, stops at the first
+        that cancels, and then nothing closes. Only the front book's window then raises its leaving, and none comes in
+        behind it. A macro in one of them ends there. With alerts off changes are lost; with
+        them on Excel asks, which is not modelled (tests/fixtures/workbooks_close.json)."""
+        books = list(self.books)
+        for book in books:
+            if not _events.before_close(book):
+                return True
+        if self.application.display_alerts and any(not book.saved for book in self.books):
+            raise VBAUnsupportedError("Workbooks.Close with a changed workbook and alerts on needs a save prompt; "
+                                      "set DisplayAlerts False or save first")
+        running = self.application.running_book()
+        if self.application.active_book is not None:
+            _events.book_left(self.application.active_book)
+        for book in books:
+            if book in self.books:
+                book.closed_now(one_of_all=True)
+        if running is not None and running in books:
+            self.application.executing_projects[-1].end_run()
+        return True
+
     def remove(self, book: Workbook) -> None:
         from pyopenvba.apps.excel._windows import front_to_back
 
@@ -1720,6 +1787,9 @@ class Workbook(ExcelObject):
     """One workbook: its sheets, its names, and where it came from."""
 
     vba_type_name = "Workbook"
+    closed = False
+    #: Whether its project came with the file or was named to add_module (see Application.running_book).
+    code_is_its_own = False
     #: The events the model raises in the workbook's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
@@ -2060,7 +2130,20 @@ class Workbook(ExcelObject):
     EnvelopeVisible, _set_envelope_visible = _session_property("EnvelopeVisible")
     Excel8CompatibilityMode, _set_excel8_compatibility_mode = _session_property("Excel8CompatibilityMode")
     HighlightChangesOnScreen, _set_highlight_changes_on_screen = _session_property("HighlightChangesOnScreen")
-    IsAddin, _set_is_addin = _session_property("IsAddin")
+    IsAddin, _ = _session_property("IsAddin")
+
+    @setter("IsAddin")
+    def set_is_addin(self, value: object) -> None:
+        """An add-in stays open and its macros run, but it is out of the Workbooks collection, and back at its end when
+        it stops being one (tests/fixtures/workbooks_close.json)."""
+        from pyopenvba.apps.excel._workbook_settings import set_session_value
+
+        set_session_value(self, "IsAddin", value)
+        books = self.application.workbooks_
+        if to_bool(value) and self in books.books:
+            books.remove(self)
+        elif not to_bool(value) and self not in books.books:
+            books.books.append(self)
     IsInplace, _set_is_inplace = _session_property("IsInplace")
     KeepChangeHistory, _set_keep_change_history = _session_property("KeepChangeHistory")
     ListChangesOnNewSheet, _set_list_changes_on_new_sheet = _session_property("ListChangesOnNewSheet")
@@ -2426,25 +2509,42 @@ class Workbook(ExcelObject):
                 return EMPTY
         if not _events.before_close(self):
             return EMPTY
-        if SaveChanges is MISSING and not self.saved:
+        if SaveChanges is MISSING and not self.saved and self.application.display_alerts:
             raise VBAUnsupportedError("Closing a changed workbook requires a save prompt; specify SaveChanges")
         if saving and Filename is MISSING:
             if not self._save():
                 return EMPTY
+        running = self.application.running_book()
+        self.closed_now()
+        if running is self:
+            self.application.executing_projects[-1].end_run()  # so it goes no further (tests/fixtures/workbooks_close.json)
+        return True
+
+    def closed_now(self, *, one_of_all: bool = False) -> None:
+        """The close itself, its question of saving settled and BeforeClose past. Workbooks.Close raises no window events
+        for each book, as it does the front one's itself."""
         from pyopenvba.apps.excel._windows import front_to_back
 
-        behind = next((book for book in front_to_back(self.application) if book is not self), None)
-        _events.book_left(self)
+        order = front_to_back(self.application)
+        behind = None if one_of_all else next((book for book in order if book is not self), None)
+        # Closing a book behind the front one brings the window behind it up for a moment
+        # (tests/fixtures/workbooks_close.json, one changed quiet).
+        passing = None if one_of_all or order[0] is self or self not in order else next(iter(order[order.index(self) + 1:]), None)
+        if not one_of_all:
+            _events.book_left(self)
         from pyopenvba.apps.excel._link_edits import closing
 
         closing(self)
+        self.closed = True
         self.application.workbooks_.remove(self)
+        if passing is not None:
+            _events.book_entered(passing)
+            _events.book_left(passing)
         if behind is not None:
             _events.book_entered(behind)
         from pyopenvba.apps.excel._held_ranges import closed
 
         closed(self)
-        return True
 
     @method
     def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
@@ -7471,6 +7571,8 @@ class NameEntry:
     category: str = ""
     group: int = 0
     macro_changed: bool = False
+    #: A macro name given a sheet's cells, which Excel makes a link to its own workbook.
+    macro_links_itself: bool = False
 
 
 class Names(VBACollection, ItemDefault, ExcelObject):
@@ -7638,6 +7740,12 @@ class Names(VBACollection, ItemDefault, ExcelObject):
 class DefinedName(ExcelObject):
     """One defined name."""
 
+    def _check_alive(self) -> None:
+        """Held past its workbook's close, it is error 424 (tests/fixtures/settable_lists.json)."""
+        if self.entry.book.closed:
+            raise error(424, "Object required")
+        super()._check_alive()
+
     vba_type_name = "Name"
 
     def __init__(self, entry: NameEntry) -> None:
@@ -7653,10 +7761,20 @@ class DefinedName(ExcelObject):
 
     @setter("NameLocal")
     def _set_name_local(self, value: object) -> None:
-        self._set_name(value)
+        self._renamed(value)
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
+        """A name Excel would not take leaves the name as it was, with no error, where NameLocal's is 1004
+        (tests/fixtures/settable_lists.json)."""
+        text = to_text(value)
+        try:
+            self._renamed(text)
+        except VBARuntimeError as failed:
+            if failed.number != 1004:
+                raise
+
+    def _renamed(self, value: object) -> None:
         from pyopenvba._a1 import split_sheet
 
         book = self.entry.book
@@ -7701,8 +7819,13 @@ class DefinedName(ExcelObject):
 
     @setter("Comment")
     def _set_comment(self, value: object) -> None:
-        self.entry.comment = to_text(value)
-        _names.changed(self.entry.book)
+        """A comment brings a name that referred to nothing back, holding the text "=" (tests/fixtures/name_saves.json)."""
+        self.entry.comment = to_text(value)[:255]
+        book = self.entry.book
+        if self.entry not in book.names_.entries:
+            self.entry.refers_to = '="="'
+            book.names_.entries.append(self.entry)
+        _names.changed(book)
 
     @member
     def MacroType(self) -> object:
@@ -7754,16 +7877,17 @@ class DefinedName(ExcelObject):
 
     @member
     def WorkbookParameter(self) -> object:
-        """False: Excel refuses every setting with error 5 until the name is a valid one (tests/fixtures/name_macro.json)."""
+        """False: Excel takes False and refuses True with error 5 until the name is a valid one (tests/fixtures/name_macro.json, settable_lists.json)."""
         return False
 
     @setter("WorkbookParameter")
     def _set_workbook_parameter(self, value: object) -> None:
+        if not to_bool(value):
+            return
         if not self.ValidWorkbookParameter():
             raise error(5)
         # A saved workbook's name takes it (tests/fixtures/excel_everyday_14.json), but the model does not keep it.
-        if to_bool(value):
-            raise VBAUnsupportedError("Name.WorkbookParameter set to True is not implemented")
+        raise VBAUnsupportedError("Name.WorkbookParameter set to True is not implemented")
 
     @member
     def ValidWorkbookParameter(self) -> object:
@@ -7801,6 +7925,8 @@ class DefinedName(ExcelObject):
         """The name's formula as RefersTo shows it: another workbook by its path (see _external_links)."""
         from pyopenvba.apps.excel._external_links import shown
 
+        if self.entry.macro_links_itself:
+            raise VBAUnsupportedError("a macro name's RefersTo set to a sheet's cells is not implemented")
         return shown(self.entry.book, self.entry.refers_to)
 
     @member
@@ -7809,7 +7935,11 @@ class DefinedName(ExcelObject):
 
     @setter("RefersToR1C1")
     def _set_refers_r1c1(self, value: object) -> None:
-        self._set_refers_to(to_a1(to_text(value), 1, 1))
+        text = _names.refers_text(value, empty="=#N/A")
+        try:
+            self._refer(text if text == "=" else to_a1(text, 1, 1))
+        except ValueError as failed:
+            raise error(1004, "Application-defined or object-defined error") from failed
 
     @member
     def RefersTo(self) -> object:
@@ -7838,7 +7968,18 @@ class DefinedName(ExcelObject):
 
     @setter("RefersTo")
     def _set_refers_to(self, value: object) -> None:
-        self.entry.refers_to = _names.qualify(to_text(value), self.entry.book.active_sheet.name)
+        self._refer(_names.refers_text(value, empty="=#N/A"))
+
+    def _refer(self, text: str) -> None:
+        """Referring to nothing deletes the name, though a variable holding it still reads "=". A macro name's sheet
+        reference comes to name its workbook as well, as a link to itself, which reports itself when it is read or saved
+        (tests/fixtures/name_saves.json)."""
+        self.entry.macro_links_itself = bool(self.entry.macro_type) and "!" in text
+        if text == "=":
+            self.entry.refers_to = text
+            self.Delete()
+            return
+        self.entry.refers_to = _names.qualify(text, self.entry.book.active_sheet.name)
         _names.changed(self.entry.book, self.entry.name)
 
     @member(default=True)
@@ -7847,7 +7988,8 @@ class DefinedName(ExcelObject):
 
     @setter("Value")
     def _set_value(self, value: object) -> None:
-        self._set_refers_to(value)
+        """As RefersTo, but Null is 94 and Empty is nothing at all."""
+        self._refer(_names.refers_text("" if value is EMPTY else to_text(value) if value is NULL else value))
 
     @member
     def RefersToRange(self) -> object:

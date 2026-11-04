@@ -116,7 +116,7 @@ Application,DefaultSheetDirection,property,As Long,,PARTIAL,tests/fixtures/appli
 Application,DefaultWebOptions,"property, read-only",As DefaultWebOptions,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Its options read as the measuring machine's Excel had them; setting one reports itself, as it would change a user's profile"
 Application,DeferAsyncQueries,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads False as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null is 94 and other text 13, typed."
 Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,Excel's own lists error 1004; a number past the last does nothing.
-Application,Dialogs,"property, read-only",As Dialogs,,MISSING,,
+Application,Dialogs,"property, read-only",As Dialogs,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,Answered from answer_dialogs.
 Application,DisplayAlerts,property,As Boolean,,PARTIAL,tests/fixtures/settable_audit.json; tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,"Takes what VBA makes a Boolean of; text that is none raises 13, Null 94, Empty is False Typed, each kind of value answers as Excel does (settable_audit); late bound 3 differ, so this stays PARTIAL until the model tracks both bindings."
 Application,DisplayClipboardWindow,property,As Boolean,no setter,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,"Reads False, as Excel started on the measuring machine; the setter is not implemented, since measuring it would change the user's profile."
 Application,DisplayCommentIndicator,property,As XlCommentDisplayMode,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlNoIndicator, xlCommentIndicatorOnly and xlCommentAndIndicator read back, other values are 1004, over 19 live settings; notes' display is not modelled"
@@ -153,7 +153,7 @@ Application,ExecuteExcel4Macro,method,ExecuteExcel4Macro(String As String) As Va
 Application,ExtendList,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null is 94 and other text 13, typed."
 Application,FeatureInstall,property,As MsoFeatureInstall,,MISSING,,
 Application,FileConverters,"property, read-only",As Variant,,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Null: no converter is installed here
-Application,FileDialog,"property, read-only",As FileDialog,,MISSING,,
+Application,FileDialog,"property, read-only",As FileDialog,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,"One object that turns into the type asked for, as measured."
 Application,FileExportConverters,"property, read-only",As FileExportConverters,,PARTIAL,tests/fixtures/application_rest.json; tests/test_excel_application_rest.py,Holds nothing in the model; an item is 9
 Application,FileValidation,property,As MsoFileValidationMode,no setter,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Reads 0; setting it reports itself
 Application,FileValidationPivot,property,As XlFileValidationPivotMode,no setter,PARTIAL,tests/fixtures/application_objects.json; tests/test_excel_application_objects.py,Reads 0; setting it reports itself
@@ -169,9 +169,9 @@ Application,GenerateGetPivotData,property,As Boolean,,PARTIAL,tests/test_excel_a
 Application,GenerateTableRefs,property,As XlGenerateTableRefs,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,0 and 1; anything else is 5.
 Application,GetCustomListContents,method,GetCustomListContents(ListNum As Long) As Variant,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,A list from 1; error 13 for a number naming none.
 Application,GetCustomListNum,method,GetCustomListNum(ListArray As Variant) As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"A whole list, case aside, or 0; a range is error 1004."
-Application,GetOpenFilename,method,"GetOpenFilename([FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant], [MultiSelect As Variant]) As Variant",,MISSING,,
+Application,GetOpenFilename,method,"GetOpenFilename([FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant], [MultiSelect As Variant]) As Variant",,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,Answered from answer_dialogs. FilterIndex and ButtonText are ignored.
 Application,GetPhonetic,method,GetPhonetic([Text As Variant]) As String,,PARTIAL,tests/fixtures/application_rest.json; tests/test_excel_application_rest.py,"Empty text, as with no Japanese input method"
-Application,GetSaveAsFilename,method,"GetSaveAsFilename([InitialFilename As Variant], [FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant]) As Variant",,MISSING,,
+Application,GetSaveAsFilename,method,"GetSaveAsFilename([InitialFilename As Variant], [FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant]) As Variant",,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,"Answered from answer_dialogs, with the path as given: the filter adds no extension. FilterIndex and ButtonText are ignored."
 Application,Goto,method,"Goto([Reference As Variant], [Scroll As Variant])",,PARTIAL,tests/fixtures/windows/windows.json,"Activates the range's sheet and selects the range, and outside the sheet's ScrollArea is 1004; with Scroll its first cell goes to the top left of the window or of the pane that scrolls. Without a Reference, which goes back to where the last Goto started, it reports itself."
 Application,Height,property,As Double,,MISSING,,
 Application,Help,method,"Help([HelpFile As Variant], [HelpContextID As Variant])",,MISSING,,
@@ -181,7 +181,7 @@ Application,HinstancePtr,"property, read-only",As Variant,,MISSING,,
 Application,Hwnd,"property, read-only",As Long,,MISSING,,
 Application,IgnoreRemoteRequests,property,As Boolean,no setter,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Reads False; setting is not implemented.
 Application,InchesToPoints,method,InchesToPoints(Inches As Double) As Double,,PARTIAL,tests/fixtures/method_audit.json; tests/test_excel_method_audit.py; tests/fixtures/application_members.json,"Bindings differ on some values, recorded in the fixture's early. The model follows early, so a macro holding the object As Object gets another answer until the model tracks both."
-Application,InputBox,method,"InputBox(Prompt As String, [Title As Variant], [Default As Variant], [Left As Variant], [Top As Variant], [HelpFile As Variant], [HelpContextID As Variant], [Type As Variant]) As Variant",,MISSING,,
+Application,InputBox,method,"InputBox(Prompt As String, [Title As Variant], [Default As Variant], [Left As Variant], [Top As Variant], [HelpFile As Variant], [HelpContextID As Variant], [Type As Variant]) As Variant",,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,"Answered from answer_dialogs. Types 0, 1, 2, 3, 4, 5, 8, 16 and 64; other sums report themselves."
 Application,Interactive,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null being 94 and text that is none 13 typed, over 23 live settings; it changes nothing the model does"
 Application,International,"property, read-only",As Variant,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json; tests/fixtures/excel_locale_live.json,"Every index 1 to 46 as en-US answers them, error 1004 outside; under ExcelApplication(locale=""ja-JP"") indexes 1 to 45 as Japanese Excel answers them, and 46 reports itself unsupported."
 Application,Intersect,method,"Intersect(Arg1 As Range, Arg2 As Range, [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Range",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,Ranges on two sheets are error 1004; only each range's first area is intersected.
@@ -1143,6 +1143,17 @@ Databar,SetLastPriority,method,SetLastPriority(),,PARTIAL,tests/fixtures/data_ba
 Databar,ShowValue,property,As Boolean,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,StopIfTrue,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,Type,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
+Dialog,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialog,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialog,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialog,Show,method,"Show([Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Boolean",,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,"Only False: answered True it reports itself, as what OK does in each form is not modelled."
+Dialogs,_Default,"property, read-only",As Dialog,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialogs,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialogs,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialogs,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialogs,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialogs,Item,"property, read-only",As Dialog,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+Dialogs,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
 DisplayFormat,AddIndent,"property, read-only",As Variant,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,Application itself on each way measured; assigning to it is error 450.
 DisplayFormat,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
@@ -1244,6 +1255,43 @@ Errors,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/objec
 Errors,Item,"property, read-only",As Error,,PARTIAL,tests/fixtures/range_errors.json; tests/test_excel_range_errors.py,"By index from 1; 0 is 1004, past 10 a check that never flags."
 Errors,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/range_errors.json; tests/test_excel_range_errors.py,"Range, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 ExcelObject,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
+FileDialog,AllowMultiSelect,property,As Boolean,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,ButtonName,property,As String,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,DialogType,"property, read-only",As MsoFileDialogType,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,Execute,method,Execute(),,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,Opens what was chosen through Workbooks.Open. On a saving dialog it reports itself.
+FileDialog,FilterIndex,property,As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,Filters,"property, read-only",As FileDialogFilters,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,InitialFileName,property,As String,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,"A folder that is not there is kept, where Excel moves the name to Documents."
+FileDialog,InitialView,property,As MsoFileDialogView,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,Item,"property, read-only",As String,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,SelectedItems,"property, read-only",As FileDialogSelectedItems,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialog,Show,method,Show() As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,"Answered from answer_dialogs, with the path as given."
+FileDialog,Title,property,As String,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilter,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilter,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilter,Description,"property, read-only",As String,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilter,Extensions,"property, read-only",As String,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilter,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,_Default,not in the type library,,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Add,method,"Add(Description As String, Extensions As String, [Position As Variant]) As FileDialogFilter",,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Clear,method,Clear(),,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Delete,method,Delete([filter As Variant]),,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Item,method,Item(Index As Long) As FileDialogFilter,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogFilters,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogSelectedItems,_Default,not in the type library,,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogSelectedItems,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogSelectedItems,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogSelectedItems,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogSelectedItems,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogSelectedItems,Item,method,Item(Index As Long) As String,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
+FileDialogSelectedItems,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/dialogs.json; tests/test_excel_dialogs.py,
 FillFormat,Application,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Application itself on each way measured; assigning to it is error 450.
 FillFormat,BackColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Reads only.
 FillFormat,Creator,"property, read-only",As Long,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"xlCreatorCode, 1480803660, a Long, on each way measured; assigning to it is error 450."
@@ -3980,7 +4028,7 @@ Workbooks,Add,method,Add([Template As Variant]) As Workbook,,PARTIAL,tests/fixtu
 Workbooks,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Application itself on each way measured; assigning to it is error 450.
 Workbooks,CanCheckOut,method,CanCheckOut(Filename As String) As Boolean,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
 Workbooks,CheckOut,method,CheckOut(Filename As String),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
-Workbooks,Close,method,Close(),,MISSING,,
+Workbooks,Close,method,Close(),,PARTIAL,tests/fixtures/workbooks_close.json; tests/test_excel_workbooks_close.py,"A changed book with alerts on asks to save, which reports itself."
 Workbooks,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/collection_items.json; tests/test_excel_collection_items.py; tests/fixtures/unassessed_members.json; tests/test_excel_unassessed_members.py,"A Long, populated and empty where a sheet can leave it empty."
 Workbooks,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, a Long, on each way measured; assigning to it is error 450."
 Workbooks,Item,"property, read-only",As Workbook,,VERIFIED,tests/fixtures/collection_items.json; tests/test_excel_collection_items.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"As o.Item(x) late bound across every kind of index, and Item(Null) bound early, which the model follows where it differs. The shorter o(x) and typed forms of other indexes are not recorded."

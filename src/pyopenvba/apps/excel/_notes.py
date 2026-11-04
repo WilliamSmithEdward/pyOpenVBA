@@ -89,6 +89,8 @@ class Note:
     #: back as it arrived; each is "" once what it holds changes.
     comment_xml: str = ""
     shape_xml: str = ""
+    #: The box as the file had it, kept through a move: its fill, line, lock and the rest, none of which the model holds.
+    box_source: str = ""
     #: A threaded comment's comments, the thread's first and its replies, when the note is the thread's stand-in,
     #: which the notes VBA sees leave out (see _threads).
     thread: list[ThreadEntry] = field(default_factory=lambda: [])

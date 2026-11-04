@@ -320,11 +320,13 @@ late bound, `Dim o As Object`, and early bound, `Dim o As Validation`, and
 record both. A member declared with a specific type converts the value in VBA
 before Excel sees it: `ActiveWindow.DisplayGridlines = Null` is 94 early and
 changes nothing late, and `Areas.Item(Null)` is 94 early and 13 late. The model
-does not track a variable's type, so where the two differ it follows early
-binding, which is how `ActiveWindow` and `Range(...).Validation` reach these
-objects in a macro. Assigning to a read-only member can only be late bound,
+is to track both bindings. Until it does, it follows early binding where the two
+differ, which is how `ActiveWindow` and `Range(...).Validation` reach these
+objects in a macro. A macro holding the same object `As Object` gets the wrong
+answer meanwhile, so a row whose bindings differ stays PARTIAL, with a note,
+until tracking lands. Assigning to a read-only member can only be late bound,
 since VBA refuses it at compile time when bound early. A hidden member, whose
-answer depends on binding altogether, stays PARTIAL until the model tracks it.
+answer depends on binding altogether, is one such row.
 
 A row whose evidence predates this standard is audited against it. A row
 that fails goes back to PARTIAL until it is fixed.

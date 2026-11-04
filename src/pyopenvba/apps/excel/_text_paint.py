@@ -98,7 +98,9 @@ class TextFill(_Paint):
 
     @member
     def Type(self) -> object:
-        return _MIXED_TRI if self._mixed("font_no_fill") or self.font.look().font_no_fill else VBAInt(1, "Long")
+        if self._mixed("font_no_fill") or self.font.look().font_no_fill:
+            return _MIXED_TRI
+        return VBAInt(self.font.look().font_fill_type or 1, "Long")
 
     @member
     def ForeColor(self) -> object:
@@ -282,7 +284,8 @@ class TextLineFormat(_Paint):
     @setter("Visible")
     def _visible(self, value: object) -> None:
         # Setting it False has no effect, even on a line that shows.
-        if to_bool(value):
+        # Nor does True over a range where any letter's line shows (tests/fixtures/loaded_shape_sets.json).
+        if to_bool(value) and not self.shown():
             _apply(self.font, lambda line: TextLine(preset=True) if line is None or line.hidden else line)
 
     @member

@@ -6778,7 +6778,6 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._clipboard import tiled_size
 
         rows, columns = tiled_size(target.rows, target.columns, area.rows, area.columns)
-        repeat = rows > area.rows or columns > area.columns or (rows, columns) == (target.rows, target.columns)
         bottom, right = target.top + rows - 1, target.left + columns - 1
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
@@ -7505,20 +7504,23 @@ class Range(ExcelObject):
         for area in areas:
             # A flat array is one row. One row or one column repeats that way over the range; past the end of any other is #N/A
             # (tests/fixtures/excel_fits.json).
-            if array.dimensions == 1:
-                items = array.elements()
-                height, width = 1, len(items)
-                read = lambda _row, column, held=items: held[column]  # noqa: B023
-            else:
+            flat: list[object] = list(array.elements()) if array.dimensions == 1 else []
+            rows, columns = (1, 1), (0, len(flat) - 1)
+            if array.dimensions != 1:
                 rows, columns = array.bounds[0], array.bounds[1]
-                height, width = rows[1] - rows[0] + 1, columns[1] - columns[0] + 1
-                read = lambda row, column, held=array, top=rows[0], left=columns[0]: held.get([top + row, left + column])  # noqa: B023
-            if not height or not width:
+            height, width = rows[1] - rows[0] + 1, columns[1] - columns[0] + 1
+            if height < 1 or width < 1:
                 continue
             for row in range(area.rows):
                 for column in range(area.columns):
                     down, across = 0 if height == 1 else row, 0 if width == 1 else column
-                    item = VBAErrorValue(2042) if down >= height or across >= width else read(down, across)
+                    item: object
+                    if down >= height or across >= width:
+                        item = VBAErrorValue(2042)
+                    elif array.dimensions == 1:
+                        item = flat[across]
+                    else:
+                        item = array.get([rows[0] + down, columns[0] + across])
                     self._put(area.top + row, area.left + column, item, raw=raw)
         self.sheet.touched()
 

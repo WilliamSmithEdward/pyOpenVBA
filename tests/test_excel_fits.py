@@ -54,4 +54,4 @@ End Sub''', name='Harness')
         text = package.read('xl/worksheets/sheet1.xml').decode('utf-8')
     found = re.search(r'<sortState (.*?)</sortState>', text)
     assert found is not None
-    assert re.sub(r' xmlns:\w+="[^"]*"', '', found.group(1)) == SAVED[line]
+    assert re.sub(r'xmlns(:\w+)?="[^"]*" ?', '', found.group(1)).strip() == SAVED[line]

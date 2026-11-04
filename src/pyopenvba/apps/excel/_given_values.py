@@ -201,7 +201,7 @@ def given(target: VBAObject, name: str, value: object) -> object:
         if lower in ACCEPTED and whole not in ACCEPTED[lower]:
             raise refusal
         return whole
-    if lower in AS_TEXT and isinstance(value, float) and not isinstance(value, bool):
+    if lower in AS_TEXT and isinstance(value, float):
         return number_as_text(value)
     if lower == 'indentlevel' and _is_number(value):
         return math.floor(float(to_number(value)))

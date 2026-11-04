@@ -198,10 +198,8 @@ def _without_at(body: str, tokens: list[Token]) -> str:
         if token.kind != "op" or token.text != "@":
             continue
         after = _next(tokens, index)
-        if after is not None and after.kind == "name" and is_cell(after.text):
-            beyond = _next(tokens, index + 1)
-            if beyond is None or beyond.text != ":":
-                continue
+        if after.kind == "name" and is_cell(after.text) and _next(tokens, index + 1).text != ":":
+            continue
         out.append(body[start:token.at])
         start = token.at + 1
     out.append(body[start:])

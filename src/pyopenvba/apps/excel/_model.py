@@ -1629,6 +1629,8 @@ class Workbook(ExcelObject):
         #: The kinds of part a loaded workbook came with, its relationships' types and a few markers, which the
         #: collections the model holds nothing in refuse to read as empty (see _empty_collections).
         self.held_kinds: set[str] = set()
+        #: What the file's query tables said when read or last saved, None where it has none (see _query_tables).
+        self.query_baseline: list[str] | None = None
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
         #: None until a formula is written, when the formulas it has teach it.
@@ -2178,8 +2180,10 @@ class Workbook(ExcelObject):
         """The data connections the file keeps (see _connections)."""
         from pyopenvba.apps.excel._connections import Connections
 
-        if any(sheet.query_tables for sheet in self.sheets_):
-            raise VBAUnsupportedError("Workbook.Connections with a query table on a sheet is not implemented")
+        from pyopenvba.apps.excel._query_tables import connections_stale
+
+        if connections_stale(self):
+            raise VBAUnsupportedError("Workbook.Connections with a query table changed since the file was read is not implemented")
         return Connections(self)
 
     @member
@@ -3230,9 +3234,8 @@ class Worksheet(ExcelObject):
         self.notes: dict[tuple[int, int], Note] = {}
         #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
         self.held_kinds: set[str] = set()
-        #: The sheet's query tables, the newest first, and how many it has ever had (see _query_tables).
+        #: The sheet's query tables, the newest first (see _query_tables).
         self.query_tables: list[Any] = []
-        self.query_table_count = 0
         #: The PNG SetBackgroundPicture gave the sheet, None for none; True once it changed, so a save writes it.
         self.background: bytes | None = None
         self.background_changed = False

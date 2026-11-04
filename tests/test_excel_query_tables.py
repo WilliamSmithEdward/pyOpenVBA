@@ -19,7 +19,7 @@ NAMES = [case[0] for case in RECORD['cases']]
 #: Refused, which each case below checks.
 REFUSED = ('q.PostText = "x"', 'q.Connection = "URL;', 'q.TextFilePromptOnRefresh = True', '"URL;http', 'q.TextFilePlatform = 1252', 'q.TextFilePlatform = 65001',
            'TypeName(q.Parameters)', 'TypeName(q.Sort)', 'TypeName(q.WorkbookConnection)', 'q.WorkbookConnection.Name',
-           'Parent.Connections', 'ws.Copy')
+           'Parent.Connections')
 #: What is measured and not modelled, so not replayed: widths after AdjustColumnWidth, which a 144-DPI display decides; what a
 #: refresh does to formats in its way; a name changed by hand; a table's cells all deleted; and a connection Excel saves for a
 #: table deleted before any refresh.

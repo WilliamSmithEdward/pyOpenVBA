@@ -134,6 +134,10 @@ GONE = 'FileCopy folder & "\\d.csv", folder & "\\m.csv": Set q = ws.QueryTables.
 CASES += [f'{Q}{C}r = c.TextConnection.TextFileHeaderRow', f'{Q}{C}c.TextConnection.TextFileHeaderRow = True: r = c.TextConnection.TextFileHeaderRow', f'{GONE}ws.Range("A2").Value = "z": ws.Parent.RefreshAll: r = ws.Range("A2").Value', f'{GONE}r = q.Refreshing: q.Refresh False: r = ws.Range("A2").Value',
           f'{Q}{R}q.EnableRefresh = False: ws.Range("A2").Value = "z": ws.Parent.RefreshAll: r = ws.Range("A2").Value']
 
+# A table held after it was deleted.
+for prepare in (Q, Q + R):
+    CASES += [f'{prepare}q.Delete: r = q.Name', f'{prepare}q.Delete: r = q.Connection', f'{prepare}q.Delete: r = TypeName(q)', f'{prepare}q.Delete: q.Name = "x"', f'{prepare}q.Delete: q.Delete', f'{prepare}q.Delete: q.Refresh False', f'{prepare}q.Delete: r = TypeName(q.WorkbookConnection)', f'{prepare}q.Delete: r = q Is Nothing']
+
 # Declare what the cases above use.
 DECLARE = '    Dim c As Object, w As Object, book As Object'
 

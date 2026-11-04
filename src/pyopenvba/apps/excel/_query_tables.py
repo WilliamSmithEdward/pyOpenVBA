@@ -216,6 +216,12 @@ class QueryTable(Created):
         self.lost = False
         self.made = next(_MADE)
 
+    def vba_member(self, name: str) -> MemberSpec | None:
+        """A table held after it was deleted answers nothing (tests/fixtures/query_table_connections.json)."""
+        if not any(self is table for table in self.sheet.query_tables):
+            raise error(424, 'Object required')
+        return super().vba_member(name)
+
     def setting(self, name: str, default: object) -> object:
         return self.settings.get(name, default)
 

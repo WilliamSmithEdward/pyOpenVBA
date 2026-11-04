@@ -50,12 +50,13 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, cast
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number, quote_sheet
+from pyopenvba.apps.excel._method_arguments import enum_number, given, switch
 from pyopenvba.apps.excel._protection import whole
 from pyopenvba.apps.excel._visible import unmeasured, visible, visible_areas
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text, split_sheet, tokenize, transpose_text
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Cell, Range, Worksheet
@@ -70,7 +71,9 @@ _CONTENT_VALUES = {VALUES, VALUES_AND_NUMBER_FORMATS}
 #: A paste of the notes alone, which VBA calls comments.
 COMMENTS = -4144
 _UNMODELLED = {6: "data validation"}
-_OPERATIONS = {-4142: "", 2: "+", 3: "-", 4: "*", 5: "/"}
+#: Excel's own numbers for the pastes that have a name besides (tests/fixtures/range_methods_clipboard.json).
+_PASTE_NUMBERS = {1: ALL, 2: FORMULAS, 3: VALUES, 4: FORMATS, 5: COMMENTS}
+_OPERATIONS = {-4142: "", 1: "", 2: "+", 3: "-", 4: "*", 5: "/"}
 
 
 @dataclass(frozen=True)
@@ -369,16 +372,25 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         return False
     if clip.cut:
         raise error(1004, "PasteSpecial cannot paste what was cut")
-    kind = ALL if what is MISSING else int(to_integer(what, "Long"))
+    refusal = "PasteSpecial method of Range class failed"
+    kind = ALL if what is MISSING else enum_number(what, refusal)
+    kind = _PASTE_NUMBERS.get(kind, kind)
+    if kind == 6 and not clip.source.sheet.validations:
+        # Validation from a sheet that has none pastes nothing.
+        return True
     if kind in _UNMODELLED:
         raise VBAUnsupportedError(f"PasteSpecial of {_UNMODELLED[kind]} is not implemented")
     if kind not in _EVERYTHING | _CONTENT_FORMULAS | _CONTENT_VALUES | {FORMATS, COLUMN_WIDTHS, COMMENTS}:
         raise error(1004, "PasteSpecial has no such paste type")
-    op = _OPERATIONS.get(-4142 if operation is MISSING else int(to_integer(operation, "Long")))
+    op = _OPERATIONS.get(-4142 if operation is MISSING else enum_number(operation, refusal))
     if op is None:
         raise error(1004, "PasteSpecial has no such operation")
-    skipping = skip_blanks is not MISSING and to_bool(skip_blanks)
-    turned = transpose is not MISSING and to_bool(transpose)
+    skip_blanks, transpose = given(skip_blanks), given(transpose)
+    skipping = skip_blanks is not MISSING and switch(skip_blanks, refusal)
+    # Transpose takes a Boolean alone: numbers and Empty are 1004 too.
+    if transpose is not MISSING and not isinstance(transpose, (bool, str)):
+        raise error(1004, refusal)
+    turned = transpose is not MISSING and switch(transpose, refusal)
     source_sheet, made = clip.source.sheet, clip.block
     if kind == COLUMN_WIDTHS:
         _column_widths(source_sheet, made, target)

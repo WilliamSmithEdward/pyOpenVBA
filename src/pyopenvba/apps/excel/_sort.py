@@ -60,6 +60,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba._opc_xml import bounded_child, opc_part
 from pyopenvba.apps.excel._creator import ItemDefault
+from pyopenvba.apps.excel._method_arguments import enum_number, given, switch, variant_number
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._visible import filtering, hidden_lines, unmeasured
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -580,31 +581,55 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
     area = target.first
     if target.single:
         area = current_region(target.sheet, area.top, area.left)
-    across = orientation is not MISSING and int(to_integer(orientation, "Long")) == LEFT_TO_RIGHT
+    refusal = "Sort method of Range class failed"
+    header, match_case, orientation = given(header), given(match_case), given(orientation)
+    way = TOP_TO_BOTTOM if orientation is MISSING else variant_number(orientation, refusal)
+    if way not in (TOP_TO_BOTTOM, LEFT_TO_RIGHT):
+        raise error(1004, refusal)
+    across = way == LEFT_TO_RIGHT
     if keys[0][0] is MISSING:
         raise error(1004, "Sort needs a key")
     resolved: list[Key] = []
     for key, order, option in keys:
         if key is MISSING:
             continue
-        resolved.append(_key(key, area, across, order, option))
+        resolved.append(_key(target, key, area, across, order, option))
     if listed is not None:
         # OrderCustom orders by the first key (tests/fixtures/custom_lists.json).
         resolved[0] = replace(resolved[0], listed=listed)
-    kept = NO if header is MISSING else int(to_integer(header, "Long"))
+    kept = NO if header is MISSING else variant_number(header, refusal)
+    if kept not in (NO, YES, GUESS):
+        raise error(1004, refusal)
     has_header = kept == YES or (kept == GUESS and guessed_header(target.sheet, area, across))
     sort_area(target.sheet, area, resolved, header=has_header,
-              match_case=match_case is not MISSING and to_bool(match_case), across=across)
+              match_case=match_case is not MISSING and switch(match_case, refusal), across=across)
     return True
 
 
-def _key(key: object, area: Area, across: bool, order: object, option: object) -> Key:
-    if not isinstance(key, Range):
+def _named_key(target: Range, name: str, area: Area, across: bool) -> int:
+    """The place of the heading that reads ``name``, as text names a key (tests/fixtures/range_methods_order.json)."""
+    for index in range(area.rows if across else area.columns):
+        row, column = (area.top + index, area.left) if across else (area.top, area.left + index)
+        found = Range(target.sheet, [Area(row, column, row, column, target.sheet.name)]).vba_value()
+        if isinstance(found, str) and found.casefold() == name.casefold():
+            return index
+    raise error(1004, "No heading reads the sort key's text")
+
+
+def _key(target: Range, key: object, area: Area, across: bool, order: object, option: object) -> Key:
+    if isinstance(key, str):
+        index = _named_key(target, key, area, across)
+    elif isinstance(key, Range):
+        index = key.first.top - area.top if across else key.first.left - area.left
+    else:
         raise error(1004, "A sort key has to be a range")
-    index = key.first.top - area.top if across else key.first.left - area.left
     if not 0 <= index < (area.rows if across else area.columns):
         raise error(1004, "The sort key is outside the range sorted")
-    descending = order is not MISSING and int(to_integer(order, "Long")) == DESCENDING
+    refusal = "Sort method of Range class failed"
+    wanted = ASCENDING if order is MISSING else enum_number(order, refusal)
+    if wanted not in (ASCENDING, DESCENDING):
+        raise error(1004, refusal)
+    descending = wanted == DESCENDING
     numbers = option is not MISSING and int(to_integer(option, "Long")) == TEXT_AS_NUMBERS
     return Key(index, descending, numbers)
 
@@ -987,7 +1012,7 @@ class SortObject(ExcelObject):
             raise VBAUnsupportedError("sorting several areas is not implemented")
         area = target.first
         across = state.orientation == LEFT_TO_RIGHT
-        keys = [replace(_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
+        keys = [replace(_key(target, field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
                         on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom)
                 for field in state.fields if field.subfield is EMPTY]
         if not keys:

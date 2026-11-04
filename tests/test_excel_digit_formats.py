@@ -14,7 +14,7 @@ FORMATS: list[str] = RECORD['formats']
 WIDTH = len(RECORD['values'])
 #: VBA's Format has an engine of its own, which differs on a comma or percent with no placeholder, an exponent, a star, an escaped
 #: point, and a zero section. Only Range.Text and NumberFormat are held to Excel for these.
-FORMAT_DIFFERS = ('1,5', '1,000', '1,000.5', '1.5%', '1.5E+0', '1E+0', '1E+1', '1/2', '1 1/2', '1.5;2.5;3.5', '1.5;2.5;3.5;4.5', '1*x.5', '1:5')
+FORMAT_DIFFERS = ('1,5', '1,000', '1,000.5', '1.5E+0', '1E+0', '1E+1', '1/2', '1 1/2', '1*x.5', '1:5')
 #: Excel refuses this and takes x1.5 and 1.5 x, by no rule found.
 UNKNOWN = ('x.y',)
 

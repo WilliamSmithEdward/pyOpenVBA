@@ -161,6 +161,8 @@ class BookViewState:
     #: the file's firstSheet, which Excel will not open past the last tab (tests/fixtures/active_tab/active_tab.json).
     saved_tab: int = 0
     saved_first: int = 0
+    #: Where the tab bar is scrolled to: it stays, but for activating a tab before it, which brings it back.
+    first_tab: int = 0
     #: The sheets the file has selected, so a save rewrites their tabs only when another group is.
     saved_selected: list[Worksheet] = field(default_factory=lambda: [])
     changed: bool = False
@@ -266,12 +268,20 @@ def _active_place(book: Workbook) -> int:
     return book.sheets_.index(book.active_sheet) if book.active_sheet is not None else 0
 
 
+def _first_place(book: Workbook) -> int:
+    """The first tab the bar shows: not past the active one, and not a hidden one, which it passes over."""
+    first = min(book.view.first_tab, _active_place(book))
+    while first < len(book.sheets_) - 1 and book.sheets_[first].visible != -1:
+        first += 1
+    return first
+
+
 def tabs_moved(book: Workbook) -> bool:
     """Whether another sheet is active than the one whose tab the file has selected, or other sheets selected."""
     selected = book.selected()
     saved = book.view.saved_selected
     return (book.active_sheet is not book.view.saved_active or len(selected) != len(saved)
-            or _active_place(book) != book.view.saved_tab or book.view.saved_first >= len(book.sheets_)
+            or _active_place(book) != book.view.saved_tab or _first_place(book) != book.view.saved_first
             or any(one is not other for one, other in zip(selected, saved)))
 
 
@@ -403,13 +413,12 @@ def read_book_view(book: Workbook, xml: str) -> None:
     book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
-    book.view.saved_first = _number(attributes(found.group(0)).get("firstSheet"), 0) if found is not None else 0
+    book.view.saved_first = book.view.first_tab = _number(attributes(found.group(0)).get("firstSheet"), 0) if found is not None else 0
     book.view.saved_tab = _active_place(book)
 
 
-def with_book_view(book: Workbook, xml: str, *, tabs: bool = False) -> str:
-    """A workbook part whose first workbookView has the model's tabs, scroll bars, tab ratio and active tab; where ``tabs``
-    moved, its first tab shown is the active one, as Excel's save has it."""
+def with_book_view(book: Workbook, xml: str) -> str:
+    """A workbook part whose first workbookView has the model's tabs, scroll bars, tab ratio and active and first tabs."""
     found = _WORKBOOK_VIEW.search(xml)
     if found is None:
         return xml
@@ -419,9 +428,9 @@ def with_book_view(book: Workbook, xml: str, *, tabs: bool = False) -> str:
     view = book.view
     ratio = round(view.tab_ratio * 1000)
     active = _active_place(book)
-    if tabs:
-        opening = with_attribute(opening, "firstSheet", str(active) if active else "", _BOOK_VIEW_ORDER)
-    for name, value in (("showHorizontalScroll", "" if view.horizontal_scroll else "0"),
+    first = _first_place(book)
+    for name, value in (("firstSheet", str(first) if first else ""),
+                        ("showHorizontalScroll", "" if view.horizontal_scroll else "0"),
                         ("showVerticalScroll", "" if view.vertical_scroll else "0"),
                         ("showSheetTabs", "" if view.tabs else "0"),
                         ("tabRatio", "" if ratio == 600 else str(ratio)),
@@ -439,7 +448,7 @@ def saved(book: Workbook) -> None:
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
     book.view.saved_tab = _active_place(book)
-    book.view.saved_first = min(book.view.saved_first, _active_place(book))
+    book.view.saved_first = book.view.first_tab = _first_place(book)
 
 
 def copied(source: Worksheet, copy: Worksheet) -> None:

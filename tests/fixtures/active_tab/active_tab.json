@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T09:09:21.566871+00:00",
+ "measured_at": "2026-11-04T10:04:17.444815+00:00",
  "actions": {
   "edit": "wb.Sheets(1).Range(\"A1\").Value = 1",
   "move_active_last": "wb.ActiveSheet.Move After:=wb.Sheets(3)",
@@ -29,7 +29,7 @@
    "book": "first_active",
    "case": "move_active_last",
    "reads": "Sheet2,Sheet3,Sheet1|Sheet1|1",
-   "view": "activeTab=\"2\" firstSheet=\"2\""
+   "view": "activeTab=\"2\""
   },
   {
    "book": "first_active",
@@ -83,13 +83,13 @@
    "book": "first_active",
    "case": "add_first_then_back",
    "reads": "Sheet4,Sheet1,Sheet2,Sheet3|Sheet1|1",
-   "view": "activeTab=\"1\" firstSheet=\"1\""
+   "view": "activeTab=\"1\""
   },
   {
    "book": "first_active",
    "case": "move_other_first_then_back",
    "reads": "Sheet3,Sheet1,Sheet2|Sheet1|1",
-   "view": "activeTab=\"1\" firstSheet=\"1\""
+   "view": "activeTab=\"1\""
   },
   {
    "book": "first_active",
@@ -101,7 +101,7 @@
    "book": "first_active",
    "case": "activate_last",
    "reads": "Sheet1,Sheet2,Sheet3|Sheet3|1",
-   "view": "activeTab=\"2\" firstSheet=\"2\""
+   "view": "activeTab=\"2\""
   },
   {
    "book": "second_active",
@@ -113,7 +113,7 @@
    "book": "second_active",
    "case": "move_active_last",
    "reads": "Sheet1,Sheet3,Sheet2|Sheet2|1",
-   "view": "activeTab=\"2\" firstSheet=\"2\""
+   "view": "activeTab=\"2\" firstSheet=\"1\""
   },
   {
    "book": "second_active",
@@ -167,13 +167,13 @@
    "book": "second_active",
    "case": "add_first_then_back",
    "reads": "Sheet4,Sheet1,Sheet2,Sheet3|Sheet2|1",
-   "view": "activeTab=\"2\" firstSheet=\"2\""
+   "view": "activeTab=\"2\""
   },
   {
    "book": "second_active",
    "case": "move_other_first_then_back",
    "reads": "Sheet3,Sheet1,Sheet2|Sheet2|1",
-   "view": "activeTab=\"2\" firstSheet=\"2\""
+   "view": "activeTab=\"2\""
   },
   {
    "book": "second_active",
@@ -185,7 +185,7 @@
    "book": "second_active",
    "case": "activate_last",
    "reads": "Sheet1,Sheet2,Sheet3|Sheet3|1",
-   "view": "activeTab=\"2\" firstSheet=\"2\""
+   "view": "activeTab=\"2\" firstSheet=\"1\""
   },
   {
    "book": "third_active",
@@ -251,7 +251,7 @@
    "book": "third_active",
    "case": "add_first_then_back",
    "reads": "Sheet4,Sheet1,Sheet2,Sheet3|Sheet3|1",
-   "view": "activeTab=\"3\" firstSheet=\"3\""
+   "view": "activeTab=\"3\""
   },
   {
    "book": "third_active",

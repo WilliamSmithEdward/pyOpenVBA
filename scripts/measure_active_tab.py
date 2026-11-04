@@ -1,7 +1,11 @@
 """The active tab and the first tab a saved workbook shows, once a macro has moved, added or deleted tabs. Excel makes each
 action on a copy of a book it saved, saves it, and says what it reads there; workbookView's activeTab and firstSheet are
-kept. Measured with Excel's window hidden, as the harness has it: firstSheet is activeTab in every row, each left out at 0.
-A firstSheet past the last tab is a file Excel refuses.
+kept. firstSheet is where the tab bar is scrolled to, so this needs Excel shown with a sized window: it stays, activating a
+tab before it brings it back, and it passes over a hidden tab. Hidden in a session that had shown nothing, Excel wrote
+firstSheet equal to activeTab in every row; the tab bar there has no width, and tests/fixtures/windows/ agrees with this
+rule, not that one. A firstSheet past the last tab is a file Excel refuses.
+
+Take live.lock: this shows Excel's window, and puts its size back after each row.
 
     python scripts/measure_active_tab.py
 
@@ -60,6 +64,25 @@ ACT = '''Sub Act(ByVal file As String)
     wb.Close False
 End Sub
 '''
+SHOWN_ACT = '''Sub Act(ByVal file As String)
+    Dim wb As Workbook, s As Object, was As Boolean, w As Double, h As Double, l As Double, t As Double
+    Application.DisplayAlerts = False
+    was = Application.Visible
+    Application.Visible = True
+    Application.ScreenUpdating = True
+    Application.WindowState = xlNormal
+    w = Application.Width: h = Application.Height: l = Application.Left: t = Application.Top
+    Application.Width = 900: Application.Height = 600
+    Set wb = Workbooks.Open(file)
+    ActiveWindow.WindowState = xlNormal
+    ActiveWindow.Width = 700: ActiveWindow.Height = 500
+    {action}
+    wb.Save
+    wb.Close False
+    Application.Width = w: Application.Height = h: Application.Left = l: Application.Top = t
+    Application.Visible = was
+End Sub
+'''
 READ = '''Function ReadIt(ByVal file As String) As String
     Dim wb As Workbook, s As Object, t As String
     Application.DisplayAlerts = False
@@ -98,7 +121,7 @@ def main() -> None:
                 for case, action in ACTIONS.items():
                     file = folder / f"{book}_{case}.xlsx"
                     shutil.copy(base, file)
-                    acted = excel.run_vba(ACT.format(action=action), "Act", (str(file),), timeout=45.0)
+                    acted = excel.run_vba(SHOWN_ACT.format(action=action), "Act", (str(file),), timeout=45.0)
                     if not acted.ok:
                         print(book, case, "failed", acted.message[:80], flush=True)
                         continue

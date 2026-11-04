@@ -38,6 +38,11 @@ def _as_harness_answers(text: str) -> str:
     return re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', ' ', text.replace('\r', '\n'))
 
 
+def _one_type(number: int, read: str) -> str:
+    return '\n'.join([f'Public Function T{number}() As String', '    Dim ws As Object, v As Variant', '    Set ws = ActiveWorkbook.Worksheets(1)', '    On Error Resume Next', f'    v = {read}',
+                      '    If Err.Number Then', f'        T{number} = "E"', '    Else', f'        T{number} = TypeName(v)', '    End If', 'End Function', ''])
+
+
 def _reads(book: Path, reads: list[str]) -> tuple[ExcelApplication, list[str | None]]:
     app = ExcelApplication.open(book, with_vba=False)
     app.add_module(''.join(_one_read(number, read) for number, read in enumerate(reads)), name='Reader')
@@ -61,6 +66,22 @@ def test_every_read_is_excels_or_reports_itself(record: dict[str, Any], book: st
     app.save(tmp_path / 'read.xlsx')
     with zipfile.ZipFile(tmp_path / 'read.xlsx') as saved, zipfile.ZipFile(FIXTURES / book) as original:
         assert saved.read('xl/drawings/drawing1.xml') == original.read('xl/drawings/drawing1.xml')
+
+
+@pytest.mark.parametrize(('record', 'book'), [(TEXT, 'loaded_shape_text.xlsx'), (FOREIGN, 'loaded_shape_foreign.xlsx')], ids=['excel_written', 'other_writers'])
+def test_every_answer_is_of_excels_type(record: dict[str, Any], book: str) -> None:
+    """The answers above are text, which do not tell a Long 11 from a Double 11."""
+    app = ExcelApplication.open(FIXTURES / book, with_vba=False)
+    app.add_module(''.join(_one_type(number, read) for number, read in enumerate(record['reads'])), name='Reader')
+    wrong = []
+    for number, (read, truth) in enumerate(zip(record['reads'], record['types'], strict=True)):
+        try:
+            got = str(app.run(f'Reader.T{number}'))
+        except VBAUnsupportedError:
+            continue
+        if got != truth:
+            wrong.append((read, truth, got))
+    assert not wrong
 
 
 def _anchor(path: Path, name: str) -> str:

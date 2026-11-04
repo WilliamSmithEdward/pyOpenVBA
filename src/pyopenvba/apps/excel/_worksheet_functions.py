@@ -116,18 +116,9 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         raise error(1004, "There is no workbook open")
     values = _laid_out(list(args), named or {})
     entry = registry.FUNCTIONS[function]
-    if raising and any(isinstance(values[place], Range) and values[place].single and isinstance(values[place].vba_value(), str)
-                       for place in _SWITCHES.get(name.lower(), ()) if place < len(values)):
+    if raising and any(_is_text_cell(values[place]) for place in _SWITCHES.get(name.lower(), ()) if place < len(values)):
         # A cell of text where a switch goes fails item by item, so the answer is an array holding the error.
         return answer(Array([[CellError("#VALUE!")]]))
-    if raising and name.lower() == "yearfrac":
-        lifted = next((value for value in values if isinstance(value, VBAArray)), None)
-        if lifted is not None:
-            # With an array among them a refusal is each item's error: Null is #N/A, cells #VALUE!, and a logical is read.
-            failed = "#N/A" if any(value is NULL for value in values) else "#VALUE!" if any(isinstance(value, Range) and not value.single for value in values) else None
-            if failed is not None:
-                return answer(Array([[CellError(failed) for _ in lifted.items]]))
-            values = [float(value) if isinstance(value, bool) else value for value in values]
     if raising:
         values = _as_excel_reads(name, values, entry.minimum, late=late)
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
@@ -164,6 +155,12 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     if raising and name.lower() in _ARRAY_OF_ONE:
         return _array_of_one(context, found, values[0], name, books_of=application, late=late)
     return _returned(context, found, name, raising=raising, books_of=application, late=late)
+
+
+def _is_text_cell(value: object) -> bool:
+    from pyopenvba.apps.excel._model import Range
+
+    return isinstance(value, Range) and value.single and isinstance(value.vba_value(), str)
 
 
 def _array_of_one(context: Context, found: Value, given: object, name: str, *, books_of: Application, late: bool) -> object:

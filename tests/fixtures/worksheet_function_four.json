@@ -30,6 +30,15 @@
 "XLookup": 640,
 "YearFrac": 520
 }
+},
+"third": {
+"predictions_sha256_16": "441631f330089450",
+"differ": {
+"YearFrac": 125
+},
+"comparisons": {
+"YearFrac": 640
+}
 }
 },
 "rounds": {
@@ -11320,6 +11329,1931 @@
 "call": "v = f.YearFrac(1321, 1340, 1)",
 "late": "Double 5.20547945205479E-02",
 "typed": "Double 5.20547945205479E-02"
+}
+]
+},
+"third": {
+"fill": "Private Sub Fresh(ws As Object)\n    ws.Range(\"H1:H8\").Value = Application.Transpose(Array(\"plum\", 6, 6, True, \"Fig\", 1.5, \"plum\", -2))\n    ws.Range(\"I1:I8\").Value = Application.Transpose(Array(15, 25, 35, 45, 55, 65, 75, 85))\n    ws.Range(\"J1:J8\").Value = Application.Transpose(Array(\"g\", \"h\", \"i\", \"j\", \"k\", \"l\", \"m\", \"n\"))\n    ws.Range(\"K1:K8\").Value = Application.Transpose(Array(2, 4, 4, 6, 9, 9, 12, 30))\n    ws.Range(\"L1:L8\").Value = Application.Transpose(Array(30, 12, 9, 9, 6, 4, 4, 2))\n    ws.Range(\"M1:M8\").Value = Application.Transpose(Array(\"ash\", \"birch\", \"cedar\", \"elm\", \"fir\", \"oak\", \"pine\", \"yew\"))\n    ws.Range(\"H10:M10\").Value = Array(8, 4, 6, 2, 9, 1)\n    ws.Range(\"H11:M11\").Value = Array(\"aa\", \"bb\", \"cc\", \"dd\", \"ee\", \"ff\")\n    ws.Range(\"N1\").Value = \"9/30/2016\": ws.Range(\"N2\").Value = #1/31/2025#: ws.Range(\"N3\").Value = 150.75: ws.Range(\"N5\").Value = \"maybe\": ws.Range(\"P3\").Value = 45\n    ws.Range(\"I6\").Formula = \"=NA()\"\nEnd Sub\n",
+"cases": [
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), 2, 4)",
+"late": "Variant() [1..3] Double:109.511111111111 Double:109.513888888889 Double:109.516666666667",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(0, 3), CCur(41000), Array(1, 2))",
+"late": "Variant() [1..2] Double:112.252562207739 Double:113.880555555556",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(1, 2), -5, Array(True, False))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), 42005, Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), Array(0, 3), -1)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), Array(42005, 43000), 2)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), ws.Range(\"N1\"), -1)",
+"late": "Variant() [1..2,1..1] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, \"6/7/2008\", Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..2,1..1] Double:10.6611909650924 Double:10.6684931506849",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, -5, Array(\"1/2/2003\", \"x\"))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(41000, 42000, 43000)), False, 0.9)",
+"late": "Variant() [1..3,1..1] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), Null, Null)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, Application.Transpose(Array(41000, 42000, 43000)), CCur(2))",
+"late": "Variant() [1..3,1..1] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"I1:I3\"), Array(Empty, 1), Array(True, False))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"6/7/2008\", Array(True, False), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), Null, CCur(2))",
+"late": "Variant() [1..2] Error:Error 2042 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), CCur(41000), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Double:9.38055555555556 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(0, 3), \"maybe\", True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, ws.Range(\"N2\"), Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), CCur(41000), Empty)",
+"late": "Variant() [1..2] Double:2.75 Double:5.475",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CVErr(xlErrNum), Application.Transpose(Array(41000, 42000, 43000)), Empty)",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), Array(42005, 43000), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", Application.Transpose(Array(41000, 42000, 43000)), ws.Range(\"M1\"))",
+"late": "Variant() [1..3,1..1] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, Array(0, 3), 0)",
+"late": "Variant() [1..2] Double:0.275 Double:0.266666666666667",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), ws.Range(\"N2\"), \"1\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), ws.Range(\"N5\"), CCur(2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), Array(True, False), CCur(2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, Array(42005, 43000), -1)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CVErr(xlErrNum), ws.Range(\"N1:N2\"), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), Array(\"1/2/2003\", \"x\"), \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Null, Empty, Array(0, 3))",
+"late": "Variant() [1..2] Error:Error 2042 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), \"maybe\", 4)",
+"late": "Variant() [1..3] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, -5, Array(0, 3))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2, Array(40000, 40001, 40002), \"1\")",
+"late": "Variant() [1..3] Double:109.50991861015 Double:109.51265649501 Double:109.515394379869",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Null, CCur(41000), Array(True, False))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(41000, 42000, 43000)), Array(40000, 40001, 40002), 3)",
+"late": "Variant() [1..3,1..3] Double:2.73972602739726 Double:2.73698630136986 Double:2.73424657534247 Double:5.47945205479452 Double:5.47671232876712 Double:5.47397260273973 Double:8.21917808219178 Double:8.21643835616438 Double:8.21369863013699",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", Application.Transpose(Array(1, 3)), True)",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), ws.Range(\"N2\"), \"1\")",
+"late": "Variant() [1..2] Double:125.088285782578 Double:125.085547902045",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, Array(40000, 40001, 40002), Array(\"1/2/2003\", \"x\"))",
+"late": "Variant() [1..3] Error:Error 2036 Error:Error 2015 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, Array(\"1/2/2003\", \"x\"), ws.Range(\"M1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"I1:I3\"), Application.Transpose(Array(1, 3)), Array(\"1/2/2003\", \"x\"))",
+"late": "Variant() [1..2,1..2] Error:Error 2036 Error:Error 2015 Error:Error 2036 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), Array(42005, 43000), 4)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(41000), False, Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), Array(0, 3), False)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, ws.Range(\"N1:N2\"), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, -5, Array(42005, 43000))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), \"6/7/2008\", Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..2,1..1] Double:108.433261328243 Double:108.501369863014",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, Array(0, 3), Array(\"1/2/2003\", \"x\"))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), Array(0, 3), 0.9)",
+"late": "Variant() [1..2] Double:0 Double:5.55555555555556E-03",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, Array(\"1/2/2003\", \"x\"), True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), ws.Range(\"N1\"), Array(1, 2))",
+"late": "Variant() [1..2] Double:8.33561456337257 Double:8.45833333333333",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, Application.Transpose(Array(1, 3)), 0)",
+"late": "Variant() [1..2,1..1] Double:0.272222222222222 Double:0.266666666666667",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), ws.Range(\"P1\"), \"1\")",
+"late": "Variant() [1..3] Double:109.515394379869 Double:109.518132264729 Double:109.520870149588",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), ws.Range(\"N1:N2\"), \"1\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", Array(1, 2), \"1\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, Application.Transpose(Array(41000, 42000, 43000)), CCur(2))",
+"late": "Variant() [1..3,1..1] Double:6.94444444444444 Double:4.16666666666667 Double:1.38888888888889",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), Array(0, 3), Null)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, Array(42005, 43000), 3)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(0, 3), ws.Range(\"P1\"), Array(Empty, 1))",
+"late": "Variant() [1..2] Double:0 Double:8.21917808219178E-03",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), #3/15/2021#, Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(1, 2), ws.Range(\"N1:N2\"), ws.Range(\"M1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), Null, Empty)",
+"late": "Variant() [1..2,1..1] Error:Error 2042 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), Application.Transpose(Array(41000, 42000, 43000)), CCur(2))",
+"late": "Variant() [1..3,1..3] Double:2.77777777777778 Double:2.775 Double:2.77222222222222 Double:5.55555555555556 Double:5.55277777777778 Double:5.55 Double:8.33333333333333 Double:8.33055555555556 Double:8.32777777777778",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), Null, Array(40000, 40001, 40002))",
+"late": "Variant() [1..3] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(41000), Array(0, 3), 3.9)",
+"late": "Variant() [1..2] Double:112.328767123288 Double:112.320547945205",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), ws.Range(\"N1\"), Array(0, 3))",
+"late": "Variant() [1..2] Double:8.33333333333333 Double:8.34246575342466",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), ws.Range(\"N2\"), Array(42005, 43000))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), 2, Array(Empty, 1))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), ws.Range(\"I1:I3\"), Array(True, False))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), CVErr(xlErrNum), 2)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(0, 3), Array(\"1/2/2003\", \"x\"), 0)",
+"late": "Variant() [1..2] Double:103.005555555556 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(41000), CVErr(xlErrNum), Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), 100, 3)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), Array(\"1/2/2003\", \"x\"), Null)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), Array(\"1/2/2003\", \"x\"), \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"I1:I3\"), Application.Transpose(Array(1, 3)), 2)",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, Array(0, 3), \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, Array(True, False), Array(42005, 43000))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(41000, 42000, 43000)), ws.Range(\"I1:I3\"), Empty)",
+"late": "Variant() [1..3,1..1] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), 43500, Array(1, 2))",
+"late": "Variant() [1..2] Double:4.09364731653888 Double:1.38888888888889",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, Array(42005, 43000), True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, ws.Range(\"N5\"), Array(42005, 43000))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), CCur(41000), True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(41000, 42000, 43000)), Array(\"1/2/2003\", \"x\"), 3.9)",
+"late": "Variant() [1..3,1..2] Double:9.25205479452055 Error:Error 2015 Double:11.9917808219178 Error:Error 2015 Double:14.7315068493151 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"6/7/2008\", ws.Range(\"N1:N2\"), Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), #3/15/2021#, Array(1, 2))",
+"late": "Variant() [1..2,1..2] Double:121.203276481149 Double:122.969444444444 Double:121.197800718133 Double:122.963888888889",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), Array(0, 3), 2)",
+"late": "Variant() [1..2,1..2] Double:2.77777777777778E-03 Double:5.55555555555556E-03 Double:8.33333333333333E-03 Double:0",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, Null, Array(42005, 43000))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), ws.Range(\"P1\"), 1)",
+"late": "Variant() [1..2] Double:0 Double:2.73972602739726E-03",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), ws.Range(\"N2\"), Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), Null, Empty)",
+"late": "Variant() [1..2] Error:Error 2042 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), \"6/7/2008\", 0)",
+"late": "Variant() [1..2,1..1] Double:108.433333333333 Double:108.427777777778",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", Array(True, False), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), ws.Range(\"N1:N2\"), 5)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), -5, True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"I1:I3\"), ws.Range(\"P1\"), Array(Empty, 1))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, ws.Range(\"N1:N2\"), Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"6/7/2008\", ws.Range(\"N5\"), Array(0, 3))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), Application.Transpose(Array(1, 3)), ws.Range(\"K1\"))",
+"late": "Variant() [1..2,1..1] Double:118.45 Double:118.444444444444",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(1, 2), CCur(41000), Array(42005, 43000))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), -5, Array(40000, 40001, 40002))",
+"late": "Variant() [1..3] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), 42005, Array(40000, 40001, 40002))",
+"late": "Variant() [1..3] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), Application.Transpose(Array(41000, 42000, 43000)), 3.9)",
+"late": "Variant() [1..3,1..2] Double:9.25205479452055 Error:Error 2015 Double:11.9917808219178 Error:Error 2015 Double:14.7315068493151 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, Array(0, 3), 4)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, \"maybe\", Array(\"1/2/2003\", \"x\"))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(41000), True, Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, Array(0, 3), Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..2,1..2] Error:Error 2036 Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), ws.Range(\"N2\"), Array(0, 3))",
+"late": "Variant() [1..2] Double:125.086111111111 Double:125.172602739726",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2, Array(True, False), False)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, ws.Range(\"I1:I3\"), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#3/15/2021#, Application.Transpose(Array(41000, 42000, 43000)), True)",
+"late": "Variant() [1..3,1..1] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), Application.Transpose(Array(41000, 42000, 43000)), Null)",
+"late": "Variant() [1..3,1..1] Double:112.252777777778 Double:114.991666666667 Double:117.727777777778",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, Application.Transpose(Array(1, 3)), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(1, 2), -5, \"1\")",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(41000, 42000, 43000)), 2, 0.9)",
+"late": "Variant() [1..3,1..1] Double:112.247222222222 Double:114.986111111111 Double:117.722222222222",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, CCur(41000), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), ws.Range(\"N1:N2\"), 0.9)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), 42005, Array(40000, 40001, 40002))",
+"late": "Variant() [1..3] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), Null, \"x\")",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", ws.Range(\"N1\"), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), 2, Array(1, 2))",
+"late": "Variant() [1..2] Double:103.003396077399 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), 2, False)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(41000, 42000, 43000)), Array(\"1/2/2003\", \"x\"), -1)",
+"late": "Variant() [1..3,1..2] Error:Error 2036 Error:Error 2036 Error:Error 2036 Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), Null, 0.9)",
+"late": "Variant() [1..2,1..1] Error:Error 2042 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, False, Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), Null, True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", -5, Array(42005, 43000))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), Array(Empty, 1), \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), \"maybe\", Array(\"1/2/2003\", \"x\"))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, Application.Transpose(Array(1, 3)), ws.Range(\"K1\"))",
+"late": "Variant() [1..2,1..1] Double:0.275 Double:0.269444444444444",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"I1:I3\"), Array(True, False), \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), 43500, Array(1, 2))",
+"late": "Variant() [1..2,1..2] Double:119.096488626252 Double:120.830555555556 Double:119.091012799744 Double:120.825",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), 100, ws.Range(\"M1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"6/7/2008\", Array(Empty, 1), 0.9)",
+"late": "Variant() [1..2] Double:108.436111111111 Double:108.433333333333",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), False, Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(41000), Array(0, 3), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Double:113.888888888889 Double:113.880555555556",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), 2, False)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, Array(42005, 43000), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, #3/15/2021#, Array(True, False))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), Null, Array(True, False))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), ws.Range(\"N1\"), Array(1, 2))",
+"late": "Variant() [1..3] Double:7.23613963039014 Double:7.33888888888889 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), Array(42005, 43000), CCur(2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(1, 2), False, Array(Empty, 1))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(0, 3), Array(True, False), \"1\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), Array(\"1/2/2003\", \"x\"), 1)",
+"late": "Variant() [1..2] Double:103.008871923128 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, Array(0, 3), True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, True, Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, Array(0, 3), 5)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#3/15/2021#, Array(True, False), 1)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, 2, Array(0, 3))",
+"late": "Variant() [1..2] Double:119.088888888889 Double:119.172602739726",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"6/7/2008\", \"maybe\", Array(40000, 40001, 40002))",
+"late": "Variant() [1..3] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, Array(\"1/2/2003\", \"x\"), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Double:12.1722222222222 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Null, Array(1, 2), 1)",
+"late": "Variant() [1..2] Error:Error 2042 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(0, 3), Array(40000, 40001, 40002), CCur(2))",
+"late": "Variant() [1..3] Double:111.111111111111 Double:111.105555555556 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), Array(42005, 43000), True)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(41000), Array(42005, 43000), 0.9)",
+"late": "Variant() [1..2] Double:2.75 Double:5.475",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(41000, 42000, 43000)), CVErr(xlErrNum), Application.Transpose(Array(1, 3)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), ws.Range(\"N5\"), -1)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), Array(\"1/2/2003\", \"x\"), 1)",
+"late": "Variant() [1..2] Double:103.008871923128 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, Array(Empty, 1), Array(1, 2))",
+"late": "Variant() [1..2] Double:115.006136706949 Double:116.677777777778",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), \"6/7/2008\", 5)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, Array(0, 3), \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Null, 2, Array(40000, 40001, 40002))",
+"late": "Variant() [1..3] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Application.Transpose(Array(1, 3)), ws.Range(\"N1\"), ws.Range(\"K1\"))",
+"late": "Variant() [1..2,1..1] Double:118.45 Double:118.444444444444",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), #3/15/2021#, Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), Application.Transpose(Array(41000, 42000, 43000)), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), ws.Range(\"N5\"), Null)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", Array(\"1/2/2003\", \"x\"), \"1\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, #3/15/2021#, Array(0, 3))",
+"late": "Variant() [1..2] Double:121.208333333333 Double:121.287671232877",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), ws.Range(\"N1:N2\"), Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"6/7/2008\", True, Array(True, False))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, ws.Range(\"P1\"), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(True, False), False, 3.9)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"I1:I3\"), Application.Transpose(Array(1, 3)), Null)",
+"late": "Variant() [1..2,1..1] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, ws.Range(\"N1\"), Array(Empty, 1))",
+"late": "Variant() [1..2] Double:116.75 Double:116.750854120841",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, Array(Empty, 1), 3.9)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, Array(42005, 43000), 4)",
+"late": "Variant() [1..2] Double:115.002777777778 Double:117.727777777778",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), Empty, \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), Application.Transpose(Array(1, 3)), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), 43500, 0.9)",
+"late": "Variant() [1..3] Double:9.57777777777778 Double:9.575 Double:9.57222222222222",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), Array(42005, 43000), CCur(2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, Array(True, False), 3.9)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), Array(40000, 40001, 40002), Array(1, 2))",
+"late": "Variant() [1..3] Double:15.5735223063295 Double:15.7972222222222 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(43500, Array(1, 2), 5)",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), Array(1, 2), False)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), Array(1, 2), ws.Range(\"K1\"))",
+"late": "Variant() [1..3] Double:111.108333333333 Double:111.108333333333 Error:Error 2042",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), 42005, ws.Range(\"M1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(100, Array(\"1/2/2003\", \"x\"), 0)",
+"late": "Variant() [1..2] Double:102.730555555556 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"I1:I3\"), 2, Array(Empty, 1))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"6/7/2008\", Array(True, False), ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"maybe\", Array(40000, 40001, 40002), CCur(2))",
+"late": "Variant() [1..3] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), #3/15/2021#, ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Double:18.4638888888889 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, Application.Transpose(Array(41000, 42000, 43000)), Array(1, 2))",
+"late": "Variant() [1..3,1..2] Error:Error 2015 Error:Error 2015 Error:Error 2015 Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, 100, Array(1, 2))",
+"late": "Variant() [1..2] Double:0.273972602739726 Double:0.277777777777778",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, Array(Empty, 1), ws.Range(\"M1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(42005, 43000), ws.Range(\"I1:I3\"), Empty)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001, 40002), Empty, \"x\")",
+"late": "Variant() [1..3] Error:Error 2015 Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), Array(42005, 43000), 1)",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(Empty, 1), Array(0, 3), 3)",
+"late": "Variant() [1..2] Double:0 Double:5.47945205479452E-03",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(False, ws.Range(\"P1\"), Application.Transpose(Array(41000, 42000, 43000)))",
+"late": "Variant() [1..3,1..1] Error:Error 2036 Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(\"1/2/2003\", \"x\"), CCur(41000), 3)",
+"late": "Variant() [1..2] Double:9.25205479452055 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, #12/31/2004#, 0.9)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), 60, -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(365, ws.Range(\"N2\"), Array(1, 2))",
+"late": "Variant() [1..2] Double:124.088959388105 Double:125.897222222222",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/28/1900#, CSng(40000.5), 0)",
+"late": "Double 109.352777777778",
+"typed": "Double 109.352777777778"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(30000.25, 1827, 3)",
+"late": "Double 77.186301369863",
+"typed": "Double 77.186301369863"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CSng(40000.5), 42430, 3.9)",
+"late": "Double 6.65753424657534",
+"typed": "Double 6.65753424657534"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, 2958465, 0)",
+"late": "Double 8100.00277777778",
+"typed": "Double 8100.00277777778"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(365, #12/31/2004#, Null)",
+"late": "Double 104",
+"typed": "Double 104"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), True, ws.Range(\"K1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), 2, CCur(2))",
+"late": "Double 5.55555555555556E-03",
+"typed": "Double 5.55555555555556E-03"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(45000, 1827, ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, ws.Range(\"N2\"), CCur(2))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"later\", #2/29/2020#, ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Null, CVErr(xlErrNum), 2)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#12/31/2004#, ws.Range(\"N2\"), 3.9)",
+"late": "Double 20.0986301369863",
+"typed": "Double 20.0986301369863"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(0, ws.Range(\"N2\"), False)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(1827, CVErr(xlErrNum), 3.9)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), CSng(40000.5), 0)",
+"late": "Double 15.5694444444444",
+"typed": "Double 15.5694444444444"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"5/6/2017\", 2958466, 2)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), 2, \"x\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), \"later\", CCur(2))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, 0, -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(62, Null, Null)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/29/2020#, 58, 2)",
+"late": "Double 121.755555555556",
+"typed": "Double 121.755555555556"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, ws.Range(\"N1:N2\"), 0.9)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), 30000.25, -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(62, 2958466, Null)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(45000, ws.Range(\"P1\"), ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), True, -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(1827, 60, ws.Range(\"K1\"))",
+"late": "Double 4.90833333333333",
+"typed": "Double 4.90833333333333"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/29/2020#, 42430, 3)",
+"late": "Double 4",
+"typed": "Double 4"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001), 365, ws.Range(\"K1\"))",
+"late": "Variant() [1..2] Double:110.097222222222 Double:110.1",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001), ws.Range(\"N1:N2\"), ws.Range(\"M1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, #2/28/1900#, 1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/29/2020#, 30000.25, \"x\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"later\", ws.Range(\"N1\"), \"x\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"later\", -5, False)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, 1461, -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"\", 2958466, CCur(2))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2, Array(40000, 40001), ws.Range(\"M1\"))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(1461, 0, ws.Range(\"K1\"))",
+"late": "Double 4.05833333333333",
+"typed": "Double 4.05833333333333"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(62, CVErr(xlErrNum), ws.Range(\"K1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), ws.Range(\"N5\"), True)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(0, 2958465, 0)",
+"late": "Double 8100.00277777778",
+"typed": "Double 8100.00277777778"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(40000), #2/28/1900#, \"x\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"\", 42430, ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), ws.Range(\"P1\"), Empty)",
+"late": "Double 125.086111111111",
+"typed": "Double 125.086111111111"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(45000, CSng(40000.5), \"x\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, CSng(40000.5), ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"\", 42005, Null)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(0, 42430, Array(1, 2))",
+"late": "Variant() [1..2] Double:116.167688491599 Double:117.861111111111",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"P1\"), ws.Range(\"N1\"), False)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(60, CSng(40000.5), 3.9)",
+"late": "Double 109.424657534247",
+"typed": "Double 109.424657534247"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"\", 1461, False)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"5/6/2017\", #2/28/1900#, 1)",
+"late": "Double 117.184111000255",
+"typed": "Double 117.184111000255"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2, ws.Range(\"N5\"), Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2958466, ws.Range(\"N2\"), True)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), 58, \"1\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Null, #2/28/1900#, ws.Range(\"K1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(58, #2/28/1900#, ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/29/2020#, ws.Range(\"N5\"), 1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(365, CSng(40000.5), 2)",
+"late": "Double 110.097222222222",
+"typed": "Double 110.097222222222"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2, #2/29/2020#, ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(1461, 62, False)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CVErr(xlErrNum), \"\", True)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#12/31/2004#, 2958465, 3)",
+"late": "Double 8000.3095890411",
+"typed": "Double 8000.3095890411"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/29/2020#, 60, 3)",
+"late": "Double 120.082191780822",
+"typed": "Double 120.082191780822"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42430, Array(40000, 40001), \"x\")",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, 2, ws.Range(\"K1\"))",
+"late": "Double 116.675",
+"typed": "Double 116.675"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CVErr(xlErrNum), ws.Range(\"N5\"), True)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(1827, ws.Range(\"N3\"), \"1\")",
+"late": "Double 4.59200438116101",
+"typed": "Double 4.59200438116101"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(62, 45000, 0)",
+"late": "Double 123.036111111111",
+"typed": "Double 123.036111111111"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"\", 60, 1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42430, 2958466, 1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/29/2020#, 2, 5)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"5/6/2017\", CDec(40000), ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2, 2958465, 1)",
+"late": "Double 8099.99726209276",
+"typed": "Double 8099.99726209276"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(30000.25, -5, ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CSng(40000.5), Array(40000, 40001), Null)",
+"late": "Variant() [1..2] Double:0 Double:2.77777777777778E-03",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42430, #2/28/1900#, 0)",
+"late": "Double 116.005555555556",
+"typed": "Double 116.005555555556"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(0, 1827, Empty)",
+"late": "Double 5.00277777777778",
+"typed": "Double 5.00277777777778"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(58, ws.Range(\"N1\"), -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, 62, \"1\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), 45000, False)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42430, 30000.25, 3)",
+"late": "Double 34.0547945205479",
+"typed": "Double 34.0547945205479"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2958465, Empty, 4)",
+"late": "Double 8100",
+"typed": "Double 8100"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, CSng(40000.5), CCur(2))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(40000), ws.Range(\"P1\"), Empty)",
+"late": "Double 109.516666666667",
+"typed": "Double 109.516666666667"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CDec(40000), 2958466, Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2036 Error:Error 2036",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2958466, 45000, ws.Range(\"K1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CCur(40000), CDec(40000), Empty)",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"\", 62, 1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(True, 2, \"1\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2, ws.Range(\"N1:N2\"), 5)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#12/31/2004#, CCur(40000), 3.9)",
+"late": "Double 4.51506849315069",
+"typed": "Double 4.51506849315069"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(45000, 1461, -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42430, ws.Range(\"N2\"), Array(1, 2))",
+"late": "Variant() [1..2] Double:8.91869696140159 Double:9.05",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(60, ws.Range(\"N3\"), ws.Range(\"K1\"))",
+"late": "Double 0.25",
+"typed": "Double 0.25"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(30000.25, CCur(40000), 2)",
+"late": "Double 27.7777777777778",
+"typed": "Double 27.7777777777778"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(365, CVErr(xlErrNum), Null)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(62, \"\", 3)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), 30000.25, 3.9)",
+"late": "Double 34.6383561643836",
+"typed": "Double 34.6383561643836"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N5\"), #2/28/1900#, False)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(CSng(40000.5), ws.Range(\"N1:N2\"), 4)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(45000, ws.Range(\"N1\"), 4)",
+"late": "Double 6.45833333333333",
+"typed": "Double 6.45833333333333"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(\"5/6/2017\", 42430, 0)",
+"late": "Double 1.18055555555556",
+"typed": "Double 1.18055555555556"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Empty, ws.Range(\"N2\"), 1)",
+"late": "Double 125.088285782578",
+"typed": "Double 125.088285782578"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N2\"), ws.Range(\"N1\"), Array(1, 2))",
+"late": "Variant() [1..2] Double:8.33561456337257 Double:8.45833333333333",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(#2/29/2020#, 60, Array(1, 2))",
+"late": "Variant() [1..2] Double:120.00067880982 Double:121.75",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42430, True, True)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N3\"), 0, Array(1, 2))",
+"late": "Variant() [1..2] Double:0.410958904109589 Double:0.416666666666667",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(2958465, 365, True)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1\"), CDec(40000), 3.9)",
+"late": "Double 7.24109589041096",
+"typed": "Double 7.24109589041096"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(30000.25, 2, 4)",
+"late": "Double 82.1277777777778",
+"typed": "Double 82.1277777777778"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(42005, 2958466, -1)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(30000.25, \"5/6/2017\", 5)",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(ws.Range(\"N1:N2\"), -5, ws.Range(\"M1\"))",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(Array(40000, 40001), ws.Range(\"N1:N2\"), Array(1, 2))",
+"late": "Variant() [1..2] Error:Error 2015 Error:Error 2015",
+"typed": "e13"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(30000.25, ws.Range(\"N1:N2\"), \"1\")",
+"late": "e1004",
+"typed": "e1004"
+},
+{
+"function": "YearFrac",
+"call": "v = f.YearFrac(-5, Null, Empty)",
+"late": "e1004",
+"typed": "e1004"
 }
 ]
 }

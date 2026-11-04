@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+from xml.parsers import expat
 from collections.abc import Callable, Collection
 from functools import lru_cache
 from pathlib import Path
@@ -111,7 +112,28 @@ class WorkbookFileError(PyOpenVBAError):
     """Raised when a workbook's parts cannot be read or written."""
 
 
+class MalformedPartError(WorkbookFileError):
+    """A part of the package is not well-formed XML, which Workbooks.Open answers as Excel does."""
+
+    def __init__(self, part: str, reason: str) -> None:
+        super().__init__(f"{part} is not well-formed XML: {reason}")
+        self.part = part
+
+
 # --- reading ------------------------------------------------------------------------
+
+
+def _refuse_malformed(package: OpcFile) -> None:
+    """Excel opens no workbook with a part that is not well-formed XML, but for its theme, which it goes without
+    (tests/fixtures/bad_xml/bad_xml.json)."""
+    for part in package.names():
+        if not part.endswith((".xml", ".rels")) or re.fullmatch(r"xl/theme/theme\d+\.xml", part):
+            continue
+        parser = expat.ParserCreate()
+        try:
+            parser.Parse(package.read(part), True)
+        except expat.ExpatError as failure:
+            raise MalformedPartError(part, str(failure)) from None
 
 
 def load_workbook(application: Application, path: Path) -> Workbook:
@@ -127,12 +149,14 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             "its VBA project is readable through ExcelFile"
         )
     package = OpcFile.parse(path.read_bytes())
+    _refuse_malformed(package)
     from pyopenvba.apps.excel._prefixed_parts import respell
 
     # A part spelling SpreadsheetML's namespace under a prefix is read, and saved, as Excel spells it.
     respell(package)
     book = Workbook(application, path.name, str(path.parent))
     book.package = package
+    book.hidden_names_due = True
     book.links_folder = str(path.resolve().parent)
     workbook_part = package.read("xl/workbook.xml")
     workbook_xml = workbook_part.decode("utf-8", errors="replace")

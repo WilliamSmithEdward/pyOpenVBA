@@ -14,12 +14,14 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "tests/fixtures/chart_sheets"
+sys.path.insert(0, str(ROOT / "scripts"))
 #: The books: middle is Sheet1, C, Two; first is C, Sheet1; last is Sheet1, C; two_charts is C, D, Sheet1; active is C,
 #: Sheet1 with C active; names is Sheet1, C, Two with names scoped to both worksheets.
 ACTIONS: dict[str, str] = {
@@ -67,6 +69,63 @@ ACTIONS: dict[str, str] = {
     "group_select": "wb.Sheets(Array(1, 2)).Select",
 }
 BOOKS = ("middle", "first", "last", "two_charts", "active", "names")
+#: What the save gate makes both ways; the cases are the ones the model does, and these follow a chart's cells.
+SAVED_ACTIONS: dict[str, str] = {
+    "insert_row": "wb.Worksheets(1).Rows(1).Insert",
+    "insert_column": "wb.Worksheets(1).Columns(1).Insert",
+    "rename_then_insert": 'wb.Worksheets(1).Name = "Renamed": wb.Worksheets(1).Rows(1).Insert',
+}
+SAVED_REFUSED = {"add_type_chart", "charts_add", "charts_before_1", "charts_before_2", "charts_after_1", "charts_after_2", "charts_after_last", "charts_two",
+                 "activated_chart_charts_add", "copy_chart_last", "copy_chart_first", "group_select", "delete_active_worksheet", "rename_sheet_to_chart",
+                 "rename_chart_to_sheet"}
+#: The same in a workbook of worksheets alone: Sheet1, Sheet2, Sheet3 with Sheet2 active, the active tab's place changing.
+PLAIN_ACTIONS: dict[str, str] = {
+    "move_active": "wb.ActiveSheet.Move After:=wb.Sheets(3)",
+    "delete_before_active": "wb.Sheets(1).Delete",
+    "delete_active": "wb.ActiveSheet.Delete",
+    "hide_before_active": "wb.Sheets(1).Visible = 0",
+}
+MAKE_PLAIN = '''Sub MakePlain(ByVal file As String)
+    Dim wb As Workbook
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Add(-4167)
+    wb.Worksheets.Add After:=wb.Worksheets(1)
+    wb.Worksheets.Add After:=wb.Worksheets(2)
+    wb.Worksheets(2).Activate
+    wb.SaveAs file, 51
+    wb.Close False
+End Sub
+'''
+SAVE = '''Sub Act(ByVal file As String)
+    Dim wb As Workbook, r As Object
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Open(file)
+    {action}
+    wb.Save
+    wb.Close False
+End Sub
+'''
+READ = '''Private Function Tabs(wb As Object) As String
+    Dim s As Object, t As String, c As Object, v As Variant
+    On Error Resume Next
+    For Each s In wb.Sheets
+        t = t & "," & TypeName(s) & ":" & s.Name & ":" & s.Visible
+    Next
+    t = t & "|" & wb.ActiveSheet.Name & "|" & wb.Windows(1).SelectedSheets.Count & "|names " & wb.Names.Count
+    For Each c In wb.Charts
+        v = c.SeriesCollection(1).Values
+        t = t & "|" & c.Name & " " & c.SeriesCollection(1).Formula & " " & v(1)
+    Next
+    Tabs = Mid$(t, 2)
+End Function
+Function ReadIt(ByVal file As String) As String
+    Dim wb As Workbook
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Open(file, UpdateLinks:=0)
+    ReadIt = Tabs(wb)
+    wb.Close False
+End Function
+'''
 PROBE = '''Private Function Tabs(wb As Object) As String
     Dim s As Object, t As String
     For Each s In wb.Sheets
@@ -89,6 +148,58 @@ Function Go(ByVal file As String) As String
     wb.Close False
 End Function
 '''
+
+
+def _model_acted(action: str, file: Path) -> str:
+    from pyopenvba.apps.excel import ExcelApplication
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(SAVE.format(action=action), name="M")
+    try:
+        app.run("Act", file.as_posix())
+    except VBAUnsupportedError as failure:
+        return f"reports: {str(failure)[:80]}"
+    return ""
+
+
+def gate(rows: list[dict[str, str]], folder: Path) -> list[dict[str, str]]:
+    """Each action made by Excel and by the model, each saved, each file read by Excel."""
+    from pyvbaharness import ExcelSession, HarnessConfig
+
+    from fixture_workbook import strip_save_path
+
+    saved: list[dict[str, str]] = []
+    actions = {case: action for case, action in ACTIONS.items() if case not in SAVED_REFUSED} | SAVED_ACTIONS
+    for book in (*BOOKS, "plain"):
+        with ExcelSession(HarnessConfig(lock_wait_s=900.0)) as excel:
+            excel.new_document()
+            if book == "plain" and not (OUT / "plain.xlsx").exists():
+                made = folder / "plain.xlsx"
+                excel.run_vba(MAKE_PLAIN, "MakePlain", (str(made),), timeout=45.0)
+                shutil.copy(made, OUT / "plain.xlsx")
+                strip_save_path(OUT / "plain.xlsx")
+            for case, action in (PLAIN_ACTIONS if book == "plain" else actions).items():
+                ours, theirs = folder / f"{book}_{case}_model.xlsx", folder / f"{book}_{case}_excel.xlsx"
+                shutil.copy(OUT / f"{book}.xlsx", ours)
+                shutil.copy(OUT / f"{book}.xlsx", theirs)
+                reported = _model_acted(action, ours)
+                if reported:
+                    print(book, case, reported, flush=True)
+                    continue
+                made = excel.run_vba(SAVE.format(action=action), "Act", (str(theirs),), timeout=45.0)
+                if not made.ok:
+                    print(book, case, "excel failed", made.message[:80], flush=True)
+                    continue
+                first = excel.run_vba(READ, "ReadIt", (str(theirs),), timeout=45.0)
+                second = excel.run_vba(READ, "ReadIt", (str(ours),), timeout=45.0)
+                row = {"book": book, "case": case, "excel": str(first.value) if first.ok else f"failed {first.message[:80]}",
+                       "model": str(second.value) if second.ok else f"failed {second.message[:80]}"}
+                saved.append(row)
+                if row["excel"] != row["model"]:
+                    print("DIFFERS", book, case, "\n  excel", row["excel"], "\n  model", row["model"], flush=True)
+    return saved
 
 
 def main() -> None:
@@ -115,6 +226,10 @@ def main() -> None:
                     if not result.ok:
                         break
             done.write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "probe": PROBE, "actions": ACTIONS, "rows": rows}, indent=1) + "\n", encoding="utf-8")
+        saved = gate(rows, folder)
+        done.write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "probe": PROBE, "actions": ACTIONS, "rows": rows, "saved": saved}, indent=1) + "\n",
+                        encoding="utf-8")
+        print(len(saved), "saved", sum(row["excel"] != row["model"] for row in saved), "differ", flush=True)
     finally:
         shutil.rmtree(folder, ignore_errors=True)
 

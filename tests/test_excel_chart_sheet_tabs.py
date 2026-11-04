@@ -14,6 +14,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 HERE = Path(__file__).parent / "fixtures/chart_sheets"
 MEASURED: dict[str, Any] = json.loads((HERE / "tabs.json").read_text(encoding="utf-8"))
 ROWS: list[dict[str, str]] = MEASURED["rows"]
+SAVED: list[dict[str, str]] = MEASURED["saved"]
 #: What the model reports rather than does yet: a new chart sheet, a copy of one, a group holding one.
 REPORTED = {"add_type_chart", "charts_add", "charts_before_1", "charts_before_2", "charts_after_1", "charts_after_2", "charts_after_last", "charts_two",
             "activated_chart_charts_add", "copy_chart_last", "copy_chart_first", "group_select"}
@@ -27,9 +28,10 @@ def _answer(row: dict[str, str]) -> str:
 
 
 #: What the model reports where Excel goes on: a book left with chart sheets alone, and a worksheet a chart reads, deleted;
-#: a copy of a sheet with print names, as it does in any workbook.
+#: as in any workbook, a copy of a sheet with print names placed first, and a rename where a formula spans sheets.
 REPORTED_ON = {(book, "delete_active_worksheet") for book in ("first", "last", "two_charts", "active", "middle", "names")} | {
-    (book, "delete_sheet") for book in ("first", "last", "two_charts", "active")} | {("names", "copy_sheet_first"), ("names", "copy_sheet_last")}
+    (book, "delete_sheet") for book in ("first", "last", "two_charts", "active")} | {("names", "copy_sheet_first"), ("names", "rename_sheet"),
+                                                                                     ("names", "added_then_named")}
 
 
 def _reported(row: dict[str, str]) -> bool:
@@ -43,6 +45,12 @@ def _id(row: dict[str, str]) -> str:
 @pytest.mark.parametrize("row", [row for row in ROWS if not _reported(row)], ids=_id)
 def test_a_tab_lands_where_excel_puts_it(row: dict[str, str]) -> None:
     assert _answer(row) == row["answer"]
+
+
+@pytest.mark.parametrize("row", SAVED, ids=_id)
+def test_excel_reads_the_models_save_as_its_own(row: dict[str, str]) -> None:
+    """Recorded by the probe: the action made by Excel and saved, and made by the model and saved, each read by Excel."""
+    assert row["model"] == row["excel"]
 
 
 @pytest.mark.parametrize("row", [row for row in ROWS if _reported(row)], ids=_id)

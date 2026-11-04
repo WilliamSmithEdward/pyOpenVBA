@@ -17,6 +17,7 @@ from pyopenvba.apps.excel._names import same_sheet_name
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Worksheet
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.powerquery._sheets import drop_content_type
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBAInt, error, to_text
 from pyopenvba.shapes._values import Shape

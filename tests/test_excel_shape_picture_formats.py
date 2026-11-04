@@ -58,7 +58,6 @@ def test_each_case_as_excel_answered(case: list[Any], images: Path, tmp_path: Pa
 
 @pytest.mark.parametrize('statements', [
     'sh.PictureFormat.CropLeft = 10', 'sh.PictureFormat.Crop.ShapeWidth = 50',
-    'sh.PictureFormat.TransparencyColor = 255: sh.PictureFormat.Brightness = 0.7',
 ])
 def test_what_was_not_worked_out_reports_itself(statements: str, images: Path) -> None:
     app = ExcelApplication(sandbox=False)

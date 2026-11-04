@@ -35,7 +35,19 @@ from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import BINDING, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
-from pyopenvba.interpreter._type_library import UNDESCRIBED, LibraryClass, find_class, late_error, late_let_error, let_error
+from pyopenvba.interpreter._type_library import (
+    UNDESCRIBED,
+    LibraryClass,
+    find_class,
+    kinds_of,
+    late_arguments,
+    late_call_error,
+    late_error,
+    late_let_error,
+    late_number,
+    let_error,
+    reads_double_late,
+)
 from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_INVALID_USE_OF_NULL,
@@ -2404,6 +2416,40 @@ class Interpreter:
             return UNDESCRIBED if BINDING.late else None
         return found if BINDING.late or found.reading(strip_suffix(expression.name)) is None else None
 
+    def _late_get(self, target: object, name: str, positional: list[object], named: dict[str, object]) -> object:
+        """A method bound late takes each Variant itself, where the model answers as VBA turns it into the parameter's type."""
+        library = getattr(self.host, "vba_type_library", None)
+        described = (find_class(library, target.vba_type_name)
+                     if library is not None and isinstance(target, VBAObject) and not isinstance(target, UserClassInstance) else None)
+        if described is not None:
+            positional = late_arguments(described, strip_suffix(name), positional)
+        try:
+            found = _dispatch_get(target, name, positional, named)
+            # Range.NoteText is declared String; through an Object its answer is a number (tests/fixtures/method_audit.json).
+            if strip_suffix(name).lower() == "notetext" and isinstance(found, str) and getattr(target, "vba_type_name", "") == "Range" and found.lstrip("-").isdigit():
+                return float(found)
+            return found
+        except VBARuntimeError as failed:
+            library = getattr(self.host, "vba_type_library", None)
+            found = (find_class(library, target.vba_type_name)
+                     if library is not None and isinstance(target, VBAObject) and not isinstance(target, UserClassInstance) else None)
+            number = None if found is None else late_call_error(found, strip_suffix(name), failed.number,
+                                                                kinds_of([*positional, *named.values()], NULL))
+            if number is None:
+                raise
+            if number:
+                raise error(number) from failed
+            # Excel takes it: Null as if it were left out, and True as 1.
+            positional = [MISSING if one is NULL else 1 if one is True else one for one in positional]
+            named = {key: 1 if one is True else one for key, one in named.items() if one is not NULL}
+            try:
+                return _dispatch_get(target, name, positional, named)
+            except VBARuntimeError as refused:
+                # CentimetersToPoints(Null) answers nothing, where the same call with nothing given is 449.
+                if refused.number == 449:
+                    return EMPTY
+                raise
+
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
         target = self._member_target(expression, frame)
         self._note_binding(expression, frame)
@@ -2414,6 +2460,10 @@ class Interpreter:
             return _dispatch_get(target, "Evaluate", [expression.name], {})
         if BINDING.late:
             self._check_late_call(target, expression.name, [], {})
+            library = getattr(self.host, "vba_type_library", None)
+            found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
+            if found is not None and reads_double_late(found, strip_suffix(expression.name)):
+                return float(_dispatch_get(target, expression.name, [], {}))  # type: ignore[arg-type]
         return _dispatch_get(target, expression.name, [], {})
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
@@ -2478,6 +2528,8 @@ class Interpreter:
                        for index, parameter in enumerate(procedure.params)):
                     raise error(450)
             self._note_binding(callee, frame)
+            if isinstance(target, VBAObject):
+                positional, named = target.vba_given_arguments(strip_suffix(callee.name), positional, named)
             evaluating = self._bracket_class(target, callee)
             if evaluating is not None:
                 if not evaluating.evaluates:
@@ -2485,6 +2537,7 @@ class Interpreter:
                 return _call_value(_dispatch_get(target, "Evaluate", [callee.name], {}), positional, named)
             if BINDING.late:
                 self._check_late_call(target, callee.name, positional, named)
+                return self._late_get(target, callee.name, positional, named)
             return _dispatch_get(target, callee.name, positional, named)
         if isinstance(callee, A.Index):
             inner = self.evaluate_call(callee.target, callee.args, frame)
@@ -3145,9 +3198,11 @@ def _set_member(target: object, name: str, value: object, by_ref: bool, late: Li
     """A property set. Bound early VBA turns the value into the parameter's type first, which the setters answer: Null is 94 and
     text that is no number 13. Bound late the object takes the Variant itself and answers otherwise (tests/fixtures/settable_audit.json)."""
     try:
+        if late is not None and isinstance(target, VBAObject) and not by_ref:
+            value = late_number(late, strip_suffix(name), value)
         _dispatch_set(target, name, value, [], {}, by_ref)
     except VBARuntimeError as failed:
-        number = None if late is None else late_let_error(late, strip_suffix(name), failed.number, value is NULL, isinstance(value, str))
+        number = None if late is None else late_let_error(late, strip_suffix(name), failed.number, kinds_of([value], NULL))
         if number is None:
             raise
         if number == 1004:

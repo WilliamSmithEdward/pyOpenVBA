@@ -52,6 +52,10 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
     if result.chart_type not in SUPPORTED:
         return
     elements = [child for child in plot if child.tag in {"{" + NS["c"] + "}catAx", "{" + NS["c"] + "}valAx"}]
+    if len(elements) == 4:
+        # A combo chart's: the pair this group's are in (see _charts_file.read_secondary_axes).
+        own = {child.attrib.get("val", "") for child in series_plot.findall("c:axId", NS)}
+        elements = [child for child in elements if {found.attrib.get("val", "") for found in child.findall("c:axId", NS)} <= own]
     if result.chart_type in NO_AXES:
         result.axes_readable = not elements
         return
@@ -258,7 +262,9 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
         axis = by_identifier[int(identifier.group(1))]
         raw = raw.replace('<c:delete val="0"/>', '<c:delete val="' + ("0" if axis.present else "1") + '"/>', 1)
         other = next(entry for entry in result.axes.values() if entry is not axis)
-        if other.reverse != (other.crosses == "max"):
+        if other.far_side:
+            raw = raw.replace('<c:crosses val="autoZero"/>', '<c:crosses val="max"/>', 1)
+        elif other.reverse != (other.crosses == "max"):
             # An axis crosses the other at its start: reversing that one, or crossing at its maximum, moves this to
             # the far side, and doing both brings it back.
             raw = re.sub(r'<c:axPos val="([bltr])"/>', lambda found: '<c:axPos val="' + FAR_SIDE[found.group(1)] + '"/>',
@@ -271,12 +277,12 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
                            ("tickLblPos", axis.label_position)):
             raw = re.sub(f'<c:{tag} val="[^"]*"/>', f'<c:{tag} val="{value}"/>', raw, count=1)
         looks = result.element_looks
-        lines_look = element_markup(f"grid{axis.kind}", looks.get(f"grid{axis.kind}"))
+        lines_look = element_markup(f"grid{axis.tag}", looks.get(f"grid{axis.tag}"))
         major_lines = f"<c:majorGridlines>{lines_look}</c:majorGridlines>" if lines_look else "<c:majorGridlines/>"
         gridlines = (major_lines if axis.major_gridlines else "") + (
             "<c:minorGridlines/>" if axis.minor_gridlines else "")
-        own_look = element_markup(f"axis{axis.kind}", looks.get(f"axis{axis.kind}")) + text_properties(
-            result.element_fonts.get(f"tick{axis.kind}"))
+        own_look = element_markup(f"axis{axis.tag}", looks.get(f"axis{axis.tag}")) + text_properties(
+            result.element_fonts.get(f"tick{axis.tag}"))
         raw = re.sub(r'(<c:tickLblPos val="[^"]*"/>)', lambda found: found.group(1) + own_look, raw, count=1)
         raw = re.sub(r'(<c:axPos val="[bltr]"/>)(?:<c:majorGridlines/>)?', lambda found: found.group(1) + gridlines,
                      raw, count=1)

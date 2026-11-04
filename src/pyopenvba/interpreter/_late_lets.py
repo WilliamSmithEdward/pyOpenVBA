@@ -1,25 +1,58 @@
-"""What a property set answers bound late where it differs from typed, measured per property (tests/fixtures/settable_audit.json).
+"""What a call bound late answers where it differs from typed, measured per class.member.
 
-Typed, VBA turns the value into the parameter's type first, so that Null is 94 and text that is no number 13. Late the object takes
-the Variant itself. No rule in the type library says which answer a property gives, so this is a table, of class.property: null and
-text for those two, and five for a value the property refuses with 5.
+Written by scripts/build_late_lets.py.  Do not edit by hand.
+
+Keyed by kind of value: null, text and bool where typed VBA answers 94, 13 and 1004 before the call, and five for a value the
+member refuses with 5. A 0 means the member takes the value.
 """
 from __future__ import annotations
 
 LATE_LETS: dict[str, dict[str, int]] = {
     'application.calculation': {'text': 1004, 'null': 0},
-    'application.cursor': {'text': 1004, 'null': 0},
+    'application.cursor': {'bool': 0, 'text': 1004, 'null': 0},
     'application.cutcopymode': {'text': 1004, 'null': 0},
     'application.displayalerts': {'text': 1004, 'null': 0},
     'application.enableevents': {'null': 13},
+    'application.iteration': {'text': 1004, 'null': 0},
+    'application.maxchange': {'null': 0, 'text': 1004},
+    'application.maxiterations': {'null': 0, 'bool': 0, 'text': 1004},
     'application.screenupdating': {'text': 1004, 'null': 0},
-    'workbook.accuracyversion': {'null': 13},
+    'application.sheetsinnewworkbook': {'null': 0, 'bool': 0, 'text': 1004},
+    'comment.visible': {'null': 13},
+    'font.themefont': {'null': 13},
+    'hyperlink.screentip': {'null': 13},
+    'hyperlink.subaddress': {'null': 13},
+    'hyperlink.texttodisplay': {'null': 13},
+    'listcolumn.name': {'null': 13},
+    'listcolumn.totalscalculation': {'null': 13},
+    'listobject.showtotals': {'null': 13},
+    'range.id': {'null': 13},
+    'range.pagebreak': {'null': 0, 'bool': 0, 'text': 1004},
+    'range.readingorder': {'text': 1004, 'null': 0, 'bool': 0},
+    'sort.matchcase': {'null': 13},
+    'validation.errormessage': {'null': 13},
+    'validation.errortitle': {'null': 13},
+    'validation.ignoreblank': {'null': 13},
+    'validation.incelldropdown': {'null': 13},
+    'validation.inputmessage': {'null': 13},
+    'validation.inputtitle': {'null': 13},
+    'validation.showerror': {'null': 13},
+    'validation.showinput': {'null': 13},
+    'window.displayformulas': {'text': 1004, 'null': 0},
+    'window.displaygridlines': {'text': 1004, 'null': 0},
+    'window.displayheadings': {'text': 1004, 'null': 0},
+    'window.displayhorizontalscrollbar': {'text': 1004, 'null': 0},
+    'window.displayverticalscrollbar': {'text': 1004, 'null': 0},
+    'window.displayworkbooktabs': {'text': 1004, 'null': 0},
+    'window.displayzeros': {'text': 1004, 'null': 0},
+    'window.tabratio': {'null': 0, 'text': 1004},
+    'workbook.accuracyversion': {'five': 5, 'null': 13},
     'workbook.autoupdatefrequency': {'null': 13},
     'workbook.autoupdatesavechanges': {'null': 13},
     'workbook.changehistoryduration': {'null': 13},
     'workbook.chartdatapointtrack': {'null': 13},
     'workbook.checkcompatibility': {'null': 13},
-    'workbook.compatibilityversion': {'null': 13},
+    'workbook.compatibilityversion': {'five': 5, 'null': 13},
     'workbook.conflictresolution': {'null': 13},
     'workbook.date1904': {'text': 1004, 'null': 0},
     'workbook.defaultslicerstyle': {'five': 450},
@@ -28,8 +61,8 @@ LATE_LETS: dict[str, dict[str, int]] = {
     'workbook.displayinkcomments': {'null': 13},
     'workbook.donotpromptforconvert': {'null': 13},
     'workbook.enableautorecover': {'null': 13},
-    'workbook.encryptionprovider': {'null': 13},
-    'workbook.externalcodeservicetimeout': {'null': 13},
+    'workbook.encryptionprovider': {'five': 5, 'null': 13},
+    'workbook.externalcodeservicetimeout': {'five': 5, 'null': 13},
     'workbook.forcefullcalculation': {'null': 13},
     'workbook.highlightchangesonscreen': {'null': 13},
     'workbook.inactivelistbordervisible': {'null': 13},
@@ -63,7 +96,20 @@ LATE_LETS: dict[str, dict[str, int]] = {
     'worksheet.enableselection': {'null': 13},
     'worksheet.name': {'null': 13},
     'worksheet.scrollarea': {'null': 13},
-    'worksheet.standardwidth': {'text': 1004, 'null': 0},
+    'worksheet.standardwidth': {'bool': 0, 'text': 1004, 'null': 0},
     'worksheet.transitionexpeval': {'text': 1004, 'null': 0},
     'worksheet.visible': {'text': 1004, 'null': 0},
 }
+
+LATE_CALLS: dict[str, dict[str, int]] = {
+    'application.centimeterstopoints': {'text': 1004, 'null': 0},
+    'application.inchestopoints': {'text': 1004, 'null': 0},
+    'range.end': {'null': 13},
+    'range.find': {'null': 13},
+    'range.notetext': {'text': 0},
+    'range.pastespecial': {'null': 0, 'bool': 0},
+    'range.sort': {'null': 0, 'bool': 0},
+}
+
+#: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json).
+LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook'})

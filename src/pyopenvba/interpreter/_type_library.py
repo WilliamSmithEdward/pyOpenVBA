@@ -215,16 +215,65 @@ def late_error(found: LibraryClass, member: str, positional: int, named: Sequenc
     return None
 
 
-def late_let_error(found: LibraryClass, member: str, number: int, is_null: bool, is_text: bool) -> int | None:
+def _late_answer(measured: dict[str, int], number: int, kinds: Sequence[str]) -> int | None:
+    if number == 5:
+        return measured.get('five')
+    wanted = {94: 'null', 13: 'text', 1004: 'bool'}.get(number)
+    return measured.get(wanted) if wanted is not None and wanted in kinds else None
+
+
+def late_let_error(found: LibraryClass, member: str, number: int, kinds: Sequence[str]) -> int | None:
     """What a property set bound late answers for what it answers typed: 0 for no error, None if the typed answer stands."""
     from pyopenvba.interpreter._late_lets import LATE_LETS
 
-    measured = LATE_LETS.get(f"{found.name.lstrip('_').lower()}.{member.lower()}", {})
-    if number == 94 and is_null:
-        return measured.get('null')
-    if number == 13 and is_text:
-        return measured.get('text')
-    return measured.get('five') if number == 5 else None
+    return _late_answer(LATE_LETS.get(f"{found.name.lstrip('_').lower()}.{member.lower()}", {}), number, kinds)
+
+
+def late_call_error(found: LibraryClass, member: str, number: int, kinds: Sequence[str]) -> int | None:
+    """The same for a method given a value that typed it refuses."""
+    from pyopenvba.interpreter._late_lets import LATE_CALLS
+
+    return _late_answer(LATE_CALLS.get(f"{found.name.lstrip('_').lower()}.{member.lower()}", {}), number, kinds)
+
+
+def reads_double_late(found: LibraryClass, member: str) -> bool:
+    from pyopenvba.interpreter._late_lets import LATE_DOUBLES
+
+    return f"{found.name.lstrip('_').lower()}.{member.lower()}" in LATE_DOUBLES
+
+
+_CUTS_LATE = frozenset({'_Application', '_Worksheet'})
+
+
+def late_number(found: LibraryClass, member: str, value: object) -> object:
+    """What a numeric property of Application or Worksheet makes of a Variant bound late: True is 1, not -1, and a Long takes a fraction's
+    whole part where VBA would round it. A chart or a tab rounds as VBA does (tests/fixtures/vba_late_fractions.json)."""
+    puts = next((form for form in found.members.get(member.lower(), ()) if form[0] == 4), None)
+    if puts is None or not puts[4] or found.name not in _CUTS_LATE:
+        return value
+    kind = puts[4][-1].split(':')[-1]
+    if kind not in ('Long', 'Double', 'Integer', 'Single'):
+        return value
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, float) and kind in ('Long', 'Integer'):
+        return int(value)
+    return value
+
+
+def late_arguments(found: LibraryClass, member: str, positional: list[object]) -> list[object]:
+    """The same for a method of those: True given to a numeric parameter is 1 (tests/fixtures/method_audit.json)."""
+    form = found.reading(member)
+    if form is None or found.name not in _CUTS_LATE or form[0] != 1:
+        return positional
+    types = [one.split(':')[-1] for one in form[4]]
+    return [1 if one is True and at < len(types) and types[at] in ('Long', 'Double', 'Integer', 'Single') else one for at, one in enumerate(positional)]
+
+
+def kinds_of(values: Sequence[object], null: object) -> tuple[str, ...]:
+    """Which kinds of value VBA would turn into a parameter's type and fail on."""
+    return tuple(kind for kind, there in (('null', any(one is null for one in values)), ('text', any(isinstance(one, str) for one in values)),
+                                          ('bool', any(isinstance(one, bool) for one in values))) if there)
 
 
 def build() -> tuple[str, dict[str, str]]:

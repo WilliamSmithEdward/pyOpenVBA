@@ -5002,11 +5002,11 @@ class Range(ExcelObject):
 
     @member
     def Formula2(self) -> object:
-        return self._read_formulas(r1c1=False, at=True)
+        return self._read_formula2s(r1c1=False)
 
     @member
     def Formula2R1C1(self) -> object:
-        return self._read_formulas(r1c1=True, at=True)
+        return self._read_formula2s(r1c1=True)
 
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
@@ -5224,12 +5224,19 @@ class Range(ExcelObject):
         except FormulaError:
             raise VBAUnsupportedError(f"Formula2 of {formula} is not implemented") from None
 
-    def _read_formulas(self, *, r1c1: bool, at: bool = False) -> object:
+    def _read_formula2s(self, *, r1c1: bool) -> object:
+        """The formulas as Formula2 reads them: with an @ where it cuts cells to one value."""
+        def with_at(text: str, whole: bool) -> str:
+            return self._formula2(text, whole=whole)
+
+        return self._read_formulas(r1c1=r1c1, rewrite=with_at)
+
+    def _read_formulas(self, *, r1c1: bool, rewrite: Callable[[str, bool], str] | None = None) -> object:
         from pyopenvba.apps.excel._data_tables import table_at
 
         # Separate areas read as the first (tests/fixtures/range_area_reads.json).
         if len(self.areas) > 1:
-            return self._first_area()._read_formulas(r1c1=r1c1, at=at)
+            return self._first_area()._read_formulas(r1c1=r1c1, rewrite=rewrite)
 
         def read(row: int, column: int) -> object:
             table = table_at(self.sheet, row, column) if self.sheet.data_tables else None
@@ -5245,9 +5252,9 @@ class Range(ExcelObject):
                 return ""
             if cell.formula:
                 text = shown_formula(self.sheet, row, column, cell.formula)
-                if at and not cell.dynamic:
+                if rewrite is not None and not cell.dynamic:
                     # A dynamic-array formula is kept as Formula2 writes it, with no @ to add.
-                    text = self._formula2(text, whole=found is not None)
+                    text = rewrite(text, found is not None)
                 # A call of SINGLE is shown as an @, even where the @ would hold less than SINGLE does.
                 text = at_shown(text)
                 # R1C1 can spell a formula longer than Excel's 8192 characters, and reads only that many

@@ -29,6 +29,7 @@ from html.parser import HTMLParser
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
+from pyopenvba.shapes._read_look import with_fill_line
 from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects, TextLine,
                                       TextLook, child_space, emu, points, to_child)
 
@@ -1108,7 +1109,7 @@ def _fill_line(shape: Shape) -> str:
     text_box = shape.kind == "textBox"
     if look is None:
         return _TEXT_BOX_FILL if text_box else ""
-    fill_colour = _colour(look.fill_rgb, look.fill_scheme or ("lt1" if text_box else "accent1"), 0, look.fill_alpha,
+    fill_colour = _colour(look.fill_rgb, look.fill_scheme or look.style_fill or ("lt1" if text_box else "accent1"), 0, look.fill_alpha,
                           look.fill_mods, look.fill_index)
     fill_paint = f"<a:solidFill>{fill_colour}</a:solidFill>"
     if look.fill_pattern is not None:
@@ -1128,7 +1129,7 @@ def _fill_line(shape: Shape) -> str:
         fill = fill_paint
     elif look.no_fill:
         fill = "<a:noFill/>"
-    scheme, shade = {"textBox": ("lt1", 50000), "line": ("accent1", 0)}.get(shape.kind, ("accent1", 15000))
+    scheme, shade = look.style_line or {"textBox": ("lt1", 50000), "line": ("accent1", 0)}.get(shape.kind, ("accent1", 15000))
     if look.line_scheme is not None or look.line_plain:
         shade = 0
     own_line = (look.line_rgb is not None or look.line_scheme is not None or bool(look.line_mods) or look.line_plain
@@ -1136,7 +1137,7 @@ def _fill_line(shape: Shape) -> str:
     paint = _line_paint(look, look.line_scheme or scheme, shade, own_line)
     line = ""
     if text_box or look.line_full or look.line_ends:
-        width = (look.frozen_width if look.line_hidden else look.line_width) or (9525 if text_box else 19050)
+        width = (look.frozen_width if look.line_hidden else look.line_width) or look.style_width or (9525 if text_box else 19050)
         dash = (look.frozen_dash if look.line_hidden else look.line_dash) or "solid"
         head, tail = (look.frozen_head, look.frozen_tail) if look.line_hidden else (look.line_head, look.line_tail)
         line = _stroke("a:ln", "", width, "<a:noFill/>" if look.line_hidden else paint, dash, text_box, look.line_ends,
@@ -1155,7 +1156,7 @@ def _fill_line(shape: Shape) -> str:
         extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}>'
                        f"{fill_paint}</a14:hiddenFill></a:ext>")
     if look.line_hidden and not look.line_lost:
-        width = look.line_width or (9525 if text_box else 19050)
+        width = look.line_width or look.style_width or (9525 if text_box else 19050)
         extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
                        + _stroke("a14:hiddenLine", f" {_A14}", width, paint, look.line_dash or "solid", text_box, False,
                                  _arrow_ends(look.line_head, look.line_tail, False), None)
@@ -1659,6 +1660,8 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
         elif "</a:extLst></xdr:cNvPr>" in markup:
             markup = markup.replace("</a:extLst></xdr:cNvPr>", _ADEC.replace("{value}", value)
                                     + "</a:extLst></xdr:cNvPr>", 1)
+    if shape.fill_line is not None:
+        markup = with_fill_line(markup, _fill_line(shape))
     if shape.lock_aspect != was.lock_aspect:
         locks = '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>"
         if re.search(r"<a:spLocks\b", markup):

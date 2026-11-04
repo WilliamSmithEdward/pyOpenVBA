@@ -1566,10 +1566,8 @@ class ShapeObject(_Drawn):
 
     @member
     def Connector(self) -> object:
-        """Whether the shape is a connector, which no shape the model makes but a line is
-        (tests/fixtures/missing_reads.json)."""
-        if self.shape.source:
-            raise _unsupported("Connector of a loaded shape")
+        """Whether the shape is a connector, which only a line or a file's cxnSp is
+        (tests/fixtures/missing_reads.json, object_roundtrip.json)."""
         return VBAInt(-1 if self.shape.kind == "line" else 0, "Long")
 
     @member
@@ -1608,16 +1606,20 @@ class ShapeObject(_Drawn):
 
     @member
     def Fill(self) -> object:
-        from pyopenvba.apps.excel._shape_format import FillFormat
+        from pyopenvba.apps.excel._shape_format import FillFormat, RangeFill
 
         self.on_sheet()
+        if self.shape.kind == "group" and self.shape.source:
+            return RangeFill(ShapeRange([ShapeObject(self.sheet, one) for one in self.shape.children]))
         return FillFormat(self)
 
     @member
     def Line(self) -> object:
-        from pyopenvba.apps.excel._shape_format import LineFormat
+        from pyopenvba.apps.excel._shape_format import LineFormat, RangeLine
 
         self.on_sheet()
+        if self.shape.kind == "group" and self.shape.source:
+            return RangeLine(ShapeRange([ShapeObject(self.sheet, one) for one in self.shape.children]))
         return LineFormat(self)
 
     @member

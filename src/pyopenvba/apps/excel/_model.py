@@ -7588,12 +7588,17 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._visible import visible_areas
         from pyopenvba.formula._values import NA
 
+        if not array.size:
+            return
         for place, area in enumerate(visible_areas(self) or self.areas):
             if area.rows * area.columns > 1048576:
                 raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
             for row in range(area.rows):
                 for column in range(area.columns):
                     item = self._array_item(array, row, column, swapped=place % 2 == 1)
+                    if item is NULL or isinstance(item, VBAArray):
+                        # Nothing a cell can hold.
+                        item = EMPTY
                     self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
         self.sheet.touched()
 

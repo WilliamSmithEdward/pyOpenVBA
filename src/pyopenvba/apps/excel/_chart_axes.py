@@ -782,10 +782,17 @@ class AxisTitle(ElementProperties, TitleMembers):
 
     @member
     def Name(self) -> object:
+        """Excel's name by axis, whatever the text says: the value axis 1, the category axis 2, the secondary value
+        axis 3 (tests/fixtures/unassessed_charts.json). Setting it is 450."""
         self.read()
-        if self.axis.entry.kind != 2:
+        number = {2: 1, 1: 2}.get(self.axis.entry.kind)
+        if number is None:
             raise VBAUnsupportedError("The name of this axis' title is not implemented")
-        return "Text Axis 1"
+        return f"Text Axis {number}"
+
+    @setter('Name')
+    def _set_name(self, value: object) -> None:
+        raise error(450, 'Wrong number of arguments or invalid property assignment')
 
     def read(self) -> None:
         self.axis.chart.admit_read()

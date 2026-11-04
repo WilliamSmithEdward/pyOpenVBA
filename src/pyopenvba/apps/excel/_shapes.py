@@ -445,6 +445,9 @@ class Shapes(VBACollection, ItemDefault, Created):
 
     @method
     def SelectAll(self) -> object:
+        from pyopenvba.apps.excel._selected_shapes import select_all
+
+        select_all(self.sheet)
         return EMPTY
 
     def _made(

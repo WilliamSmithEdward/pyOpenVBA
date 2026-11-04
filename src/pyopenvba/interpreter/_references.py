@@ -177,6 +177,8 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
         found = find_class(library, name)
         if found is None:
             return
+        if expression.bracketed and strip_suffix(expression.name).lower() not in found.members and found.evaluates:
+            return
         given = [argument for argument in args if not argument.name]
         while given and given[-1].omitted:
             given.pop()

@@ -696,6 +696,8 @@ class Application(ExcelObject):
         # What is no setting reads as automatic below 2 and manual above it (tests/fixtures/settable_audit.json).
         wanted = int(to_integer(value, "Long"))
         self.calculation = wanted if wanted in (-4105, -4135, 2) else -4105 if wanted < 2 else -4135
+        for book in self.workbooks_.books:
+            book.file_calculation_mode = None
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
             # Back to automatic works out what manual mode left stale, with its
             # Calculate events. Volatile UDFs in the active workbook run too;
@@ -1816,6 +1818,9 @@ class Workbook(ExcelObject):
         #: ForceFullCalculation is on; and whether it was opened wanting a full calculation it has not had yet
         #: (see _calculation_state).
         self.calculation_version = VERSION
+        #: calcPr's calcMode as the file has it, kept in a save until a macro sets Application.Calculation
+        #: (see _calculation_settings).
+        self.file_calculation_mode: str | None = None
         self.force_full_calculation = False
         self.full_pending = False
         #: True once a sheet's custom properties change, so a save writes them all (see _custom_properties).
@@ -3727,6 +3732,8 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._hyperlinks import Hyperlinks
 
         links = Hyperlinks(self)
+        if isinstance(Index, VBAArray):
+            raise error(13, "Type mismatch")
         return links if Index is MISSING else links.vba_get("Item", [Index])
 
     @member
@@ -3791,7 +3798,8 @@ class Worksheet(ExcelObject):
 
         tables = PivotTables(self, [PivotTable(self, table.cache, table.root, report_owner=table)
                                    for table in self.pivot_tables])
-        return tables if Index is MISSING else tables.Item(Index)
+        # ws.PivotTables(Null) is the collection (tests/fixtures/excel_everyday_14.json).
+        return tables if Index is MISSING or Index is NULL else tables.vba_get("Item", [Index])
 
     @member
     def PrintedCommentPages(self) -> object:
@@ -7637,12 +7645,16 @@ class DefinedName(ExcelObject):
 
     @member
     def WorkbookParameter(self) -> object:
-        """False: Excel refuses every setting with error 5 (tests/fixtures/name_macro.json)."""
+        """False: Excel refuses every setting with error 5 until the name is a valid one (tests/fixtures/name_macro.json)."""
         return False
 
     @setter("WorkbookParameter")
     def _set_workbook_parameter(self, value: object) -> None:
-        raise error(5)
+        if not self.ValidWorkbookParameter():
+            raise error(5)
+        # A saved workbook's name takes it (tests/fixtures/excel_everyday_14.json), but the model does not keep it.
+        if to_bool(value):
+            raise VBAUnsupportedError("Name.WorkbookParameter set to True is not implemented")
 
     @member
     def ValidWorkbookParameter(self) -> object:

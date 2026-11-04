@@ -826,8 +826,11 @@ class ChartObjects(VBACollection, ItemDefault, Created):
             for item in items:
                 if isinstance(item, ChartObject) and item.shape.name.lower() == index.lower():
                     return item
-            raise error(-2147024809, 'The item with the specified name was not found')
-        position = int(to_number(index))
+            if not index.strip().isdigit():
+                raise error(-2147024809, 'The item with the specified name was not found')
+            index = int(index)
+        # A number rounds as VBA rounds, and 1.5 of one chart is past the end.
+        position = int(to_integer(index, 'Long'))
         if not 1 <= position <= len(items):
             raise error(1004, 'Unable to get the ChartObjects property of the Worksheet class')
         return items[position - 1]
@@ -3750,7 +3753,9 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
             for item in items:
                 if to_text(cast(Series, item).vba_get('Name', [])).casefold() == index.casefold():
                     return item
-            raise error(1004, 'Invalid Parameter')
+            if not index.strip().isdigit():
+                raise error(1004, 'Invalid Parameter')
+            index = int(index)
         position = int(to_integer(index, 'Long'))
         if 1 <= position <= len(items):
             return items[position - 1]
@@ -3825,6 +3830,20 @@ class FullSeriesCollection(SeriesCollection):
     @method
     def Extend(self, *_: object) -> object:
         raise error(438, "Object doesn't support this property or method")
+
+
+def _series_parts(text: str) -> list[str]:
+    """The arguments of =SERIES, split where a comma is outside quotes."""
+    parts = ['']
+    quote = ''
+    for char in text:
+        if char in '"\'' and (not quote or quote == char):
+            quote = '' if quote else char
+        if char == ',' and not quote:
+            parts.append('')
+        else:
+            parts[-1] += char
+    return parts
 
 
 class Series(PictureMembers, Created):
@@ -4263,6 +4282,27 @@ class Series(PictureMembers, Created):
         values = self.entry.value_reference or literal_array(self.entry.values)
         return f'=SERIES({name},{categories},{values},{order})'
 
+    @setter('Formula')
+    def _set_formula(self, value: object) -> None:
+        """=SERIES(name, categories, values, order) with plain references or a quoted name, each taken as its own member takes it
+        (tests/fixtures/excel_everyday_14.json). A literal array or a changed order is not implemented."""
+        text = to_text(value).strip()
+        if not (text.upper().startswith('=SERIES(') and text.endswith(')')):
+            raise VBAUnsupportedError('Series.Formula with anything but =SERIES(...) is not implemented')
+        parts = _series_parts(text[len('=SERIES('):-1])
+        if len(parts) != 4 or parts[3].strip() != str(self.full_place()) or any('{' in part for part in parts):
+            raise VBAUnsupportedError('Series.Formula with a literal array or a changed order is not implemented')
+        name, categories, values = (part.strip() for part in parts[:3])
+        book = self.chart.sheet.book
+        application = book.application
+        self.vba_set('Values', application.vba_get('Range', [values]))
+        if categories:
+            self.vba_set('XValues', application.vba_get('Range', [categories]))
+        if name.startswith('"') and name.endswith('"'):
+            self.vba_set('Name', name[1:-1].replace('""', '"'))
+        elif name:
+            self.vba_set('Name', '=' + name)
+
     @member
     def FormulaR1C1(self) -> object:
         return r1c1_series(str(self.Formula()))
@@ -4344,7 +4384,16 @@ class Series(PictureMembers, Created):
 
         self.position()
         points = Points(self)
-        return points if Index is MISSING else points.vba_get('Item', [Index])
+        if Index is MISSING:
+            return points
+        # sr.Points(99) is 1004 where o.Item(99) on the same collection is not (tests/fixtures/excel_everyday_14.json).
+        return points.vba_get('Item', [Index]) if Index is NULL else points.vba_lookup(Index, points.vba_items())
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_points import OldInterior
+
+        return OldInterior(self)
 
     @method
     def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,

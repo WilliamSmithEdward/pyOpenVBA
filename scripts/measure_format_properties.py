@@ -7,7 +7,8 @@ of the family's STATE, Null and Empty spelled out.
 
     python scripts/measure_format_properties.py
 
-writes tests/fixtures/format_properties.json, which tests/test_excel_format_properties.py replays.
+writes tests/fixtures/format_properties.json, which tests/test_excel_format_properties.py replays. Its "early" holds the
+answers that differ with c typed As Range, which the model follows.
 """
 from __future__ import annotations
 
@@ -174,9 +175,18 @@ def main() -> None:
         excel.new_document()
         result = excel.run_vba(probe + runner, 'Probe', (folder,), timeout=300.0)
         assert result.ok and not result.dialogs, result
+        # The same assignments with c typed As Range, which is how a macro usually holds it.
+        typed = probe.replace('(c As Object) As String', '(c As Range) As String').replace('Dim c As Object', 'Dim c As Range')
+        bound = excel.run_vba(typed + _runner([f'S{number}' for number in range(len(every))], 'First')
+                              + '\nPublic Function Probe() As String\n    Setup\n    Probe = First()\n    Finish\nEnd Function\n',
+                              'Probe', (), timeout=300.0)
+        assert bound.ok and not bound.dialogs, bound
     answers = str(result.value).split('@@')
+    early = str(bound.value).split('@@')
     count = len(every)
-    record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': probe, 'states': {
+    record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': probe,
+              'early': {str(number): early[number] for number in range(count) if early[number] != answers[number]},
+              'states': {
         family: FAMILIES[family][1] for family in FAMILIES},
         'cases': [[*case, answers[number], answers[count + len(MIXED) + number]] for number, case in enumerate(every)],
         'mixed': [[*case, answers[count + number]] for number, case in enumerate(MIXED)]}

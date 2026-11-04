@@ -57,7 +57,7 @@ class Created(VBAObject):
             return super().vba_get(name, args, named)
         if len(args) == 1 and not named:
             if self.vba_type_name == "Scenarios" and args[0] is NULL:
-                return self
+                raise error(13)  # late bound Excel hands back the collection; bound early it is 13
             args = [loose_index(self.vba_type_name, args[0])]
         try:
             return super().vba_get(name, args, named)

@@ -32,7 +32,8 @@ from __future__ import annotations
 import re
 import uuid
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -43,13 +44,23 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._structured import TableShape, from_file, in_file, renamed_columns, renamed_table
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import (EMPTY, NULL, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBADate, VBAInt, error,
-                                           to_bool, to_integer, to_text)
+from pyopenvba.interpreter._values import (
+    EMPTY,
+    ERR_SUBSCRIPT_OUT_OF_RANGE,
+    MISSING,
+    NOTHING,
+    VBADate,
+    VBAInt,
+    error,
+    to_bool,
+    to_integer,
+    to_text,
+)
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._pivots import PivotTable
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._model import Workbook, Worksheet
+    from pyopenvba.apps.excel._pivots import PivotTable
     from pyopenvba.apps.excel._sort import SortState
 
 #: ListObjects.Add's SourceType for a range of the sheet, and its answers to whether the range has headers.
@@ -1059,8 +1070,6 @@ class ListObject(ExcelObject):
 
     @setter("ShowTotals")
     def _set_show_totals(self, value: object) -> None:
-        if value is NULL:
-            raise error(13)
         wanted = to_bool(value)
         if wanted != self.table.totals:
             if wanted:
@@ -1357,8 +1366,6 @@ class ListColumn(ExcelObject):
     def _set_name(self, value: object) -> None:
         """Rename the column, its header and every formula naming it with it. Measured: a name another column has,
         in any case, leaves the column as it was without an error; an empty one is the first free ColumnN."""
-        if value is NULL:
-            raise error(13)
         wanted = str(value).upper() if isinstance(value, bool) else to_text(value)
         if len(wanted) > 255:
             raise error(5)
@@ -1381,8 +1388,6 @@ class ListColumn(ExcelObject):
     def _set_totals_calculation(self, value: object) -> None:
         """What the column's totals row works out, shown or not: a SUBTOTAL, nothing, or custom, which leaves the
         cell empty until a formula is written there (tests/fixtures/tables/totals_row/)."""
-        if value is NULL:
-            raise error(13)
         number = int(to_integer(value, "Long"))
         if value is True or not 0 <= number < len(CALCULATIONS):
             raise error(5)

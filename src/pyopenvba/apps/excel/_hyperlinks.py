@@ -365,9 +365,7 @@ TEXT_TO_DISPLAY_LIMIT = 2084
 
 
 def _link_text(value: object) -> str:
-    """A SubAddress or ScreenTip: Null is error 13, and past 254 characters error 7 (tests/fixtures/member_audit.json)."""
-    if value is NULL:
-        raise error(13)
+    """A SubAddress or ScreenTip: past 254 characters is error 7 (tests/fixtures/member_audit.json)."""
     text = to_text(value)
     if len(text) > 254:
         raise error(7)
@@ -464,8 +462,6 @@ class Hyperlink(ExcelObject):
     def _set_text_to_display(self, value: object) -> None:
         from pyopenvba.apps.excel import _merges
 
-        if value is NULL:
-            raise error(13)
         if value == "" or value is EMPTY:
             return
         name = to_text(value)

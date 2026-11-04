@@ -40,7 +40,7 @@ from pyopenvba._xml import attributes, escape, escape_text, unescape
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBADate, VBAInt, error, to_bool, to_integer, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -426,15 +426,8 @@ def _listed(sheet: Worksheet, rule: Rule, row: int, column: int) -> list[object]
 # --- VBA -------------------------------------------------------------------------------------
 
 
-def _not_null(value: object) -> None:
-    """Null is error 13 on these, whose values are typed (tests/fixtures/member_audit.json)."""
-    if value is NULL:
-        raise error(13)
-
-
 def _limited(value: object, limit: int) -> object:
     """A title's or message's text, or error 1004 past what Excel holds of it (tests/fixtures/member_audit.json)."""
-    _not_null(value)
     if len(to_text(value)) > limit:
         raise error(1004, "Application-defined or object-defined error")
     return value
@@ -615,7 +608,6 @@ class Validation(ExcelObject):
 
     @setter("IgnoreBlank")
     def _set_ignore_blank(self, value: object) -> None:
-        _not_null(value)
         self._flag("ignore_blank", value)
 
     @member
@@ -624,7 +616,6 @@ class Validation(ExcelObject):
 
     @setter("InCellDropdown")
     def _set_dropdown(self, value: object) -> None:
-        _not_null(value)
         self._flag("dropdown", value)
 
     @member
@@ -633,7 +624,6 @@ class Validation(ExcelObject):
 
     @setter("ShowInput")
     def _set_show_input(self, value: object) -> None:
-        _not_null(value)
         self._flag("show_input", value)
 
     @member
@@ -652,7 +642,6 @@ class Validation(ExcelObject):
 
     @setter("ShowError")
     def _set_show_error(self, value: object) -> None:
-        _not_null(value)
         self._flag("show_error", value)
 
     def _title(self, name: str) -> object:

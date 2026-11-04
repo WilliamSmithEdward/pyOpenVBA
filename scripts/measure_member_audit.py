@@ -7,11 +7,13 @@ that object, as TypeName and value.
 
     python scripts/measure_member_audit.py
 
-writes tests/fixtures/member_audit.json, which tests/test_excel_member_audit.py replays.
+writes tests/fixtures/member_audit.json, which tests/test_excel_member_audit.py replays. Its "early" holds the answers
+that differ with o typed, which the model follows.
 """
 from __future__ import annotations
 
 import json
+import re
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +26,12 @@ SWITCHES = ['True', 'False', '1', '0', '-1', '2', '"True"', '"x"', 'Null', 'Empt
 TEXTS = ['"words"', '"é"', '5', '1.5', 'True', 'Null', 'Empty', '""', 'String(32, "a")', 'String(33, "a")',
          'String(225, "a")', 'String(226, "a")', 'String(254, "a")', 'String(255, "a")', 'String(256, "a")',
          'String(2084, "a")', 'String(2085, "a")']
+_WINDOW_FRESH = ('o.Caption = "Cap": o.DisplayFormulas = False: o.DisplayGridlines = True: o.DisplayHeadings = True: '
+                 'o.DisplayHorizontalScrollBar = True: o.DisplayVerticalScrollBar = True: '
+                 'o.DisplayWorkbookTabs = True: o.DisplayZeros = True: o.TabRatio = 0.6')
+_WINDOW_CHANGED = ('o.Caption = "Other": o.DisplayFormulas = True: o.DisplayGridlines = False: o.DisplayHeadings = False: '
+                   'o.DisplayHorizontalScrollBar = False: o.DisplayVerticalScrollBar = False: '
+                   'o.DisplayWorkbookTabs = False: o.DisplayZeros = False: o.TabRatio = 0.3')
 #: Each family: its setup statements on sheet ws, the object, what is read back, and what a changed one has first.
 FAMILIES = {
     'Validation': ('ws.Range("B2").Validation.Add xlValidateList, xlValidAlertStop, xlBetween, "a,b"',
@@ -46,6 +54,11 @@ FAMILIES = {
                    ['ShowTotals', 'ShowHeaders', 'Name'], ['', 'o.ShowTotals = True']),
     'Sort': ('ws.Range("B2:B3").Value = 1: ws.Sort.SetRange ws.Range("B2:B3")', 'ws.Sort', ['MatchCase', 'Header'],
              ['', 'o.MatchCase = True']),
+    # A window's settings outlast a sheet, so each case sets them all first, and a read activates the case's sheet.
+    'Window': ('ws.Activate', 'ActiveWindow',
+               ['Caption', 'DisplayFormulas', 'DisplayGridlines', 'DisplayHeadings', 'DisplayHorizontalScrollBar',
+                'DisplayVerticalScrollBar', 'DisplayWorkbookTabs', 'DisplayZeros', 'TabRatio'],
+               [_WINDOW_FRESH, _WINDOW_CHANGED]),
 }
 VALUES = {
     'Validation': {'ErrorMessage': TEXTS, 'ErrorTitle': TEXTS, 'InputMessage': TEXTS, 'InputTitle': TEXTS,
@@ -56,6 +69,12 @@ VALUES = {
                                                         'xlTotalsCalculationCustom', '11', '-1', '99', '"1"', *BAD]},
     'ListObject': {'ShowTotals': SWITCHES},
     'Sort': {'MatchCase': SWITCHES},
+    'Window': {'Caption': ['"words"', '5', 'True', 'Null', 'Empty', '""', 'String(200, "a")', 'String(201, "a")',
+                           'String(255, "a")'],
+               'DisplayFormulas': SWITCHES, 'DisplayGridlines': SWITCHES, 'DisplayHeadings': SWITCHES,
+               'DisplayHorizontalScrollBar': SWITCHES, 'DisplayVerticalScrollBar': SWITCHES,
+               'DisplayWorkbookTabs': SWITCHES, 'DisplayZeros': SWITCHES,
+               'TabRatio': ['0', '0.25', '0.5', '1', '1.5', '-0.1', '"0.5"', *BAD]},
 }
 
 
@@ -70,7 +89,8 @@ def _state(family: str) -> str:
     reads = ''.join(f'    v = Empty\n    v = o.{prop}\n    If Err.Number <> 0 Then\n        s = s & "|e" & Err.Number\n'
                     f'        Err.Clear\n    Else\n        s = s & "|" & Show(v)\n    End If\n' for prop in props)
     return (f'\nPrivate Function State{family}(ws As Object) As String\n    Dim s As String, v As Variant, o As Object\n'
-            f'    On Error Resume Next\n    Set o = {target}\n{reads}    State{family} = s\nEnd Function\n')
+            f'    On Error Resume Next\n    ws.Activate\n    Set o = {target}\n{reads}'
+            f'    State{family} = Replace(s, wb.Name, "<book>")\nEnd Function\n')
 
 
 def source() -> str:
@@ -99,6 +119,16 @@ def source() -> str:
     return body
 
 
+def _typed(probe: str) -> str:
+    """The probe with each case's o typed by its family, which is how a macro usually holds it."""
+    parts = re.split(r'(?=\nPublic Function S\d+\(\))', probe)
+    for at, part in enumerate(parts):
+        found = re.search(r'State(\w+)\(ws\)', part)
+        if part.startswith('\nPublic Function S') and found:
+            parts[at] = part.replace('o As Object', f'o As {found.group(1)}', 1)
+    return ''.join(parts)
+
+
 def _runner(calls: list[str], name: str) -> str:
     """A function answering each of the calls joined by @@, split up since one procedure cannot hold them all."""
     parts = [calls[at:at + 300] for at in range(0, len(calls), 300)]
@@ -123,8 +153,14 @@ def main() -> None:
         excel.new_document()
         result = excel.run_vba(probe + runner, 'Probe', (folder,), timeout=500.0)
         assert result.ok and not result.dialogs, result
+        bound = excel.run_vba(_typed(probe) + _runner([f'S{number}' for number in range(len(every))], 'First')
+                              + '\nPublic Function Probe() As String\n    Setup\n    Probe = First()\n    Finish\nEnd Function\n',
+                              'Probe', (), timeout=500.0)
+        assert bound.ok and not bound.dialogs, bound
     answers = str(result.value).split('@@')
+    early = str(bound.value).split('@@')
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': probe,
+              'early': {str(number): early[number] for number in range(len(every)) if early[number] != answers[number]},
               'states': {family: FAMILIES[family][2] for family in FAMILIES},
               'cases': [[*case, answers[number], answers[len(every) + number]] for number, case in enumerate(every)]}
     OUT.write_text(json.dumps(record, indent=0) + '\n', encoding='utf-8')

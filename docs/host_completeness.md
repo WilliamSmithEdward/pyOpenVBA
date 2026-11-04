@@ -315,13 +315,16 @@ not measured, and why.
 - **Any other read-only member.** Its answer in each state that can change
   it, and the error from assigning to it. One read in one state is PARTIAL.
 
-Binding: late binding, `Dim o As Object`, is the default. Run a settable
-property's values bound early too, as a member declared with a specific
-type converts the value in VBA before Excel sees it. `Font.ThemeFont = Null`
-is 13 late and 94 early. The model follows late binding, because it does not
-track a variable's type, so such a row's note says where early binding
-differs. A hidden member, whose answer depends on binding altogether, stays
-PARTIAL until the model tracks it.
+Binding: measure a settable property's values and a collection's Item both
+late bound, `Dim o As Object`, and early bound, `Dim o As Validation`, and
+record both. A member declared with a specific type converts the value in VBA
+before Excel sees it: `ActiveWindow.DisplayGridlines = Null` is 94 early and
+changes nothing late, and `Areas.Item(Null)` is 94 early and 13 late. The model
+does not track a variable's type, so where the two differ it follows early
+binding, which is how `ActiveWindow` and `Range(...).Validation` reach these
+objects in a macro. Assigning to a read-only member can only be late bound,
+since VBA refuses it at compile time when bound early. A hidden member, whose
+answer depends on binding altogether, stays PARTIAL until the model tracks it.
 
 A row whose evidence predates this standard is audited against it. A row
 that fails goes back to PARTIAL until it is fixed.

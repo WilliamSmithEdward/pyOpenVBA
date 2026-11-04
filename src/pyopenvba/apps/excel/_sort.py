@@ -66,15 +66,24 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import (EMPTY, NULL, MISSING, NOTHING, VBAArray, VBAInt, error, to_bool, to_integer,
-                                            to_text)
+from pyopenvba.interpreter._values import (
+    EMPTY,
+    MISSING,
+    NOTHING,
+    VBAArray,
+    VBAInt,
+    error,
+    to_bool,
+    to_integer,
+    to_text,
+)
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import AutoFilter
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
-    from pyopenvba.interpreter._locale import Locale
     from pyopenvba.apps.excel._styles import Style
+    from pyopenvba.interpreter._locale import Locale
 
 ASCENDING, DESCENDING = 1, 2
 GUESS, YES, NO = 0, 1, 2
@@ -384,7 +393,7 @@ def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: boo
     else:
         first, last = area.top + (1 if header else 0), min(area.bottom, used[2])
     block = (Area(area.top, first, area.bottom, last) if across else Area(first, area.left, last, area.right)) if first <= last else None
-    from pyopenvba.apps.excel._arrays import met, PART_OF_AN_ARRAY
+    from pyopenvba.apps.excel._arrays import PART_OF_AN_ARRAY, met
 
     if block is not None:
         arrays, partial_arrays = met(sheet, [block])
@@ -947,8 +956,6 @@ class SortObject(ExcelObject):
 
     @setter("MatchCase")
     def _set_match_case(self, value: object) -> None:
-        if value is NULL:
-            raise error(13)
         self.state.match_case = to_bool(value)
 
     @member

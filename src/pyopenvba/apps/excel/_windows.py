@@ -37,6 +37,7 @@ out no panes, and a freeze it saves there has no split in it.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final
 
@@ -144,6 +145,8 @@ class BookViewState:
     date_grouping: bool = True
     #: What Caption was set to; the workbook's name until it is.
     caption: str | None = None
+    #: The procedure Window.OnWindow names, which nothing here runs: no user activates a window.
+    on_window: str = ""
     #: WindowState, Left, Top, Width and Height once a macro sets them; before, they are the screen's.
     state: int | None = None
     left: float | None = None
@@ -676,8 +679,34 @@ class Pane(ExcelObject):
     def Application(self) -> object:
         return self.window.book.application
 
+    @method
+    def Activate(self) -> object:
+        return True
 
-class Panes(VBACollection, ExcelObject):
+    @member
+    def ScrollRow(self) -> object:
+        return self.window.vba_get("ScrollRow")
+
+    @setter("ScrollRow")
+    def _set_scroll_row(self, value: object) -> None:
+        self.window.vba_set("ScrollRow", value)
+
+    @member
+    def ScrollColumn(self) -> object:
+        return self.window.vba_get("ScrollColumn")
+
+    @setter("ScrollColumn")
+    def _set_scroll_column(self, value: object) -> None:
+        self.window.vba_set("ScrollColumn", value)
+
+    @method
+    def SmallScroll(self, Down: object = MISSING, Up: object = MISSING, ToRight: object = MISSING,  # noqa: N803
+                    ToLeft: object = MISSING) -> object:  # noqa: N803
+        self.window.SmallScroll(Down, Up, ToRight, ToLeft)
+        return True
+
+
+class Panes(VBACollection, ItemDefault, ExcelObject):
     """A window's panes: one, two when it is split one way, four when both."""
 
     vba_type_name = "Panes"
@@ -697,6 +726,16 @@ class Panes(VBACollection, ExcelObject):
         if pane_count(self.window.view()) == 1:
             return [Pane(self.window)]
         raise VBAUnsupportedError("a window's panes, each scrolled on its own, are not implemented; Panes.Count is")
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        """Below 1 is 1004; any number above answers the one pane, 2 measured (tests/fixtures/application_rest.json)."""
+        if int(to_integer(index, "Long")) < 1:
+            raise error(1004, "Item method of Panes class failed")
+        return items[0]
+
+    def vba_iterate(self) -> Iterator[object]:
+        """For Each over a window's panes is 438 (tests/fixtures/application_rest.json)."""
+        raise error(438, "Object doesn't support this property or method")
 
     @member
     def Count(self) -> object:
@@ -894,6 +933,19 @@ class Window(ExcelObject):
     def Activate(self) -> object:
         self.book.application.activate_book(self.book)
         return EMPTY
+
+    @member
+    def OnWindow(self) -> object:
+        """The procedure a window's activation runs, its workbook's name before it; none set is 1004
+        (tests/fixtures/application_rest.json)."""
+        if not self.book.view.on_window:
+            raise error(1004, "Unable to get the OnWindow property of the Window class")
+        return self.book.view.on_window
+
+    @setter("OnWindow")
+    def _set_on_window(self, value: object) -> None:
+        name = to_text(value)
+        self.book.view.on_window = f"{self.book.name}!{name}" if name else ""
 
     @member
     def ActivePane(self) -> object:

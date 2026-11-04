@@ -81,6 +81,42 @@ PROFILE: dict[str, dict[str, object]] = {
 }
 
 
+class HeldNowhere(VBACollection, Created):
+    """A list of what a machine has installed or has used, which the model has none of: asking for an item is 9
+    (tests/fixtures/application_rest.json)."""
+
+    def __init__(self, application: Application, type_name: str) -> None:
+        self.application = application
+        self.vba_type_name = type_name
+
+    def vba_items(self) -> list[object]:
+        return []
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        raise error(9, 'Subscript out of range')
+
+    @member
+    def Application(self) -> object:
+        return self.application
+
+    @member
+    def Parent(self) -> object:
+        return self.application
+
+
+class UsedObjects(HeldNowhere):
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        raise VBAUnsupportedError('an item of UsedObjects, which answers from what the session has used, is not '
+                                  'implemented')
+
+
+class RecentFiles(HeldNowhere):
+    @member
+    def Maximum(self) -> object:
+        """As the measuring machine's Excel has it; setting it would change a user's options."""
+        return VBAInt(50, 'Long')
+
+
 class ProfileObject(Created):
     """One of Application's objects of options, read only (see PROFILE)."""
 

@@ -949,6 +949,85 @@ class Application(ExcelObject):
     def Repeat(self) -> object:
         raise error(1004, "Repeat method of Application class failed")
 
+    # -- what is left with no screen here (tests/fixtures/application_rest.json)
+
+    def _held_nowhere(self, type_name: str) -> object:
+        from pyopenvba.apps.excel._application_more import HeldNowhere
+
+        return HeldNowhere(self, type_name)
+
+    @member
+    def AddIns(self) -> object:
+        return self._held_nowhere('AddIns')
+
+    @member
+    def AddIns2(self) -> object:
+        return self._held_nowhere('AddIns2')
+
+    @member
+    def COMAddIns(self) -> object:
+        return self._held_nowhere('COMAddIns')
+
+    @member
+    def UsedObjects(self) -> object:
+        from pyopenvba.apps.excel._application_more import UsedObjects
+
+        return UsedObjects(self, 'UsedObjects')
+
+    @member
+    def FileExportConverters(self) -> object:
+        return self._held_nowhere('FileExportConverters')
+
+    @member
+    def RecentFiles(self) -> object:
+        from pyopenvba.apps.excel._application_more import RecentFiles
+
+        return RecentFiles(self, 'RecentFiles')
+
+    @member
+    def OnWindow(self) -> object:
+        """The procedure a window's activation runs, its workbook's name before it, which nothing here runs."""
+        return self.settings.get('OnWindow', '')
+
+    @setter('OnWindow')
+    def _set_on_window(self, value: object) -> None:
+        name = to_text(value)
+        self.settings['OnWindow'] = f"{self._require_book().name}!{name}" if name else ''
+
+    @method
+    def RecordMacro(self, BasicCode: object = MISSING, XlmCode: object = MISSING) -> object:  # noqa: N803
+        """Does nothing, no macro being recorded."""
+        return EMPTY
+
+    @method
+    def RegisterXLL(self, Filename: object = MISSING) -> object:  # noqa: N803
+        """False for a file that is not there; one that is would load code, which the model never does."""
+        from pyopenvba.apps.excel._application_more import required
+
+        required(Filename)
+        self.outside('Application.RegisterXLL')
+        if Path(to_text(Filename).replace('\\', '/')).exists():
+            raise VBAUnsupportedError('registering an XLL, which loads its code, is not implemented')
+        return False
+
+    @method
+    def DDETerminate(self, Channel: object = MISSING) -> object:  # noqa: N803
+        """No channel is ever open here, and Excel lets one that is not go by."""
+        return EMPTY
+
+    @method
+    def DDEExecute(self, Channel: object = MISSING, String: object = MISSING) -> object:  # noqa: N803
+        return EMPTY
+
+    @method
+    def DDEPoke(self, Channel: object = MISSING, Item: object = MISSING, Data: object = MISSING) -> object:  # noqa: N803
+        return EMPTY
+
+    @method
+    def GetPhonetic(self, Text: object = MISSING) -> object:  # noqa: N803
+        """Empty, with no Japanese input method on the measuring machine, or the model."""
+        return ''
+
     # -- what Application reads with no screen here (tests/fixtures/application_objects.json)
 
     def _profile(self, type_name: str) -> object:

@@ -212,11 +212,19 @@ def formula_array(target: Range, formula_of: Callable[[int, int], str]) -> objec
     held = has_array(target)
     if held is True:
         found = array_at(target.sheet, first.top, first.left)
-        # Past the array's block it reads as any cells do (tests/fixtures/range_more_blocks.json).
-        if found is None or all(found[1].contains(area.top, area.left) and found[1].contains(area.bottom, area.right)
-                                 for area in target.areas):
-            return formula_of(*(found[0] if found is not None else (first.top, first.left)))
-    elif held is NULL:
+        if found is None:
+            return formula_of(first.top, first.left)
+        # Empty cells past the array's block change nothing, and any other makes it Null
+        # (tests/fixtures/range_more_blocks.json).
+        for area in target.areas:
+            if area.rows * area.columns > 1048576:
+                raise VBAUnsupportedError("FormulaArray read over more than 1,048,576 cells is not implemented")
+            for row in range(area.top, area.bottom + 1):
+                for column in range(area.left, area.right + 1):
+                    if not found[1].contains(row, column) and formula_of(row, column):
+                        return NULL
+        return formula_of(*found[0])
+    if held is NULL:
         return NULL
     texts: set[str] = set()
     for area in target.areas:

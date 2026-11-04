@@ -1872,6 +1872,29 @@ class Chart(ElementProperties, HeldPart):
     held_free = frozenset({'application', 'creator'})
     held_past_sheet = True
 
+    def _book(self) -> Any:
+        found = getattr(self, 'book', None)
+        return found if found is not None else self.sheet.book
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, print_out
+
+        return print_out(self, 'Chart', self._book(), None, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter,
+                                                                   PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Chart', self._book(), None,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
+
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape
         self.state = state(sheet, shape)

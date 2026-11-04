@@ -2607,10 +2607,19 @@ class Workbook(ExcelObject):
                  Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
                  Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
                  IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
-        from pyopenvba.apps.excel._windows import print_out
+        from pyopenvba.apps.excel._output import given_arguments, print_out
 
-        print_out(self, None, Preview, ActivePrinter, PrintToFile)
-        return EMPTY
+        return print_out(self, 'Workbook', self, None, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName, IgnorePrintAreas=IgnorePrintAreas))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Workbook', self, None,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
     @method
     def Save(self) -> object:
@@ -3310,6 +3319,15 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
         self.book = book
         #: Workbook.Worksheets, which passes over chart sheets (see _chart_sheets).
         self.worksheets = worksheets
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, print_out
+
+        return print_out(self, 'Sheets', self.book, None, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName, IgnorePrintAreas=IgnorePrintAreas))
 
     def vba_items(self) -> list[object]:
         return list(self.book.sheets_ if self.worksheets else self.book.tabs())
@@ -4284,10 +4302,19 @@ class Worksheet(ExcelObject):
                  Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
                  Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
                  IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
-        from pyopenvba.apps.excel._windows import print_out
+        from pyopenvba.apps.excel._output import given_arguments, print_out
 
-        print_out(self.book, self, Preview, ActivePrinter, PrintToFile)
-        return EMPTY
+        return print_out(self, 'Worksheet', self.book, self, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName, IgnorePrintAreas=IgnorePrintAreas))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Worksheet', self.book, self,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
@@ -6595,10 +6622,19 @@ class Range(ExcelObject):
     def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
                  Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
                  Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
-        from pyopenvba.apps.excel._windows import print_out
+        from pyopenvba.apps.excel._output import given_arguments, print_out
 
-        print_out(self.sheet.book, self.sheet, Preview, ActivePrinter, PrintToFile)
-        return EMPTY
+        return print_out(self, 'Range', self.sheet.book, self.sheet, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Range', self.sheet.book, self.sheet,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
     def _within(self, area: Area) -> bool:
         return any(one.top <= area.top and one.left <= area.left and one.bottom >= area.bottom and one.right >= area.right for one in self.areas)

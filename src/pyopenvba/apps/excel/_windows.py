@@ -610,29 +610,6 @@ def brought_forward(application: Application, book: Workbook) -> None:
     order.insert(0, book)
 
 
-def print_out(book: Workbook, sheet: Worksheet | None, preview: object, printer: object, to_file: object) -> None:
-    """A print that goes nowhere: the model has no printer, so all a macro sees of it is BeforePrint. A sheet not active
-    in its workbook is active for the event and made active again without one, and a hidden sheet is refused
-    (tests/fixtures/more_events.json print_*)."""
-    if preview is not MISSING and to_bool(preview):
-        raise VBAUnsupportedError("PrintOut with Preview, which waits for someone at the screen, is not implemented")
-    if printer is not MISSING:
-        raise VBAUnsupportedError("PrintOut naming a printer is not implemented")
-    if sheet is not None and sheet.visible != -1:  # xlSheetVisible
-        raise error(1004, "PrintOut method of Worksheet class failed")
-    active = book.active_sheet
-    moving = sheet is not None and active is not sheet
-    if sheet is not None and moving:
-        if book.application.active_book is not book:
-            raise VBAUnsupportedError("PrintOut of a sheet not active in a workbook behind is not implemented")
-        sheet.Activate()
-    going_ahead = _events.before_print(book)
-    if moving and active is not None:
-        book.active_sheet_index = book.sheets_.index(active)
-    if going_ahead and to_file is not MISSING and to_bool(to_file):
-        raise VBAUnsupportedError("PrintOut to a file, which a printer driver writes, is not implemented")
-
-
 def window_of(book: Workbook) -> Window:
     """The workbook's one window, the same object each time it is asked for."""
     if book.view.window is None:

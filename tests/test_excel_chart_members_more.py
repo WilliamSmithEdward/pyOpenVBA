@@ -16,9 +16,9 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_members_more.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Refused, which each case below checks: a point's own shadow, the fonts of some of a title's characters, a filtered category, changing or selecting leader lines, a data table's Border and Format, and
+#: Refused, which each case below checks: a point's own shadow, the fonts of some of a title's characters, a filtered category, changing or selecting leader lines, and
 #: where a slice lies, which needs the chart's layout.
-REFUSED = ('.Points(2).Shadow =', '.Font.Bold', 'IsFiltered = True', 'LeaderLines.Border.Color = 255', 'LeaderLines.Select', 'DataTable.Border',
+REFUSED = ('.Points(2).Shadow =', '.Font.Bold', 'IsFiltered = True', 'LeaderLines.Border.Color = 255', 'LeaderLines.Select',
            'PieSliceLocation(xlHorizontalCoordinate) ', 'PieSliceLocation(xlVerticalCoordinate)')
 
 def _refused(name: str) -> bool:

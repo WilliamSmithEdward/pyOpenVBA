@@ -18,7 +18,6 @@ GAPS: dict[str, str] = {
     'chart_type_change': "a series' own chart type",
     'chart_sheet': 'moving a chart to a chart sheet',
     'shape_text': "the font of some of a shape's characters",
-    'query_table_add': 'Workbook.Connections with a query table in the workbook',
 }
 
 

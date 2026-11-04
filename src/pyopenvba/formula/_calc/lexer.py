@@ -201,9 +201,17 @@ class _Lexer:
         upper = self.text[self.position : self.position + 14].upper()
         for code in ERROR_CODES:
             if upper.startswith(code):
-                self.emit(Kind.OPERAND, self.position + len(code), ErrorLiteral(code))
+                end = self.position + len(code)
+                self.emit(Kind.OPERAND, self.left_by_deleted_sheet(end) if code == "#REF!" else end, ErrorLiteral(code))
                 return
         raise self.fail("not an error Excel has")
+
+    def left_by_deleted_sheet(self, start: int) -> int:
+        """Where a #REF! ending at ``start`` ends with what a deleted sheet leaves after it, #REF!A1 for Gone!A1, which
+        Excel reads as the error (tests/fixtures/sheet_delete_refs.json)."""
+        left = _ROWS.match(self.text, start) or _AREA.match(self.text, start) or _CELL.match(self.text, start) \
+            or _COLUMNS.match(self.text, start)
+        return left.end() if left else start
 
     def operand(self) -> None:
         text = self.text
@@ -297,7 +305,7 @@ class _Lexer:
         name or a call."""
         text = self.text
         if text.startswith("#REF!", start):
-            return ErrorReference(prefix), start + 5
+            return ErrorReference(prefix), self.left_by_deleted_sheet(start + 5)
         rows = _ROWS.match(text, start)
         if rows:
             axis = _axis(rows, is_row=True)

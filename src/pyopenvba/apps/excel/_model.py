@@ -25,9 +25,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
-from pyopenvba.formula._parse import shift_text
+from pyopenvba.formula._parse import has_dangling_reference, shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._clipboard_ends import ENDING
@@ -1782,6 +1782,9 @@ class Workbook(ExcelObject):
         self.held_kinds: set[str] = set()
         #: What the file's query tables said when read or last saved, None where it has none (see _query_tables).
         self.query_baseline: list[str] | None = None
+        #: The connections of the workbook's query tables, and the names a deletion cost the file (see _query_tables).
+        self.text_links: list[Any] = []
+        self.query_names_lost: list[Any] = []
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
         #: None until a formula is written, when the formulas it has teach it.
@@ -2334,10 +2337,6 @@ class Workbook(ExcelObject):
         """The data connections the file keeps (see _connections)."""
         from pyopenvba.apps.excel._connections import Connections
 
-        from pyopenvba.apps.excel._query_tables import connections_stale
-
-        if connections_stale(self):
-            raise VBAUnsupportedError("Workbook.Connections with a query table changed since the file was read is not implemented")
         return Connections(self)
 
     @member
@@ -3001,8 +3000,10 @@ class Workbook(ExcelObject):
         (tests/fixtures/pivot_shared_caches/ refresh_all_three, refresh_all_reordered, refresh_all_disabled;
         tests/fixtures/calculate_order.json refresh_all_once)."""
         from pyopenvba.apps.excel._pivot_refresh import refresh as refresh_cache
+        from pyopenvba.apps.excel._query_tables import refresh_all
         from pyopenvba.apps.excel._refresh import refresh
 
+        refresh_all(self)
         for entry in list(self.queries_.entries):
             refresh(self, entry.name)
         used = {id(table.cache) for sheet in self.sheets_ for table in sheet.pivot_tables}
@@ -4605,6 +4606,9 @@ class Range(ExcelObject):
         """
         value = _not_null(value)
         _within_length(value)
+        if isinstance(value, str) and has_dangling_reference(value):
+            # #REF!A1 is what Excel shows for a deleted sheet's cell, and not a formula it takes (tests/fixtures/sheet_delete_refs.json).
+            raise error(1004, "Application-defined or object-defined error")
         self._formula_written(value)
 
     def _formula_written(self, value: object, *, dynamic: bool = False) -> None:
@@ -8129,6 +8133,10 @@ def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
         return formula
     from pyopenvba.apps.excel._external_links import shown as linked_shown
 
+    if "[0]!" in formula:
+        # A name of a deleted sheet, as this workbook's: a file holds [0]!Name, and Excel shows the workbook's name as
+        # it is now (tests/fixtures/sheet_delete_refs.json).
+        formula = formula.replace("[0]!", quote_sheet(sheet.book.name) + "!")
     formula = linked_shown(sheet.book, formula)
     if not sheet.tables:
         return formula

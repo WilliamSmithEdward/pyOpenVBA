@@ -301,6 +301,9 @@ def _formula(text: str, old: str, wanted: str, budget: Budget, *, name_expressio
                 raise unsupported('with qualified structured, external or three-dimensional references')
             if token.kind == 'op' and token.text == ':':
                 raise unsupported('with unmeasured reference operators')
+            if token.kind == 'error' and owner.upper() == '#REF':
+                # What a deleted sheet left, #REF!A1, names no sheet to rename.
+                continue
             if owner and token.kind not in ('ref', 'name'):
                 raise unsupported('with qualified errors or unrecognized qualifiers')
         references = False

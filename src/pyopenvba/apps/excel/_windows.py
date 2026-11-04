@@ -943,6 +943,8 @@ class Window(ExcelObject):
         """The selected sheets, in tab order (tests/fixtures/sheet_groups.json)."""
         from pyopenvba.apps.excel._sheet_groups import SheetGroup
 
+        if self.book.active_chart_sheet is not None:
+            return SheetGroup(self.book, [self.book.active_chart_sheet])
         return SheetGroup(self.book, self.book.selected())
 
     @member

@@ -224,6 +224,9 @@ def _charted(book: Workbook) -> tuple[set[str], set[str]]:
             parts |= {owner.drawing_part, rels_part(owner.drawing_part), rels_part(owner.part_name)}
             for chart in owner.chart_states.values():
                 parts |= {chart.part, rels_part(chart.part)}
+    for chart_sheet in book.chart_sheets:
+        parts |= {chart_sheet.drawing_part, rels_part(chart_sheet.drawing_part), rels_part(chart_sheet.part_name),
+                  chart_sheet.state.part, rels_part(chart_sheet.state.part)}
     return sheets, parts
 
 

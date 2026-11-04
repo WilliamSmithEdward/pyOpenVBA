@@ -13,15 +13,17 @@ def materialize(book: Workbook) -> None:
         book.code_name = "ThisWorkbook"
     reserved = book.used_code_names
     reserved.add(book.code_name.casefold())
-    reserved.update(sheet.code_name.casefold() for sheet in book.sheets_ if sheet.code_name)
+    reserved.update(sheet.code_name.casefold() for sheet in book.tabs() if sheet.code_name)
     if book.project_runtime is not None:
         reserved.update(book.project_runtime.modules)
-    for sheet in book.sheets_:
+    for sheet in book.tabs():
         if not sheet.code_name:
+            # A chart sheet and a worksheet take numbers from one count: Chart1 then Sheet2
+            # (tests/fixtures/chart_sheets/chart_sheets.json).
             number = 1
-            while f"sheet{number}" in reserved:
+            while f"sheet{number}" in reserved or f"chart{number}" in reserved:
                 number += 1
-            sheet.code_name = f"Sheet{number}"
+            sheet.code_name = f"{'Sheet' if isinstance(sheet, Worksheet) else 'Chart'}{number}"
             reserved.add(sheet.code_name.casefold())
 
 

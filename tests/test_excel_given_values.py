@@ -2,9 +2,10 @@
 and Characters, typed and late bound: the error, and what the property then reads (scripts/measure_given_values.py,
 tests/fixtures/given_value_rounds.json).
 
-Each round's values were new, with the model's answers written down first; rules were then fixed against the round, so all but the
-last are now only regressions. The scores say how each did when it counted. Border.TintAndShade and Borders.TintAndShade stay out:
-what they read depends on what was given to earlier borders of the book, and they are PARTIAL.
+Each round's values were new, with the model's answers written down first; rules were fixed against each round up to the fifth, so
+those are now only regressions. The sixth ran on the fifth's code, on enum numbers past what was measured, separate areas, whole rows
+and a sample of whole columns. A row goes VERIFIED only with no difference in both, and with no reported gap in reach. The scores name
+what missed, and those members' cases are left out here: their rows are PARTIAL.
 """
 from __future__ import annotations
 
@@ -17,8 +18,7 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/given_value_rounds.json').read_text(encoding='utf-8'))
-LEFT_OUT = {'Border.TintAndShade', 'Borders.TintAndShade'}
-MEMBERS = sorted({key for one in RECORD['rounds'].values() for key in one['answers']} - LEFT_OUT)
+MEMBERS = sorted({key for one in RECORD['rounds'].values() for key in one['answers']})
 
 
 def _source(owner: str, member: str, typed: bool, round_: dict[str, Any]) -> str:
@@ -57,7 +57,8 @@ def test_each_member_as_excel_answered(key: str, name: str, binding: str) -> Non
     assert _differences(key, name, binding) == []
 
 
-def test_the_last_round_scored_clean_but_for_the_two_left_out() -> None:
-    last = RECORD['scores']['fifth']
-    assert set(last['wrong']) == LEFT_OUT
-    assert last['comparisons'] == 2860
+def test_the_scores_name_the_misses_and_none_is_replayed() -> None:
+    fifth, sixth = RECORD['scores']['fifth'], RECORD['scores']['sixth']
+    assert set(fifth['wrong']) == {'Border.TintAndShade', 'Borders.TintAndShade'}
+    assert fifth['comparisons'] == 2860 and sixth['comparisons'] == 3888
+    assert not set(sixth['wrong']) & set(MEMBERS)

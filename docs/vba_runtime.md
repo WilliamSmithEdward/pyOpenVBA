@@ -142,7 +142,7 @@ breaks, and Excel's own placing of text depends on its printer driver. The model
 whole, so `C:/out2` is not in `C:/out`, and UNC and device paths are refused unless the folder is one. With no `folders`, no file passes. With `sandbox=False` there
 is no limit. A `PrintOut` with no file runs its function under the sandbox, as registering it is the grant, so a macro can make your function run.
 
-A chart in a frame, `ChartObject.Chart`, prints as a chart sheet does, but Excel makes no file of one: past its argument errors `ExportAsFixedFormat` raises -2147417848, or -2147024773 with no name, and the function is not called.
+A chart in a frame, `ChartObject.Chart`, prints as a chart sheet does, but Excel makes no file of one: past its argument errors `ExportAsFixedFormat` raises -2147417848, or -2147024773 with no name, and the function is not called. This refusal is Excel's own behaviour, measured bound late. Bound typed, Excel stops the macro's run there, which could not be measured, so the model answers typed as it does late: a stated assumption.
 
 **With no function**, `ExportAsFixedFormat` reports itself. A plain `PrintOut` goes nowhere, as it always has, and a macro sees only `BeforePrint`; `Preview`, a printer and to-file report
 themselves. `Window.PrintOut` is 1004 in Excel, so it never reaches a function.

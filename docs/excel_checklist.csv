@@ -1364,7 +1364,7 @@ Font,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/format_properties.
 Font,Underline,property,As Variant,,PARTIAL,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Cells are measured. A chart's font is the gap: it reports itself in places a macro reaches, such as an imported chart or an element's font beside the chart area's."
 Font2,Allcaps,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Measured on a shape in a file.
-Font2,AutorotateNumbers,property,As MsoTriState,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
+Font2,AutorotateNumbers,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
 Font2,BaselineOffset,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Bold,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Caps,property,As MsoTextCaps,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
@@ -1381,15 +1381,15 @@ Font2,Kerning,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests
 Font2,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/shape_font2_paint.json; tests/test_excel_shape_font2_paint.py,"Visible, colours, Weight, DashStyle 1 and 4, Style 2 and Transparency, over all of the text or part. Patterns and other dashes report themselves."
 Font2,Name,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,NameAscii,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,NameComplexScript,property,As String,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
-Font2,NameFarEast,property,As String,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
-Font2,NameOther,property,As String,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
+Font2,NameComplexScript,property,As String,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
+Font2,NameFarEast,property,As String,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
+Font2,NameOther,property,As String,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
 Font2,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Type on letters with none; a file's reflection reports itself.
 Font2,Shadow,"property, read-only",As ShadowFormat,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,"Visible, as read from a file. No sets here."
 Font2,Size,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Smallcaps,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,SoftEdgeFormat,property,As MsoSoftEdgeType,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads 0 on letters with none; a file's soft edge reports itself.
+Font2,SoftEdgeFormat,property,As MsoSoftEdgeType,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads 0 on letters with none; a file's soft edge reports itself.
 Font2,Spacing,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Strike,property,As MsoTextStrike,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,StrikeThrough,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
@@ -1397,7 +1397,7 @@ Font2,Subscript,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json
 Font2,Superscript,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,UnderlineColor,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,"RGB, as read from a file's uFill. No sets."
 Font2,UnderlineStyle,property,As MsoTextUnderlineType,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,WordArtformat,property,As MsoPresetTextEffect,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
+Font2,WordArtformat,property,As MsoPresetTextEffect,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads only.
 FormatColor,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Application itself on each way measured; assigning to it is error 450.
 FormatColor,Color,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"The colour as it shows, a theme colour with its tint worked out."
 FormatColor,ColorIndex,property,As XlColorIndex,no setter,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,A colour scale's criterion colour.
@@ -3399,12 +3399,12 @@ TextFrame2,MarginTop,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json
 TextFrame2,NoTextRotation,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's upright; any value but 0 turns it on.
 TextFrame2,Orientation,property,As MsoTextOrientation,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same orientation TextFrame reads and sets; 7 raises -2147024809.
 TextFrame2,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"Shape, by the way it is reached; Set o.Parent is the error set_parent_error gives."
-TextFrame2,PathFormat,property,As MsoPathFormat,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads 0 with no warp; a file's warp reports itself.
+TextFrame2,PathFormat,property,As MsoPathFormat,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads 0 with no warp; a file's warp reports itself.
 TextFrame2,Ruler,"property, read-only",As Ruler2,,MISSING,,
 TextFrame2,TextRange,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 TextFrame2,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
 TextFrame2,VerticalAnchor,property,As MsoVerticalAnchor,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"Top, middle or bottom, the anchor TextFrame's VerticalAlignment reads; the baseline anchors and others raise -2147024809."
-TextFrame2,WarpFormat,property,As MsoWarpFormat,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads 0 with no warp; a file's warp reports itself.
+TextFrame2,WarpFormat,property,As MsoWarpFormat,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads 0 with no warp; a file's warp reports itself.
 TextFrame2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 TextFrame2,WordWrap,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's wrap; any value but 0 wraps.
 TextRange2,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
@@ -3428,7 +3428,7 @@ TextRange2,InsertBefore,method,InsertBefore([NewText As String]) As TextRange2,,
 TextRange2,InsertChartField,method,"InsertChartField(ChartFieldType As MsoChartFieldType, [Formula As String], [Position As Long]) As TextRange2",,MISSING,,
 TextRange2,InsertSymbol,method,"InsertSymbol(FontName As String, CharNumber As Long, [Unicode As MsoTriState]) As TextRange2",,MISSING,,
 TextRange2,Item,method,Item(Index As Variant) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,By what the range counts.
-TextRange2,LanguageID,property,As MsoLanguageID,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads for the two languages measured; others report themselves. No sets.
+TextRange2,LanguageID,property,As MsoLanguageID,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads for the two languages measured; others report themselves. No sets.
 TextRange2,Length,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Measured.
 TextRange2,Lines,"property, read-only",As TextRange2,,MISSING,,
 TextRange2,LtrRun,method,LtrRun(),,MISSING,,

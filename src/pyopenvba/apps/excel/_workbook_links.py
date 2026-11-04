@@ -156,7 +156,11 @@ def sources(book: Workbook, kind: object) -> object:
         if book.foreign_links:
             raise VBAUnsupportedError("LinkSources of a workbook with OLE or DDE links is not implemented")
         return EMPTY
-    paths: list[object] = [linked.path(book.path) for linked in links_of(book)]
+    # Until a macro fetches a Name every link of the file is listed; after that, only those a cell's formula names itself,
+    # for as long as the workbook is open (tests/fixtures/parts_loss/parts_loss.json, sequences).
+    held = {reference.number for formula, _ in _cell_formulas(book) for reference in references_in(formula)}
+    paths: list[object] = [linked.path(book.path) for number, linked in enumerate(links_of(book), 1)
+                           if not book.names_fetched or number in held]
     return VBAArray([(1, len(paths))], items=paths) if paths else EMPTY
 
 
@@ -234,14 +238,18 @@ def _sheet_names(path: Path) -> list[str]:
     return [decode(unescape(name)) for name in re.findall(r'<sheet\b[^>]*?\bname="([^"]*)"', text)]
 
 
-def formulas_of(book: Workbook) -> Iterator[tuple[str, Worksheet | None]]:
-    """Every formula of the workbook's cells and names, with the sheet it is read on, None for a workbook's name."""
-    from pyopenvba._a1 import split_sheet as split
-
+def _cell_formulas(book: Workbook) -> Iterator[tuple[str, Worksheet]]:
     for sheet in book.sheets_:
         for cell in sheet.cells_.values():
             if cell.formula:
                 yield cell.formula, sheet
+
+
+def formulas_of(book: Workbook) -> Iterator[tuple[str, Worksheet | None]]:
+    """Every formula of the workbook's cells and names, with the sheet it is read on, None for a workbook's name."""
+    from pyopenvba._a1 import split_sheet as split
+
+    yield from _cell_formulas(book)
     for entry in book.names_.entries:
         scope = split(entry.name)[0]
         yield entry.refers_to, book.sheet_named(scope) if scope else None

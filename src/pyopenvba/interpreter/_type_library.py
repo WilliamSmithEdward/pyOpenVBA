@@ -215,6 +215,18 @@ def late_error(found: LibraryClass, member: str, positional: int, named: Sequenc
     return None
 
 
+def late_let_error(found: LibraryClass, member: str, number: int, is_null: bool, is_text: bool) -> int | None:
+    """What a property set bound late answers for what it answers typed: 0 for no error, None if the typed answer stands."""
+    from pyopenvba.interpreter._late_lets import LATE_LETS
+
+    measured = LATE_LETS.get(f"{found.name.lstrip('_').lower()}.{member.lower()}", {})
+    if number == 94 and is_null:
+        return measured.get('null')
+    if number == 13 and is_text:
+        return measured.get('text')
+    return measured.get('five') if number == 5 else None
+
+
 def build() -> tuple[str, dict[str, str]]:
     """The Office build and the library versions the table was read from."""
     from pyopenvba.interpreter._type_library_data import EXCEL_BUILD, VERSIONS

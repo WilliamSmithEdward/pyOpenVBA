@@ -64,6 +64,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._rich_text import Run
     from pyopenvba.apps.excel._udf import EvaluationOrigin
     from pyopenvba.powerquery._opc import Entry
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
@@ -836,7 +837,7 @@ class Application(ExcelObject):
     @member
     def ActiveSheet(self) -> object:
         book = self.active_book
-        return book.active_sheet if book is not None else NOTHING
+        return book.vba_get("ActiveSheet") if book is not None else NOTHING
 
     @member
     def ActiveWindow(self) -> object:
@@ -1523,7 +1524,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                 return name
 
     def vba_items(self) -> list[object]:
-        return list(self.books)
+        """An add-in is reached by its name and is not one of these (tests/fixtures/parts_loss/parts_loss.json, sequences)."""
+        return [book for book in self.books if not book.is_addin]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
@@ -1536,7 +1538,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
     @method
     def Add(self, Template: object = MISSING) -> object:
         if isinstance(Template, str):
-            return self._from_template(Path(self._not_found(Template)))
+            return self._from_template(Path(self._not_found(Template)), added=True)
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
         book = Workbook(self.application, self.next_name("Book" if Template is MISSING else "Sheet"))
@@ -1598,26 +1600,33 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                               "is not valid. Verify that the file has not been corrupted and that the file extension "
                               "matches the format of the file.") from None
 
-    def _from_template(self, path: Path) -> Workbook:
-        """The new book a file makes as a template: its contents, under the file's name and a number that goes on through
-        the session, with no path, as an ordinary workbook of its kind (tests/fixtures/template_opens.json)."""
+    def _from_template(self, path: Path, *, added: bool = False) -> Workbook:
+        """The new book a file makes as a template: its contents, with no path, as an ordinary workbook of its kind
+        (tests/fixtures/template_opens.json), under the file's name and a number. Open's number goes on through the session
+        across templates, Add's is the lowest free for that name, and neither takes a name in use
+        (tests/fixtures/parts_loss/parts_loss.json, sequences)."""
         from pyopenvba.apps.excel._io import prepare_format
 
         suffix = path.suffix.lower()
         if suffix not in (".xlsx", ".xlsm", ".xltx", ".xltm"):
             raise VBAUnsupportedError(f"A new workbook from a {suffix} file is not implemented")
         book = self.open_file(path)
-        self.templates_used += 1
+        names = {other.name.casefold() for other in self.books}
+        number = 1 if added else self.templates_used + 1
+        while f"{path.stem}{number}".casefold() in names:
+            number += 1
+        if not added:
+            self.templates_used = number
         prepare_format(book, 52 if suffix in (".xlsm", ".xltm") else 51)
-        book.name, book.path = f"{path.stem}{self.templates_used}", ""
+        book.name, book.path = f"{path.stem}{number}", ""
         book.saved = True
         return book
 
     def _not_found(self, name: object) -> str:
         self.application.outside("Opening a file")
         given = to_text(name)
-        if Path(given).is_file():
-            return given
+        if Path(on_disk(given)).is_file():
+            return on_disk(given)
         raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
 
     @method
@@ -1722,7 +1731,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
 
         opened(book)
         before = self.application.active_book
-        self.application.activate_book(book, events=False)
+        if before is None or not book.is_addin:
+            self.application.activate_book(book, events=False)
         _events.opened(book)
         if self.application.active_book is book:
             _events.book_activated(book, before)
@@ -1742,11 +1752,11 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         that cancels, and then nothing closes. Only the front book's window then raises its leaving, and none comes in
         behind it. A macro in one of them ends there. With alerts off changes are lost; with
         them on Excel asks, which is not modelled (tests/fixtures/workbooks_close.json)."""
-        books = list(self.books)
+        books = [book for book in self.books if not book.is_addin]
         for book in books:
             if not _events.before_close(book):
                 return True
-        if self.application.display_alerts and any(not book.saved for book in self.books):
+        if self.application.display_alerts and any(not book.saved for book in books):
             raise VBAUnsupportedError("Workbooks.Close with a changed workbook and alerts on needs a save prompt; "
                                       "set DisplayAlerts False or save first")
         running = self.application.running_book()
@@ -1768,7 +1778,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             self.application.window_order.remove(book)
         if self.application.active_book is book:
             # The window behind comes to the front, measured.
-            self.application.active_book = front_to_back(self.application)[0] if self.books else None
+            behind = front_to_back(self.application)
+            self.application.active_book = behind[0] if behind else None
 
 
 def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., None]]:
@@ -1820,6 +1831,13 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: The chart sheets the file has, its tabs in order where it has any, and the chart sheet that is active (see
+        #: _chart_sheets). sheets_ holds worksheets alone.
+        self.chart_sheets: list[ChartSheet] = []
+        self.file_tabs: list[Worksheet | ChartSheet] = []
+        self.active_chart_sheet: ChartSheet | None = None
+        #: Whether a macro has fetched a Name: LinkSources then leaves out links no cell refers to (see _workbook_links).
+        self.names_fetched = False
         self.project_runtime: Interpreter | None = None
         #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
         self.format_code: int | None = None
@@ -2135,20 +2153,38 @@ class Workbook(ExcelObject):
     EnvelopeVisible, _set_envelope_visible = _session_property("EnvelopeVisible")
     Excel8CompatibilityMode, _set_excel8_compatibility_mode = _session_property("Excel8CompatibilityMode")
     HighlightChangesOnScreen, _set_highlight_changes_on_screen = _session_property("HighlightChangesOnScreen")
-    IsAddin, _ = _session_property("IsAddin")
+
+    @property
+    def is_addin(self) -> bool:
+        return bool(self.session_properties.get("IsAddin", False))
+
+    @member
+    def IsAddin(self) -> object:
+        return self.is_addin
 
     @setter("IsAddin")
-    def set_is_addin(self, value: object) -> None:
-        """An add-in stays open and its macros run, but it is out of the Workbooks collection, and back at its end when
-        it stops being one (tests/fixtures/workbooks_close.json)."""
+    def _set_is_addin(self, value: object) -> None:
+        """An add-in stays open and its macros run, but it leaves Workbooks and has no window, the next window's book taking
+        over; turned back it is active, at the end of Workbooks (tests/fixtures/parts_loss/parts_loss.json, sequences;
+        tests/fixtures/workbooks_close.json)."""
+        from pyopenvba.apps.excel._windows import front_to_back
         from pyopenvba.apps.excel._workbook_settings import set_session_value
 
+        was = self.is_addin
         set_session_value(self, "IsAddin", value)
-        books = self.application.workbooks_
-        if to_bool(value) and self in books.books:
-            books.remove(self)
-        elif not to_bool(value) and self not in books.books:
-            books.books.append(self)
+        if self.is_addin == was:
+            return
+        if not self.is_addin:
+            books = self.application.workbooks_.books
+            if self in books:
+                books.remove(self)
+            books.append(self)
+            self.application.activate_book(self, events=False)
+        elif self.application.active_book is self:
+            others = front_to_back(self.application)
+            if others:
+                self.application.activate_book(others[0], events=False)
+
     IsInplace, _set_is_inplace = _session_property("IsInplace")
     KeepChangeHistory, _set_keep_change_history = _session_property("KeepChangeHistory")
     ListChangesOnNewSheet, _set_list_changes_on_new_sheet = _session_property("ListChangesOnNewSheet")
@@ -2384,8 +2420,14 @@ class Workbook(ExcelObject):
 
     @member
     def Charts(self, Index: object = MISSING) -> object:
-        """No chart sheets: a workbook with one is refused as it opens (tests/fixtures/empty_collections.json)."""
-        return self._empty("Charts", Index)
+        """The chart sheets (see _chart_sheets); of a workbook with none, an empty collection
+        (tests/fixtures/empty_collections.json)."""
+        if not self.chart_sheets:
+            return self._empty("Charts", Index)
+        from pyopenvba.apps.excel._chart_sheets import ChartSheets
+
+        found = ChartSheets(self)
+        return found if Index is MISSING else found.vba_get("Item", [Index])
 
     @member
     def Excel4MacroSheets(self, Index: object = MISSING) -> object:
@@ -2417,11 +2459,12 @@ class Workbook(ExcelObject):
 
     @member
     def Worksheets(self, Index: object = MISSING) -> object:
-        return self.Sheets(Index)
+        sheets = Sheets(self, worksheets=True)
+        return sheets if Index is MISSING else sheets.vba_get("Item", [Index])
 
     @member
     def ActiveSheet(self) -> object:
-        sheet = self.active_sheet
+        sheet = self.active_chart_sheet or self.active_sheet
         return sheet if sheet is not None else NOTHING
 
     @member
@@ -2430,6 +2473,8 @@ class Workbook(ExcelObject):
         (tests/fixtures/active_chart.json)."""
         from pyopenvba.apps.excel._charts import active_chart
 
+        if self.active_chart_sheet is not None:
+            return self.active_chart_sheet
         return active_chart(self.active_sheet) if self.active_sheet is not None else NOTHING
 
     @member
@@ -3164,11 +3209,20 @@ class Workbook(ExcelObject):
             return None
         return self.sheets_[min(self.active_sheet_index, len(self.sheets_) - 1)]
 
+    def tabs(self) -> list[Worksheet | ChartSheet]:
+        """The tabs in order, which is what Sheets, Index and a file's activeTab and localSheetId count."""
+        return self.file_tabs if self.chart_sheets else list(self.sheets_)
+
+    def refuse_chart_sheets(self, what: str) -> None:
+        if self.chart_sheets:
+            raise VBAUnsupportedError(f"{what} in a workbook with a chart sheet is not implemented")
+
     def activate_sheet(self, sheet: Worksheet) -> None:
         from pyopenvba.apps.excel._table_filters import refocus
 
+        self.active_chart_sheet = None
         self.active_sheet_index = self.sheets_.index(sheet)
-        self.view.first_sheet = min(self.view.first_sheet, self.active_sheet_index)
+        self.view.first_sheet = min(self.view.first_sheet, self.tabs().index(sheet))
         # A sheet of the group stays in it as it becomes active; any other stands alone
         # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
         if not any(one is sheet for one in self.selected_sheets):
@@ -3179,7 +3233,7 @@ class Workbook(ExcelObject):
         """The sheets the workbook's window has selected, in tab order: the group the active sheet is in, or the
         active sheet alone."""
         active = self.active_sheet
-        if active is None:
+        if active is None or self.active_chart_sheet is not None:
             return []
         if not any(one is active for one in self.selected_sheets):
             return [active]
@@ -3247,16 +3301,22 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
 
     vba_type_name = "Sheets"
 
-    def __init__(self, book: Workbook) -> None:
+    def __init__(self, book: Workbook, *, worksheets: bool = False) -> None:
         self.book = book
+        #: Workbook.Worksheets, which passes over chart sheets (see _chart_sheets).
+        self.worksheets = worksheets
 
     def vba_items(self) -> list[object]:
-        return list(self.book.sheets_)
+        return list(self.book.sheets_ if self.worksheets else self.book.tabs())
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
+            for chart_sheet in () if self.worksheets else self.book.chart_sheets:
+                if _names.same_name(chart_sheet.name, index):
+                    return chart_sheet
             return self.book.sheet_found(index)
         if isinstance(index, VBAArray):
+            self.book.refuse_chart_sheets("Sheets of an array")
             from pyopenvba.apps.excel._sheet_groups import group
 
             return group(self.book, index)
@@ -3298,6 +3358,7 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
     ) -> object:
         from pyopenvba.apps.excel._protection import ADDING, refuse_structure
 
+        self.book.refuse_chart_sheets("Adding a sheet")
         refuse_structure(self.book, ADDING)
         if len(self.book.selected()) > 1:
             # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
@@ -3341,14 +3402,17 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Copying sheets")
         return self._all().Copy(Before, After)
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Moving sheets")
         return self._all().Move(Before, After)
 
     @method
     def Delete(self) -> object:
+        self.book.refuse_chart_sheets("Deleting sheets")
         return self._all().Delete()
 
     @member
@@ -3660,6 +3724,7 @@ class Worksheet(ExcelObject):
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
+        self.book.refuse_chart_sheets("Renaming a sheet")
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
 
         refuse_structure(self.book, APPLICATION_DEFINED)
@@ -3680,19 +3745,21 @@ class Worksheet(ExcelObject):
 
     @member
     def Index(self) -> object:
-        return VBAInt(self.book.sheets_.index(self) + 1, "Long")
+        return VBAInt(self.book.tabs().index(self) + 1, "Long")
 
     @member
     def Next(self) -> object:
         """The sheet after this one, or Nothing after the last."""
-        index = self.book.sheets_.index(self)
-        return self.book.sheets_[index + 1] if index + 1 < len(self.book.sheets_) else NOTHING
+        tabs = self.book.tabs()
+        index = tabs.index(self)
+        return tabs[index + 1] if index + 1 < len(tabs) else NOTHING
 
     @member
     def Previous(self) -> object:
         """The sheet before this one, or Nothing before the first."""
-        index = self.book.sheets_.index(self)
-        return self.book.sheets_[index - 1] if index > 0 else NOTHING
+        tabs = self.book.tabs()
+        index = tabs.index(self)
+        return tabs[index - 1] if index > 0 else NOTHING
 
     @member
     def Visible(self) -> object:
@@ -4199,6 +4266,7 @@ class Worksheet(ExcelObject):
     def Delete(self) -> object:
         """Take the sheet out: the formulas and names that read it read #REF! instead, and where it was active the
         next visible sheet after it is, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
+        self.book.refuse_chart_sheets("Deleting a sheet")
         from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
         from pyopenvba.apps.excel._sheet_groups import delete
 
@@ -4218,6 +4286,7 @@ class Worksheet(ExcelObject):
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Copying a sheet")
         from pyopenvba.apps.excel._protection import COPYING
         from pyopenvba.apps.excel._sheet_copy import copy_sheet
 
@@ -4237,6 +4306,7 @@ class Worksheet(ExcelObject):
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Moving a sheet")
         from pyopenvba.apps.excel._protection import MOVING
         from pyopenvba.apps.excel._sheet_move import move_sheet
 
@@ -7763,12 +7833,17 @@ class Names(VBACollection, ItemDefault, ExcelObject):
         return [DefinedName(entry) for entry in sorted(entries, key=order)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
+        self.book.names_fetched = True
         if isinstance(index, str):
             found = self._item(index)
             if found is None:
                 raise error(1004, "Application-defined or object-defined error")
             return found
         return super().vba_lookup(index, items)
+
+    def vba_iterate(self) -> Iterator[object]:
+        self.book.names_fetched = True
+        return super().vba_iterate()
 
     def _item(self, name: str) -> DefinedName | None:
         """A name as Names(...) finds it by its text: a sheet's Names only the sheet's own; the workbook's one

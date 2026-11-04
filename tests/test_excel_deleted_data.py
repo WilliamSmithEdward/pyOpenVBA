@@ -119,12 +119,16 @@ def test_a_second_table_stays_when_one_goes(tmp_path: Path) -> None:
 
 
 def test_an_image_two_pictures_share_stays_until_both_go(tmp_path: Path) -> None:
+    with zipfile.ZipFile(BOOK) as package:
+        image = package.read("xl/media/image1.png")
+    picture = tmp_path / "same.png"
+    picture.write_bytes(image)
     app = ExcelApplication.open(BOOK, with_vba=False, sandbox=False)
-    app.add_module('Public Sub Edit()\n    ActiveWorkbook.Worksheets("Main").Shapes("MKPIC").Copy\n    ActiveWorkbook.Worksheets("Main").Shapes("MKPIC").Duplicate.Name = "Second"\nEnd Sub\nPublic Sub One()\n    ActiveWorkbook.Worksheets("Main").Shapes("MKPIC").Delete\nEnd Sub\nPublic Sub Other()\n    ActiveWorkbook.Worksheets("Main").Shapes("Second").Delete\nEnd Sub\n', name="E")
-    try:
-        app.run("E.Edit")
-    except Exception as refused:  # noqa: BLE001 - a copy the model refuses tells nothing of this
-        pytest.skip(str(refused)[:80])
+    app.add_module(f'Public Sub Edit()\n    ActiveWorkbook.Worksheets("Main").Shapes.AddPicture("{picture}", False, True, 1, 1, 20, 20).Name = "Second"\nEnd Sub\nPublic Sub One()\n    ActiveWorkbook.Worksheets("Main").Shapes("MKPIC").Delete\nEnd Sub\nPublic Sub Other()\n    ActiveWorkbook.Worksheets("Main").Shapes("Second").Delete\nEnd Sub\n', name="E")
+    app.run("E.Edit")
+    app.save(tmp_path / "both.xlsx")
+    with zipfile.ZipFile(tmp_path / "both.xlsx") as package:
+        assert len([part for part in package.namelist() if part.startswith("xl/media/")]) == 1
     app.run("E.One")
     first = tmp_path / "first.xlsx"
     app.save(first)

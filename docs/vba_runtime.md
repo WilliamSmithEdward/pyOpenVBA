@@ -97,6 +97,34 @@ objects, and what it does not implement at all: `Shell`, `GetSetting`, a `Declar
 last stay `VBAUnsupportedError`.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
+
+## Dialogs
+
+Nobody is at the screen, so a dialog never blocks. It takes the next answer the
+caller queued with `ExcelApplication.answer_dialogs`, oldest first, and returns it
+to the macro. `app.dialogs` lists each dialog put up as its kind, prompt, title and
+style.
+
+| Dialog | An answer is | `False` (Cancel) gives | `None` (OK as it stands) gives |
+| --- | --- | --- | --- |
+| `MsgBox` | the button's number | not an answer | not an answer |
+| `InputBox` | the text | `""` | the default |
+| `Application.InputBox` | what was typed, read by `Type` | `False` | the default, read by `Type` |
+| `GetOpenFilename` | a path, or with `MultiSelect` a path or list | `False` | not an answer |
+| `GetSaveAsFilename` | a path | `False` | the initial name |
+| `FileDialog.Show` | a path or list, into `SelectedItems`, and -1 | 0 | not an answer |
+| `Dialogs(n).Show` | only `False`, as what OK does in each form is not modelled | `False` | not an answer |
+
+With nothing queued `MsgBox` takes its default button. Every other dialog raises
+`VBADialogError`, a `VBAUnsupportedError`, so `On Error` cannot trap it and a run
+never carries on with a guess. So does an answer a dialog cannot take. Excel leaves
+`Application.InputBox` up when it turns text down, so the next answer is the next
+try.
+
+A path is only text, returned as given: a saving dialog's filter adds no extension,
+and no folder is looked at. Opening it goes through `Workbooks.Open`, which the
+sandbox stops as for any other file. `FileDialog.InitialFileName` with no folder
+needs the current folder, which the sandbox also keeps.
 The sandbox governs VBA only: Python's own `app.save` and
 `ExcelApplication.open` work either way. Every path out goes through
 `Interpreter.outside`, and `tests/test_vba_sandbox.py` fails on a call into the

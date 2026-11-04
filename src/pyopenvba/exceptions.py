@@ -98,6 +98,16 @@ class VBAUnsupportedError(VBAError):
     """
 
 
+class VBADialogError(VBAUnsupportedError):
+    """Raised for a dialog that nobody answered, or answered with what it cannot take.
+
+    Nothing is at the screen, so a macro's InputBox, GetOpenFilename,
+    FileDialog or Dialogs takes its answer from those the caller queued
+    with ``answer_dialogs``.  Like its base it cannot be trapped by
+    ``On Error``.
+    """
+
+
 class VBASandboxError(VBAUnsupportedError):
     """Raised for VBA that would reach outside the engine while the sandbox is on.
 

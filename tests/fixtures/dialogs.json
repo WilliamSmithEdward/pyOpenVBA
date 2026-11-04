@@ -1,0 +1,2020 @@
+{
+ "measured_at": "2026-11-04T03:29:58.760309+00:00",
+ "fresh": {
+  "defaults": [
+   "For k = 1 To 4: Set x = d(k): s = s & k & \":\" & x.Title & \"|\" & x.ButtonName & \"|\" & x.AllowMultiSelect & \"|\" & x.InitialView & \"|\" & x.InitialFileName & \"|\" & x.FilterIndex & \"|\" & x.Filters.Count & \"|\" & x.SelectedItems.Count & \";\": Next",
+   "1:File Open|&Open|True|1||0|21|0;2:File Save|&Save|False|1||0|29|0;3:Browse|OK|True|1||0|0|0;4:Browse|OK|False|1||0|0|0;"
+  ],
+  "filters open": [
+   "Set x = d(1): For k = 1 To x.Filters.Count: s = s & x.Filters(k).Description & \"=\" & x.Filters(k).Extensions & \";\": Next",
+   "All Files=*.*;All Excel Files=*.xl*, *.xlsx, *.xlsm, *.xlsb, *.xlam, *.xltx, *.xltm, *.xls, *.xlt, *.htm, *.html, *.mht, *.mhtml, *.xml, *.xla, *.xlm, *.xlw, *.odc, *.ods;Excel Files=*.xl*, *.xlsx, *.xlsm, *.xlsb, *.xlam, *.xltx, *.xltm, *.xls, *.xla, *.xlt, *.xlm, *.xlw;All Web Pages=*.htm, *.html, *.mht, *.mhtml;XML Files=*.xml;Text Files=*.prn, *.txt, *.csv;All Data Sources=*.odc, *.udl, *.dsn, *.mdb, *.mde, *.accdb, *.accde, *.dbc, *.iqy, *.dqy, *.rqy, *.oqy, *.cub, *.atom, *.atomsvc;Access Databases=*.mdb, *.mde, *.accdb, *.accde;Query Files=*.iqy, *.dqy, *.oqy, *.rqy;dBase Files=*.dbf;Microsoft Excel 4.0 Macros=*.xlm, *.xla;Microsoft Excel 4.0 Workbooks=*.xlw;Worksheets=*.xlsx, *.xlsm, *.xlsb, *.xls;Workspaces=*.xlw;Templates=*.xltx, *.xltm, *.xlt;Add-ins=*.xlam, *.xla, *.xll;Toolbars=*.xlb;SYLK Files=*.slk;Data Interchange Format=*.dif;Backup Files=*.xlk, *.bak;OpenDocument Spreadsheet=*.ods;"
+  ],
+  "filters save": [
+   "Set x = d(2): For k = 1 To x.Filters.Count: s = s & x.Filters(k).Description & \"=\" & x.Filters(k).Extensions & \";\": Next",
+   "Excel Workbook=*.xlsx;Excel Macro-Enabled Workbook=*.xlsm;Excel Binary Workbook=*.xlsb;Excel 97-2003 Workbook=*.xls;CSV UTF-8 (Comma delimited)=*.csv;XML Data=*.xml;Single File Web Page=*.mht, *.mhtml;Web Page=*.htm, *.html;Excel Template=*.xltx;Excel Macro-Enabled Template=*.xltm;Excel 97-2003 Template=*.xlt;Text (Tab delimited)=*.txt;Unicode Text=*.txt;XML Spreadsheet 2003=*.xml;Microsoft Excel 5.0/95 Workbook=*.xls;CSV (Comma delimited)=*.csv;Formatted Text (Space delimited)=*.prn;Text (Macintosh)=*.txt;Text (MS-DOS)=*.txt;CSV (Macintosh)=*.csv;CSV (MS-DOS)=*.csv;DIF (Data Interchange Format)=*.dif;SYLK (Symbolic Link)=*.slk;Excel Add-in=*.xlam;Excel 97-2003 Add-in=*.xla;PDF=*.pdf;XPS Document=*.xps;Strict Open XML Spreadsheet=*.xlsx;OpenDocument Spreadsheet=*.ods;"
+  ],
+  "filters pickers": [
+   "Set x = d(3): For k = 1 To x.Filters.Count: s = s & x.Filters(k).Description & \"=\" & x.Filters(k).Extensions & \";\": Next: s = s & \"/\" & d(4).Filters.Count",
+   "/0"
+  ],
+  "title not shared": [
+   "d(1).Title = \"t\": For k = 1 To 4: s = s & d(k).Title & \";\": Next: d(3).Title = \"\": s = s & d(3).Title & \";\": d(4).Title = \"\": s = s & d(4).Title & \";\": d(1).Title = \"\": s = s & d(1).Title & \";\": d(2).Title = \"\": s = s & d(2).Title",
+   "t;File Save;Browse;Browse;File Open;File Open;File Open;File Save"
+  ],
+  "button not shared": [
+   "d(1).ButtonName = \"b\": For k = 1 To 4: s = s & d(k).ButtonName & \";\": Next: d(1).ButtonName = \"\": s = s & d(1).ButtonName & \";\"",
+   "b;&Save;OK;OK;&Open;"
+  ],
+  "view shared": [
+   "d(1).InitialView = 3: For k = 1 To 4: s = s & d(k).InitialView & \";\": Next: d(1).InitialView = 99: s = s & d(1).InitialView",
+   "3;3;3;3;Err 5 Invalid procedure call or argument"
+  ],
+  "index shared": [
+   "d(1).FilterIndex = 3: For k = 1 To 4: s = s & d(k).FilterIndex & \";\": Next: d(1).FilterIndex = 99: s = s & d(1).FilterIndex & \";\": d(1).FilterIndex = 0: s = s & d(1).FilterIndex & \";\": d(1).FilterIndex = -1: s = s & d(1).FilterIndex",
+   "3;3;3;3;21;1;1"
+  ],
+  "name shared": [
+   "d(1).InitialFileName = \"@DIR@\\b.txt\": For k = 1 To 4: s = s & d(k).InitialFileName & \";\": Next: d(1).InitialFileName = \"@DIR@\\\": s = s & d(1).InitialFileName & \";\": d(1).InitialFileName = \"@DIR@\": s = s & d(1).InitialFileName & \";\": d(1).InitialFileName = \"@DIR@\\*.xlsx\": s = s & d(1).InitialFileName & \";\": d(1).InitialFileName = \"\": s = s & \"[\" & d(1).InitialFileName & \"];\": d(1).InitialFileName = \"@DIR@\\no such\\b.txt\": s = s & d(1).InitialFileName & \";\": d(1).InitialFileName = \"http://x.test/a\": s = s & d(1).InitialFileName",
+   "<DIR>\\b.txt;<DIR>\\b.txt;<DIR>\\b.txt;<DIR>\\b.txt;<DIR>\\;<DIR>;<DIR>\\*.xlsx;[<DIR>\\];<HOME>\\Documents\\b.txt;<HOME>\\Documents\\a"
+  ],
+  "multi not shared": [
+   "d(1).AllowMultiSelect = False: For k = 1 To 4: s = s & d(k).AllowMultiSelect & \";\": Next: d(3).AllowMultiSelect = False: s = s & d(3).AllowMultiSelect",
+   "False;False;True;False;False"
+  ],
+  "filters open and picker": [
+   "d(1).Filters.Clear: For k = 1 To 4: s = s & d(k).Filters.Count & \";\": Next",
+   "0;29;0;0;"
+  ],
+  "filters picker and open": [
+   "d(3).Filters.Add \"A\", \"*.a\": For k = 1 To 4: s = s & d(k).Filters.Count & \";\": Next",
+   "21;29;0;0;"
+  ],
+  "filter edits": [
+   "Set x = d(1).Filters: x.Clear: x.Add \"A\", \"*.a\": s = s & x.Count & \";\": x.Add \"B\", \"*.b;*.bb\": s = s & x.Count & \";\": x.Add \"C\", \"*.c\", 1: s = s & x(1).Description & x(2).Description & x(3).Description & x(3).Extensions & \";\": s = s & d(1).FilterIndex & \";\": x.Delete 2: s = s & x.Count & x(2).Description & \";\": x.Delete: s = s & x.Count & \";\"",
+   "1;2;CAB*.b;*.bb;0;2B;1;"
+  ],
+  "filter empty extension": [
+   "d(1).Filters.Add \"A\", \"\"",
+   ""
+  ],
+  "filter empty name": [
+   "s = d(1).Filters.Add(\"\", \"*.a\").Description",
+   ""
+  ],
+  "filter far position": [
+   "Set x = d(1): s = x.Filters.Add(\"A\", \"*.a\", 99).Description",
+   "Err 9 Subscript out of range"
+  ],
+  "filter position zero": [
+   "Set x = d(1): s = x.Filters.Add(\"A\", \"*.a\", 0).Description",
+   "Err 9 Subscript out of range"
+  ],
+  "filter delete far": [
+   "Set x = d(1): x.Filters.Delete 99",
+   "Err 9 Subscript out of range"
+  ],
+  "filter plain name": [
+   "Set x = d(1): s = x.Filters.Add(\"A\", \"a.b\").Extensions",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  "filter star": [
+   "Set x = d(1): s = x.Filters.Add(\"A\", \"*\").Extensions",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  "filter comma": [
+   "Set x = d(1): s = x.Filters.Add(\"A\", \"*.a,*.b\").Extensions",
+   "*.a,*.b"
+  ],
+  "filter parents": [
+   "Set x = d(1): s = TypeName(x.Filters(1)) & TypeName(x.Filters.Item(1)) & TypeName(x.Filters(1).Parent) & TypeName(x.Filters.Parent) & TypeName(x.SelectedItems.Parent)",
+   "FileDialogFilterFileDialogFilterFileDialogFileDialogFileDialog"
+  ],
+  "filter lifetime": [
+   "d(3).Filters.Add \"A\", \"*.a\": s = s & d(3).Filters.Count & \";\": Set x = d(3): x.Filters.Add \"A\", \"*.a\": s = s & x.Filters.Count & \";\" & d(3).Filters.Count & \";\": Set y = x.Filters: y.Add \"B\", \"*.b\": s = s & y.Count & x.Filters.Count & d(3).Filters.Count & \";\"",
+   "1;1;1;222;"
+  ],
+  "filter lifetime open": [
+   "d(1).Filters.Clear: d(1).Filters.Add \"A\", \"*.a\": s = s & d(1).Filters.Count & \";\": Set x = d(1): s = s & x.Filters.Count & \";\": x.Filters.Add \"B\", \"*.b\": s = s & x.Filters.Count & \";\"",
+   "1;1;2;"
+  ],
+  "title after show": [
+   "Set x = d(1): x.Title = \"drive|cancel\": x.ButtonName = \"Go\": x.AllowMultiSelect = False: x.Show: s = x.Title & \";\" & x.ButtonName & \";\" & x.AllowMultiSelect & \";\" & x.FilterIndex & \";\" & x.InitialView & \";\" & x.Filters.Count",
+   "drive|cancel;Go;False;1;1;21"
+  ],
+  "filter index empty": [
+   "Set x = d(1): x.Filters.Clear: x.FilterIndex = 2: s = x.FilterIndex & \";\": x.Filters.Add \"A\", \"*.a\": x.FilterIndex = 1: s = s & x.FilterIndex",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  "selection kept": [
+   "Set x = d(1): x.Title = \"drive|ok|@DIR@\\pick.txt\": s = s & x.Show & x.SelectedItems.Count & \";\": x.Title = \"drive|cancel\": s = s & x.Show & x.SelectedItems.Count & \";\": s = s & d(3).SelectedItems.Count & \";\" & x.InitialFileName & \";\" & x.Title",
+   "-11;00;0;<DIR>\\;Browse"
+  ],
+  "selection walk": [
+   "Set x = d(1): x.Title = \"drive|ok|@DIR@\\pick.txt\": x.Show: For Each y In x.SelectedItems: s = s & TypeName(y) & \";\": Next: s = s & x.SelectedItems.Item(1) & \";\": On Error Resume Next: s = s & x.SelectedItems(0) & \"e\" & Err.Number & \";\": Err.Clear: s = s & x.SelectedItems(2) & \"e\" & Err.Number",
+   "String;<DIR>\\pick.txt;"
+  ],
+  "folder after pick": [
+   "ChDir \"@DIR@\\sub\": s = s & CurDir & \";\": r = Application.GetOpenFilename(Title:=\"drive|ok|@DIR@\\pick.txt\"): s = s & CurDir & \";\": ChDir \"@DIR@\\sub\": r = Application.GetSaveAsFilename(Title:=\"drive|ok|@DIR@\\new.txt\"): s = s & CurDir & \";\": ChDir \"@DIR@\\sub\": Set x = d(1): x.Title = \"drive|ok|@DIR@\\pick.txt\": x.Show: s = s & CurDir & \";\": ChDir \"@DIR@\\sub\": r = Application.GetOpenFilename(Title:=\"drive|cancel\"): s = s & CurDir & \";\": d(1).InitialFileName = \"abc\": s = s & d(1).InitialFileName",
+   "<DIR>\\sub;<DIR>\\sub;<DIR>;<DIR>;<DIR>\\sub;<DIR>\\abc"
+  ],
+  "not opened": [
+   "n = Workbooks.Count: r = Application.GetOpenFilename(Title:=\"drive|ok|@DIR@\\book.xlsx\"): s = s & r & Workbooks.Count - n & \";\": Set x = d(1): x.Title = \"drive|ok|@DIR@\\book.xlsx\": x.Show: s = s & Workbooks.Count - n & \";\": s = s & Dir(\"@DIR@\\new2.xlsx\") & \";\"",
+   "<DIR>\\book.xlsx0;0;;"
+  ],
+  "one object": [
+   "d(1).Title = \"t\": Set x = d(1): Set y = d(2): s = x.Title & \";\" & x.DialogType & \";\" & y.Title & \";\" & (x Is y) & \";\" & x.SelectedItems.Count & \";\": s = s & d(1).Title",
+   "File Save;2;File Save;True;0;File Open"
+  ],
+  "back to a type": [
+   "Set x = d(1): x.Filters.Clear: x.ButtonName = \"b\": x.AllowMultiSelect = False: d(2): Set x = d(1): s = x.Filters.Count & \";\" & x.ButtonName & \";\" & x.AllowMultiSelect",
+   "21;&Open;True"
+  ],
+  "selection and type": [
+   "Set x = d(1): x.Title = \"drive|ok|@DIR@\\pick.txt\": x.Show: s = x.SelectedItems.Count & \";\": Set y = d(1): s = s & y.SelectedItems.Count & \";\": Set y = d(3): s = s & x.SelectedItems.Count",
+   "1;1;0"
+  ],
+  "execute open": [
+   "n = Workbooks.Count: Set x = d(1): x.Title = \"drive|ok|@DIR@\\book.xlsx\": x.Show: r = x.Execute: s = s & TypeName(r) & Workbooks.Count - n & ActiveWorkbook.Name & \";\" & x.SelectedItems.Count",
+   "Empty1book.xlsx;1"
+  ],
+  "execute save names": [
+   "Dim b As Workbook: Set b = Workbooks.Add: k = Workbooks.Count: Set x = d(2): x.Title = \"drive|ok|@DIR@\\saved3.xlsx\": x.Show: x.Execute: s = TypeName(ActiveWorkbook) & \"/\" & (ActiveWorkbook Is b) & \"/\" & b.Name & \"/\" & (ThisWorkbook.Name = ActiveWorkbook.Name) & \"/\" & (Workbooks.Count - k) & \"/\" & b.Saved & \"/\" & (Dir(\"@DIR@\\saved3.xlsx\") <> \"\")",
+   "Workbook/True/Book2/False/0/True/False"
+  ],
+  "dialog walk bare": [
+   "For Each y In Application.Dialogs: s = s & TypeName(y) & \";\": Exit For: Next",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  "execute save": [
+   "Workbooks.Add: Set x = d(2): x.Title = \"drive|ok|@DIR@\\saved.xlsx\": x.Show: r = x.Execute: s = s & TypeName(r) & ActiveWorkbook.Name & \";\" & Dir(\"@DIR@\\saved.xlsx\") & \";\": ActiveWorkbook.Close False",
+   "EmptyBook2;saved.xlsx;"
+  ],
+  "execute pickers": [
+   "For k = 3 To 4: Set x = d(k): x.Title = \"drive|ok|@DIR@\" & IIf(k = 3, \"\\book.xlsx\", \"\"): x.Show: n = Workbooks.Count: On Error Resume Next: x.Execute: s = s & Err.Number & \"/\" & Workbooks.Count - n & \";\": Err.Clear: On Error GoTo 0: Next",
+   "438/0;438/0;"
+  ],
+  "dialog numbers": [
+   "On Error Resume Next: For k = -2 To 3000: Err.Clear: Set y = Nothing: Set y = Application.Dialogs(k): If Err.Number = 0 Then s = s & k & \",\"\nNext",
+   "1,2,5,6,7,8,9,12,13,14,17,23,26,27,28,32,35,36,39,40,41,42,43,44,45,46,47,52,53,54,55,61,62,63,64,67,68,69,70,71,72,73,76,78,80,84,85,86,87,88,89,91,94,95,103,108,110,111,119,127,130,132,133,134,137,142,145,147,150,154,159,161,166,170,171,185,186,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,207,208,210,212,213,214,217,218,219,220,222,223,225,226,228,229,249,251,256,259,261,262,269,272,273,276,281,282,283,284,285,288,293,300,301,302,305,307,308,311,312,313,318,319,320,321,322,323,325,328,330,336,339,342,344,350,354,355,356,370,379,380,381,382,384,386,388,390,392,394,398,415,417,420,421,422,423,433,434,435,436,437,438,445,447,450,458,460,461,462,463,464,465,466,470,472,473,474,475,476,478,480,481,482,485,489,491,493,494,504,505,506,509,510,511,525,526,527,530,540,541,552,553,557,558,567,568,570,572,583,590,596,620,647,653,656,666,667,673,674,683,684,685,686,687,689,709,723,724,731,732,753,754,755,759,771,773,796,817,832,833,834,835,860,862,907,908,962,970,977,978,1022,1107,1108,1109,1133,1134,1135,1153,1179,1182,1183,1184,1203,1208,1216,1217,1218,1245,1254,1256,1257,1258,1266,1267,1270,1271,1272,1276,1300,1390,1391,1413,1415,1461,1494,"
+  ],
+  "dialog walk": [
+   "On Error Resume Next: For Each y In Application.Dialogs: m = m + 1: If m < 3 Then s = s & TypeName(y) & \";\"\nNext: s = s & m & \"e\" & Err.Number",
+   "Empty;1e92"
+  ]
+ },
+ "cases": [
+  [
+   "r = InputBox(\"p\", \"drive|cancel\", \"d\")",
+   "ok String:",
+   []
+  ],
+  [
+   "r = StrPtr(InputBox(\"p\", \"drive|cancel\", \"d\")) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = InputBox(\"p\", \"drive|ok\", \"d\")",
+   "ok String:d",
+   []
+  ],
+  [
+   "r = InputBox(\"p\", \"drive|ok|typed\", \"d\")",
+   "ok String:typed",
+   []
+  ],
+  [
+   "r = StrPtr(InputBox(\"p\", \"drive|ok|\", \"\")) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\", \"d\")",
+   "ok String:d",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\", 5)",
+   "ok String:5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\")",
+   "ok String:",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|typed\")",
+   "ok String:typed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\")",
+   "ok String:12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\")",
+   "ok String:3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\")",
+   "ok String:TRUE",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=0)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=0)",
+   "ok String:=12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=0)",
+   "ok String:=1.5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=0)",
+   "ok String:=\"abc\"",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=0)",
+   "ok String:=TRUE",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=0)",
+   "ok String:=1+2",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=0)",
+   "ok String:=RC",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=0)",
+   "ok String:=\"A1\"",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=0)",
+   "ok String:=#N/A",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=0)",
+   "ok String:=\"{1,2}\"",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=0)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=1)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=1)",
+   "ok Double:12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=1)",
+   "ok Double:1.5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=1)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=1)",
+   "ok Double:1",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=1)",
+   "ok Double:3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=1)",
+   "ok Double:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=1)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=1)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=1)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=1)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=2)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=2)",
+   "ok String:12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=2)",
+   "ok String:1.5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=2)",
+   "ok String:abc",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=2)",
+   "ok String:TRUE",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=2)",
+   "ok String:3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=2)",
+   "ok String:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=2)",
+   "ok String:A1",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=2)",
+   "ok String:#N/A",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=2)",
+   "ok String:{1,2}",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=2)",
+   "ok String:",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=4)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=4)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=4)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=4)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=4)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=4)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=4)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=4)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=4)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=4)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=4)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=8)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=8)",
+   "ok Double:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=8)",
+   "ok Double:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=8)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=16)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=16)",
+   "ok Error:Error 2042",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=16)",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=16)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=64)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=64)",
+   "ok array Variant()",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=64)",
+   "ok array Variant()",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=64)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=64)",
+   "ok array Variant()",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=64)",
+   "ok array Variant()",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=64)",
+   "ok array Variant()",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=64)",
+   "ok array Variant()",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=64)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=64)",
+   "ok array Variant()",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=64)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=3)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=3)",
+   "ok Double:12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=3)",
+   "ok Double:1.5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=3)",
+   "ok String:abc",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=3)",
+   "ok Double:1",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=3)",
+   "ok Double:3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=3)",
+   "ok Double:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=3)",
+   "ok String:A1",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=3)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=3)",
+   "ok String:{1,2}",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=3)",
+   "ok String:",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=5)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=5)",
+   "ok Double:12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=5)",
+   "ok Double:1.5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=5)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=5)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=5)",
+   "ok Double:3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=5)",
+   "ok Double:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=5)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=5)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=5)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=5)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1.5\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|abc\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|#N/A\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|\", Type:=128)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|50%\", Type:=1)",
+   "ok Double:0.5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1,000\", Type:=1)",
+   "ok Double:1000",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|$5\", Type:=1)",
+   "ok Double:5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1/2/2020\", Type:=1)",
+   "ok Double:43832",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1e3\", Type:=1)",
+   "ok Double:1000",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok| 12 \", Type:=1)",
+   "ok Double:12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1/0\", Type:=1)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=NA()\", Type:=1)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1:A2\", Type:=1)",
+   "ok Double:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|FALSE\", Type:=1)",
+   "ok Double:0",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|false\", Type:=1)",
+   "ok Double:0",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|50%\", Type:=2)",
+   "ok String:50%",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1,000\", Type:=2)",
+   "ok String:1,000",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|$5\", Type:=2)",
+   "ok String:$5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1/2/2020\", Type:=2)",
+   "ok String:1/2/2020",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|1e3\", Type:=2)",
+   "ok String:1e3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok| 12 \", Type:=2)",
+   "ok String: 12 ",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1/0\", Type:=2)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=NA()\", Type:=2)",
+   "ok Boolean:False",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1:A2\", Type:=2)",
+   "ok String:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|FALSE\", Type:=2)",
+   "ok String:FALSE",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|false\", Type:=2)",
+   "ok String:false",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|FALSE\", Type:=4)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|false\", Type:=4)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|0\", Type:=4)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1=2\", Type:=4)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=B2\", Type:=0)",
+   "ok String:=R[1]C[1]",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=$A$1\", Type:=0)",
+   "ok String:=R1C1",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=Sheet1!A1\", Type:=0)",
+   "ok String:=Sheet1!RC",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=SUM(A1:A2)\", Type:=0)",
+   "ok String:=SUM(RC:R[1]C)",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=64): r = TypeName(r) & \"/\" & LBound(r) & \"-\" & UBound(r) & \"/\" & r(LBound(r))",
+   "ok String:Variant()/1-1/12",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|TRUE\", Type:=64): r = TypeName(r) & \"/\" & LBound(r) & \"-\" & UBound(r) & \"/\" & r(LBound(r))",
+   "ok String:Variant()/1-1/True",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=1+2\", Type:=64): r = TypeName(r) & \"/\" & LBound(r) & \"-\" & UBound(r) & \"/\" & r(LBound(r))",
+   "ok String:Variant()/1-1/3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|=A1\", Type:=64): r = TypeName(r) & \"/\" & LBound(r) & \"-\" & UBound(r) & \"/\" & r(LBound(r))",
+   "ok String:Variant()/1-1/7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=64): r = TypeName(r) & \"/\" & LBound(r) & \"-\" & UBound(r) & \"/\" & r(LBound(r))",
+   "ok String:Variant()/1-1/7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|12\", Type:=64): r = TypeName(r) & \"/\" & LBound(r, 1) & \"-\" & UBound(r, 1) & \"/\" & LBound(r, 2) & \"-\" & UBound(r, 2) & \"/\" & r(1, 1)",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1\", Type:=64): r = TypeName(r) & \"/\" & LBound(r, 1) & \"-\" & UBound(r, 1) & \"/\" & LBound(r, 2) & \"-\" & UBound(r, 2) & \"/\" & r(1, 1)",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|A1:B2\", Type:=64): r = TypeName(r) & \"/\" & LBound(r, 1) & \"-\" & UBound(r, 1) & \"/\" & LBound(r, 2) & \"-\" & UBound(r, 2) & \"/\" & r(1, 1)",
+   "ok String:Variant()/1-2/1-2/7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2}\", Type:=64): r = TypeName(r) & \"/\" & LBound(r, 1) & \"-\" & UBound(r, 1) & \"/\" & LBound(r, 2) & \"-\" & UBound(r, 2) & \"/\" & r(1, 1)",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok|{1,2;3,4}\", Type:=64): r = TypeName(r) & \"/\" & LBound(r, 1) & \"-\" & UBound(r, 1) & \"/\" & LBound(r, 2) & \"-\" & UBound(r, 2) & \"/\" & r(1, 1)",
+   "ok String:Variant()/1-2/1-2/1",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\", 5, Type:=1)",
+   "ok Double:5",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\", ActiveSheet.Range(\"A1\"), Type:=8).Address",
+   "Err 424 Object required",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\", ActiveSheet.Range(\"A1\"))",
+   "ok String:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\", \"=A1\", Type:=2)",
+   "ok String:7",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|ok\", True, Type:=4)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Set x = Application.InputBox(\"p\", \"drive|ok|Sheet9!A1\", Type:=8): r = x.Address",
+   "Err 424 Object required",
+   [
+    "other NUIDialog Microsoft Excel"
+   ]
+  ],
+  [
+   "Set x = Application.InputBox(\"p\", \"drive|ok|A1,C3\", Type:=8): r = x.Address",
+   "ok String:$A$1,$C$3",
+   []
+  ],
+  [
+   "ActiveWorkbook.Names.Add \"Nm\", \"=Sheet1!$A$1\": Set x = Application.InputBox(\"p\", \"drive|ok|Nm\", Type:=8): r = x.Address",
+   "ok String:$A$1",
+   []
+  ],
+  [
+   "Set x = Application.InputBox(\"p\", \"drive|cancel\", Type:=8)",
+   "Err 424 Object required",
+   []
+  ],
+  [
+   "Set x = Application.InputBox(\"p\", \"drive|ok|A1:B2\", Type:=8): r = x.Address",
+   "ok String:$A$1:$B$2",
+   []
+  ],
+  [
+   "Set x = Application.InputBox(\"p\", \"drive|ok|Sheet1!C3\", Type:=8): r = x.Address",
+   "ok String:$C$3",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=\"x\")",
+   "ok Error:Error 2015",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Type:=-1)",
+   "Err 1004 Method 'InputBox' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"p\", \"drive|cancel\", Left:=1, Top:=1)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(1, \"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.InputBox(\"\", \"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(Title:=\"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(Title:=\"drive|cancel\", MultiSelect:=True)",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = TypeName(Application.GetOpenFilename(Title:=\"drive|cancel\", MultiSelect:=True))",
+   "ok String:Boolean",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(Title:=\"drive|ok|<DIR>\\pick.txt\")",
+   "ok String:<DIR>\\pick.txt",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(Title:=\"drive|ok|<DIR>\\pick.txt\", MultiSelect:=True)(1)",
+   "ok String:<DIR>\\pick.txt",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(Title:=\"drive|ok|<DIR>\\pick.txt\", MultiSelect:=True): r = LBound(r) & \"-\" & UBound(r) & TypeName(r)",
+   "ok String:1-1Variant()",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(\"abc\", Title:=\"drive|cancel\")",
+   "Err 1004 Method 'GetOpenFilename' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(\"Text,*.txt\", 5, \"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(\"Text,*.txt,All,*.*\", 0, \"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(\"\", Title:=\"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(\"a,b,c\", Title:=\"drive|cancel\")",
+   "Err 1004 Method 'GetOpenFilename' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.GetOpenFilename(1, Title:=\"drive|cancel\")",
+   "Err 1004 Method 'GetOpenFilename' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = Application.GetSaveAsFilename(Title:=\"drive|cancel\")",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = Application.GetSaveAsFilename(Title:=\"drive|ok|<DIR>\\new.txt\")",
+   "ok String:<DIR>\\new.txt",
+   []
+  ],
+  [
+   "r = Application.GetSaveAsFilename(Title:=\"drive|ok|<DIR>\\new\", FileFilter:=\"Text,*.txt\")",
+   "ok String:<DIR>\\new.txt",
+   []
+  ],
+  [
+   "r = Application.GetSaveAsFilename(\"<DIR>\\given.csv\", \"CSV,*.csv\", , \"drive|ok\")",
+   "ok String:<DIR>\\given.csv",
+   []
+  ],
+  [
+   "r = Application.GetSaveAsFilename(FileFilter:=\"abc\", Title:=\"drive|cancel\")",
+   "Err 1004 Method 'GetSaveAsFilename' of object '_Application' failed",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = TypeName(x)",
+   "ok String:FileDialog",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.DialogType",
+   "ok Long:1",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Title",
+   "ok String:File Open",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.ButtonName",
+   "ok String:&Open",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.AllowMultiSelect",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.InitialView",
+   "ok Long:1",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.InitialFileName",
+   "ok String:",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.FilterIndex",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Filters.Count",
+   "ok Long:21",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Filters(1).Description",
+   "ok String:All Files",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Filters(1).Extensions",
+   "ok String:*.*",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Item",
+   "ok String:FileDialog(msoFileDialogOpen)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = TypeName(x.Parent)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Creator",
+   "ok Long:1480803660",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = TypeName(x.Application)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Title = \"drive|cancel\": r = x.Show",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Title = \"drive|cancel\": x.Show: r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Title = \"t\": r = x.Title",
+   "ok String:t",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Title = \"\": r = x.Title",
+   "ok String:File Open",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.ButtonName = \"Go\": r = x.ButtonName",
+   "ok String:Go",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.AllowMultiSelect = True: r = x.AllowMultiSelect",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.InitialFileName = \"abc\": r = x.InitialFileName",
+   "ok String:<DIR>\\abc",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.InitialView = 2: r = x.InitialView",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.FilterIndex = 2: r = x.FilterIndex",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Filters.Clear: r = x.Filters.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Filters.Add(\"D\", \"*.d\").Description",
+   "ok String:D",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Filters.Add(\"D\", \"*.d\", 1).Extensions & x.Filters(1).Description",
+   "ok String:*.dD",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Filters.Delete 1: r = x.Filters.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Filters.Add(\"D\", \"bad\").Extensions",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.Filters(99).Description",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): r = x.SelectedItems(1)",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Execute",
+   "ok Empty:",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Title = \"drive|ok|<DIR>\\pick.txt\": r = x.Show & \"/\" & x.SelectedItems.Count & \"/\" & x.SelectedItems(1) & \"/\" & x.Item",
+   "ok String:-1/1/<DIR>\\pick.txt/FileDialog(msoFileDialogOpen)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Title = \"drive|ok|<DIR>\\pick.txt\": x.Show: Set y = x.SelectedItems: r = TypeName(y) & y.Count & y.Item(1)",
+   "ok String:FileDialogSelectedItems1<DIR>\\pick.txt",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = TypeName(x)",
+   "ok String:FileDialog",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.DialogType",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Title",
+   "ok String:File Save",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.ButtonName",
+   "ok String:&Save",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.AllowMultiSelect",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.InitialView",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.InitialFileName",
+   "ok String:<DIR>\\abc",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.FilterIndex",
+   "ok Long:1",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Filters.Count",
+   "ok Long:29",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Filters(1).Description",
+   "ok String:Excel Workbook",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Filters(1).Extensions",
+   "ok String:*.xlsx",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Item",
+   "ok String:FileDialog(msoFileDialogSaveAs)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = TypeName(x.Parent)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Creator",
+   "ok Long:1480803660",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = TypeName(x.Application)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Title = \"drive|cancel\": r = x.Show",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Title = \"drive|cancel\": x.Show: r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Title = \"t\": r = x.Title",
+   "ok String:t",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Title = \"\": r = x.Title",
+   "ok String:File Save",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.ButtonName = \"Go\": r = x.ButtonName",
+   "ok String:Go",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.AllowMultiSelect = True: r = x.AllowMultiSelect",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.InitialFileName = \"abc\": r = x.InitialFileName",
+   "ok String:<DIR>\\abc",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.InitialView = 2: r = x.InitialView",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.FilterIndex = 2: r = x.FilterIndex",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Filters.Clear: r = x.Filters.Count",
+   "Err 438 Object doesn't support this property or method",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Filters.Add(\"D\", \"*.d\").Description",
+   "Err 438 Object doesn't support this property or method",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Filters.Add(\"D\", \"*.d\", 1).Extensions & x.Filters(1).Description",
+   "Err 438 Object doesn't support this property or method",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Filters.Delete 1: r = x.Filters.Count",
+   "Err 438 Object doesn't support this property or method",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Filters.Add(\"D\", \"bad\").Extensions",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.Filters(99).Description",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): r = x.SelectedItems(1)",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Execute",
+   "ok Empty:",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Title = \"drive|ok|<DIR>\\new.txt\": r = x.Show & \"/\" & x.SelectedItems.Count & \"/\" & x.SelectedItems(1) & \"/\" & x.Item",
+   "ok String:-1/1/<DIR>\\new.txt.xlsm/FileDialog(msoFileDialogSaveAs)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(2): x.Title = \"drive|ok|<DIR>\\new.txt\": x.Show: Set y = x.SelectedItems: r = TypeName(y) & y.Count & y.Item(1)",
+   "ok String:FileDialogSelectedItems1<DIR>\\new.txt.xlsm",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = TypeName(x)",
+   "ok String:FileDialog",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.DialogType",
+   "ok Long:3",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Title",
+   "ok String:Browse",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.ButtonName",
+   "ok String:OK",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.AllowMultiSelect",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.InitialView",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.InitialFileName",
+   "ok String:<DIR>\\abc",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.FilterIndex",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Filters.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Filters(1).Description",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Filters(1).Extensions",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Item",
+   "ok String:FileDialog(msoFileDialogFilePicker)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = TypeName(x.Parent)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Creator",
+   "ok Long:1480803660",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = TypeName(x.Application)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Title = \"drive|cancel\": r = x.Show",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Title = \"drive|cancel\": x.Show: r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Title = \"t\": r = x.Title",
+   "ok String:t",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Title = \"\": r = x.Title",
+   "ok String:File Open",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.ButtonName = \"Go\": r = x.ButtonName",
+   "ok String:Go",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.AllowMultiSelect = True: r = x.AllowMultiSelect",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.InitialFileName = \"abc\": r = x.InitialFileName",
+   "ok String:<DIR>\\abc",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.InitialView = 2: r = x.InitialView",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.FilterIndex = 2: r = x.FilterIndex",
+   "ok Long:1",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Filters.Clear: r = x.Filters.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Filters.Add(\"D\", \"*.d\").Description",
+   "ok String:D",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Filters.Add(\"D\", \"*.d\", 1).Extensions & x.Filters(1).Description",
+   "ok String:*.dD",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Filters.Delete 1: r = x.Filters.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Filters.Add(\"D\", \"bad\").Extensions",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.Filters(99).Description",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): r = x.SelectedItems(1)",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Execute",
+   "ok Empty:",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Title = \"drive|ok|<DIR>\\pick.txt\": r = x.Show & \"/\" & x.SelectedItems.Count & \"/\" & x.SelectedItems(1) & \"/\" & x.Item",
+   "ok String:-1/1/<DIR>\\pick.txt/FileDialog(msoFileDialogFilePicker)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(3): x.Title = \"drive|ok|<DIR>\\pick.txt\": x.Show: Set y = x.SelectedItems: r = TypeName(y) & y.Count & y.Item(1)",
+   "ok String:FileDialogSelectedItems1<DIR>\\pick.txt",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = TypeName(x)",
+   "ok String:FileDialog",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.DialogType",
+   "ok Long:4",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Title",
+   "ok String:Browse",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.ButtonName",
+   "ok String:OK",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.AllowMultiSelect",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.InitialView",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.InitialFileName",
+   "ok String:<DIR>\\abc",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.FilterIndex",
+   "ok Long:1",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Filters.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Filters(1).Description",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Filters(1).Extensions",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Item",
+   "ok String:FileDialog(msoFileDialogFolderPicker)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = TypeName(x.Parent)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Creator",
+   "ok Long:1480803660",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = TypeName(x.Application)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Title = \"drive|cancel\": r = x.Show",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Title = \"drive|cancel\": x.Show: r = x.SelectedItems.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Title = \"t\": r = x.Title",
+   "ok String:t",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Title = \"\": r = x.Title",
+   "ok String:File Open",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.ButtonName = \"Go\": r = x.ButtonName",
+   "ok String:Go",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.AllowMultiSelect = True: r = x.AllowMultiSelect",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.InitialFileName = \"abc\": r = x.InitialFileName",
+   "ok String:<DIR>\\abc",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.InitialView = 2: r = x.InitialView",
+   "ok Long:2",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.FilterIndex = 2: r = x.FilterIndex",
+   "ok Long:1",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Filters.Clear: r = x.Filters.Count",
+   "ok Long:0",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Filters.Add(\"D\", \"*.d\").Description",
+   "Err 438 Object doesn't support this property or method",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Filters.Add(\"D\", \"*.d\", 1).Extensions & x.Filters(1).Description",
+   "Err 438 Object doesn't support this property or method",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Filters.Delete 1: r = x.Filters.Count",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Filters.Add(\"D\", \"bad\").Extensions",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.Filters(99).Description",
+   "Err 9 Subscript out of range",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): r = x.SelectedItems(1)",
+   "Err 5 Invalid procedure call or argument",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Execute",
+   "ok Empty:",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Title = \"drive|ok|<DIR>\": r = x.Show & \"/\" & x.SelectedItems.Count & \"/\" & x.SelectedItems(1) & \"/\" & x.Item",
+   "ok String:-1/1/<DIR>/FileDialog(msoFileDialogFolderPicker)",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(4): x.Title = \"drive|ok|<DIR>\": x.Show: Set y = x.SelectedItems: r = TypeName(y) & y.Count & y.Item(1)",
+   "ok String:FileDialogSelectedItems1<DIR>",
+   []
+  ],
+  [
+   "Set x = Application.FileDialog(1): x.Title = \"t\": Set y = Application.FileDialog(1): r = y.Title",
+   "ok String:t",
+   []
+  ],
+  [
+   "r = Application.FileDialog(1) Is Application.FileDialog(1)",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = TypeName(Application.FileDialog(5))",
+   "Err -2147467259 Method 'FileDialog' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = TypeName(Application.FileDialog(0))",
+   "Err -2147467259 Method 'FileDialog' of object '_Application' failed",
+   []
+  ],
+  [
+   "r = TypeName(Application.FileDialog(\"x\"))",
+   "Err 13 Type mismatch",
+   []
+  ],
+  [
+   "r = TypeName(Application.Dialogs)",
+   "ok String:Dialogs",
+   []
+  ],
+  [
+   "r = Application.Dialogs.Count",
+   "ok Long:1531",
+   []
+  ],
+  [
+   "r = TypeName(Application.Dialogs(xlDialogOpen))",
+   "ok String:Dialog",
+   []
+  ],
+  [
+   "r = TypeName(Application.Dialogs(1))",
+   "ok String:Dialog",
+   []
+  ],
+  [
+   "r = Application.Dialogs(1).Show",
+   "ok Boolean:False",
+   [
+    "file dialog"
+   ]
+  ],
+  [
+   "r = TypeName(Application.Dialogs(99999))",
+   "Err 1004 Application-defined or object-defined error",
+   []
+  ],
+  [
+   "r = TypeName(Application.Dialogs(\"x\"))",
+   "Err 13 Type mismatch",
+   []
+  ],
+  [
+   "r = TypeName(Application.Dialogs.Item(xlDialogOpen))",
+   "ok String:Dialog",
+   []
+  ],
+  [
+   "r = TypeName(Application.Dialogs(xlDialogOpen).Application)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "r = TypeName(Application.Dialogs(xlDialogOpen).Parent)",
+   "ok String:Application",
+   []
+  ],
+  [
+   "r = Application.Dialogs(xlDialogOpen).Creator",
+   "ok Long:1480803660",
+   []
+  ],
+  [
+   "r = Application.Dialogs(xlDialogOpen).Show",
+   "ok Boolean:False",
+   [
+    "file dialog"
+   ]
+  ],
+  [
+   "r = Application.Dialogs(xlDialogSaveAs).Show",
+   "ok Boolean:False",
+   [
+    "file dialog"
+   ]
+  ],
+  [
+   "r = Application.Dialogs(xlDialogFontProperties).Show",
+   "ok Boolean:False",
+   [
+    "other bosa_sdm_XL9 Format Cells"
+   ]
+  ]
+ ]
+}

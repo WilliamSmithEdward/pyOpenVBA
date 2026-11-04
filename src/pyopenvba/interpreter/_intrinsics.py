@@ -16,7 +16,8 @@ What is deliberately not implemented, and why:
 MsgBox and InputBox do not block.  A message goes into the dialog
 transcript and the answer comes from the queue the caller primed, so a
 macro that would have stopped for a prompt runs to the end and the
-prompt is visible afterwards.
+prompt is visible afterwards.  With nothing queued MsgBox answers with
+its default button, and InputBox raises VBADialogError.
 """
 
 from __future__ import annotations

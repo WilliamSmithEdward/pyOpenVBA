@@ -480,7 +480,13 @@ class ExcelApplication(NamedRangeAPI):
         self.interpreter.freeze(when)
 
     def answer_dialogs(self, *answers: object) -> None:
-        """Queue what the next MsgBox and InputBox calls come back with."""
+        """Queue what the next dialogs come back with, oldest first: each answer is what the dialog returns to the macro.
+
+        ``False`` is Cancel, for every dialog but MsgBox, whose answer is its button's number. A string is what was typed
+        or the file chosen, a list several files, and ``None`` is OK on InputBox's default or GetSaveAsFilename's initial
+        name. Application.InputBox reads text by its ``Type``, and takes the next answer if it turns one down, as Excel
+        leaves the form up. A chosen path is only text: opening it goes through the sandbox like any other file. A dialog
+        with nothing queued raises VBADialogError, except MsgBox, which answers with its default button."""
         self.interpreter.answers.extend(answers)
 
     @property
@@ -490,7 +496,7 @@ class ExcelApplication(NamedRangeAPI):
 
     @property
     def dialogs(self) -> list[tuple[str, str, str, int]]:
-        """Every MsgBox and InputBox the run put up."""
+        """Every dialog the run put up: its kind, prompt, title and style."""
         return self.interpreter.dialogs
 
     # --- looking at the state ---------------------------------------------------------

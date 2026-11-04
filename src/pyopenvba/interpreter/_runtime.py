@@ -26,7 +26,7 @@ from functools import lru_cache
 from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
-from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
+from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
@@ -1098,7 +1098,7 @@ class Interpreter:
         self.internet_sessions: dict[str, Sessions] = {}
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
-        #: Every MsgBox and InputBox the run put up, in order.
+        #: Every dialog the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
         self.answers: list[object] = []
@@ -1181,10 +1181,24 @@ class Interpreter:
         return VBAInt(_default_button(style), "Integer")
 
     def ask_for_input(self, prompt: str, title: str, default: str) -> object:
-        self.dialogs.append(("InputBox", prompt, title, 0))
-        if self.answers:
-            return to_text(self.answers.pop(0))
-        return default
+        """InputBox without a screen: False is Cancel, which reads as "", and None is OK on the default as it stands."""
+        answer = self.next_answer("InputBox", prompt, title)
+        if answer is False:
+            return ""
+        return default if answer is None else to_text(answer)
+
+    def next_answer(self, kind: str, prompt: str = "", title: str = "", style: int = 0) -> object:
+        """Record a dialog going up and take the answer the caller queued for it; with none, stop the run, as nobody
+        is at the screen to answer."""
+        self.dialogs.append((kind, prompt, title, style))
+        return self.next_retry(kind)
+
+    def next_retry(self, kind: str) -> object:
+        """The answer for a dialog already up, which turned the last one down."""
+        if not self.answers:
+            raise VBADialogError(f"{kind} is waiting for an answer and none is queued; answer_dialogs queues them",
+                                 where=self.current_where())
+        return self.answers.pop(0)
 
     def create_com(self, class_name: str) -> object:
         from pyopenvba.interpreter._scripting import in_memory

@@ -66,6 +66,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._application_more import Timer
+    from pyopenvba.apps.excel._dialogs import FileDialog as FileDialogObject
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
@@ -390,6 +391,8 @@ class Application(ExcelObject):
         self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
         #: What Application.OnTime has waiting, oldest first (see _application_more).
         self.timers: list[Timer] = []
+        #: The one file dialog, from when a macro first asks for it (see _dialogs).
+        self.file_dialog: FileDialogObject | None = None
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
@@ -596,6 +599,40 @@ class Application(ExcelObject):
     def _set_max_change(self, value: object) -> None:
         """Any number at all, 0 and negative ones among them, which then stop no iteration early."""
         self.max_change = float(to_number(value))
+
+    @method
+    def InputBox(self, Prompt: object = MISSING, Title: object = MISSING, Default: object = MISSING,  # noqa: N803
+                 Left: object = MISSING, Top: object = MISSING, HelpFile: object = MISSING,  # noqa: N803
+                 HelpContextID: object = MISSING, Type: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import input_box
+
+        return input_box(self, Prompt, Title, Default, Type)
+
+    @method
+    def GetOpenFilename(self, FileFilter: object = MISSING, FilterIndex: object = MISSING, Title: object = MISSING,  # noqa: N803
+                        ButtonText: object = MISSING, MultiSelect: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import get_open_filename
+
+        return get_open_filename(self, FileFilter, Title, MultiSelect)
+
+    @method
+    def GetSaveAsFilename(self, InitialFilename: object = MISSING, FileFilter: object = MISSING,  # noqa: N803
+                          FilterIndex: object = MISSING, Title: object = MISSING, ButtonText: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import get_save_as_filename
+
+        return get_save_as_filename(self, InitialFilename, FileFilter, Title)
+
+    @member
+    def FileDialog(self, fileDialogType: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._dialogs import file_dialog
+
+        return file_dialog(self, fileDialogType)
+
+    @member
+    def Dialogs(self) -> object:
+        from pyopenvba.apps.excel._dialogs import Dialogs
+
+        return Dialogs(self)
 
     @member
     def International(self, Index: object = MISSING) -> object:

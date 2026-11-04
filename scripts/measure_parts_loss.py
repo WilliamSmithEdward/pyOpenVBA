@@ -35,8 +35,9 @@ OUT = ROOT / "tests/fixtures/parts_loss"
 FORMATS = {"xlsx": 51, "xlsm": 52, "xltm": 53, "xlam": 55, "xlsb": 50, "xls": 56}
 #: The zip packages, which the comparison and strip_save_path can look into.
 PACKAGED = {"xlsx", "xlsm", "xltm", "xlam"}
-#: Parts every save rewrites on purpose: the save's author and time, and the stylesheet in use only.
-REWRITTEN = {"docProps/core.xml", "xl/styles.xml"}
+#: Parts every save rewrites on purpose: the save's author and time, the stylesheet in use only, and the shared strings, whose
+#: entries no cell reads any more are emptied as a changed sheet's text goes inline (Excel's reread is what checks that).
+REWRITTEN = {"docProps/core.xml", "xl/styles.xml", "xl/sharedStrings.xml"}
 #: Elements the edit itself changes.
 EDITED = {"sheetData", "dimension"}
 

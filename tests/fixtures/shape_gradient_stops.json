@@ -1,0 +1,232 @@
+{
+ "measured_at": "2026-11-04T01:53:28.442479+00:00",
+ "make": "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): sh.Fill.ForeColor.RGB = 255: sh.Fill.BackColor.RGB = 65280: sh.Fill.TwoColorGradient 1, 1: Set st = sh.Fill.GradientStops: ",
+ "reads": [
+  "st.Count",
+  "st(1).Position",
+  "st(1).Transparency",
+  "st(1).Color.RGB",
+  "st(1).Color.Brightness",
+  "st(2).Position",
+  "st(2).Transparency",
+  "st(2).Color.RGB",
+  "st(2).Color.Brightness",
+  "st(3).Position",
+  "st(3).Transparency",
+  "st(3).Color.RGB",
+  "st(3).Color.Brightness",
+  "st(4).Position",
+  "st(4).Transparency",
+  "st(4).Color.RGB",
+  "st(4).Color.Brightness",
+  "s2"
+ ],
+ "source": "Private Sub Act(ByVal which As Long, ByVal ws As Worksheet, sh As Object, st As Object, o As Object, s2 As Variant, failure As Long)\n    Dim v2 As Variant\n    On Error GoTo Failed\n    Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): sh.Fill.ForeColor.RGB = 255: sh.Fill.BackColor.RGB = 65280: sh.Fill.TwoColorGradient 1, 1: Set st = sh.Fill.GradientStops\n    Select Case which\n    Case 0\n        s2 = st.Count\n    Case 1\n        st.Insert2 16711680, 0.5\n    Case 2\n        st.Insert2 16711680, 0.5, 0.5\n    Case 3\n        st.Insert2 16711680, 0.5, , 1\n    Case 4\n        st.Insert2 16711680, 0.5, , 3\n    Case 5\n        st.Insert2 16711680, 0.5, , 2\n    Case 6\n        st.Insert2 16711680, 0.5, , 4\n    Case 7\n        st.Insert2 16711680, 0.5, , 0\n    Case 8\n        st.Insert2 16711680, 0.5, , , 0.4\n    Case 9\n        st.Insert2 16711680, 0.5, , , -0.4\n    Case 10\n        st.Insert2 16711680, 0.5, , , 0\n    Case 11\n        st.Insert2 16711680, 0.5, , , 1\n    Case 12\n        st.Insert2 16711680, 0.5, , , -1\n    Case 13\n        st.Insert2 16711680, 0.5, , , 2\n    Case 14\n        st.Insert2 16711680, 0.5, 0.5, 2, 0.4\n    Case 15\n        st.Insert2 16711680, 2\n    Case 16\n        st.Insert2 16711680, -1\n    Case 17\n        st.Insert2 16711680, 0.5, 2\n    Case 18\n        st.Insert2 16711680\n    Case 19\n        st.Insert2 16711680, 0\n    Case 20\n        st.Insert2 16711680, 1\n    Case 21\n        st.Insert2 RGB:=16711680, Position:=0.5, Brightness:=0.4\n    Case 22\n        st.Insert 16711680, 0.5: st.Insert2 255, 0.25, , , 0.4\n    Case 23\n        st.Insert2 16711680, 0.5, , , 0.4: st.Insert 255, 0.25\n    Case 24\n        st.Insert2 16711680, 0.5, , , 0.4: s2 = st(3).Color.Brightness & \"|\" & st(3).Color.RGB & \"|\" & st(3).Color.Type & \"|\" & st(3).Color.TintAndShade\n    Case 25\n        st.Insert2 16711680, 0.5, , , 0.4: st.Delete 3\n    Case 26\n        st.Insert2 16711680, 0.5, , , 0.4: st(3).Position = 0.75\n    Case 27\n        st.Insert2 16711680, 0.5, , , 0.4: st(3).Color.RGB = 255\n    Case 28\n        st.Insert2 16711680, 0.5, , , 0.4: st(3).Transparency = 0.5\n    Case 29\n        For Each o In st: s2 = s2 & o.Position & \"/\" & o.Color.RGB & \",\": Next\n    Case 30\n        For Each o In st: o.Transparency = 0.5: Next\n    Case 31\n        st.Insert 16711680, 0.5: For Each o In st: s2 = s2 & TypeName(o) & o.Position & \",\": Next\n    Case 32\n        s2 = TypeName(st.Application) & \"|\" & st.Application.Name\n    Case 33\n        s2 = st.Creator\n    Case 34\n        s2 = TypeName(st(1).Application) & \"|\" & st(1).Application.Name\n    Case 35\n        s2 = st(1).Creator\n    Case 36\n        s2 = TypeName(st)\n    Case 37\n        Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: s2 = TypeName(o.Application)\n    Case 38\n        Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: s2 = o.Creator\n    Case 39\n        Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: For Each v2 In o: s2 = \"x\": Next\n    Case 40\n        Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: o.Insert2 255, 0.5\n    End Select\n    Exit Sub\nFailed:\n    failure = Err.Number\nEnd Sub\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, st As Object, o As Object, s As String, v As String, s2 As Variant, failure As Long\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Act which, ws, sh, st, o, s2, failure\n    s = IIf(failure = 0, \"ok\", \"Err \" & failure)\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = st.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(1).Position\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(1).Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(1).Color.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(1).Color.Brightness\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(2).Position\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(2).Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(2).Color.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(2).Color.Brightness\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(3).Position\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(3).Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(3).Color.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(3).Color.Brightness\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(4).Position\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(4).Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(4).Color.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = st(4).Color.Brightness\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    Err.Clear\n    v = \"\"\n    v = s2\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"~\" & v\n    On Error GoTo 0\n    Tried = s\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 40\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "s2 = st.Count",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~2",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16711680~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, 0.5",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0.5~16711680~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:alpha val=\"50000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , 1",
+   "ok~3~0.5~0~16711680~0~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"/></a:gs><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , 3",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16711680~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , 2",
+   "ok~3~0~0~255~0~0.5~0~16711680~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , 4",
+   "Err -2147024809~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , 0",
+   "Err -2147024809~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0.4",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16737894~0.4~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , -0.4",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~10027008~-0.4~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"60000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16711680~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 1",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16777215~1~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"0\"/><a:lumOff val=\"100000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , -1",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~0~-1~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"0\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 2",
+   "Err -2147024809~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, 0.5, 2, 0.4",
+   "ok~3~0~0~255~0~0.5~0.5~16737894~0.4~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:alpha val=\"50000\"/><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/></a:srgbClr></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 2",
+   "Err -2147024809~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, -1",
+   "Err -2147024809~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, 2",
+   "Err -2147024809~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680",
+   "Err 450~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0",
+   "ok~3~0~0~255~0~1~0~16777215~0~0~0~16711680~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"0\"><a:srgbClr val=\"0000FF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 1",
+   "ok~3~0~0~255~0~1~0~16777215~0~1~0~16711680~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"0000FF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 RGB:=16711680, Position:=0.5, Brightness:=0.4",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16737894~0.4~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert 16711680, 0.5: st.Insert2 255, 0.25, , , 0.4",
+   "ok~4~0~0~255~0~1~0~16777215~0~0.5~0~16711680~0~0.25~0~6711039~0.4~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"/></a:gs><a:gs pos=\"25000\"><a:srgbClr val=\"FF0000\"><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0.4: st.Insert 255, 0.25",
+   "ok~4~0~0~255~0~1~0~16777215~0~0.5~0~16737894~0.4~0.25~0~255~0~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/></a:srgbClr></a:gs><a:gs pos=\"25000\"><a:srgbClr val=\"FF0000\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0.4: s2 = st(3).Color.Brightness & \"|\" & st(3).Color.RGB & \"|\" & st(3).Color.Type & \"|\" & st(3).Color.TintAndShade",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16737894~0.4~E-2147024809~E-2147024809~E-2147024809~E-2147024809~0.4|16737894|1|0",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0.4: st.Delete 3",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0.4: st(3).Position = 0.75",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.75~0~16737894~0.4~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"75000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0.4: st(3).Color.RGB = 255",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~255~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"FF0000\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert2 16711680, 0.5, , , 0.4: st(3).Transparency = 0.5",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0.5~16737894~0.4~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"><a:lumMod val=\"60000\"/><a:lumOff val=\"40000\"/><a:alpha val=\"50000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "For Each o In st: s2 = s2 & o.Position & \"/\" & o.Color.RGB & \",\": Next",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~0/255,1/16777215,",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "For Each o In st: o.Transparency = 0.5: Next",
+   "ok~2~0~0.5~255~0~1~0.5~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"><a:alpha val=\"50000\"/></a:srgbClr></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"><a:alpha val=\"50000\"/></a:srgbClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "st.Insert 16711680, 0.5: For Each o In st: s2 = s2 & TypeName(o) & o.Position & \",\": Next",
+   "ok~3~0~0~255~0~1~0~16777215~0~0.5~0~16711680~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~GradientStop0,GradientStop1,GradientStop0.5,",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"0000FF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "s2 = TypeName(st.Application) & \"|\" & st.Application.Name",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~Application|Microsoft Excel",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "s2 = st.Creator",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~1480803660",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "s2 = TypeName(st(1).Application) & \"|\" & st(1).Application.Name",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~Application|Microsoft Excel",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "s2 = st(1).Creator",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~1480803660",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "s2 = TypeName(st)",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~GradientStops",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: s2 = TypeName(o.Application)",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~Application",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: s2 = o.Creator",
+   "ok~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~1480803660",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: For Each v2 In o: s2 = \"x\": Next",
+   "Err -2147352567~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ],
+  [
+   "Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5).Fill.GradientStops: o.Insert2 255, 0.5",
+   "Err -2147024809~2~0~0~255~0~1~0~16777215~0~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~E-2147024809~",
+   "<a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FF0000\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill>"
+  ]
+ ]
+}

@@ -174,6 +174,33 @@ class ControlInfo:
     lock_text: bool = True
 
 
+@dataclass(frozen=True)
+class ConnectorLink:
+    """One end of a connector held on a shape's connection site: the shape's id and geometry, and where the site stood."""
+
+    target: int
+    site: int
+    point: tuple[float, float]
+    geometry: str
+
+
+@dataclass(frozen=True)
+class TextLine:
+    """The line around a shape's letters (TextRange2.Font.Line). With no colour of its own, it is the preset black."""
+
+    hidden: bool = False
+    rgb: str | None = None
+    scheme: str | None = None
+    preset: bool = False
+    mods: tuple[tuple[str, int], ...] = ()
+    alpha: int | None = None
+    width: int | None = None
+    compound: str | None = None
+    dash: str | None = None
+    #: Setting its transparency writes every attribute out.
+    full: bool = False
+
+
 @dataclass(slots=True)
 class TextLook:
     """Excel: how a new shape lays out its text, as TextFrame sets it and bodyPr and pPr keep it
@@ -217,6 +244,15 @@ class TextLook:
     font_tint: int | None = None
     font_shadow: bool = False
     font_latin: str | None = None
+    #: What TextRange2.Font.Fill adds: no fill, a theme colour, its Brightness, its transparency, and a colour written out.
+    font_no_fill: bool = False
+    font_theme: str | None = None
+    font_mods: tuple[tuple[str, int], ...] = ()
+    font_alpha: int | None = None
+    font_solid: bool = False
+    #: The theme colour letters take by default: light on a shape, dark in a text box.
+    font_scheme: str = "lt1"
+    font_line: TextLine | None = None
     #: TextFrame2.Column: bodyPr's numCol, and its spcCol in points (tests/fixtures/shape_columns.json).
     columns: int = 1
     column_spacing: float = 0.0
@@ -418,6 +454,8 @@ class Shape:
     text: str = ""
     #: The procedure a click runs, where the host has one.
     macro: str = ""
+    #: A form control's macro set from another workbook: that workbook's name, which saving as a link is not built for.
+    macro_book: str = ""
     #: The id the file gives it, unique within its part.
     shape_id: int = 0
     #: A form control's own settings, where it is one.
@@ -436,6 +474,10 @@ class Shape:
     #: Where the shape's markup was, so an untouched one is written
     #: back exactly as it came in.
     source: str = ""
+    #: Where a load placed it, to tell whether it has moved since.
+    loaded_box: tuple[float, float, float, float] | None = None
+    #: The hlinkClick its name carries in a file: its relationship, tip and place; a load makes the first the address.
+    link: tuple[str, str, str] | None = None
     #: Where in the part that markup started.
     source_at: int = 0
     #: Word only: the anchor's relativeHeight, which is the order Word
@@ -462,10 +504,18 @@ class Shape:
     #: Setting TransparentBackground writes a fill behind the picture: clear when on, the style's when off.
     picture_fill: str | None = None
     image_relationship: str = ""
+    #: Excel: the file a linked picture shows, which the workbook does not keep (Pictures.Insert).
+    image_link: str = ""
     #: Excel: Shape.Apply has written the empty text's format out.
     painted: bool = False
     #: Excel: Adjustments, as the file's values in the order of ADJUSTMENTS; None while the geometry's defaults stand.
     adjustments: tuple[int, ...] | None = None
+    #: Excel: ConnectorFormat's connections, and where the connector stood when last routed, which a move of its own changes.
+    begin_link: ConnectorLink | None = None
+    end_link: ConnectorLink | None = None
+    link_place: tuple[float, float, bool, bool, float] | None = None
+    #: Excel: a connector that lost a shape to its deletion writes an empty cxnSpLocks.
+    link_lost: bool = False
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
     flip_h: bool = False
     flip_v: bool = False
@@ -483,6 +533,12 @@ class Shape:
     former_group: Shape | None = field(default=None, compare=False)
     #: Excel: the text layout TextFrame set on a new shape, None while it is the one Excel starts with.
     text_look: TextLook | None = None
+    #: Each character's own font settings over text_look, by TextLook's field names; empty when none has any.
+    text_marks: list[dict[str, object]] = field(default_factory=list[dict[str, object]])
+    #: The settings the last paragraph's end holds, once replacing the text has left it any.
+    text_end: dict[str, object] | None = None
+    #: Each edit of the text as (where, how much went, how much came, whether all of it went), for a TextRange2 held across it.
+    text_edits: list[tuple[int, int, int, bool]] = field(default_factory=list[tuple[int, int, int, bool]])
     #: Excel: a new freeform's path, each step its command (moveTo, lnTo, cubicBezTo or close) and its points in EMU
     #: from the path's corner (tests/fixtures/shape_polyline.json).
     path: list[tuple[str, tuple[tuple[int, int], ...]]] = field(default_factory=lambda: [])
@@ -496,6 +552,8 @@ class Shape:
         124 are callouts (tests/fixtures/shape_adjustment_table.json)."""
         if self.kind == "line" and self.geometry != "line":
             return 1
+        if self.image_link:
+            return 11
         if self.kind == "shape" and 109 <= getattr(self, "auto_shape_type", 1) <= 124:
             return 2
         return MSO_TYPE.get(self.kind, 1)

@@ -1290,6 +1290,9 @@ class Parser:
             args = self._parse_print_arguments()
         elif isinstance(target, A.Index) and self.at_eos():
             args = target.args
+            # x.Add(1, 2) as a statement does not compile, and needs Call or an assignment (tests/fixtures/excel_everyday_14.json).
+            if len(args) > 1 or (args and args[0].name):
+                self.fail("Expected: =")
             if len(args) == 1:
                 args[0].by_value = True
             inner = target.target

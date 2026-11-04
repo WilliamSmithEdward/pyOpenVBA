@@ -37,7 +37,7 @@ Null. CurrentArray is the array of the range's first cell.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -212,7 +212,18 @@ def formula_array(target: Range, formula_of: Callable[[int, int], str]) -> objec
     held = has_array(target)
     if held is True:
         found = array_at(target.sheet, first.top, first.left)
-        return formula_of(*(found[0] if found is not None else (first.top, first.left)))
+        if found is None:
+            return formula_of(first.top, first.left)
+        # Empty cells past the array's block change nothing, and any other makes it Null
+        # (tests/fixtures/range_more_blocks.json).
+        for area in target.areas:
+            if area.rows * area.columns > 1048576:
+                raise VBAUnsupportedError("FormulaArray read over more than 1,048,576 cells is not implemented")
+            for row in range(area.top, area.bottom + 1):
+                for column in range(area.left, area.right + 1):
+                    if not found[1].contains(row, column) and formula_of(row, column):
+                        return NULL
+        return formula_of(*found[0])
     if held is NULL:
         return NULL
     texts: set[str] = set()
@@ -270,8 +281,8 @@ def moved(sheet: Worksheet, rewrite: Callable[[str], str]) -> None:
     sheet.array_formulas = carried
 
 
-def elements(sheet: Worksheet, escape: Callable[[str], str],
-             always: Callable[[str], bool]) -> dict[tuple[int, int], str]:
+def elements(sheet: Worksheet, escape: Callable[[str], str], always: Callable[[str], bool],
+             marked: Collection[tuple[int, int]] = ()) -> dict[tuple[int, int], str]:
     """The ``<f>`` element of each array's first cell, as a save writes it.
 
     An array whose formula ``always`` works out whenever anything changes is ca="1", and each of its other cells
@@ -285,7 +296,7 @@ def elements(sheet: Worksheet, escape: Callable[[str], str],
         cell = sheet.cells_.get((row, column))
         if cell is None or not cell.formula:
             continue
-        volatile = always(cell.formula)
+        volatile = always(cell.formula) or (row, column) in marked
         dirty = not sheet.book.calculator.automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)
         whole = dirty or volatile and (block.rows * block.columns == 1 or not calls(cell.formula, "RAND"))
         flags = (' aca="1"' if whole else "", ' ca="1"' if volatile or dirty else "")

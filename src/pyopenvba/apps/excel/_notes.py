@@ -29,6 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
@@ -89,6 +90,8 @@ class Note:
     #: back as it arrived; each is "" once what it holds changes.
     comment_xml: str = ""
     shape_xml: str = ""
+    #: The box as the file had it, kept through a move: its fill, line, lock and the rest, none of which the model holds.
+    box_source: str = ""
     #: A threaded comment's comments, the thread's first and its replies, when the note is the thread's stand-in,
     #: which the notes VBA sees leave out (see _threads).
     thread: list[ThreadEntry] = field(default_factory=lambda: [])
@@ -362,7 +365,7 @@ def _text_argument(value: object) -> str:
     raise error(1004, "Application-defined or object-defined error")
 
 
-class Comment(ExcelObject):
+class Comment(HeldPart, ExcelObject):
     """One cell's note."""
 
     vba_type_name = "Comment"
@@ -373,6 +376,21 @@ class Comment(ExcelObject):
         self.sheet = sheet
         #: Its cell, which it follows as any Range does (tests/fixtures/range_audit.json).
         self.target = Range(sheet, [Area(row, column, row, column, sheet.name)])
+        #: Who wrote it, which it goes on answering once it has gone.
+        found = note_at(sheet, row, column)
+        self.author = "" if found is None else found.author
+
+    def held_gone(self) -> bool:
+        return note_at(self.sheet, self.row, self.column) is None
+
+    def held_error(self, name: str) -> int:
+        """Gone but for its cell (with its cell, it answers nothing: see ExcelObject) (tests/fixtures/held_objects.json)."""
+        if name in ("author", "visible", "parent", "application", "creator"):
+            return 0
+        return 1004 if name == "shape" else -2147417848
+
+    def held_set_error(self, name: str) -> int:
+        return -2147417848
 
     @property
     def row(self) -> int:
@@ -419,11 +437,11 @@ class Comment(ExcelObject):
 
     @member
     def Author(self) -> object:
-        return self.note.author
+        return self.author
 
     @member
     def Visible(self) -> object:
-        return self.note.visible
+        return not self.held_gone() and self.note.visible
 
     @setter("Visible")
     def _set_visible(self, value: object) -> None:
@@ -507,14 +525,26 @@ class Comments(VBACollection, ItemDefault, ExcelObject):
         return VBAInt(_CREATOR, "Long")
 
 
-class NoteShape(ExcelObject):
+class NoteShape(HeldPart, ExcelObject):
     """A note's box, as Shapes and Comment.Shape answer it."""
 
     vba_type_name = "Shape"
 
     def __init__(self, sheet: Worksheet, row: int, column: int) -> None:
+        from pyopenvba.apps.excel._model import Range
+
         self.sheet = sheet
         self.row, self.column = row, column
+        #: Its cell, which it follows as any Range does.
+        self.target = Range(sheet, [Area(row, column, row, column, sheet.name)])
+
+    @property
+    def held_free(self) -> frozenset[str]:  # pyright: ignore[reportIncompatibleVariableOverride]
+        """With the note gone and its cell there, these still answer (tests/fixtures/held_objects.json)."""
+        return frozenset({"parent", "application", "creator"})
+
+    def held_gone(self) -> bool:
+        return note_at(self.sheet, self.row, self.column) is None
 
     @property
     def note(self) -> Note:
@@ -570,7 +600,8 @@ class NoteShape(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.sheet
+        # Once the note has gone, what its box answers with is the note's own object.
+        return Comment(self.sheet, self.row, self.column) if self.held_gone() else self.sheet
 
     @member
     def Application(self) -> object:
@@ -582,9 +613,21 @@ class NoteTextFrame(ExcelObject):
 
     vba_type_name = "TextFrame"
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     def __init__(self, sheet: Worksheet, row: int, column: int) -> None:
+        from pyopenvba.apps.excel._model import Range
+
         self.sheet = sheet
         self.row, self.column = row, column
+        #: Its cell, as a note's box has.
+        self.target = Range(sheet, [Area(row, column, row, column, sheet.name)])
+
+    @member
+    def Parent(self) -> object:
+        return NoteShape(self.sheet, self.row, self.column)
 
     @method
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:

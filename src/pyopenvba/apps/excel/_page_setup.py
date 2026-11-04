@@ -23,7 +23,7 @@ from pyopenvba.apps.excel._page_headers import FLAGS as HEADER_FLAGS
 from pyopenvba.apps.excel._page_headers import LIMIT, Headers, read, section, with_headers, with_section
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, setter
-from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, error, to_bool, to_text
+from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, error, to_bool, to_integer, to_number, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, NameEntry, Worksheet
@@ -201,23 +201,23 @@ def deferred(sheet: Worksheet, value: object, apply: Callable[[], None]) -> None
 
 def flush(application: Application) -> None:
     """The PageSetup settings held back while PrintCommunication was False, applied in the order they were made,
-    the last of a property's winning. One Excel refuses is dropped without an error, as is one of Null or of text
-    that is no number (print_zoom_invalid, print_header_too_long, print_coercion), and one on a sheet or workbook
-    gone since (print_book_closed)."""
-    from pyopenvba.apps.excel._application_settings import number
-
+    the last of a property's winning. One Excel refuses is dropped, and setting PrintCommunication then fails
+    (print_zoom_invalid); one of Null or of text is dropped without an error (print_coercion), as is one on a sheet
+    or workbook gone since (print_book_closed)."""
     held, application.held_page_settings = application.held_page_settings, []
+    refused = False
     for sheet, value, apply in held:
         if sheet.book not in application.workbooks_.books or sheet not in sheet.book.sheets_:
             continue
         try:
             apply()
         except VBARuntimeError:
-            continue
+            refused = refused or (value is not NULL and not isinstance(value, str))
         except VBAUnsupportedError:
-            if value is NULL or (isinstance(value, str) and number(value) is None):
-                continue
-            raise
+            if value is not NULL and not isinstance(value, str):
+                raise
+    if refused:
+        raise error(1004, "Method 'PrintCommunication' of object '_Application' failed")
 
 
 def _set_header(sheet: Worksheet, child: str, code: str, value: object, message: str) -> None:
@@ -226,15 +226,21 @@ def _set_header(sheet: Worksheet, child: str, code: str, value: object, message:
     if sheet.book.application.udf_callers:
         raise unsupported('setting a header or footer from a worksheet function')
 
-    def apply() -> None:
-        text = to_text(value)
+    def updated() -> str:
         found = headers(sheet)
         if found.pictures:
             raise unsupported('setting a header or footer on a sheet with header pictures')
-        updated = with_section(found.texts.get(child, ''), code, text)
-        if len(updated) > LIMIT:
+        text = with_section(found.texts.get(child, ''), code, to_text(value))
+        # Refused as it is set, whatever PrintCommunication is (print_header_too_long).
+        if len(text) > LIMIT:
             raise error(1004, message)
-        found.texts[child] = updated
+        return text
+
+    updated()
+
+    def apply() -> None:
+        found = headers(sheet)
+        found.texts[child] = updated()
         found.changed = True
         sheet.book.saved = False
 
@@ -310,6 +316,14 @@ def _name(sheet: Worksheet, bare: str, areas: list[Area]) -> None:
         entry.refers_to, entry.visible, entry.attributes = refers, True, attrs
     sheet.book.names_.changed = True
     sheet.book.saved = False
+
+
+def _axis_of(area: Area, rows: bool) -> Area:
+    """The whole rows or columns of a block of cells."""
+    from pyopenvba._a1 import column_letter
+
+    text = f'{area.top}:{area.bottom}' if rows else f'{column_letter(area.left)}:{column_letter(area.right)}'
+    return parse_reference(text)[0]
 
 
 def _finite(value: object) -> float:
@@ -410,13 +424,13 @@ class PageSetup(ExcelObject):
             value = next((number for number, text in mapping.items() if text == raw), default)
             return float(value) if name in ('Orientation', 'Order') else VBAInt(value, 'Long')
         if name == 'PaperSize':
-            return float(setup.get('paperSize', '1'))
+            return float(setup.get('paperSize', '1')) or 1.0  # Excel writes 0 beside some settings, and reads it as Letter (tests/fixtures/page_files.json)
         if name == 'FirstPageNumber':
             return float(setup.get('firstPageNumber', '1')) if setup.get('useFirstPageNumber') in ('1', 'true') else VBAInt(-4105, 'Long')
         if name == 'Zoom':
             if current.attributes.get(('sheetPr', 'pageSetUpPr'), {}).get('fitToPage') in ('1', 'true'):
                 return False
-            return VBAInt(int(setup.get('scale', '100')), 'Long')
+            return VBAInt(int(setup.get('scale', '100')) or 100, 'Long')  # and 0 as 100
         if name in ('FitToPagesWide', 'FitToPagesTall'):
             value = int(setup.get('fitToWidth' if name.endswith('Wide') else 'fitToHeight', '1'))
             return VBAInt(value, 'Long') if value else False
@@ -432,84 +446,86 @@ class PageSetup(ExcelObject):
             raise unsupported('setting this property from a worksheet function')
         if name.startswith('Print') and name in ('PrintArea', 'PrintTitleRows', 'PrintTitleColumns'):
             # The print names are names, set at once whatever PrintCommunication is (print_area, print_titles).
-            if not isinstance(value, str) or len(value) > 8192:
+            text = to_text(value)
+            if len(text) > 8192:
                 raise unsupported('with unmeasured print-reference arguments')
             try:
-                areas = parse_reference(value) if value else []
+                areas = parse_reference(text) if text else []
             except ValueError:
-                raise unsupported('with nonrectangular print references') from None
+                raise error(1004) from None
             if any(area.sheet and area.sheet.casefold() != self.sheet.name.casefold() for area in areas):
-                raise unsupported('with print references on another worksheet')
+                raise error(1004)
             if name == 'PrintArea':
                 if any(area.whole_rows or area.whole_columns for area in areas):
                     raise unsupported('with whole-axis print areas')
                 _name(self.sheet, 'Print_Area', areas)
             else:
                 rows = name == 'PrintTitleRows'
-                if len(areas) > 1 or any(not (area.whole_rows if rows else area.whole_columns)
-                                         or (area.whole_rows and area.whole_columns) for area in areas):
+                if len(areas) > 1 or any(area.whole_rows and area.whole_columns for area in areas):
                     raise unsupported('with non-axis print titles')
+                if any(area.whole_columns if rows else area.whole_rows for area in areas):
+                    raise error(1004)
+                # Cells give their rows or columns (tests/fixtures/settable_lists.json).
+                areas = [area if (area.whole_rows if rows else area.whole_columns) else _axis_of(area, rows) for area in areas]
                 retained = [area for area in _print_ranges(self.sheet, 'Print_Titles')
                             if area.whole_rows != rows]
                 _name(self.sheet, 'Print_Titles', [*retained, *areas])
             return
+        if name == 'Orientation' and isinstance(value, str) and not self.sheet.book.application.print_communication:
+            # Refused as it is set, where LeftMargin = Null is not (print_coercion).
+            raise error(1004, 'Unable to set the Orientation property of the PageSetup class')
         deferred(self.sheet, value, lambda: self._apply(name, value, udf))
 
     def _apply(self, name: str, value: object, udf: bool) -> None:
         updates: dict[tuple[str, ...], dict[str, str | None]] = {}
         if name in MARGINS:
-            number = _finite(value)
+            number = _finite(float(to_number(value)))
             if number < 0:
                 raise unsupported('with negative margins (native files can be unreadable)')
             updates[('pageMargins',)] = {MARGINS[name]: repr(number / 72)}
         elif name in OPTIONS or name in FLAGS:
-            if not isinstance(value, bool):
-                raise unsupported('with unmeasured Boolean coercions')
             key = OPTIONS[name] if name in OPTIONS else FLAGS[name]
-            updates[('printOptions',) if name in OPTIONS else ('pageSetup',)] = {key: str(int(value))}
+            updates[('printOptions',) if name in OPTIONS else ('pageSetup',)] = {key: str(int(to_bool(value)))}
         elif name in ENUMS:
-            number = _finite(value)
+            number = float(to_integer(value, 'Long'))
             attribute, mapping, default = ENUMS[name]
             if number not in mapping:
-                raise error(1004)
+                raise error(5 if name == 'PrintErrors' else 1004)
             # Set back to its default, a setting leaves the file but orientation stays (tests/fixtures/print_notes.json).
             dropped = number == default and name != 'Orientation'
             updates[('pageSetup',)] = {attribute: None if dropped else mapping[int(number)]}
         elif name == 'PaperSize':
-            number = _finite(value)
-            if number == 0:
+            number = float(to_integer(value, 'Long'))
+            # Which sizes there are depends on the printer: these were measured on one.
+            if number in (0, 2, -1, 256, 999, 99999):
                 raise error(1004)
-            if number not in (1, 9):
+            if number not in (1, 3, 5, 9):
                 raise unsupported('with unmeasured paper sizes')
             updates[('pageSetup',)] = {'paperSize': str(int(number))}
         elif name == 'FirstPageNumber':
-            number = _finite(value)
+            number = float(to_integer(value, 'Long'))
             if number == -4105:
                 updates[('pageSetup',)] = {'useFirstPageNumber': None}
-            elif number.is_integer() and 0 <= number <= 32767:
+            elif number != 32768:  # which alone Excel passes over (tests/fixtures/settable_lists.json)
                 updates[('pageSetup',)] = {'firstPageNumber': str(int(number)), 'useFirstPageNumber': '1'}
-            else:
-                raise unsupported('with unmeasured page numbers')
         elif name == 'Zoom':
             if value is False:
                 updates[('sheetPr', 'pageSetUpPr')] = {'fitToPage': '1'}
             else:
                 if value is NULL or isinstance(value, (str, bool)):
                     raise error(1004)
-                number = _finite(value)
-                if not number.is_integer():
-                    raise unsupported('with fractional scale')
+                number = float(math.floor(_finite(value)))
                 if not 10 <= number <= 400:
                     raise error(1004)
                 updates[('pageSetup',)] = {'scale': str(int(number))}
                 updates[('sheetPr', 'pageSetUpPr')] = {'fitToPage': None}
         else:
-            if value is True or value is EMPTY or isinstance(value, str):
+            if value is True or value is EMPTY or value is NULL or isinstance(value, str):
                 raise error(1004)
-            number = 0.0 if value is False else _finite(value)
-            if number < 0:
+            number = 0.0 if value is False else float(math.floor(_finite(value)))
+            if number < 0 or (number == 0 and value is not False):
                 raise error(1004)
-            if not number.is_integer() or number > 32767:
+            if number > 32767:
                 raise unsupported('with unmeasured fit counts')
             updates[('pageSetup',)] = {'fitToWidth' if name.endswith('Wide') else 'fitToHeight': str(int(number))}
         if not udf:

@@ -24,6 +24,7 @@ def read(book: Workbook, xml: str) -> None:
     found = _CALC.search(xml)
     values = attributes(found.group(0)) if found else {}
     _application_settings(book, values)
+    book.file_calculation_mode = values.get('calcMode', 'auto')
     book.precision_as_displayed = values.get('fullPrecision', '1').lower() in ('0', 'false')
     calc_id = values.get('calcId', '')
     opened(book, int(calc_id) if calc_id.isdigit() else 0, values.get('fullCalcOnLoad', '0').lower() in ('1', 'true'),
@@ -50,20 +51,37 @@ def _application_settings(book: Workbook, values: dict[str, str]) -> None:
         application.max_change = 0.001
 
 
+#: The attributes of calcPr in the order Excel writes them, which is the schema's.
+_ORDER = ('calcId', 'calcMode', 'fullCalcOnLoad', 'refMode', 'iterate', 'iterateCount', 'iterateDelta', 'fullPrecision', 'calcCompleted',
+          'calcOnSave', 'concurrentCalc', 'concurrentManualCount', 'forceFullCalc')
+
+
+def _in_schema_order(tag: str) -> str:
+    """A calcPr tag with its attributes in the order Excel writes them; any other stays after them, as it came."""
+    held = re.findall(r'\s([\w:]+)="([^"]*)"', tag)
+    rank = {name: at for at, name in enumerate(_ORDER)}
+    ordered = sorted(held, key=lambda one: rank.get(one[0], len(_ORDER)))
+    return '<calcPr' + ''.join(f' {name}="{value}"' for name, value in ordered) + '/>'
+
+
 def write(book: Workbook, xml: str) -> str:
     """Persist current mode and save behavior, leaving unrelated calculation settings intact."""
     found = _CALC.search(xml)
     old = found.group(0) if found else '<calcPr/>'
     application = book.application
     values = attributes(old)
-    desired = {'calcMode': {value: key for key, value in _MODES.items()}.get(application.calculation, 'auto'),
+    # A workbook keeps the mode its file had, opened after another or not, until a macro sets Application.Calculation
+    # while it is open; the rest are the application's (tests/fixtures/silent_loss/calc_kept.json).
+    desired = {'calcMode': book.file_calculation_mode or
+               {value: key for key, value in _MODES.items()}.get(application.calculation, 'auto'),
                'calcOnSave': '1' if application.calculate_before_save else '0'}
     pending = any(cell.formula and cell.stale for sheet in book.sheets_ for cell in sheet.cells_.values())
-    if not book.calculator.automatic and pending:
-        desired['calcCompleted'] = '0'
-    elif 'calcCompleted' in values:
-        desired['calcCompleted'] = '0' if pending else '1'
     changed = old
+    if pending and (not book.calculator.automatic or 'calcCompleted' in values):
+        desired['calcCompleted'] = '0'
+    else:
+        # Excel writes it only when a calculation is still to finish (tests/fixtures/saved_values.json).
+        changed = re.sub(r'\scalcCompleted="[^"]*"', '', changed)
     if application.reference_style == -4150:
         desired['refMode'] = 'R1C1'
     elif 'refMode' in values:
@@ -99,12 +117,19 @@ def write(book: Workbook, xml: str) -> str:
         if values.get(name, _DEFAULTS.get(name, '1')) == value:
             continue
         pattern = re.compile(r'\s' + name + r'="[^"]*"')
+        if name in ('calcMode', 'calcOnSave') and value == _DEFAULTS.get(name, '1'):
+            # Excel writes neither at its default.
+            changed = pattern.sub('', changed)
+            continue
         if pattern.search(changed):
             changed = pattern.sub(f' {name}="{value}"', changed)
         else:
             end = changed.index('>')
             at = end - 1 if changed[end - 1] == '/' else end
             changed = changed[:at] + f' {name}="{value}"' + changed[at:]
+    if changed == old:
+        return xml
+    changed = _in_schema_order(changed)
     if changed == old:
         return xml
     if found:

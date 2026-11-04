@@ -36,6 +36,7 @@ from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba._xml import attributes, escape, escape_text, unescape
 from pyopenvba.apps.excel._creator import ItemDefault
@@ -49,6 +50,7 @@ from pyopenvba.interpreter._values import (
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     MISSING,
     NOTHING,
+    NULL,
     VBADate,
     VBAInt,
     error,
@@ -110,6 +112,8 @@ class Table:
     #: The whole table, its header and totals rows included.
     area: Area
     columns: list[TableColumn]
+    #: Delete took it, where another end leaves a held object something to answer (tests/fixtures/held_objects.json).
+    deleted: bool = False
     headers: bool = True
     totals: bool = False
     #: Whether the totals row has ever been shown, which a part says by leaving out totalsRowShown="0".
@@ -262,7 +266,7 @@ def base_table_xml(table: Table) -> str:
     columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column, names)
                       for column in table.columns)
     counts = _totals_counts(table)
-    style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
+    style = (f'<tableStyleInfo{_style_name(table)} showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
              f'showColumnStripes="{int(table.column_stripes)}"/>')
     comment = f' comment="{_column_attribute(table.comment)}"' if table.comment else ""
@@ -326,7 +330,7 @@ def _patched_xml(table: Table) -> str:
         opened = _TABLE.search(xml)
         assert opened is not None
         xml = xml[: opened.end()] + element + xml[opened.end():]
-    style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
+    style = (f'<tableStyleInfo{_style_name(table)} showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
              f'showColumnStripes="{int(table.column_stripes)}"/>')
     shown = _STYLE.search(xml)
@@ -395,6 +399,11 @@ def patched_xml(table: Table) -> str:
     from pyopenvba.apps.excel._table_sort import write_state
 
     return write_state(table, _patched_xml(table))
+
+
+def _style_name(table: Table) -> str:
+    """A table with no style has no name for it, where a save would otherwise write an empty one."""
+    return f' name="{escape(table.style)}"' if table.style else ""
 
 
 def _totals_counts(table: Table) -> str:
@@ -923,12 +932,27 @@ class ListObjects(VBACollection, ItemDefault, ExcelObject):
         return view(add(self.sheet, Source, headers, style))
 
 
-class ListObject(ExcelObject):
+def _table_gone(table: Table, sheet: Worksheet) -> bool:
+    return not any(one is table for one in sheet.tables)
+
+
+class ListObject(HeldPart, ExcelObject):
     vba_type_name = "ListObject"
 
     def __init__(self, table: Table) -> None:
         self.table = table
         self.sheet = table.sheet
+
+    def held_gone(self) -> bool:
+        return self.table.sheet is self.sheet and _table_gone(self.table, self.sheet)
+
+    def held_error(self, name: str) -> int:
+        """Deleted, it answers nothing. Unlisted or cleared away, it still has what needs no table; and Delete then kills Excel."""
+        if self.table.deleted:
+            return 424
+        if name == "delete":
+            raise VBAUnsupportedError("ListObject.Delete on a table that has gone, which ends Excel")
+        return 0 if name in ("parent", "application", "creator") else 1004
 
     @method
     def ExportToVisio(self) -> object:
@@ -1054,6 +1078,7 @@ class ListObject(ExcelObject):
     def Delete(self) -> object:
         from pyopenvba.apps.excel._table_edits import delete_table
 
+        self.table.deleted = True
         delete_table(self.table)
         return EMPTY
 
@@ -1088,11 +1113,24 @@ class ListObject(ExcelObject):
 
     @member
     def TableStyle(self) -> object:
-        return self.table.style
+        """The style as an object, or a space for none (tests/fixtures/settable_lists.json)."""
+        from pyopenvba.apps.excel._workbook_settings import table_style_named
+
+        return table_style_named(self.sheet.book, self.table.style) or " "
 
     @setter("TableStyle")
     def _set_table_style(self, value: object) -> None:
-        self.table.style = to_text(value.vba_get("Name") if isinstance(value, ExcelObject) else value)
+        """A style by name in any case, or none for "", Empty and Null; anything else is error 450."""
+        from pyopenvba.apps.excel._workbook_settings import table_style_named
+
+        wanted = value.vba_get("Name") if isinstance(value, ExcelObject) else value
+        if wanted is EMPTY or wanted is NULL or wanted == "":
+            self.table.style = ""
+        else:
+            found = table_style_named(self.sheet.book, wanted) if isinstance(wanted, str) else None
+            if found is None:
+                raise error(450, "Wrong number of arguments or invalid property assignment")
+            self.table.style = found.name
         self._changed()
 
     @member
@@ -1291,7 +1329,23 @@ def _table_position(value: object) -> int:
         raise error(9, "Subscript out of range") from failed
 
 
-class ListColumns(VBACollection, ItemDefault, ExcelObject):
+class _TablePart(HeldPart):
+    """What hangs off a table and goes with it: if deleted, all of it; if unlisted, all but what needs no table."""
+
+    vba_type_name = ""
+    table: Table
+    sheet: Worksheet
+
+    def held_gone(self) -> bool:
+        return _table_gone(self.table, self.sheet)
+
+    def held_error(self, name: str) -> int:
+        if self.table.deleted:
+            return 424
+        return 0 if name in ("application", "creator") else 1004
+
+
+class ListColumns(VBACollection, ItemDefault, _TablePart, ExcelObject):
     vba_type_name = "ListColumns"
 
     def __init__(self, table: Table) -> None:
@@ -1347,7 +1401,7 @@ class XPathOfCells(ExcelObject):
         return EMPTY
 
 
-class ListColumn(ExcelObject):
+class ListColumn(HeldPart, ExcelObject):
     vba_type_name = "ListColumn"
 
     @member
@@ -1357,7 +1411,19 @@ class ListColumn(ExcelObject):
     def __init__(self, table: Table, index: int) -> None:
         self.table = table
         self.sheet = table.sheet
-        self.index = index
+        self.held = table.columns[index - 1]
+        self.was = index
+
+    @property
+    def index(self) -> int:
+        """Its place now: a column held follows its own column, unlike a row (tests/fixtures/held_objects.json)."""
+        for place, one in enumerate(self.table.columns):
+            if one is self.held:
+                return place + 1
+        return self.was
+
+    def held_gone(self) -> bool:
+        return _table_gone(self.table, self.sheet) or not any(one is self.held for one in self.table.columns)
 
     def _column(self) -> int:
         return self.table.area.left + self.index - 1
@@ -1442,7 +1508,7 @@ class ListColumn(ExcelObject):
         return EMPTY
 
 
-class ListRows(VBACollection, ItemDefault, ExcelObject):
+class ListRows(VBACollection, ItemDefault, _TablePart, ExcelObject):
     vba_type_name = "ListRows"
 
     def __init__(self, table: Table) -> None:
@@ -1473,13 +1539,31 @@ class ListRows(VBACollection, ItemDefault, ExcelObject):
         return ListRow(self.table, add_row(self.table, where, always))
 
 
-class ListRow(ExcelObject):
+class ListRow(_TablePart, ExcelObject):
+    """A place among the rows: held, it answers for whichever row is there now, and has gone when none is."""
+
     vba_type_name = "ListRow"
 
     def __init__(self, table: Table, index: int) -> None:
         self.table = table
         self.sheet = table.sheet
         self.index = index
+        #: Its own Delete took it, which leaves it nothing, whatever row comes to its place.
+        self.went = False
+
+    def _past_the_end(self) -> bool:
+        data = self.table.data
+        return data is None or self.index > data.bottom - data.top + 1
+
+    def held_gone(self) -> bool:
+        return self.went or _table_gone(self.table, self.sheet) or self._past_the_end()
+
+    def held_error(self, name: str) -> int:
+        if self.went:
+            return 424
+        if not _table_gone(self.table, self.sheet):
+            return 0 if name in ("parent", "application", "creator") else 1004
+        return super().held_error(name)
 
     @member
     def Application(self) -> object:
@@ -1505,4 +1589,5 @@ class ListRow(ExcelObject):
         from pyopenvba.apps.excel._table_edits import delete_row
 
         delete_row(self.table, self.index)
+        self.went = True
         return EMPTY

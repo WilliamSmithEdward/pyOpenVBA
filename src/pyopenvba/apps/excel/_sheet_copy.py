@@ -1,6 +1,7 @@
 """Copy the modeled worksheet state without creating incorrect external links."""
 from __future__ import annotations
 
+import re
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any
@@ -138,6 +139,25 @@ def _used_names(source: Worksheet) -> set[str]:
         used = expanded
 
 
+def _free_copy_name(name: str, taken: list[str]) -> str:
+    """The name a copy takes when its own is taken: a number in brackets that ends the name goes on from there, keeping what
+    comes before it to the letter; any other name adds " (2)" (tests/fixtures/sheet_copy_names.json)."""
+    from pyopenvba.apps.excel._names import same_sheet_name
+
+    if re.search(r"\(-\d+\)$", name):
+        raise error(1004, "Application-defined or object-defined error")
+    found = re.fullmatch(r"(.*)\((\d+)\)", name, re.DOTALL)
+    if found is not None and len(found.group(2)) > 3:
+        raise VBAUnsupportedError("Copying a sheet whose name ends in a number this long is not implemented")
+    stem, gap, number = (found.group(1), "", int(found.group(2)) + 1) if found is not None else (name, " ", 2)
+    while True:
+        suffix = f"{gap}({number})"
+        wanted = stem[:31 - len(suffix)] + suffix
+        if not any(same_sheet_name(one, wanted) for one in taken):
+            return wanted
+        number += 1
+
+
 def _copied_names(sources: list[Worksheet], destination: Workbook, renamed: dict[str, str],
                   external: bool) -> list[NameEntry]:
     """The defined names the copies bring: each sheet's own, as its copy's, and in another workbook the workbook's
@@ -195,11 +215,9 @@ def copy_sheets(sources: list[Worksheet], before: object, after: object) -> obje
     renamed: dict[str, str] = {}
     taken = [sheet.name for sheet in destination.sheets_]
     for source in sources:
-        name, number = source.name, 2
-        while any(same_sheet_name(one, name) for one in taken):
-            suffix = f" ({number})"
-            name = source.name[:31 - len(suffix)] + suffix
-            number += 1
+        name = source.name
+        if any(same_sheet_name(one, name) for one in taken):
+            name = _free_copy_name(name, taken)
         taken.append(name)
         renamed[source.name.casefold()] = name
     external = destination is not book
@@ -239,7 +257,8 @@ def _charts_copied(source: Worksheet, copied: Worksheet, renamed: dict[str, str]
 
     copied.shape_count = source.shape_count
     for shape in source.shapes_:
-        copied.shapes_.append(replace(shape, source="", source_at=0, text_look=deepcopy(shape.text_look),
+        copied.shapes_.append(replace(shape, source="", source_at=0, text_look=deepcopy(shape.text_look), text_marks=deepcopy(shape.text_marks),
+                                         text_end=deepcopy(shape.text_end), text_edits=[],
                                          fill_line=deepcopy(shape.fill_line)))
         state = deepcopy(source.chart_states[shape.shape_id])
         state.part, state.dirty = "", True

@@ -58,6 +58,9 @@ class ChartSheet(Chart):
         #: What _io's save asks of a tab.
         self.page_print_names_owned: set[str] = set()
 
+    def held_gone(self) -> bool:
+        return not any(sheet is self for sheet in self.book.chart_sheets)
+
     def admit_read(self) -> None:
         if not any(sheet is self for sheet in self.book.chart_sheets) or not any(book is self.book for book in self.book.application.workbooks_.books):
             raise VBAUnsupportedError("Accessing a detached chart sheet is not implemented")
@@ -133,6 +136,7 @@ class ChartSheet(Chart):
     def Activate(self) -> object:
         self.admit_read()
         self.book.active_chart_sheet = self
+        self.book.view.first_sheet = min(self.book.view.first_sheet, self.book.tabs().index(self))
         self.book.selected_sheets = []
         self.book.application.activate_book(self.book)
         return EMPTY

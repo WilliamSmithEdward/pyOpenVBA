@@ -235,6 +235,21 @@ def _inherit_formats(sheet: Worksheet, *, rows: bool, start: int, count: int,
             position = (index, column) if rows else (row, index)
             sheet.cells_[position] = Cell(style=cell.style)
             sheet.settle(*position)
+    if band is None or not (any(record.style is not None for record in sheet.dims.rows.values())
+                            or any(record.style is not None for record in sheet.dims.columns.values())):
+        return
+    # Where the cell it takes after has none of its own, it takes the format that position shows, a cell being made where
+    # its own row or column would show another (tests/fixtures/range_shifts.json).
+    for across in range(band[0], band[1] + 1):
+        origin = (source, across) if rows else (across, source)
+        if origin in sheet.cells_:
+            continue
+        shown = sheet.inherited_style(*origin)
+        for index in range(start, min(start + count, limit + 1)):
+            position = (index, across) if rows else (across, index)
+            if position not in sheet.cells_ and sheet.inherited_style(*position) != shown:
+                sheet.cells_[position] = Cell(style=shown)
+                sheet.settle(*position)
 
 
 # --- cell shifts ---------------------------------------------------------------------------------------

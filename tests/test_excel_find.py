@@ -69,14 +69,15 @@ End Function'''
 
 
 @pytest.mark.parametrize("expression", [
-    'Range("A1,B2").Find("a")',
-    'Range("A1").Find("a", MatchByte:=True)',
-    'Range("A1").Find("a", LookIn:=-4144)',
+    'Range("A1").Find(ChrW(233), MatchByte:=True)',
+    'Range("A1").Find("a", LookIn:=-4184)',
 ])
 def test_unimplemented_find_options_are_explicit(expression: str) -> None:
     from pyopenvba.exceptions import VBAUnsupportedError
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module(f'Sub Probe()\nDim hit As Object\nSet hit = {expression}\nEnd Sub', name="ProbeModule")
+    # With no note on the sheet a search of threaded comments finds nothing, as one of notes does
+    # (tests/fixtures/range_methods_search.json).
+    app.add_module(f'Sub Probe()\nDim hit As Object\nRange("C3").AddComment "x"\nSet hit = {expression}\nEnd Sub', name="ProbeModule")
     with pytest.raises(VBAUnsupportedError):
         app.run("Probe")

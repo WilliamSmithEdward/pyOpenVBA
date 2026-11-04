@@ -14,8 +14,8 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._charts_file import xml_tree
 from pyopenvba.apps.excel._page_setup import PageSetup, with_setup
-from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._values import EMPTY, NULL
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
+from pyopenvba.interpreter._values import EMPTY
 
 ROOT = Path(__file__).parent / 'fixtures/page_setup'
 RECORD: dict[str, Any] = json.loads((ROOT / 'configuration.json').read_text(encoding='utf8'))
@@ -92,7 +92,7 @@ def sheet_state(app: ExcelApplication) -> object:
             frozenset(sheet.page_print_names_owned))
 
 
-@pytest.mark.parametrize('value', [-1, -18.5, True, False, NULL, '18.5', float('inf'), float('nan')])
+@pytest.mark.parametrize('value', [-1, -18.5, True, float('inf'), float('nan')])
 def test_unadmitted_margin_values_fail_before_mutation(value: object) -> None:
     app = ExcelApplication()
     app.add_workbook()
@@ -122,8 +122,9 @@ def test_print_names_reject_foreign_or_unmeasured_references_atomically(kind: st
     app.add_workbook()
     page = PageSetup(app.workbook.sheets_[0])
     before = sheet_state(app)
-    with pytest.raises(VBAUnsupportedError):
+    with pytest.raises(VBARuntimeError) as failed:  # tests/fixtures/settable_lists.json
         page.vba_set(kind, 'Other!A1:B2')
+    assert failed.value.number == 1004
     assert sheet_state(app) == before
 
 

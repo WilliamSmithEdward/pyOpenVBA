@@ -1,0 +1,660 @@
+{
+"measured_at": "2026-11-04T10:54:54.935050+00:00",
+"make": "Public Function Make(ByVal path As String) As String\n    Dim wb As Object, r As Object, g As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add\n    Do While wb.Worksheets.Count < 3: wb.Worksheets.Add After:=wb.Worksheets(wb.Worksheets.Count): Loop\n    Set r = wb.Worksheets(1): r.Name = \"Reader\"\n    Set g = wb.Worksheets(2): g.Name = \"Gone\"\n    wb.Worksheets(3).Name = \"Keep\": wb.Worksheets(3).Range(\"A1\").Value = 5\n    g.Range(\"A1\").Value = 1: g.Range(\"A2\").Value = 2: g.Range(\"A3\").Value = 3\n    g.Names.Add \"Mine\", \"=Gone!$A$1\"\n    r.Range(\"A1\").Formula = \"=Gone!Mine\"\n    {extra}\n    wb.SaveAs path, 51\n    wb.Close False\n    Application.DisplayAlerts = True\n    Make = \"ok\"\nEnd Function\n",
+"reader": "Public Function Reads(wb As Object) As String\n    Dim one As Object, c As String, n As Long\n    On Error Resume Next\n    For n = 1 To 2\n        c = c & \"@@\" & wb.Worksheets(\"Reader\").Cells(1, n).Formula & \"=\" & wb.Worksheets(\"Reader\").Cells(1, n).Text\n    Next\n    For Each one In wb.Names\n        If InStr(one.Name, \"_xlfn\") = 0 Then c = c & \"@@\" & one.Name & \"=\" & one.RefersTo & \"=\" & one.Visible & \"=\" & one.Comment\n    Next\n    Reads = c\nEnd Function\n",
+"books": {
+"qualified only": {
+"extra": "",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"bare on another sheet": {
+"extra": "r.Range(\"B1\").Formula = \"=Mine\"",
+"excel_session": "@@=BOOK!Mine=#NAME?@@=Mine=#NAME?",
+"excel_reopened": "@@=BOOK!Mine=#NAME?@@=Mine=#NAME?",
+"excel_file": {
+"names": [],
+"formulas": [
+"[0]!Mine",
+"Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#NAME?@@=Mine=#NAME?",
+"model_reopened": "@@=BOOK!Mine=#NAME?@@=Mine=#NAME?",
+"model_file": {
+"names": [],
+"formulas": [
+"[0]!Mine",
+"Mine"
+]
+}
+},
+"bare on the deleted sheet": {
+"extra": "g.Range(\"D1\").Formula = \"=Mine\"",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"qualified twice": {
+"extra": "r.Range(\"B1\").Formula = \"=Gone!Mine+1\"",
+"excel_session": "@@=BOOK!Mine=#REF!@@=BOOK!Mine+1=#REF!@@Mine==#REF!$A$1=True=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=BOOK!Mine+1=#REF!@@Mine==#REF!#REF!=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine",
+"[0]!Mine+1"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=BOOK!Mine+1=#REF!@@Mine==#REF!$A$1=True=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=BOOK!Mine+1=#REF!@@Mine==#REF!#REF!=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine",
+"[0]!Mine+1"
+]
+}
+},
+"qualified on the deleted sheet too": {
+"extra": "g.Range(\"D1\").Formula = \"=Gone!Mine\"",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"qualified on the deleted sheet alone": {
+"extra": "r.Range(\"A1\").ClearContents: g.Range(\"D1\").Formula = \"=Gone!Mine\"",
+"excel_session": "@@=@@=",
+"excel_reopened": "@@=@@=",
+"excel_file": {
+"names": [],
+"formulas": []
+},
+"model_session": "@@=@@=",
+"model_reopened": "@@=@@=",
+"model_file": {
+"names": [],
+"formulas": []
+}
+},
+"bare, in arithmetic": {
+"extra": "r.Range(\"B1\").Formula = \"=Mine+1\"",
+"excel_session": "@@=BOOK!Mine=#NAME?@@=Mine+1=#NAME?",
+"excel_reopened": "@@=BOOK!Mine=#NAME?@@=Mine+1=#NAME?",
+"excel_file": {
+"names": [],
+"formulas": [
+"[0]!Mine",
+"Mine+1"
+]
+},
+"model_session": "@@=BOOK!Mine=#NAME?@@=Mine+1=#NAME?",
+"model_reopened": "@@=BOOK!Mine=#NAME?@@=Mine+1=#NAME?",
+"model_file": {
+"names": [],
+"formulas": [
+"[0]!Mine",
+"Mine+1"
+]
+}
+},
+"bare, inside SUM": {
+"extra": "r.Range(\"B1\").Formula = \"=SUM(Mine)\"",
+"excel_session": "@@=BOOK!Mine=#NAME?@@=SUM(Mine)=#NAME?",
+"excel_reopened": "@@=BOOK!Mine=#NAME?@@=SUM(Mine)=#NAME?",
+"excel_file": {
+"names": [],
+"formulas": [
+"[0]!Mine",
+"SUM(Mine)"
+]
+},
+"model_session": "@@=BOOK!Mine=#NAME?@@=SUM(Mine)=#NAME?",
+"model_reopened": "@@=BOOK!Mine=#NAME?@@=SUM(Mine)=#NAME?",
+"model_file": {
+"names": [],
+"formulas": [
+"[0]!Mine",
+"SUM(Mine)"
+]
+}
+},
+"bare with no qualified": {
+"extra": "r.Range(\"A1\").ClearContents: r.Range(\"B1\").Formula = \"=Mine\"",
+"excel_session": "@@=@@=Mine=#NAME?",
+"excel_reopened": "@@=@@=Mine=#NAME?",
+"excel_file": {
+"names": [],
+"formulas": [
+"Mine"
+]
+},
+"model_session": "@@=@@=Mine=#NAME?",
+"model_reopened": "@@=@@=Mine=#NAME?",
+"model_file": {
+"names": [],
+"formulas": [
+"Mine"
+]
+}
+},
+"read by a workbook name": {
+"extra": "wb.Names.Add \"Other\", \"=Gone!Mine\"",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=@@Other==BOOK!Mine=True=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=@@Other==BOOK!Mine=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>",
+"<definedName name=\"Other\">[0]!Mine</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=@@Other==BOOK!Mine=True=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=@@Other==BOOK!Mine=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>",
+"<definedName name=\"Other\">[0]!Mine</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"read by a workbook name alone": {
+"extra": "r.Range(\"A1\").ClearContents: wb.Names.Add \"Other\", \"=Gone!Mine\"",
+"excel_session": "@@=@@=@@Mine==#REF!$A$1=True=@@Other==BOOK!Mine=True=",
+"excel_reopened": "@@=@@=@@Mine==#REF!#REF!=True=@@Other==BOOK!Mine=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>",
+"<definedName name=\"Other\">[0]!Mine</definedName>"
+],
+"formulas": []
+},
+"model_session": "@@=@@=@@Mine==#REF!$A$1=True=@@Other==BOOK!Mine=True=",
+"model_reopened": "@@=@@=@@Mine==#REF!#REF!=True=@@Other==BOOK!Mine=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>",
+"<definedName name=\"Other\">[0]!Mine</definedName>"
+],
+"formulas": []
+}
+},
+"read by a local name on the sheet": {
+"extra": "r.Range(\"A1\").ClearContents: g.Names.Add \"Other\", \"=Gone!Mine\"",
+"excel_session": "@@=@@=@@Mine==#REF!$A$1=True=",
+"excel_reopened": "@@=@@=@@Mine==#REF!#REF!=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": []
+},
+"model_session": "@@=@@=@@Mine==#REF!$A$1=True=",
+"model_reopened": "@@=@@=@@Mine==#REF!#REF!=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": []
+}
+},
+"an area": {
+"extra": "g.Names(\"Mine\").RefersTo = \"=Gone!$A$1:$A$3\"",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1:$A$3=True=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1:$A$3=True=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"a constant": {
+"extra": "g.Names(\"Mine\").RefersTo = \"=7\"",
+"excel_session": "@@=BOOK!Mine=7@@=@@Mine==7=True=",
+"excel_reopened": "@@=BOOK!Mine=7@@=@@Mine==7=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">7</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=7@@=@@Mine==7=True=",
+"model_reopened": "@@=BOOK!Mine=7@@=@@Mine==7=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">7</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"a name of another sheet too": {
+"extra": "wb.Worksheets(\"Keep\").Names.Add \"Mine\", \"=Keep!$A$1\"",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Keep!Mine==Keep!$A$1=True=@@Mine==#REF!$A$1=True=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Keep!Mine==Keep!$A$1=True=@@Mine==#REF!#REF!=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\" localSheetId=\"1\">Keep!$A$1</definedName>",
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Keep!Mine==Keep!$A$1=True=@@Mine==#REF!$A$1=True=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Keep!Mine==Keep!$A$1=True=@@Mine==#REF!#REF!=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\" localSheetId=\"1\">Keep!$A$1</definedName>",
+"<definedName name=\"Mine\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"a workbook name of the same spelling": {
+"extra": "wb.Names.Add \"Mine\", \"=Keep!$A$1\"",
+"excel_session": "@@=BOOK!Mine=5@@=@@Mine==Keep!$A$1=True=",
+"excel_reopened": "@@=BOOK!Mine=5@@=@@Mine==Keep!$A$1=True=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\">Keep!$A$1</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=5@@=@@Mine==Keep!$A$1=True=",
+"model_reopened": "@@=BOOK!Mine=5@@=@@Mine==Keep!$A$1=True=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\">Keep!$A$1</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"nothing reads it": {
+"extra": "r.Range(\"A1\").ClearContents",
+"excel_session": "@@=@@=",
+"excel_reopened": "@@=@@=",
+"excel_file": {
+"names": [],
+"formulas": []
+},
+"model_session": "@@=@@=",
+"model_reopened": "@@=@@=",
+"model_file": {
+"names": [],
+"formulas": []
+}
+},
+"hidden": {
+"extra": "g.Names(\"Mine\").Visible = False",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=False=",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=False=",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\" hidden=\"1\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=False=",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=False=",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\" hidden=\"1\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+},
+"with a comment": {
+"extra": "g.Names(\"Mine\").Comment = \"says\"",
+"excel_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=says",
+"excel_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=says",
+"excel_file": {
+"names": [
+"<definedName name=\"Mine\" comment=\"says\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+},
+"model_session": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!$A$1=True=says",
+"model_reopened": "@@=BOOK!Mine=#REF!@@=@@Mine==#REF!#REF!=True=says",
+"model_file": {
+"names": [
+"<definedName name=\"Mine\" comment=\"says\">#REF!</definedName>"
+],
+"formulas": [
+"[0]!Mine"
+]
+}
+}
+},
+"views": [
+{
+"active": 1,
+"gone": 1,
+"start": {
+"first": 0,
+"active": 0
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet2",
+"excel_opens": "0 Sheet2",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet2",
+"model_opens": "0 Sheet2"
+},
+{
+"active": 1,
+"gone": 2,
+"start": {
+"first": 0,
+"active": 0
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet1",
+"excel_opens": "0 Sheet1",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet1",
+"model_opens": "0 Sheet1"
+},
+{
+"active": 1,
+"gone": 4,
+"start": {
+"first": 0,
+"active": 0
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet1",
+"excel_opens": "0 Sheet1",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet1",
+"model_opens": "0 Sheet1"
+},
+{
+"active": 2,
+"gone": 1,
+"start": {
+"first": 1,
+"active": 1
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet2",
+"excel_opens": "0 Sheet2",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet2",
+"model_opens": "0 Sheet2"
+},
+{
+"active": 2,
+"gone": 2,
+"start": {
+"first": 1,
+"active": 1
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 2,
+"gone": 4,
+"start": {
+"first": 1,
+"active": 1
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet2",
+"excel_opens": "0 Sheet2",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet2",
+"model_opens": "0 Sheet2"
+},
+{
+"active": 3,
+"gone": 1,
+"start": {
+"first": 2,
+"active": 2
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 3,
+"gone": 2,
+"start": {
+"first": 2,
+"active": 2
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 3,
+"gone": 4,
+"start": {
+"first": 2,
+"active": 2
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 4,
+"gone": 1,
+"start": {
+"first": 3,
+"active": 3
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet4",
+"excel_opens": "0 Sheet4",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet4",
+"model_opens": "0 Sheet4"
+},
+{
+"active": 4,
+"gone": 2,
+"start": {
+"first": 3,
+"active": 3
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet4",
+"excel_opens": "0 Sheet4",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet4",
+"model_opens": "0 Sheet4"
+},
+{
+"active": 4,
+"gone": 4,
+"start": {
+"first": 3,
+"active": 3
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+}
+]
+}

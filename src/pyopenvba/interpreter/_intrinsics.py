@@ -10,13 +10,14 @@ What is deliberately not implemented, and why:
 * the file and folder verbs (Dir, FreeFile, GetAttr, Kill, ...) reach
   outside the model into the real machine;
 * the registry verbs (GetSetting, SaveSetting) do the same;
-* VarPtr, StrPtr and ObjPtr hand out addresses that mean nothing here;
+* VarPtr and ObjPtr hand out addresses that mean nothing here;
 * Shell, SendKeys and AppActivate start or drive other programs.
 
 MsgBox and InputBox do not block.  A message goes into the dialog
 transcript and the answer comes from the queue the caller primed, so a
 macro that would have stopped for a prompt runs to the end and the
-prompt is visible afterwards.
+prompt is visible afterwards.  With nothing queued MsgBox answers with
+its default button, and InputBox raises VBADialogError.
 """
 
 from __future__ import annotations
@@ -35,14 +36,16 @@ from pyopenvba.interpreter import _locale
 from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._values import (
     EMPTY,
-    ERROR_TEXT,
     ERR_INVALID_PROCEDURE_CALL,
     ERR_INVALID_USE_OF_NULL,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     ERR_TYPE_MISMATCH,
+    ERROR_TEXT,
     MISSING,
     NOTHING,
     NULL,
+    NullString,
+    OddText,
     VBAArray,
     VBACurrency,
     VBADate,
@@ -50,21 +53,20 @@ from pyopenvba.interpreter._values import (
     VBAErrorValue,
     VBAInt,
     VBASingle,
+    bytes_string,
+    condition,
+    decimal_of,
     error,
     number_text,
     read_date_text,
     round_half_even,
+    string_bytes,
     string_order,
-    condition,
-    decimal_of,
     to_bool,
     to_date,
     to_integer,
     to_number,
     to_text,
-    string_bytes,
-    bytes_string,
-    OddText,
     type_name,
 )
 
@@ -82,7 +84,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "deletesetting": "writes the Windows registry",
     "getallsettings": "reads the Windows registry",
     "varptr": "hands out a memory address",
-    "strptr": "hands out a memory address",
     "objptr": "hands out a memory address",
     "shell": "starts another program",
     "sendkeys": "drives another program's window",
@@ -1513,6 +1514,13 @@ def vba_msgbox(
     style = 0 if buttons is MISSING else int(to_integer(buttons, "Long"))
     caption = to_text(title) if title is not MISSING else "Microsoft Excel"
     return interpreter.show_message(to_text(prompt), style, caption)
+
+
+@intrinsic("StrPtr", "Ptr", minimum=1)
+def vba_strptr(interpreter: Interpreter, text: object) -> object:
+    """Only whether the string is vbNullString, for the test `StrPtr(InputBox(...)) = 0` that tells Cancel from OK on nothing:
+    0 for it, and 1 for any other, which is no address (tests/fixtures/dialogs.json)."""
+    return VBAInt(0 if isinstance(to_text(text), NullString) else 1, "LongLong")
 
 
 @intrinsic("InputBox", "Prompt", "Title", "Default", "XPos", "YPos", "HelpFile", "Context", minimum=1)

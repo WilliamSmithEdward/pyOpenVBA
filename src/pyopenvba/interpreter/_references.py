@@ -12,6 +12,7 @@ from pyopenvba.interpreter._flow import Program
 from pyopenvba.interpreter._financial import SIGNATURES as FINANCIAL_SIGNATURES
 from pyopenvba.interpreter._intrinsics import INTRINSICS
 from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
+from pyopenvba.interpreter._type_library import CallShape, LibraryClass, LibraryType, find_class, let_refusal, refusal
 from pyopenvba.interpreter._values import type_name
 
 if TYPE_CHECKING:
@@ -28,6 +29,8 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
 
     body = list(nodes(procedure.body))
     program.late_bound_members.clear()
+    program.early_bound_members.clear()
+    library: str | None = getattr(interpreter.host, 'vba_type_library', None)
     local = {name: info for owner in interpreter.modules.values() if not owner.is_class and owner is not module
              for name, info in variables(owner).items() if name in owner.public_variables}
     local.update(variables(module))
@@ -76,6 +79,24 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             for name, declared, value in node.names:
                 constants[name.lower()] = constant_type(declared, value, module), False, module
 
+    def library_class(declared: str, owner: ModuleRuntime) -> LibraryClass | None:
+        """The class a type means, unless the project defines that name itself."""
+        if library is None or not declared or runtime_for(declared) is not None or interpreter.record_type(declared, owner) is not None:
+            return None
+        return find_class(library, declared)
+
+    def library_info(found: str | None) -> Info | None:
+        return None if found is None else (LibraryType(found), False, module)
+
+    def global_member(key: str) -> Info | None:
+        """A name no declaration claims that the host's library answers: Range, ActiveSheet, Selection."""
+        found = find_class(library, '_Global') if library is not None else None
+        if found is None:
+            return None
+        if key == 'thisworkbook' and runtime_for(key) is None:
+            return library_info('Workbook')
+        return library_info(found.result(key))
+
     def name_info(name: str, *, declare: bool) -> Info | None:
         key = strip_suffix(name).lower()
         if key == 'me' and module.is_class:
@@ -99,6 +120,9 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
         if constant is not UNRESOLVED:
             constants[key] = type_name(constant), False, module
             return constants[key]
+        found = global_member(key)
+        if found is not None:
+            return found
         if declare and not module.parsed.option_explicit and runtime_for(key) is None:
             local[key] = default_type(name, module.parsed.default_types), False, module
             return local[key]
@@ -109,7 +133,7 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
         if suffix is None or info is None:
             return
         declared = info[0]
-        if not declared:
+        if not declared or isinstance(declared, LibraryType):
             return
         if declared.casefold().startswith('string*'):
             declared = 'String'
@@ -136,7 +160,42 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             if field is not None:
                 return field.declared, field.is_array, owner
         owner = runtime_for(parent[0])
-        return (variables(owner).get(key) or function_info(owner, key)) if owner is not None else None
+        if owner is not None:
+            return variables(owner).get(key) or function_info(owner, key)
+        found = library_class(parent[0], parent[2])
+        if found is None:
+            return None
+        program.early_bound_members[id(expression)] = found.name
+        return library_info(found.result(key))
+
+    def check_library_call(expression: A.Expr | None, args: Sequence[A.Argument], use: str) -> None:
+        """Refuse what VBA's compiler refuses of a member call bound early, which the type library decides."""
+        name = program.early_bound_members.get(id(expression)) if isinstance(expression, A.Member) else None
+        if library is None or name is None:
+            return
+        assert isinstance(expression, A.Member)
+        found = find_class(library, name)
+        if found is None:
+            return
+        given = [argument for argument in args if not argument.name]
+        while given and given[-1].omitted:
+            given.pop()
+        shape = CallShape(len(given), tuple(argument.name for argument in args if argument.name),
+                          frozenset(at for at, argument in enumerate(given) if isinstance(argument.value, A.Literal)))
+        said = refusal(library, found, strip_suffix(expression.name), use, shape)
+        if said is not None:
+            fail(said, expression.line)
+
+    def indexed_by_default(target: A.Expr | None, context: Info | None, info: Info) -> bool:
+        """Whether the arguments after this go to what it answers: Cells(1, 1) is Cells then its default member."""
+        if isinstance(target, A.Member) and id(target) in program.early_bound_members:
+            parent = visit(target.target, context) if target.target is not None else context
+            found = library_class(parent[0], parent[2]) if parent is not None else None
+            return found is not None and not found.takes_arguments(strip_suffix(target.name))
+        if isinstance(target, A.Name) and isinstance(info[0], LibraryType):
+            found = find_class(library, '_Global') if library is not None else None
+            return found is not None and not found.takes_arguments(strip_suffix(target.name))
+        return signature(target, context, explicit=True) is None
 
     def signature(expression: A.Expr | None, context: Info | None, *, explicit: bool = False,
                   setter: str = '') -> tuple[A.Procedure, ModuleRuntime] | None:
@@ -265,6 +324,7 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 fail('Argument not optional', line)
 
     resolved: dict[tuple[int, Info | None, bool, bool], Info | None] = {}
+    with_subjects: set[int] = set()
 
     def visit(value: object, context: Info | None = None, *, callee: bool = False, lvalue: bool = False) -> Info | None:
         if isinstance(value, A.Expr):
@@ -297,16 +357,31 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             check(value.name, info, value.line)
             if not callee:
                 check_call(value, [], context)
+                check_library_call(value, [], 'value')
             return info
         if isinstance(value, A.Index):
+            with_subject = id(value) in with_subjects
             info = visit(value.target, context, callee=True)
             visit(value.args, context)
+            if not callee and not lvalue and not with_subject:
+                check_library_call(value.target, value.args, 'value')
+            if isinstance(value.target, A.Name) and info is not None and not info[1]:
+                held = library_class(info[0], info[2])
+                if held is not None:
+                    program.early_bound_members[id(value.target)] = held.name
             check_call(value.target, value.args, context, explicit=True)
-            return (info[0], False, info[2]) if info is not None and info[1] and value.args else info
+            if info is not None and info[1] and value.args:
+                return info[0], False, info[2]
+            if info is not None and value.args and indexed_by_default(value.target, context, info):
+                found = library_class(info[0], info[2])
+                if found is not None:
+                    return library_info(found.default_result)
+            return info
         if isinstance(value, A.CallStmt):
             visit(value.callee, context, callee=True)
             visit(value.args, context)
             check_call(value.callee, value.args, context, explicit=True)
+            check_library_call(value.callee, value.args, 'statement')
         elif isinstance(value, A.Assign):
             target = value.target
             arguments: list[A.Argument] = []
@@ -316,6 +391,14 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 target = target.target
             visit(target, context, callee=True, lvalue=True)
             visit(value.value, context)
+            if value.kind == 'let':
+                check_library_call(target, arguments, 'assign')
+                if isinstance(target, A.Name) and not arguments:
+                    declared = local.get(strip_suffix(target.name).lower())
+                    held = library_class(declared[0], declared[2]) if declared is not None and not declared[1] else None
+                    said = let_refusal(held) if held is not None else None
+                    if said is not None:
+                        fail(said, target.line)
             kind = 'set' if value.kind == 'set' else 'let'
             called = signature(target, context, setter=kind)
             if called is None:
@@ -325,7 +408,16 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 rhs = A.Argument(value=value.value, name=name, by_value=True)
                 check_call(target, [*arguments, rhs], context, setter=kind)
         elif isinstance(value, A.With):
-            parent = visit(value.subject, context)
+            subject = value.subject
+            if isinstance(subject, A.Member):
+                parent = visit(subject, context, callee=True)
+                check_library_call(subject, [], 'with')
+            elif isinstance(subject, A.Index):
+                with_subjects.add(id(subject))
+                parent = visit(subject, context)
+                check_library_call(subject.target, subject.args, 'with')
+            else:
+                parent = visit(subject, context)
             visit(value.body, parent)
         elif isinstance(value, (list, tuple)):
             for child in cast(Sequence[object], value):

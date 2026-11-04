@@ -23,6 +23,7 @@ cells and calls RAND.
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Final
@@ -369,6 +370,21 @@ def _unprefixed(formula: str) -> str:
         if head + bang + text != token.text:
             changes.append((token, head + bang + text))
     return _replaced(formula, changes)
+
+
+_CALLED = re.compile(r"([^\W\d][\w.]*)\(")
+
+
+@lru_cache(maxsize=4096)
+def _ordinary_function(name: str) -> bool:
+    key = function_key(name)
+    return key not in _ALWAYS and is_excel_function(key)
+
+
+def calls_only_ordinary_functions(formula: str) -> bool:
+    """Whether every call in a formula is plainly of a function a file does not mark: a quick look, for a workbook's
+    every formula, that saves ``calculated_always`` reading those that cannot be marked."""
+    return all(_ordinary_function(name) for name in _CALLED.findall(formula))
 
 
 def calculated_always(formula: str, known: Callable[[str], bool]) -> bool:

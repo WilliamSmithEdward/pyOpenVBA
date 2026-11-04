@@ -21,6 +21,7 @@ from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.apps.excel._chart_borders import INVALID_CALL, NOT_A_PROPERTY, UNSPECIFIED, ElementProperties, PictureMembers
 from pyopenvba._xml import escape_text
 from pyopenvba.apps.excel._creator import Created, ItemDefault
+from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAErrorValue, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 from pyopenvba.shapes._values import FillLine, Shape, emu, points
@@ -826,8 +827,11 @@ class ChartObjects(VBACollection, ItemDefault, Created):
             for item in items:
                 if isinstance(item, ChartObject) and item.shape.name.lower() == index.lower():
                     return item
-            raise error(-2147024809, 'The item with the specified name was not found')
-        position = int(to_number(index))
+            if not index.strip().isdigit():
+                raise error(-2147024809, 'The item with the specified name was not found')
+            index = int(index)
+        # A number rounds as VBA rounds, and 1.5 of one chart is past the end.
+        position = int(to_integer(index, 'Long'))
         if not 1 <= position <= len(items):
             raise error(1004, 'Unable to get the ChartObjects property of the Worksheet class')
         return items[position - 1]
@@ -1334,6 +1338,10 @@ class ChartPageSetup(Created):
         return VBAErrorValue(2042)
 
 
+#: The key of a data table's look among the chart's elements.
+DATA_TABLE_LOOK = 'axisDataTable'
+
+
 class ChartDataTable(Created):
     """The table of values under a chart (tests/fixtures/chart_members_more.json)."""
 
@@ -1360,6 +1368,15 @@ class ChartDataTable(Created):
     @member
     def Font(self) -> object:
         return self.chart.font_of(self, 'dataTable')
+
+    @member
+    def Format(self) -> object:
+        """A look like an axis's, kept under a key of the same family (tests/fixtures/chart_table_look.json)."""
+        return self.chart.format_of(self, DATA_TABLE_LOOK)
+
+    @member
+    def Border(self) -> object:
+        return self.chart.border_of(self, DATA_TABLE_LOOK)
 
     @member
     def ShowLegendKey(self) -> object:
@@ -1610,11 +1627,19 @@ class ChartSurface(Created):
         raise error(1004, f'Unable to get the Name property of the {self.vba_type_name} class')
 
 
-class ChartObject(Created):
+class ChartObject(HeldPart):
     vba_type_name = 'ChartObject'
+    #: Chart has its own error once the object has gone (tests/fixtures/active_chart.json).
+    held_free = frozenset({'chart', 'application', 'creator'})
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape
+
+    def held_gone(self) -> bool:
+        return not shape_here(self.sheet, self.shape)
+
+    def held_error(self, name: str) -> int:
+        return -2147417848 if name in ('select', 'activate', 'index', 'parent') else -2147467259
 
     @member
     def Name(self) -> object:
@@ -1832,12 +1857,32 @@ class ChartObject(Created):
         return EMPTY
 
 
-class Chart(ElementProperties, Created):
+class Chart(ElementProperties, HeldPart):
     vba_type_name = 'Chart'
+
+    held_free = frozenset({'application', 'creator'})
+    held_past_sheet = True
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape
         self.state = state(sheet, shape)
+
+    def held_gone(self) -> bool:
+        return not shape_here(self.sheet, self.shape)
+
+    def held_error(self, name: str) -> int:
+        if name in ('charttype', 'hastitle'):
+            raise VBAUnsupportedError(f'Chart.{name}, which goes on answering once its shape has gone, is not implemented')
+        return 1004 if name == 'activate' else -2147467259
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        # Setting differs from reading, once its shape has gone (tests/fixtures/shape_held_deleted.json).
+        if self.held_gone() and self.vba_member(name) is not None:
+            if name.lower() == 'charttype':
+                raise VBAUnsupportedError('Chart.ChartType, which takes a value once its shape has gone, is not implemented')
+            raise error(-2147417848, 'Automation error')
+        super().vba_set(name, value, args, named, by_ref=by_ref)
 
     def admit_read(self) -> None:
         if (not any(book is self.sheet.book for book in self.sheet.book.application.workbooks_.books)
@@ -2419,6 +2464,9 @@ class Chart(ElementProperties, Created):
         wanted = to_bool(value)
         self.changed()
         self.state.data_table = wanted
+        if not wanted:
+            # Its look goes with it (tests/fixtures/chart_table_look.json).
+            self.state.element_looks.pop(DATA_TABLE_LOOK, None)
 
     @member
     def Name(self) -> object:
@@ -3750,7 +3798,9 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
             for item in items:
                 if to_text(cast(Series, item).vba_get('Name', [])).casefold() == index.casefold():
                     return item
-            raise error(1004, 'Invalid Parameter')
+            if not index.strip().isdigit():
+                raise error(1004, 'Invalid Parameter')
+            index = int(index)
         position = int(to_integer(index, 'Long'))
         if 1 <= position <= len(items):
             return items[position - 1]
@@ -3825,6 +3875,20 @@ class FullSeriesCollection(SeriesCollection):
     @method
     def Extend(self, *_: object) -> object:
         raise error(438, "Object doesn't support this property or method")
+
+
+def _series_parts(text: str) -> list[str]:
+    """The arguments of =SERIES, split where a comma is outside quotes."""
+    parts = ['']
+    quote = ''
+    for char in text:
+        if char in '"\'' and (not quote or quote == char):
+            quote = '' if quote else char
+        if char == ',' and not quote:
+            parts.append('')
+        else:
+            parts[-1] += char
+    return parts
 
 
 class Series(PictureMembers, Created):
@@ -4263,6 +4327,27 @@ class Series(PictureMembers, Created):
         values = self.entry.value_reference or literal_array(self.entry.values)
         return f'=SERIES({name},{categories},{values},{order})'
 
+    @setter('Formula')
+    def _set_formula(self, value: object) -> None:
+        """=SERIES(name, categories, values, order) with plain references or a quoted name, each taken as its own member takes it
+        (tests/fixtures/excel_everyday_14.json). A literal array or a changed order is not implemented."""
+        text = to_text(value).strip()
+        if not (text.upper().startswith('=SERIES(') and text.endswith(')')):
+            raise VBAUnsupportedError('Series.Formula with anything but =SERIES(...) is not implemented')
+        parts = _series_parts(text[len('=SERIES('):-1])
+        if len(parts) != 4 or parts[3].strip() != str(self.full_place()) or any('{' in part for part in parts):
+            raise VBAUnsupportedError('Series.Formula with a literal array or a changed order is not implemented')
+        name, categories, values = (part.strip() for part in parts[:3])
+        book = self.chart.sheet.book
+        application = book.application
+        self.vba_set('Values', application.vba_get('Range', [values]))
+        if categories:
+            self.vba_set('XValues', application.vba_get('Range', [categories]))
+        if name.startswith('"') and name.endswith('"'):
+            self.vba_set('Name', name[1:-1].replace('""', '"'))
+        elif name:
+            self.vba_set('Name', '=' + name)
+
     @member
     def FormulaR1C1(self) -> object:
         return r1c1_series(str(self.Formula()))
@@ -4344,7 +4429,16 @@ class Series(PictureMembers, Created):
 
         self.position()
         points = Points(self)
-        return points if Index is MISSING else points.vba_get('Item', [Index])
+        if Index is MISSING:
+            return points
+        # sr.Points(99) is 1004 where o.Item(99) on the same collection is not (tests/fixtures/excel_everyday_14.json).
+        return points.vba_get('Item', [Index]) if Index is NULL else points.vba_lookup(Index, points.vba_items())
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_points import OldInterior
+
+        return OldInterior(self)
 
     @method
     def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,

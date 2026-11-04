@@ -160,3 +160,21 @@ Function Probe() As String
     Probe = Typed(ActiveSheet.Comments) & " " & Loose(ActiveSheet.Comments)
 End Function''', name='Harness')
     assert app.run('Harness.Probe') == '94 13'
+
+
+@pytest.mark.parametrize(('line', 'expected'), [
+    ('ws.DisplayPageBreaks = Null', 94),
+    ('wo.DisplayPageBreaks = Null', 13),
+    ('ActiveWorkbook.Worksheets(1).DisplayPageBreaks = Null', 13),
+    ('ws.EnableSelection = "x"', 13),
+    ('wo.EnableSelection = "x"', 13),
+    ('wo.AutoFilterMode = Null', 0),
+    ('ws.AutoFilterMode = Null', 94),
+    ('wo.AutoFilterMode = "x"', 1004),
+    ('ws.AutoFilterMode = "x"', 13),
+])
+def test_a_property_set_answers_by_how_it_was_bound(line: str, expected: int) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(f'Function Probe() As Long\nDim ws As Worksheet, wo As Object\nSet ws = ActiveSheet: Set wo = ws\nOn Error Resume Next\n{line}\nProbe = Err.Number\nEnd Function', name='Harness')
+    assert app.run('Harness.Probe') == expected

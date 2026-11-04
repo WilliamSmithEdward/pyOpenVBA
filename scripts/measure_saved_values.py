@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import sys
 import tempfile
 import zipfile
@@ -172,6 +173,38 @@ EDITS = {
     'manual, saving calculates': MANUAL + 'Application.CalculateBeforeSave = True: ws.Range("A4").Value = 50',
     'manual, saving does not calculate': MANUAL + 'Application.CalculateBeforeSave = False: ws.Range("A4").Value = 50',
 }
+#: Saves one after another, each ending in a Save of the book's own file, which is what is read. ``out`` is a folder for other files; ``out\\isdir.xlsx``
+#: is a folder too, so a save to it fails only as it writes.
+SEQUENCES = {
+    'edit, copy, save': 'ws.Range("A4").Value = 50: wb.SaveCopyAs out & "\\copy.xlsx": wb.Save',
+    'edit, copy, unrelated edit, save': 'ws.Range("A4").Value = 50: wb.SaveCopyAs out & "\\copy.xlsx": wb.Worksheets("Untouched").Range("Z9").Value = 1: wb.Save',
+    'edit, copy, edit, save': 'ws.Range("A4").Value = 50: wb.SaveCopyAs out & "\\copy.xlsx": ws.Range("A4").Value = 60: wb.Save',
+    'edit, copy, save, unrelated edit, save': 'ws.Range("A4").Value = 50: wb.SaveCopyAs out & "\\copy.xlsx": wb.Save: wb.Worksheets("Untouched").Range("Z9").Value = 1: wb.Save',
+    'edit, failed save, save': 'ws.Range("A4").Value = 50: On Error Resume Next: wb.SaveCopyAs out & "\\isdir.xlsx": On Error GoTo 0: wb.Save',
+    'edit, failed copy to no folder, save': 'ws.Range("A4").Value = 50: On Error Resume Next: wb.SaveCopyAs out & "\\none\\copy.xlsx": On Error GoTo 0: wb.Save',
+    'edit, failed save, unrelated edit, save': 'ws.Range("A4").Value = 50: On Error Resume Next: wb.SaveCopyAs out & "\\isdir.xlsx": On Error GoTo 0: wb.Worksheets("Untouched").Range("Z9").Value = 1: wb.Save',
+    'edit, save, save': 'ws.Range("A4").Value = 50: wb.Save: wb.Save',
+    'edit, save, edit, save': 'ws.Range("A4").Value = 50: wb.Save: ws.Range("A4").Value = 60: wb.Save',
+    'manual, save without calculating, save': MANUAL + 'Application.CalculateBeforeSave = False: ws.Range("A4").Value = 50: wb.Save: wb.Save',
+    'manual, save without calculating, calculate, save': MANUAL + 'Application.CalculateBeforeSave = False: ws.Range("A4").Value = 50: wb.Save: Application.Calculate: wb.Save',
+    'manual, copy without calculating, save': MANUAL + 'Application.CalculateBeforeSave = False: ws.Range("A4").Value = 50: wb.SaveCopyAs out & "\\copy.xlsx": wb.Save',
+    'manual, copy without calculating, calculate, save': MANUAL + 'Application.CalculateBeforeSave = False: ws.Range("A4").Value = 50: wb.SaveCopyAs out & "\\copy.xlsx": Application.Calculate: wb.Save',
+    'manual, save without calculating, automatic, save': MANUAL + 'Application.CalculateBeforeSave = False: ws.Range("A4").Value = 50: wb.Save: Application.Calculation = xlCalculationAutomatic: Application.CalculateBeforeSave = True: wb.Save',
+}
+SEQUENCE = r'''Public Function Run(ByVal path As String, ByVal out As String) As String
+    Dim wb As Workbook, ws As Worksheet
+    Application.DisplayAlerts = False
+    Application.AskToUpdateLinks = False
+    Set wb = Workbooks.Open(path, UpdateLinks:=0): Set ws = wb.Worksheets("One")
+    {edit}
+    wb.Close False
+    Application.CalculateBeforeSave = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.AskToUpdateLinks = True
+    Application.DisplayAlerts = True
+    Run = "ok"
+End Function
+'''
 _CELL = re.compile(r'<c\b([^>]*?)(?:/>|>(.*?)</c>)', re.S)
 
 
@@ -221,6 +254,17 @@ def edited_in_model(out: Path, edit: str) -> tuple[str, str]:
     return '', session
 
 
+def sequence_in_model(path: Path, out: Path, edit: str) -> str:
+    """What the model refused, or nothing once it has run the saves."""
+    app = ExcelApplication.open(path, with_vba=False, sandbox=False)
+    app.add_module(f'Public Sub Run(ByVal out As String)\n    Dim wb As Object, ws As Object\n    Set wb = ActiveWorkbook: Set ws = wb.Worksheets("One")\n    {edit}\nEnd Sub\n', name='E')
+    try:
+        app.run('E.Run', str(out))
+    except (VBAUnsupportedError, VBARuntimeError) as refused:
+        return f'{type(refused).__name__} {str(refused)[:140]}'
+    return ''
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory() as folder:
         base = Path(folder)
@@ -249,7 +293,27 @@ def main() -> None:
                     row['model_reads'] = str(excel.run_vba(READS, 'Reads', (str(saved),), timeout=60.0, line_numbers=False).value)
                 rows[name] = row
                 print(name, 'excel' if 'excel_cells' in row else row.get('excel_refuses'), row.get('model_refuses', 'model'), flush=True)
-    OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'make': MAKE, 'reader': READER, 'start': formula_cells(BOOK), 'edits': rows}, indent=0) + '\n', encoding='utf-8')
+            sequences: dict[str, dict[str, object]] = {}
+            for number, (name, edit) in enumerate(SEQUENCES.items()):
+                row = {'edit': edit}
+                for who in ('excel', 'model'):
+                    room = base / f'{who}{number}'
+                    (room / 'isdir.xlsx').mkdir(parents=True)
+                    own = room / 'book.xlsx'
+                    shutil.copyfile(base / 'book.xlsx', own)
+                    if who == 'excel':
+                        done = excel.run_vba(READS + SEQUENCE.format(edit=edit), 'Run', (str(own), str(room)), timeout=60.0, line_numbers=False)
+                        refused = '' if done.ok and done.value == 'ok' else f'{done.outcome} {str(done.message)[:120]}'
+                    else:
+                        refused = sequence_in_model(own, room, edit)
+                    if refused:
+                        row[f'{who}_refuses'] = refused
+                        continue
+                    row[f'{who}_cells'] = formula_cells(own)
+                    row[f'{who}_reads'] = str(excel.run_vba(READS, 'Reads', (str(own),), timeout=60.0, line_numbers=False).value)
+                sequences[name] = row
+                print(name, 'SAME' if row.get('excel_reads') == row.get('model_reads') else 'READS DIFFER', row.get('excel_refuses', ''), row.get('model_refuses', ''), flush=True)
+    OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'make': MAKE, 'reader': READER, 'start': formula_cells(BOOK), 'edits': rows, 'sequences': sequences}, indent=0) + '\n', encoding='utf-8')
 
 
 if __name__ == '__main__':

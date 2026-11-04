@@ -1,5 +1,5 @@
 {
-"measured_at": "2026-11-04T06:09:12.182865+00:00",
+"measured_at": "2026-11-04T06:37:14.848186+00:00",
 "make": "Public Function Make(ByVal folder As String) As String\n    Dim wb As Workbook, ext As Workbook, s As Worksheet, chart As ChartObject\n    Application.DisplayAlerts = False\n    Set ext = Workbooks.Add\n    ext.Worksheets(1).Name = \"Sheet1\": ext.Worksheets(1).Range(\"A1\").Value = 7\n    ext.SaveAs folder & \"\\ext.xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Add\n    Do While wb.Worksheets.Count < 6: wb.Worksheets.Add After:=wb.Worksheets(wb.Worksheets.Count): Loop\n    wb.Worksheets(1).Name = \"One\": wb.Worksheets(2).Name = \"Two\": wb.Worksheets(3).Name = \"Three\"\n    wb.Worksheets(4).Name = \"Vol\": wb.Worksheets(5).Name = \"Link\": wb.Worksheets(6).Name = \"Untouched\"\n    With wb.Worksheets(\"One\")\n        .Range(\"A1\").Value = 1: .Range(\"A2\").Value = 2: .Range(\"A3\").Value = 3: .Range(\"A4\").Value = 4\n        .Range(\"B1\").Formula = \"=A1*2\"\n        .Range(\"C3\").Formula = \"=SUM(A1:A4)\"\n        .Range(\"K1\").Value = \"x\": .Range(\"L1\").Value = \"y\": .Range(\"K2\").Value = 1: .Range(\"K3\").Value = 2\n        .Range(\"L2\").Value = 1: .Range(\"L3\").Value = 2\n        .ListObjects.Add(xlSrcRange, .Range(\"K1:L3\"), , xlYes).Name = \"T\"\n    End With\n    wb.Names.Add \"MyName\", \"=One!$A$1\"\n    Set s = wb.Worksheets(\"Two\")\n    s.Range(\"A1\").Formula = \"=One!C3\"\n    s.Range(\"B1\").Formula = \"=One!A1&\"\"x\"\"\"\n    s.Range(\"B2\").Formula = \"=One!A1>2\"\n    s.Range(\"B3\").Formula = \"=1/(One!A1-1)\"\n    s.Range(\"B4\").Formula = \"=IF(One!A1>1,\"\"big\"\",1)\"\n    s.Range(\"B5\").Formula = \"=IF(One!A1>1,\"\"\"\",1)\"\n    s.Range(\"C1:C3\").Formula = \"=One!$A$1*ROW()\"\n    s.Range(\"D1\").FormulaArray = \"=SUM(One!A1:A4*2)\"\n    s.Range(\"E1:E3\").FormulaArray = \"=One!A1:A3*2\"\n    s.Range(\"F1\").Formula = \"=MyName\"\n    s.Range(\"G1\").Formula = \"=SUM(T[x])\"\n    s.Range(\"H1\").Formula = \"=SUM(One:One!A1:A4)\"\n    s.Range(\"I1\").Formula = \"=SUBTOTAL(109,One!A1:A4)\"\n    s.Range(\"J1\").Formula = \"=One!A1/3\"\n    s.Range(\"J2\").Formula = \"=One!A1+45000\": s.Range(\"J2\").NumberFormat = \"yyyy-mm-dd\"\n    s.Range(\"Z1\").Value = 1: s.Range(\"Z2\").Value = 2: s.Range(\"Z3\").Value = 3\n    Set chart = s.ChartObjects.Add(300, 100, 200, 120)\n    chart.Chart.ChartType = xlColumnClustered\n    chart.Chart.SetSourceData wb.Worksheets(\"One\").Range(\"A1:A4\")\n    With wb.Worksheets(\"Three\")\n        .Range(\"A1\").Formula = \"=Two!A1*2\"\n        .Range(\"B1\").Formula = \"=A1+1\"\n        .Range(\"C1\").Formula = \"=Two!F1\"\n    End With\n    With wb.Worksheets(\"Vol\")\n        .Range(\"A1\").Formula = \"=RAND()\"\n        .Range(\"B1\").Formula = \"=NOW()\"\n        .Range(\"C1\").Formula = \"=OFFSET(One!A1,1,0)\"\n        .Range(\"D1\").Formula = \"=INDIRECT(\"\"One!A4\"\")\"\n        .Range(\"E1\").Formula = \"=TODAY()\"\n        .Range(\"F1\").Formula = \"=A1*0+1\"\n    End With\n    With wb.Worksheets(\"Link\")\n        .Range(\"A1\").Formula = \"=[ext.xlsx]Sheet1!$A$1\"\n        .Range(\"B1\").Formula = \"=A1+One!A1\"\n    End With\n    With wb.Worksheets(\"Untouched\")\n        .Range(\"A1\").Value = 5\n        .Range(\"B1\").Formula = \"=A1*2\"\n    End With\n    ext.Close False\n    wb.SaveAs folder & \"\\book.xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Application.DisplayAlerts = True\n    Make = \"ok\"\nEnd Function\n",
 "reader": "Public Function CellsOf(wb As Object) As String\n    Dim s As Object, r As Long, c As Long, out As String, v As Variant\n    For Each s In wb.Worksheets\n        If s.Name <> \"Vol\" Then\n            out = out & \"#\" & s.Name\n            For r = 1 To 6\n                For c = 1 To 13\n                    v = s.Cells(r, c).Value2\n                    If IsError(v) Then v = \"error\"\n                    If Not IsEmpty(v) Then out = out & \"|\" & r & \",\" & c & \"=\" & TypeName(v) & \"=\" & v\n                Next\n            Next\n        End If\n    Next\n    CellsOf = out\nEnd Function\n",
 "start": {
@@ -32,8 +32,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.44332139990759201|ca=\"1\"",
-"B1": "|46329.92290902778|ca=\"1\"",
+"A1": "|0.7689731065520341|ca=\"1\"",
+"B1": "|46329.942332523147|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -86,8 +86,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|1.2640678337202393E-3|ca=\"1\"",
-"B1": "|46329.922910648151|ca=\"1\"",
+"A1": "|0.84731790955841646|ca=\"1\"",
+"B1": "|46329.942334259256|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -139,8 +139,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.10711770890109262|ca=\"1\"",
-"B1": "|46329.922917045136|ca=\"1\"",
+"A1": "|0.4119647772942796|ca=\"1\"",
+"B1": "|46329.94234054171|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -194,8 +194,8 @@
 "C1": "|2|"
 },
 "Vol": {
-"A1": "|0.61972284121968546|ca=\"1\"",
-"B1": "|46329.922922337966|ca=\"1\"",
+"A1": "|0.33699303530965929|ca=\"1\"",
+"B1": "|46329.942345023148|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -247,8 +247,8 @@
 "C1": "|2|"
 },
 "Vol": {
-"A1": "|0.8681443163309507|ca=\"1\"",
-"B1": "|46329.922924778024|ca=\"1\"",
+"A1": "|0.02936817853512408|ca=\"1\"",
+"B1": "|46329.94234699952|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -302,8 +302,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.17089380277150057|ca=\"1\"",
-"B1": "|46329.922928125001|ca=\"1\"",
+"A1": "|0.76634304868851799|ca=\"1\"",
+"B1": "|46329.942349884259|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|50|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -355,8 +355,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.031248964504624666|ca=\"1\"",
-"B1": "|46329.92293015191|ca=\"1\"",
+"A1": "|0.030879016733692533|ca=\"1\"",
+"B1": "|46329.94235210828|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|50|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -410,8 +410,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.44287225555021958|ca=\"1\"",
-"B1": "|46329.922934722221|ca=\"1\"",
+"A1": "|0.89961168365289768|ca=\"1\"",
+"B1": "|46329.942355092593|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -463,8 +463,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.2971700805581542|ca=\"1\"",
-"B1": "|46329.92293744868|ca=\"1\"",
+"A1": "|0.4635712471126363|ca=\"1\"",
+"B1": "|46329.94235741418|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -518,8 +518,8 @@
 "C1": "|0|"
 },
 "Vol": {
-"A1": "|0.33628602223212267|ca=\"1\"",
-"B1": "|46329.922940509263|ca=\"1\"",
+"A1": "|2.7566550386666777E-2|ca=\"1\"",
+"B1": "|46329.942360300927|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -571,8 +571,8 @@
 "C1": "|0|"
 },
 "Vol": {
-"A1": "|0.9273659290419125|ca=\"1\"",
-"B1": "|46329.92294267315|ca=\"1\"",
+"A1": "|0.8885469217837558|ca=\"1\"",
+"B1": "|46329.942362824724|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -626,8 +626,8 @@
 "C1": "str|abc|"
 },
 "Vol": {
-"A1": "|0.76022422958176405|ca=\"1\"",
-"B1": "|46329.922946296298|ca=\"1\"",
+"A1": "|0.65315778894077392|ca=\"1\"",
+"B1": "|46329.942366203701|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -679,8 +679,8 @@
 "C1": "str|abc|"
 },
 "Vol": {
-"A1": "|0.98165191015478|ca=\"1\"",
-"B1": "|46329.922949676424|ca=\"1\"",
+"A1": "|0.567390742876228|ca=\"1\"",
+"B1": "|46329.942368751814|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -735,8 +735,8 @@
 "C1": "|4|"
 },
 "Vol": {
-"A1": "|3.4319749748021877E-3|ca=\"1\"",
-"B1": "|46329.922953240741|ca=\"1\"",
+"A1": "|0.45872314110816403|ca=\"1\"",
+"B1": "|46329.94237222222|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -789,8 +789,8 @@
 "C1": "|4|"
 },
 "Vol": {
-"A1": "|0.16587843116541023|ca=\"1\"",
-"B1": "|46329.92295609231|ca=\"1\"",
+"A1": "|0.5624628848950817|ca=\"1\"",
+"B1": "|46329.94237480189|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -844,8 +844,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.140228439574828|ca=\"1\"",
-"B1": "|46329.922959837961|ca=\"1\"",
+"A1": "|0.84216543659248488|ca=\"1\"",
+"B1": "|46329.942378125001|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -897,8 +897,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.05948400102379359|ca=\"1\"",
-"B1": "|46329.92296211359|ca=\"1\"",
+"A1": "|0.0032004890966442767|ca=\"1\"",
+"B1": "|46329.94238066207|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -952,8 +952,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.4305243053063802|ca=\"1\"",
-"B1": "|46329.922964583333|ca=\"1\"",
+"A1": "|0.96689916483131455|ca=\"1\"",
+"B1": "|46329.942384722221|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1005,8 +1005,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.9683800138133114|ca=\"1\"",
-"B1": "|46329.9229666719|ca=\"1\"",
+"A1": "|0.6531695748603201|ca=\"1\"",
+"B1": "|46329.942387322626|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1060,8 +1060,8 @@
 "C1": "|2|"
 },
 "Vol": {
-"A1": "|0.57387139304869672|ca=\"1\"",
-"B1": "|46329.922969444444|ca=\"1\"",
+"A1": "|0.40513051662969302|ca=\"1\"",
+"B1": "|46329.942390625001|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1113,8 +1113,8 @@
 "C1": "|2|"
 },
 "Vol": {
-"A1": "|0.902653446188521|ca=\"1\"",
-"B1": "|46329.92297253614|ca=\"1\"",
+"A1": "|0.7695915819088637|ca=\"1\"",
+"B1": "|46329.94239330833|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1168,8 +1168,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.49496749535138296|ca=\"1\"",
-"B1": "|46329.922975694448|ca=\"1\"",
+"A1": "|0.25855904565876708|ca=\"1\"",
+"B1": "|46329.942396064813|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|3|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1221,8 +1221,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.10137711233169411|ca=\"1\"",
-"B1": "|46329.92297860029|ca=\"1\"",
+"A1": "|0.14854667599804483|ca=\"1\"",
+"B1": "|46329.94239889631|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|3|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1281,8 +1281,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.79564337208545266|ca=\"1\"",
-"B1": "|46329.922983101853|ca=\"1\"",
+"A1": "|0.10432236046103383|ca=\"1\"",
+"B1": "|46329.942403125002|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1331,8 +1331,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.8969348309135506|ca=\"1\"",
-"B1": "|46329.92298753196|ca=\"1\"",
+"A1": "|0.6311659117558325|ca=\"1\"",
+"B1": "|46329.942405599766|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1364,8 +1364,8 @@
 "C1": "e|#REF!|"
 },
 "Vol": {
-"A1": "|0.25302081501888618|ca=\"1\"",
-"B1": "|46329.922992939813|ca=\"1\"",
+"A1": "|0.74107466480790607|ca=\"1\"",
+"B1": "|46329.942407986113|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1418,8 +1418,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.95892608603903573|ca=\"1\"",
-"B1": "|46329.922997106478|ca=\"1\"",
+"A1": "|6.5996801429939356E-2|ca=\"1\"",
+"B1": "|46329.942411226853|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1471,8 +1471,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.18198927231758977|ca=\"1\"",
-"B1": "|46329.922999019465|ca=\"1\"",
+"A1": "|0.8772449253113418|ca=\"1\"",
+"B1": "|46329.94241320337|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1526,8 +1526,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.16905766520788224|ca=\"1\"",
-"B1": "|46329.923003009259|ca=\"1\"",
+"A1": "|0.66602652915797778|ca=\"1\"",
+"B1": "|46329.942415972226|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1579,8 +1579,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.2018557813355104|ca=\"1\"",
-"B1": "|46329.92300613764|ca=\"1\"",
+"A1": "|0.14801338492855798|ca=\"1\"",
+"B1": "|46329.942418821665|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1634,8 +1634,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.1442024558117122|ca=\"1\"",
-"B1": "|46329.923009837963|ca=\"1\"",
+"A1": "|0.65176205305853319|ca=\"1\"",
+"B1": "|46329.942422453707|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1687,8 +1687,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.7293423548037768|ca=\"1\"",
-"B1": "|46329.92301258659|ca=\"1\"",
+"A1": "|0.0392777224194929|ca=\"1\"",
+"B1": "|46329.94242459676|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1742,8 +1742,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|3.1463771931698026E-2|ca=\"1\"",
-"B1": "|46329.923016435183|ca=\"1\"",
+"A1": "|0.58483423868423978|ca=\"1\"",
+"B1": "|46329.942427199072|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|50|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1795,8 +1795,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.7440729916150941|ca=\"1\"",
-"B1": "|46329.92302027697|ca=\"1\"",
+"A1": "|0.339935346526667|ca=\"1\"",
+"B1": "|46329.942429616734|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|50|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1850,8 +1850,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.21190450495410806|ca=\"1\"",
-"B1": "|46329.923023495372|ca=\"1\"",
+"A1": "|0.84634387582970838|ca=\"1\"",
+"B1": "|46329.942432407406|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1903,8 +1903,8 @@
 "C1": "|1|"
 },
 "Vol": {
-"A1": "|0.44332139990759201|ca=\"1\"",
-"B1": "|46329.92290902778|ca=\"1\"",
+"A1": "|0.7689731065520341|ca=\"1\"",
+"B1": "|46329.942332523147|ca=\"1\"",
 "C1": "|2|ca=\"1\"",
 "D1": "|4|ca=\"1\"",
 "E1": "|46329|ca=\"1\"",
@@ -1922,6 +1922,1506 @@
 },
 "#calcPr": {
 "tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\" calcCompleted=\"0\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+}
+},
+"sequences": {
+"edit, copy, save": {
+"edit": "ws.Range(\"A4\").Value = 50: wb.SaveCopyAs out & \"\\copy.xlsx\": wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.6657509356608674|ca=\"1\"",
+"B1": "|46329.942437731479|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.6452208077666137|ca=\"1\"",
+"B1": "|46329.94243983849|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, copy, unrelated edit, save": {
+"edit": "ws.Range(\"A4\").Value = 50: wb.SaveCopyAs out & \"\\copy.xlsx\": wb.Worksheets(\"Untouched\").Range(\"Z9\").Value = 1: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.45315147226276109|ca=\"1\"",
+"B1": "|46329.942442361113|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.9388891961327828|ca=\"1\"",
+"B1": "|46329.94244469198|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, copy, edit, save": {
+"edit": "ws.Range(\"A4\").Value = 50: wb.SaveCopyAs out & \"\\copy.xlsx\": ws.Range(\"A4\").Value = 60: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|66|"
+},
+"Two": {
+"A1": "|66|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|132|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|66|",
+"I1": "|66|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|132|",
+"B1": "|133|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.59702659959344218|ca=\"1\"",
+"B1": "|46329.942447337962|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|60|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 60"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=66|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=66|1,2=String=1x|1,3=Double=1|1,4=Double=132|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=66|1,9=Double=66|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=132|1,2=Double=133|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=163|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=163|1,2=String=1x|1,3=Double=1|1,4=Double=326|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=163|1,9=Double=163|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=326|1,2=Double=327|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|66|"
+},
+"Two": {
+"A1": "|66|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|132|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|66|",
+"I1": "|66|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|132|",
+"B1": "|133|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.557131931053369|ca=\"1\"",
+"B1": "|46329.942449572|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|60|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 60"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=66|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=66|1,2=String=1x|1,3=Double=1|1,4=Double=132|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=66|1,9=Double=66|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=132|1,2=Double=133|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=163|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=163|1,2=String=1x|1,3=Double=1|1,4=Double=326|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=163|1,9=Double=163|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=326|1,2=Double=327|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, copy, save, unrelated edit, save": {
+"edit": "ws.Range(\"A4\").Value = 50: wb.SaveCopyAs out & \"\\copy.xlsx\": wb.Save: wb.Worksheets(\"Untouched\").Range(\"Z9\").Value = 1: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.62023661648874084|ca=\"1\"",
+"B1": "|46329.942452546296|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.744691259217692|ca=\"1\"",
+"B1": "|46329.942455202196|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, failed save, save": {
+"edit": "ws.Range(\"A4\").Value = 50: On Error Resume Next: wb.SaveCopyAs out & \"\\isdir.xlsx\": On Error GoTo 0: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.52539013103169063|ca=\"1\"",
+"B1": "|46329.942457638892|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.5747114903711663|ca=\"1\"",
+"B1": "|46329.94245998124|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, failed copy to no folder, save": {
+"edit": "ws.Range(\"A4\").Value = 50: On Error Resume Next: wb.SaveCopyAs out & \"\\none\\copy.xlsx\": On Error GoTo 0: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.93880185581280673|ca=\"1\"",
+"B1": "|46329.94246273148|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.2329836023488725|ca=\"1\"",
+"B1": "|46329.942464771935|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, failed save, unrelated edit, save": {
+"edit": "ws.Range(\"A4\").Value = 50: On Error Resume Next: wb.SaveCopyAs out & \"\\isdir.xlsx\": On Error GoTo 0: wb.Worksheets(\"Untouched\").Range(\"Z9\").Value = 1: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.53359894962388388|ca=\"1\"",
+"B1": "|46329.942467245368|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.8266595887567554|ca=\"1\"",
+"B1": "|46329.94246964169|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, save, save": {
+"edit": "ws.Range(\"A4\").Value = 50: wb.Save: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.15036132073765807|ca=\"1\"",
+"B1": "|46329.942472106479|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.7786672991532532|ca=\"1\"",
+"B1": "|46329.94247452974|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"edit, save, edit, save": {
+"edit": "ws.Range(\"A4\").Value = 50: wb.Save: ws.Range(\"A4\").Value = 60: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|66|"
+},
+"Two": {
+"A1": "|66|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|132|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|66|",
+"I1": "|66|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|132|",
+"B1": "|133|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.61567736103906068|ca=\"1\"",
+"B1": "|46329.942477199074|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|60|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 60"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=66|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=66|1,2=String=1x|1,3=Double=1|1,4=Double=132|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=66|1,9=Double=66|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=132|1,2=Double=133|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=163|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=163|1,2=String=1x|1,3=Double=1|1,4=Double=326|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=163|1,9=Double=163|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=326|1,2=Double=327|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|66|"
+},
+"Two": {
+"A1": "|66|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|132|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|66|",
+"I1": "|66|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|132|",
+"B1": "|133|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.7675232099310006|ca=\"1\"",
+"B1": "|46329.94247951774|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|60|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 60"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=66|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=66|1,2=String=1x|1,3=Double=1|1,4=Double=132|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=66|1,9=Double=66|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=132|1,2=Double=133|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=163|3,11=Double=2|3,12=Double=2|4,1=Double=60#Two|1,1=Double=163|1,2=String=1x|1,3=Double=1|1,4=Double=326|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=163|1,9=Double=163|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=326|1,2=Double=327|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"manual, save without calculating, save": {
+"edit": "Application.Calculation = xlCalculationManual: Application.CalculateBeforeSave = False: ws.Range(\"A4\").Value = 50: wb.Save: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|10|ca=\"1\""
+},
+"Two": {
+"A1": "|10|ca=\"1\"",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|20|t=\"array\" ref=\"D1\" ca=\"1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|10|ca=\"1\"",
+"I1": "|10|ca=\"1\"",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|20|ca=\"1\"",
+"B1": "|21|ca=\"1\"",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.79228721586777873|ca=\"1\"",
+"B1": "|46329.942481828701|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|4|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcCompleted=\"0\" calcOnSave=\"0\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|10|ca=\"1\""
+},
+"Two": {
+"A1": "|10|ca=\"1\"",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|20|t=\"array\" ref=\"D1\" ca=\"1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|10|ca=\"1\"",
+"I1": "|10|ca=\"1\"",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|20|ca=\"1\"",
+"B1": "|21|ca=\"1\"",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.7689731065520341|ca=\"1\"",
+"B1": "|46329.942332523147|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|4|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\" calcCompleted=\"0\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"manual, save without calculating, calculate, save": {
+"edit": "Application.Calculation = xlCalculationManual: Application.CalculateBeforeSave = False: ws.Range(\"A4\").Value = 50: wb.Save: Application.Calculate: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.41133111939594702|ca=\"1\"",
+"B1": "|46329.942486805558|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|ca=\"1\"",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\" ca=\"1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|ca=\"1\"",
+"I1": "|56|ca=\"1\"",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|ca=\"1\"",
+"B1": "|113|ca=\"1\"",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.33043560410237516|ca=\"1\"",
+"B1": "|46329.94248947525|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\" calcCompleted=\"1\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"manual, copy without calculating, save": {
+"edit": "Application.Calculation = xlCalculationManual: Application.CalculateBeforeSave = False: ws.Range(\"A4\").Value = 50: wb.SaveCopyAs out & \"\\copy.xlsx\": wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|10|ca=\"1\""
+},
+"Two": {
+"A1": "|10|ca=\"1\"",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|20|t=\"array\" ref=\"D1\" ca=\"1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|10|ca=\"1\"",
+"I1": "|10|ca=\"1\"",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|20|ca=\"1\"",
+"B1": "|21|ca=\"1\"",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|9.579164426610709E-2|ca=\"1\"",
+"B1": "|46329.942492245369|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|4|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcCompleted=\"0\" calcOnSave=\"0\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|10|ca=\"1\""
+},
+"Two": {
+"A1": "|10|ca=\"1\"",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|20|t=\"array\" ref=\"D1\" ca=\"1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|10|ca=\"1\"",
+"I1": "|10|ca=\"1\"",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|20|ca=\"1\"",
+"B1": "|21|ca=\"1\"",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.7689731065520341|ca=\"1\"",
+"B1": "|46329.942332523147|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|4|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\" calcCompleted=\"0\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"manual, copy without calculating, calculate, save": {
+"edit": "Application.Calculation = xlCalculationManual: Application.CalculateBeforeSave = False: ws.Range(\"A4\").Value = 50: wb.SaveCopyAs out & \"\\copy.xlsx\": Application.Calculate: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.81044128453310793|ca=\"1\"",
+"B1": "|46329.942497222219|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|ca=\"1\"",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\" ca=\"1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|ca=\"1\"",
+"I1": "|56|ca=\"1\"",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|ca=\"1\"",
+"B1": "|113|ca=\"1\"",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.9757678525155804|ca=\"1\"",
+"B1": "|46329.9424994508|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\" calcCompleted=\"1\"/>"
+}
+},
+"model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"
+},
+"manual, save without calculating, automatic, save": {
+"edit": "Application.Calculation = xlCalculationManual: Application.CalculateBeforeSave = False: ws.Range(\"A4\").Value = 50: wb.Save: Application.Calculation = xlCalculationAutomatic: Application.CalculateBeforeSave = True: wb.Save",
+"excel_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|",
+"I1": "|56|",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|",
+"B1": "|113|",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.69741229812305539|ca=\"1\"",
+"B1": "|46329.942501851852|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\"/>"
+}
+},
+"excel_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10",
+"model_cells": {
+"One": {
+"B1": "|2|",
+"C3": "|56|"
+},
+"Two": {
+"A1": "|56|ca=\"1\"",
+"B1": "str|1x|",
+"C1": "|1|",
+"D1": "|112|t=\"array\" ref=\"D1\" ca=\"1\"",
+"E1": "|2|t=\"array\" ref=\"E1:E3\"",
+"F1": "|1|",
+"G1": "|3|",
+"H1": "|56|ca=\"1\"",
+"I1": "|56|ca=\"1\"",
+"J1": "|0.33333333333333331|",
+"B2": "b|0|",
+"C2": "|2|",
+"J2": "|45001|",
+"B3": "e|#DIV/0!|",
+"C3": "|3|",
+"B4": "|1|",
+"B5": "|1|"
+},
+"Three": {
+"A1": "|112|ca=\"1\"",
+"B1": "|113|ca=\"1\"",
+"C1": "|1|"
+},
+"Vol": {
+"A1": "|0.5123373274233243|ca=\"1\"",
+"B1": "|46329.94250402267|ca=\"1\"",
+"C1": "|2|ca=\"1\"",
+"D1": "|50|ca=\"1\"",
+"E1": "|46329|ca=\"1\"",
+"F1": "|1|ca=\"1\""
+},
+"Link": {
+"A1": "|7|",
+"B1": "|8|"
+},
+"Untouched": {
+"B1": "|10|"
+},
+"#charts": {
+"0": "1 2 3 50"
+},
+"#calcPr": {
+"tag": "<calcPr calcId=\"191029\" calcMode=\"auto\" calcOnSave=\"1\" calcCompleted=\"1\"/>"
 }
 },
 "model_reads": "#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=3|3,3=Double=56|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=56|1,2=String=1x|1,3=Double=1|1,4=Double=112|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=56|1,9=Double=56|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=6|4,2=Double=1|5,2=Double=1#Three|1,1=Double=112|1,2=Double=113|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10@@#One|1,1=Double=1|1,2=Double=2|1,11=String=x|1,12=String=y|2,1=Double=2|2,11=Double=1|2,12=Double=1|3,1=Double=100|3,3=Double=153|3,11=Double=2|3,12=Double=2|4,1=Double=50#Two|1,1=Double=153|1,2=String=1x|1,3=Double=1|1,4=Double=306|1,5=Double=2|1,6=Double=1|1,7=Double=3|1,8=Double=153|1,9=Double=153|1,10=Double=0.333333333333333|2,2=Boolean=False|2,3=Double=2|2,5=Double=4|2,10=Double=45001|3,2=String=error|3,3=Double=3|3,5=Double=200|4,2=Double=1|5,2=Double=1#Three|1,1=Double=306|1,2=Double=307|1,3=Double=1#Link|1,1=Double=7|1,2=Double=8#Untouched|1,1=Double=5|1,2=Double=10"

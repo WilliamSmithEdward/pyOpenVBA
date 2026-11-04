@@ -160,6 +160,73 @@ def test_a_second_save_keeps_the_value(tmp_path: Path) -> None:
         assert one.read(parts["Three"]) == two.read(parts["Three"])
 
 
+def _cells(path: Path) -> dict[str, dict[str, str]]:
+    """Each sheet's formula cells as the probe records them."""
+    with zipfile.ZipFile(path) as package:
+        out: dict[str, dict[str, str]] = {}
+        for sheet, part in _sheet_parts(package).items():
+            cells: dict[str, str] = {}
+            for element in _CELL.findall(package.read(part).decode("utf-8")):
+                head = element[:element.index(">")]
+                formula = re.search(r"<f\b([^>]*?)/?>", element)
+                if formula is None:
+                    continue
+                kind = re.search(r'\st="([^"]*)"', head)
+                value = re.search(r"<v>(.*?)</v>", element, re.DOTALL)
+                cells[attributes(head + ">")["r"]] = f"{kind.group(1) if kind else ''}|{value.group(1) if value else ''}|{formula.group(1).strip()}"
+            out[sheet] = cells
+    return out
+
+
+def _ran(name: str, room: Path) -> Path:
+    """The file a sequence of saves leaves, and its folders, as the probe made them."""
+    (room / "isdir.xlsx").mkdir(parents=True)
+    own = room / "book.xlsx"
+    own.write_bytes(BOOK.read_bytes())
+    app = ExcelApplication.open(own, with_vba=False, sandbox=False)
+    edit = MEASURED["sequences"][name]["edit"].replace("\\", os.sep)
+    app.add_module(f'Public Sub Run(ByVal out As String)\n    Dim wb As Object, ws As Object\n    Set wb = ActiveWorkbook: Set ws = wb.Worksheets("One")\n    {edit}\nEnd Sub\n', name="E")
+    app.run("E.Run", str(room))
+    return own
+
+
+@pytest.mark.parametrize("name", list(MEASURED["sequences"]))
+def test_saves_one_after_another_write_what_excel_writes(name: str, tmp_path: Path) -> None:
+    """A copy, a failed save or an earlier save leaves the book's own Save writing the current values, and takes off a
+    mark a save put on once the cell is worked out."""
+    row = MEASURED["sequences"][name]
+    assert row["model_reads"] == row["excel_reads"]
+    excel, model = row["excel_cells"], _cells(_ran(name, tmp_path))
+    for sheet, cells in excel.items():
+        if sheet.startswith("#"):
+            continue
+        assert set(cells) == set(model[sheet]), sheet
+        for reference, held in cells.items():
+            if not (sheet == "Vol" and reference in VOLATILE):
+                assert _same(held, model[sheet][reference]), (sheet, reference, held, model[sheet][reference])
+
+
+def test_a_save_that_fails_midway_loses_no_value(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """After the values are written to the book's package and before the file is: the next save still has them."""
+    from pyopenvba.apps.excel import _io
+
+    own = tmp_path / "book.xlsx"
+    own.write_bytes(BOOK.read_bytes())
+    app = ExcelApplication.open(own, with_vba=False)
+    app.add_module('Public Sub Edit()\n    ActiveWorkbook.Worksheets("One").Range("A4").Value = 50\nEnd Sub\n', name="E")
+    app.run("E.Edit")
+
+    def fails(*_: object) -> None:
+        raise OSError("disk full")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(_io, "_write_styles", fails)
+        with pytest.raises(OSError):
+            _io.save_workbook(app.workbook, tmp_path / "failed.xlsx")
+    app.save(tmp_path / "after.xlsx")
+    assert _cells(tmp_path / "after.xlsx")["Two"]["A1"].split("|")[1] == "56"
+
+
 LIVE = os.environ.get("RUN_LIVE_EXCEL") == "1" and importlib.util.find_spec("pyvbaharness") is not None
 READS = MEASURED["reader"] + """Public Function Reads(ByVal path As String) As String
     Dim wb As Workbook, first As String
@@ -188,5 +255,11 @@ def test_native_excel_reads_the_models_save_as_recorded(tmp_path: Path) -> None:
             _saved(row["edit"], target)
             answer = excel.run_vba(READS, "Reads", (str(target),), timeout=60.0, line_numbers=False)
             if answer.value != row["model_reads"]:
+                wrong.append(name)
+        for number, name in enumerate(MEASURED["sequences"]):
+            room = tmp_path / f"sequence{number}"
+            own = _ran(name, room)
+            answer = excel.run_vba(READS, "Reads", (str(own),), timeout=60.0, line_numbers=False)
+            if answer.value != MEASURED["sequences"][name]["excel_reads"]:
                 wrong.append(name)
     assert not wrong

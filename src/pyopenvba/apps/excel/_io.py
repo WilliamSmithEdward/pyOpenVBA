@@ -2459,6 +2459,8 @@ def calculate_for_save(book: Workbook) -> None:
 
 _CELL_REFERENCE = re.compile(r'\sr="([A-Z]+)([0-9]+)"')
 _CELL_KIND = re.compile(r'\st="([^"]*)"')
+#: The mark on a formula a save left to Excel to work out; a c element has no other attribute of the name.
+_CA_MARK = re.compile(r'\sca="1"')
 
 
 def _write_cached_values(book: Workbook, package: OpcFile) -> None:
@@ -2472,7 +2474,7 @@ def _write_cached_values(book: Workbook, package: OpcFile) -> None:
     for sheet in book.sheets_:
         if sheet.dirty or not sheet.part_name or not package.has(sheet.part_name):
             continue
-        if sheet not in worked and not book.date_system_changed \
+        if sheet not in worked and not book.date_system_changed and not sheet.marked_to_calculate \
                 and not any(cell.formula and (cell.stale or cell.save_dirty) for cell in sheet.cells_.values()):
             continue
         if strings is None:
@@ -2507,7 +2509,14 @@ def _sheet_with_values(sheet: Worksheet, xml: str, strings: list[str]) -> str:
         kept = keeping or any(area.top <= row <= area.bottom and area.left <= column <= area.right for area in held)
         marked = not automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)
         kind = _CELL_KIND.search(head)
-        return _cell_with_value(element, cell, kind.group(1) if kind else "", strings, keep_stale=kept, marked=bool(marked))
+        if not marked and (row, column) in sheet.marked_to_calculate:
+            # Worked out since a save marked it, so Excel has no more need to, and writes it without the mark.
+            sheet.marked_to_calculate.discard((row, column))
+            element = _CA_MARK.sub("", element, count=1)
+        written = _cell_with_value(element, cell, kind.group(1) if kind else "", strings, keep_stale=kept, marked=bool(marked))
+        if marked and _CA_MARK.search(written) and not _CA_MARK.search(element):
+            sheet.marked_to_calculate.add((row, column))
+        return written
 
     return xml[:match.start(3)] + _CELL.sub(refreshed, match.group(3)) + xml[match.end(3):]
 

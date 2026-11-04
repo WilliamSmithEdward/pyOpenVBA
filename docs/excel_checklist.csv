@@ -1105,11 +1105,11 @@ DataLabels,ShowSeriesName,property,As Boolean,,PARTIAL,tests/fixtures/data_label
 DataLabels,ShowValue,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False."
 DataLabels,VerticalAlignment,property,As Variant,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
 DataTable,Application,"property, read-only",As Application,,UNASSESSED,,
-DataTable,Border,"property, read-only",As Border,,MISSING,,
+DataTable,Border,"property, read-only",As Border,,PARTIAL,tests/test_excel_chart_table_look.py,"As live Excel, for the kinds of chart the model draws."
 DataTable,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
 DataTable,Delete,method,Delete(),,UNASSESSED,,
 DataTable,Font,"property, read-only",As Font,,UNASSESSED,,
-DataTable,Format,"property, read-only",As ChartFormat,,MISSING,,
+DataTable,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/test_excel_chart_table_look.py,"As live Excel, for the kinds of chart the model draws."
 DataTable,HasBorderHorizontal,property,As Boolean,,UNASSESSED,,
 DataTable,HasBorderOutline,property,As Boolean,,UNASSESSED,,
 DataTable,HasBorderVertical,property,As Boolean,,UNASSESSED,,

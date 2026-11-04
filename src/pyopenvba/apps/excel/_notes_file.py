@@ -185,9 +185,9 @@ def _moved_box(source: str, fresh: str) -> str:
         return fresh
     box = re.sub(r'\bid="_x0000_s\d+"', lambda _: f'id="_x0000_s{_shape_id(fresh)}"', source, count=1)
     for part in ("margin-left", "margin-top", "width", "height", "z-index", "visibility"):
-        now = re.search(rf"(?<![-\w]){part}:([^;']*)", fresh)
+        now = re.search(rf"(?<![-\w]){part}:([^;'\"]*)", fresh)
         if now is not None:
-            box = re.sub(rf"(?<![-\w]){part}:[^;']*", lambda _, value=now.group(1), name=part: f"{name}:{value}", box, count=1)
+            box = re.sub(rf"(?<![-\w]){part}:[^;'\"]*", lambda _, value=now.group(1), name=part: f"{name}:{value}", box, count=1)
     for tag in ("Anchor", "Row", "Column"):
         now = re.search(rf"<x:{tag}>.*?</x:{tag}>", fresh, re.DOTALL)
         if now is not None:

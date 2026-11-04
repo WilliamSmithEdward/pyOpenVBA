@@ -1,0 +1,7602 @@
+{
+"year": 2026,
+"helper": "Private Function Show(v As Variant) As String\n    If IsError(v) Then\n        Show = \"E:\" & CStr(v)\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n",
+"scores": {
+"8001": {
+"predictions_sha256_16": "98b7ced16c3f2e15",
+"comparisons": 562,
+"differ": 44
+},
+"8002": {
+"predictions_sha256_16": "8cf58951cbf866b8",
+"comparisons": 562,
+"differ": 35
+},
+"8003": {
+"predictions_sha256_16": "a64163f3de077e9c",
+"comparisons": 562,
+"differ": 35
+},
+"8004": {
+"predictions_sha256_16": "b9b09b2beb121089",
+"comparisons": 562,
+"differ": 4
+},
+"8005": {
+"predictions_sha256_16": "bbaea8da8bcf6184",
+"comparisons": 562,
+"differ": 4
+},
+"8006": {
+"predictions_sha256_16": "4db90a0d0db0de7c",
+"comparisons": 562,
+"differ": 2
+},
+"8007": {
+"predictions_sha256_16": "d504a40e8209b638",
+"comparisons": 562,
+"differ": 1
+},
+"8008": {
+"predictions_sha256_16": "d3ffa0f5d0abb6a7",
+"comparisons": 562,
+"differ": 1
+},
+"8009": {
+"predictions_sha256_16": "5ac177c3ec216b80",
+"comparisons": 562,
+"differ": 3
+},
+"8010": {
+"predictions_sha256_16": "935ed30e024b3aea",
+"comparisons": 562,
+"differ": 1
+},
+"8011": {
+"predictions_sha256_16": "3b0bc471d4d51b4c",
+"comparisons": 562,
+"differ": 1
+},
+"8012": {
+"predictions_sha256_16": "be8122c3e98c49f1",
+"comparisons": 562,
+"differ": 1
+},
+"8013": {
+"predictions_sha256_16": "65089c65540b308e",
+"comparisons": 562,
+"differ": 1,
+"note": "One digit of Formula on a number a hair past a fifteen-digit tie. See known_differences."
+},
+"8014": {
+"predictions_sha256_16": "545af0fd38a0c35b",
+"comparisons": 562,
+"differ": 0
+},
+"8015": {
+"predictions_sha256_16": "c4a755f72ffee450",
+"comparisons": 562,
+"differ": 1
+},
+"8016": {
+"predictions_sha256_16": "70847a3f11f272c5",
+"comparisons": 562,
+"differ": 0
+},
+"8017": {
+"predictions_sha256_16": "c5415c3677f31d46",
+"comparisons": 562,
+"differ": 0
+}
+},
+"known_differences": [
+"Cell.Formula and =A1&\"\" round a Double very near a fifteen-digit tie in a way not modelled, CStr exactly: 2597210.0129976850003 reads 2597210.01299768 in Formula and 2597210.01299769 in CStr. Of 300 doubles sought out within 0.005 of the sixteenth digit past a tie, 28 went down when exact rounding goes up, with no threshold."
+],
+"rounds": {
+"8016": [
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 14 oct  12:1923 PM",
+"excel": "0|String| 14 oct  12:1923 PM|d-mmm-yy| 14 oct  12:1923 PM"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   7feb  63 am",
+"excel": "0|Double|178980011.805556|General|178980011.805556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  22-Sept 3:22.61",
+"excel": "0|Double|37886.0159837963|mm:ss.0|37886.0159837963"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   -25-feb  90:2027 PM",
+"excel": "0|String|   -25-feb  90:2027 PM|d-mmm-yy|   -25-feb  90:2027 PM"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   1-oct  2 PM",
+"excel": "0|Double|178994492.847222|General|178994492.847222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " -15-July 2015 am",
+"excel": "0|Double|178999162.805556|General|178999162.805556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   feb 2028:59",
+"excel": "0|Double|46779.5138888889|General|46779.5138888889"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 3-April  1:1929",
+"excel": "0|Double|37057.4305555556|General|37057.4305555556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " April  781:7",
+"excel": "0|String| April  781:7|General| April  781:7"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  13-Jan 1970:8.33",
+"excel": "0|Double|25581.0059375|mm:ss.0|25581.0059375"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   Jan 1:10884 48 92",
+"excel": "0|String|   Jan 1:10884 48 92|General|   Jan 1:10884 48 92"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   10-Sep 922 : 1909",
+"excel": "0|String|   10-Sep 922 : 1909|General|   10-Sep 922 : 1909"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  0-aug  27:29 1941",
+"excel": "0|String|  0-aug  27:29 1941|General|  0-aug  27:29 1941"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   27/MAR  84:19 a",
+"excel": "0|Double|3013384.83842593|General|3013384.83842593"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   17oct 1982:407 8 40",
+"excel": "0|Double|30257.9638888889|General|30257.9638888889"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   18July 11744:29:8893",
+"excel": "0|String|   18July 11744:29:8893|General|   18July 11744:29:8893"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " /may  2007:",
+"excel": "0|Date|38786.3333333333|m/d/yyyy h:mm|38786.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  -14-oct 6:10148.23",
+"excel": "0|String|  -14-oct 6:10148.23|General|  -14-oct 6:10148.23"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " -2-may  6:",
+"excel": "0|Date|38422.3333333333|m/d/yyyy h:mm|38422.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   2 MAR  1:93:10595",
+"excel": "0|String|   2 MAR  1:93:10595|General|   2 MAR  1:93:10595"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 30-december 26 : 409",
+"excel": "0|Double|46396.0972222222|General|46396.0972222222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   -24-MAR 10608 A",
+"excel": "0|String|   -24-MAR 10608 A|General|   -24-MAR 10608 A"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   20/April  39:6 33 50",
+"excel": "0|Date|14355.2729166667|m/d/yyyy h:mm|14355.2729166667"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  27/aug 576:10:11979",
+"excel": "0|String|  27/aug 576:10:11979|General|  27/aug 576:10:11979"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   /Jun  6:26:672",
+"excel": "0|String|   /Jun  6:26:672|d-mmm|   /Jun  6:26:672"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 11Jun  10752:99 pm",
+"excel": "0|String| 11Jun  10752:99 pm|General| 11Jun  10752:99 pm"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  Sep  8587:462:1970",
+"excel": "0|String|  Sep  8587:462:1970|mmm-yy|  Sep  8587:462:1970"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  Sept  79:190:1786",
+"excel": "0|String|  Sept  79:190:1786|mmm-yy|  Sept  79:190:1786"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  may  11541:8614 A",
+"excel": "0|String|  may  11541:8614 A|General|  may  11541:8614 A"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " July  708:3.12",
+"excel": "0|String| July  708:3.12|General| July  708:3.12"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " /aug  803:666 pm",
+"excel": "0|String| /aug  803:666 pm|General| /aug  803:666 pm"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  2Sept 1655:11 p",
+"excel": "0|String|  2Sept 1655:11 p|General|  2Sept 1655:11 p"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  Sep 11461:44 37 47",
+"excel": "0|String|  Sep 11461:44 37 47|General|  Sep 11461:44 37 47"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   24/Nov 5:",
+"excel": "0|Date|38263.3333333333|m/d/yyyy h:mm|38263.3333333333"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  -25-Jun 4:4494 2052",
+"excel": "0|String|  -25-Jun 4:4494 2052|d-mmm-yy|  -25-Jun 4:4494 2052"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " -19-aug  57:4:13",
+"excel": "0|Date|21051.0599537037|m/d/yyyy h:mm|21051.0599537037"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " feb 31:95 am",
+"excel": "0|String| feb 31:95 am|mmm-yy| feb 31:95 am"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 24/feb 4:",
+"excel": "0|Date|37624.3333333333|m/d/yyyy h:mm|37624.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 12/may  8:1 66",
+"excel": "0|Double|39580.0875|General|39580.0875"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  8 July 18:35.98",
+"excel": "0|Double|43289.0254398148|mm:ss.0|43289.0254398148"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " /aug 301:5815:6",
+"excel": "0|String| /aug 301:5815:6|General| /aug 301:5815:6"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   /Sept  56:0",
+"excel": "0|Date|20692.0555555556|m/d/yyyy h:mm|20692.0555555556"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 3-Sept  1995:2055:1588",
+"excel": "0|String| 3-Sept  1995:2055:1588|d-mmm-yy| 3-Sept  1995:2055:1588"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   26-Sep 651:401",
+"excel": "0|String|   26-Sep 651:401|General|   26-Sep 651:401"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   may 65 a",
+"excel": "0|Double|178980825.805556|General|178980825.805556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  -11-may  65:6 am",
+"excel": "0|Double|3006489.29675926|General|3006489.29675926"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   10oct  2069:30 PM",
+"excel": "0|String|   10oct  2069:30 PM|d-mmm-yy|   10oct  2069:30 PM"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   3-Jan 11300:13 PM",
+"excel": "0|String|   3-Jan 11300:13 PM|General|   3-Jan 11300:13 PM"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  8-Sep 5355 P",
+"excel": "0|Double|180219127.847222|General|180219127.847222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  /MAR  15:",
+"excel": "0|Date|45679.3333333333|m/d/yyyy h:mm|45679.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   3-Jun 20 : 2010",
+"excel": "0|Double|44061.8055555556|General|44061.8055555556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   /oct 290 P",
+"excel": "0|String|   /oct 290 P|General|   /oct 290 P"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   13 MAR  20:2029",
+"excel": "0|Double|43980.5972222222|General|43980.5972222222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  /MAR  37 P",
+"excel": "0|Double|178970537.847222|General|178970537.847222"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " /Nov 2078:12 5805",
+"excel": "0|Double|65324.53125|General|65324.53125"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   aug 11862:1923:11307",
+"excel": "0|String|   aug 11862:1923:11307|General|   aug 11862:1923:11307"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " /Sept  912:50 am",
+"excel": "0|String| /Sept  912:50 am|General| /Sept  912:50 am"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  7-July  62:11050 98 90",
+"excel": "0|String|  7-July  62:11050 98 90|General|  7-July  62:11050 98 90"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   17/Jun  8:5598",
+"excel": "0|Double|39842.3055555556|General|39842.3055555556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  Jan  11995:16 p",
+"excel": "0|String|  Jan  11995:16 p|General|  Jan  11995:16 p"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " -10-July  2040 : 3",
+"excel": "0|Date|51320.1805555556|m/d/yyyy h:mm|51320.1805555556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   -25-oct 1:",
+"excel": "0|Date|36772.3333333333|m/d/yyyy h:mm|36772.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  1-Sep  973 : 10",
+"excel": "0|String|  1-Sep  973 : 10|General|  1-Sep  973 : 10"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   oct 185:7.73",
+"excel": "0|String|   oct 185:7.73|General|   oct 185:7.73"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  /Jan  8294:54.9",
+"excel": "0|Double|2335363.03760417|mm:ss.0|2335363.03760417"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 23April 28:11316:3031",
+"excel": "0|String| 23April 28:11316:3031|General| 23April 28:11316:3031"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  20-July 55:1.98",
+"excel": "0|Double|20290.0018287037|mm:ss.0|20290.0018287037"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  Sep 0:20.23",
+"excel": "0|Double|36770.0141550926|mm:ss.0|36770.0141550926"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   4 MAR  9945:2053.32",
+"excel": "0|Double|2938441.42606481|mm:ss.0|2938441.42606481"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   22Sept  1953 am",
+"excel": "0|Double|178976586.805556|General|178976586.805556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " -28-Jun 2263:5.76",
+"excel": "0|Double|132763.004351852|mm:ss.0|132763.004351852"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   14/may 2:6",
+"excel": "0|Date|37383.3055555556|m/d/yyyy h:mm|37383.3055555556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   10may  9693:79 pm",
+"excel": "0|String|   10may  9693:79 pm|d-mmm-yy|   10may  9693:79 pm"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " /Nov  51:11751",
+"excel": "0|String| /Nov  51:11751|General| /Nov  51:11751"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  22/Sep  7:60 p",
+"excel": "0|String|  22/Sep  7:60 p|d-mmm-yy|  22/Sep  7:60 p"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   3April 9:30",
+"excel": "0|Double|39900.3055555556|General|39900.3055555556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   8/Sep  764 PM",
+"excel": "0|String|   8/Sep  764 PM|General|   8/Sep  764 PM"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   12 MAR  6292:91.6",
+"excel": "0|Double|1604218.06326389|mm:ss.0|1604218.06326389"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   feb 7110 PM",
+"excel": "0|Double|180859908.847222|General|180859908.847222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  7-Sep 875 A",
+"excel": "0|String|  7-Sep 875 A|General|  7-Sep 875 A"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  July 3068:5:11484",
+"excel": "0|String|  July 3068:5:11484|General|  July 3068:5:11484"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  /december  3:98.26",
+"excel": "0|Double|46359.0683564815|mm:ss.0|46359.0683564815"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  9 Jun  49:8:299",
+"excel": "0|Double|18058.4252314815|General|18058.4252314815"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " /feb 5988:57 P",
+"excel": "0|String| /feb 5988:57 P|mmm-yy| /feb 5988:57 P"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   18/december  46:3426.40",
+"excel": "0|Double|17156.3796296296|mm:ss.0|17156.3796296296"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   Sep 94:58 31 57",
+"excel": "0|Double|34580.4381944444|General|34580.4381944444"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  20/April 10 : 10",
+"excel": "0|Date|40281.4722222222|m/d/yyyy h:mm|40281.4722222222"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 17/Jun 31 AM",
+"excel": "0|Double|178968453.805556|General|178968453.805556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   /december 93 : 278",
+"excel": "0|Double|34308.6388888889|General|34308.6388888889"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  -18-december 83 : 23",
+"excel": "0|Date|30662.0138888889|m/d/yyyy h:mm|30662.0138888889"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  12-April 10530:",
+"excel": "0|String|  12-April 10530:|General|  12-April 10530:"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " aug  2:158 PM",
+"excel": "0|String| aug  2:158 PM|d-mmm| aug  2:158 PM"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " /April 2:",
+"excel": "0|Date|45697.3333333333|m/d/yyyy h:mm|45697.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " -16-Jun 99:10155",
+"excel": "0|String| -16-Jun 99:10155|General| -16-Jun 99:10155"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " -14-aug 67:1:11321",
+"excel": "0|String| -14-aug 67:1:11321|General| -14-aug 67:1:11321"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 25 may  494:52 A",
+"excel": "0|String| 25 may  494:52 A|General| 25 may  494:52 A"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   16 Jun 2029:11:9754",
+"excel": "0|Double|47292.1162037037|General|47292.1162037037"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   25 MAR  10031:1935.1",
+"excel": "0|String|   25 MAR  10031:1935.1|General|   25 MAR  10031:1935.1"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " /MAR 4370:362",
+"excel": "0|Double|902218.138888889|General|902218.138888889"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  /Jun  1275:754 2032",
+"excel": "0|String|  /Jun  1275:754 2032|General|  /Jun  1275:754 2032"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " /Sept  621:20 AM",
+"excel": "0|String| /Sept  621:20 AM|General| /Sept  621:20 AM"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   23/MAR  2023 : 15",
+"excel": "0|Date|45001.6805555556|m/d/yyyy h:mm|45001.6805555556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   /Jan  5850:3853 467",
+"excel": "0|String|   /Jan  5850:3853 467|mmm-yy|   /Jan  5850:3853 467"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 8Jan 42:",
+"excel": "0|Date|14932.3333333333|m/d/yyyy h:mm|14932.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  18/december  52:193 am",
+"excel": "0|String|  18/december  52:193 am|d-mmm-yy|  18/december  52:193 am"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " Sept 10467:",
+"excel": "0|String| Sept 10467:|General| Sept 10467:"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   2MAR  1927:26:11559",
+"excel": "0|String|   2MAR  1927:26:11559|General|   2MAR  1927:26:11559"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " feb  44:28.89",
+"excel": "0|Double|16103.020474537|mm:ss.0|16103.020474537"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 19 Jan  64:7 a",
+"excel": "0|Double|3006011.33842593|General|3006011.33842593"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   -28-MAR 97:1937 30 78",
+"excel": "0|Double|35597.7291666667|General|35597.7291666667"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " Jan 99:",
+"excel": "0|Date|35744.3333333333|m/d/yyyy h:mm|35744.3333333333"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 2/Jun 9:53:5",
+"excel": "0|Double|39968.0960648148|General|39968.0960648148"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   feb  6464:963 47 43",
+"excel": "0|Double|1667040.15763889|General|1667040.15763889"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   feb 28 : 38",
+"excel": "0|Double|46075.6388888889|General|46075.6388888889"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   23december  2017:29 8 63",
+"excel": "0|Double|43093.2138888889|General|43093.2138888889"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  July 287 : 9752",
+"excel": "0|String|  July 287 : 9752|General|  July 287 : 9752"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  /Sept 11638:21.25",
+"excel": "0|String|  /Sept 11638:21.25|General|  /Sept 11638:21.25"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  Nov 1958:88 69 96",
+"excel": "0|String|  Nov 1958:88 69 96|mmm-yy|  Nov 1958:88 69 96"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   24-Sept  7985:16",
+"excel": "0|Date|2222762.72222222|m/d/yyyy h:mm|2222762.72222222"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  25Sep 11060:8 8819",
+"excel": "0|String|  25Sep 11060:8 8819|General|  25Sep 11060:8 8819"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   Jan  2004:",
+"excel": "0|Date|37570.3333333333|m/d/yyyy h:mm|37570.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  21/may 2087:53.97",
+"excel": "0|Double|68443.0379282407|mm:ss.0|68443.0379282407"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  3Jan  2358:2:1973",
+"excel": "0|Double|167286.337731481|General|167286.337731481"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " oct  19:1967 am",
+"excel": "0|String| oct  19:1967 am|d-mmm| oct  19:1967 am"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " may  999 : 861",
+"excel": "0|String| may  999 : 861|General| may  999 : 861"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   6-April  9 A",
+"excel": "0|Double|178996871.805556|General|178996871.805556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  20April 26:",
+"excel": "0|Date|45715.3333333333|m/d/yyyy h:mm|45715.3333333333"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   July  12:1905.18",
+"excel": "0|Double|46216.323125|mm:ss.0|46216.323125"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  3/feb  10171:2011.9",
+"excel": "0|String|  3/feb  10171:2011.9|General|  3/feb  10171:2011.9"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   5 oct  7539:14 PM",
+"excel": "0|Double|5042497.63078704|General|5042497.63078704"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " -20-April 2069:8 69",
+"excel": "0|Double|61838.38125|General|61838.38125"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   /Sept 49:1205 10",
+"excel": "0|Double|18192.2152777778|General|18192.2152777778"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   9/MAR 28 AM",
+"excel": "0|Double|179003783.805556|General|179003783.805556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   Nov 1939:",
+"excel": "0|Date|14133.3333333333|m/d/yyyy h:mm|14133.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  33-Sept 901:",
+"excel": "0|String|  33-Sept 901:|General|  33-Sept 901:"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  4/Jan  5:",
+"excel": "0|Date|37939.3333333333|m/d/yyyy h:mm|37939.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 12-July  10171:",
+"excel": "0|String| 12-July  10171:|General| 12-July  10171:"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  oct 68:",
+"excel": "0|Date|24695.3333333333|m/d/yyyy h:mm|24695.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   27-Sep 78:186 464",
+"excel": "0|String|   27-Sep 78:186 464|d-mmm-yy|   27-Sep 78:186 464"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  /Sep  13:10118 am",
+"excel": "0|String|  /Sep  13:10118 am|General|  /Sep  13:10118 am"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "11:31 PM. 12345678",
+"excel": "0|Double|49710.7492491088|mm:ss.0|49710.7492491088"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "15:01 a. 3 1",
+"excel": "0|String|15:01 a. 3 1|General|15:01 a. 3 1"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4/7/2024 10:11 pm. 5",
+"excel": "0|Double|95099.6936979167|mm:ss.0|95099.6936979167"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "13:46 a.12345678 88",
+"excel": "0|String|13:46 a.12345678 88|General|13:46 a.12345678 88"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "22:28 am .8407",
+"excel": "0|Double|49711.2054958449|mm:ss.0|49711.2054958449"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "7/14/2010 6:27 P .5089",
+"excel": "0|Double|90083.5381424653|mm:ss.0|90083.5381424653"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "6:28 P .4 4/18",
+"excel": "0|Double|95840.5388356481|mm:ss.0|95840.5388356481"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4:13:21 AM. 6813 24",
+"excel": "0|String|4:13:21 AM. 6813 24|General|4:13:21 AM. 6813 24"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "17:23 P .52",
+"excel": "0|Double|49710.9936981482|mm:ss.0|49710.9936981482"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "1/18/2017 10:03:35 am.12345678",
+"excel": "0|String|1/18/2017 10:03:35 am.12345678|General|1/18/2017 10:03:35 am.12345678"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "18-feb 2:38:19 A.12345678",
+"excel": "0|String|18-feb 2:38:19 A.12345678|General|18-feb 2:38:19 A.12345678"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "11:32 p.12345678 6/19",
+"excel": "0|Double|95902.7499435532|mm:ss.0|95902.7499435532"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "11/17/2023 1:19 p.6",
+"excel": "0|Double|94957.3242546296|mm:ss.0|94957.3242546296"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "42 PM.8666 10/17",
+"excel": "0|Double|96022.2985632755|mm:ss.0|96022.2985632755"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "53 A.8 36",
+"excel": "0|String|53 A.8 36|General|53 A.8 36"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "6:58 PM.12345678 3/19",
+"excel": "0|Double|95810.5596657755|mm:ss.0|95810.5596657755"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "12:12:19 pm.12345678 5/9",
+"excel": "0|String|12:12:19 pm.12345678 5/9|General|12:12:19 pm.12345678 5/9"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "2/6/2006 40 P. 2539",
+"excel": "0|Double|88464.2971672917|mm:ss.0|88464.2971672917"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "20:23 AM. 2",
+"excel": "0|Double|49711.1186828704|mm:ss.0|49711.1186828704"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "9:09:30 pm .12345678 5/18",
+"excel": "0|String|9:09:30 pm .12345678 5/18|General|9:09:30 pm .12345678 5/18"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "7/5/2025 13:53 pm .12345678",
+"excel": "0|Double|95553.8478602199|mm:ss.0|95553.8478602199"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "14:45 a.0",
+"excel": "0|Double|49710.8839583333|mm:ss.0|49710.8839583333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "8 a.12345678",
+"excel": "0|Double|49710.2749319792|mm:ss.0|49710.2749319792"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "6:20 AM. 2099",
+"excel": "0|Double|49710.5332663194|mm:ss.0|49710.5332663194"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4:22:30 P .12345678",
+"excel": "0|String|4:22:30 P .12345678|General|4:22:30 P .12345678"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "16-MAR 21:39 p.6783",
+"excel": "0|Double|95808.1714777546|mm:ss.0|95808.1714777546"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "3/17/1996 42 A .2161",
+"excel": "0|Double|84851.2985441667|mm:ss.0|84851.2985441667"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "14-Jan 10:55:33 pm.69",
+"excel": "0|String|14-Jan 10:55:33 pm.69|General|14-Jan 10:55:33 pm.69"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "46 a. 12345678 77",
+"excel": "0|String|46 a. 12345678 77|General|46 a. 12345678 77"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "4:45:11 pm.26",
+"excel": "0|String|4:45:11 pm.26|General|4:45:11 pm.26"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "12:42 AM.4 91",
+"excel": "0|String|12:42 AM.4 91|General|12:42 AM.4 91"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "7/19/1997 16:51 PM.43",
+"excel": "0|Double|85340.9714748843|mm:ss.0|85340.9714748843"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "3:7 pm.8416",
+"excel": "0|Double|49710.3992574306|mm:ss.0|49710.3992574306"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "26:6 AM .12345678 49",
+"excel": "0|String|26:6 AM .12345678 49|General|26:6 AM .12345678 49"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "4:05:0 p.5654",
+"excel": "0|String|4:05:0 p.5654|General|4:05:0 p.5654"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "8:22 A.2",
+"excel": "0|Double|49710.6179884259|mm:ss.0|49710.6179884259"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "9/26/1998 0:37 AM. 8751",
+"excel": "0|Double|85774.2950795718|mm:ss.0|85774.2950795718"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "20:58 P.48",
+"excel": "0|Double|49711.1430032407|mm:ss.0|49711.1430032407"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "11/6/2006 35 p.7",
+"excel": "0|Double|88737.2937002315|mm:ss.0|88737.2937002315"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "12:01:43 A. 29 49",
+"excel": "0|String|12:01:43 A. 29 49|General|12:01:43 A. 29 49"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "10/9/1997 3:24 pm.14",
+"excel": "0|Double|85422.4110548611|mm:ss.0|85422.4110548611"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4:1 am.12345678",
+"excel": "0|Double|49710.4367375347|mm:ss.0|49710.4367375347"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "8:24:17 p .12345678 3/9",
+"excel": "0|String|8:24:17 p .12345678 3/9|General|8:24:17 p .12345678 3/9"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "18-december 26:32 AM.5095",
+"excel": "0|String|18-december 26:32 AM.5095|d-mmm|18-december 26:32 AM.5095"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "9:28 am.12345678 3/28",
+"excel": "0|Double|95819.6638208681|mm:ss.0|95819.6638208681"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "15-July 11:23 pm. 12345678",
+"excel": "0|Double|95928.7436935532|mm:ss.0|95928.7436935532"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "21:32 a.13",
+"excel": "0|Double|49711.1665987268|mm:ss.0|49711.1665987268"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "11:15:27 pm.12345678 9/7",
+"excel": "0|String|11:15:27 pm.12345678 9/7|General|11:15:27 pm.12345678 9/7"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "22 p.12345678",
+"excel": "0|Double|49710.2846657755|mm:ss.0|49710.2846657755"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "7:55 A .3370 8/8",
+"excel": "0|Double|95952.5992400116|mm:ss.0|95952.5992400116"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "6/21/2026 47 pm.1",
+"excel": "0|Double|95904.3020266204|mm:ss.0|95904.3020266204"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "46 am. 4 4/24",
+"excel": "0|Double|95846.3013240741|mm:ss.0|95846.3013240741"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "0 AM .92",
+"excel": "0|Double|49710.2693856481|mm:ss.0|49710.2693856481"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "45 P. 22 10/6",
+"excel": "0|Double|96011.3006391204|mm:ss.0|96011.3006391204"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "10/19/2006 58 P. 3735",
+"excel": "0|Double|88719.3096686806|mm:ss.0|88719.3096686806"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "23:36 A.6 50",
+"excel": "0|String|23:36 A.6 50|General|23:36 A.6 50"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "9-Nov 18:43 p.12345678",
+"excel": "0|Double|96046.0492491088|mm:ss.0|96046.0492491088"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "29 AM.50 6/14",
+"excel": "0|Double|95897.2895196759|mm:ss.0|95897.2895196759"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "12:13:45 a .65 50",
+"excel": "0|String|12:13:45 a .65 50|General|12:13:45 a .65 50"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "23:21 AM .12345678",
+"excel": "0|Double|49711.2422930903|mm:ss.0|49711.2422930903"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "0:48 am.27 22",
+"excel": "0|String|0:48 am.27 22|General|0:48 am.27 22"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "1/1/2027 17:39 P .7980",
+"excel": "0|Double|96099.0048124769|mm:ss.0|96099.0048124769"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "37 pm.2671 26",
+"excel": "0|String|37 pm.2671 26|General|37 pm.2671 26"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "3-aug 11:44 am.4645",
+"excel": "0|Double|95947.7582692708|mm:ss.0|95947.7582692708"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "5-oct 12:02 pm .3623",
+"excel": "0|Double|96010.7707796528|mm:ss.0|96010.7707796528"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "15:44 a.12345678 85",
+"excel": "0|String|15:44 a.12345678 85|General|15:44 a.12345678 85"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "25:13 A .12345678",
+"excel": "0|String|25:13 A .12345678|General|25:13 A .12345678"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "38 PM .3892 70",
+"excel": "0|String|38 PM .3892 70|General|38 PM .3892 70"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "4:50:18 p. 6521 90",
+"excel": "0|String|4:50:18 p. 6521 90|General|4:50:18 p. 6521 90"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "5:01:23 p .58 5/12",
+"excel": "0|String|5:01:23 p .58 5/12|General|5:01:23 p .58 5/12"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "25:18 P.6",
+"excel": "0|String|25:18 P.6|General|25:18 P.6"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "18-Sept 8:44:50 am .4685",
+"excel": "0|String|18-Sept 8:44:50 am .4685|General|18-Sept 8:44:50 am .4685"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "14-feb 9:15 a.6665",
+"excel": "0|Double|95777.6547993866|mm:ss.0|95777.6547993866"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "2:36:23 A .12345678 4/25",
+"excel": "0|String|2:36:23 A .12345678 4/25|General|2:36:23 A .12345678 4/25"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "3 A .12 8/2",
+"excel": "0|Double|95946.2714597222|mm:ss.0|95946.2714597222"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "11 pm.26",
+"excel": "0|Double|49710.2770284722|mm:ss.0|49710.2770284722"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "44 A. 8783 10/5",
+"excel": "0|Double|96010.2999407176|mm:ss.0|96010.2999407176"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "24 am.12345678 6/9",
+"excel": "0|Double|95892.2860430903|mm:ss.0|95892.2860430903"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "19 PM.4334 71",
+"excel": "0|String|19 PM.4334 71|General|19 PM.4334 71"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "47 PM .19",
+"excel": "0|Double|49710.302027662|mm:ss.0|49710.302027662"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "21:60 AM.6 5/1",
+"excel": "0|String|21:60 AM.6 5/1|d-mmm|21:60 AM.6 5/1"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "8:22 p. 57 22",
+"excel": "0|String|8:22 p. 57 22|General|8:22 p. 57 22"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "2:28:54 a.12345678 46",
+"excel": "0|String|2:28:54 a.12345678 46|General|2:28:54 a.12345678 46"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "20-July 6:04:6 p. 61",
+"excel": "0|String|20-July 6:04:6 p. 61|General|20-July 6:04:6 p. 61"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "16:30 AM. 12345678",
+"excel": "0|Double|49710.9568764236|mm:ss.0|49710.9568764236"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "12:34:54 a.12345678",
+"excel": "0|String|12:34:54 a.12345678|General|12:34:54 a.12345678"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "17:07 AM.62",
+"excel": "0|Double|49710.9825766204|mm:ss.0|49710.9825766204"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "8:32 am.12345678 91",
+"excel": "0|String|8:32 am.12345678 91|General|8:32 am.12345678 91"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "25 PM .71",
+"excel": "0|Double|49710.2867559028|mm:ss.0|49710.2867559028"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "5:33:41 P.12345678",
+"excel": "0|String|5:33:41 P.12345678|General|5:33:41 P.12345678"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "16:14 am.94",
+"excel": "0|Double|49710.9457747685|mm:ss.0|49710.9457747685"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "12:21:29 PM.12345678",
+"excel": "0|String|12:21:29 PM.12345678|General|12:21:29 PM.12345678"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "23-Jun 10:12 p. 9088",
+"excel": "0|Double|95906.6943970949|mm:ss.0|95906.6943970949"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "3:52:54 p.12345678 11/15",
+"excel": "0|String|3:52:54 p.12345678 11/15|General|3:52:54 p.12345678 11/15"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "60 p .8",
+"excel": "0|String|60 p .8|General|60 p .8"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4/17/2027 22:59 AM.12345678",
+"excel": "0|Double|96205.2270153125|mm:ss.0|96205.2270153125"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "1-may 6:47:3 p.12345678",
+"excel": "0|String|1-may 6:47:3 p.12345678|General|1-may 6:47:3 p.12345678"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "32 P.6 90",
+"excel": "0|String|32 P.6 90|General|32 P.6 90"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "20:34 am. 12345678 75",
+"excel": "0|String|20:34 am. 12345678 75|General|20:34 am. 12345678 75"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "20-oct 12:00:56 am.12345678",
+"excel": "0|String|20-oct 12:00:56 am.12345678|General|20-oct 12:00:56 am.12345678"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "27-Nov 1:16:4 pm.6357",
+"excel": "0|String|27-Nov 1:16:4 pm.6357|General|27-Nov 1:16:4 pm.6357"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "28 pm.8568",
+"excel": "0|Double|49710.2888409375|mm:ss.0|49710.2888409375"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "19:50 A.1",
+"excel": "0|Double|49711.0957650463|mm:ss.0|49711.0957650463"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "11/1/2007 13:36 AM .2986",
+"excel": "0|Double|89097.8360451273|mm:ss.0|89097.8360451273"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "18-may 29 A.8",
+"excel": "0|Double|95870.2895231482|mm:ss.0|95870.2895231482"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "2/15/1999 4:13 pm.12345678",
+"excel": "0|Double|85916.4450824421|mm:ss.0|85916.4450824421"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "22-July 11:16:45 A. 2864",
+"excel": "0|String|22-July 11:16:45 A. 2864|General|22-July 11:16:45 A. 2864"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "16:33 pm .52 12/14",
+"excel": "0|Double|96080.9589759259|mm:ss.0|96080.9589759259"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "18-Nov 10 pm.6597",
+"excel": "0|Double|96054.2763386574|mm:ss.0|96054.2763386574"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "2:04 pm. 76 3/2",
+"excel": "0|Double|95793.3555064815|mm:ss.0|95793.3555064815"
+},
+{
+"kind": "format",
+"format": "2E-0",
+"value": "-776694.6356883484",
+"excel": "0|2E-0|-2E7"
+},
+{
+"kind": "format",
+"format": "4\\xE+0\\y",
+"value": "499999.5",
+"excel": "0|4xE+0\\y|4xE+1y"
+},
+{
+"kind": "format",
+"format": "3E+000;1.E+0 ",
+"value": "499999.5",
+"excel": "0|3E+000;1.E+0 |3E+001"
+},
+{
+"kind": "format",
+"format": "2e+0",
+"value": "0.49",
+"excel": "1004|General|0.49"
+},
+{
+"kind": "format",
+"format": "7E+00",
+"value": "0.0",
+"excel": "0|7E+00|7E+00"
+},
+{
+"kind": "format",
+"format": "1-E-0\"z\";1.E+0",
+"value": "4.977876977140481",
+"excel": "0|1-E-0\"z\";1.E+0|1-E1z"
+},
+{
+"kind": "format",
+"format": "2E+0\\y;\"a\"1e+0",
+"value": "5.0",
+"excel": "1004|General|5"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+0",
+"value": "0.0",
+"excel": "0|\"a\"1E+0|a1E+0"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-0",
+"value": "-8663907365826.446",
+"excel": "0|\"a\"1E-0|-a1E14"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-00",
+"value": "0.9199751207269112",
+"excel": "0|\"a\"1E-00|a1E01"
+},
+{
+"kind": "format",
+"format": "2 E+000",
+"value": "0.0",
+"excel": "0|2 E+000|2 E+000"
+},
+{
+"kind": "format",
+"format": "9E+0 ",
+"value": "-4.975765721686566",
+"excel": "0|9E+0 |-9E+1 "
+},
+{
+"kind": "format",
+"format": "3E+0\\y",
+"value": "0.30349837016506187",
+"excel": "0|3E+0\\y|3E+1y"
+},
+{
+"kind": "format",
+"format": "1.E-0\"z\"",
+"value": "-0.6853244674730662",
+"excel": "0|1.E-0\"z\"|-1.E1z"
+},
+{
+"kind": "format",
+"format": "1_)E-0\"z\"",
+"value": "-0.1612655936422046",
+"excel": "0|1_)E-0\"z\"|-1 E1z"
+},
+{
+"kind": "format",
+"format": "1E+000",
+"value": "4.9473410553652695",
+"excel": "0|1E+000|1E+001"
+},
+{
+"kind": "format",
+"format": "1.E+000",
+"value": "5.0",
+"excel": "0|1.E+000|1.E+002"
+},
+{
+"kind": "format",
+"format": "3E+0 ",
+"value": "-5.01541511304908",
+"excel": "0|3E+0 |-3E+2 "
+},
+{
+"kind": "format",
+"format": "2 E-0\"z\"",
+"value": "0.3029232059566108",
+"excel": "0|2 E-0\"z\"|2 E1z"
+},
+{
+"kind": "format",
+"format": "1.E+0",
+"value": "1.0",
+"excel": "0|1.E+0|1.E+1"
+},
+{
+"kind": "format",
+"format": "1_)E+0",
+"value": "0.0",
+"excel": "0|1_)E+0|1 E+0"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-00",
+"value": "-794586722262365.8",
+"excel": "0|\"a\"1E-00|-a1E16"
+},
+{
+"kind": "format",
+"format": "1.e+0",
+"value": "4.99999999999999",
+"excel": "1004|General|5"
+},
+{
+"kind": "format",
+"format": "1E-0\"z\"",
+"value": "1000000000000.0",
+"excel": "0|1E-0\"z\"|1E1z"
+},
+{
+"kind": "format",
+"format": "4\\xE+0",
+"value": "5.0",
+"excel": "0|4xE+0|4xE+2"
+},
+{
+"kind": "format",
+"format": "2 E+000",
+"value": "6.0",
+"excel": "0|2 E+000|2 E+002"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+00",
+"value": "499999.5",
+"excel": "0|\"a\"1E+00|a1E+01"
+},
+{
+"kind": "format",
+"format": "1-E+000",
+"value": "10000000.0",
+"excel": "0|1-E+000|1-E+001"
+},
+{
+"kind": "format",
+"format": "9E+00",
+"value": "1e+18",
+"excel": "0|9E+00|9E+01"
+},
+{
+"kind": "format",
+"format": "1E+0",
+"value": "0.9865993152354878",
+"excel": "0|1E+0|1E+1"
+},
+{
+"kind": "format",
+"format": "1-E-00",
+"value": "4.999999999999999",
+"excel": "0|1-E-00|1-E02"
+},
+{
+"kind": "format",
+"format": "1E+0 ",
+"value": "9.573366673043676e+24",
+"excel": "0|1E+0 |1E+26 "
+},
+{
+"kind": "format",
+"format": "7E-0\"z\"",
+"value": "-0.5",
+"excel": "0|7E-0\"z\"|-7E1z"
+},
+{
+"kind": "format",
+"format": "1_)E+000",
+"value": "0.9942034732053622",
+"excel": "0|1_)E+000|1 E+001"
+},
+{
+"kind": "format",
+"format": "1E+0\\y",
+"value": "-1000.0",
+"excel": "0|1E+0\\y|-1E+1y"
+},
+{
+"kind": "format",
+"format": "1.E+0\\y",
+"value": "-4.974714238515287",
+"excel": "0|1.E+0\\y|-1.E+1y"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+000",
+"value": "34.40827241528331",
+"excel": "0|\"a\"1E+000|a1E+001"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+0 ",
+"value": "0.5",
+"excel": "0|\"a\"1E+0 |a1E+1 "
+},
+{
+"kind": "format",
+"format": "2E+0\\y",
+"value": "0.0",
+"excel": "0|2E+0\\y|2E+0y"
+},
+{
+"kind": "format",
+"format": "\"a\"1e+0",
+"value": "4.975449321456776",
+"excel": "1004|General|4.975449321"
+},
+{
+"kind": "format",
+"format": "1E+000",
+"value": "-9.0",
+"excel": "0|1E+000|-1E+002"
+},
+{
+"kind": "format",
+"format": "9e+0;1_)E+0 ",
+"value": "-10000.0",
+"excel": "1004|General|-10000"
+},
+{
+"kind": "format",
+"format": "1-E+0 ",
+"value": "100000000000000.0",
+"excel": "0|1-E+0 |1-E+1 "
+},
+{
+"kind": "format",
+"format": "7E+0\\y",
+"value": "-0.5735975124801235",
+"excel": "0|7E+0\\y|-7E+1y"
+},
+{
+"kind": "format",
+"format": "2 e+0",
+"value": "-0.6485591367756743",
+"excel": "1004|General|-0.648559137"
+},
+{
+"kind": "format",
+"format": "2E+00",
+"value": "-0.2234200041699269",
+"excel": "0|2E+00|-2E+01"
+},
+{
+"kind": "format",
+"format": "9E-0",
+"value": "0.0",
+"excel": "0|9E-0|9E0"
+},
+{
+"kind": "format",
+"format": "1-E-00",
+"value": "0.552960583208543",
+"excel": "0|1-E-00|1-E01"
+},
+{
+"kind": "format",
+"format": "9E+0\\y",
+"value": "-2.0585276081539527e-09",
+"excel": "0|9E+0\\y|-9E+1y"
+},
+{
+"kind": "format",
+"format": "1.E+0;7E+0 ",
+"value": "4.986435562564731",
+"excel": "0|1.E+0;7E+0 |1.E+1"
+},
+{
+"kind": "format",
+"format": "1E+0",
+"value": "5.0",
+"excel": "0|1E+0|1E+2"
+},
+{
+"kind": "format",
+"format": "4\\xE-00",
+"value": "0.5",
+"excel": "0|4xE-00|4xE01"
+},
+{
+"kind": "format",
+"format": "4\\xE-00",
+"value": "0.48786059785390756",
+"excel": "0|4xE-00|4xE01"
+},
+{
+"kind": "format",
+"format": "7E+000",
+"value": "5.098659403948104",
+"excel": "0|7E+000|7E+002"
+},
+{
+"kind": "format",
+"format": "1e+0;\"a\"1E+00",
+"value": "-5.0",
+"excel": "1004|General|-5"
+},
+{
+"kind": "format",
+"format": "1_)E+00",
+"value": "25373504.47343322",
+"excel": "0|1_)E+00|1 E+01"
+},
+{
+"kind": "format",
+"format": "9E+0",
+"value": "-0.08247967622427321",
+"excel": "0|9E+0|-9E+0"
+},
+{
+"kind": "format",
+"format": "1_)E-0",
+"value": "1000000000000000.0",
+"excel": "0|1_)E-0|1 E1"
+},
+{
+"kind": "format",
+"format": "7E+0 ",
+"value": "0.01",
+"excel": "0|7E+0 |7E+1 "
+},
+{
+"kind": "format",
+"format": "\"a\"1E-0\"z\"",
+"value": "0.0",
+"excel": "0|\"a\"1E-0\"z\"|a1E0z"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+00;9E+0\\y",
+"value": "0.49",
+"excel": "0|\"a\"1E+00;9E+0\\y|a1E+01"
+},
+{
+"kind": "format",
+"format": "1_)E-0\"z\";1-E+0",
+"value": "3.2741926738616085e-16",
+"excel": "0|1_)E-0\"z\";1-E+0|1 E1z"
+},
+{
+"kind": "format",
+"format": "7E-00",
+"value": "1.1410689073439912e+29",
+"excel": "0|7E-00|7E01"
+},
+{
+"kind": "format",
+"format": "7E+0\\y",
+"value": "0.0",
+"excel": "0|7E+0\\y|7E+0y"
+},
+{
+"kind": "format",
+"format": "1E+0",
+"value": "4.977806981962316",
+"excel": "0|1E+0|1E+1"
+},
+{
+"kind": "format",
+"format": "1E+00",
+"value": "9.0",
+"excel": "0|1E+00|1E+02"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-0",
+"value": "1e-15",
+"excel": "0|\"a\"1E-0|a1E1"
+},
+{
+"kind": "format",
+"format": "3E+00;\"a\"1E-0\"z\"",
+"value": "49.5",
+"excel": "0|3E+00;\"a\"1E-0\"z\"|3E+01"
+},
+{
+"kind": "format",
+"format": "9E-00",
+"value": "499999.5",
+"excel": "0|9E-00|9E01"
+},
+{
+"kind": "format",
+"format": "3E-00",
+"value": "9.0",
+"excel": "0|3E-00|3E02"
+},
+{
+"kind": "format",
+"format": "1_)E-00",
+"value": "8.180454100784044e-08",
+"excel": "0|1_)E-00|1 E-06"
+},
+{
+"kind": "format",
+"format": "1.E-0",
+"value": "1e+19",
+"excel": "0|1.E-0|1.E1"
+},
+{
+"kind": "format",
+"format": "4\\xE+000",
+"value": "0.9564317590309764",
+"excel": "0|4xE+000|4xE+001"
+},
+{
+"kind": "format",
+"format": "1.E+000",
+"value": "-5.047688938769061",
+"excel": "0|1.E+000|-1.E+002"
+},
+{
+"kind": "format",
+"format": "4\\xe+0",
+"value": "3.0",
+"excel": "1004|General|3"
+},
+{
+"kind": "format",
+"format": "1_)E+000",
+"value": "0.0",
+"excel": "0|1_)E+000|1 E+000"
+},
+{
+"kind": "format",
+"format": "2E-00",
+"value": "10000000000.0",
+"excel": "0|2E-00|2E01"
+},
+{
+"kind": "format",
+"format": "7E+0 ",
+"value": "9228.372669724586",
+"excel": "0|7E+0 |7E+5 "
+},
+{
+"kind": "format",
+"format": "\"a\"1E+000",
+"value": "0.0",
+"excel": "0|\"a\"1E+000|a1E+000"
+},
+{
+"kind": "format",
+"format": "1_)E+000",
+"value": "499999.5",
+"excel": "0|1_)E+000|1 E+001"
+},
+{
+"kind": "format",
+"format": "3E+00",
+"value": "-0.4334273066402191",
+"excel": "0|3E+00|-3E+01"
+},
+{
+"kind": "format",
+"format": "1_)E-0;1-E+0 ",
+"value": "0.0",
+"excel": "0|1_)E-0;1-E+0 |1 E0"
+},
+{
+"kind": "format",
+"format": "7E-0\"z\"",
+"value": "5.0",
+"excel": "0|7E-0\"z\"|7E2z"
+},
+{
+"kind": "format",
+"format": "3E+00",
+"value": "-49.5",
+"excel": "0|3E+00|-3E+01"
+},
+{
+"kind": "format",
+"format": "2 E-0",
+"value": "0.3670238782623825",
+"excel": "0|2 E-0|2 E1"
+},
+{
+"kind": "format",
+"format": "3E+0",
+"value": "0.0",
+"excel": "0|3E+0|3E+0"
+},
+{
+"kind": "format",
+"format": "4\\xE-0\"z\"",
+"value": "5.0",
+"excel": "0|4xE-0\"z\"|4xE2z"
+},
+{
+"kind": "format",
+"format": "9E-0\"z\"",
+"value": "0.0",
+"excel": "0|9E-0\"z\"|9E0z"
+},
+{
+"kind": "format",
+"format": "1-E-00",
+"value": "5.079062659411985",
+"excel": "0|1-E-00|1-E02"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+0 ",
+"value": "6.413565600098249e+16",
+"excel": "0|\"a\"1E+0 |a1E+18 "
+},
+{
+"kind": "format",
+"format": "2E+000",
+"value": "5.0",
+"excel": "0|2E+000|2E+002"
+},
+{
+"kind": "format",
+"format": "2E+00",
+"value": "5.987258849601691e-16",
+"excel": "0|2E+00|2E-14"
+},
+{
+"kind": "format",
+"format": "1E-0",
+"value": "0.39803561261167886",
+"excel": "0|1E-0|1E1"
+},
+{
+"kind": "format",
+"format": "1_)E-00",
+"value": "54414256078.56004",
+"excel": "0|1_)E-00|1 E12"
+},
+{
+"kind": "format",
+"format": "1E+00",
+"value": "8.0",
+"excel": "0|1E+00|1E+02"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-0\"z\"",
+"value": "547.4126081106198",
+"excel": "0|\"a\"1E-0\"z\"|a1E4z"
+},
+{
+"kind": "format",
+"format": "3E+0",
+"value": "-1.0",
+"excel": "0|3E+0|-3E+1"
+},
+{
+"kind": "format",
+"format": "1_)E+0",
+"value": "4.999999999999999",
+"excel": "0|1_)E+0|1 E+2"
+},
+{
+"kind": "format",
+"format": "\"a\"1e+0",
+"value": "5.051944082203627",
+"excel": "1004|General|5.051944082"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-00",
+"value": "0.5881075065162772",
+"excel": "0|\"a\"1E-00|a1E01"
+},
+{
+"kind": "format",
+"format": "4\\xE-0",
+"value": "5.0",
+"excel": "0|4xE-0|4xE2"
+},
+{
+"kind": "format",
+"format": "1.E+00;2 E-0\"z\"",
+"value": "499999.5",
+"excel": "0|1.E+00;2 E-0\"z\"|1.E+01"
+},
+{
+"kind": "format",
+"format": "2 E-0",
+"value": "4.937001318092627",
+"excel": "0|2 E-0|2 E1"
+},
+{
+"kind": "format",
+"format": "2E+00",
+"value": "1e-07",
+"excel": "0|2E+00|2E+01"
+},
+{
+"kind": "format",
+"format": "1_)E-0\"z\"",
+"value": "4.545439640115124e-09",
+"excel": "0|1_)E-0\"z\"|1 E1z"
+},
+{
+"kind": "format",
+"format": "1.E+000",
+"value": "0.0",
+"excel": "0|1.E+000|1.E+000"
+},
+{
+"kind": "format",
+"format": "1_)E+0\\y",
+"value": "0.0",
+"excel": "0|1_)E+0\\y|1 E+0y"
+},
+{
+"kind": "format",
+"format": "3E+000",
+"value": "0.41320864761146114",
+"excel": "0|3E+000|3E+001"
+},
+{
+"kind": "format",
+"format": "7E+0 ",
+"value": "-2.8583684334845653e-15",
+"excel": "0|7E+0 |-7E+1 "
+},
+{
+"kind": "format",
+"format": "1.E-00;2E-0\"z\"",
+"value": "0.5",
+"excel": "0|1.E-00;2E-0\"z\"|1.E01"
+},
+{
+"kind": "format",
+"format": "2 E-0\"z\";1.E-0",
+"value": "5.183651699400525e-25",
+"excel": "0|2 E-0\"z\";1.E-0|2 E-23z"
+},
+{
+"kind": "format",
+"format": "1.E+0 ",
+"value": "0.5949391098425464",
+"excel": "0|1.E+0 |1.E+1 "
+},
+{
+"kind": "format",
+"format": "2 e+0",
+"value": "4545869239929299.0",
+"excel": "1004|General|4.54587E+15"
+},
+{
+"kind": "format",
+"format": "1-E+000;4\\xE+0",
+"value": "4.99999999999999",
+"excel": "0|1-E+000;4xE+0|1-E+001"
+},
+{
+"kind": "format",
+"format": "1-E+000",
+"value": "-1.0",
+"excel": "0|1-E+000|-1-E+001"
+},
+{
+"kind": "format",
+"format": "2E+000;4\\xE-00",
+"value": "0.0",
+"excel": "0|2E+000;4xE-00|2E+000"
+},
+{
+"kind": "format",
+"format": "3E+0\\y",
+"value": "8.0",
+"excel": "0|3E+0\\y|3E+2y"
+},
+{
+"kind": "format",
+"format": "7E-00;3e+0",
+"value": "-0.5692989575461314",
+"excel": "1004|General|-0.569298958"
+},
+{
+"kind": "format",
+"format": "1.E-00",
+"value": "6.446676094472407e+24",
+"excel": "0|1.E-00|1.E26"
+},
+{
+"kind": "format",
+"format": "1-E+0\\y",
+"value": "0.0",
+"excel": "0|1-E+0\\y|1-E+0y"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Cells.NumberFormat = \"0.00\": ws.Columns(\"C\").Font.Bold = True"
+],
+"rows": "5:1048576",
+"action": "Clear",
+"columns": [
+"A",
+"B",
+"C",
+"XFD"
+],
+"excel": "0|$C$1:$C$4|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,0.00;16777215,True,False,0.00;16777215,True,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"D\").Font.Italic = True",
+"ws.Columns(\"G\").Font.Italic = True",
+"ws.Columns(\"K\").Font.Italic = True",
+"ws.Range(\"G1\").Value = 42"
+],
+"rows": "7:1048576",
+"action": "Delete",
+"columns": [
+"D",
+"G",
+"K"
+],
+"excel": "0|$D$1:$K$1|16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"A:CV\").NumberFormat = \"0.00\""
+],
+"rows": "4:1048576",
+"action": "Clear",
+"columns": [
+"A",
+"B",
+"C",
+"XFD"
+],
+"excel": "0|$A$1:$CV$3|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"A:CV\").NumberFormat = \"0.00\""
+],
+"rows": "7:1048576",
+"action": "ClearFormats",
+"columns": [
+"A",
+"B",
+"C",
+"XFD"
+],
+"excel": "0|$A$1:$CV$6|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"F\").Font.Italic = True",
+"ws.Columns(\"K\").Font.Bold = True",
+"ws.Columns(\"H\").NumberFormat = \"0.00\"",
+"ws.Columns(\"E\").Font.Bold = True"
+],
+"rows": "7:1048576",
+"action": "ClearFormats",
+"columns": [
+"E",
+"F",
+"H",
+"K"
+],
+"excel": "0|$E$1:$K$6|16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"H\").Interior.Color = 255",
+"ws.Columns(\"G\").Interior.Color = 16711680"
+],
+"rows": "5:1048576",
+"action": "ClearFormats",
+"columns": [
+"G",
+"H"
+],
+"excel": "0|$G$1:$H$4|16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;255,False,False,General;255,False,False,General;255,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"E\").Interior.Color = 16711680",
+"ws.Columns(\"F\").Font.Italic = True",
+"ws.Columns(\"H\").Font.Bold = True",
+"ws.Rows(4).Font.Underline = xlUnderlineStyleSingle"
+],
+"rows": "7:1048576",
+"action": "Delete",
+"columns": [
+"E",
+"F",
+"H"
+],
+"excel": "0|$E$4:$H$4|16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"C\").Interior.Color = 65280",
+"ws.Columns(\"H\").NumberFormat = \"0.00\"",
+"ws.Columns(\"G\").Font.Bold = True",
+"ws.Columns(\"E\").Interior.Color = 255"
+],
+"rows": "3:1048576",
+"action": "Clear",
+"columns": [
+"C",
+"E",
+"G",
+"H"
+],
+"excel": "0|$C$1:$H$2|65280,False,False,General;65280,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;255,False,False,General;255,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"G\").Font.Italic = True",
+"ws.Columns(\"K\").Font.Bold = True",
+"ws.Columns(\"D\").Font.Bold = True",
+"ws.Columns(\"H\").Font.Bold = True",
+"ws.Columns(\"F\").Font.Italic = True"
+],
+"rows": "4:1048576",
+"action": "ClearFormats",
+"columns": [
+"D",
+"F",
+"G",
+"H",
+"K"
+],
+"excel": "0|$D$1:$K$3|16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"G\").Font.Italic = True",
+"ws.Columns(\"K\").NumberFormat = \"0.00\"",
+"ws.Columns(\"E\").NumberFormat = \"0.00\"",
+"ws.Rows(2).Font.Underline = xlUnderlineStyleSingle"
+],
+"rows": "2:1048576",
+"action": "Delete",
+"columns": [
+"E",
+"G",
+"K"
+],
+"excel": "0|$E$1:$K$1|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"F\").NumberFormat = \"0.00\"",
+"ws.Columns(\"B\").Font.Bold = True",
+"ws.Columns(\"E\").Font.Bold = True",
+"ws.Columns(\"G\").Font.Italic = True",
+"ws.Rows(3).Font.Underline = xlUnderlineStyleSingle"
+],
+"rows": "6:1048576",
+"action": "ClearFormats",
+"columns": [
+"B",
+"E",
+"F",
+"G"
+],
+"excel": "0|$B$1:$G$5|16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"G\").Interior.Color = 65280",
+"ws.Columns(\"D\").Font.Italic = True",
+"ws.Columns(\"K\").Font.Italic = True",
+"ws.Range(\"G2\").Value = 76"
+],
+"rows": "3:1048576",
+"action": "Clear",
+"columns": [
+"D",
+"G",
+"K"
+],
+"excel": "0|$D$1:$K$2|16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;65280,False,False,General;65280,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"D\").Font.Bold = True",
+"ws.Columns(\"F\").Font.Bold = True",
+"ws.Columns(\"H\").Font.Bold = True"
+],
+"rows": "6:1048576",
+"action": "Delete",
+"columns": [
+"D",
+"F",
+"H"
+],
+"excel": "0|$D$1:$H$1|16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Cells.NumberFormat = \"0.00\""
+],
+"rows": "7:1048576",
+"action": "Clear",
+"columns": [
+"A",
+"B",
+"C",
+"XFD"
+],
+"excel": "0|$A$1:$A$6|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@Tab[[a]:[b]] A$1",
+"cell": "H10",
+"excel": "0|=@Tab[[a]:[b]] A$1|=@Tab[[a]:[b]] A$1|E:Error 2000"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1,1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@MAX(Tab[a])+A1:A3",
+"cell": "F2",
+"excel": "0|=@MAX([a])+@A1:A3|=@MAX([a])+@A1:A3|Double:4"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\"a\tb\"",
+"cell": "F2",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=LEN(D2:@$A$3)",
+"cell": "H10",
+"excel": "0|=LEN(@D2:@$A$3)|=LEN(@D2:@$A$3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "={5;9}",
+"cell": "F2",
+"excel": "0|={5;9}|={5;9}|Double:5"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A$1.D2",
+"cell": "F2",
+"excel": "0|=A$1.D2|=A$1.D2|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=-A$1,A2",
+"cell": "H10",
+"excel": "0|=-A$1,A2|=-A$1,A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@\"a\"",
+"cell": "F2",
+"excel": "0|=@\"a\"|=@\"a\"|String:a"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\"a\" \"a\"",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=Tab[b] @Tab[[#Totals],[a]]",
+"cell": "H10",
+"excel": "0|=Tab[b] @Tab[[#Totals],[a]]|=Tab[b] @Tab[[#Totals],[a]]|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@$A$1:$A$2,A$1",
+"cell": "H10",
+"excel": "0|=@$A$1:$A$2,A$1|=@$A$1:$A$2,A$1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=foo,A1:A3,$B2",
+"cell": "H10",
+"excel": "0|=foo,A1:A3,$B2|=foo,A1:A3,$B2|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=INDEX(A2:@B1)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=$B2...A$1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=ROW($A$3:@B1)",
+"cell": "H10",
+"excel": "0|=@ROW($A$3:@B1)|=@ROW($A$3:@B1)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@(A1,A1:A3) (D2:D3,A1)",
+"cell": "F2",
+"excel": "0|=(A1,A1:A3) (D2:D3,A1)|=(A1,A1:A3) (D2:D3,A1)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=INDIRECT(Tab[#All])",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[#All])|=INDIRECT(Tab[#All])|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@INDIRECT(Tab[[a]:[b]])+A2",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[[a]:[b]])+A2|=INDIRECT(Tab[[a]:[b]])+A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=($A$1:$A$2,$A$3) @A1:A3",
+"cell": "F2",
+"excel": "0|=($A$1:$A$2,$A$3) @A1:A3|=($A$1:$A$2,$A$3) @A1:A3|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=-D2,B1",
+"cell": "H10",
+"excel": "0|=-D2,B1|=-D2,B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=SUM(\tD2)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=Tab[b], B1",
+"cell": "H10",
+"excel": "0|=Tab[b], B1|=Tab[b], B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A2:@$A$3",
+"cell": "F2",
+"excel": "0|=@A2:@$A$3|=@A2:@$A$3|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@B1:B2,@$A$3",
+"cell": "H10",
+"excel": "0|=@B1:B2,@$A$3|=@B1:B2,@$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=($B2,$B2) ,(B1)",
+"cell": "F2",
+"excel": "0|=($B2,$B2) ,(B1)|=($B2,$B2) ,(B1)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=Tab[a] @Tab[a]",
+"cell": "H10",
+"excel": "0|=Tab[a] @Tab[a]|=Tab[a] @Tab[a]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=Tab[#All],A1",
+"cell": "H10",
+"excel": "0|=Tab[#All],A1|=Tab[#All],A1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=B1.B1",
+"cell": "H10",
+"excel": "0|=B1.B1|=B1.B1|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@A$1:@$B2",
+"cell": "F2",
+"excel": "0|=@A$1:@$B2|=@A$1:@$B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=1+A1.foo",
+"cell": "F2",
+"excel": "0|=1+A1.foo|=1+A1.foo|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=(D2:D3,A$1) ,Tab[#Data]",
+"cell": "H10",
+"excel": "0|=(D2:D3,A$1) ,Tab[#Data]|=(D2:D3,A$1) ,Tab[#Data]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@D2:D3+Tab[[#Headers],[a]]",
+"cell": "H10",
+"excel": "0|=D2:D3+Tab[[#Headers],[a]]|=D2:D3+Tab[[#Headers],[a]]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@Tab[@a]",
+"cell": "H10",
+"excel": "0|=@Tab[@a]|=@Tab[@a]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=INDIRECT(Tab[@a])+A$1",
+"cell": "F2",
+"excel": "0|=INDIRECT([@a])+A$1|=INDIRECT([@a])+A$1|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=SUM(A1..D2)",
+"cell": "F2",
+"excel": "0|=SUM(A1:D2)|=SUM(A1:D2)|Double:15"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@(D2:D3,B1:B2),INDIRECT(\"A1\")",
+"cell": "H10",
+"excel": "0|=@(D2:D3,B1:B2),INDIRECT(\"A1\")|=@(D2:D3,B1:B2),INDIRECT(\"A1\")|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=SUM($B2..A$1)",
+"cell": "H10",
+"excel": "0|=SUM(A$1:$B2)|=SUM(A$1:$B2)|Double:14"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@A1+Tab[a]",
+"cell": "H10",
+"excel": "0|=@A1+Tab[@a]|=@A1+Tab[@a]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@(D2),@($B2,$A$3)",
+"cell": "H10",
+"excel": "0|=@(D2),@($B2,$A$3)|=@(D2),@($B2,$A$3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\"a\",A1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A1:@$A$3",
+"cell": "H10",
+"excel": "0|=@A1:@$A$3|=@A1:@$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A$1,Tab[b]",
+"cell": "H10",
+"excel": "0|=A$1,Tab[b]|=A$1,Tab[b]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@B1:@A1",
+"cell": "H10",
+"excel": "0|=@B1:@A1|=@B1:@A1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A2..A$1..A2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=ROW($A$3:@A1)",
+"cell": "F2",
+"excel": "0|=@ROW($A$3:@A1)|=@ROW($A$3:@A1)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=$A$1:$A$2 @A1",
+"cell": "H10",
+"excel": "0|=$A$1:$A$2 @A1|=$A$1:$A$2 @A1|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A2:B3 @D2",
+"cell": "H10",
+"excel": "0|=A2:B3 @D2|=A2:B3 @D2|E:Error 2000"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=B1:B2:@A1",
+"cell": "F2",
+"excel": "0|=@B1:B2:@A1|=@B1:B2:@A1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=$A$3..$A$3..B1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=INDIRECT(Tab[[a]:[b]])",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[[a]:[b]])|=INDIRECT(Tab[[a]:[b]])|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@INDIRECT(Tab[[a]:[b]])+$A$1:$A$2",
+"cell": "F2",
+"excel": "0|=INDIRECT(Tab[[a]:[b]])+$A$1:$A$2|=INDIRECT(Tab[[a]:[b]])+$A$1:$A$2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@D2:@A2",
+"cell": "F2",
+"excel": "0|=@D2:@A2|=@D2:@A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@1 Tab[b]",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@D2:@A1",
+"cell": "H10",
+"excel": "0|=@D2:@A1|=@D2:@A1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A2:B3:@D2",
+"cell": "F2",
+"excel": "0|=@A2:B3:@D2|=@A2:B3:@D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@foo",
+"cell": "F2",
+"excel": "0|=foo|=foo|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\"a\",foo",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=($B2,D2:D3),foo,\"a\"",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A2...A$1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@Tab[#Data]+foo",
+"cell": "F2",
+"excel": "0|=Tab[#Data]+foo|=Tab[#Data]+foo|Double:0"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\"a\"+@A1:A2",
+"cell": "F2",
+"excel": "0|=\"a\"+A1:A2|=\"a\"+A1:A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@INDEX(Tab[[a]:[b]],1)",
+"cell": "F2",
+"excel": "0|=@INDEX(Tab[[a]:[b]],1)|=@INDEX(Tab[[a]:[b]],1)|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "={2,4;3,6}",
+"cell": "F2",
+"excel": "0|={2,4;3,6}|={2,4;3,6}|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1 ,1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A2...$B2",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=TAKE(B1:@B1)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=$A$3\t+1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=-A2,D2",
+"cell": "F2",
+"excel": "0|=-A2,D2|=-A2,D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=D2..$B2",
+"cell": "F2",
+"excel": "0|=$B2:D2|=$B2:D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@Tab[#Data][",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=SUM(\tD2)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=INDIRECT(Tab[#All])+A1:A2",
+"cell": "F2",
+"excel": "0|=INDIRECT(Tab[#All])+A1:A2|=INDIRECT(Tab[#All])+A1:A2|Double:0"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=D2+@D2",
+"cell": "F2",
+"excel": "0|=D2+@D2|=D2+@D2|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A$1...",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A2:B3 @$A$3",
+"cell": "F2",
+"excel": "0|=A2:B3 @$A$3|=A2:B3 @$A$3|Double:3"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A1\t+1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=INDIRECT(Tab[#Data])",
+"cell": "F2",
+"excel": "0|=INDIRECT(Tab[#Data])|=INDIRECT(Tab[#Data])|Double:0"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=Tab[#All] foo",
+"cell": "H10",
+"excel": "0|=Tab[#All] foo|=Tab[#All] foo|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A$3.x",
+"cell": "H10",
+"excel": "0|=A$3.x|=A$3.x|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=Tab[#All],B1:B2",
+"cell": "F2",
+"excel": "0|=Tab[#All],B1:B2|=Tab[#All],B1:B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A1..A1..$B2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@foo,1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=INDIRECT(Tab[[#Headers],[a]])+A1",
+"cell": "F2",
+"excel": "0|=INDIRECT(Tab[[#Headers],[a]])+A1|=INDIRECT(Tab[[#Headers],[a]])+A1|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\t$B2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=\tB1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=\"a\tb\"",
+"cell": "H10",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A1:A3:@A2",
+"cell": "F2",
+"excel": "0|=@A1:A3:@A2|=@A1:A3:@A2|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@Tab[@a][",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A1:A3:@A2",
+"cell": "H10",
+"excel": "0|=@A1:A3:@A2|=@A1:A3:@A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A$1...",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=\"a\tb\"",
+"cell": "H10",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@A2+Tab[b]",
+"cell": "H10",
+"excel": "0|=@A2+Tab[@b]|=@A2+Tab[@b]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=ROW(A2:@A2)",
+"cell": "H10",
+"excel": "0|=@ROW(A2:@A2)|=@ROW(A2:@A2)|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=Tab[@a],A1:A2",
+"cell": "H10",
+"excel": "0|=Tab[@a],A1:A2|=Tab[@a],A1:A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=($B2),1,1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=$A$1:$A$2 @A2",
+"cell": "F2",
+"excel": "0|=$A$1:$A$2 @A2|=$A$1:$A$2 @A2|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=IF(A1:@D2)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=ROW(B1:@A$1)",
+"cell": "H10",
+"excel": "0|=@ROW(B1:@A$1)|=@ROW(B1:@A$1)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@INDEX(Tab[a],1)",
+"cell": "H10",
+"excel": "0|=@INDEX(Tab[a],1)|=@INDEX(Tab[a],1)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=$A$3...",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=Tab[a],$A$1:$A$2",
+"cell": "H10",
+"excel": "0|=Tab[a],$A$1:$A$2|=Tab[a],$A$1:$A$2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@A1:A3 @Tab[[#Totals],[a]]",
+"cell": "F2",
+"excel": "0|=@A1:A3 @Tab[[#Totals],[a]]|=@A1:A3 @Tab[[#Totals],[a]]|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@B1",
+"cell": "H10",
+"excel": "0|=@B1|=@B1|Double:5"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=B1...B1",
+"cell": "H10",
+"excel": "0|='B1...B1'|='B1...B1'|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=SUM(\tB1)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A$1 Tab[#All]",
+"cell": "F2",
+"excel": "0|=A$1 Tab[#All]|=A$1 Tab[#All]|E:Error 2000"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A$1\t+1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=SUM(\t$B2)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=Tab[#All] ,Tab[a]",
+"cell": "F2",
+"excel": "0|=Tab[#All] ,[a]|=Tab[#All] ,[a]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=\"a\" ,(A$1)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A1,D2+1",
+"cell": "H10",
+"excel": "0|=A1,D2+1|=A1,D2+1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=D2:D3:@$A$3",
+"cell": "F2",
+"excel": "0|=@D2:D3:@$A$3|=@D2:D3:@$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@Tab[[#Headers],[a]][",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1+$B2.foo",
+"cell": "H10",
+"excel": "0|=1+$B2.foo|=1+$B2.foo|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@INDEX(Tab[#All],1)",
+"cell": "F2",
+"excel": "0|=@INDEX(Tab[#All],1)|=@INDEX(Tab[#All],1)|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=D2+1,A2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=Tab[@a],B1",
+"cell": "H10",
+"excel": "0|=Tab[@a],B1|=Tab[@a],B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@($A$1:$A$2,A2:B3),($A$3)",
+"cell": "F2",
+"excel": "0|=@($A$1:$A$2,A2:B3),($A$3)|=@($A$1:$A$2,A2:B3),($A$3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A$1+1,A$1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@foo @A1",
+"cell": "H10",
+"excel": "0|=@foo @A1|=@foo @A1|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A1..A2..A$1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=INDIRECT(Tab[[a]:[b]])",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[[a]:[b]])|=INDIRECT(Tab[[a]:[b]])|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=1+A1.foo",
+"cell": "F2",
+"excel": "0|=1+A1.foo|=1+A1.foo|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@B1:@A2",
+"cell": "H10",
+"excel": "0|=@B1:@A2|=@B1:@A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@($A$3)+$A$1:$A$2",
+"cell": "H10",
+"excel": "0|=@($A$3)+@$A$1:$A$2|=@($A$3)+@$A$1:$A$2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A2\t+1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@(A$1,$B2) 1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@\"a\",\"a\"",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=1+$B2.foo",
+"cell": "H10",
+"excel": "0|=1+$B2.foo|=1+$B2.foo|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=Tab[[#Headers],[a]] @Tab[[#Headers],[a]]",
+"cell": "H10",
+"excel": "0|=Tab[[#Headers],[a]] @Tab[[#Headers],[a]]|=Tab[[#Headers],[a]] @Tab[[#Headers],[a]]|String:a"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A1:A2:@A2",
+"cell": "H10",
+"excel": "0|=@A1:A2:@A2|=@A1:A2:@A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@TAKE(Tab[#All])+$B2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\tA$1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=Tab[[#Totals],[a]] @Tab[@a]",
+"cell": "H10",
+"excel": "0|=Tab[[#Totals],[a]] @Tab[@a]|=Tab[[#Totals],[a]] @Tab[@a]|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=SUM(\tB1)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=\"a\tb\"",
+"cell": "F2",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@$A$3",
+"cell": "F2",
+"excel": "0|=@$A$3|=@$A$3|Double:3"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@1,Tab[a]",
+"cell": "F2",
+"excel": "0|=@1,[a]|=@1,[a]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=D2,$B2+1",
+"cell": "H10",
+"excel": "0|=D2,$B2+1|=D2,$B2+1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=B1..$B2..$A$3",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\tA1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@Tab[#Data]+$A$1:$A$2",
+"cell": "F2",
+"excel": "0|=Tab[#Data]+$A$1:$A$2|=Tab[#Data]+$A$1:$A$2|Double:0"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@($A$1:$A$2,D2)+$A$1:$A$2",
+"cell": "F2",
+"excel": "0|=@($A$1:$A$2,D2)+@$A$1:$A$2|=@($A$1:$A$2,D2)+@$A$1:$A$2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=INDIRECT(Tab[@a])",
+"cell": "F2",
+"excel": "0|=INDIRECT([@a])|=INDIRECT([@a])|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=ROW(B1:@$B2)",
+"cell": "F2",
+"excel": "0|=@ROW(B1:@$B2)|=@ROW(B1:@$B2)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@INDIRECT(Tab[b])+$B2",
+"cell": "F2",
+"excel": "0|=INDIRECT([@b])+$B2|=INDIRECT([@b])+$B2|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=1+$B2:@B1",
+"cell": "H10",
+"excel": "0|=1+@$B2:@B1|=1+@$B2:@B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=D2...B1",
+"cell": "H10",
+"excel": "0|='D2...B1'|='D2...B1'|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=B1:@$A$3",
+"cell": "H10",
+"excel": "0|=@B1:@$A$3|=@B1:@$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A$1...",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=\"a\tb\"",
+"cell": "F2",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1+@SWITCH(1,1,B1:B2)",
+"cell": "H10",
+"excel": "0|=1+SWITCH(1,1,B1:B2)|=1+SWITCH(1,1,B1:B2)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@INDIRECT(Tab[#Data])+$B2",
+"cell": "F2",
+"excel": "0|=INDIRECT(Tab[#Data])+$B2|=INDIRECT(Tab[#Data])+$B2|Double:0"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=-B1,B1",
+"cell": "F2",
+"excel": "0|=-B1,B1|=-B1,B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=B1..A1..$B2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=ROW(D2:@$A$3)",
+"cell": "H10",
+"excel": "0|=@ROW(D2:@$A$3)|=@ROW(D2:@$A$3)|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\tA1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=D2..A1..A$1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=DROP(D2:D3,1),(B1:B2)",
+"cell": "H10",
+"excel": "0|=DROP(D2:D3,1),(B1:B2)|=DROP(D2:D3,1),(B1:B2)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=\t$B2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=SUM($B2..D2)",
+"cell": "H10",
+"excel": "0|=SUM($B2:D2)|=SUM($B2:D2)|Double:7"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A$1...$B2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\"a\" A1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=Tab[a] @LEN($A$3)",
+"cell": "H10",
+"excel": "0|=Tab[a] @LEN($A$3)|=Tab[a] @LEN($A$3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@1 @($A$3)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=OFFSET(B1,0,0),(D2,A2:B3),(A1)",
+"cell": "F2",
+"excel": "0|=OFFSET(B1,0,0),(D2,A2:B3),(A1)|=OFFSET(B1,0,0),(D2,A2:B3),(A1)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@A$1,(A1,$A$3)",
+"cell": "F2",
+"excel": "0|=@A$1,(A1,$A$3)|=@A$1,(A1,$A$3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@INDIRECT(Tab[@a])+$B2",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[@a])+$B2|=INDIRECT(Tab[@a])+$B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\"a\tb\"",
+"cell": "F2",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "theme",
+"minor": "Arial",
+"major": "Georgia",
+"steps": [
+"ws.Range(\"B7\").Style = \"Comma\"",
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B1\").Formula = \"=HYPERLINK(\"\"x\"\")\"",
+"ws.Range(\"B5\").Style = \"Accent1\"",
+"ws.Range(\"B6\").Style = \"20% - Accent2\""
+],
+"seed_book": "Arial_8016.xlsx",
+"reopened": true,
+"excel": "0|Arial,11,2,False;Arial,11,-4142,False;Arial,11,-4142,False;Arial,11,-4142,False;Arial,11,-4142,False;Arial,11,-4142,False;Arial,11,-4142,False;Arial,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Times New Roman",
+"major": "Arial",
+"steps": [
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B7\").Style = \"Comma\"",
+"ws.Range(\"B5\").Style = \"Accent1\"",
+"ws.Range(\"B1\").Formula = \"=HYPERLINK(\"\"x\"\")\""
+],
+"seed_book": "Times_New_Roman_8016.xlsx",
+"reopened": false,
+"excel": "0|Times New Roman,11,2,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Verdana",
+"major": "Verdana",
+"steps": [
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B5\").Style = \"Accent1\"",
+"ws.Range(\"B6\").Style = \"20% - Accent2\""
+],
+"seed_book": "Verdana_8016.xlsx",
+"reopened": true,
+"excel": "0|Verdana,11,-4142,False;Verdana,11,-4142,False;Verdana,18,-4142,False;Verdana,11,-4142,False;Verdana,11,-4142,False;Verdana,11,-4142,False;Verdana,11,-4142,False;Verdana,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Tahoma",
+"major": "Impact",
+"steps": [
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B7\").Style = \"Comma\"",
+"ws.Range(\"B1\").Formula = \"=HYPERLINK(\"\"x\"\")\""
+],
+"seed_book": "Tahoma_8016.xlsx",
+"reopened": true,
+"excel": "0|Tahoma,11,2,False;Tahoma,11,-4142,False;Tahoma,11,-4142,False;Tahoma,11,-4142,False;Tahoma,11,-4142,False;Tahoma,11,-4142,False;Tahoma,11,-4142,False;Tahoma,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Segoe UI",
+"major": "Segoe UI Light",
+"steps": [
+"ws.Range(\"B5\").Style = \"Accent1\"",
+"ws.Range(\"B7\").Style = \"Comma\"",
+"ws.Range(\"B4\").Style = \"Heading 1\""
+],
+"seed_book": "Segoe_UI_8016.xlsx",
+"reopened": true,
+"excel": "0|Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;Segoe UI,15,-4142,True;Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;"
+},
+{
+"kind": "theme",
+"minor": "Made Up Font",
+"major": "Other Made Up",
+"steps": [
+"ws.Range(\"B6\").Style = \"20% - Accent2\"",
+"ws.Range(\"B1\").Formula = \"=HYPERLINK(\"\"x\"\")\""
+],
+"seed_book": "Made_Up_Font_8016.xlsx",
+"reopened": true,
+"excel": "0|Made Up Font,11,2,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;"
+},
+{
+"kind": "theme",
+"minor": "Aptos",
+"major": "Aptos Display",
+"steps": [
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B6\").Style = \"20% - Accent2\"",
+"ws.Range(\"B2\").Style = \"Good\"",
+"ws.Range(\"B4\").Style = \"Heading 1\"",
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\""
+],
+"seed_book": "Aptos_8016.xlsx",
+"reopened": true,
+"excel": "0|Aptos,11,-4142,False;Aptos,11,-4142,False;Aptos Display,18,-4142,False;Aptos,15,-4142,True;Aptos,11,-4142,False;Aptos,11,-4142,False;Aptos,11,-4142,False;Aptos,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Calibri",
+"major": "Cambria",
+"steps": [
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B2\").Style = \"Good\""
+],
+"seed_book": "Calibri_8016.xlsx",
+"reopened": false,
+"excel": "0|Calibri,11,-4142,False;Calibri,11,-4142,False;Cambria,18,-4142,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,2,False;"
+}
+],
+"8017": [
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   8/MAR 1921:",
+"excel": "0|Date|7321.33333333333|m/d/yyyy h:mm|7321.33333333333"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  28-Sept  240:43:32",
+"excel": "0|String|  28-Sept  240:43:32|General|  28-Sept  240:43:32"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   7 december  46:19",
+"excel": "0|Date|17136.8472222222|m/d/yyyy h:mm|17136.8472222222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  13/aug  2066:2034 1982",
+"excel": "0|String|  13/aug  2066:2034 1982|d-mmm-yy|  13/aug  2066:2034 1982"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   20Jun  660:",
+"excel": "0|String|   20Jun  660:|General|   20Jun  660:"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  6/december 831:65 12 67",
+"excel": "0|String|  6/december 831:65 12 67|General|  6/december 831:65 12 67"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  27/MAR 482:26:3",
+"excel": "0|String|  27/MAR 482:26:3|General|  27/MAR 482:26:3"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 22/Sept  5531:",
+"excel": "0|Date|1326044.33333333|m/d/yyyy h:mm|1326044.33333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   feb  10963:",
+"excel": "0|String|   feb  10963:|General|   feb  10963:"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   28feb 31:3 14 44",
+"excel": "0|Date|11382.1347222222|m/d/yyyy h:mm|11382.1347222222"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   -14-Sep  7:7904 a",
+"excel": "0|String|   -14-Sep  7:7904 a|d-mmm-yy|   -14-Sep  7:7904 a"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 4/Sep 33:0",
+"excel": "0|Date|12294.0555555556|m/d/yyyy h:mm|12294.0555555556"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  -18-Jan 17:3745",
+"excel": "0|Double|42902.0972222222|General|42902.0972222222"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  July 15:639",
+"excel": "0|Double|46237.6805555556|General|46237.6805555556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 12-oct 0:8 8 71",
+"excel": "0|Date|36811.3388888889|m/d/yyyy h:mm|36811.3388888889"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " Jan  1999 pm",
+"excel": "0|Double|178993123.847222|General|178993123.847222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   28/Sep  11223:185 a",
+"excel": "0|String|   28/Sep  11223:185 a|General|   28/Sep  11223:185 a"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 19/feb  11273:18 am",
+"excel": "0|String| 19/feb  11273:18 am|General| 19/feb  11273:18 am"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  20 oct 13:63",
+"excel": "0|Double|41562.6805555556|General|41562.6805555556"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   21 MAR 1:13:44",
+"excel": "0|Date|36971.4564814815|m/d/yyyy h:mm|36971.4564814815"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " -4-Sept  2051:67",
+"excel": "0|Double|55395.8472222222|General|55395.8472222222"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " -16-April 96:",
+"excel": "0|Date|34754.3333333333|m/d/yyyy h:mm|34754.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   /Sep  418 : 11312",
+"excel": "0|String|   /Sep  418 : 11312|General|   /Sep  418 : 11312"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  7/feb  23 a",
+"excel": "0|Double|179001926.805556|General|179001926.805556"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 26 aug 7847:28",
+"excel": "0|Double|2172330.22222222|General|2172330.22222222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  december 71 a",
+"excel": "0|Double|178983230.805556|General|178983230.805556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 27 Jan  223:2091",
+"excel": "0|String| 27 Jan  223:2091|General| 27 Jan  223:2091"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 27MAR 6:2 am",
+"excel": "0|Double|3021419.13009259|General|3021419.13009259"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  3 may 11:",
+"excel": "0|Date|40249.3333333333|m/d/yyyy h:mm|40249.3333333333"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  1April  8001:22 30",
+"excel": "0|Date|2228437.9375|m/d/yyyy h:mm|2228437.9375"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  24 Sep 88:",
+"excel": "0|Date|31993.3333333333|m/d/yyyy h:mm|31993.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " -3-MAR  57 P",
+"excel": "0|Double|178977844.847222|General|178977844.847222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  18/July  1940:1944",
+"excel": "0|Double|14884.0555555556|General|14884.0555555556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 1/July  2070:",
+"excel": "0|Date|61858.3333333333|m/d/yyyy h:mm|61858.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   Nov 11231:1969",
+"excel": "0|String|   Nov 11231:1969|General|   Nov 11231:1969"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 6 Sep 11517 : 7224",
+"excel": "0|String| 6 Sep 11517 : 7224|General| 6 Sep 11517 : 7224"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 2feb 79:69 33",
+"excel": "0|Double|28890.8979166667|General|28890.8979166667"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " Sep 5536 : 4552",
+"excel": "0|Double|1328449.72222222|General|1328449.72222222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   -19-aug  5048:7154.43",
+"excel": "0|Double|1150020.96855324|mm:ss.0|1150020.96855324"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  -19-Nov  997:1948 a",
+"excel": "0|String|  -19-Nov  997:1948 a|General|  -19-Nov  997:1948 a"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   -13-April 10344:",
+"excel": "0|String|   -13-April 10344:|General|   -13-April 10344:"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   16/Jan  0:",
+"excel": "0|Date|36124.3333333333|m/d/yyyy h:mm|36124.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " /oct  23:",
+"excel": "0|Date|45901.3333333333|m/d/yyyy h:mm|45901.3333333333"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   -8-MAR  2010:861 am",
+"excel": "0|String|   -8-MAR  2010:861 am|d-mmm-yy|   -8-MAR  2010:861 am"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   Jun  1962:10323 808",
+"excel": "0|String|   Jun  1962:10323 808|General|   Jun  1962:10323 808"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   -22-Sept  95:6704 1251",
+"excel": "0|String|   -22-Sept  95:6704 1251|d-mmm-yy|   -22-Sept  95:6704 1251"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   Jan 22:2 11280",
+"excel": "0|String|   Jan 22:2 11280|General|   Jan 22:2 11280"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   /Sept  23:5",
+"excel": "0|Date|46281.2638888889|m/d/yyyy h:mm|46281.2638888889"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   21 Jun  10386 : 3",
+"excel": "0|String|   21 Jun  10386 : 3|General|   21 Jun  10386 : 3"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " /Sept 1180:10527.89",
+"excel": "0|String| /Sept 1180:10527.89|General| /Sept 1180:10527.89"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 19/oct 8:7.4",
+"excel": "0|Double|39740.0049074074|mm:ss.0|39740.0049074074"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  -2-Nov  2006:",
+"excel": "0|Date|38606.3333333333|m/d/yyyy h:mm|38606.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   13/Sept  27:11610 54 26",
+"excel": "0|String|   13/Sept  27:11610 54 26|General|   13/Sept  27:11610 54 26"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " /July  1928:5 67 79",
+"excel": "0|Double|10410.2548611111|General|10410.2548611111"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   -4-April  0:37 PM",
+"excel": "0|String|   -4-April  0:37 PM|d-mmm-yy|   -4-April  0:37 PM"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 4 aug  1985:8",
+"excel": "0|Date|31256.3888888889|m/d/yyyy h:mm|31256.3888888889"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  december 7:1958 62 43",
+"excel": "0|String|  december 7:1958 62 43|d-mmm|  december 7:1958 62 43"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " Jan 216 a",
+"excel": "0|String| Jan 216 a|General| Jan 216 a"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  15-April 2026:36:23",
+"excel": "0|Double|46128.4002314815|General|46128.4002314815"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 14Nov  2616:25",
+"excel": "0|Double|261827.097222222|General|261827.097222222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 15/Nov  17:11554 p",
+"excel": "0|String| 15/Nov  17:11554 p|General| 15/Nov  17:11554 p"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 30-April  4229:",
+"excel": "0|Date|850354.333333333|m/d/yyyy h:mm|850354.333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   2/July 10822:24.82",
+"excel": "0|String|   2/July 10822:24.82|General|   2/July 10822:24.82"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  31-Jan  7944 A",
+"excel": "0|Double|181164519.805556|General|181164519.805556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  26/aug 55:93.46",
+"excel": "0|Double|20327.0651157407|mm:ss.0|20327.0651157407"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 30-Jan  1927:",
+"excel": "0|Date|9475.33333333333|m/d/yyyy h:mm|9475.33333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  4 July  2078:15",
+"excel": "0|Date|65193.6805555556|m/d/yyyy h:mm|65193.6805555556"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  /July 1920 : 8",
+"excel": "0|Date|7481.38888888889|m/d/yyyy h:mm|7481.38888888889"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   /oct 3:27 77 95",
+"excel": "0|String|   /oct 3:27 77 95|d-mmm|   /oct 3:27 77 95"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  July  19:11503",
+"excel": "0|String|  July  19:11503|General|  July  19:11503"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   4 July  8870 : 4",
+"excel": "0|Date|2545920.22222222|m/d/yyyy h:mm|2545920.22222222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  6 April 0:10989:89",
+"excel": "0|String|  6 April 0:10989:89|General|  6 April 0:10989:89"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  24/Nov  6929:11012 A",
+"excel": "0|String|  24/Nov  6929:11012 A|General|  24/Nov  6929:11012 A"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  -2-April 2060:10456",
+"excel": "0|String|  -2-April 2060:10456|General|  -2-April 2060:10456"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  25december 11626 : 1957",
+"excel": "0|String|  25december 11626 : 1957|General|  25december 11626 : 1957"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  /oct 850:13",
+"excel": "0|String|  /oct 850:13|General|  /oct 850:13"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " April 7:11181.98",
+"excel": "0|String| April 7:11181.98|General| April 7:11181.98"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " -14-Jun 757 : 38",
+"excel": "0|String| -14-Jun 757 : 38|General| -14-Jun 757 : 38"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  -21-Sep 70 : 490",
+"excel": "0|Double|25845.4722222222|General|25845.4722222222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " April  1201:71.41",
+"excel": "0|String| April  1201:71.41|General| April  1201:71.41"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 27-April  3:31.28",
+"excel": "0|Double|37738.0218518519|mm:ss.0|37738.0218518519"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   Nov  3851:51 898",
+"excel": "0|String|   Nov  3851:51 898|mmm-yy|   Nov  3851:51 898"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  14feb  3:",
+"excel": "0|Date|37249.3333333333|m/d/yyyy h:mm|37249.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " feb  1939 : 2611",
+"excel": "0|Double|14378.8472222222|General|14378.8472222222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 25/december 11409:1974.95",
+"excel": "0|String| 25/december 11409:1974.95|General| 25/december 11409:1974.95"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 15/feb  1978 p",
+"excel": "0|Double|178985498.847222|General|178985498.847222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 14oct  10499:2052.37",
+"excel": "0|String| 14oct  10499:2052.37|General| 14oct  10499:2052.37"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   26 may 11100:109:16",
+"excel": "0|String|   26 may 11100:109:16|General|   26 may 11100:109:16"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   23 Sep 11416 AM",
+"excel": "0|String|   23 Sep 11416 AM|General|   23 Sep 11416 AM"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   23 Sep 86:790 1976",
+"excel": "0|String|   23 Sep 86:790 1976|d-mmm-yy|   23 Sep 86:790 1976"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 10/Jan 2035:2 30 22",
+"excel": "0|Date|49319.1041666667|m/d/yyyy h:mm|49319.1041666667"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   24 aug  9:1930 29 11",
+"excel": "0|Double|40129.4368055556|General|40129.4368055556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   Jun 21:282 79 3",
+"excel": "0|String|   Jun 21:282 79 3|d-mmm|   Jun 21:282 79 3"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " Nov 10342:11258.70",
+"excel": "0|String| Nov 10342:11258.70|General| Nov 10342:11258.70"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  10/oct 47:145",
+"excel": "0|Double|17449.0972222222|General|17449.0972222222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   12/feb  2078:2043 am",
+"excel": "0|String|   12/feb  2078:2043 am|d-mmm-yy|   12/feb  2078:2043 am"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  29-oct  14 AM",
+"excel": "0|Double|178998903.805556|General|178998903.805556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  Sep  45 : 9828",
+"excel": "0|Double|17083.5555555556|General|17083.5555555556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 26Sep 10364:84:4227",
+"excel": "0|String| 26Sep 10364:84:4227|General| 26Sep 10364:84:4227"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   Sept  1:2087.60",
+"excel": "0|String|   Sept  1:2087.60|d-mmm|   Sept  1:2087.60"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " -2-MAR  2068:",
+"excel": "0|Date|61007.3333333333|m/d/yyyy h:mm|61007.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   19 aug 376 p",
+"excel": "0|String|   19 aug 376 p|General|   19 aug 376 p"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   aug  2100:8711 41",
+"excel": "0|Double|73625.9868055556|General|73625.9868055556"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   2 Jan  27:49.58",
+"excel": "0|Double|46389.0346990741|mm:ss.0|46389.0346990741"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   MAR 2011 pm",
+"excel": "0|Double|178997565.847222|General|178997565.847222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  3-Jan  97 : 3396",
+"excel": "0|Double|35567.5555555556|General|35567.5555555556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  Sep 3 : 22",
+"excel": "0|Date|46261.9722222222|m/d/yyyy h:mm|46261.9722222222"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  /oct  723:1043 81 4",
+"excel": "0|String|  /oct  723:1043 81 4|General|  /oct  723:1043 81 4"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   26-Sept 20:4753 64",
+"excel": "0|String|   26-Sept 20:4753 64|d-mmm-yy|   26-Sept 20:4753 64"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  11/december 2064 : 2041",
+"excel": "0|Double|60325.0972222222|General|60325.0972222222"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "  feb 6:1:11732",
+"excel": "0|String|  feb 6:1:11732|General|  feb 6:1:11732"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " -14-aug  547:59 PM",
+"excel": "0|String| -14-aug  547:59 PM|General| -14-aug  547:59 PM"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   2/aug  89:14 4 24",
+"excel": "0|Date|32722.5861111111|m/d/yyyy h:mm|32722.5861111111"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  26-Jun 975:61.26",
+"excel": "0|String|  26-Jun 975:61.26|General|  26-Jun 975:61.26"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   feb 4:",
+"excel": "0|Date|45640.3333333333|m/d/yyyy h:mm|45640.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   /Jan 5:243",
+"excel": "0|Double|46030.1805555556|General|46030.1805555556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 5Sept  493 : 88",
+"excel": "0|String| 5Sept  493 : 88|General| 5Sept  493 : 88"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " 4 MAR 60:561 16",
+"excel": "0|Double|22002.3861111111|General|22002.3861111111"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " -25-Jan  11729:2080 am",
+"excel": "0|String| -25-Jan  11729:2080 am|General| -25-Jan  11729:2080 am"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " /Jan 977:13.41",
+"excel": "0|String| /Jan 977:13.41|General| /Jan 977:13.41"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  11aug  58 : 6",
+"excel": "0|Date|21401.3055555556|m/d/yyyy h:mm|21401.3055555556"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "  Nov  8253 A",
+"excel": "0|Double|181277654.805556|General|181277654.805556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": " 7-Sep  56:584 51 80",
+"excel": "0|Double|20729.36875|General|20729.36875"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "   Nov  10564:",
+"excel": "0|String|   Nov  10564:|General|   Nov  10564:"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  -19-Nov  5 p",
+"excel": "0|Double|178995637.847222|General|178995637.847222"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   27 december  2034:105:4",
+"excel": "0|Double|49309.262037037|General|49309.262037037"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "  25 Sept  23:",
+"excel": "0|Date|44777.3333333333|m/d/yyyy h:mm|44777.3333333333"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 7July 12:21.38",
+"excel": "0|Double|41097.0150231481|mm:ss.0|41097.0150231481"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   4 April 98:2011:27",
+"excel": "0|Double|35972.6946759259|General|35972.6946759259"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "  July 1959 : 3",
+"excel": "0|Date|21725.1805555556|m/d/yyyy h:mm|21725.1805555556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   -19-aug 36:1.99",
+"excel": "0|Double|13381.0018402778|mm:ss.0|13381.0018402778"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": " 17/december 11545:",
+"excel": "0|String| 17/december 11545:|General| 17/december 11545:"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   Jan  63:3.94",
+"excel": "0|Double|23012.0031712963|mm:ss.0|23012.0031712963"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " 24 may  6:82 40 44",
+"excel": "0|Double|38864.4444444444|General|38864.4444444444"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   5 aug  11647:2080 PM",
+"excel": "0|String|   5 aug  11647:2080 PM|General|   5 aug  11647:2080 PM"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "   25 aug  23:29 79 7",
+"excel": "0|String|   25 aug  23:29 79 7|d-mmm-yy|   25 aug  23:29 79 7"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": " -1-Jun  4:3:3673",
+"excel": "0|Double|38141.5599537037|General|38141.5599537037"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "   -25-MAR 5:14:1960",
+"excel": "0|Double|38437.8287037037|General|38437.8287037037"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": " /April  6:10",
+"excel": "0|Date|46111.4722222222|m/d/yyyy h:mm|46111.4722222222"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "   23/April  5:1902",
+"excel": "0|Double|38537.3055555556|General|38537.3055555556"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "7 A. 6 1/22",
+"excel": "0|Double|95754.2742430556|mm:ss.0|95754.2742430556"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "11:00:43 p.12345678 8/11",
+"excel": "0|String|11:00:43 p.12345678 8/11|General|11:00:43 p.12345678 8/11"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "6:32:4 p.4 80",
+"excel": "0|String|6:32:4 p.4 80|General|6:32:4 p.4 80"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "18:62 p. 12345678 9/6",
+"excel": "0|String|18:62 p. 12345678 9/6|d-mmm|18:62 p. 12345678 9/6"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "9-feb 25 pm.7258",
+"excel": "0|Double|95772.286756088|mm:ss.0|95772.286756088"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "1:35:5 pm .22 46",
+"excel": "0|String|1:35:5 pm .22 46|General|1:35:5 pm .22 46"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "8:26 PM .8251 35",
+"excel": "0|String|8:26 PM .8251 35|General|8:26 PM .8251 35"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "17:40 a .1",
+"excel": "0|Double|49711.0054872685|mm:ss.0|49711.0054872685"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "22:48 a.91",
+"excel": "0|Double|49711.2193855324|mm:ss.0|49711.2193855324"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "21-may 16 p.5770",
+"excel": "0|Double|95873.2805043634|mm:ss.0|95873.2805043634"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "17:52 PM.54",
+"excel": "0|Double|49711.0138372685|mm:ss.0|49711.0138372685"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "18:12 AM. 9 4/9",
+"excel": "0|Double|95832.02771875|mm:ss.0|95832.02771875"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "12-feb 18 AM. 0",
+"excel": "0|Double|95775.281875|mm:ss.0|95775.281875"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "22-Sept 14:34 PM. 3172",
+"excel": "0|Double|95997.8763346875|mm:ss.0|95997.8763346875"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "23:53 p.8024",
+"excel": "0|Double|49711.2645347454|mm:ss.0|49711.2645347454"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "27-Nov 18 P.12345678",
+"excel": "0|Double|96063.2818879977|mm:ss.0|96063.2818879977"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "9/1/1992 22:2 a.12345678",
+"excel": "0|Double|83559.1874319792|mm:ss.0|83559.1874319792"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "7:56:18 PM .12345678 12/3",
+"excel": "0|String|7:56:18 PM .12345678 12/3|General|7:56:18 PM .12345678 12/3"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "22:53 A.3785 83",
+"excel": "0|String|22:53 A.3785 83|General|22:53 A.3785 83"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "21:41 a.5593 75",
+"excel": "0|String|21:41 a.5593 75|General|21:41 a.5593 75"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "12/3/2029 3:10 P .31",
+"excel": "0|Double|97165.4013346065|mm:ss.0|97165.4013346065"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "14:32 P .27",
+"excel": "0|Double|49710.8749452546|mm:ss.0|49710.8749452546"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "5:00:17 am.3 23",
+"excel": "0|String|5:00:17 am.3 23|General|5:00:17 am.3 23"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "6/5/1994 13 P.12345678",
+"excel": "0|Double|84200.2784157755|mm:ss.0|84200.2784157755"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "15 a .7",
+"excel": "0|Double|49710.2797997685|mm:ss.0|49710.2797997685"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4/1/1993 14:38 P.8",
+"excel": "0|Double|83770.8791180556|mm:ss.0|83770.8791180556"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "28 am .49",
+"excel": "0|Double|49710.2888251157|mm:ss.0|49710.2888251157"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "47 a.5 10/3",
+"excel": "0|Double|96008.3020196759|mm:ss.0|96008.3020196759"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "0 A. 10",
+"excel": "0|Double|49710.2693761574|mm:ss.0|49710.2693761574"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "6:40 A .12345678 69",
+"excel": "0|String|6:40 A .12345678 69|General|6:40 A .12345678 69"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "10/5/1992 6:6 AM.12345678",
+"excel": "0|Double|83592.5235430903|mm:ss.0|83592.5235430903"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "2:4 p.8",
+"excel": "0|Double|49710.3555069444|mm:ss.0|49710.3555069444"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "13:11 p .2 36",
+"excel": "0|String|13:11 p .2 36|General|13:11 p .2 36"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "14:49 pm.6 5/4",
+"excel": "0|Double|95856.8867546296|mm:ss.0|95856.8867546296"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "4/8/2018 4:55 am.7662",
+"excel": "0|Double|92908.4742449769|mm:ss.0|92908.4742449769"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "10/1/1991 10:44:58 P .61",
+"excel": "0|String|10/1/1991 10:44:58 P .61|General|10/1/1991 10:44:58 P .61"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "12/16/2015 6:43 pm.8",
+"excel": "0|Double|92064.5492569444|mm:ss.0|92064.5492569444"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "4/8/1998 0:38 A .12345678",
+"excel": "0|Double|85603.2957653125|mm:ss.0|85603.2957653125"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "19-July 7:54:17 a. 4",
+"excel": "0|String|19-July 7:54:17 a. 4|General|19-July 7:54:17 a. 4"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "43 am.88",
+"excel": "0|Double|49710.2992462963|mm:ss.0|49710.2992462963"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "7:19:29 pm .12345678 7/4",
+"excel": "0|String|7:19:29 pm .12345678 7/4|General|7:19:29 pm .12345678 7/4"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "6:15:27 PM.12345678 89",
+"excel": "0|String|6:15:27 PM.12345678 89|General|6:15:27 PM.12345678 89"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "0:19:31 am .24 36",
+"excel": "0|String|0:19:31 am .24 36|General|0:19:31 am .24 36"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "38 p .12345678",
+"excel": "0|Double|49710.2957768866|mm:ss.0|49710.2957768866"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "26-may 10:56:33 A.12345678",
+"excel": "0|String|26-may 10:56:33 A.12345678|General|26-may 10:56:33 A.12345678"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "7-may 3:58:36 pm .2341",
+"excel": "0|String|7-may 3:58:36 pm .2341|General|7-may 3:58:36 pm .2341"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "4 am.7 98",
+"excel": "0|String|4 am.7 98|General|4 am.7 98"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "5:11 PM.12345678 90",
+"excel": "0|String|5:11 PM.12345678 90|General|5:11 PM.12345678 90"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "11/3/2002 5:18 P .12345678",
+"excel": "0|Double|87273.490221331|mm:ss.0|87273.490221331"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "5:27 am.1",
+"excel": "0|Double|49710.4964594907|mm:ss.0|49710.4964594907"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "13:20 p. 12345678",
+"excel": "0|Double|49710.8249435532|mm:ss.0|49710.8249435532"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "15:20 PM.12345678",
+"excel": "0|Double|49710.9082768866|mm:ss.0|49710.9082768866"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "10:07:37 P .9818 82",
+"excel": "0|String|10:07:37 P .9818 82|General|10:07:37 P .9818 82"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "18:34 AM. 12345678 4/7",
+"excel": "0|Double|95830.0429875347|mm:ss.0|95830.0429875347"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "26-MAR 3:59:19 p. 12345678",
+"excel": "0|String|26-MAR 3:59:19 p. 12345678|General|26-MAR 3:59:19 p. 12345678"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "1/16/2005 2:52 a. 2400",
+"excel": "0|Double|88078.3888222222|mm:ss.0|88078.3888222222"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "4:53 p.57 81",
+"excel": "0|String|4:53 p.57 81|General|4:53 p.57 81"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "3:15:12 P .896",
+"excel": "0|String|3:15:12 P .896|General|3:15:12 P .896"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "16:14 a .259",
+"excel": "0|Double|49710.9457668866|mm:ss.0|49710.9457668866"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "8:35:17 pm.3 3/6",
+"excel": "0|String|8:35:17 pm.3 3/6|General|8:35:17 pm.3 3/6"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "8:33:37 AM .88",
+"excel": "0|String|8:33:37 AM .88|General|8:33:37 AM .88"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "6:2 pm .9 6/16",
+"excel": "0|Double|95899.5207858796|mm:ss.0|95899.5207858796"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "23:13 A .8 29",
+"excel": "0|String|23:13 A .8 29|General|23:13 A .8 29"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "4:45:51 a.5 7/24",
+"excel": "0|String|4:45:51 a.5 7/24|General|4:45:51 a.5 7/24"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "5:14 pm. 12345678 5/13",
+"excel": "0|Double|95865.4874435532|mm:ss.0|95865.4874435532"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "12:21:35 a. 7",
+"excel": "0|String|12:21:35 a. 7|General|12:21:35 a. 7"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "44 AM.12345678",
+"excel": "0|Double|49710.2999319792|mm:ss.0|49710.2999319792"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "8:14 am. 8 10/24",
+"excel": "0|Double|96029.6124398148|mm:ss.0|96029.6124398148"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "12:44 pm. 9981 7/4",
+"excel": "0|Double|95917.7999536806|mm:ss.0|95917.7999536806"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "1-feb 12:29:6 AM .1",
+"excel": "0|String|1-feb 12:29:6 AM .1|General|1-feb 12:29:6 AM .1"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "7:49:33 am.6338 3/25",
+"excel": "0|String|7:49:33 am.6338 3/25|General|7:49:33 am.6338 3/25"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "4:44:21 P .12345678",
+"excel": "0|String|4:44:21 P .12345678|General|4:44:21 P .12345678"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "10/24/2003 2 pm.8",
+"excel": "0|Double|87628.2707847222|mm:ss.0|87628.2707847222"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "11-Jan 27 AM.88",
+"excel": "0|Double|95743.2881351852|mm:ss.0|95743.2881351852"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "13:46 p.2470",
+"excel": "0|Double|49710.843000544|mm:ss.0|49710.843000544"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "25:10 pm.0",
+"excel": "0|String|25:10 pm.0|General|25:10 pm.0"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "6/26/2025 10 p. 0",
+"excel": "0|Double|95544.2763310185|mm:ss.0|95544.2763310185"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "4:23 AM. 96 4/6",
+"excel": "0|Double|95828.452025|mm:ss.0|95828.452025"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "4:17:31 am. 8536",
+"excel": "0|String|4:17:31 am. 8536|General|4:17:31 am. 8536"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "28-aug 18:59 A. 51",
+"excel": "0|Double|95973.060353125|mm:ss.0|95973.060353125"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "5:39 AM.6932 71",
+"excel": "0|String|5:39 AM.6932 71|General|5:39 AM.6932 71"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "17:7 AM.82 9/13",
+"excel": "0|Double|95988.9825789352|mm:ss.0|95988.9825789352"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "26-Sep 1:16:53 a .6377",
+"excel": "0|String|26-Sep 1:16:53 a .6377|General|26-Sep 1:16:53 a .6377"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "14:34 a. 9439 7/1",
+"excel": "0|Double|95914.8763303704|mm:ss.0|95914.8763303704"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "25-Jan 6:07:19 am.8",
+"excel": "0|String|25-Jan 6:07:19 am.8|General|25-Jan 6:07:19 am.8"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "22:45 a.6364 35",
+"excel": "0|String|22:45 a.6364 35|General|22:45 a.6364 35"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "26:44 A .6905 5/11",
+"excel": "0|String|26:44 A .6905 5/11|d-mmm|26:44 A .6905 5/11"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "22-MAR 2:13:23 pm .497",
+"excel": "0|String|22-MAR 2:13:23 pm .497|General|22-MAR 2:13:23 pm .497"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "7:52:38 a .42 8/26",
+"excel": "0|String|7:52:38 a .42 8/26|General|7:52:38 a .42 8/26"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "7:25 P.7055 22",
+"excel": "0|String|7:25 P.7055 22|General|7:25 P.7055 22"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "10-Jun 17:43 p .53",
+"excel": "0|Double|95894.0075871528|mm:ss.0|95894.0075871528"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "50 a. 16 2/21",
+"excel": "0|Double|95784.3040990741|mm:ss.0|95784.3040990741"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "6-Jan 9:36:47 pm .3",
+"excel": "0|String|6-Jan 9:36:47 pm .3|General|6-Jan 9:36:47 pm .3"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "11:25:48 A.12345678 17",
+"excel": "0|String|11:25:48 A.12345678 17|General|11:25:48 A.12345678 17"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "6:37:7 a.0",
+"excel": "0|String|6:37:7 a.0|General|6:37:7 a.0"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "52 AM.84",
+"excel": "0|Double|49710.3054958333|mm:ss.0|49710.3054958333"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "3:23:19 PM.1",
+"excel": "0|String|3:23:19 PM.1|General|3:23:19 PM.1"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "23:32 p .5",
+"excel": "0|Double|49711.2499479167|mm:ss.0|49711.2499479167"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "3:22 p. 9",
+"excel": "0|Double|49710.4096747685|mm:ss.0|49710.4096747685"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "21-Jan 7:53:48 pm.12345678",
+"excel": "0|String|21-Jan 7:53:48 pm.12345678|General|21-Jan 7:53:48 pm.12345678"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "3-MAR 9:55:5 A.6347",
+"excel": "0|String|3-MAR 9:55:5 A.6347|General|3-MAR 9:55:5 A.6347"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "11:40:50 PM .2",
+"excel": "0|String|11:40:50 PM .2|General|11:40:50 PM .2"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "21 AM.69 44",
+"excel": "0|String|21 AM.69 44|General|21 AM.69 44"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4:03:24 pm. 9502 3/18",
+"excel": "0|String|4:03:24 pm. 9502 3/18|General|4:03:24 pm. 9502 3/18"
+},
+{
+"kind": "typed",
+"writer": "Formula",
+"text": "21:25 AM.4008 8/7",
+"excel": "0|Double|95952.1617407523|mm:ss.0|95952.1617407523"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "11:41:26 pm .6834",
+"excel": "0|String|11:41:26 pm .6834|General|11:41:26 pm .6834"
+},
+{
+"kind": "typed",
+"writer": "Value",
+"text": "28-may 1:20 pm. 12345678",
+"excel": "0|Double|95880.3249435532|mm:ss.0|95880.3249435532"
+},
+{
+"kind": "typed",
+"writer": "Value2",
+"text": "4/9/2006 25:1 P.90",
+"excel": "0|String|4/9/2006 25:1 P.90|m/d/yyyy|4/9/2006 25:1 P.90"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "2/4/1998 25:08 AM .3",
+"excel": "0|String|2/4/1998 25:08 AM .3|m/d/yyyy|2/4/1998 25:08 AM .3"
+},
+{
+"kind": "typed",
+"writer": "FormulaLocal",
+"text": "18:18 A.5370 1/11",
+"excel": "0|Double|95744.0318812153|mm:ss.0|95744.0318812153"
+},
+{
+"kind": "format",
+"format": "3E+0\\y;9E-00",
+"value": "0.0",
+"excel": "0|3E+0\\y;9E-00|3E+0y"
+},
+{
+"kind": "format",
+"format": "9E-0\"z\";\"a\"1E+0 ",
+"value": "-5.085289373949362",
+"excel": "0|9E-0\"z\";\"a\"1E+0 |a1E+2 "
+},
+{
+"kind": "format",
+"format": "9E-0\"z\";2E-00",
+"value": "-4.999999999999999",
+"excel": "0|9E-0\"z\";2E-00|2E02"
+},
+{
+"kind": "format",
+"format": "1_)E+0;9E-0\"z\"",
+"value": "0.49",
+"excel": "0|1_)E+0;9E-0\"z\"|1 E+1"
+},
+{
+"kind": "format",
+"format": "2E-00",
+"value": "-8.0",
+"excel": "0|2E-00|-2E02"
+},
+{
+"kind": "format",
+"format": "1-E+0 ",
+"value": "4.999530424806105",
+"excel": "0|1-E+0 |1-E+1 "
+},
+{
+"kind": "format",
+"format": "1E+0",
+"value": "-1e+20",
+"excel": "0|1E+0|-1E+1"
+},
+{
+"kind": "format",
+"format": "2E+0\\y",
+"value": "-0.4295488922352223",
+"excel": "0|2E+0\\y|-2E+1y"
+},
+{
+"kind": "format",
+"format": "7E+00",
+"value": "1.1233509007310146e-15",
+"excel": "0|7E+00|7E+01"
+},
+{
+"kind": "format",
+"format": "9E+0;1_)E-0\"z\"",
+"value": "5.0",
+"excel": "0|9E+0;1_)E-0\"z\"|9E+2"
+},
+{
+"kind": "format",
+"format": "2E+00",
+"value": "0.38054270701528525",
+"excel": "0|2E+00|2E+01"
+},
+{
+"kind": "format",
+"format": "1_)E+000",
+"value": "1e-11",
+"excel": "0|1_)E+000|1 E+001"
+},
+{
+"kind": "format",
+"format": "2 E+000",
+"value": "-5.003823650341851",
+"excel": "0|2 E+000|-2 E+002"
+},
+{
+"kind": "format",
+"format": "1E+0",
+"value": "5.021477972423357",
+"excel": "0|1E+0|1E+2"
+},
+{
+"kind": "format",
+"format": "9E-0",
+"value": "-1.0",
+"excel": "0|9E-0|-9E1"
+},
+{
+"kind": "format",
+"format": "1.E+0",
+"value": "0.0",
+"excel": "0|1.E+0|1.E+0"
+},
+{
+"kind": "format",
+"format": "4\\xE-0\"z\"",
+"value": "0.49",
+"excel": "0|4xE-0\"z\"|4xE1z"
+},
+{
+"kind": "format",
+"format": "9E-00",
+"value": "-0.14541307777966206",
+"excel": "0|9E-00|-9E01"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+0",
+"value": "0.49",
+"excel": "0|\"a\"1E+0|a1E+1"
+},
+{
+"kind": "format",
+"format": "2E+00",
+"value": "1e+19",
+"excel": "0|2E+00|2E+01"
+},
+{
+"kind": "format",
+"format": "1_)E+0\\y",
+"value": "0.4684062999522216",
+"excel": "0|1_)E+0\\y|1 E+1y"
+},
+{
+"kind": "format",
+"format": "1.E+000",
+"value": "8.2504468623398e-09",
+"excel": "0|1.E+000|1.E-007"
+},
+{
+"kind": "format",
+"format": "4\\xE+0\\y",
+"value": "0.0",
+"excel": "0|4xE+0\\y|4xE+0y"
+},
+{
+"kind": "format",
+"format": "1.E+0",
+"value": "4.918678526833451",
+"excel": "0|1.E+0|1.E+1"
+},
+{
+"kind": "format",
+"format": "4\\xE-0",
+"value": "5.0",
+"excel": "0|4xE-0|4xE2"
+},
+{
+"kind": "format",
+"format": "4\\xE+000",
+"value": "0.9738220543284661",
+"excel": "0|4xE+000|4xE+001"
+},
+{
+"kind": "format",
+"format": "2E+000",
+"value": "4.436008897934576e-17",
+"excel": "0|2E+000|2E+001"
+},
+{
+"kind": "format",
+"format": "2 E+0\\y",
+"value": "-4.976854638068339",
+"excel": "0|2 E+0\\y|-2 E+1y"
+},
+{
+"kind": "format",
+"format": "1E+000",
+"value": "5.0439465210548935",
+"excel": "0|1E+000|1E+002"
+},
+{
+"kind": "format",
+"format": "1_)E+00;2E-00",
+"value": "3.0",
+"excel": "0|1_)E+00;2E-00|1 E+01"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-0;7e+0",
+"value": "0.49",
+"excel": "1004|General|0.49"
+},
+{
+"kind": "format",
+"format": "2 E+0\\y",
+"value": "5.081877617154607",
+"excel": "0|2 E+0\\y|2 E+2y"
+},
+{
+"kind": "format",
+"format": "1.E+0\\y",
+"value": "49.5",
+"excel": "0|1.E+0\\y|1.E+1y"
+},
+{
+"kind": "format",
+"format": "9E-00",
+"value": "4.978427887539374",
+"excel": "0|9E-00|9E01"
+},
+{
+"kind": "format",
+"format": "1E+0\\y",
+"value": "-2.0",
+"excel": "0|1E+0\\y|-1E+1y"
+},
+{
+"kind": "format",
+"format": "1-E+00",
+"value": "2.0",
+"excel": "0|1-E+00|1-E+01"
+},
+{
+"kind": "format",
+"format": "4\\xE+000",
+"value": "-0.9279751777384441",
+"excel": "0|4xE+000|-4xE+001"
+},
+{
+"kind": "format",
+"format": "1E+000",
+"value": "1e-18",
+"excel": "0|1E+000|1E+001"
+},
+{
+"kind": "format",
+"format": "3E-0",
+"value": "5.048771254061889",
+"excel": "0|3E-0|3E2"
+},
+{
+"kind": "format",
+"format": "\"a\"1E-0",
+"value": "5.0",
+"excel": "0|\"a\"1E-0|a1E2"
+},
+{
+"kind": "format",
+"format": "1.E+000",
+"value": "-2.0",
+"excel": "0|1.E+000|-1.E+001"
+},
+{
+"kind": "format",
+"format": "3E+00",
+"value": "0.0",
+"excel": "0|3E+00|3E+00"
+},
+{
+"kind": "format",
+"format": "3E+0 ",
+"value": "2.8535416409306304e-27",
+"excel": "0|3E+0 |3E+1 "
+},
+{
+"kind": "format",
+"format": "2 E+00",
+"value": "0.0",
+"excel": "0|2 E+00|2 E+00"
+},
+{
+"kind": "format",
+"format": "1E+0\\y",
+"value": "10.0",
+"excel": "0|1E+0\\y|1E+1y"
+},
+{
+"kind": "format",
+"format": "1-E+0",
+"value": "4.9173974199328505",
+"excel": "0|1-E+0|1-E+1"
+},
+{
+"kind": "format",
+"format": "3E+0",
+"value": "-3.869519818676194e-30",
+"excel": "0|3E+0|-3E+1"
+},
+{
+"kind": "format",
+"format": "3E-0\"z\"",
+"value": "0.5203875417643968",
+"excel": "0|3E-0\"z\"|3E1z"
+},
+{
+"kind": "format",
+"format": "1.E+0\\y",
+"value": "7.0",
+"excel": "0|1.E+0\\y|1.E+2y"
+},
+{
+"kind": "format",
+"format": "1_)E+000",
+"value": "4.999999999999999",
+"excel": "0|1_)E+000|1 E+002"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+0\\y",
+"value": "-0.9053271721386067",
+"excel": "0|\"a\"1E+0\\y|-a1E+1y"
+},
+{
+"kind": "format",
+"format": "1E+00",
+"value": "53543181587959.3",
+"excel": "0|1E+00|1E+15"
+},
+{
+"kind": "format",
+"format": "7E+0",
+"value": "5.012508915640693",
+"excel": "0|7E+0|7E+2"
+},
+{
+"kind": "format",
+"format": "4\\xe+0;4\\xE+0",
+"value": "499999.5",
+"excel": "1004|General|499999.5"
+},
+{
+"kind": "format",
+"format": "9E-0\"z\"",
+"value": "0.0",
+"excel": "0|9E-0\"z\"|9E0z"
+},
+{
+"kind": "format",
+"format": "7E+0 ",
+"value": "-8.834523531422559e-30",
+"excel": "0|7E+0 |-7E-28 "
+},
+{
+"kind": "format",
+"format": "2 E+0 ;3E+0\\y",
+"value": "-1.0",
+"excel": "0|2 E+0 ;3E+0\\y|3E+1y"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+00",
+"value": "5.0516377754378965",
+"excel": "0|\"a\"1E+00|a1E+02"
+},
+{
+"kind": "format",
+"format": "1E-0\"z\"",
+"value": "0.0",
+"excel": "0|1E-0\"z\"|1E0z"
+},
+{
+"kind": "format",
+"format": "2E+00;1E+0\\y",
+"value": "0.0",
+"excel": "0|2E+00;1E+0\\y|2E+00"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+00",
+"value": "-0.4429031191615337",
+"excel": "0|\"a\"1E+00|-a1E+01"
+},
+{
+"kind": "format",
+"format": "1-E-0\"z\"",
+"value": "-4.996387522942127",
+"excel": "0|1-E-0\"z\"|-1-E1z"
+},
+{
+"kind": "format",
+"format": "1_)E+0",
+"value": "5.071628147363776",
+"excel": "0|1_)E+0|1 E+2"
+},
+{
+"kind": "format",
+"format": "1E-00",
+"value": "4.934665523810598",
+"excel": "0|1E-00|1E01"
+},
+{
+"kind": "format",
+"format": "1-E-00",
+"value": "1.0",
+"excel": "0|1-E-00|1-E01"
+},
+{
+"kind": "format",
+"format": "\"a\"1e+0",
+"value": "-5.086497177380939",
+"excel": "1004|General|-5.086497177"
+},
+{
+"kind": "format",
+"format": "1E+0 ",
+"value": "0.0",
+"excel": "0|1E+0 |1E+0 "
+},
+{
+"kind": "format",
+"format": "2E+000",
+"value": "-0.5",
+"excel": "0|2E+000|-2E+001"
+},
+{
+"kind": "format",
+"format": "4\\xE-00;\"a\"1E-00",
+"value": "-5.0",
+"excel": "0|4xE-00;\"a\"1E-00|a1E02"
+},
+{
+"kind": "format",
+"format": "1_)E-0\"z\"",
+"value": "-1e-18",
+"excel": "0|1_)E-0\"z\"|-1 E1z"
+},
+{
+"kind": "format",
+"format": "2E+000",
+"value": "-100000000.0",
+"excel": "0|2E+000|-2E+001"
+},
+{
+"kind": "format",
+"format": "1_)E+0\\y",
+"value": "5.005784394423113",
+"excel": "0|1_)E+0\\y|1 E+2y"
+},
+{
+"kind": "format",
+"format": "2 E+0 ",
+"value": "-6.0",
+"excel": "0|2 E+0 |-2 E+2 "
+},
+{
+"kind": "format",
+"format": "1-E+00",
+"value": "9.049847622609004e-06",
+"excel": "0|1-E+00|1-E-04"
+},
+{
+"kind": "format",
+"format": "1-E-0",
+"value": "-4.0",
+"excel": "0|1-E-0|-1-E1"
+},
+{
+"kind": "format",
+"format": "9E+0\\y",
+"value": "0.0",
+"excel": "0|9E+0\\y|9E+0y"
+},
+{
+"kind": "format",
+"format": "1-E+0\\y",
+"value": "4.9668391873796915",
+"excel": "0|1-E+0\\y|1-E+1y"
+},
+{
+"kind": "format",
+"format": "2E-00",
+"value": "2.0",
+"excel": "0|2E-00|2E01"
+},
+{
+"kind": "format",
+"format": "1E-0\"z\";9E+0 ",
+"value": "100000.0",
+"excel": "0|1E-0\"z\";9E+0 |1E1z"
+},
+{
+"kind": "format",
+"format": "1-E+000;4\\xE-0\"z\"",
+"value": "4.98634462337389",
+"excel": "0|1-E+000;4xE-0\"z\"|1-E+001"
+},
+{
+"kind": "format",
+"format": "1E+0\\y",
+"value": "10000.0",
+"excel": "0|1E+0\\y|1E+1y"
+},
+{
+"kind": "format",
+"format": "9E-0\"z\"",
+"value": "6.948556048629824e-09",
+"excel": "0|9E-0\"z\"|9E-7z"
+},
+{
+"kind": "format",
+"format": "1_)e+0",
+"value": "0.0",
+"excel": "1004|General|0"
+},
+{
+"kind": "format",
+"format": "1_)E-00",
+"value": "0.0",
+"excel": "0|1_)E-00|1 E00"
+},
+{
+"kind": "format",
+"format": "1-e+0",
+"value": "5.0",
+"excel": "1004|General|5"
+},
+{
+"kind": "format",
+"format": "1E+0 ",
+"value": "0.0",
+"excel": "0|1E+0 |1E+0 "
+},
+{
+"kind": "format",
+"format": "2E+0",
+"value": "1000000.0",
+"excel": "0|2E+0|2E+1"
+},
+{
+"kind": "format",
+"format": "1E+0\\y;3E-0",
+"value": "1e-05",
+"excel": "0|1E+0\\y;3E-0|1E+1y"
+},
+{
+"kind": "format",
+"format": "2 e+0;3E+00",
+"value": "100000000000.0",
+"excel": "1004|General|1E+11"
+},
+{
+"kind": "format",
+"format": "2 E+00",
+"value": "4.480179110037703e-25",
+"excel": "0|2 E+00|2 E+01"
+},
+{
+"kind": "format",
+"format": "7E+000",
+"value": "0.21518189192720916",
+"excel": "0|7E+000|7E+001"
+},
+{
+"kind": "format",
+"format": "1-E+0",
+"value": "3.0",
+"excel": "0|1-E+0|1-E+1"
+},
+{
+"kind": "format",
+"format": "7E+0",
+"value": "0.0",
+"excel": "0|7E+0|7E+0"
+},
+{
+"kind": "format",
+"format": "2 E+000",
+"value": "5.210612887072711e-25",
+"excel": "0|2 E+000|2 E-023"
+},
+{
+"kind": "format",
+"format": "2E+00",
+"value": "1e-13",
+"excel": "0|2E+00|2E+01"
+},
+{
+"kind": "format",
+"format": "2E-0",
+"value": "7103948.766276846",
+"excel": "0|2E-0|2E8"
+},
+{
+"kind": "format",
+"format": "2 E+0\\y;9E+00",
+"value": "-5.031408104067221",
+"excel": "0|2 E+0\\y;9E+00|9E+02"
+},
+{
+"kind": "format",
+"format": "2E+0 ",
+"value": "0.0",
+"excel": "0|2E+0 |2E+0 "
+},
+{
+"kind": "format",
+"format": "1_)E+0 ",
+"value": "-4.99999999999999",
+"excel": "0|1_)E+0 |-1 E+1 "
+},
+{
+"kind": "format",
+"format": "1-E-00",
+"value": "1000000.0",
+"excel": "0|1-E-00|1-E01"
+},
+{
+"kind": "format",
+"format": "2E-00",
+"value": "-5.08655022972408",
+"excel": "0|2E-00|-2E02"
+},
+{
+"kind": "format",
+"format": "7E-00",
+"value": "0.6570080054200494",
+"excel": "0|7E-00|7E01"
+},
+{
+"kind": "format",
+"format": "4\\xe+0",
+"value": "-1e-18",
+"excel": "1004|General|-1E-18"
+},
+{
+"kind": "format",
+"format": "2 e+0",
+"value": "-5030713528.880396",
+"excel": "1004|General|-5030713529"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+000",
+"value": "5.0",
+"excel": "0|\"a\"1E+000|a1E+002"
+},
+{
+"kind": "format",
+"format": "2E+0 ;1E-00",
+"value": "-4.99999999999999",
+"excel": "0|2E+0 ;1E-00|1E01"
+},
+{
+"kind": "format",
+"format": "1_)E+0 ;\"a\"1E+0 ",
+"value": "0.024531656779262577",
+"excel": "0|1_)E+0 ;\"a\"1E+0 |1 E+1 "
+},
+{
+"kind": "format",
+"format": "3E+000",
+"value": "5.06737708104679",
+"excel": "0|3E+000|3E+002"
+},
+{
+"kind": "format",
+"format": "2 E-0\"z\"",
+"value": "0.49",
+"excel": "0|2 E-0\"z\"|2 E1z"
+},
+{
+"kind": "format",
+"format": "2E-0\"z\"",
+"value": "0.0",
+"excel": "0|2E-0\"z\"|2E0z"
+},
+{
+"kind": "format",
+"format": "9E+00;1e+0",
+"value": "-7.0",
+"excel": "1004|General|-7"
+},
+{
+"kind": "format",
+"format": "3E+00",
+"value": "-1e-10",
+"excel": "0|3E+00|-3E+01"
+},
+{
+"kind": "format",
+"format": "1-E+0\\y",
+"value": "0.0",
+"excel": "0|1-E+0\\y|1-E+0y"
+},
+{
+"kind": "format",
+"format": "9E-0\"z\"",
+"value": "-78.30831451958149",
+"excel": "0|9E-0\"z\"|-9E3z"
+},
+{
+"kind": "format",
+"format": "9e+0",
+"value": "0.0",
+"excel": "1004|General|0"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+000",
+"value": "5.0",
+"excel": "0|\"a\"1E+000|a1E+002"
+},
+{
+"kind": "format",
+"format": "\"a\"1E+0",
+"value": "0.2631784776285241",
+"excel": "0|\"a\"1E+0|a1E+1"
+},
+{
+"kind": "format",
+"format": "1.E+00;1-e+0",
+"value": "0.5",
+"excel": "1004|General|0.5"
+},
+{
+"kind": "format",
+"format": "2 E-0",
+"value": "-9.0",
+"excel": "0|2 E-0|-2 E2"
+},
+{
+"kind": "format",
+"format": "1.e+0;7E+0 ",
+"value": "0.9352471351588866",
+"excel": "1004|General|0.935247135"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Cells.NumberFormat = \"0.00\""
+],
+"rows": "5:1048576",
+"action": "ClearFormats",
+"columns": [
+"A",
+"B",
+"C",
+"XFD"
+],
+"excel": "0|$A$1:$A$4|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"K\").NumberFormat = \"0.00\"",
+"ws.Columns(\"E\").Font.Italic = True",
+"ws.Columns(\"G\").Font.Bold = True",
+"ws.Columns(\"H\").Interior.Color = 16711680"
+],
+"rows": "3:1048576",
+"action": "Clear",
+"columns": [
+"E",
+"G",
+"H",
+"K"
+],
+"excel": "0|$E$1:$K$2|16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16711680,False,False,General;16711680,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"B\").Font.Italic = True",
+"ws.Columns(\"E\").Font.Italic = True",
+"ws.Columns(\"G\").Font.Bold = True",
+"ws.Columns(\"K\").Interior.Color = 255",
+"ws.Columns(\"H\").NumberFormat = \"0.00\""
+],
+"rows": "3:1048576",
+"action": "Clear",
+"columns": [
+"B",
+"E",
+"G",
+"H",
+"K"
+],
+"excel": "0|$B$1:$K$2|16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;255,False,False,General;255,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"G\").NumberFormat = \"0.00\"",
+"ws.Columns(\"D\").Interior.Color = 65280",
+"ws.Range(\"G1\").Value = 40"
+],
+"rows": "2:1048576",
+"action": "Delete",
+"columns": [
+"D",
+"G"
+],
+"excel": "0|$D$1:$G$1|65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"E\").Font.Italic = True",
+"ws.Columns(\"D\").Font.Bold = True",
+"ws.Rows(1).Font.Underline = xlUnderlineStyleSingle"
+],
+"rows": "6:1048576",
+"action": "Delete",
+"columns": [
+"D",
+"E"
+],
+"excel": "0|$D$1:$E$1|16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"E\").NumberFormat = \"0.00\"",
+"ws.Columns(\"D\").Font.Italic = True",
+"ws.Columns(\"C\").Font.Bold = True",
+"ws.Columns(\"G\").Font.Bold = True"
+],
+"rows": "5:1048576",
+"action": "ClearFormats",
+"columns": [
+"C",
+"D",
+"E",
+"G"
+],
+"excel": "0|$C$1:$G$4|16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"H\").Font.Italic = True",
+"ws.Columns(\"K\").Font.Italic = True",
+"ws.Range(\"K2\").Value = 41"
+],
+"rows": "5:1048576",
+"action": "Delete",
+"columns": [
+"H",
+"K"
+],
+"excel": "0|$H$2:$K$2|16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"K\").Font.Italic = True",
+"ws.Columns(\"H\").NumberFormat = \"0.00\"",
+"ws.Rows(5).Font.Underline = xlUnderlineStyleSingle"
+],
+"rows": "6:1048576",
+"action": "ClearFormats",
+"columns": [
+"H",
+"K"
+],
+"excel": "0|$H$1:$K$5|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"B\").Font.Italic = True",
+"ws.Columns(\"C\").Interior.Color = 255",
+"ws.Columns(\"F\").Font.Bold = True"
+],
+"rows": "4:1048576",
+"action": "Clear",
+"columns": [
+"B",
+"C",
+"F"
+],
+"excel": "0|$B$1:$F$3|16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;255,False,False,General;255,False,False,General;255,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"E\").Font.Bold = True",
+"ws.Columns(\"B\").Interior.Color = 16711680",
+"ws.Range(\"B1\").Value = 64"
+],
+"rows": "7:1048576",
+"action": "Delete",
+"columns": [
+"B",
+"E"
+],
+"excel": "0|$B$1:$E$1|16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"C\").Font.Italic = True",
+"ws.Columns(\"F\").NumberFormat = \"0.00\"",
+"ws.Columns(\"G\").Font.Italic = True",
+"ws.Columns(\"E\").Interior.Color = 65280",
+"ws.Columns(\"B\").Font.Bold = True",
+"ws.Range(\"E2\").Value = 13"
+],
+"rows": "2:1048576",
+"action": "Delete",
+"columns": [
+"B",
+"C",
+"E",
+"F",
+"G"
+],
+"excel": "0|$B$1:$G$1|16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;65280,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;16777215,False,True,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"K\").NumberFormat = \"0.00\"",
+"ws.Columns(\"B\").Interior.Color = 255",
+"ws.Columns(\"F\").Interior.Color = 16711680",
+"ws.Range(\"B4\").Value = 37"
+],
+"rows": "4:1048576",
+"action": "ClearFormats",
+"columns": [
+"B",
+"F",
+"K"
+],
+"excel": "0|$B$1:$K$4|255,False,False,General;255,False,False,General;255,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Columns(\"G\").Font.Bold = True",
+"ws.Columns(\"B\").NumberFormat = \"0.00\"",
+"ws.Columns(\"C\").Interior.Color = 16711680"
+],
+"rows": "6:1048576",
+"action": "Clear",
+"columns": [
+"B",
+"C",
+"G"
+],
+"excel": "0|$B$1:$G$5|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16711680,False,False,General;16711680,False,False,General;16711680,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,General;16777215,True,False,General;16777215,True,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "clear",
+"setup": [
+"ws.Cells.NumberFormat = \"0.00\": ws.Columns(\"C\").Font.Bold = True"
+],
+"rows": "5:1048576",
+"action": "Clear",
+"columns": [
+"A",
+"B",
+"C",
+"XFD"
+],
+"excel": "0|$C$1:$C$4|16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,True,False,0.00;16777215,True,False,0.00;16777215,True,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,0.00;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;16777215,False,False,General;"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\"a\tb\"",
+"cell": "F2",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@Tab[[#Totals],[a]][",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "={2,3,9;7,9,4}",
+"cell": "H10",
+"excel": "0|={2,3,9;7,9,4}|={2,3,9;7,9,4}|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=SUM(D2..B1)",
+"cell": "F2",
+"excel": "0|=SUM(B1:D2)|=SUM(B1:D2)|Double:12"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@\"a\" A2:B3",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=1+A$1:@$A$3",
+"cell": "H10",
+"excel": "0|=1+@A$1:@$A$3|=1+@A$1:@$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1 ,1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=$A$3.A1",
+"cell": "F2",
+"excel": "0|=$A$3.A1|=$A$3.A1|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=ROW(A1:@B1)",
+"cell": "H10",
+"excel": "0|=@ROW(A1:@B1)|=@ROW(A1:@B1)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=B1..D2",
+"cell": "H10",
+"excel": "0|=B1:D2|=B1:D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@($A$3)+(B1,D2:D3)",
+"cell": "F2",
+"excel": "0|=@($A$3)+(B1,D2:D3)|=@($A$3)+(B1,D2:D3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=$A$3...",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@MIN(Tab[a])+A$1",
+"cell": "H10",
+"excel": "0|=@MIN(Tab[a])+A$1|=@MIN(Tab[a])+A$1|Double:2"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=$A$3\t+1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A1.B1",
+"cell": "F2",
+"excel": "0|=A1.B1|=A1.B1|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=INDEX($A$1:$A$2,1) @foo",
+"cell": "F2",
+"excel": "0|=INDEX($A$1:$A$2,1) @foo|=INDEX($A$1:$A$2,1) @foo|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=$A$3 (D2,A2:B3)",
+"cell": "F2",
+"excel": "0|=$A$3 (D2,A2:B3)|=$A$3 (D2,A2:B3)|Double:3"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@\"a\"",
+"cell": "H10",
+"excel": "0|=@\"a\"|=@\"a\"|String:a"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A2,A1+1",
+"cell": "F2",
+"excel": "0|=A2,A1+1|=A2,A1+1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@foo,@B1",
+"cell": "F2",
+"excel": "0|=@foo,@B1|=@foo,@B1|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@\"a\"",
+"cell": "F2",
+"excel": "0|=@\"a\"|=@\"a\"|String:a"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A1:A3 A$1",
+"cell": "H10",
+"excel": "0|=A1:A3 A$1|=A1:A3 A$1|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=-A$1,$A$3",
+"cell": "F2",
+"excel": "0|=-A$1,$A$3|=-A$1,$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A2,D2+1",
+"cell": "H10",
+"excel": "0|=A2,D2+1|=A2,D2+1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=D2:D3,1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=Tab[[#Totals],[a]],$B2",
+"cell": "H10",
+"excel": "0|=Tab[[#Totals],[a]],$B2|=Tab[[#Totals],[a]],$B2|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A$1.A$1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@INDIRECT(Tab[#All])+B1:B2",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[#All])+B1:B2|=INDIRECT(Tab[#All])+B1:B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@foo @(A2)",
+"cell": "H10",
+"excel": "0|=@foo @(A2)|=@foo @(A2)|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=INDIRECT(Tab[[a]:[b]])+A2",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[[a]:[b]])+A2|=INDIRECT(Tab[[a]:[b]])+A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "={2;5}",
+"cell": "H10",
+"excel": "0|={2;5}|={2;5}|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@INDIRECT(Tab[@a])+A2",
+"cell": "F2",
+"excel": "0|=INDIRECT([@a])+A2|=INDIRECT([@a])+A2|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@Tab[#Data],1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=-A$1,A$1",
+"cell": "F2",
+"excel": "0|=-A$1,A$1|=-A$1,A$1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=SUM(\t$A$3)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=Tab[#Data] Tab[[#Totals],[a]]",
+"cell": "H10",
+"excel": "0|=Tab[#Data] Tab[[#Totals],[a]]|=Tab[#Data] Tab[[#Totals],[a]]|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=-A2,A2",
+"cell": "H10",
+"excel": "0|=-A2,A2|=-A2,A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@1,@1",
+"cell": "F2",
+"excel": "0|=@1,@1|=@1,@1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=CHOOSE(A2:@$B2)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=foo, OFFSET($A$3,0,0)",
+"cell": "H10",
+"excel": "0|=foo, OFFSET($A$3,0,0)|=foo, OFFSET($A$3,0,0)|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=D2...A1",
+"cell": "H10",
+"excel": "0|='D2...A1'|='D2...A1'|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@INDIRECT(Tab[a])+$B2",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[@a])+$B2|=INDIRECT(Tab[@a])+$B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@(A1:A2,D2)+foo",
+"cell": "F2",
+"excel": "0|=@(A1:A2,D2)+@foo|=@(A1:A2,D2)+@foo|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=1+A1:@D2",
+"cell": "F2",
+"excel": "0|=1+@A1:@D2|=1+@A1:@D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@1 @$A$3",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@(D2)+A2:B3",
+"cell": "F2",
+"excel": "0|=@(D2)+@A2:B3|=@(D2)+@A2:B3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=D2,B1,foo(A1)",
+"cell": "F2",
+"excel": "0|=D2,B1,foo(A1)|=D2,B1,foo(A1)|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=SUM($B2..A2)",
+"cell": "H10",
+"excel": "0|=SUM(A2:$B2)|=SUM(A2:$B2)|Double:8"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=Tab[[#Headers],[a]],$A$3",
+"cell": "H10",
+"excel": "0|=Tab[[#Headers],[a]],$A$3|=Tab[[#Headers],[a]],$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=(B1,$A$1:$A$2), (A$1,A2:B3)",
+"cell": "H10",
+"excel": "0|=(B1,$A$1:$A$2), (A$1,A2:B3)|=(B1,$A$1:$A$2), (A$1,A2:B3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=$B2\t+1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=B1:@D2",
+"cell": "H10",
+"excel": "0|=@B1:@D2|=@B1:@D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A1,A2+1",
+"cell": "H10",
+"excel": "0|=A1,A2+1|=A1,A2+1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=(A1:A3,B1), (A2,$A$1:$A$2)",
+"cell": "F2",
+"excel": "0|=(A1:A3,B1), (A2,$A$1:$A$2)|=(A1:A3,B1), (A2,$A$1:$A$2)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@1+A1:A3",
+"cell": "H10",
+"excel": "0|=@1+@A1:A3|=@1+@A1:A3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=INDEX(A1:A3,1),Tab[@a]",
+"cell": "H10",
+"excel": "0|=INDEX(A1:A3,1),Tab[@a]|=INDEX(A1:A3,1),Tab[@a]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=Tab[[#Headers],[a]] \"a\"",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A1...D2",
+"cell": "H10",
+"excel": "0|='A1...D2'|='A1...D2'|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=ROW(A1:@$B2)",
+"cell": "H10",
+"excel": "0|=@ROW(A1:@$B2)|=@ROW(A1:@$B2)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@INDIRECT(Tab[b])+B1:B2",
+"cell": "F2",
+"excel": "0|=INDIRECT([@b])+B1:B2|=INDIRECT([@b])+B1:B2|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1+B1:@B1",
+"cell": "H10",
+"excel": "0|=1+@B1:@B1|=1+@B1:@B1|Double:6"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@(A2:B3,A$1),Tab[[a]:[b]]",
+"cell": "F2",
+"excel": "0|=@(A2:B3,A$1),Tab[[a]:[b]]|=@(A2:B3,A$1),Tab[[a]:[b]]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@(B1,$A$3),@(B1)",
+"cell": "H10",
+"excel": "0|=@(B1,$A$3),@(B1)|=@(B1,$A$3),@(B1)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=(A1) Tab[a]",
+"cell": "H10",
+"excel": "0|=(A1) Tab[a]|=(A1) Tab[a]|E:Error 2000"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=1+@SWITCH(1,1,B1)",
+"cell": "H10",
+"excel": "0|=1+SWITCH(1,1,B1)|=1+SWITCH(1,1,B1)|Double:6"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=$B2..A$1..D2",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=$B2...",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=(A2,A2:B3)+@1",
+"cell": "H10",
+"excel": "0|=(A2,A2:B3)+@1|=(A2,A2:B3)+@1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@Tab[b][",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=B1+@foo",
+"cell": "F2",
+"excel": "0|=B1+foo|=B1+foo|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@1",
+"cell": "H10",
+"excel": "0|=@1|=@1|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "={3,9;0,9}",
+"cell": "F2",
+"excel": "0|={3,9;0,9}|={3,9;0,9}|Double:3"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=D2.a.b",
+"cell": "H10",
+"excel": "0|=D2.a.b|=D2.a.b|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A1:A2:@A$1",
+"cell": "H10",
+"excel": "0|=@A1:A2:@A$1|=@A1:A2:@A$1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=INDIRECT(Tab[[#Totals],[a]])",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[[#Totals],[a]])|=INDIRECT(Tab[[#Totals],[a]])|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\"a\",B1:B2,$A$3",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=(D2,A1) (A$1,A2:B3)",
+"cell": "F2",
+"excel": "0|=(D2,A1) (A$1,A2:B3)|=(D2,A1) (A$1,A2:B3)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "={5,4,0;3,0}",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@Tab[[#Headers],[a]][",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@Tab[a][",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=$A$3...",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=SUM(B1..A2)",
+"cell": "F2",
+"excel": "0|=SUM(A1:B2)|=SUM(A1:B2)|Double:14"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@ABS($A$3)",
+"cell": "H10",
+"excel": "0|=@ABS($A$3)|=@ABS($A$3)|Double:3"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=Tab[b] @Tab[[#Totals],[a]]",
+"cell": "H10",
+"excel": "0|=Tab[b] @Tab[[#Totals],[a]]|=Tab[b] @Tab[[#Totals],[a]]|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "={1;3,5}",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@A1:@A2",
+"cell": "F2",
+"excel": "0|=@A1:@A2|=@A1:@A2|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=Tab[#Data],A2:B3",
+"cell": "H10",
+"excel": "0|=Tab[#Data],A2:B3|=Tab[#Data],A2:B3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=LET($B2:@A$1)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A1:A3:@B1",
+"cell": "H10",
+"excel": "0|=@A1:A3:@B1|=@A1:A3:@B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A$1:@B1",
+"cell": "H10",
+"excel": "0|=@A$1:@B1|=@A$1:@B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@Tab[b]+\"a\"",
+"cell": "H10",
+"excel": "0|=Tab[b]+\"a\"|=Tab[b]+\"a\"|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=SUM(\tD2)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=A1:A2 @A2",
+"cell": "F2",
+"excel": "0|=A1:A2 @A2|=A1:A2 @A2|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@1,@ROW($A$3)",
+"cell": "F2",
+"excel": "0|=@1,@ROW($A$3)|=@1,@ROW($A$3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=INDIRECT(Tab[b])+A$1",
+"cell": "F2",
+"excel": "0|=INDIRECT([@b])+A$1|=INDIRECT([@b])+A$1|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=SUM(\tD2)",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\tA$1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=$A$3,(A2)",
+"cell": "F2",
+"excel": "0|=$A$3,(A2)|=$A$3,(A2)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=B1:B2 @$B2",
+"cell": "H10",
+"excel": "0|=B1:B2 @$B2|=B1:B2 @$B2|Double:6"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@INDIRECT(Tab[#All])+A$1",
+"cell": "F2",
+"excel": "0|=INDIRECT(Tab[#All])+A$1|=INDIRECT(Tab[#All])+A$1|Double:0"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@Tab[b] Tab[#All]",
+"cell": "F2",
+"excel": "0|=[b] Tab[#All]|=[b] Tab[#All]|Double:3"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A1...$A$3",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A1:A3:@D2",
+"cell": "H10",
+"excel": "0|=@A1:A3:@D2|=@A1:A3:@D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=INDIRECT(Tab[b])+B1",
+"cell": "F2",
+"excel": "0|=INDIRECT([@b])+B1|=INDIRECT([@b])+B1|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=-D2,B1",
+"cell": "F2",
+"excel": "0|=-D2,B1|=-D2,B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A1:A2, LET(x,A1,x)",
+"cell": "F2",
+"excel": "0|=A1:A2, LET(x,A1,x)|=A1:A2, LET(x,A1,x)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=1+A1.foo",
+"cell": "F2",
+"excel": "0|=1+A1.foo|=1+A1.foo|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=$B2...",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=Tab[b], foo",
+"cell": "H10",
+"excel": "0|=Tab[b], foo|=Tab[b], foo|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A2,\"a\",(A$1,D2)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@INDEX(Tab[a],1)",
+"cell": "F2",
+"excel": "0|=@INDEX([a],1)|=@INDEX([a],1)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=\"a\tb\"",
+"cell": "H10",
+"excel": "0|=\"a\tb\"|=\"a\tb\"|String:a\tb"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=B1..B1..D2",
+"cell": "H10",
+"excel": "0|='B1..B1..D2'|='B1..B1..D2'|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1+B1:@D2",
+"cell": "F2",
+"excel": "0|=1+@B1:@D2|=1+@B1:@D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=$A$1:$A$2 @A2",
+"cell": "H10",
+"excel": "0|=$A$1:$A$2 @A2|=$A$1:$A$2 @A2|Double:2"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@Tab[#Data][",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=1+$A$3:@B1",
+"cell": "F2",
+"excel": "0|=1+@$A$3:@B1|=1+@$A$3:@B1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@($A$1:$A$2),A$1",
+"cell": "F2",
+"excel": "0|=@($A$1:$A$2),A$1|=@($A$1:$A$2),A$1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@Tab[b]+A2:B3",
+"cell": "F2",
+"excel": "0|=[b]+A2:B3|=[b]+A2:B3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@Tab[@a][",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@$A$3:@$B2",
+"cell": "F2",
+"excel": "0|=@$A$3:@$B2|=@$A$3:@$B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=$C$9.a.b",
+"cell": "H10",
+"excel": "0|=$C$9.a.b|=$C$9.a.b|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=\tB1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@B1:@A2",
+"cell": "H10",
+"excel": "0|=@B1:@A2|=@B1:@A2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A2:@$A$3",
+"cell": "F2",
+"excel": "0|=@A2:@$A$3|=@A2:@$A$3|Double:2"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=$B2.B1",
+"cell": "H10",
+"excel": "0|=$B2.B1|=$B2.B1|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=1+$B2:@$A$3",
+"cell": "F2",
+"excel": "0|=1+@$B2:@$A$3|=1+@$B2:@$A$3|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A2...$B2",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=D2:D3 @D2",
+"cell": "F2",
+"excel": "0|=D2:D3 @D2|=D2:D3 @D2|Double:1"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=foo ($A$1:$A$2,$B2)",
+"cell": "H10",
+"excel": "0|=foo ($A$1:$A$2,$B2)|=foo ($A$1:$A$2,$B2)|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=Tab[#Data] ,D2",
+"cell": "F2",
+"excel": "0|=Tab[#Data] ,D2|=Tab[#Data] ,D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=A$1.B1",
+"cell": "H10",
+"excel": "0|=A$1.B1|=A$1.B1|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=$B2.B1",
+"cell": "H10",
+"excel": "0|=$B2.B1|=$B2.B1|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=CHOOSE(1,A1),Tab[@a],Tab[#Data]",
+"cell": "F2",
+"excel": "0|=CHOOSE(1,A1),[@a],Tab[#Data]|=CHOOSE(1,A1),[@a],Tab[#Data]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=$B2\t+1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=B1.$A$3",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=D2.A2",
+"cell": "F2",
+"excel": "0|=D2.A2|=D2.A2|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=(A1:A2,A1:A3),B1,B1:B2",
+"cell": "F2",
+"excel": "0|=(A1:A2,A1:A3),B1,B1:B2|=(A1:A2,A1:A3),B1,B1:B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@(D2)",
+"cell": "F2",
+"excel": "0|=@(D2)|=@(D2)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=\"a\" (A1:A2)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=\t$A$3",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A2\t+1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@Tab[b]",
+"cell": "F2",
+"excel": "0|=[b]|=[b]|Double:3"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=foo(A2:@$A$3)",
+"cell": "H10",
+"excel": "0|=@foo(A2:@$A$3)|=@foo(A2:@$A$3)|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@1+(A$1,D2:D3)",
+"cell": "F2",
+"excel": "0|=@1+(A$1,D2:D3)|=@1+(A$1,D2:D3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@CHOOSE(Tab[@a])+A2:B3",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=D2,foo,D2",
+"cell": "H10",
+"excel": "0|=D2,foo,D2|=D2,foo,D2|E:Error 2029"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=Tab[[#Headers],[a]] @Tab[a]",
+"cell": "H10",
+"excel": "0|=Tab[[#Headers],[a]] @Tab[a]|=Tab[[#Headers],[a]] @Tab[a]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@$A$3+Tab[[#Totals],[a]]",
+"cell": "F2",
+"excel": "0|=@$A$3+Tab[[#Totals],[a]]|=@$A$3+Tab[[#Totals],[a]]|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@($A$1:$A$2)+\"a\"",
+"cell": "H10",
+"excel": "0|=@($A$1:$A$2)+\"a\"|=@($A$1:$A$2)+\"a\"|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=SUM(A$1..A$1)",
+"cell": "F2",
+"excel": "0|=SUM(A$1:A$1)|=SUM(A$1:A$1)|Double:1"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=@Tab[#Data]+D2",
+"cell": "H10",
+"excel": "0|=Tab[#Data]+D2|=Tab[#Data]+D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=$A$3+1,$A$3",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=Tab[[#Totals],[a]] @Tab[@a]",
+"cell": "H10",
+"excel": "0|=Tab[[#Totals],[a]] @Tab[@a]|=Tab[[#Totals],[a]] @Tab[@a]|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=@A2+Tab[[a]:[b]]",
+"cell": "F2",
+"excel": "0|=@A2+@Tab[[a]:[b]]|=@A2+@Tab[[a]:[b]]|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=A$1...$B2",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=(A2,$B2) @(B1,A1:A2)",
+"cell": "H10",
+"excel": "0|=(A2,$B2) @(B1,A1:A2)|=(A2,$B2) @(B1,A1:A2)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@1 @(A1:A3,$A$1:$A$2)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=\tB1",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@A1:@D2",
+"cell": "H10",
+"excel": "0|=@A1:@D2|=@A1:@D2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=1 @(D2,A1:A2)",
+"cell": "H10",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Value",
+"text": "=INDIRECT(Tab[b])",
+"cell": "H10",
+"excel": "0|=INDIRECT(Tab[@b])|=INDIRECT(Tab[@b])|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=D2..$B2..A$1",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=Tab[#All],$B2",
+"cell": "H10",
+"excel": "0|=Tab[#All],$B2|=Tab[#All],$B2|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@Tab[@a][",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=\"a\"+@(A2:B3)",
+"cell": "H10",
+"excel": "0|=\"a\"+@(A2:B3)|=\"a\"+@(A2:B3)|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "Formula",
+"text": "=@ROW(Tab[[#Totals],[a]])+D2",
+"cell": "H10",
+"excel": "0|=@ROW(Tab[[#Totals],[a]])+D2|=@ROW(Tab[[#Totals],[a]])+D2|E:Error 2023"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=A1.A1",
+"cell": "H10",
+"excel": "0|=A1.A1|=A1.A1|E:Error 2049"
+},
+{
+"kind": "formula",
+"writer": "Value2",
+"text": "=B1:B2:@A1",
+"cell": "F2",
+"excel": "0|=@B1:B2:@A1|=@B1:B2:@A1|E:Error 2015"
+},
+{
+"kind": "formula",
+"writer": "FormulaLocal",
+"text": "=@Tab[@a][",
+"cell": "F2",
+"excel": "1004|||Empty"
+},
+{
+"kind": "theme",
+"minor": "Arial",
+"major": "Georgia",
+"steps": [
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B1\").Formula = \"=HYPERLINK(\"\"x\"\")\"",
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B4\").Style = \"Heading 1\""
+],
+"seed_book": "Arial_8017.xlsx",
+"reopened": false,
+"excel": "0|Arial,11,2,False;Arial,11,-4142,False;Georgia,18,-4142,False;Arial,15,-4142,True;Arial,11,-4142,False;Arial,11,-4142,False;Arial,11,-4142,False;Arial,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Times New Roman",
+"major": "Arial",
+"steps": [
+"ws.Range(\"B6\").Style = \"20% - Accent2\"",
+"ws.Range(\"B4\").Style = \"Heading 1\""
+],
+"seed_book": "Times_New_Roman_8017.xlsx",
+"reopened": false,
+"excel": "0|Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,15,-4142,True;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;Times New Roman,11,-4142,False;"
+},
+{
+"kind": "theme",
+"minor": "Verdana",
+"major": "Verdana",
+"steps": [
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B4\").Style = \"Heading 1\"",
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B6\").Style = \"20% - Accent2\""
+],
+"seed_book": "Verdana_8017.xlsx",
+"reopened": true,
+"excel": "0|Verdana,11,-4142,False;Verdana,11,-4142,False;Verdana,18,-4142,False;Verdana,15,-4142,True;Verdana,11,-4142,False;Verdana,11,-4142,False;Verdana,11,-4142,False;Verdana,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Tahoma",
+"major": "Impact",
+"steps": [
+"ws.Range(\"B6\").Style = \"20% - Accent2\"",
+"ws.Range(\"B4\").Style = \"Heading 1\"",
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B7\").Style = \"Comma\"",
+"ws.Range(\"B2\").Style = \"Good\""
+],
+"seed_book": "Tahoma_8017.xlsx",
+"reopened": true,
+"excel": "0|Tahoma,11,-4142,False;Tahoma,11,-4142,False;Impact,18,-4142,False;Tahoma,15,-4142,True;Tahoma,11,-4142,False;Tahoma,11,-4142,False;Tahoma,11,-4142,False;Tahoma,11,-4142,False;"
+},
+{
+"kind": "theme",
+"minor": "Segoe UI",
+"major": "Segoe UI Light",
+"steps": [
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B4\").Style = \"Heading 1\"",
+"ws.Range(\"B2\").Style = \"Good\""
+],
+"seed_book": "Segoe_UI_8017.xlsx",
+"reopened": true,
+"excel": "0|Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;Segoe UI Light,18,-4142,False;Segoe UI,15,-4142,True;Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;Segoe UI,11,-4142,False;Segoe UI,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Made Up Font",
+"major": "Other Made Up",
+"steps": [
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B6\").Style = \"20% - Accent2\""
+],
+"seed_book": "Made_Up_Font_8017.xlsx",
+"reopened": true,
+"excel": "0|Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Other Made Up,18,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;Made Up Font,11,-4142,False;"
+},
+{
+"kind": "theme",
+"minor": "Aptos",
+"major": "Aptos Display",
+"steps": [
+"ws.Range(\"B7\").Style = \"Comma\"",
+"ws.Range(\"B3\").Style = \"Title\"",
+"ws.Range(\"B6\").Style = \"20% - Accent2\"",
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\"",
+"ws.Range(\"B1\").Formula = \"=HYPERLINK(\"\"x\"\")\""
+],
+"seed_book": "Aptos_8017.xlsx",
+"reopened": true,
+"excel": "0|Aptos,11,2,False;Aptos,11,-4142,False;Aptos Display,18,-4142,False;Aptos,11,-4142,False;Aptos,11,-4142,False;Aptos,11,-4142,False;Aptos,11,-4142,False;Aptos,11,2,False;"
+},
+{
+"kind": "theme",
+"minor": "Calibri",
+"major": "Cambria",
+"steps": [
+"ws.Range(\"B1\").Formula = \"=HYPERLINK(\"\"x\"\")\"",
+"ws.Range(\"B8\").Value = \"=HYPERLINK(\"\"y\"\",\"\"z\"\")\""
+],
+"seed_book": "Calibri_8017.xlsx",
+"reopened": false,
+"excel": "0|Calibri,11,2,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,-4142,False;Calibri,11,2,False;"
+}
+]
+}
+}

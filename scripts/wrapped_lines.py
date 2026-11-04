@@ -27,14 +27,19 @@ def pieces(text: str) -> list[str]:
     return [*found, current] if current else found
 
 
-def lines_of(text: str, column: int, extent: Callable[[str], int], digit: int) -> int:
+def lines_of(text: str, column: int, extent: Callable[[str], int], digit: int, taken: int = 0) -> int:
+    """How many lines a text takes in a column with ``taken`` pixels gone from it, as an indent or italic takes them. Only a line feed starts a line of its own."""
+    return sum(_lines_of_paragraph(one, column - taken, extent, digit) for one in text.split('\n'))
+
+
+def _lines_of_paragraph(text: str, column: int, extent: Callable[[str], int], digit: int) -> int:
     lines, line = 0, ''
-    for piece in pieces(text):
+    for place, piece in enumerate(pieces(text)):
         if line and not fits(line + piece, column, extent, digit):
             lines += 1
             line = ''
-        # A word too long for a line breaks between characters, where a hyphen takes its own room.
-        if not fits(piece, column, extent, digit) and len(piece.rstrip(' ').removesuffix('-')) > 1:
+        # A word too long for a line breaks between characters, where a hyphen takes its own room. The text's first letter keeps a hyphen after it.
+        if not fits(piece, column, extent, digit) and (place or len(piece.rstrip(' ').removesuffix('-')) > 1):
             while len(piece.rstrip(' ')) > 1 and not fits(piece, column, extent, digit):
                 part = piece[0]
                 for character in piece[1:]:

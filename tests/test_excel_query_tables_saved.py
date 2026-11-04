@@ -54,9 +54,14 @@ def _folder(folder: Path, change: str = '') -> Path:
         for name in package.namelist():
             data = package.read(name)
             if name == 'xl/connections.xml':
-                data = data.decode('utf-8').replace('C:\\data', str(folder)).replace(change, change.replace('type="6"', 'type="1"') if change else change).encode('utf-8')
+                data = data.decode('utf-8').replace('C:\\data\\', f'{folder}{os.sep}').replace(change, change.replace('type="6"', 'type="1"') if change else change).encode('utf-8')
             written.writestr(name, data)
     return target
+
+
+def _spelled(text: str, folder: Path) -> str:
+    """The folder as the fixture spells it, with the separator after it as recorded on Windows."""
+    return text.replace(str(folder), '<folder>').replace(f'<folder>{os.sep}', '<folder>\\')
 
 
 def _plain(text: str) -> str:
@@ -77,7 +82,7 @@ def _said(parts: dict[str, str]) -> dict[str, object]:
 
 def _read(path: Path, folder: Path) -> dict[str, str]:
     with zipfile.ZipFile(path) as package:
-        return {name: package.read(name).decode('utf-8').replace(str(folder), '<folder>') for name in package.namelist()
+        return {name: _spelled(package.read(name).decode('utf-8'), folder) for name in package.namelist()
                 if name.startswith('xl/queryTables/') or name in ('xl/connections.xml', 'xl/workbook.xml', 'xl/worksheets/_rels/sheet1.xml.rels')}
 
 
@@ -87,7 +92,7 @@ def test_each_case_as_excel_answered(tmp_path: Path, index: int) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_source({index}), name='SavedProbe')
-    assert str(app.run('SavedProbe.Probe', index, str(tmp_path))).replace(str(tmp_path), '<folder>') == RECORD['cases'][index][1]
+    assert _spelled(str(app.run('SavedProbe.Probe', index, str(tmp_path))), tmp_path) == RECORD['cases'][index][1]
     assert _said(_read(tmp_path / f'c{index}.xlsx', tmp_path)) == _said(RECORD['cases'][index][2])
     alone = {name.removeprefix('copy/'): text for name, text in RECORD['cases'][index][2].items() if name.startswith('copy/')}
     if alone:

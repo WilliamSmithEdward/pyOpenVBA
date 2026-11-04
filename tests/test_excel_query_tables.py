@@ -47,6 +47,11 @@ def _source(kept: set[int]) -> str:
     return '\n'.join(written)
 
 
+def _spelled(text: str, folder: Path) -> str:
+    """The folder as the fixture spells it, with the separator after it as recorded on Windows."""
+    return text.replace(str(folder), '<folder>').replace(f'<folder>{os.sep}', '<folder>\\')
+
+
 def _plain(text: str) -> str:
     """A part without Excel's random ids and the namespaces only they need."""
     text = re.sub(r'<\?xml.*?\?>\s*', '', text)
@@ -62,7 +67,7 @@ def _parts(path: Path, folder: Path) -> dict[str, str]:
     with zipfile.ZipFile(path) as package:
         for name in package.namelist():
             if name.startswith('xl/queryTables/') or name == 'xl/connections.xml' or name.endswith('sheet1.xml.rels'):
-                found[name] = _plain(package.read(name).decode('utf-8').replace(str(folder), '<folder>'))
+                found[name] = _plain(_spelled(package.read(name).decode('utf-8'), folder))
             elif name == 'xl/workbook.xml':
                 found['names'] = ''.join(re.findall(r'<definedName .*?</definedName>', package.read(name).decode('utf-8')))
     return found
@@ -84,7 +89,7 @@ def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[int, str], Path]
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_source(set(KEPT)), name='QueryProbe')
-    return {index: str(app.run('QueryProbe.Probe', str(folder), index, index)).replace(str(folder), '<folder>') for index in KEPT}, folder
+    return {index: _spelled(str(app.run('QueryProbe.Probe', str(folder), index, index)), folder) for index in KEPT}, folder
 
 
 @pytest.mark.parametrize('index', KEPT, ids=[NAMES[index] for index in KEPT])

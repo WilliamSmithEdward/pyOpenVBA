@@ -4163,8 +4163,8 @@ class Worksheet(ExcelObject):
         with evaluation_origin(self.book.application, "evaluate"):
             return evaluated(self, to_text(Name))
 
-    # A sheet's hidden _Evaluate and _CodeName take no arguments and answer #NAME?, so that a name given to
-    # _Evaluate raises 450 and a value given to _CodeName 424 (tests/fixtures/hidden_members.json).
+    # A sheet's hidden _CodeName, typed, is its code name. Through an Object target.[_CodeName] evaluates the text, which is
+    # #NAME? (tests/fixtures/vba_brackets.json, tests/fixtures/hidden_members.json).
 
     @member(name="_Evaluate")
     def hidden_evaluate(self, *arguments: object) -> object:
@@ -4176,7 +4176,7 @@ class Worksheet(ExcelObject):
     def hidden_code_name(self, *arguments: object) -> object:
         if arguments:
             raise error(450, "Wrong number of arguments or invalid property assignment")
-        return VBAErrorValue(2029)
+        return self.vba_get("CodeName")
 
     @setter("_CodeName")
     def _set_hidden_code_name(self, value: object) -> None:
@@ -5614,13 +5614,13 @@ class Range(ExcelObject):
             return cells
         return cells.vba_get("Item", [RowIndex, ColumnIndex])
 
-    # The hidden _Default (tests/fixtures/hidden_defaults.json): read with no index Excel raises 438, read with one it
-    # is Item, and set it is Value.
+    # The hidden _Default (tests/fixtures/hidden_defaults.json, tests/fixtures/vba_brackets.json): read with no index it is
+    # Value, read with one it is Item, and set it is Value. Bound late, r.[_Default] does not reach it and is 438.
 
     @member(name="_Default")
     def hidden_default(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:  # noqa: N803
         if RowIndex is MISSING:
-            raise error(438, "Object doesn't support this property or method")
+            return self.vba_get("Value")
         return self.Item(RowIndex, ColumnIndex)
 
     @setter("_Default")

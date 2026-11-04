@@ -2318,8 +2318,19 @@ class Interpreter:
             raise VBAUnsupportedError(f"{form.parsed.name} is a UserForm, which pyOpenVBA does not run")
         return UNRESOLVED
 
+    def _say_how_bound(self, target: object, expression: A.Member, frame: Frame | None) -> None:
+        """Tell an object that answers by it whether this call reached it through a variable As Object or a Variant."""
+        if not getattr(target, "vba_wants_binding", False):
+            return
+        slot = None
+        if frame is not None and isinstance(expression.target, A.Name):
+            key = _bare(expression.target.name)
+            slot = frame.locals.get(key) or frame.module.variables.get(key)
+        target.late_bound = slot is not None and slot.declared in ("Object", "Variant", "")  # type: ignore[attr-defined]
+
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
         target = self._member_target(expression, frame)
+        self._say_how_bound(target, expression, frame)
         return _dispatch_get(target, expression.name, [], {})
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
@@ -2367,6 +2378,7 @@ class Interpreter:
             return self._call_name(callee, args, frame, statement_context=statement_context)
         if isinstance(callee, A.Member):
             target = self._member_target(callee, frame)
+            self._say_how_bound(target, callee, frame)
             procedure = target.procedure(strip_suffix(callee.name)) if isinstance(target, StandardModuleNamespace) else target.module.procedure(strip_suffix(callee.name)) if isinstance(target, UserClassInstance) else None
             positional, named = self._arguments(args, frame, procedure=procedure, target=target, name=callee.name)
             if (procedure is not None and isinstance(target, UserClassInstance) and named and frame is not None

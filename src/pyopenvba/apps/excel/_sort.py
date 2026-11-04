@@ -601,9 +601,30 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
     if kept not in (NO, YES, GUESS):
         raise error(1004, refusal)
     has_header = kept == YES or (kept == GUESS and guessed_header(target.sheet, area, across))
-    sort_area(target.sheet, area, resolved, header=has_header,
-              match_case=match_case is not MISSING and switch(match_case, refusal), across=across)
+    matching = match_case is not MISSING and switch(match_case, refusal)
+    sort_area(target.sheet, area, resolved, header=has_header, match_case=matching, across=across)
+    _left_on_the_sheet(target.sheet, area, keys, has_header=has_header, match_case=matching, way=way)
     return True
+
+
+def _left_on_the_sheet(sheet: Worksheet, area: Area, keys: list[tuple[object, object, object]], *, has_header: bool, match_case: bool, way: int) -> None:
+    """Range.Sort replaces the sheet's sort settings, which Worksheet.Sort then reads (tests/fixtures/excel_fits.json)."""
+    state = sheet.sort_state if sheet.sort_state is not None else _loaded_state(sheet)
+    sheet.sort_state = state
+    fields: list[SortField] = []
+    for key, order, option in keys:
+        if not isinstance(key, Range):
+            continue
+        field = SortField(key, ASCENDING if order is MISSING else enum_number(order, "Sort method of Range class failed"),
+                          0 if option is MISSING else int(to_integer(option, "Long")))
+        field.state = state
+        fields.append(field)
+    state.fields = fields
+    top = area.top + 1 if has_header and way == TOP_TO_BOTTOM else area.top
+    left = area.left + 1 if has_header and way == LEFT_TO_RIGHT else area.left
+    state.area = Range(sheet, [Area(top, left, area.bottom, area.right, area.sheet)])
+    state.match_case = match_case
+    state.orientation = way
 
 
 def _named_key(target: Range, name: str, area: Area, across: bool) -> int:

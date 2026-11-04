@@ -216,8 +216,9 @@ def copy_range(target: Range, destination: object) -> object:
 def landing_of(made: Block, destination: Range) -> Area:
     """The cells a paste lands on: whole copies tiled over the destination when it holds them, else one at its corner."""
     corner = destination.first
-    tiled = corner.rows % made.rows == 0 and corner.columns % made.columns == 0
-    height, width = (corner.rows, corner.columns) if tiled else (made.rows, made.columns)
+    # Each way on its own: A1:B1 copied to H1:H3 fills H1:I3 (tests/fixtures/excel_fits.json).
+    height = corner.rows if corner.rows % made.rows == 0 else made.rows
+    width = corner.columns if corner.columns % made.columns == 0 else made.columns
     return Area(corner.top, corner.left, min(corner.top + height - 1, MAX_ROWS),
                 min(corner.left + width - 1, MAX_COLUMNS), destination.sheet.name)
 
@@ -397,8 +398,8 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         return True
     rows, columns = (made.columns, made.rows) if turned else (made.rows, made.columns)
     corner = target.first
-    tiled = corner.rows % rows == 0 and corner.columns % columns == 0
-    height, width = (corner.rows, corner.columns) if tiled else (rows, columns)
+    height = corner.rows if corner.rows % rows == 0 else rows
+    width = corner.columns if corner.columns % columns == 0 else columns
     if corner.top + height - 1 > MAX_ROWS or corner.left + width - 1 > MAX_COLUMNS:
         raise error(1004, "The paste would run past the edge of the worksheet")
     sheet = target.sheet

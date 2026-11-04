@@ -6768,9 +6768,10 @@ class Range(ExcelObject):
         if len(self.areas) != 1 or len(Destination.areas) != 1:
             raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
         area, target = self.first, Destination.first
-        repeat = target.rows % area.rows == 0 and target.columns % area.columns == 0
-        rows = target.rows if repeat else area.rows
-        columns = target.columns if repeat else area.columns
+        # Each way on its own: A1:B1 copied to H1:H3 fills H1:I3 (tests/fixtures/excel_fits.json).
+        rows = target.rows if target.rows % area.rows == 0 else area.rows
+        columns = target.columns if target.columns % area.columns == 0 else area.columns
+        repeat = (rows, columns) == (target.rows, target.columns)
         bottom, right = target.top + rows - 1, target.left + columns - 1
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
@@ -7495,25 +7496,23 @@ class Range(ExcelObject):
         """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item."""
         areas = self._array_areas(array)
         for area in areas:
+            # A flat array is one row. One row or one column repeats that way over the range; past the end of any other is #N/A
+            # (tests/fixtures/excel_fits.json).
             if array.dimensions == 1:
-                # A flat array is one row, laid across and repeated down
-                # every row of the range, which is what Excel does with it.
                 items = array.elements()
-                for offset, item in enumerate(items):
-                    column = area.left + offset
-                    if column > area.right:
-                        break
-                    for row in range(area.top, area.bottom + 1):
-                        self._put(row, column, item, raw=raw)
+                height, width = 1, len(items)
+                read = lambda _row, column, held=items: held[column]  # noqa: B023
+            else:
+                rows, columns = array.bounds[0], array.bounds[1]
+                height, width = rows[1] - rows[0] + 1, columns[1] - columns[0] + 1
+                read = lambda row, column, held=array, top=rows[0], left=columns[0]: held.get([top + row, left + column])  # noqa: B023
+            if not height or not width:
                 continue
-            rows, columns = array.bounds[0], array.bounds[1]
-            for row_index in range(rows[0], rows[1] + 1):
-                for column_index in range(columns[0], columns[1] + 1):
-                    row = area.top + row_index - rows[0]
-                    column = area.left + column_index - columns[0]
-                    if row > area.bottom or column > area.right:
-                        continue
-                    self._put(row, column, array.get([row_index, column_index]), raw=raw)
+            for row in range(area.rows):
+                for column in range(area.columns):
+                    down, across = 0 if height == 1 else row, 0 if width == 1 else column
+                    item = VBAErrorValue(2042) if down >= height or across >= width else read(down, across)
+                    self._put(area.top + row, area.left + column, item, raw=raw)
         self.sheet.touched()
 
     def _array_areas(self, array: VBAArray) -> list[Area]:

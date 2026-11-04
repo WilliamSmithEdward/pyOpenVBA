@@ -31,7 +31,6 @@ RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/workbook_links.json').read_text(encoding='utf-8'))
 FILES: dict[str, dict[str, str]] = RECORD['files']
 #: The hidden name Excel makes for Formula2's @, as the name lists show it.
-SINGLE = '_xlfn.SINGLE==#NAME?|'
 #: The tests whose macros, as Excel ran them, name files by Windows paths, folder & "\\Dest.xlsx".
 #: Of a file Excel saved again, the parts the fixture keeps, and the file they were saved again from.
 RESAVED = {'PlainAgain.xlsx': 'Plain.xlsx', 'NamedAgain.xlsx': 'Named.xlsx', 'NamedThird.xlsx': 'NamedAgain.xlsx',

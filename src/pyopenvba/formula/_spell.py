@@ -61,6 +61,14 @@ _UNMODELLED: Final = re.compile(r"#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|S
                                 re.IGNORECASE)
 #: A string, or a sheet's name in apostrophes, where any character may stand.
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
+_RANGE_AT: Final = re.compile(rf"(?a)({_QUOTED.pattern})|(?<![\w.$@:])((?:\$?[A-Za-z]{{1,3}}\$?\d+:)+)@(?=\$?[A-Za-z])")
+#: A cell, points and more after them, as one name: Excel writes it in apostrophes (tests/fixtures/value_gaps.json).
+_DOTTED_NAME: Final = re.compile(r"(?a)[A-Za-z]{1,3}\d+\.{2,}.+")
+#: The functions that may stand beside a range, an intersection or a union, which can give cells; a function Excel has
+#: not got may too (tests/fixtures/value_gaps.json went through all of them).
+_GIVE_CELLS: Final = frozenset("""
+CHOOSE DROP IF IFS INDEX INDIRECT LAMBDA LET OFFSET REDUCE SINGLE SWITCH TAKE TRIMRANGE XLOOKUP
+""".split())
 #: Two points between two cells, as Lotus wrote a range: A1..A2 reads A1:A2 (tests/fixtures/value_gaps.json).
 _DOTS: Final = re.compile(rf"(?a)({_QUOTED.pattern})|(?<![\w.$])(\$?[A-Za-z]{{1,3}}\$?\d+)\.\.(\$?[A-Za-z]{{1,3}}\$?\d+)(?![\w.])")
 
@@ -192,6 +200,23 @@ def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False
     return deep(lambda: _spelled(formula, names, whole=whole, at=at, r1c1=r1c1))
 
 
+def _at_on_range(body: str) -> str:
+    """A range with an @ on its last cell has one on its first too, =A1:@A2 reading back =@A1:@A2, but in a call's
+    brackets, =SUM(A1:@A2) (tests/fixtures/value_gaps.json)."""
+    if ":@" not in body:
+        return body
+
+    def replaced(found: re.Match[str]) -> str:
+        if found.group(1):
+            return found.group(0)
+        inside = 0
+        for match in re.finditer(r"(\w?)([()])", _QUOTED.sub('""', body[:found.start()])):
+            inside = max(inside - 1, 0) if match.group(2) == ")" else inside + 1 if match.group(1) or inside else inside
+        return found.group(0) if inside else f"@{found.group(2)}@"
+
+    return _RANGE_AT.sub(replaced, body)
+
+
 def _without_at(body: str, tokens: list[Token]) -> str:
     """``body`` with each @ taken out but one standing on a single cell."""
     out: list[str] = []
@@ -210,6 +235,8 @@ def _without_at(body: str, tokens: list[Token]) -> str:
 
 def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -> str:
     body = _DOTS.sub(lambda found: found.group(1) or f"{found.group(2)}:{found.group(3)}", formula[1:])
+    body = _at_on_range(body)
+    formula = "=" + body
     if "\t" in re.sub(r"\[[^\]]*\]", "", _QUOTED.sub('""', body)):
         # In a string, a sheet's name or a table's column it may stand; anywhere else Excel refuses it.
         raise FormulaError("a tab stands outside a string")
@@ -294,6 +321,8 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
             # A name a LET or a LAMBDA binds is spelled everywhere as the formula first writes it, where it is bound:
             # LET(a1,5,A1) reads back as LET(a1,5,a1) (tests/fixtures/bound_names.json).
             text = declared.setdefault(text.upper(), text)
+        elif token.kind == "name" and _DOTTED_NAME.fullmatch(text):
+            text = f"'{text}'"
         elif token.kind == "name":
             text = _name(text, tokens[index + 1].kind == "open", names)
         pieces.append(text)
@@ -312,6 +341,10 @@ def check_arguments(node: Node | None) -> None:
     be cells :data:`_CELLS`, measured in tests/fixtures/formula/probes.txt and
     tests/fixtures/formula_refusals.json.
     """
+    if isinstance(node, Binary) and node.op in REFERENCE_OPS:
+        for side in (node.left, node.right):
+            if isinstance(side, Call) and is_excel_function(function_key(side.name)) and function_key(side.name) not in _GIVE_CELLS:
+                raise FormulaError(f"{side.name} gives no cells for a reference operator")
     if isinstance(node, Call):
         name = function_key(node.name)
         count = len(node.args)

@@ -1,7 +1,7 @@
 """The active tab and the first tab a saved workbook shows, once a macro has moved, added or deleted tabs. Excel makes each
 action on a copy of a book it saved, saves it, and says what it reads there; workbookView's activeTab and firstSheet are
-kept. firstSheet is where the tab bar is scrolled to, so this needs Excel shown with a sized window: it stays, activating a
-tab before it brings it back, and it passes over a hidden tab. Hidden in a session that had shown nothing, Excel wrote
+kept. firstSheet is where the tab bar is scrolled to, so this needs Excel shown with a sized window: it stays, moves down as
+a tab before it is deleted, activating a tab before it brings it back, and it passes over a hidden tab. Hidden in a session that had shown nothing, Excel wrote
 firstSheet equal to activeTab in every row; the tab bar there has no width, and tests/fixtures/windows/ agrees with this
 rule, not that one. A firstSheet past the last tab is a file Excel refuses.
 
@@ -28,6 +28,34 @@ sys.path.insert(0, str(ROOT / "scripts"))
 OUT = ROOT / "tests/fixtures/active_tab"
 #: Name: which of three sheets is active when Excel saves the book.
 BOOKS = {"first_active": 1, "second_active": 2, "third_active": 3}
+#: Five sheets scrolled to the third and active on the fifth, the one place the tab bar and the active tab part. A session
+#: that has shown nothing saves the third active and scrolled to it; a shown window then activates the fifth and keeps that.
+SCROLLED_ACTIONS: dict[str, str] = {
+    "edit": 'wb.Sheets(1).Range("A1").Value = 1',
+    "delete_1": "wb.Sheets(1).Delete",
+    "delete_1_2": "wb.Sheets(1).Delete: wb.Sheets(1).Delete",
+    "delete_1_2_3": "wb.Sheets(1).Delete: wb.Sheets(1).Delete: wb.Sheets(1).Delete",
+    "delete_3": "wb.Sheets(3).Delete",
+    "delete_4": "wb.Sheets(4).Delete",
+    "delete_5_active": "wb.Sheets(5).Delete",
+    "delete_3_4": "wb.Sheets(3).Delete: wb.Sheets(3).Delete",
+    "hide_3": "wb.Sheets(3).Visible = 0",
+    "hide_1": "wb.Sheets(1).Visible = 0",
+    "activate_2_then_back": "Set s = wb.ActiveSheet: wb.Sheets(2).Activate: s.Activate",
+    "activate_4": "wb.Sheets(4).Activate",
+    "move_active_before_4": "wb.ActiveSheet.Move Before:=wb.Sheets(4)",
+    "add_after_fifth_then_back": "Set s = wb.ActiveSheet: wb.Sheets.Add After:=wb.Sheets(5): s.Activate",
+}
+MAKE_SCROLLED = '''Sub MakeScrolled(ByVal file As String)
+    Dim wb As Workbook
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Add(-4167)
+    Do While wb.Worksheets.Count < 5: wb.Worksheets.Add After:=wb.Worksheets(wb.Worksheets.Count): Loop
+    wb.Worksheets(3).Activate
+    wb.SaveAs file, 51
+    wb.Close False
+End Sub
+'''
 ACTIONS: dict[str, str] = {
     "edit": 'wb.Sheets(1).Range("A1").Value = 1',
     "move_active_last": "wb.ActiveSheet.Move After:=wb.Sheets(3)",
@@ -128,9 +156,29 @@ def main() -> None:
                     read = excel.run_vba(READ, "ReadIt", (str(file),), timeout=45.0)
                     rows.append({"book": book, "case": case, "reads": str(read.value), "view": view(file)})
                     print(book, case, rows[-1]["reads"], rows[-1]["view"], flush=True)
+        base = folder / "scrolled.xlsx"
+        with ExcelSession(HarnessConfig(lock_wait_s=900.0)) as excel:
+            excel.new_document()
+            excel.run_vba(MAKE_SCROLLED, "MakeScrolled", (str(base),), timeout=45.0)
+        with ExcelSession(HarnessConfig(lock_wait_s=900.0)) as excel:
+            excel.new_document()
+            excel.run_vba(SHOWN_ACT.format(action="wb.Sheets(5).Activate"), "Act", (str(base),), timeout=45.0)
+            assert view(base) == 'activeTab="4" firstSheet="2"', view(base)
+            shutil.copy(base, OUT / base.name)
+            strip_save_path(OUT / base.name)
+            for case, action in SCROLLED_ACTIONS.items():
+                file = folder / f"scrolled_{case}.xlsx"
+                shutil.copy(base, file)
+                acted = excel.run_vba(SHOWN_ACT.format(action=action), "Act", (str(file),), timeout=45.0)
+                if not acted.ok:
+                    print("scrolled", case, "failed", acted.message[:80], flush=True)
+                    continue
+                read = excel.run_vba(READ, "ReadIt", (str(file),), timeout=45.0)
+                rows.append({"book": "scrolled", "case": case, "reads": str(read.value), "view": view(file)})
+                print("scrolled", case, rows[-1]["reads"], rows[-1]["view"], flush=True)
     finally:
         shutil.rmtree(folder, ignore_errors=True)
-    (OUT / "active_tab.json").write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "actions": ACTIONS, "act": ACT, "read": READ, "rows": rows},
+    (OUT / "active_tab.json").write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "actions": {**ACTIONS, **SCROLLED_ACTIONS}, "act": ACT, "read": READ, "rows": rows},
                                                     indent=1) + "\n", encoding="utf-8")
 
 

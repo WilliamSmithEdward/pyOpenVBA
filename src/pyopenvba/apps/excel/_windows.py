@@ -163,8 +163,6 @@ class BookViewState:
     #: the file's firstSheet, which Excel will not open past the last tab (tests/fixtures/active_tab/active_tab.json).
     saved_tab: int = 0
     saved_first: int = 0
-    #: Where the tab bar is scrolled to: it stays, but for activating a tab before it, which brings it back.
-    first_tab: int = 0
     #: The sheets the file has selected, so a save rewrites their tabs only when another group is.
     saved_selected: list[Worksheet] = field(default_factory=lambda: [])
     changed: bool = False
@@ -272,7 +270,7 @@ def _active_place(book: Workbook) -> int:
 
 def _first_place(book: Workbook) -> int:
     """The first tab the bar shows: not past the active one, and not a hidden one, which it passes over."""
-    first = min(book.view.first_tab, _active_place(book))
+    first = min(book.view.first_sheet, _active_place(book))
     while first < len(book.sheets_) - 1 and book.sheets_[first].visible != -1:
         first += 1
     return first
@@ -416,7 +414,7 @@ def read_book_view(book: Workbook, xml: str) -> None:
     book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
-    book.view.saved_first = book.view.first_tab = _number(attributes(found.group(0)).get("firstSheet"), 0) if found is not None else 0
+    book.view.saved_first = book.view.first_sheet
     book.view.saved_tab = _active_place(book)
 
 
@@ -431,13 +429,11 @@ def with_book_view(book: Workbook, xml: str) -> str:
     view = book.view
     ratio = round(view.tab_ratio * 1000)
     active = _active_place(book)
-    first = _first_place(book)
-    for name, value in (("firstSheet", str(first) if first else ""),
-                        ("showHorizontalScroll", "" if view.horizontal_scroll else "0"),
+    for name, value in (("showHorizontalScroll", "" if view.horizontal_scroll else "0"),
                         ("showVerticalScroll", "" if view.vertical_scroll else "0"),
                         ("showSheetTabs", "" if view.tabs else "0"),
                         ("tabRatio", "" if ratio == 600 else str(ratio)),
-                        ("firstSheet", str(view.first_sheet) if view.first_sheet else ""),
+                        ("firstSheet", str(_first_place(book)) if _first_place(book) else ""),
                         ("activeTab", str(active) if active else ""),
                         ("autoFilterDateGrouping", "" if view.date_grouping else "0")):
         opening = with_attribute(opening, name, value, _BOOK_VIEW_ORDER)
@@ -452,7 +448,7 @@ def saved(book: Workbook) -> None:
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
     book.view.saved_tab = _active_place(book)
-    book.view.saved_first = book.view.first_tab = _first_place(book)
+    book.view.saved_first = book.view.first_sheet = _first_place(book)
 
 
 def copied(source: Worksheet, copy: Worksheet) -> None:

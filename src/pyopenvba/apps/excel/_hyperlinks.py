@@ -551,6 +551,12 @@ class ShapeLink(Hyperlink):
         super().__init__(sheet, link)
         self.shape = shape
 
+    def held_gone(self) -> bool:
+        """It goes with its shape, and is on none of the sheet's cells."""
+        from pyopenvba.apps.excel._held import shape_here
+
+        return self.sheet.deleted or not shape_here(self.sheet, self.shape)
+
     def _set(self, change: Callable[[Link], None]) -> None:
         raise VBAUnsupportedError("changing a loaded shape's hyperlink is not implemented")
 

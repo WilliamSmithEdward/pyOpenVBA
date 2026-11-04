@@ -7693,6 +7693,8 @@ class NameEntry:
     category: str = ""
     group: int = 0
     macro_changed: bool = False
+    #: Deleted by referring to nothing, which a variable holding it goes on reading (tests/fixtures/name_saves.json).
+    emptied: bool = False
     #: A macro name given a sheet's cells, which Excel makes a link to its own workbook.
     macro_links_itself: bool = False
 
@@ -7874,7 +7876,7 @@ class DefinedName(HeldPart, ExcelObject):
         self.entry = entry
 
     def held_gone(self) -> bool:
-        return not any(one is self.entry for one in self.entry.book.names_.entries)
+        return not self.entry.emptied and not any(one is self.entry for one in self.entry.book.names_.entries)
 
     @member
     def Name(self) -> object:
@@ -8102,6 +8104,7 @@ class DefinedName(HeldPart, ExcelObject):
         self.entry.macro_links_itself = bool(self.entry.macro_type) and "!" in text
         if text == "=":
             self.entry.refers_to = text
+            self.entry.emptied = True
             self.Delete()
             return
         self.entry.refers_to = _names.qualify(text, self.entry.book.active_sheet.name)

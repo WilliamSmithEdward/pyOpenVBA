@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import math
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Final
+from typing import Any, Final
 
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError
@@ -54,6 +54,8 @@ ACCEPTED: Final = {
     'verticalalignment': frozenset({-4160, -4108, -4107, -4130, -4117}),
     'readingorder': frozenset({-5002, -5003, -5004}),
 }
+#: Past this many cells a block is walked by what its sheet uses.
+LARGE_BLOCK: Final = 4096
 BACKGROUNDS: Final = frozenset({1, 2, 3, -4105})
 
 
@@ -66,6 +68,22 @@ def currency_text(value: VBACurrency) -> str:
 
 def _is_number(value: object) -> bool:
     return isinstance(value, (int, float, VBAInt, VBACurrency, VBADate, VBASingle, Decimal)) and not isinstance(value, bool)
+
+
+def _block_cells(sheet: Any, area: Any) -> list[tuple[int, int]]:
+    """The cells of a block in the order they are tried. Blank cells past what a large block's sheet uses all do the same, so
+    one of them, the block's last, stands for them."""
+    rows, columns = range(area.top, area.bottom + 1), range(area.left, area.right + 1)
+    if len(rows) * len(columns) <= LARGE_BLOCK:
+        return [(row, column) for row in rows for column in columns]
+    used = sheet.used_bounds()
+    found: list[tuple[int, int]] = []
+    if used is not None:
+        top, left, bottom, right = used
+        found = [(row, column) for row in range(max(top, area.top), min(bottom, area.bottom) + 1)
+                 for column in range(max(left, area.left), min(right, area.right) + 1)]
+    last = (area.bottom, area.right)
+    return found if last in found else [*found, last]
 
 
 def _pattern(value: object) -> object:
@@ -127,8 +145,7 @@ def given(target: VBAObject, name: str, value: object) -> object:
             value = Range(value.sheet, [Area(area.top, area.left, area.top, area.left, value.sheet.name)]).vba_value()
         else:
             area = value.first
-            cells = [Range(value.sheet, [Area(row, column, row, column, value.sheet.name)]) for row in range(area.top, area.bottom + 1)
-                     for column in range(area.left, area.right + 1)]
+            cells = [Range(value.sheet, [Area(row, column, row, column, value.sheet.name)]) for row, column in _block_cells(value.sheet, area)]
             spec = target.vba_member(name)
             failed: VBARuntimeError | None = None
             last: object = EMPTY

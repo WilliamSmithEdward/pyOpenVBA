@@ -155,6 +155,8 @@ def plan(book: Workbook, change: Change) -> list[Step]:
     for sheet in [*book.sheets_, *(tab.sheet for tab in book.chart_sheets)]:
         for state in sheet.chart_states.values():
             steps += _chart_plan(sheet, state, change)
+    for chart_sheet in book.chart_sheets:
+        steps += _chart_plan(chart_sheet.sheet, chart_sheet.state, change)
     return steps
 
 

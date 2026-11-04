@@ -1,0 +1,271 @@
+{
+ "measured_at": "2026-11-04T01:12:00.153148+00:00",
+ "probe": "Dim Log As String\nSub Note(ByVal s As String)\n    Log = Log & s & \"|\"\nEnd Sub\nFunction Probe() As String\n    Application.DisplayAlerts = False\n    On Error GoTo Failed\n{action}\n    Probe = Log\n    Exit Function\nFailed:\n    Probe = Log & \"!E\" & Err.Number\nEnd Function\n",
+ "rows": [
+  {
+   "name": "pane_type",
+   "action": "Note TypeName(ActiveWindow.ActivePane)",
+   "result": "Pane|"
+  },
+  {
+   "name": "pane_parent",
+   "action": "Note TypeName(ActiveWindow.ActivePane.Parent)",
+   "result": "Window|"
+  },
+  {
+   "name": "pane_application",
+   "action": "Note TypeName(ActiveWindow.ActivePane.Application)",
+   "result": "Application|"
+  },
+  {
+   "name": "pane_creator",
+   "action": "Note ActiveWindow.ActivePane.Creator",
+   "result": "1480803660|"
+  },
+  {
+   "name": "pane_activate",
+   "action": "Note ActiveWindow.ActivePane.Activate",
+   "result": "True|"
+  },
+  {
+   "name": "pane_scroll_row",
+   "action": "Note ActiveWindow.ActivePane.ScrollRow",
+   "result": "1|"
+  },
+  {
+   "name": "pane_scroll_column",
+   "action": "Note ActiveWindow.ActivePane.ScrollColumn",
+   "result": "1|"
+  },
+  {
+   "name": "pane_scroll_row_set",
+   "action": "ActiveWindow.ActivePane.ScrollRow = 20\nNote ActiveWindow.ActivePane.ScrollRow & \",\" & ActiveWindow.ScrollRow",
+   "result": "20,20|"
+  },
+  {
+   "name": "pane_scroll_column_set",
+   "action": "ActiveWindow.ActivePane.ScrollColumn = 7\nNote ActiveWindow.ActivePane.ScrollColumn & \",\" & ActiveWindow.ScrollColumn",
+   "result": "7,7|"
+  },
+  {
+   "name": "window_sets_pane",
+   "action": "ActiveWindow.ScrollRow = 9\nActiveWindow.ScrollColumn = 3\nNote ActiveWindow.ActivePane.ScrollRow & \",\" & ActiveWindow.ActivePane.ScrollColumn",
+   "result": "9,3|"
+  },
+  {
+   "name": "pane_scroll_row_zero",
+   "action": "ActiveWindow.ActivePane.ScrollRow = 0",
+   "result": "!E1004"
+  },
+  {
+   "name": "pane_scroll_row_far",
+   "action": "ActiveWindow.ActivePane.ScrollRow = 2000000",
+   "result": "!E1004"
+  },
+  {
+   "name": "pane_scroll_column_zero",
+   "action": "ActiveWindow.ActivePane.ScrollColumn = 0",
+   "result": "!E1004"
+  },
+  {
+   "name": "pane_scroll_column_far",
+   "action": "ActiveWindow.ActivePane.ScrollColumn = 20000",
+   "result": "!E1004"
+  },
+  {
+   "name": "pane_scroll_row_text",
+   "action": "ActiveWindow.ActivePane.ScrollRow = \"x\"",
+   "result": "!E13"
+  },
+  {
+   "name": "pane_scroll_row_null",
+   "action": "ActiveWindow.ActivePane.ScrollRow = Null",
+   "result": "!E94"
+  },
+  {
+   "name": "pane_small_down",
+   "action": "ActiveWindow.ActivePane.ScrollRow = 10\nNote ActiveWindow.ActivePane.SmallScroll(Down:=2)\nNote ActiveWindow.ActivePane.ScrollRow",
+   "result": "True|12|"
+  },
+  {
+   "name": "pane_small_up",
+   "action": "ActiveWindow.ActivePane.ScrollRow = 10\nActiveWindow.ActivePane.SmallScroll Up:=3\nNote ActiveWindow.ActivePane.ScrollRow",
+   "result": "7|"
+  },
+  {
+   "name": "pane_small_right",
+   "action": "ActiveWindow.ActivePane.ScrollColumn = 10\nActiveWindow.ActivePane.SmallScroll ToRight:=2\nNote ActiveWindow.ActivePane.ScrollColumn",
+   "result": "12|"
+  },
+  {
+   "name": "pane_small_left",
+   "action": "ActiveWindow.ActivePane.ScrollColumn = 10\nActiveWindow.ActivePane.SmallScroll ToLeft:=3\nNote ActiveWindow.ActivePane.ScrollColumn",
+   "result": "7|"
+  },
+  {
+   "name": "pane_small_past_top",
+   "action": "ActiveWindow.ActivePane.ScrollRow = 2\nActiveWindow.ActivePane.SmallScroll Up:=9\nNote ActiveWindow.ActivePane.ScrollRow",
+   "result": "1|"
+  },
+  {
+   "name": "pane_small_nothing",
+   "action": "ActiveWindow.ActivePane.ScrollRow = 10\nActiveWindow.ActivePane.SmallScroll\nNote ActiveWindow.ActivePane.ScrollRow",
+   "result": "10|"
+  },
+  {
+   "name": "panes_default",
+   "action": "Note TypeName(ActiveWindow.Panes.[_Default](1))",
+   "result": "Pane|"
+  },
+  {
+   "name": "panes_item_out",
+   "action": "Note TypeName(ActiveWindow.Panes(2))",
+   "result": "Pane|"
+  },
+  {
+   "name": "panes_item_zero",
+   "action": "Note TypeName(ActiveWindow.Panes(0))",
+   "result": "!E1004"
+  },
+  {
+   "name": "panes_walk",
+   "action": "Dim one As Object\nFor Each one In ActiveWindow.Panes\nNote TypeName(one)\nNext",
+   "result": "!E438"
+  },
+  {
+   "name": "windows_walk",
+   "action": "Dim one As Object\nFor Each one In Application.Windows\nNote TypeName(one)\nNext",
+   "result": "Window|"
+  },
+  {
+   "name": "app_on_window",
+   "action": "Note \"[\" & Application.OnWindow & \"]\"",
+   "result": "[]|"
+  },
+  {
+   "name": "app_on_window_set",
+   "action": "Application.OnWindow = \"Nothing\"\nNote Application.OnWindow\nApplication.OnWindow = \"\"\nNote \"[\" & Application.OnWindow & \"]\"",
+   "result": "Book29!Nothing|[]|"
+  },
+  {
+   "name": "window_on_window",
+   "action": "Note \"[\" & ActiveWindow.OnWindow & \"]\"",
+   "result": "!E1004"
+  },
+  {
+   "name": "window_on_window_set",
+   "action": "ActiveWindow.OnWindow = \"Nothing\"\nNote ActiveWindow.OnWindow\nActiveWindow.OnWindow = \"\"\nNote \"[\" & ActiveWindow.OnWindow & \"]\"",
+   "result": "Book31!Nothing|!E1004"
+  },
+  {
+   "name": "used_objects_type",
+   "action": "Note TypeName(Application.UsedObjects)",
+   "result": "UsedObjects|"
+  },
+  {
+   "name": "used_objects_item",
+   "action": "Note TypeName(Application.UsedObjects(1))",
+   "result": "UsedObjects|"
+  },
+  {
+   "name": "used_objects_parent",
+   "action": "Note TypeName(Application.UsedObjects.Parent)",
+   "result": "Application|"
+  },
+  {
+   "name": "add_ins_type",
+   "action": "Note TypeName(Application.AddIns)",
+   "result": "AddIns|"
+  },
+  {
+   "name": "add_ins2_type",
+   "action": "Note TypeName(Application.AddIns2)",
+   "result": "AddIns2|"
+  },
+  {
+   "name": "add_ins_nowhere",
+   "action": "Note TypeName(Application.AddIns(\"No such add-in\"))",
+   "result": "!E9"
+  },
+  {
+   "name": "add_ins_out",
+   "action": "Note TypeName(Application.AddIns(9999))",
+   "result": "!E9"
+  },
+  {
+   "name": "com_add_ins_type",
+   "action": "Note TypeName(Application.COMAddIns)",
+   "result": "COMAddIns|"
+  },
+  {
+   "name": "recent_type",
+   "action": "Note TypeName(Application.RecentFiles)",
+   "result": "RecentFiles|"
+  },
+  {
+   "name": "recent_maximum",
+   "action": "Note Application.RecentFiles.Maximum",
+   "result": "50|"
+  },
+  {
+   "name": "recent_out",
+   "action": "Note TypeName(Application.RecentFiles(9999))",
+   "result": "!E9"
+  },
+  {
+   "name": "export_converters_type",
+   "action": "Note TypeName(Application.FileExportConverters)",
+   "result": "FileExportConverters|"
+  },
+  {
+   "name": "record_macro",
+   "action": "Application.RecordMacro \"Dim x\"",
+   "result": ""
+  },
+  {
+   "name": "record_macro_nothing",
+   "action": "Application.RecordMacro",
+   "result": ""
+  },
+  {
+   "name": "register_nowhere",
+   "action": "Note Application.RegisterXLL(\"C:\\no_such_folder_pyopenvba\\nothing.xll\")",
+   "result": "False|"
+  },
+  {
+   "name": "dde_terminate_nothing",
+   "action": "Application.DDETerminate 99999",
+   "result": ""
+  },
+  {
+   "name": "dde_execute_nothing",
+   "action": "Application.DDEExecute 99999, \"x\"",
+   "result": ""
+  },
+  {
+   "name": "dde_poke_nothing",
+   "action": "Application.DDEPoke 99999, \"x\", ActiveSheet.Range(\"A1\")",
+   "result": ""
+  },
+  {
+   "name": "dde_request_nothing",
+   "action": "Note TypeName(Application.DDERequest(99999, \"x\"))",
+   "result": "Error|"
+  },
+  {
+   "name": "phonetic",
+   "action": "Note \"[\" & Application.GetPhonetic(\"abc\") & \"]\"",
+   "result": "[]|"
+  },
+  {
+   "name": "phonetic_again",
+   "action": "Note \"[\" & Application.GetPhonetic() & \"]\"",
+   "result": "[]|"
+  },
+  {
+   "name": "phonetic_empty",
+   "action": "Note \"[\" & Application.GetPhonetic(\"\") & \"]\"",
+   "result": "[]|"
+  }
+ ]
+}

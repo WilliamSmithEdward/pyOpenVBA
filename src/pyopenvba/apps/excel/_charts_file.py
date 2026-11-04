@@ -26,7 +26,8 @@ from pyopenvba.apps.excel._charts import (DATA_TABLE_LOOK, MAX_CHART_POINTS, CHA
                                           categories_gone, category_levels, linked_title, lost, referenced_values,
                                           settle_hidden, shown_cells, shown_type, visible_places)
 from pyopenvba.apps.excel._chart_combos import is_combo, regrouped, series_type
-from pyopenvba.apps.excel._chart_xml import group_markup
+from pyopenvba.apps.excel._chart_fonts import read_look as read_font
+from pyopenvba.apps.excel._chart_xml import group_markup, plain_label_text
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.apps.excel._chart_line_format import group_line_markup
@@ -242,6 +243,28 @@ def read_secondary_axes(result: ChartState, root: ET.Element, plot: ET.Element, 
     result.secondary_axes = held.axes
 
 
+def _read_fonts(result: ChartState, root: ET.Element) -> None:
+    """What the part says of each element's text, as Font reads it (tests/fixtures/chart_fonts_saved.json)."""
+    found = {'area': root, 'title': root.find('c:chart/c:title', NS), 'legend': root.find('c:chart/c:legend', NS)}
+    plot = root.find('c:chart/c:plotArea', NS)
+    if plot is not None:
+        table = plot.find('c:dTable', NS)
+        found['dataTable'] = table
+        axes = _axis_elements(plot)
+        for element in axes[:2]:
+            kind = 2 if element.tag.endswith('valAx') else 1
+            found[f'tick{kind}'] = element
+            found[f'title{kind}'] = element.find('c:title', NS)
+        for element in axes[2:]:
+            kind = 2 if element.tag.endswith('valAx') else 1
+            found[f'tick{kind}s'] = element
+            found[f'title{kind}s'] = element.find('c:title', NS)
+    for key, owner in found.items():
+        look = None if owner is None else read_font(owner, NS)
+        if look is not None:
+            result.element_fonts[key] = look
+
+
 def read_display(result: ChartState, root: ET.Element) -> None:
     """The chart's display options as Excel reads them: an element left out, or written with no val, reads as
     DisplayBlanksAs 2, PlotVisibleOnly and ShowDataLabelsOverMaximum True, DisplayValueNotAvailableAsBlank False."""
@@ -289,6 +312,7 @@ def read_chart(xml: str, part: str) -> ChartState:
                     and deleted.get('val', '1') in ('1', 'true')):
                 result.legend_deleted.append(int(index.get('val', '')))
     read_display(result, root)
+    _read_fonts(result, root)
     # A part that leaves roundedCorners out has rounded corners, as the file format's default says.
     rounded = root.find('c:roundedCorners', NS)
     result.rounded = rounded is None or rounded.get('val', '1') in ('1', 'true')
@@ -388,6 +412,7 @@ def read_chart(xml: str, part: str) -> ChartState:
             item.marker_fore = _marker_colour(line) if line is not None else None
         labels = series.find('c:dLbls', NS)
         if labels is not None:
+            item.label_look.font = read_font(labels, NS)
             shown = labels.find('c:showVal', NS)
             item.data_labels = shown is not None and shown.get('val', '1') in ('1', 'true')
             leaders = labels.find('c:showLeaderLines', NS)
@@ -904,6 +929,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         look = element_markup(DATA_TABLE_LOOK, state.element_looks.get(DATA_TABLE_LOOK))
         table = table.replace('</c:dTable>', look + text_properties(state.element_fonts.get('dataTable')) + '</c:dTable>')
         xml = xml.replace('</c:plotArea>', table + '</c:plotArea>', 1)
+    if 'area' in state.element_fonts:
+        xml = plain_label_text(xml)
     # The plot area's look follows all of that, and the chart area's follows the chart
     # (tests/fixtures/chart_element_format.json).
     xml = xml.replace('</c:plotArea>', element_markup('plot', state.element_looks.get('plot')) + '</c:plotArea>', 1)
@@ -930,6 +957,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = regrouped(xml, state, group_markup, _grouped, first_second.value_format if first_second is not None else 'General')
     if is_styled(state.chart_style):
         xml = dressed(xml, state, sheet.book.stylesheet.colors.theme)
+        if 'area' in state.element_fonts:
+            xml = re.sub(r'(<c:dLbls>.*?</c:dLbls>)', lambda hit: hit.group(1).replace(' lIns="38100" tIns="19050" rIns="38100" bIns="19050"', '').replace('><a:spAutoFit/></a:bodyPr>', '/>'), xml, flags=re.S)
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)

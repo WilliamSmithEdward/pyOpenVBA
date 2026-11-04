@@ -3050,3 +3050,26 @@ def test_excel_adds_modules_to_a_project_of_many_sheets(tmp_path: Path, sheets: 
     assert again.ok, again.message
     # ThisWorkbook, every sheet, Module1 and the harness's three modules; then Extra1 to Extra3.
     assert (str(first.value), str(again.value)) == (f"{sheets + 1}|{sheets + 6}", f"{sheets + 1}|{sheets + 9}")
+
+
+def test_excel_reads_the_active_tab_this_wrote(tmp_path: Path) -> None:
+    """Tabs moved, added and deleted by the model, saved, opened in Excel: it opens each, on the sheet Excel's own save of
+    the same action opens on (tests/fixtures/active_tab/active_tab.json)."""
+    import json
+    import shutil
+
+    harness = pytest.importorskip("pyvbaharness")
+    here = Path(__file__).parent / "fixtures" / "active_tab"
+    record = json.loads((here / "active_tab.json").read_text(encoding="utf-8"))
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=900.0)) as excel:
+        excel.new_document()
+        for row in record["rows"]:
+            file = tmp_path / f"{row['book']}_{row['case']}.xlsx"
+            shutil.copy(here / f"{row['book']}.xlsx", file)
+            app = ExcelApplication(sandbox=False)
+            app.add_workbook()
+            app.add_module(record["act"].format(action=record["actions"][row["case"]]), name="M")
+            app.run("Act", file.as_posix())
+            read = excel.run_vba(record["read"], "ReadIt", (str(file),), timeout=45.0)
+            assert read.ok, (row["book"], row["case"], read.message)
+            assert read.value == row["reads"], (row["book"], row["case"])

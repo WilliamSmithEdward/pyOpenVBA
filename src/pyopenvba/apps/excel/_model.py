@@ -693,7 +693,9 @@ class Application(ExcelObject):
         before = self.calculation
         for book in self.workbooks_.books:
             book.calculator.settle_automatic_cache()
-        self.calculation = int(to_integer(value, "Long"))
+        # What is no setting reads as automatic below 2 and manual above it (tests/fixtures/settable_audit.json).
+        wanted = int(to_integer(value, "Long"))
+        self.calculation = wanted if wanted in (-4105, -4135, 2) else -4105 if wanted < 2 else -4135
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
             # Back to automatic works out what manual mode left stale, with its
             # Calculate events. Volatile UDFs in the active workbook run too;
@@ -2048,6 +2050,7 @@ class Workbook(ExcelObject):
 
     @setter("AutoUpdateSaveChanges")
     def _set_auto_update_save_changes(self, value: object) -> None:
+        to_bool(value)  # Bound early VBA converts first: text is 13 and Null 94 (tests/fixtures/settable_audit.json).
         raise error(1004)
 
     @member
@@ -4118,8 +4121,6 @@ class Worksheet(ExcelObject):
 
     @setter("EnableFormatConditionsCalculation")
     def _set_format_conditions_calculation(self, value: object) -> None:
-        if value is NULL:
-            raise error(13)
         to_bool(value)  # Excel takes any Boolean, and keeps reading True; anything else is a type mismatch.
 
     @member
@@ -4151,8 +4152,12 @@ class Worksheet(ExcelObject):
 
     @setter("EnableSelection")
     def _set_enable_selection(self, value: object) -> None:
-        """Kept in the file, on a sheet that is not protected too (tests/fixtures/settable_reopen.json)."""
-        self.enable_selection = int(to_integer(value, "Long"))
+        """Kept in the file, on a sheet that is not protected too (tests/fixtures/settable_reopen.json). 2 is taken
+        as xlNoSelection, and what Excel does not name is 1004 (tests/fixtures/settable_audit.json)."""
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (0, 1, 2, -4142):
+            raise error(1004, "Method 'EnableSelection' of object '_Worksheet' failed")
+        self.enable_selection = -4142 if wanted == 2 else wanted
         self.protection_changed = True
         self.touched()
 

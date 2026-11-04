@@ -525,10 +525,10 @@ def goto(application: Application, reference: object, scroll: object) -> None:
         _check_scrollable(sheet.view)
     if application.active_book is not sheet.book or sheet.book.active_sheet is not sheet:
         sheet.Activate()
-    target.select_as_excel_does()
-    from pyopenvba.apps.excel._worksheet_settings import after_goto
+    from pyopenvba.apps.excel._worksheet_settings import check_goto
 
-    after_goto(target)
+    check_goto(target)
+    target.select_as_excel_does()
     if scrolled:
         _scroll_to(sheet.view, 0, target.first.top)
         _scroll_to(sheet.view, 1, target.first.left)

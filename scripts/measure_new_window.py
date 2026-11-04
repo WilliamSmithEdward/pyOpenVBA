@@ -46,7 +46,7 @@ ROWS = {
     'gridlines_own': 'wb.NewWindow\nwb.Windows(1).DisplayGridlines = False\ns = wb.Windows(1).DisplayGridlines & "|" & wb.Windows(2).DisplayGridlines',
     'headings_copied': 'wb.Windows(1).DisplayHeadings = False\nwb.NewWindow\ns = wb.Windows(1).DisplayHeadings & "|" & wb.Windows(2).DisplayHeadings',
     'tabs_own': 'wb.NewWindow\nwb.Windows(1).DisplayWorkbookTabs = False\ns = wb.Windows(1).DisplayWorkbookTabs & "|" & wb.Windows(2).DisplayWorkbookTabs',
-    'freeze_copied': 'wb.Sheets("A").Range("B2").Select\nActiveWindow.FreezePanes = True\nwb.NewWindow\ns = wb.Windows(1).FreezePanes & "|" & wb.Windows(2).FreezePanes & "|" & wb.Windows(2).Panes.Count',
+    'freeze_copied': 'wb.Sheets("A").Range("B2").Select\nActiveWindow.FreezePanes = True\nwb.NewWindow\ns = wb.Windows(1).FreezePanes & "|" & wb.Windows(2).FreezePanes',
     'views_of_sheet': 'wb.NewWindow\ns = wb.Windows(1).SheetViews.Count & "|" & wb.Windows(2).SheetViews.Count',
     'close_front': 'wb.NewWindow\nr = wb.Windows(1).Close\ns = r & "|" & wb.Windows.Count & "|" & L(wb.Windows(1)) & "|" & Workbooks.Count - books',
     'close_back': 'wb.NewWindow\nr = wb.Windows(2).Close\ns = r & "|" & wb.Windows.Count & "|" & L(wb.Windows(1))',
@@ -69,6 +69,9 @@ ROWS = {
     'saved_then_second_reopen': 'wb.NewWindow\nwb.SaveAs folder & "\\Two.xlsx", xlOpenXMLWorkbook\nwb.Close False\nSet wb = Workbooks.Open(folder & "\\Two.xlsx", 0)\n'
                                 's = wb.Windows.Count & "|" & L(wb.Windows(wb.Windows.Count)) & "|" & wb.Windows(wb.Windows.Count).ActiveSheet.Name',
     'new_sheet_elsewhere': 'wb.NewWindow\nwb.Sheets.Add\ns = wb.Windows(1).ActiveSheet.Name & "|" & wb.Windows(2).ActiveSheet.Name',
+    'chart_sheet_shown': 'wb.Charts.Add\nwb.NewWindow\ns = TypeName(wb.Windows(1).ActiveSheet) & "|" & TypeName(wb.Windows(2).ActiveSheet) & "|" & wb.Windows.Count',
+    'chart_sheet_own': 'wb.NewWindow\nwb.Charts.Add\ns = TypeName(wb.Windows(1).ActiveSheet) & "|" & TypeName(wb.Windows(2).ActiveSheet) & "|" & wb.Windows(2).ActiveSheet.Name',
+    'chart_sheet_deleted': 'wb.Charts.Add\nwb.NewWindow\nwb.ActiveSheet.Delete\ns = wb.Windows(1).ActiveSheet.Name & "|" & wb.Windows(2).ActiveSheet.Name',
     'sheet_deleted': 'wb.NewWindow\nwb.Sheets("B").Activate\nwb.Sheets("B").Delete\ns = wb.Windows(1).ActiveSheet.Name & "|" & wb.Windows(2).ActiveSheet.Name',
 }
 

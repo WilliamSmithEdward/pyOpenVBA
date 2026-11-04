@@ -17,6 +17,8 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/new_windo
 CASES: list[dict[str, Any]] = RECORD['cases']
 #: The model refuses to hide a workbook's window, as it has no such state to save.
 HIDING = ('hidden_copied', 'hidden_other')
+#: The model adds no chart sheet to a new workbook: these go on one from a file, below.
+NEW_CHART_SHEET = ('chart_sheet_shown', 'chart_sheet_own', 'chart_sheet_deleted')
 
 
 def masked(answer: str) -> str:
@@ -32,6 +34,10 @@ def test_each_row_as_excel_answered(case: dict[str, Any], tmp_path: Path) -> Non
     app.add_module(RECORD['source'], name='Probe')
     if case['name'] in HIDING:
         with pytest.raises(VBAUnsupportedError, match='hiding'):
+            app.run('Probe.InModel', case['name'], case['binding'], str(tmp_path))
+        return
+    if case['name'] in NEW_CHART_SHEET:
+        with pytest.raises(VBAUnsupportedError, match='Sheets.Add'):
             app.run('Probe.InModel', case['name'], case['binding'], str(tmp_path))
         return
     got = str(app.run('Probe.InModel', case['name'], case['binding'], str(tmp_path))).replace(home, '<HOME>')
@@ -106,3 +112,22 @@ def test_a_book_with_one_window_saves_as_it_did(tmp_path: Path) -> None:
     book, sheets = _views(tmp_path / 'One.xlsx')
     assert len(book) == 1
     assert all(len(one) == 1 for one in sheets)
+
+
+def _chart_sheet_book(body: str) -> ExcelApplication:
+    app = ExcelApplication.open(Path(__file__).parent / 'fixtures/chart_sheets/active.xlsx', with_vba=False)
+    app.add_module(f'Public Function Go() As String\n    Dim wb As Workbook, s As String\n    Set wb = ActiveWorkbook\n{body}\n    Go = s\nEnd Function\n', name='Go')
+    return app
+
+
+def test_a_window_shows_a_chart_sheet_as_excel_did() -> None:
+    measured = next(one['excel'] for one in CASES if one['name'] == 'chart_sheet_shown')
+    app = _chart_sheet_book('    wb.NewWindow\n    s = TypeName(wb.Windows(1).ActiveSheet) & "|" & TypeName(wb.Windows(2).ActiveSheet) & "|" & wb.Windows.Count')
+    assert str(app.run('Go.Go')) == measured
+
+
+def test_a_window_behind_goes_on_when_its_chart_sheet_is_deleted() -> None:
+    """As Excel did (chart_sheet_deleted): both windows show the worksheet in the chart sheet's place."""
+    app = _chart_sheet_book('    Application.DisplayAlerts = False\n    wb.NewWindow\n    wb.ActiveSheet.Delete\n    s = TypeName(wb.Windows(1).ActiveSheet) & "|" & TypeName(wb.Windows(2).ActiveSheet)')
+    assert str(app.run('Go.Go')) == 'Worksheet|Worksheet'
+

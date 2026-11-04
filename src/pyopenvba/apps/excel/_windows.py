@@ -1150,7 +1150,8 @@ class Window(ExcelObject):
 
     @member
     def ActiveSheet(self) -> object:
-        return self.sheet()
+        # A chart sheet in front, not the worksheet behind it (tests/fixtures/new_window.json).
+        return self.book.active_chart_sheet or self.sheet()
 
     @member
     def SelectedSheets(self) -> object:

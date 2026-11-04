@@ -83,7 +83,7 @@ def _restore(book: Workbook, place: WindowPlace) -> None:
         setattr(book.view, name, value)
     if kept.sheet is not None and any(one is kept.sheet for one in book.sheets_):
         book.active_sheet_index = book.sheets_.index(kept.sheet)
-    book.active_chart_sheet = kept.chart
+    book.active_chart_sheet = kept.chart if any(one is kept.chart for one in book.chart_sheets) else None
     book.selected_sheets = [one for one in kept.selected if any(one is sheet for sheet in book.sheets_)]
     for sheet in book.sheets_:
         sheet.view, sheet.selection_range, sheet.active_cell_range = states[id(sheet)]

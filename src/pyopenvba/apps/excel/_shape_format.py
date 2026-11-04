@@ -251,6 +251,9 @@ class _Format(Created):
         self.style()
         if self.shape.kind == "freeform":
             raise _unmeasured("Changing the fill or line of a freeform")
+        if self.shape.source and not any(self.shape is one for one in self.owner.sheet.shapes_):
+            # A save writes the group's markup as it came, so the change would be lost.
+            raise VBAUnsupportedError("Changing the fill or line of a shape in a group from a file is not implemented")
         self.owner.guard("Fill" if isinstance(self, FillFormat) else "Line")
         if self.shape.fill_line is None:
             self.shape.fill_line = self.look()
@@ -1611,8 +1614,9 @@ class RangeFill(FillFormat):
         return RangeStops(self)
 
     def parts(self) -> list[FillFormat]:
-        on_sheet = self.owner.sheet.shapes_
-        return [FillFormat(one) for one in self.range.shapes if any(shape is one.shape for shape in on_sheet)]
+        from pyopenvba.apps.excel._shapes import holds_shape
+
+        return [FillFormat(one) for one in self.range.shapes if holds_shape(self.owner.sheet.shapes_, one.shape)]
 
     def bearers(self) -> list[FillFormat]:
         parts = self.parts()
@@ -1744,8 +1748,9 @@ class RangeLine(LineFormat):
         self.spread("InsetPen", value)
 
     def parts(self) -> list[LineFormat]:
-        on_sheet = self.owner.sheet.shapes_
-        return [LineFormat(one) for one in self.range.shapes if any(shape is one.shape for shape in on_sheet)]
+        from pyopenvba.apps.excel._shapes import holds_shape
+
+        return [LineFormat(one) for one in self.range.shapes if holds_shape(self.owner.sheet.shapes_, one.shape)]
 
     def bearers(self) -> list[LineFormat]:
         return self.parts()

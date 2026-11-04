@@ -520,6 +520,11 @@ class Shapes(VBACollection, ItemDefault, Created):
         return max((one.shape_id for one in drawn if one.kind != "formControl"), default=1) + 1
 
 
+def holds_shape(shapes: list[Shape], wanted: Shape) -> bool:
+    """Whether a shape is among these, or in a group among them."""
+    return any(one is wanted or holds_shape(one.children, wanted) for one in shapes)
+
+
 class ShapeRange(VBACollection, Created):
     """Several shapes answered as one, which is what Range gives back."""
 
@@ -1518,21 +1523,25 @@ class ShapeObject(_Drawn):
 
     def on_sheet(self) -> None:
         # A deleted shape has nothing to answer with (tests/fixtures/shape_range_fill_line.json).
-        if not any(shape is self.shape for shape in self.sheet.shapes_):
+        if not holds_shape(self.sheet.shapes_, self.shape):
             raise error(424, "Object required")
 
     @member
     def Fill(self) -> object:
-        from pyopenvba.apps.excel._shape_format import FillFormat
+        from pyopenvba.apps.excel._shape_format import FillFormat, RangeFill
 
         self.on_sheet()
+        if self.shape.kind == "group" and self.shape.source:
+            return RangeFill(ShapeRange([ShapeObject(self.sheet, one) for one in self.shape.children]))
         return FillFormat(self)
 
     @member
     def Line(self) -> object:
-        from pyopenvba.apps.excel._shape_format import LineFormat
+        from pyopenvba.apps.excel._shape_format import LineFormat, RangeLine
 
         self.on_sheet()
+        if self.shape.kind == "group" and self.shape.source:
+            return RangeLine(ShapeRange([ShapeObject(self.sheet, one) for one in self.shape.children]))
         return LineFormat(self)
 
     @member

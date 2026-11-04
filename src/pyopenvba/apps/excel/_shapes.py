@@ -85,6 +85,26 @@ _CONNECTION_SITES = {1: 4, 2: 6, 3: 4, 4: 4, 5: 4, 6: 8, 7: 6, 8: 6, 9: 8, 10: 6
                      16: 4, 17: 8, 18: 8, 19: 8, 20: 3, 92: 5}
 _KIND_SITES = {"textBox": 4, "line": 2, "chart": 4, "button": 4, "group": 0}
 _SHAPE_STYLES = {"shape": 9, "textBox": 0, "line": 10009, "chart": 0, "button": 0, "group": 9}
+def control_box(kind: int, left: object, top: object, width: object, height: object) -> tuple[float, float, float, float]:
+    """Where a new form control lands. AddFormControl takes whole numbers, and each edge then falls back to a pixel at 96 DPI, a size being
+    what is left between two edges. A check box, option button or group box has a smallest size, and a list box stands on whole lines of
+    13 pixels with its border (tests/fixtures/new_control_grid.json, 2,635 boxes)."""
+    def pixel(points: int) -> int:
+        return points * 4 // 3
+
+    x, y, wide, tall = (int(to_integer(one, "Long")) for one in (left, top, width, height))
+    across, down = pixel(x), pixel(y)
+    columns, rows = pixel(x + wide) - across, pixel(y + tall) - down
+    if kind in (1, 4, 7):
+        columns, rows = max(columns, 31), max(rows, 22)
+    if kind == 6:
+        if columns == 18:
+            raise VBAUnsupportedError("A new list box 18 pixels wide is not implemented")
+        columns = max(33, columns * 2) if columns < 18 else columns
+        rows = 4 + 13 * max(2, (rows + 3) // 13)
+    return across * 0.75, down * 0.75, columns * 0.75, rows * 0.75
+
+
 #: Whether each kind of control's fill and line show.
 _CONTROL_PAINTS = {"CheckBox": (False, False), "Radio": (False, False), "Drop": (False, True), "Label": (False, True)}
 #: Shape.FormControlType for each kind of control the model makes: the XlFormControl constants.
@@ -432,7 +452,7 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
 
         stem = FORM_CONTROLS.get(wanted, "Button")
         name, identifier = next_named(self.sheet, stem)
-        shape = self._made(kind="formControl", geometry="rect", stem=stem, box=(Left, Top, Width, Height), name=name)
+        shape = self._made(kind="formControl", geometry="rect", stem=stem, box=control_box(wanted, Left, Top, Width, Height), name=name)
         shape.control = ControlInfo(kind=FORM_CONTROLS.get(wanted, "Button").replace(" ", ""))
         if wanted in (2, 6):
             shape.control.kind = "Drop" if wanted == 2 else "List"
@@ -1288,6 +1308,12 @@ class ShapeObject(_Drawn):
         one moves inside that child space, which then becomes the members' boxes together, and the group's box
         follows at the scale it had."""
         shape = self.shape
+        if shape.kind == "formControl" and not shape.source and shape.control is not None:
+            # A size falls back to a pixel, where a place does only in the file. A scroll bar's width and a list box's height go their own
+            # way (tests/fixtures/new_control_settings.json).
+            if (shape.control.kind == "Scroll" and "width" in changes) or (shape.control.kind == "List" and "height" in changes):
+                raise _unsupported("this size of a new form control")
+            changes = {name: value * 4 // 3 * 0.75 if name in ("width", "height") else value for name, value in changes.items()}
         group = parent_group(self.sheet, shape)
         if shape.kind == "group" and not shape.source:
             inside = [to_child(shape, _box(one)) for one in shape.children]

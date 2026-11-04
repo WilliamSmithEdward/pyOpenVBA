@@ -1,5 +1,5 @@
 """A new form control through Shape, replayed from live Excel (scripts/measure_new_control_settings.py): what it reads from the first, what each setting reads and leaves in the file,
-and what reads after a save and a reopen. Where the box lands depends on the display's pixels, and these were measured away from 96 DPI, so it is not compared here."""
+and what reads after a save and a reopen. All at 96 DPI, where StandardHeight reads 15, which is what the box is rounded for."""
 from __future__ import annotations
 
 import json
@@ -12,13 +12,17 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'new_control_settings.json').read_text(encoding='utf-8'))
 READS: list[str] = RECORD['reads']
 KINDS: dict[str, int] = RECORD['kinds']
-#: Where the box lands, measured away from 96 DPI in this fixture.
-GEOMETRY = {'s.Left', 's.Top', 's.Width', 's.Height', 's.TopLeftCell.Address', 's.BottomRightCell.Address'}
+BOXES: dict[str, Any] = json.loads((FIXTURES / 'new_control_boxes.json').read_text(encoding='utf-8'))
+GRID: dict[str, Any] = json.loads((FIXTURES / 'new_control_grid.json').read_text(encoding='utf-8'))
+GEOMETRY: set[str] = set()
+#: What the model reports rather than answers: a scroll bar's width, and a list box's height.
+REFUSED = re.compile(r'^ScrollBar: s\.Width|^ListBox: s\.Height')
 
 
 def _block(name: str, form: str) -> list[str]:
@@ -72,7 +76,7 @@ def _file_facts(path: Path) -> dict[str, object]:
         return _facts(package.read('xl/drawings/drawing1.xml').decode('utf-8'), vml, found.group() if found else '')
 
 
-_CASES = RECORD['cases']
+_CASES = [*RECORD['cases'], *BOXES['cases']]
 
 
 @pytest.mark.parametrize('case', _CASES, ids=[f"{one['kind']}-{one['statement']}" for one in _CASES])
@@ -80,9 +84,43 @@ def test_each_setting_as_excel_answered_and_saved(case: dict[str, Any], tmp_path
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_source(case), name='Probe')
+    if REFUSED.search(f"{case['kind']}: {case['statement']}"):
+        with pytest.raises(VBAUnsupportedError):
+            app.run('Probe.Go', str(tmp_path))
+        return
     answer = str(app.run('Probe.Go', str(tmp_path)))
     assert _fields(answer) == _fields(case['answer'])
     assert _file_facts(tmp_path / 'saved.xlsx') == _facts(case['drawing'], case.get('vml', ''), case.get('controls', ''))
+
+
+def test_the_fixtures_were_measured_at_96_dpi() -> None:
+    assert RECORD['standard_height'] == BOXES['standard_height'] == '15'
+
+
+def test_each_box_lands_where_excel_put_it() -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(GRID_SOURCE, name='Probe')
+    wrong = []
+    for start in range(0, len(GRID['boxes']), 300):
+        chunk = GRID['boxes'][start:start + 300]
+        found = str(app.run('Probe.Go', ';'.join(','.join(str(one) for one in box) for box in chunk))).split('|')
+        wrong += [(box, truth, got) for box, truth, got in zip(chunk, GRID['excel'][start:start + 300], found, strict=True) if truth != got]
+    assert not wrong
+
+
+GRID_SOURCE = '''Public Function Go(ByVal text As String) As String
+    Dim ws As Object, s As Object, r As String, line As Variant, n As Variant
+    Set ws = ActiveSheet
+    For Each line In Split(text, ";")
+        n = Split(line, ",")
+        Set s = ws.Shapes.AddFormControl(Val(n(4)), Val(n(0)), Val(n(1)), Val(n(2)), Val(n(3)))
+        r = r & "|" & s.Left & "," & s.Top & "," & s.Width & "," & s.Height
+        s.Delete
+    Next
+    Go = Mid(r, 2)
+End Function
+'''
 
 
 def test_a_setting_on_a_control_in_a_file_comes_back(tmp_path: Path) -> None:

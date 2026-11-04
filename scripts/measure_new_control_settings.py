@@ -84,7 +84,11 @@ def main() -> None:
         height = str(checked.value)
         _written('new_control_settings', height, _measured(excel, folder, [(name, BOXES[0], statement) for name in KINDS for statement in ('', *SETTINGS)]))
         if height == '15':
-            _written('new_control_boxes', height, _measured(excel, folder, [(name, box, '') for name in KINDS for box in BOXES]))
+            boxes = _measured(excel, folder, [(name, box, '') for name in KINDS for box in BOXES])
+            # The display can change while this runs, with a remote session coming or going.
+            again = excel.run_vba('Public Function Height() As String\n    Height = CStr(ActiveSheet.StandardHeight)\nEnd Function\n', 'Height', (), timeout=30.0, line_numbers=False)
+            assert again.ok and str(again.value) == '15', f'The display changed during the run: StandardHeight reads {again.value}'
+            _written('new_control_boxes', height, boxes)
         else:
             print(f'StandardHeight reads {height}, not 15: the boxes wait for Excel at 96 DPI')
 

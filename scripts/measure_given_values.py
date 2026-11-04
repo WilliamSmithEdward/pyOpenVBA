@@ -43,6 +43,10 @@ End Function
 '''
 
 
+#: The first round's members, kept as a checklist's statuses move (tests/fixtures/given_values.json).
+FIXED_MEMBERS = sorted(json.loads(OUT.read_text(encoding='utf-8'))['answers']) if OUT.exists() else []
+
+
 def members() -> list[tuple[str, str]]:
     rows = csv.DictReader((ROOT / 'docs/excel_checklist.csv').open(encoding='utf-8', newline=''))
     return sorted((row['object'], row['member']) for row in rows
@@ -62,10 +66,19 @@ def source(owner: str, member: str, typed: bool) -> str:
     return '\n'.join(lines)
 
 
+#: A second round, of values the rule was not made from, with the model's answers written first.
+FRESH = ['x = CCur(2.5)', 'x = CCur(3)', 'x = CCur(0.4)', 'x = CCur(-0.5)', 'x = CCur(12.34)', 'x = #6/15/2024#', 'x = #1/2/1900#', 'x = #6:00:00 AM#', 'x = CSng(1)', 'x = CDec(1.5)', 'x = CLng(3)',
+         'Set x = ws.Range("F1")', 'Set x = ws.Range("H1")', 'Set x = ws.Range("E1:F1")', 'Set x = ws.Range("E2:E1")', 'Set x = ws.Range("F1,E1")', 'Set x = ws.Range("E1:E2,F1:F2")', 'Set x = ws.Range("H1:I1,E1")', 'Set x = ws.Range("G1,F1")', 'Set x = ws.Range("E2,G1")']
+
+
 def main() -> None:
+    global KINDS, OUT
+    fresh = len(sys.argv) > 2 and sys.argv[2] == 'fresh'
+    if fresh:
+        KINDS, OUT = FRESH, ROOT / 'tests/fixtures/given_values_fresh.json'
     budget = float(sys.argv[1]) if len(sys.argv) > 1 else 500.0
     record = json.loads(OUT.read_text(encoding='utf-8')) if OUT.exists() else {'kinds': KINDS, 'answers': {}, 'unanswered': []}
-    every = members()
+    every = [tuple(key.split('.')) for key in FIXED_MEMBERS] if FIXED_MEMBERS else members()
     started = time.monotonic()
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
         excel.new_document()

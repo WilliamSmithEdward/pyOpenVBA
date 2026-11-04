@@ -1,0 +1,1953 @@
+{
+ "measured_at": "2026-11-04T02:05:55.026018+00:00",
+ "source": "Private Function Act0(ByVal which As Long, ByVal ws As Worksheet, ByVal folder As String) As String\n    Dim sh As Object, h As Object, o As Object, s2 As Variant, v As Variant, s As String\n    On Error Resume Next\n    Select Case which\n    Case 0\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 1\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 2\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill.ForeColor\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.RGB: s = s & \"~\" & Err.Number: Err.Clear\n        h.RGB = 255: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 3\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill.BackColor\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.RGB: s = s & \"~\" & Err.Number: Err.Clear\n        h.RGB = 255: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 4\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 5\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Line.ForeColor\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.RGB: s = s & \"~\" & Err.Number: Err.Clear\n        h.RGB = 255: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 6\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 7\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame.Characters\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Text: s = s & \"~\" & Err.Number: Err.Clear\n        h.Text = \"x\": s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 8\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame.Characters(1, 1)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        h.Text = \"x\": s = s & \"~\" & Err.Number: Err.Clear\n        h.Delete: s = s & \"~\" & Err.Number: Err.Clear\n    Case 9\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame.Characters.Font\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Bold: s = s & \"~\" & Err.Number: Err.Clear\n        h.Bold = True: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 10\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 11\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Text: s = s & \"~\" & Err.Number: Err.Clear\n        h.Text = \"x\": s = s & \"~\" & Err.Number: Err.Clear\n        h.Delete: s = s & \"~\" & Err.Number: Err.Clear\n    Case 12\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange.Font\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Bold: s = s & \"~\" & Err.Number: Err.Clear\n        h.Bold = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 13\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange.Characters(1, 1)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Length: s = s & \"~\" & Err.Number: Err.Clear\n        h.Text = \"x\": s = s & \"~\" & Err.Number: Err.Clear\n        h.InsertAfter \"y\": s = s & \"~\" & Err.Number: Err.Clear\n    Case 14\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange.Font.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 15\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange.Font.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 16\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Shadow\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 17\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Glow\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Radius: s = s & \"~\" & Err.Number: Err.Clear\n        h.Radius = 1: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 18\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.SoftEdge\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Radius: s = s & \"~\" & Err.Number: Err.Clear\n        h.Radius = 1: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 19\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Reflection\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Type: s = s & \"~\" & Err.Number: Err.Clear\n        h.Type = 1: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 20\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.ThreeD\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoFalse: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 21\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Adjustments\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 22\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.ConnectorFormat\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Type: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 23\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill.PictureEffects\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 24\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 25\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name)).Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 26\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name)).Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 27\n        Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 28\n        Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 29\n        Set sh = ws.Shapes.AddLine(10, 10, 50, 30)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    End Select\n    Act0 = s\nEnd Function\n\nPrivate Function Act1(ByVal which As Long, ByVal ws As Worksheet, ByVal folder As String) As String\n    Dim sh As Object, h As Object, o As Object, s2 As Variant, v As Variant, s As String\n    On Error Resume Next\n    Select Case which\n    Case 30\n        Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 31\n        Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 32\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 33\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 34\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 35\n        ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 36\n        With ws.Shapes.BuildFreeform(0, 10, 10)\n        .AddNodes 0, 0, 50, 10\n        .AddNodes 0, 0, 50, 50\n        Set sh = .ConvertToShape\n        End With\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 37\n        Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 38\n        Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 39\n        Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 40\n        Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 41\n        Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 42\n        Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 43\n        Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 44\n        Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 45\n        Set sh = ws.Shapes.AddLine(10, 10, 50, 30)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 46\n        Set sh = ws.Shapes.AddLine(10, 10, 50, 30)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 47\n        Set sh = ws.Shapes.AddLine(10, 10, 50, 30)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 48\n        Set sh = ws.Shapes.AddLine(10, 10, 50, 30)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 49\n        Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 50\n        Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 51\n        Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 52\n        Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 53\n        Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 54\n        Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 55\n        Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 56\n        Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 57\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 58\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 59\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    End Select\n    Act1 = s\nEnd Function\n\nPrivate Function Act2(ByVal which As Long, ByVal ws As Worksheet, ByVal folder As String) As String\n    Dim sh As Object, h As Object, o As Object, s2 As Variant, v As Variant, s As String\n    On Error Resume Next\n    Select Case which\n    Case 60\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 61\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 62\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 63\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 64\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 65\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 66\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 67\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 68\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 69\n        ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 70\n        ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 71\n        ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 72\n        ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 73\n        With ws.Shapes.BuildFreeform(0, 10, 10)\n        .AddNodes 0, 0, 50, 10\n        .AddNodes 0, 0, 50, 50\n        Set sh = .ConvertToShape\n        End With\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 74\n        With ws.Shapes.BuildFreeform(0, 10, 10)\n        .AddNodes 0, 0, 50, 10\n        .AddNodes 0, 0, 50, 50\n        Set sh = .ConvertToShape\n        End With\n        Set h = sh.Line\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Weight: s = s & \"~\" & Err.Number: Err.Clear\n        h.Weight = 2: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 75\n        With ws.Shapes.BuildFreeform(0, 10, 10)\n        .AddNodes 0, 0, 50, 10\n        .AddNodes 0, 0, 50, 50\n        Set sh = .ConvertToShape\n        End With\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 76\n        With ws.Shapes.BuildFreeform(0, 10, 10)\n        .AddNodes 0, 0, 50, 10\n        .AddNodes 0, 0, 50, 50\n        Set sh = .ConvertToShape\n        End With\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 77\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Left: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 78\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Type: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 79\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Parent.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 80\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.ID: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 81\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Fill.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 82\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.TextFrame2.HasText: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 83\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Application.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 84\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Creator: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 85\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.NoSuchMember: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 86\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Connector: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 87\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 88\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.NoSuchMember = 5: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 89\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.OnAction = \"x\": s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    End Select\n    Act2 = s\nEnd Function\n\nPrivate Function Act3(ByVal which As Long, ByVal ws As Worksheet, ByVal folder As String) As String\n    Dim sh As Object, h As Object, o As Object, s2 As Variant, v As Variant, s As String\n    On Error Resume Next\n    Select Case which\n    Case 90\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        h.Delete: s = s & \"~\" & Err.Number: Err.Clear\n    Case 91\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        h.Select: s = s & \"~\" & Err.Number: Err.Clear\n    Case 92\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        h.Duplicate: s = s & \"~\" & Err.Number: Err.Clear\n    Case 93\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        h.NoSuchMember: s = s & \"~\" & Err.Number: Err.Clear\n    Case 94\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Parent.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 95\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Application.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 96\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Creator: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 97\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.NoSuchMember: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 98\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Parent.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 99\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Application.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 100\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Creator: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 101\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Parent.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 102\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Application.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 103\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2.TextRange\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 104\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 105\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Item(1).Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 106\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h(1).Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 107\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Application.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 108\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Creator: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 109\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Parent.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 110\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Left: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 111\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(sh.Name).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 112\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.Range(Array(sh.Name)).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 113\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 114\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        h.Parent.Delete: Err.Clear\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 115\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 116\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Cut\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 117\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.SelectAll: Selection.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 118\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.DrawingObjects.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 119\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(sh.Name).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    End Select\n    Act3 = s\nEnd Function\n\nPrivate Function Act4(ByVal which As Long, ByVal ws As Worksheet, ByVal folder As String) As String\n    Dim sh As Object, h As Object, o As Object, s2 As Variant, v As Variant, s As String\n    On Error Resume Next\n    Select Case which\n    Case 120\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.Range(Array(sh.Name)).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 121\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 122\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        h.Parent.Delete: Err.Clear\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 123\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 124\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Cut\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 125\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.SelectAll: Selection.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 126\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.Fill\n        s = \"made \" & Err.Number: Err.Clear\n        ws.DrawingObjects.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        h.Solid: s = s & \"~\" & Err.Number: Err.Clear\n    Case 127\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(sh.Name).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 128\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.Range(Array(sh.Name)).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 129\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 130\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        h.Parent.Delete: Err.Clear\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 131\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 132\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Cut\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 133\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.SelectAll: Selection.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 134\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh.TextFrame2\n        s = \"made \" & Err.Number: Err.Clear\n        ws.DrawingObjects.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.MarginLeft: s = s & \"~\" & Err.Number: Err.Clear\n        h.MarginLeft = 1: s = s & \"~\" & Err.Number: Err.Clear\n        h.DeleteText: s = s & \"~\" & Err.Number: Err.Clear\n    Case 135\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(sh.Name).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 136\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.Range(Array(sh.Name)).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 137\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 138\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        h.Parent.Delete: Err.Clear\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 139\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 140\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Cut\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 141\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.SelectAll: Selection.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 142\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = ws.Shapes.Range(Array(sh.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        ws.DrawingObjects.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 143\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Copy\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 144\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        s2 = sh.Name: sh.Delete: Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5): o.Name = s2\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 145\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 146\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 147\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Left: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 148\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Item(1).Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 149\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Item(2).Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    End Select\n    Act4 = s\nEnd Function\n\nPrivate Function Act5(ByVal which As Long, ByVal ws As Worksheet, ByVal folder As String) As String\n    Dim sh As Object, h As Object, o As Object, s2 As Variant, v As Variant, s As String\n    On Error Resume Next\n    Select Case which\n    Case 150\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h(1).Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 151\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 152\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)\n        Set h = ws.Shapes.Range(Array(sh.Name, o.Name))\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.Range(Array(sh.Name, o.Name)).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 153\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Ungroup\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 154\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems(1)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Ungroup\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 155\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems(1)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 156\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 157\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Ungroup\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 158\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems(1)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.GroupItems(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 159\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.GroupItems(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 160\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        sh.GroupItems(1).Delete: sh.GroupItems(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 161\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems(2)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.GroupItems(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 162\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = ws.ChartObjects(1)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.Select: s = s & \"~\" & Err.Number: Err.Clear\n    Case 163\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = ws.ChartObjects(1)\n        s = \"made \" & Err.Number: Err.Clear\n        ws.ChartObjects(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        h.Select: s = s & \"~\" & Err.Number: Err.Clear\n    Case 164\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.ChartObjects(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 165\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = ws.ChartObjects(1).Chart\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.HasTitle = True: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 166\n        ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)\n        Set h = sh.Chart\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.HasTitle = True: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 167\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.ControlFormat\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Enabled: s = s & \"~\" & Err.Number: Err.Clear\n        h.Enabled = True: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 168\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = ws.Buttons(1)\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Left = 5: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 169\n        ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Buttons(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        h.Name = \"Z\": s = s & \"~\" & Err.Number: Err.Clear\n        h.ZOrder 0: s = s & \"~\" & Err.Number: Err.Clear\n    Case 170\n        ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)\n        Set h = sh.ControlFormat\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Value: s = s & \"~\" & Err.Number: Err.Clear\n        h.Value = 1: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 171\n        Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)\n        Set h = sh.PictureFormat\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Brightness: s = s & \"~\" & Err.Number: Err.Clear\n        h.Brightness = 0.5: s = s & \"~\" & Err.Number: Err.Clear\n        h.IncrementBrightness 0.1: s = s & \"~\" & Err.Number: Err.Clear\n    Case 172\n        With ws.Shapes.BuildFreeform(0, 10, 10)\n        .AddNodes 0, 0, 50, 10\n        .AddNodes 0, 0, 50, 50\n        Set sh = .ConvertToShape\n        End With\n        Set h = sh.Nodes\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Count: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 173\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems(1).Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 174\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group\n        Set h = sh.GroupItems(1).Fill\n        s = \"made \" & Err.Number: Err.Clear\n        sh.GroupItems(1).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Visible: s = s & \"~\" & Err.Number: Err.Clear\n        h.Visible = msoTrue: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n    Case 175\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        For Each o In ws.Shapes: o.Delete: Next\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    Case 176\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n        Set h = sh\n        s = \"made \" & Err.Number: Err.Clear\n        ws.Shapes.Range(Array(1)).Delete\n        s = s & \"~gone \" & Err.Number: Err.Clear\n        v = \"\": v = TypeName(h): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = (h Is Nothing): s = s & \"~\" & v & \"/\" & Err.Number: Err.Clear\n        v = \"\": v = h.Name: s = s & \"~\" & Err.Number: Err.Clear\n        s = s & \"~\"\n        s = s & \"~\"\n    End Select\n    Act5 = s\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add After:=ws\n    Select Case which \\ 30\n    Case 0: Tried = Act0(which, ws, folder)\n    Case 1: Tried = Act1(which, ws, folder)\n    Case 2: Tried = Act2(which, ws, folder)\n    Case 3: Tried = Act3(which, ws, folder)\n    Case 4: Tried = Act4(which, ws, folder)\n    Case 5: Tried = Act5(which, ws, folder)\n    End Select\n    wb.Close False\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 176\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.CutCopyMode = False\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill.ForeColor",
+    "h.RGB",
+    "h.RGB = 255",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ColorFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill.BackColor",
+    "h.RGB",
+    "h.RGB = 255",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ColorFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Line.ForeColor",
+    "h.RGB",
+    "h.RGB = 255",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ColorFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame.Characters",
+    "h.Text",
+    "h.Text = \"x\"",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Characters/0~False/0~1004~1004~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame.Characters(1, 1)",
+    "h.Count",
+    "h.Text = \"x\"",
+    "h.Delete"
+   ],
+   "sh.Delete",
+   "made 1004~gone 0~Nothing/0~True/0~91~91~91"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame.Characters.Font",
+    "h.Bold",
+    "h.Bold = True",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Font/0~False/0~1004~0~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange",
+    "h.Text",
+    "h.Text = \"x\"",
+    "h.Delete"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextRange2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange.Font",
+    "h.Bold",
+    "h.Bold = msoTrue",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Font2/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange.Characters(1, 1)",
+    "h.Length",
+    "h.Text = \"x\"",
+    "h.InsertAfter \"y\""
+   ],
+   "sh.Delete",
+   "made -2147024809~gone 0~Nothing/0~True/0~91~91~91"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange.Font.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange.Font.Line",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Shadow",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShadowFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Glow",
+    "h.Radius",
+    "h.Radius = 1",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~GlowFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.SoftEdge",
+    "h.Radius",
+    "h.Radius = 1",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~SoftEdgeFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Reflection",
+    "h.Type",
+    "h.Type = 1",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ReflectionFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.ThreeD",
+    "h.Visible",
+    "h.Visible = msoFalse",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ThreeDFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Adjustments",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Adjustments/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.ConnectorFormat",
+    "h.Type",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ConnectorFormat/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill.PictureEffects",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~PictureEffects/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name)).Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name)).Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddLine(10, 10, 50, 30)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "With ws.Shapes.BuildFreeform(0, 10, 10): .AddNodes 0, 0, 50, 10: .AddNodes 0, 0, 50, 50: Set sh = .ConvertToShape: End With",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(9, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddTextbox(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddLine(10, 10, 50, 30)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddLine(10, 10, 50, 30)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddLine(10, 10, 50, 30)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddLine(10, 10, 50, 30)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddConnector(1, 10, 10, 50, 30)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "With ws.Shapes.BuildFreeform(0, 10, 10): .AddNodes 0, 0, 50, 10: .AddNodes 0, 0, 50, 50: Set sh = .ConvertToShape: End With",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "With ws.Shapes.BuildFreeform(0, 10, 10): .AddNodes 0, 0, 50, 10: .AddNodes 0, 0, 50, 50: Set sh = .ConvertToShape: End With",
+   [
+    "sh.Line",
+    "h.Weight",
+    "h.Weight = 2",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~LineFormat/0~False/0~424~424~"
+  ],
+  [
+   "With ws.Shapes.BuildFreeform(0, 10, 10): .AddNodes 0, 0, 50, 10: .AddNodes 0, 0, 50, 50: Set sh = .ConvertToShape: End With",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "With ws.Shapes.BuildFreeform(0, 10, 10): .AddNodes 0, 0, 50, 10: .AddNodes 0, 0, 50, 50: Set sh = .ConvertToShape: End With",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Left",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Type",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Parent.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.ID",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Fill.Visible",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.TextFrame2.HasText",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Application.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Creator",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.NoSuchMember",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~438~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Connector",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Left = 5",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.NoSuchMember = 5",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~438~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.OnAction = \"x\"",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~1004~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    null,
+    "h.Delete"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    null,
+    "h.Select"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    null,
+    "h.Duplicate"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~1004"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    null,
+    "h.NoSuchMember"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~438"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Parent.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Application.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Creator",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.NoSuchMember",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~438~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.Parent.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.Application.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.Creator",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange",
+    "h.Parent.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextRange2/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange",
+    "h.Application.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextRange2/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2.TextRange",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~TextRange2/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Item(1).Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~9~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h(1).Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~9~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Application.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Creator",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Parent.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Left",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes(sh.Name).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes.Range(Array(sh.Name)).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes(1).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "h.Parent.Delete: Err.Clear",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Cut",
+   "made 0~gone -2147221040~Shape/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes.SelectAll: Selection.Delete",
+   "made 0~gone 0~Shape/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.DrawingObjects.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "ws.Shapes(sh.Name).Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "ws.Shapes.Range(Array(sh.Name)).Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "ws.Shapes(1).Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "h.Parent.Delete: Err.Clear",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "ws.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "sh.Cut",
+   "made 0~gone -2147221040~FillFormat/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "ws.Shapes.SelectAll: Selection.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    "h.Solid"
+   ],
+   "ws.DrawingObjects.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "ws.Shapes(sh.Name).Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "ws.Shapes.Range(Array(sh.Name)).Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "ws.Shapes(1).Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "h.Parent.Delete: Err.Clear",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "ws.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "sh.Cut",
+   "made 0~gone -2147221040~TextFrame2/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "ws.Shapes.SelectAll: Selection.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh.TextFrame2",
+    "h.MarginLeft",
+    "h.MarginLeft = 1",
+    "h.DeleteText"
+   ],
+   "ws.DrawingObjects.Delete",
+   "made 0~gone 0~TextFrame2/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes(sh.Name).Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes.Range(Array(sh.Name)).Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes(1).Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "h.Parent.Delete: Err.Clear",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "ws.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Cut",
+   "made 0~gone -2147221040~ShapeRange/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes.SelectAll: Selection.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "ws.Shapes.Range(Array(sh.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "ws.DrawingObjects.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Copy",
+   "made 0~gone -2147221040~Shape/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "s2 = sh.Name: sh.Delete: Set o = ws.Shapes.AddShape(1, 1, 1, 5, 5): o.Name = s2",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h.Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h.Left",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h.Item(1).Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h.Item(2).Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~-2147352565~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h(1).Name",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~0~0~0"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50)",
+   [
+    "ws.Shapes.Range(Array(sh.Name, o.Name))",
+    "h.Name",
+    "h.Left = 5",
+    "h.ZOrder 0"
+   ],
+   "ws.Shapes.Range(Array(sh.Name, o.Name)).Delete",
+   "made 0~gone 0~ShapeRange/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.Ungroup",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems(1)",
+    "h.Name",
+    "h.Left = 5",
+    null
+   ],
+   "sh.Ungroup",
+   "made 0~gone 0~Shape/0~False/0~0~0~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems(1)",
+    "h.Name",
+    "h.Left = 5",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~GroupShapes/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Ungroup",
+   "made 0~gone 0~GroupShapes/0~False/0~0~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems(1)",
+    "h.Name",
+    "h.Left = 5",
+    null
+   ],
+   "sh.GroupItems(1).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.GroupItems(1).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "sh.GroupItems(1).Delete: sh.GroupItems(1).Delete",
+   "made 0~gone 1004~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems(2)",
+    "h.Name",
+    "h.Left = 5",
+    null
+   ],
+   "sh.GroupItems(1).Delete",
+   "made 0~gone 0~Shape/0~False/0~0~0~"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "ws.ChartObjects(1)",
+    "h.Name",
+    "h.Left = 5",
+    "h.Select"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ChartObject/0~False/0~-2147467259~-2147467259~-2147417848"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "ws.ChartObjects(1)",
+    "h.Name",
+    "h.Left = 5",
+    "h.Select"
+   ],
+   "ws.ChartObjects(1).Delete",
+   "made 0~gone 0~ChartObject/0~False/0~-2147467259~-2147467259~-2147417848"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.ChartObjects(1).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "ws.ChartObjects(1).Chart",
+    "h.Name",
+    "h.HasTitle = True",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Chart/0~False/0~-2147467259~-2147417848~"
+  ],
+  [
+   "ws.ChartObjects.Add 10, 10, 100, 100: Set sh = ws.Shapes(1)",
+   [
+    "sh.Chart",
+    "h.Name",
+    "h.HasTitle = True",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Chart/0~False/0~-2147467259~-2147417848~"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.ControlFormat",
+    "h.Enabled",
+    "h.Enabled = True",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ControlFormat/0~False/0~1004~1004~"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "ws.Buttons(1)",
+    "h.Name",
+    "h.Left = 5",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~Button/0~False/0~1004~1004~"
+  ],
+  [
+   "ws.Buttons.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh",
+    "h.Name",
+    "h.Name = \"Z\"",
+    "h.ZOrder 0"
+   ],
+   "ws.Buttons(1).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~424~424"
+  ],
+  [
+   "ws.CheckBoxes.Add 10, 10, 100, 40: Set sh = ws.Shapes(1)",
+   [
+    "sh.ControlFormat",
+    "h.Value",
+    "h.Value = 1",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ControlFormat/0~False/0~1004~1004~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddPicture(folder & \"\\p.png\", msoFalse, msoTrue, 10, 10, 20, 20)",
+   [
+    "sh.PictureFormat",
+    "h.Brightness",
+    "h.Brightness = 0.5",
+    "h.IncrementBrightness 0.1"
+   ],
+   "sh.Delete",
+   "made 0~gone 0~PictureFormat/0~False/0~424~424~424"
+  ],
+  [
+   "With ws.Shapes.BuildFreeform(0, 10, 10): .AddNodes 0, 0, 50, 10: .AddNodes 0, 0, 50, 50: Set sh = .ConvertToShape: End With",
+   [
+    "sh.Nodes",
+    "h.Count",
+    null,
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~ShapeNodes/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems(1).Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    null
+   ],
+   "sh.Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set o = ws.Shapes.AddShape(1, 200, 10, 50, 50): Set sh = ws.Shapes.Range(Array(sh.Name, o.Name)).Group",
+   [
+    "sh.GroupItems(1).Fill",
+    "h.Visible",
+    "h.Visible = msoTrue",
+    null
+   ],
+   "sh.GroupItems(1).Delete",
+   "made 0~gone 0~FillFormat/0~False/0~424~424~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    null,
+    null
+   ],
+   "For Each o In ws.Shapes: o.Delete: Next",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ],
+  [
+   "Set sh = ws.Shapes.AddShape(1, 10, 10, 100, 40)",
+   [
+    "sh",
+    "h.Name",
+    null,
+    null
+   ],
+   "ws.Shapes.Range(Array(1)).Delete",
+   "made 0~gone 0~Shape/0~False/0~424~~"
+  ]
+ ]
+}

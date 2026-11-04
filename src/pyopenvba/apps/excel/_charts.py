@@ -21,6 +21,7 @@ from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.apps.excel._chart_borders import INVALID_CALL, NOT_A_PROPERTY, UNSPECIFIED, ElementProperties, PictureMembers
 from pyopenvba._xml import escape_text
 from pyopenvba.apps.excel._creator import Created, ItemDefault
+from pyopenvba.apps.excel._held_shapes import ShapePart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAErrorValue, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 from pyopenvba.shapes._values import FillLine, Shape, emu, points
@@ -1601,11 +1602,19 @@ class ChartSurface(Created):
         raise error(1004, f'Unable to get the Name property of the {self.vba_type_name} class')
 
 
-class ChartObject(Created):
+class ChartObject(ShapePart):
     vba_type_name = 'ChartObject'
+    #: Chart has its own error once the object has gone (tests/fixtures/active_chart.json).
+    held_free = frozenset({'chart', 'parent', 'application', 'creator'})
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape
+
+    def held_gone(self) -> bool:
+        return not shape_here(self.sheet, self.shape)
+
+    def held_error(self, name: str) -> int:
+        return -2147417848 if name in ('select', 'activate') else -2147467259
 
     @member
     def Name(self) -> object:
@@ -1823,12 +1832,27 @@ class ChartObject(Created):
         return EMPTY
 
 
-class Chart(ElementProperties, Created):
+class Chart(ElementProperties, ShapePart):
     vba_type_name = 'Chart'
+
+    held_free = frozenset({'parent', 'application', 'creator'})
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape
         self.state = state(sheet, shape)
+
+    def held_gone(self) -> bool:
+        return not self.sheet.deleted and not shape_here(self.sheet, self.shape)
+
+    def held_error(self, name: str) -> int:
+        return -2147467259
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        # Setting differs from reading, once its shape has gone (tests/fixtures/shape_held_deleted.json).
+        if self.held_gone() and self.vba_member(name) is not None:
+            raise error(-2147417848, 'Automation error')
+        super().vba_set(name, value, args, named, by_ref=by_ref)
 
     def admit_read(self) -> None:
         if (not any(book is self.sheet.book for book in self.sheet.book.application.workbooks_.books)

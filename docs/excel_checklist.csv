@@ -3228,7 +3228,7 @@ TextFrame2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 TextFrame2,WordWrap,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's wrap; any value but 0 wraps.
 TextRange2,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 TextRange2,AddPeriods,method,AddPeriods(),,MISSING,,
-TextRange2,Application,"property, read-only",As Object,,MISSING,,
+TextRange2,Application,"property, read-only",As Object,,UNASSESSED,,
 TextRange2,BoundHeight,"property, read-only",As Single,,MISSING,,
 TextRange2,BoundLeft,"property, read-only",As Single,,MISSING,,
 TextRange2,BoundTop,"property, read-only",As Single,,MISSING,,

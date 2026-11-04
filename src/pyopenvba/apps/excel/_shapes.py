@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, ClassVar, cast
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
+from pyopenvba.apps.excel._held_shapes import ShapePart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -104,7 +105,7 @@ ERR_NO_SUCH_SHAPE = -2147024809
 PLACEMENTS = ("", "oneCell", "absolute")
 
 
-class _Drawn(Created):
+class _Drawn(ShapePart):
     """A shape or a part of one, which a sheet protecting its drawing objects keeps a macro from changing."""
 
     sheet: Worksheet
@@ -516,13 +517,26 @@ class Shapes(VBACollection, ItemDefault, Created):
         return max((one.shape_id for one in drawn if one.kind != "formControl"), default=1) + 1
 
 
-class ShapeRange(VBACollection, Created):
+class ShapeRange(VBACollection, ShapePart):
     """Several shapes answered as one, which is what Range gives back."""
 
     vba_type_name = "ShapeRange"
+    held_free = frozenset({"parent", "application", "creator"})
 
     def __init__(self, shapes: list[ShapeObject]) -> None:
         self.shapes = shapes
+        self.emptied = False
+
+    def held_gone(self) -> bool:
+        """A range goes on with the shapes it has left, and has gone with the last of them."""
+        left = [one for one in self.shapes if not one.held_gone()]
+        if len(left) != len(self.shapes):
+            self.shapes[:] = left
+            self.emptied = not left
+        return self.emptied
+
+    def held_error(self, name: str) -> int:
+        return 9 if name == "item" else 424
 
     def vba_items(self) -> list[object]:
         return list(self.shapes)
@@ -1001,10 +1015,17 @@ class ShapeObject(_Drawn):
     """One shape on a sheet."""
 
     vba_type_name = "Shape"
+    held_free = frozenset({"parent", "application", "creator"})
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet = sheet
         self.shape = shape
+
+    def held_gone(self) -> bool:
+        return not shape_here(self.sheet, self.shape)
+
+    def held_error(self, name: str) -> int:
+        return 1004 if name in ("onaction", "duplicate", "groupitems") else 424
 
     @member
     def Parent(self) -> object:
@@ -1500,7 +1521,7 @@ class ShapeObject(_Drawn):
 
     def on_sheet(self) -> None:
         # A deleted shape has nothing to answer with (tests/fixtures/shape_range_fill_line.json).
-        if not any(shape is self.shape for shape in self.sheet.shapes_):
+        if self.held_gone():
             raise error(424, "Object required")
 
     @member
@@ -1784,7 +1805,7 @@ def _adjustable(owner: ShapeObject) -> tuple[tuple[str, int, bool], ...]:
     return ADJUSTMENTS.get(shape.geometry, ())
 
 
-class Adjustments(Created):
+class Adjustments(ShapePart):
     """A shape's adjustment values (tests/fixtures/shape_adjustments.json): each read as a fraction, or as an angle
     from -180 to 180. Past the end is error 5, and an index below 1 is out of range. Setting one writes them all, unless
     every one is back at its default."""
@@ -1892,7 +1913,7 @@ _NOT_A_CALLOUT = (-2147024809, "The specified value is out of range.")
 _CALLOUT_ANGLES = {2: 30.0, 3: 45.0, 4: 60.0, 5: 90.0}
 
 
-class CalloutFormat(Created):
+class CalloutFormat(ShapePart):
     """A callout's look (tests/fixtures/shape_columns.json), read from and written to its adjustments: pairs of y and x
     as fractions of the shape, one more pair than it has lines. Gap and Drop move the whole leader; Length and Angle
     its second point, a one-line callout's only where measured. Other shapes have this object, and using it is out of
@@ -2088,7 +2109,7 @@ class CalloutFormat(Created):
         self.put(values)
 
 
-class PictureCrop(Created):
+class PictureCrop(ShapePart):
     """A new picture's Crop, uncropped (tests/fixtures/shape_picture_formats.json). Setting a crop moves and sizes the shape
     by rules not worked out, including a bottom crop of the shape's fifth on the first, and reports itself."""
 
@@ -2140,7 +2161,7 @@ class PictureCrop(Created):
         return VBASingle(0.0)
 
 
-class PictureFormat(Created):
+class PictureFormat(ShapePart):
     """What a new picture reads and sets (tests/fixtures/shape_add_picture.json, tests/fixtures/shape_picture_formats.json);
     other shapes give this object, and using it is out of range. Brightness and contrast run 0 to 1, with 0.5 as the
     file's 0. ColorType's 4, a watermark, sets them both, and any ColorType clears them first."""
@@ -2330,7 +2351,7 @@ def _vba_points(points: list[tuple[int, tuple[float, float]]]) -> VBAArray:
     return made
 
 
-class ShapeNodes(Created):
+class ShapeNodes(ShapePart):
     """A freeform's nodes (tests/fixtures/shape_painter.json). Other shapes have nodes of their preset's that are not
     modelled, and report themselves."""
 
@@ -2358,7 +2379,7 @@ class ShapeNodes(Created):
         return ShapeNode(self.owner, chosen - 1)
 
 
-class ShapeNode(Created):
+class ShapeNode(ShapePart):
     vba_type_name = "ShapeNode"
 
     def __init__(self, owner: ShapeObject, index: int) -> None:
@@ -2455,7 +2476,7 @@ class RangeConnector(Created):
         return self.first().vba_get("EndConnected")
 
 
-class ConnectorFormat(Created):
+class ConnectorFormat(ShapePart):
     """A line or connector's connections (tests/fixtures/shape_adjustments.json, tests/fixtures/shape_connectors.json). Every
     other shape gives this object, but reading or setting anything on it is out of range."""
 
@@ -2591,7 +2612,7 @@ class ConnectorFormat(Created):
         return self._disconnect(False)
 
 
-class GroupItems(VBACollection, Created):
+class GroupItems(VBACollection, ShapePart):
     """The shapes inside a group."""
 
     vba_type_name = "GroupShapes"
@@ -2599,6 +2620,10 @@ class GroupItems(VBACollection, Created):
     def __init__(self, sheet: Worksheet, group: Shape) -> None:
         self.sheet = sheet
         self.group = group
+
+    def held_gone(self) -> bool:
+        # An ungrouped group's items still answer, with its members standing alone.
+        return not shape_here(self.sheet, self.group) and not any(shape_here(self.sheet, one) for one in self.group.children)
 
     def vba_items(self) -> list[object]:
         return [ShapeObject(self.sheet, one) for one in self.group.children]
@@ -2625,7 +2650,7 @@ class GroupItems(VBACollection, Created):
         return super().vba_lookup(index, items)
 
 
-class _TextLayout(Created):
+class _TextLayout(ShapePart):
     """What TextFrame and TextFrame2 share of a shape's text layout: its margins and orientation, as
     tests/fixtures/text_frame.json and tests/fixtures/text_frame2.json measured them on a new rectangle and text
     box."""
@@ -2715,7 +2740,10 @@ class TextFrame(_TextLayout):
 
     @member
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
-        return Characters(self.owner, Start, Length)
+        found = Characters(self.owner, Start, Length)
+        # Beyond the text, it raises as soon as it is asked for, and on use if the text shrinks later.
+        found.span()
+        return found
 
     @setter("Characters")
     def _set_characters(self, value: object, Start: object = MISSING, Length: object = MISSING) -> None:
@@ -2817,7 +2845,7 @@ _ALIGN_SET = {-4131: "l", -4108: "ctr", -4152: "r", -4130: "just", -4117: "justL
 _ORIENTATIONS = ("horz", "vert270", "vert", "eaVert", "mongolianVert", "wordArtVert")
 
 
-class TextColumn2(Created):
+class TextColumn2(ShapePart):
     """TextFrame2.Column: 1 to 16 columns and the gap between them. A shape with no text has this object, and using it is
     out of range. It has no Parent (tests/fixtures/shape_columns.json)."""
 
@@ -3035,6 +3063,9 @@ class Characters(_ShapeText):
 
     vba_type_name = "Characters"
 
+    def held_error(self, name: str) -> int:
+        return 1004
+
     def __init__(self, shape: ShapeObject, start: object = MISSING, length: object = MISSING) -> None:
         super().__init__(shape)
         self.start = start
@@ -3111,7 +3142,7 @@ class _RunLook(TextLook):
                 mark[name] = value
 
 
-class _ShapeFontBase(Created):
+class _ShapeFontBase(ShapePart):
     """What Characters.Font and TextRange2.Font share (tests/fixtures/shape_font.json), over all of a shape's text or part
     of it (tests/fixtures/shape_runs.json): a range with more than one setting reads as its first character does, but for
     the members in `mixed`."""
@@ -3190,6 +3221,16 @@ class _ShapeFontBase(Created):
 
 
 class ShapeFont(_ShapeFontBase):
+    def held_error(self, name: str) -> int:
+        return 1004
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        # Setting a font of a shape that has gone does nothing, and no error says so (tests/fixtures/shape_held_deleted.json).
+        if self.held_gone() and self.vba_member(name) is not None:
+            return
+        super().vba_set(name, value, args, named, by_ref=by_ref)
+
     """All of a shape's text's font (tests/fixtures/shape_font.json)."""
 
     vba_type_name = "Font"
@@ -3684,6 +3725,10 @@ class TextRange2(_ShapeText):
         raise error(-2147024809, "The parameter is incorrect.")
 
     @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
     def Start(self) -> object:
         return VBAInt(self.span()[0] + 1, "Long")
 
@@ -3764,6 +3809,12 @@ class ControlFormat(_Drawn):
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet = sheet
         self.shape = shape
+
+    def held_gone(self) -> bool:
+        return not shape_here(self.sheet, self.shape)
+
+    def held_error(self, name: str) -> int:
+        return 1004
 
     def _numeric_property(self, name: str) -> object:
         from pyopenvba.apps.excel._controls import numeric_control, numeric_maximum

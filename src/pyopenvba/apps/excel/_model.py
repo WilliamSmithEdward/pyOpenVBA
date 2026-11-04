@@ -3229,6 +3229,8 @@ class Worksheet(ExcelObject):
         self.drawing_part = ""
         self.drawing_xml = ""
         self.drawing_dirty = False
+        #: The ids of the shapes on the sheet, within groups too, until the drawing next changes (see _held_shapes).
+        self.live_shapes: set[int] | None = None
         #: The notes on the sheet's cells, which VBA calls comments, by cell in the order they were made (see
         #: _notes); True once one is added, changed, moved or removed, so a save writes them again.
         self.notes: dict[tuple[int, int], Note] = {}
@@ -3264,6 +3266,7 @@ class Worksheet(ExcelObject):
         that grow by their fonts to move them by."""
         self.drawing_dirty = True
         self.book.saved = False
+        self.live_shapes = None
         if any(one.begin_link is not None or one.end_link is not None for one in self.shapes_):
             from pyopenvba.apps.excel._shape_connectors import follow
 

@@ -4,6 +4,7 @@ same after a save and reopen, and what two cells that differ read through their 
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, cast
 
@@ -22,7 +23,8 @@ IDS = [f"{number}-{case[0]}.{case[2]}={case[3]}" for number, case in CASES]
 def run(tmp_path_factory: pytest.TempPathFactory) -> dict[str, dict[int, str]]:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
-    app.add_module(RECORD['source'], name='Formats')
+    # The probe as recorded, its file joined to the folder with this platform's separator.
+    app.add_module(RECORD['source'].replace('Application.PathSeparator', f'"{os.sep}"'), name='Formats')
     app.run('Formats.Setup')
     found: dict[str, dict[int, str]] = {'set': {}, 'mixed': {}, 'after': {}}
 

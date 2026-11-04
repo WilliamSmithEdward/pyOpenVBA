@@ -47,7 +47,7 @@ ITEM_ERRORS: dict[str, dict[str, int]] = {
         'blank': 1004, 'empty': 1004, 'null': 1004, 'true': 1004, 'object': 1004},
     'HPageBreaks': {'missing': 450, 'past': 9, 'zero': 9, 'negative': 9, 'fraction': 9, 'text': 9, 'lacking': 13,
         'blank': 13, 'empty': 9, 'true': 9, 'object': 13},
-    'Hyperlinks': {'missing': 450},
+    'Hyperlinks': {'missing': 450, 'null': 13},
     'Points': {'past': -2147467259, 'zero': -2147467259, 'negative': -2147467259, 'empty': -2147467259, 'true': -2147467259},
     'QueryTables': {'zero': 1004, 'negative': 1004, 'empty': 1004, 'true': 1004, 'null': 13, 'object': 13},
     'SeriesCollection': {'null': 13},

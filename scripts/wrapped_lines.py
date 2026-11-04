@@ -29,7 +29,12 @@ def pieces(text: str) -> list[str]:
 
 def lines_of(text: str, column: int, extent: Callable[[str], int], digit: int, taken: int = 0) -> int:
     """How many lines a text takes in a column with ``taken`` pixels gone from it, as an indent or italic takes them. Only a line feed starts a line of its own."""
-    return sum(_lines_of_paragraph(one, column - taken, extent, digit) for one in text.split('\n'))
+    room = column - taken
+    found = sum(_lines_of_paragraph(one, room, extent, digit) for one in text.split('\n'))
+    # A line feed at the very end takes a line of its own when the letter before it does not fit either.
+    if text[-2:-1] not in ('', '\n') and text.endswith('\n') and room < room_for(extent(text[-2]), digit):
+        found += 1
+    return found
 
 
 def _lines_of_paragraph(text: str, column: int, extent: Callable[[str], int], digit: int) -> int:

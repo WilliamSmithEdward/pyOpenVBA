@@ -220,7 +220,7 @@ def _gaps_in(function: object) -> tuple[list[str], list[str]]:
     for node in ast.walk(ast.parse("class _:\n" + source if source[0].isspace() else source)):
         if isinstance(node, ast.Raise) and isinstance(node.exc, ast.Call) and getattr(node.exc.func, "id", "") == "VBAUnsupportedError":
             first = node.exc.args[0]
-            raised.append(first.value if isinstance(first, ast.Constant) else ast.unparse(first))
+            raised.append(str(first.value) if isinstance(first, ast.Constant) else ast.unparse(first))
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and getattr(node.func.value, "id", "") == "self":
             called.append(node.func.attr)
     return raised, called

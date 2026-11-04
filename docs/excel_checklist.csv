@@ -4575,7 +4575,7 @@ Arc,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.j
 Arc,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arcs,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Arcs,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Arcs,Add,method,"Add(X1 As Double, Y1 As Double, X2 As Double, Y2 As Double) As Arc",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arcs,AddIndent,property,As Boolean,,MISSING,,
 Arcs,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -4665,7 +4665,7 @@ Button,VerticalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_contr
 Button,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-Buttons,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Buttons,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Buttons,Accelerator,property,As Variant,,MISSING,,
 Buttons,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Button",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Buttons,AddIndent,property,As Boolean,,MISSING,,
@@ -4753,7 +4753,7 @@ CheckBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"
 CheckBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBoxes,_Default,property,As Long,,MISSING,,
-CheckBoxes,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+CheckBoxes,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 CheckBoxes,Accelerator,property,As Variant,,MISSING,,
 CheckBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As CheckBox",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -4793,7 +4793,7 @@ CheckBoxes,Visible,property,As Boolean,,MISSING,,
 CheckBoxes,Width,property,As Double,,MISSING,,
 CheckBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
 DrawingObjects,_Default,property,As Long,,MISSING,,
-DrawingObjects,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+DrawingObjects,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 DrawingObjects,Accelerator,property,As Variant,,MISSING,,
 DrawingObjects,Add,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 DrawingObjects,AddIndent,property,As Boolean,,MISSING,,
@@ -4913,7 +4913,7 @@ DropDown,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"
 DropDown,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDowns,_Default,property,As Long,,MISSING,,
-DropDowns,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+DropDowns,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 DropDowns,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double, [Editable As Variant]) As DropDown",no Editable,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDowns,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,MISSING,,
 DropDowns,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -4985,7 +4985,7 @@ Line,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_draw
 Line,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Line,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Line,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Lines,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Lines,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Lines,Add,method,"Add(X1 As Double, Y1 As Double, X2 As Double, Y2 As Double) As Line",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Lines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Lines,ArrowHeadLength,property,As Variant,,MISSING,,
@@ -5060,7 +5060,7 @@ ListBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"A
 ListBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBoxes,_Default,property,As Long,,MISSING,,
-ListBoxes,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+ListBoxes,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 ListBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As ListBox",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBoxes,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,MISSING,,
 ListBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -5147,7 +5147,7 @@ OptionButton,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.
 OptionButton,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButtons,_Default,property,As Long,,MISSING,,
-OptionButtons,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+OptionButtons,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 OptionButtons,Accelerator,property,As Variant,,MISSING,,
 OptionButtons,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As OptionButton",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButtons,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -5231,7 +5231,7 @@ Oval,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.
 Oval,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Ovals,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Ovals,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Ovals,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Oval",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Ovals,AddIndent,property,As Boolean,,MISSING,,
 Ovals,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -5306,7 +5306,7 @@ Picture,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_d
 Picture,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Picture,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Picture,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Pictures,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Pictures,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Pictures,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Picture",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Pictures,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Pictures,Border,"property, read-only",As Border,,MISSING,,
@@ -5384,7 +5384,7 @@ Rectangle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_draw
 Rectangle,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangles,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Rectangles,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Rectangles,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Rectangle",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangles,AddIndent,property,As Boolean,,MISSING,,
 Rectangles,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -5474,7 +5474,7 @@ TextBox,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawin
 TextBox,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBoxes,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+TextBoxes,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 TextBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As TextBox",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBoxes,AddIndent,property,As Boolean,,MISSING,,
 TextBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -5519,7 +5519,6 @@ TextBoxes,VerticalAlignment,property,As Variant,,MISSING,,
 TextBoxes,Visible,property,As Boolean,,MISSING,,
 TextBoxes,Width,property,As Double,,MISSING,,
 TextBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
-Workbook,Calculate,not in the type library,,,UNASSESSED,,
 Worksheet,Arcs,not in the type library,,,UNASSESSED,,
 Worksheet,Buttons,not in the type library,,,UNASSESSED,,
 Worksheet,CheckBoxes,not in the type library,,,UNASSESSED,,

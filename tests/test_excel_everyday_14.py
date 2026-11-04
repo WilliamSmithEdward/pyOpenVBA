@@ -17,7 +17,6 @@ GAPS: dict[str, str] = {
     'chart_axes': "secondary axes",
     'chart_type_change': "a series' own chart type",
     'chart_sheet': 'moving a chart to a chart sheet',
-    'shape_text': "the font of some of a shape's characters",
 }
 
 

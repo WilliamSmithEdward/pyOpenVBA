@@ -6274,6 +6274,7 @@ class Range(ExcelObject):
             # Unlike a write, a clear that meets a locked cell leaves every cell as it was.
             raise error(1004, PROTECTED)
         _arrays.clear_admitted(target)
+        self._taking_whole_pivot_tables()
         target._clear_contents()
         header_cleared(target)
         if self.sheet.hyperlinks:
@@ -6404,6 +6405,10 @@ class Range(ExcelObject):
         for table in list(self.sheet.tables):
             if self._within(table.area):
                 delete_table(table)
+        self._taking_whole_pivot_tables()
+
+    def _taking_whole_pivot_tables(self) -> None:
+        """Clearing all of a pivot table's cells takes it, ClearContents too, which leaves a table (tests/fixtures/deleted_data.json)."""
         for pivot in list(self.sheet.pivot_tables):
             cells = pivot.vba_get('TableRange2')
             if isinstance(cells, Range) and self._within(cells.first):

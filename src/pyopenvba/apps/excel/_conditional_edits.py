@@ -586,7 +586,7 @@ def planned(sheet: Worksheet, edit: Edit, *, below: bool = False) -> Callable[[]
                 if group.areas != old_areas[id(group)]:
                     _moved(rule, list(group.areas))
                 if not group.areas:
-                    rule.deleted = True
+                    rule.deleted = rule.cells_went = True
                     owner.conditional_formats.remove(rule)
             touched.add(id(owner))
         for group in remade:

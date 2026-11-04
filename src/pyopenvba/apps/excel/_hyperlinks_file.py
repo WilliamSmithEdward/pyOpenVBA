@@ -27,6 +27,7 @@ Measured in live Excel (scripts/measure_hyperlinks.py, tests/fixtures/hyperlinks
 from __future__ import annotations
 
 import ntpath
+import posixpath
 import re
 from typing import TYPE_CHECKING, Final
 
@@ -137,6 +138,9 @@ def saved_address(address: str, folder: str) -> str:
     path = address[7:] if _file_url(address) else address
     if _DRIVE.match(path) and folder and ntpath.splitdrive(path)[0].casefold() == ntpath.splitdrive(folder)[0].casefold():
         return ntpath.relpath(path, folder).replace("\\", "/")
+    if path.startswith("/") and folder.startswith("/"):
+        # Off Windows a full path has no drive: all of it is on the folder's own, in either separator.
+        return posixpath.relpath(path.replace("\\", "/"), folder)
     return address
 
 

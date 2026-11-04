@@ -60,6 +60,8 @@ if TYPE_CHECKING:
 #: Declared String, yet they take a range of several cells, typed too (tests/fixtures/worksheet_function_types.json): the
 #: places of the texts each joins, and TextJoin's delimiter.
 _NOT_CONVERTED: Final = {"textjoin": (0, 2), "concat": (0,)}
+#: A Null where a function needs a value: a blank cell's value.
+BLANK: Final = object()
 #: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
 _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
@@ -81,7 +83,7 @@ _STRING: Final = frozenset({
 })
 #: Functions whose one-item answer stays an array given single values: RandArray(1, 1) is a one-item array, where
 #: Transpose(5) is 5 (tests/fixtures/worksheet_functions_more.json).
-_ALWAYS_ARRAY: Final = frozenset({"randarray"})
+_ALWAYS_ARRAY: Final = frozenset({"randarray", "munit"})
 def engine_name(name: str) -> str | None:
     """The formula engine's name for a WorksheetFunction member, where the engine has the function."""
     from pyopenvba.formula._calc import registry
@@ -128,6 +130,9 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         found = registry.call(entry, context, nodes)
     except EngineError as failure:
         found = failure.error
+    if raising and late and isinstance(found, CellError) and _text_cell_for_switch(name, values):
+        # Excel's own conversion fails item by item, so the answer is an array (tests/fixtures/worksheet_function_types.json).
+        found = Array([[found]])
     if (single and isinstance(found, Array) and found.height == found.width == 1
             and name.lower() not in _ALWAYS_ARRAY):
         # Given single values, a function whose answer is one item hands back the item: Transpose(5) is 5.
@@ -203,12 +208,12 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
         if value is NULL:
-            # The last it cannot do without, with nothing after it, or a column; earlier ones are as if left blank
-            # (tests/fixtures/worksheet_function_types.json).
+            # The last it cannot do without, with nothing after it, or a column; one it needs before that is a blank
+            # cell, and one it does not is left out (tests/fixtures/worksheet_function_types.json).
             if (index == minimum - 1 and index == len(values) - 1) or (lower == "index" and index in (0, 2)) \
                     or (lower in ("vlookup", "hlookup") and index == 2):
                 raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
-            value = MISSING
+            value = BLANK if index < minimum else MISSING
         if lower in _ONE_VALUE and index == 2:
             if lower != "match" or isinstance(value, Range):
                 value = _first_item(value)
@@ -221,6 +226,18 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
     while found and found[-1] is MISSING:
         found.pop()
     return found
+
+
+def _text_cell_for_switch(name: str, values: list[object]) -> bool:
+    """Whether one cell is given where the library declares a Boolean."""
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.interpreter._type_library import find_class
+
+    library = find_class("excel", "worksheetfunction")
+    forms = library.members.get(name.lower(), []) if library is not None else []
+    declared = [one.split(":")[-1] for one in forms[0][4]] if forms else []
+    return any(isinstance(value, Range) and value.single and index < len(declared) and declared[index] == "Boolean"
+               for index, value in enumerate(values))
 
 
 def _laid_out(args: list[object], named: dict[str, object]) -> list[object]:
@@ -243,6 +260,8 @@ def _node(value: object, books: _OpenBooks) -> Node:
 
     if value is MISSING or value is EMPTY:
         return Missing()
+    if value is BLANK:
+        return Given(_given_item(EMPTY))
     if value is NULL:
         raise error(1004, "A worksheet function cannot take Null")
     if isinstance(value, Range):

@@ -1,0 +1,1985 @@
+{
+"source": "Private Function Note(e As Long, v As Variant) As String\n    If e <> 0 Then\n        Note = \"e\" & e\n    ElseIf IsArray(v) Then\n        Note = TypeName(v)\n    ElseIf IsError(v) Then\n        Note = CStr(v)\n    Else\n        Note = TypeName(v) & \" \" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Part0(f As WorksheetFunction, ws As Object) As String\n    Dim v As Variant, s As String\n    On Error Resume Next\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"a\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"aa\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"aaa\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"aaaa\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"b\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"bb\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"bbb\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"bbbb\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"c\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"cc\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ccc\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"cccc\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"d\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"dd\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ddd\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"dddd\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"e\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ee\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"eee\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"eeee\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"f\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ff\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"fff\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ffff\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"g\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"gg\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ggg\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"gggg\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"h\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"hh\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"hhh\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"hhhh\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"i\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ii\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"iii\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"iiii\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"j\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"jj\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"jjj\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"jjjj\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"k\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"kk\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"kkk\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"kkkk\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"l\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ll\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"lll\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"llll\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"m\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"mm\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"mmm\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"mmmm\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"n\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"nn\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"nnn\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"nnnn\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"o\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"oo\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ooo\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"oooo\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"p\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"pp\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ppp\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"pppp\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"q\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"qq\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"qqq\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"qqqq\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"r\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"rr\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"rrr\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"rrrr\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"s\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ss\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"sss\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ssss\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"t\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"tt\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ttt\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"tttt\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"u\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"uu\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"uuu\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"uuuu\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"v\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"vv\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"vvv\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"vvvv\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"w\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ww\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"www\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"wwww\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"x\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"xx\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"xxx\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"xxxx\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"y\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"yy\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"yyy\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"yyyy\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"z\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"zz\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"zzz\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"zzzz\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"A\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"AA\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"AAA\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"AAAA\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"B\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"BB\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"BBB\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"BBBB\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"C\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"CC\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"CCC\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"CCCC\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"D\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"DD\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"DDD\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"DDDD\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"E\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"EE\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"EEE\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"EEEE\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"F\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"FF\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"FFF\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"FFFF\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"G\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"GG\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"GGG\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"GGGG\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"H\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"HH\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"HHH\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"HHHH\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"I\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"II\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"III\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"IIII\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"J\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"JJ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"JJJ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"JJJJ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"K\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"KK\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"KKK\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"KKKK\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"L\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"LL\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Part0 = Mid(s, 3)\nEnd Function\n\nPrivate Function Part1(f As WorksheetFunction, ws As Object) As String\n    Dim v As Variant, s As String\n    On Error Resume Next\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"LLL\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"LLLL\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"M\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"MM\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"MMM\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"MMMM\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"N\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"NN\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"NNN\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"NNNN\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"O\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"OO\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"OOO\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"OOOO\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"P\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"PP\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"PPP\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"PPPP\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"Q\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"QQ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"QQQ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"QQQQ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"R\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"RR\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"RRR\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"RRRR\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"S\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"SS\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"SSS\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"SSSS\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"T\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"TT\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"TTT\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"TTTT\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"U\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"UU\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"UUU\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"UUUU\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"V\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"VV\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"VVV\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"VVVV\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"W\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"WW\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"WWW\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"WWWW\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"X\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"XX\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"XXX\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"XXXX\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"Y\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"YY\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"YYY\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"YYYY\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"Z\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ZZ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ZZZ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(45000.75,\"\"ZZZZ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"a\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"aa\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"aaa\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"aaaa\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"b\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"bb\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"bbb\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"bbbb\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"c\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"cc\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ccc\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"cccc\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"d\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"dd\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ddd\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"dddd\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"e\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ee\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"eee\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"eeee\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"f\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ff\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"fff\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ffff\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"g\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"gg\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ggg\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"gggg\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"h\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"hh\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"hhh\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"hhhh\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"i\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ii\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"iii\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"iiii\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"j\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"jj\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"jjj\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"jjjj\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"k\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"kk\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"kkk\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"kkkk\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"l\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ll\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"lll\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"llll\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"m\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"mm\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"mmm\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"mmmm\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"n\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"nn\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"nnn\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"nnnn\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"o\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"oo\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ooo\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"oooo\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"p\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"pp\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ppp\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"pppp\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"q\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"qq\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"qqq\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"qqqq\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"r\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"rr\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"rrr\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"rrrr\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"s\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ss\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"sss\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ssss\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"t\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"tt\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ttt\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"tttt\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"u\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"uu\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"uuu\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"uuuu\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"v\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"vv\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"vvv\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"vvvv\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"w\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ww\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"www\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"wwww\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Part1 = Mid(s, 3)\nEnd Function\n\nPrivate Function Part2(f As WorksheetFunction, ws As Object) As String\n    Dim v As Variant, s As String\n    On Error Resume Next\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"x\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"xx\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"xxx\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"xxxx\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"y\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"yy\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"yyy\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"yyyy\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"z\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"zz\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"zzz\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"zzzz\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"A\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"AA\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"AAA\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"AAAA\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"B\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"BB\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"BBB\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"BBBB\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"C\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"CC\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"CCC\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"CCCC\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"D\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"DD\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"DDD\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"DDDD\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"E\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"EE\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"EEE\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"EEEE\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"F\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"FF\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"FFF\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"FFFF\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"G\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"GG\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"GGG\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"GGGG\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"H\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"HH\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"HHH\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"HHHH\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"I\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"II\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"III\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"IIII\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"J\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"JJ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"JJJ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"JJJJ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"K\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"KK\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"KKK\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"KKKK\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"L\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"LL\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"LLL\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"LLLL\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"M\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"MM\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"MMM\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"MMMM\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"N\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"NN\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"NNN\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"NNNN\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"O\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"OO\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"OOO\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"OOOO\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"P\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"PP\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"PPP\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"PPPP\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"Q\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"QQ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"QQQ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"QQQQ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"R\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"RR\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"RRR\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"RRRR\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"S\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"SS\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"SSS\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"SSSS\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"T\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"TT\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"TTT\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"TTTT\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"U\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"UU\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"UUU\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"UUUU\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"V\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"VV\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"VVV\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"VVVV\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"W\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"WW\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"WWW\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"WWWW\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"X\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"XX\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"XXX\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"XXXX\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"Y\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"YY\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"YYY\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"YYYY\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"Z\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ZZ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ZZZ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,\"\"ZZZZ\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,TRUE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,FALSE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(TRUE,\"\"0\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(\"\"x\"\",\"\"0\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=TEXT(1234.5,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=NUMBERVALUE(TRUE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=NUMBERVALUE(FALSE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=NUMBERVALUE(\"\"1,5\"\",\"\",\"\",\"\".\"\")\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"x\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"X\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"x1\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"0x1F\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"0X1F\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"x\"\",10)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"0x1\"\",10)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"1F\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"y\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DECIMAL(\"\"\"\",16)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=VDB(2,300,3650,0,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=VDB(300,2,3650,0,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=VDB(2400,-1,3650,0,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=VDB(-1,300,3650,0,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=VDB(0,300,3650,0,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=VDB(2,2,3650,0,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=VDB(2,300,10,0,5)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=SYD(30000,-1,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=SYD(1,300,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=SYD(-1,300,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=SYD(30000,0,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DDB(30000,-1,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DDB(1,300,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DDB(-1,300,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DB(30000,-1,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DB(1,300,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Part2 = Mid(s, 3)\nEnd Function\n\nPrivate Function Part3(f As WorksheetFunction, ws As Object) As String\n    Dim v As Variant, s As String\n    On Error Resume Next\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=DB(-1,300,10,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=SLN(30000,-1,10)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=SLN(1,300,10)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=SLN(-1,300,10)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=GAMMALN(1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=GAMMALN(2)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=GAMMALN(3)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=GAMMALN(0.5)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=GAMMALN(1.5)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=GAMMALN.PRECISE(2)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=ZTEST({3,6,7,8,6,5,4,2,1,9},-1,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=ZTEST({3,6,7,8,6,5,4,2,1,9},0,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=ZTEST({3,6,7,8,6,5,4,2,1,9},1,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=ZTEST({3,6,7,8,6,5,4,2,1,9},4,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=ZTEST({3,6,7,8,6,5,4,2,1,9},100,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=MIRR({-120000,39000,30000,21000,37000,46000},-1,0.12)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=MIRR({-120000,39000,-30000,21000,37000,46000},-1,0.12)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=MIRR({-120000,39000,30000,21000,37000,46000},0.1,-1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=PV(-1,240,500,,0)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=PV(-1,240,500,,1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=FV(-1,240,500)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=PMT(-1,240,500)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=POISSON(0,0,TRUE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=POISSON(1,0,TRUE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=POISSON(0,0,FALSE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=POISSON(1,0,FALSE)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=HYPGEOMDIST(1,0,8,20)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=RATE(48,0,8000)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=MUNIT(1)\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = ws.Evaluate(\"=ROWS(MUNIT(1))\"): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = AscW(f.Unichar(2)): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = AscW(f.Unichar(1)): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = AscW(f.Unichar(31)): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = AscW(f.Unichar(65)): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(f.MUnit(1)): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(f.Unichar(2)): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(9, ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(1, ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(109, ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(9, ws.Range(\"A1:A3\"), ws.Range(\"A1:A2\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(99, ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(0, ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(\"9\", ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(9.9, ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = f.Subtotal(True, ws.Range(\"A1:A3\")): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Part3 = Mid(s, 3)\nEnd Function\n\nPublic Function Probe() As String\n    Dim wb As Object, ws As Object, f As WorksheetFunction, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Value = 2: ws.Range(\"A3\").Value = 3\n    Set f = Application.WorksheetFunction\n    s = Part0(f, ws) & chr(64) & chr(64) & Part1(f, ws) & chr(64) & chr(64) & Part2(f, ws) & chr(64) & chr(64) & Part3(f, ws)\n    wb.Close False\n    Probe = s\nEnd Function\n",
+"cases": [
+[
+"=TEXT(45000.75,\"a\")",
+"String a"
+],
+[
+"=TEXT(45000.75,\"aa\")",
+"String aa"
+],
+[
+"=TEXT(45000.75,\"aaa\")",
+"String Wed"
+],
+[
+"=TEXT(45000.75,\"aaaa\")",
+"String Wednesday"
+],
+[
+"=TEXT(45000.75,\"b\")",
+"String 66"
+],
+[
+"=TEXT(45000.75,\"bb\")",
+"String 66"
+],
+[
+"=TEXT(45000.75,\"bbb\")",
+"String 2566"
+],
+[
+"=TEXT(45000.75,\"bbbb\")",
+"String 2566"
+],
+[
+"=TEXT(45000.75,\"c\")",
+"String c"
+],
+[
+"=TEXT(45000.75,\"cc\")",
+"String cc"
+],
+[
+"=TEXT(45000.75,\"ccc\")",
+"String ccc"
+],
+[
+"=TEXT(45000.75,\"cccc\")",
+"String cccc"
+],
+[
+"=TEXT(45000.75,\"d\")",
+"String 15"
+],
+[
+"=TEXT(45000.75,\"dd\")",
+"String 15"
+],
+[
+"=TEXT(45000.75,\"ddd\")",
+"String Wed"
+],
+[
+"=TEXT(45000.75,\"dddd\")",
+"String Wednesday"
+],
+[
+"=TEXT(45000.75,\"e\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"ee\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"eee\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"eeee\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"f\")",
+"String f"
+],
+[
+"=TEXT(45000.75,\"ff\")",
+"String ff"
+],
+[
+"=TEXT(45000.75,\"fff\")",
+"String fff"
+],
+[
+"=TEXT(45000.75,\"ffff\")",
+"String ffff"
+],
+[
+"=TEXT(45000.75,\"g\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"gg\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"ggg\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"gggg\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"h\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"hh\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"hhh\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"hhhh\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"i\")",
+"String i"
+],
+[
+"=TEXT(45000.75,\"ii\")",
+"String ii"
+],
+[
+"=TEXT(45000.75,\"iii\")",
+"String iii"
+],
+[
+"=TEXT(45000.75,\"iiii\")",
+"String iiii"
+],
+[
+"=TEXT(45000.75,\"j\")",
+"String j"
+],
+[
+"=TEXT(45000.75,\"jj\")",
+"String jj"
+],
+[
+"=TEXT(45000.75,\"jjj\")",
+"String jjj"
+],
+[
+"=TEXT(45000.75,\"jjjj\")",
+"String jjjj"
+],
+[
+"=TEXT(45000.75,\"k\")",
+"String k"
+],
+[
+"=TEXT(45000.75,\"kk\")",
+"String kk"
+],
+[
+"=TEXT(45000.75,\"kkk\")",
+"String kkk"
+],
+[
+"=TEXT(45000.75,\"kkkk\")",
+"String kkkk"
+],
+[
+"=TEXT(45000.75,\"l\")",
+"String l"
+],
+[
+"=TEXT(45000.75,\"ll\")",
+"String ll"
+],
+[
+"=TEXT(45000.75,\"lll\")",
+"String lll"
+],
+[
+"=TEXT(45000.75,\"llll\")",
+"String llll"
+],
+[
+"=TEXT(45000.75,\"m\")",
+"String 3"
+],
+[
+"=TEXT(45000.75,\"mm\")",
+"String 03"
+],
+[
+"=TEXT(45000.75,\"mmm\")",
+"String Mar"
+],
+[
+"=TEXT(45000.75,\"mmmm\")",
+"String March"
+],
+[
+"=TEXT(45000.75,\"n\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"nn\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"nnn\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"nnnn\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"o\")",
+"String o"
+],
+[
+"=TEXT(45000.75,\"oo\")",
+"String oo"
+],
+[
+"=TEXT(45000.75,\"ooo\")",
+"String ooo"
+],
+[
+"=TEXT(45000.75,\"oooo\")",
+"String oooo"
+],
+[
+"=TEXT(45000.75,\"p\")",
+"String p"
+],
+[
+"=TEXT(45000.75,\"pp\")",
+"String pp"
+],
+[
+"=TEXT(45000.75,\"ppp\")",
+"String ppp"
+],
+[
+"=TEXT(45000.75,\"pppp\")",
+"String pppp"
+],
+[
+"=TEXT(45000.75,\"q\")",
+"String q"
+],
+[
+"=TEXT(45000.75,\"qq\")",
+"String qq"
+],
+[
+"=TEXT(45000.75,\"qqq\")",
+"String qqq"
+],
+[
+"=TEXT(45000.75,\"qqqq\")",
+"String qqqq"
+],
+[
+"=TEXT(45000.75,\"r\")",
+"String r"
+],
+[
+"=TEXT(45000.75,\"rr\")",
+"String rr"
+],
+[
+"=TEXT(45000.75,\"rrr\")",
+"String rrr"
+],
+[
+"=TEXT(45000.75,\"rrrr\")",
+"String rrrr"
+],
+[
+"=TEXT(45000.75,\"s\")",
+"String 0"
+],
+[
+"=TEXT(45000.75,\"ss\")",
+"String 00"
+],
+[
+"=TEXT(45000.75,\"sss\")",
+"String 00"
+],
+[
+"=TEXT(45000.75,\"ssss\")",
+"String 00"
+],
+[
+"=TEXT(45000.75,\"t\")",
+"String t"
+],
+[
+"=TEXT(45000.75,\"tt\")",
+"String tt"
+],
+[
+"=TEXT(45000.75,\"ttt\")",
+"String ttt"
+],
+[
+"=TEXT(45000.75,\"tttt\")",
+"String tttt"
+],
+[
+"=TEXT(45000.75,\"u\")",
+"String u"
+],
+[
+"=TEXT(45000.75,\"uu\")",
+"String uu"
+],
+[
+"=TEXT(45000.75,\"uuu\")",
+"String uuu"
+],
+[
+"=TEXT(45000.75,\"uuuu\")",
+"String uuuu"
+],
+[
+"=TEXT(45000.75,\"v\")",
+"String v"
+],
+[
+"=TEXT(45000.75,\"vv\")",
+"String vv"
+],
+[
+"=TEXT(45000.75,\"vvv\")",
+"String vvv"
+],
+[
+"=TEXT(45000.75,\"vvvv\")",
+"String vvvv"
+],
+[
+"=TEXT(45000.75,\"w\")",
+"String w"
+],
+[
+"=TEXT(45000.75,\"ww\")",
+"String ww"
+],
+[
+"=TEXT(45000.75,\"www\")",
+"String www"
+],
+[
+"=TEXT(45000.75,\"wwww\")",
+"String wwww"
+],
+[
+"=TEXT(45000.75,\"x\")",
+"String x"
+],
+[
+"=TEXT(45000.75,\"xx\")",
+"String xx"
+],
+[
+"=TEXT(45000.75,\"xxx\")",
+"String xxx"
+],
+[
+"=TEXT(45000.75,\"xxxx\")",
+"String xxxx"
+],
+[
+"=TEXT(45000.75,\"y\")",
+"String 23"
+],
+[
+"=TEXT(45000.75,\"yy\")",
+"String 23"
+],
+[
+"=TEXT(45000.75,\"yyy\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"yyyy\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"z\")",
+"String z"
+],
+[
+"=TEXT(45000.75,\"zz\")",
+"String zz"
+],
+[
+"=TEXT(45000.75,\"zzz\")",
+"String zzz"
+],
+[
+"=TEXT(45000.75,\"zzzz\")",
+"String zzzz"
+],
+[
+"=TEXT(45000.75,\"A\")",
+"String A"
+],
+[
+"=TEXT(45000.75,\"AA\")",
+"String AA"
+],
+[
+"=TEXT(45000.75,\"AAA\")",
+"String Wed"
+],
+[
+"=TEXT(45000.75,\"AAAA\")",
+"String Wednesday"
+],
+[
+"=TEXT(45000.75,\"B\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"BB\")",
+"String 66"
+],
+[
+"=TEXT(45000.75,\"BBB\")",
+"String 2566"
+],
+[
+"=TEXT(45000.75,\"BBBB\")",
+"String 2566"
+],
+[
+"=TEXT(45000.75,\"C\")",
+"String C"
+],
+[
+"=TEXT(45000.75,\"CC\")",
+"String CC"
+],
+[
+"=TEXT(45000.75,\"CCC\")",
+"String CCC"
+],
+[
+"=TEXT(45000.75,\"CCCC\")",
+"String CCCC"
+],
+[
+"=TEXT(45000.75,\"D\")",
+"String 15"
+],
+[
+"=TEXT(45000.75,\"DD\")",
+"String 15"
+],
+[
+"=TEXT(45000.75,\"DDD\")",
+"String Wed"
+],
+[
+"=TEXT(45000.75,\"DDDD\")",
+"String Wednesday"
+],
+[
+"=TEXT(45000.75,\"E\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"EE\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"EEE\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"EEEE\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"F\")",
+"String F"
+],
+[
+"=TEXT(45000.75,\"FF\")",
+"String FF"
+],
+[
+"=TEXT(45000.75,\"FFF\")",
+"String FFF"
+],
+[
+"=TEXT(45000.75,\"FFFF\")",
+"String FFFF"
+],
+[
+"=TEXT(45000.75,\"G\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"GG\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"GGG\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"GGGG\")",
+"String "
+],
+[
+"=TEXT(45000.75,\"H\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"HH\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"HHH\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"HHHH\")",
+"String 18"
+],
+[
+"=TEXT(45000.75,\"I\")",
+"String I"
+],
+[
+"=TEXT(45000.75,\"II\")",
+"String II"
+],
+[
+"=TEXT(45000.75,\"III\")",
+"String III"
+],
+[
+"=TEXT(45000.75,\"IIII\")",
+"String IIII"
+],
+[
+"=TEXT(45000.75,\"J\")",
+"String J"
+],
+[
+"=TEXT(45000.75,\"JJ\")",
+"String JJ"
+],
+[
+"=TEXT(45000.75,\"JJJ\")",
+"String JJJ"
+],
+[
+"=TEXT(45000.75,\"JJJJ\")",
+"String JJJJ"
+],
+[
+"=TEXT(45000.75,\"K\")",
+"String K"
+],
+[
+"=TEXT(45000.75,\"KK\")",
+"String KK"
+],
+[
+"=TEXT(45000.75,\"KKK\")",
+"String KKK"
+],
+[
+"=TEXT(45000.75,\"KKKK\")",
+"String KKKK"
+],
+[
+"=TEXT(45000.75,\"L\")",
+"String L"
+],
+[
+"=TEXT(45000.75,\"LL\")",
+"String LL"
+],
+[
+"=TEXT(45000.75,\"LLL\")",
+"String LLL"
+],
+[
+"=TEXT(45000.75,\"LLLL\")",
+"String LLLL"
+],
+[
+"=TEXT(45000.75,\"M\")",
+"String 3"
+],
+[
+"=TEXT(45000.75,\"MM\")",
+"String 03"
+],
+[
+"=TEXT(45000.75,\"MMM\")",
+"String Mar"
+],
+[
+"=TEXT(45000.75,\"MMMM\")",
+"String March"
+],
+[
+"=TEXT(45000.75,\"N\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"NN\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"NNN\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"NNNN\")",
+"Error 2015"
+],
+[
+"=TEXT(45000.75,\"O\")",
+"String O"
+],
+[
+"=TEXT(45000.75,\"OO\")",
+"String OO"
+],
+[
+"=TEXT(45000.75,\"OOO\")",
+"String OOO"
+],
+[
+"=TEXT(45000.75,\"OOOO\")",
+"String OOOO"
+],
+[
+"=TEXT(45000.75,\"P\")",
+"String P"
+],
+[
+"=TEXT(45000.75,\"PP\")",
+"String PP"
+],
+[
+"=TEXT(45000.75,\"PPP\")",
+"String PPP"
+],
+[
+"=TEXT(45000.75,\"PPPP\")",
+"String PPPP"
+],
+[
+"=TEXT(45000.75,\"Q\")",
+"String Q"
+],
+[
+"=TEXT(45000.75,\"QQ\")",
+"String QQ"
+],
+[
+"=TEXT(45000.75,\"QQQ\")",
+"String QQQ"
+],
+[
+"=TEXT(45000.75,\"QQQQ\")",
+"String QQQQ"
+],
+[
+"=TEXT(45000.75,\"R\")",
+"String R"
+],
+[
+"=TEXT(45000.75,\"RR\")",
+"String RR"
+],
+[
+"=TEXT(45000.75,\"RRR\")",
+"String RRR"
+],
+[
+"=TEXT(45000.75,\"RRRR\")",
+"String RRRR"
+],
+[
+"=TEXT(45000.75,\"S\")",
+"String 0"
+],
+[
+"=TEXT(45000.75,\"SS\")",
+"String 00"
+],
+[
+"=TEXT(45000.75,\"SSS\")",
+"String 00"
+],
+[
+"=TEXT(45000.75,\"SSSS\")",
+"String 00"
+],
+[
+"=TEXT(45000.75,\"T\")",
+"String T"
+],
+[
+"=TEXT(45000.75,\"TT\")",
+"String TT"
+],
+[
+"=TEXT(45000.75,\"TTT\")",
+"String TTT"
+],
+[
+"=TEXT(45000.75,\"TTTT\")",
+"String TTTT"
+],
+[
+"=TEXT(45000.75,\"U\")",
+"String U"
+],
+[
+"=TEXT(45000.75,\"UU\")",
+"String UU"
+],
+[
+"=TEXT(45000.75,\"UUU\")",
+"String UUU"
+],
+[
+"=TEXT(45000.75,\"UUUU\")",
+"String UUUU"
+],
+[
+"=TEXT(45000.75,\"V\")",
+"String V"
+],
+[
+"=TEXT(45000.75,\"VV\")",
+"String VV"
+],
+[
+"=TEXT(45000.75,\"VVV\")",
+"String VVV"
+],
+[
+"=TEXT(45000.75,\"VVVV\")",
+"String VVVV"
+],
+[
+"=TEXT(45000.75,\"W\")",
+"String W"
+],
+[
+"=TEXT(45000.75,\"WW\")",
+"String WW"
+],
+[
+"=TEXT(45000.75,\"WWW\")",
+"String WWW"
+],
+[
+"=TEXT(45000.75,\"WWWW\")",
+"String WWWW"
+],
+[
+"=TEXT(45000.75,\"X\")",
+"String X"
+],
+[
+"=TEXT(45000.75,\"XX\")",
+"String XX"
+],
+[
+"=TEXT(45000.75,\"XXX\")",
+"String XXX"
+],
+[
+"=TEXT(45000.75,\"XXXX\")",
+"String XXXX"
+],
+[
+"=TEXT(45000.75,\"Y\")",
+"String 23"
+],
+[
+"=TEXT(45000.75,\"YY\")",
+"String 23"
+],
+[
+"=TEXT(45000.75,\"YYY\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"YYYY\")",
+"String 2023"
+],
+[
+"=TEXT(45000.75,\"Z\")",
+"String Z"
+],
+[
+"=TEXT(45000.75,\"ZZ\")",
+"String ZZ"
+],
+[
+"=TEXT(45000.75,\"ZZZ\")",
+"String ZZZ"
+],
+[
+"=TEXT(45000.75,\"ZZZZ\")",
+"String ZZZZ"
+],
+[
+"=TEXT(1234.5,\"a\")",
+"String a"
+],
+[
+"=TEXT(1234.5,\"aa\")",
+"String aa"
+],
+[
+"=TEXT(1234.5,\"aaa\")",
+"String Mon"
+],
+[
+"=TEXT(1234.5,\"aaaa\")",
+"String Monday"
+],
+[
+"=TEXT(1234.5,\"b\")",
+"String 46"
+],
+[
+"=TEXT(1234.5,\"bb\")",
+"String 46"
+],
+[
+"=TEXT(1234.5,\"bbb\")",
+"String 2446"
+],
+[
+"=TEXT(1234.5,\"bbbb\")",
+"String 2446"
+],
+[
+"=TEXT(1234.5,\"c\")",
+"String c"
+],
+[
+"=TEXT(1234.5,\"cc\")",
+"String cc"
+],
+[
+"=TEXT(1234.5,\"ccc\")",
+"String ccc"
+],
+[
+"=TEXT(1234.5,\"cccc\")",
+"String cccc"
+],
+[
+"=TEXT(1234.5,\"d\")",
+"String 18"
+],
+[
+"=TEXT(1234.5,\"dd\")",
+"String 18"
+],
+[
+"=TEXT(1234.5,\"ddd\")",
+"String Mon"
+],
+[
+"=TEXT(1234.5,\"dddd\")",
+"String Monday"
+],
+[
+"=TEXT(1234.5,\"e\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"ee\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"eee\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"eeee\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"f\")",
+"String f"
+],
+[
+"=TEXT(1234.5,\"ff\")",
+"String ff"
+],
+[
+"=TEXT(1234.5,\"fff\")",
+"String fff"
+],
+[
+"=TEXT(1234.5,\"ffff\")",
+"String ffff"
+],
+[
+"=TEXT(1234.5,\"g\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"gg\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"ggg\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"gggg\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"h\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"hh\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"hhh\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"hhhh\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"i\")",
+"String i"
+],
+[
+"=TEXT(1234.5,\"ii\")",
+"String ii"
+],
+[
+"=TEXT(1234.5,\"iii\")",
+"String iii"
+],
+[
+"=TEXT(1234.5,\"iiii\")",
+"String iiii"
+],
+[
+"=TEXT(1234.5,\"j\")",
+"String j"
+],
+[
+"=TEXT(1234.5,\"jj\")",
+"String jj"
+],
+[
+"=TEXT(1234.5,\"jjj\")",
+"String jjj"
+],
+[
+"=TEXT(1234.5,\"jjjj\")",
+"String jjjj"
+],
+[
+"=TEXT(1234.5,\"k\")",
+"String k"
+],
+[
+"=TEXT(1234.5,\"kk\")",
+"String kk"
+],
+[
+"=TEXT(1234.5,\"kkk\")",
+"String kkk"
+],
+[
+"=TEXT(1234.5,\"kkkk\")",
+"String kkkk"
+],
+[
+"=TEXT(1234.5,\"l\")",
+"String l"
+],
+[
+"=TEXT(1234.5,\"ll\")",
+"String ll"
+],
+[
+"=TEXT(1234.5,\"lll\")",
+"String lll"
+],
+[
+"=TEXT(1234.5,\"llll\")",
+"String llll"
+],
+[
+"=TEXT(1234.5,\"m\")",
+"String 5"
+],
+[
+"=TEXT(1234.5,\"mm\")",
+"String 05"
+],
+[
+"=TEXT(1234.5,\"mmm\")",
+"String May"
+],
+[
+"=TEXT(1234.5,\"mmmm\")",
+"String May"
+],
+[
+"=TEXT(1234.5,\"n\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"nn\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"nnn\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"nnnn\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"o\")",
+"String o"
+],
+[
+"=TEXT(1234.5,\"oo\")",
+"String oo"
+],
+[
+"=TEXT(1234.5,\"ooo\")",
+"String ooo"
+],
+[
+"=TEXT(1234.5,\"oooo\")",
+"String oooo"
+],
+[
+"=TEXT(1234.5,\"p\")",
+"String p"
+],
+[
+"=TEXT(1234.5,\"pp\")",
+"String pp"
+],
+[
+"=TEXT(1234.5,\"ppp\")",
+"String ppp"
+],
+[
+"=TEXT(1234.5,\"pppp\")",
+"String pppp"
+],
+[
+"=TEXT(1234.5,\"q\")",
+"String q"
+],
+[
+"=TEXT(1234.5,\"qq\")",
+"String qq"
+],
+[
+"=TEXT(1234.5,\"qqq\")",
+"String qqq"
+],
+[
+"=TEXT(1234.5,\"qqqq\")",
+"String qqqq"
+],
+[
+"=TEXT(1234.5,\"r\")",
+"String r"
+],
+[
+"=TEXT(1234.5,\"rr\")",
+"String rr"
+],
+[
+"=TEXT(1234.5,\"rrr\")",
+"String rrr"
+],
+[
+"=TEXT(1234.5,\"rrrr\")",
+"String rrrr"
+],
+[
+"=TEXT(1234.5,\"s\")",
+"String 0"
+],
+[
+"=TEXT(1234.5,\"ss\")",
+"String 00"
+],
+[
+"=TEXT(1234.5,\"sss\")",
+"String 00"
+],
+[
+"=TEXT(1234.5,\"ssss\")",
+"String 00"
+],
+[
+"=TEXT(1234.5,\"t\")",
+"String t"
+],
+[
+"=TEXT(1234.5,\"tt\")",
+"String tt"
+],
+[
+"=TEXT(1234.5,\"ttt\")",
+"String ttt"
+],
+[
+"=TEXT(1234.5,\"tttt\")",
+"String tttt"
+],
+[
+"=TEXT(1234.5,\"u\")",
+"String u"
+],
+[
+"=TEXT(1234.5,\"uu\")",
+"String uu"
+],
+[
+"=TEXT(1234.5,\"uuu\")",
+"String uuu"
+],
+[
+"=TEXT(1234.5,\"uuuu\")",
+"String uuuu"
+],
+[
+"=TEXT(1234.5,\"v\")",
+"String v"
+],
+[
+"=TEXT(1234.5,\"vv\")",
+"String vv"
+],
+[
+"=TEXT(1234.5,\"vvv\")",
+"String vvv"
+],
+[
+"=TEXT(1234.5,\"vvvv\")",
+"String vvvv"
+],
+[
+"=TEXT(1234.5,\"w\")",
+"String w"
+],
+[
+"=TEXT(1234.5,\"ww\")",
+"String ww"
+],
+[
+"=TEXT(1234.5,\"www\")",
+"String www"
+],
+[
+"=TEXT(1234.5,\"wwww\")",
+"String wwww"
+],
+[
+"=TEXT(1234.5,\"x\")",
+"String x"
+],
+[
+"=TEXT(1234.5,\"xx\")",
+"String xx"
+],
+[
+"=TEXT(1234.5,\"xxx\")",
+"String xxx"
+],
+[
+"=TEXT(1234.5,\"xxxx\")",
+"String xxxx"
+],
+[
+"=TEXT(1234.5,\"y\")",
+"String 03"
+],
+[
+"=TEXT(1234.5,\"yy\")",
+"String 03"
+],
+[
+"=TEXT(1234.5,\"yyy\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"yyyy\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"z\")",
+"String z"
+],
+[
+"=TEXT(1234.5,\"zz\")",
+"String zz"
+],
+[
+"=TEXT(1234.5,\"zzz\")",
+"String zzz"
+],
+[
+"=TEXT(1234.5,\"zzzz\")",
+"String zzzz"
+],
+[
+"=TEXT(1234.5,\"A\")",
+"String A"
+],
+[
+"=TEXT(1234.5,\"AA\")",
+"String AA"
+],
+[
+"=TEXT(1234.5,\"AAA\")",
+"String Mon"
+],
+[
+"=TEXT(1234.5,\"AAAA\")",
+"String Monday"
+],
+[
+"=TEXT(1234.5,\"B\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"BB\")",
+"String 46"
+],
+[
+"=TEXT(1234.5,\"BBB\")",
+"String 2446"
+],
+[
+"=TEXT(1234.5,\"BBBB\")",
+"String 2446"
+],
+[
+"=TEXT(1234.5,\"C\")",
+"String C"
+],
+[
+"=TEXT(1234.5,\"CC\")",
+"String CC"
+],
+[
+"=TEXT(1234.5,\"CCC\")",
+"String CCC"
+],
+[
+"=TEXT(1234.5,\"CCCC\")",
+"String CCCC"
+],
+[
+"=TEXT(1234.5,\"D\")",
+"String 18"
+],
+[
+"=TEXT(1234.5,\"DD\")",
+"String 18"
+],
+[
+"=TEXT(1234.5,\"DDD\")",
+"String Mon"
+],
+[
+"=TEXT(1234.5,\"DDDD\")",
+"String Monday"
+],
+[
+"=TEXT(1234.5,\"E\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"EE\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"EEE\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"EEEE\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"F\")",
+"String F"
+],
+[
+"=TEXT(1234.5,\"FF\")",
+"String FF"
+],
+[
+"=TEXT(1234.5,\"FFF\")",
+"String FFF"
+],
+[
+"=TEXT(1234.5,\"FFFF\")",
+"String FFFF"
+],
+[
+"=TEXT(1234.5,\"G\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"GG\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"GGG\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"GGGG\")",
+"String "
+],
+[
+"=TEXT(1234.5,\"H\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"HH\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"HHH\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"HHHH\")",
+"String 12"
+],
+[
+"=TEXT(1234.5,\"I\")",
+"String I"
+],
+[
+"=TEXT(1234.5,\"II\")",
+"String II"
+],
+[
+"=TEXT(1234.5,\"III\")",
+"String III"
+],
+[
+"=TEXT(1234.5,\"IIII\")",
+"String IIII"
+],
+[
+"=TEXT(1234.5,\"J\")",
+"String J"
+],
+[
+"=TEXT(1234.5,\"JJ\")",
+"String JJ"
+],
+[
+"=TEXT(1234.5,\"JJJ\")",
+"String JJJ"
+],
+[
+"=TEXT(1234.5,\"JJJJ\")",
+"String JJJJ"
+],
+[
+"=TEXT(1234.5,\"K\")",
+"String K"
+],
+[
+"=TEXT(1234.5,\"KK\")",
+"String KK"
+],
+[
+"=TEXT(1234.5,\"KKK\")",
+"String KKK"
+],
+[
+"=TEXT(1234.5,\"KKKK\")",
+"String KKKK"
+],
+[
+"=TEXT(1234.5,\"L\")",
+"String L"
+],
+[
+"=TEXT(1234.5,\"LL\")",
+"String LL"
+],
+[
+"=TEXT(1234.5,\"LLL\")",
+"String LLL"
+],
+[
+"=TEXT(1234.5,\"LLLL\")",
+"String LLLL"
+],
+[
+"=TEXT(1234.5,\"M\")",
+"String 5"
+],
+[
+"=TEXT(1234.5,\"MM\")",
+"String 05"
+],
+[
+"=TEXT(1234.5,\"MMM\")",
+"String May"
+],
+[
+"=TEXT(1234.5,\"MMMM\")",
+"String May"
+],
+[
+"=TEXT(1234.5,\"N\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"NN\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"NNN\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"NNNN\")",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,\"O\")",
+"String O"
+],
+[
+"=TEXT(1234.5,\"OO\")",
+"String OO"
+],
+[
+"=TEXT(1234.5,\"OOO\")",
+"String OOO"
+],
+[
+"=TEXT(1234.5,\"OOOO\")",
+"String OOOO"
+],
+[
+"=TEXT(1234.5,\"P\")",
+"String P"
+],
+[
+"=TEXT(1234.5,\"PP\")",
+"String PP"
+],
+[
+"=TEXT(1234.5,\"PPP\")",
+"String PPP"
+],
+[
+"=TEXT(1234.5,\"PPPP\")",
+"String PPPP"
+],
+[
+"=TEXT(1234.5,\"Q\")",
+"String Q"
+],
+[
+"=TEXT(1234.5,\"QQ\")",
+"String QQ"
+],
+[
+"=TEXT(1234.5,\"QQQ\")",
+"String QQQ"
+],
+[
+"=TEXT(1234.5,\"QQQQ\")",
+"String QQQQ"
+],
+[
+"=TEXT(1234.5,\"R\")",
+"String R"
+],
+[
+"=TEXT(1234.5,\"RR\")",
+"String RR"
+],
+[
+"=TEXT(1234.5,\"RRR\")",
+"String RRR"
+],
+[
+"=TEXT(1234.5,\"RRRR\")",
+"String RRRR"
+],
+[
+"=TEXT(1234.5,\"S\")",
+"String 0"
+],
+[
+"=TEXT(1234.5,\"SS\")",
+"String 00"
+],
+[
+"=TEXT(1234.5,\"SSS\")",
+"String 00"
+],
+[
+"=TEXT(1234.5,\"SSSS\")",
+"String 00"
+],
+[
+"=TEXT(1234.5,\"T\")",
+"String T"
+],
+[
+"=TEXT(1234.5,\"TT\")",
+"String TT"
+],
+[
+"=TEXT(1234.5,\"TTT\")",
+"String TTT"
+],
+[
+"=TEXT(1234.5,\"TTTT\")",
+"String TTTT"
+],
+[
+"=TEXT(1234.5,\"U\")",
+"String U"
+],
+[
+"=TEXT(1234.5,\"UU\")",
+"String UU"
+],
+[
+"=TEXT(1234.5,\"UUU\")",
+"String UUU"
+],
+[
+"=TEXT(1234.5,\"UUUU\")",
+"String UUUU"
+],
+[
+"=TEXT(1234.5,\"V\")",
+"String V"
+],
+[
+"=TEXT(1234.5,\"VV\")",
+"String VV"
+],
+[
+"=TEXT(1234.5,\"VVV\")",
+"String VVV"
+],
+[
+"=TEXT(1234.5,\"VVVV\")",
+"String VVVV"
+],
+[
+"=TEXT(1234.5,\"W\")",
+"String W"
+],
+[
+"=TEXT(1234.5,\"WW\")",
+"String WW"
+],
+[
+"=TEXT(1234.5,\"WWW\")",
+"String WWW"
+],
+[
+"=TEXT(1234.5,\"WWWW\")",
+"String WWWW"
+],
+[
+"=TEXT(1234.5,\"X\")",
+"String X"
+],
+[
+"=TEXT(1234.5,\"XX\")",
+"String XX"
+],
+[
+"=TEXT(1234.5,\"XXX\")",
+"String XXX"
+],
+[
+"=TEXT(1234.5,\"XXXX\")",
+"String XXXX"
+],
+[
+"=TEXT(1234.5,\"Y\")",
+"String 03"
+],
+[
+"=TEXT(1234.5,\"YY\")",
+"String 03"
+],
+[
+"=TEXT(1234.5,\"YYY\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"YYYY\")",
+"String 1903"
+],
+[
+"=TEXT(1234.5,\"Z\")",
+"String Z"
+],
+[
+"=TEXT(1234.5,\"ZZ\")",
+"String ZZ"
+],
+[
+"=TEXT(1234.5,\"ZZZ\")",
+"String ZZZ"
+],
+[
+"=TEXT(1234.5,\"ZZZZ\")",
+"String ZZZZ"
+],
+[
+"=TEXT(1234.5,TRUE)",
+"Error 2015"
+],
+[
+"=TEXT(1234.5,FALSE)",
+"Error 2015"
+],
+[
+"=TEXT(TRUE,\"0\")",
+"String TRUE"
+],
+[
+"=TEXT(\"x\",\"0\")",
+"String x"
+],
+[
+"=TEXT(1234.5,1)",
+"String 1"
+],
+[
+"=NUMBERVALUE(TRUE)",
+"Error 2015"
+],
+[
+"=NUMBERVALUE(FALSE)",
+"Error 2015"
+],
+[
+"=NUMBERVALUE(\"1,5\",\",\",\".\")",
+"Double 1.5"
+],
+[
+"=DECIMAL(\"x\",16)",
+"Double 0"
+],
+[
+"=DECIMAL(\"X\",16)",
+"Double 0"
+],
+[
+"=DECIMAL(\"x1\",16)",
+"Double 1"
+],
+[
+"=DECIMAL(\"0x1F\",16)",
+"Double 31"
+],
+[
+"=DECIMAL(\"0X1F\",16)",
+"Double 31"
+],
+[
+"=DECIMAL(\"x\",10)",
+"Error 2036"
+],
+[
+"=DECIMAL(\"0x1\",10)",
+"Error 2036"
+],
+[
+"=DECIMAL(\"1F\",16)",
+"Double 31"
+],
+[
+"=DECIMAL(\"y\",16)",
+"Error 2036"
+],
+[
+"=DECIMAL(\"\",16)",
+"Double 0"
+],
+[
+"=VDB(2,300,3650,0,1)",
+"Double -298"
+],
+[
+"=VDB(300,2,3650,0,1)",
+"Double 0.164383561643836"
+],
+[
+"=VDB(2400,-1,3650,0,1)",
+"Error 2036"
+],
+[
+"=VDB(-1,300,3650,0,1)",
+"Error 2036"
+],
+[
+"=VDB(0,300,3650,0,1)",
+"Double -300"
+],
+[
+"=VDB(2,2,3650,0,1)",
+"Double 0"
+],
+[
+"=VDB(2,300,10,0,5)",
+"Double -298"
+],
+[
+"=SYD(30000,-1,10,1)",
+"Error 2036"
+],
+[
+"=SYD(1,300,10,1)",
+"Double -54.3636363636364"
+],
+[
+"=SYD(-1,300,10,1)",
+"Double -54.7272727272727"
+],
+[
+"=SYD(30000,0,10,1)",
+"Double 5454.54545454545"
+],
+[
+"=DDB(30000,-1,10,1)",
+"Error 2036"
+],
+[
+"=DDB(1,300,10,1)",
+"Double 0"
+],
+[
+"=DDB(-1,300,10,1)",
+"Error 2036"
+],
+[
+"=DB(30000,-1,10,1)",
+"Error 2036"
+],
+[
+"=DB(1,300,10,1)",
+"Double -0.769"
+],
+[
+"=DB(-1,300,10,1)",
+"Error 2036"
+],
+[
+"=SLN(30000,-1,10)",
+"Double 3000.1"
+],
+[
+"=SLN(1,300,10)",
+"Double -29.9"
+],
+[
+"=SLN(-1,300,10)",
+"Double -30.1"
+],
+[
+"=GAMMALN(1)",
+"Double 0"
+],
+[
+"=GAMMALN(2)",
+"Double 0"
+],
+[
+"=GAMMALN(3)",
+"Double 0.693147180559945"
+],
+[
+"=GAMMALN(0.5)",
+"Double 0.5723649429247"
+],
+[
+"=GAMMALN(1.5)",
+"Double -0.120782237635245"
+],
+[
+"=GAMMALN.PRECISE(2)",
+"Double 0"
+],
+[
+"=ZTEST({3,6,7,8,6,5,4,2,1,9},-1,1)",
+"Double 3.26537052131952E-83"
+],
+[
+"=ZTEST({3,6,7,8,6,5,4,2,1,9},0,1)",
+"Double 8.15996976441668E-59"
+],
+[
+"=ZTEST({3,6,7,8,6,5,4,2,1,9},1,1)",
+"Double 9.61897503233847E-39"
+],
+[
+"=ZTEST({3,6,7,8,6,5,4,2,1,9},4,1)",
+"Double 2.52109114724504E-04"
+],
+[
+"=ZTEST({3,6,7,8,6,5,4,2,1,9},100,1)",
+"Double 1"
+],
+[
+"=MIRR({-120000,39000,30000,21000,37000,46000},-1,0.12)",
+"Double 0.126094130365905"
+],
+[
+"=MIRR({-120000,39000,-30000,21000,37000,46000},-1,0.12)",
+"Error 2007"
+],
+[
+"=MIRR({-120000,39000,30000,21000,37000,46000},0.1,-1)",
+"Error 2007"
+],
+[
+"=PV(-1,240,500,,0)",
+"Error 2007"
+],
+[
+"=PV(-1,240,500,,1)",
+"Error 2007"
+],
+[
+"=FV(-1,240,500)",
+"Double -500"
+],
+[
+"=PMT(-1,240,500)",
+"Error 2036"
+],
+[
+"=POISSON(0,0,TRUE)",
+"Double 1"
+],
+[
+"=POISSON(1,0,TRUE)",
+"Double 1"
+],
+[
+"=POISSON(0,0,FALSE)",
+"Double 1"
+],
+[
+"=POISSON(1,0,FALSE)",
+"Double 0"
+],
+[
+"=HYPGEOMDIST(1,0,8,20)",
+"Double 0"
+],
+[
+"=RATE(48,0,8000)",
+"Error 2036"
+],
+[
+"=MUNIT(1)",
+"Variant()"
+],
+[
+"=ROWS(MUNIT(1))",
+"Double 1"
+],
+[
+"AscW(f.Unichar(2))",
+"Integer 2"
+],
+[
+"AscW(f.Unichar(1))",
+"Integer 1"
+],
+[
+"AscW(f.Unichar(31))",
+"Integer 31"
+],
+[
+"AscW(f.Unichar(65))",
+"Integer 65"
+],
+[
+"TypeName(f.MUnit(1))",
+"String Variant()"
+],
+[
+"TypeName(f.Unichar(2))",
+"String String"
+],
+[
+"f.Subtotal(9, ws.Range(\"A1:A3\"))",
+"Double 6"
+],
+[
+"f.Subtotal(1, ws.Range(\"A1:A3\"))",
+"Double 2"
+],
+[
+"f.Subtotal(109, ws.Range(\"A1:A3\"))",
+"Double 6"
+],
+[
+"f.Subtotal(9, ws.Range(\"A1:A3\"), ws.Range(\"A1:A2\"))",
+"Double 9"
+],
+[
+"f.Subtotal(99, ws.Range(\"A1:A3\"))",
+"e1004"
+],
+[
+"f.Subtotal(0, ws.Range(\"A1:A3\"))",
+"e1004"
+],
+[
+"f.Subtotal(\"9\", ws.Range(\"A1:A3\"))",
+"Double 6"
+],
+[
+"f.Subtotal(9.9, ws.Range(\"A1:A3\"))",
+"Double 6"
+],
+[
+"f.Subtotal(True, ws.Range(\"A1:A3\"))",
+"e1004"
+]
+]
+}

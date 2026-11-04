@@ -14,7 +14,7 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/core_read
 #: Reads that answer for the harness's session rather than for the workbook: it runs with alerts off.
 SESSION = {'Application.DisplayAlerts'}
 #: Reads the model answers differently, and why.
-KNOWN = {'ws.DrawingObjects.Count': 'DrawingObjects is the sheet\'s Shapes in the model; Excel\'s leaves notes out'}
+KNOWN: dict[str, str] = {}
 
 
 @pytest.fixture(scope='module')

@@ -11,6 +11,7 @@ scripts/measure_link_edits.py (tests/fixtures/link_edits.json).
 from __future__ import annotations
 
 import ntpath
+import posixpath
 import re
 from collections.abc import Callable
 from dataclasses import replace
@@ -18,10 +19,20 @@ from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pyopenvba.apps.excel._workbook_links import (found_link, link_kind, links_of, links_read, read_areas, references_in,
-                                                  refuse_elsewhere, renumber, read_sheets)
+from pyopenvba.apps.excel._workbook_links import (
+    found_link,
+    link_kind,
+    links_of,
+    links_read,
+    read_areas,
+    read_sheets,
+    references_in,
+    refuse_elsewhere,
+    renumber,
+)
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import ExcelError
+from pyopenvba.interpreter._files import on_disk
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAArray, error, to_text
 
 if TYPE_CHECKING:
@@ -38,11 +49,16 @@ def _failed(member: str) -> Exception:
     return error(1004, f"{member} method of Workbook class failed")
 
 
+def _same_path(path: str) -> str:
+    """A path to compare: no case, and either separator."""
+    return path.replace("/", "\\").casefold()
+
+
 def _open_book(book: Workbook, path: str) -> Workbook | None:
-    """The open workbook at ``path``, the path a link gives."""
-    wanted = path.casefold()
+    """The open workbook at ``path``, the path a link gives, whose last separator is a backslash on any system."""
+    wanted = _same_path(path)
     return next((other for other in book.application.workbooks_.books
-                 if other is not book and str(other.FullName()).casefold() == wanted), None)
+                 if other is not book and _same_path(str(other.FullName())) == wanted), None)
 
 
 def source_is_open(book: Workbook, linked: LinkedBook) -> bool:
@@ -52,13 +68,13 @@ def source_is_open(book: Workbook, linked: LinkedBook) -> bool:
 def _read(book: Workbook, path: str) -> tuple[tuple[str, ...], tuple[dict[tuple[int, int], object], ...]] | None:
     """The sheets and cells of the workbook at ``path``, open or on disk, or None where it is neither."""
     from pyopenvba.apps.excel._engine_book import model_value, scalar
-    from pyopenvba.formula._calc.values import Empty
     from pyopenvba.apps.excel._io import load_workbook
+    from pyopenvba.formula._calc.values import Empty
 
     source = _open_book(book, path)
     if source is None:
         book.application.outside("Reading a linked workbook")
-        file = Path(path)
+        file = Path(on_disk(path))
         if not file.is_file():
             return None
         source = load_workbook(book.application, file)
@@ -155,7 +171,7 @@ def open_links(book: Workbook, name: object, read_only: object, kind: object) ->
     for one in _wanted(name):
         text = to_text(one)
         given = text if isinstance(one, str) else f"{text}.xlsx"
-        if not Path(given).is_file():
+        if not Path(on_disk(given)).is_file():
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         book.application.workbooks_.Open(given, ReadOnly=read_only if read_only is not MISSING else False)
     return True
@@ -176,11 +192,13 @@ def change_link(book: Workbook, name: object, new_name: object, kind: object) ->
         raise _failed("ChangeLink")
     if broken:
         return True
-    if not ntpath.isabs(target):
+    # Off Windows a full path starts with /, which ntpath does not call absolute and normpath would turn round.
+    posix = target.startswith("/")
+    if not posix and not ntpath.isabs(target):
         raise VBAUnsupportedError("ChangeLink to a workbook named without its folder is not implemented")
-    target = ntpath.normpath(target)
-    own = str(book.FullName()).casefold()
-    if target.casefold() in (linked.path(book.path).casefold(), own):
+    target = posixpath.normpath(target.replace("\\", "/")) if posix else ntpath.normpath(target)
+    own = _same_path(str(book.FullName()))
+    if _same_path(target) in (_same_path(linked.path(book.path)), own):
         return True
     if book.foreign_links:
         raise VBAUnsupportedError("ChangeLink in a workbook with OLE or DDE links is not implemented")
@@ -193,7 +211,7 @@ def change_link(book: Workbook, name: object, new_name: object, kind: object) ->
     lost = {sheet.casefold() for sheet in sheets_read if first is not None
             and sheet.casefold() not in {one.casefold() for one in names}}
     joined = next((other for other in links_of(book) if other is not linked
-                   and other.path(book.path).casefold() == target.casefold()), None)
+                   and _same_path(other.path(book.path)) == _same_path(target)), None)
     number = joined.number if joined is not None else linked.number
     readers = _readers(book, {linked.number})
     gone = linked.number
@@ -224,8 +242,8 @@ def change_link(book: Workbook, name: object, new_name: object, kind: object) ->
 
 def _target_for(book: Workbook, path: str) -> str:
     """A link's target, its file alone where it is in this workbook's folder and the whole path where not."""
-    folder, _, file = path.rpartition("\\")
-    return file if folder.casefold() == book.path.rstrip("\\").casefold() else path
+    folder, file = ntpath.split(path)
+    return file if _same_path(folder) == _same_path(book.path.rstrip("\\")) else path
 
 
 def _refuse_book_names(book: Workbook, number: int) -> None:
@@ -393,7 +411,7 @@ def write_retargeted(book: Workbook, package: OpcFile, linked: LinkedBook, text:
     head = text[:text.index("<externalBook")]
     relationships = f'<Relationship Id="rId1" Type="{_LINK_PATH}" Target="{escape(linked.target)}" TargetMode="External"/>'
     if exists:
-        relationships = f'<Relationship Id="rId2" Type="{_LINK_PATH}" Target="file:///{escape(path)}" TargetMode="External"/>' \
+        relationships = f'<Relationship Id="rId2" Type="{_LINK_PATH}" Target="file:///{escape(path.lstrip("/"))}" TargetMode="External"/>' \
             + relationships
     package.write(rels_part(linked.part), ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<Relationships '
                                            'xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'

@@ -33,9 +33,11 @@ from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._clipboard_ends import ENDING
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
+from pyopenvba.interpreter._files import native_path, on_disk, respell_file
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -119,8 +121,11 @@ class ExcelObject(Created):
             raise error(424, "Object required")
 
     def vba_member(self, name: str) -> MemberSpec | None:
-        self._check_alive()
-        return super().vba_member(name)
+        # A member it never had raises 438 even once it has gone (tests/fixtures/held_objects.json).
+        spec = super().vba_member(name)
+        if spec is not None:
+            self._check_alive()
+        return spec
 
     def vba_default_member(self) -> MemberSpec | None:
         self._check_alive()
@@ -1574,7 +1579,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise VBAUnsupportedError("Workbooks.Open with a Converter is not implemented")
         self.application.outside("Workbooks.Open")
         given = to_text(Filename)
-        path = Path(given)
+        path = Path(on_disk(given))
         if not path.is_file():
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         if path.suffix.lower() in (".xls", ".xla", ".xlt"):
@@ -1678,9 +1683,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                 decimal=DecimalSeparator, thousands=ThousandsSeparator, trailing_minus=TrailingMinusNumbers,
                 given=any(argument is not MISSING for argument in arguments))
 
-        if not Path(given).is_file():
+        if not Path(on_disk(given)).is_file():
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
-        self.open_file(Path(given), reader=read)
+        self.open_file(Path(on_disk(given)), reader=read)
         return EMPTY
 
     def open_file(self, path: Path, *, with_vba: bool = True, read_only: bool = False,
@@ -2364,7 +2369,8 @@ class Workbook(ExcelObject):
     def PivotCaches(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._pivots import PivotCaches
 
-        caches = PivotCaches(self, list(self.pivot_caches))
+        # A cache goes with the last table that used it (tests/fixtures/deleted_data.json).
+        caches = PivotCaches(self, [cache for cache in self.pivot_caches if not cache.held_gone()])
         return caches if Index is MISSING else caches.Item(Index)
 
     @member
@@ -2581,7 +2587,13 @@ class Workbook(ExcelObject):
         if self.format_code is not None:
             # A text format the model does not write reports itself before any event.
             text_writer(self.format_code)
-        return self.save_to(Path(self.path) / self.name)
+        # Save leaves the file spelled as the workbook is named, where SaveAs left the old spelling (tests/fixtures/case_saves.json).
+        named = Path(self.path) / self.name
+        saved = self.save_to(Path(on_disk(str(named))))
+        if saved:
+            self.name = named.name
+            respell_file(str(named))
+        return saved
 
     @method
     def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING, Password: object = MISSING,
@@ -2610,7 +2622,7 @@ class Workbook(ExcelObject):
                 _events.after_save(self, False)
                 return False
             raise VBAUnsupportedError("SaveAs without a filename is not implemented; supply Filename")
-        target = Path(to_text(Filename))
+        target = Path(native_path(to_text(Filename)))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
         writer = text_writer(chosen)
         expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm", 53: ".xltm", 54: ".xltx"}.get(chosen)
@@ -2627,7 +2639,12 @@ class Workbook(ExcelObject):
         if writer is None and target.suffix.lower() != expected:
             _events.after_save(self, False)
             raise error(1004, "SaveAs filename does not match FileFormat")
-        return self.save_to(target, before=False, file_format=chosen, sheet=sheet)
+        # Over a file in another case it writes that file, whose name stays, and is named as given (tests/fixtures/case_saves.json).
+        typed = target.name
+        saved = self.save_to(Path(on_disk(str(target))), before=False, file_format=chosen, sheet=sheet)
+        if saved:
+            self.name = typed
+        return saved
 
     @method
     def SaveCopyAs(self, Filename: object = MISSING) -> object:
@@ -3156,6 +3173,7 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._table_filters import refocus
 
         self.active_sheet_index = self.sheets_.index(sheet)
+        self.view.first_sheet = min(self.view.first_sheet, self.active_sheet_index)
         # A sheet of the group stays in it as it becomes active; any other stands alone
         # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
         if not any(one is sheet for one in self.selected_sheets):
@@ -3517,6 +3535,8 @@ class Worksheet(ExcelObject):
         self.drawing_part = ""
         self.drawing_xml = ""
         self.drawing_dirty = False
+        #: The ids of the shapes on the sheet, within groups too, until the drawing next changes (see _held).
+        self.live_shapes: set[int] | None = None
         #: The notes on the sheet's cells, which VBA calls comments, by cell in the order they were made (see
         #: _notes); True once one is added, changed, moved or removed, so a save writes them again.
         self.notes: dict[tuple[int, int], Note] = {}
@@ -3557,6 +3577,11 @@ class Worksheet(ExcelObject):
         that grow by their fonts to move them by."""
         self.drawing_dirty = True
         self.book.saved = False
+        self.live_shapes = None
+        if any(one.begin_link is not None or one.end_link is not None for one in self.shapes_):
+            from pyopenvba.apps.excel._shape_connectors import follow
+
+            follow(self)
         self.dims.remember_shapes()
 
     def column_width_points(self, column: int) -> float:
@@ -3780,10 +3805,96 @@ class Worksheet(ExcelObject):
         charts = ChartObjects(self)
         return charts if Index is MISSING else charts.vba_get('Item', [Index])
 
-    @member
-    def DrawingObjects(self, Index: object = MISSING) -> object:
-        """The older name for the same shapes."""
-        return self.Shapes(Index)
+    @method
+    def DrawingObjects(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """All the sheet's drawings and controls under their old names (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import DrawingObjects as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def TextBoxes(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import TextBoxes as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Pictures(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Pictures as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Rectangles(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Rectangles as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Ovals(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Ovals as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Lines(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Lines as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Arcs(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Arcs as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Buttons(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import Buttons as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def CheckBoxes(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import CheckBoxes as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def OptionButtons(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import OptionButtons as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def DropDowns(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import DropDowns as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def ListBoxes(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import ListBoxes as kind, collection
+
+        return collection(self, kind, Index)
 
     @member
     def Cells(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:
@@ -6190,6 +6301,7 @@ class Range(ExcelObject):
             # On a protected sheet Clear clears the contents alone, as ClearContents would.
             return self.ClearContents()
         _arrays.clear_admitted(target)
+        self._taking_whole_objects()
         clear_formats(target)
         target._clear_contents()
         header_cleared(target)
@@ -6281,6 +6393,8 @@ class Range(ExcelObject):
 
     @method
     def ClearContents(self) -> object:
+        # Here and not in clear_contents_checked, which is also how a pivot table clears the cells it is about to fill.
+        self._taking_whole_pivot_tables()
         self.clear_contents_checked()
         _events.after_edit(self)
         return EMPTY
@@ -6416,6 +6530,26 @@ class Range(ExcelObject):
         print_out(self.sheet.book, self.sheet, Preview, ActivePrinter, PrintToFile)
         return EMPTY
 
+    def _within(self, area: Area) -> bool:
+        return any(one.top <= area.top and one.left <= area.left and one.bottom >= area.bottom and one.right >= area.right for one in self.areas)
+
+    def _taking_whole_objects(self) -> None:
+        """Clearing or deleting all of a table's or a pivot table's cells takes the table too, however a macro holds it
+        (tests/fixtures/held_objects.json)."""
+        from pyopenvba.apps.excel._table_edits import delete_table
+
+        for table in list(self.sheet.tables):
+            if self._within(table.area):
+                delete_table(table)
+        self._taking_whole_pivot_tables()
+
+    def _taking_whole_pivot_tables(self) -> None:
+        """Clearing all of a pivot table's cells takes it, ClearContents too, which leaves a table (tests/fixtures/deleted_data.json)."""
+        for pivot in list(self.sheet.pivot_tables):
+            cells = pivot.vba_get('TableRange2')
+            if isinstance(cells, Range) and self._within(cells.first):
+                self.sheet.pivot_tables.remove(pivot)
+
     @method
     def Delete(self, Shift: object = MISSING) -> object:
         """Delete, which pulls the cells below or to the right up or left.
@@ -6432,6 +6566,7 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._visible import filtering
 
         check_delete(self)
+        self._taking_whole_objects()
         where = self.place_now()
         filtered = filtering(self.sheet) and not all(area.whole_columns for area in self.areas)
         shift = given(Shift)
@@ -7592,6 +7727,8 @@ class NameEntry:
     category: str = ""
     group: int = 0
     macro_changed: bool = False
+    #: Deleted by referring to nothing, which a variable holding it goes on reading (tests/fixtures/name_saves.json).
+    emptied: bool = False
     #: A macro name given a sheet's cells, which Excel makes a link to its own workbook.
     macro_links_itself: bool = False
 
@@ -7758,7 +7895,7 @@ class Names(VBACollection, ItemDefault, ExcelObject):
         return DefinedName(entry)
 
 
-class DefinedName(ExcelObject):
+class DefinedName(HeldPart, ExcelObject):
     """One defined name."""
 
     def _check_alive(self) -> None:
@@ -7771,6 +7908,9 @@ class DefinedName(ExcelObject):
 
     def __init__(self, entry: NameEntry) -> None:
         self.entry = entry
+
+    def held_gone(self) -> bool:
+        return not self.entry.emptied and not any(one is self.entry for one in self.entry.book.names_.entries)
 
     @member
     def Name(self) -> object:
@@ -7998,6 +8138,7 @@ class DefinedName(ExcelObject):
         self.entry.macro_links_itself = bool(self.entry.macro_type) and "!" in text
         if text == "=":
             self.entry.refers_to = text
+            self.entry.emptied = True
             self.Delete()
             return
         self.entry.refers_to = _names.qualify(text, self.entry.book.active_sheet.name)
@@ -8041,7 +8182,10 @@ class DefinedName(ExcelObject):
             if area is None:
                 raise error(1004, f"{self.entry.name} does not refer to a range") from None
             areas = [area]
-        sheet = book.sheet_named(areas[0].sheet) if areas[0].sheet else book.active_sheet
+        try:
+            sheet = book.sheet_named(areas[0].sheet) if areas[0].sheet else book.active_sheet
+        except VBARuntimeError:
+            sheet = None
         if sheet is None:
             raise error(1004, f"{self.entry.name} refers to a sheet that is not there")
         return Range(sheet, areas)
@@ -8437,20 +8581,25 @@ def stored_value(value: object) -> object:
 
 
 class GoneRange(Range):
-    """A Range whose cells have gone: it still knows what it is and answers nothing else
-    (tests/fixtures/range_tracking.json)."""
+    """A Range whose cells have gone: it still knows what it is and answers nothing else, though a member it never had still raises 438
+    (tests/fixtures/range_tracking.json, tests/fixtures/held_objects.json)."""
 
     vba_type_name = "Range"
 
     def vba_value(self) -> object:
         raise error(1004, "Application-defined or object-defined error")
 
+    def _gone(self, name: str) -> VBARuntimeError:
+        if type(self).vba_member(self, name) is None:
+            return error(438, "Object doesn't support this property or method")
+        return error(424, "Object required")
+
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        raise error(424, "Object required")
+        raise self._gone(name)
 
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
                 *, by_ref: object = None) -> None:
-        raise error(424, "Object required")
+        raise self._gone(name)
 
     def vba_call(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        raise error(424, "Object required")
+        raise self._gone(name)

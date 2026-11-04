@@ -27,9 +27,11 @@ from dataclasses import dataclass, field, replace
 from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
-from pyopenvba.shapes._read_look import with_fill_line
+from pyopenvba.shapes._read_look import read_picture, with_fill_line
+from pyopenvba.shapes._read_text import loaded_text, read_text
 from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects, TextLine,
                                       TextLook, child_space, emu, points, to_child)
 
@@ -240,6 +242,8 @@ def _shape_of(
         auto_shape_type=next((number for number, preset in PRESET_GEOMETRY.items() if preset == geometry), 1),
     )
     shape.loaded_box = (left, top, width, height)
+    if kind == "picture":
+        read_picture(markup, shape)
     if kind == "group":
         shape.children = _members(markup, grid)
         _placed_in_group(shape.children, _CHILD_SPACE.search(markup), (left, top, width, height))
@@ -1000,16 +1004,129 @@ _PICTURE_FILLS = {"clear": '<a:solidFill><a:schemeClr val="accent1"><a:alpha val
                   "solid": '<a:solidFill><a:schemeClr val="accent1"/></a:solidFill>'}
 
 
-def _new_picture(shape: Shape) -> str:
-    """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
-    locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"
-    effects = {2: "<a:grayscl/>", 3: '<a:biLevel thresh="50000"/>'}.get(shape.picture_colour_type, "")
+def _picture_effects(shape: Shape) -> str:
+    """What a picture's blip holds of PictureFormat's settings, in Excel's order (tests/fixtures/loaded_shape_sets.json)."""
+    effects = ""
     if shape.picture_clear is not None:
         effects += (f'<a:clrChange><a:clrFrom><a:srgbClr val="{shape.picture_clear}"/></a:clrFrom><a:clrTo>'
                     f'<a:srgbClr val="{shape.picture_clear}"><a:alpha val="0"/></a:srgbClr></a:clrTo></a:clrChange>')
+    effects += {2: "<a:grayscl/>", 3: '<a:biLevel thresh="50000"/>'}.get(shape.picture_colour_type, "")
     if shape.picture_lum is not None:
         bright, contrast = shape.picture_lum
         effects += "<a:lum" + (f' bright="{bright}"' if bright else "") + (f' contrast="{contrast}"' if contrast else "") + "/>"
+    return effects
+
+
+def _with_loaded_picture(markup: str, shape: Shape, was: Shape) -> str:
+    """A loaded picture's markup with what PictureFormat changed. Effects the model does not read stop it being changed."""
+    if (shape.picture_lum, shape.picture_colour_type, shape.picture_clear) != (was.picture_lum, was.picture_colour_type, was.picture_clear):
+        found = re.search(r"(<a:blip\b[^>]*?)(/>|>(.*?)</a:blip>)", markup, re.DOTALL)
+        if found is not None:
+            inside = found.group(3) or ""
+            at = inside.find("<a:extLst")
+            rest = "" if at < 0 else inside[at:]
+            kept = _picture_effects(was)
+            if (inside if at < 0 else inside[:at]) != kept:
+                raise VBAUnsupportedError("Saving PictureFormat over effects the model does not read is not implemented")
+            effects = _picture_effects(shape) + rest
+            blip = f"{found.group(1)}>{effects}</a:blip>" if effects else f"{found.group(1)}/>"
+            markup = markup[:found.start()] + blip + markup[found.end():]
+    if shape.picture_fill is not None:
+        markup = with_fill_line(markup, _PICTURE_FILLS[shape.picture_fill])
+    return markup
+
+
+def _with_loaded_links(markup: str, shape: Shape) -> str:
+    """A loaded connector's markup with the connections it holds now, and any flips a connection gave it."""
+    span = re.search(r"<xdr:cNvCxnSpPr(?:/>|>(.*?)</xdr:cNvCxnSpPr>)", markup, re.DOTALL)
+    if span is None:
+        return markup
+    kept = re.sub(r"<a:(?:stCxn|endCxn)\b[^>]*/>", "", span.group(1) or "")
+    kept += "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
+    kept += "" if shape.end_link is None else f'<a:endCxn id="{shape.end_link.target}" idx="{shape.end_link.site - 1}"/>'
+    written = f"<xdr:cNvCxnSpPr>{kept}</xdr:cNvCxnSpPr>" if kept else "<xdr:cNvCxnSpPr/>"
+    return markup[:span.start()] + written + markup[span.end():]
+
+
+def _new_text_body(shape: Shape) -> str:
+    """A shape's txBody as the model writes it."""
+    body = dml.text_body(shape.text, "xdr:txBody")
+    if shape.kind in ("shape", "freeform"):
+        # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
+        # (tests/fixtures/text_frame.json).
+        body = body.replace("<a:p>", '<a:p><a:pPr algn="l"/>', 1)
+    if shape.kind == "textBox":
+        # A text box's text runs across, as Excel writes it.
+        body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
+    if shape.kind == "shape" and shape.geometry in DARK_TEXT:
+        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
+                            '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
+    if shape.text_look is not None:
+        body = _laid_out(body, shape.text_look, _marked_paragraphs(shape, shape.text_look))
+    if shape.painted:
+        body = body.replace(
+            '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
+            '<a:pPr marL="0" indent="0" algn="l"/><a:endParaRPr lang="en-US" sz="1100"><a:solidFill><a:schemeClr val="lt1"/>'
+            '</a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:endParaRPr>')
+    if shape.text_paragraphs is not None:
+        own = iter(shape.text_paragraphs)
+        body = re.sub(r"<a:p>(?:<a:pPr\b[^>]*/>)?", lambda _: f"<a:p>{next(own, '')}", body)
+    return body
+
+
+def read_shape_text(shape: Shape) -> None:
+    """Fill in a loaded shape's text settings from its markup, the first time a macro reaches them."""
+    if shape.text_read or not shape.source:
+        return
+    found = read_text(shape.source)
+    if shape.text == dml.text_of(shape.source):
+        # What VBA reaches tells a line break from a paragraph's end, where the shape's plain text does not.
+        shape.text = loaded_text(shape.source)
+    shape.text_look, shape.text_marks, shape.text_end, shape.text_paragraphs = found.look, found.marks, found.end, found.paragraphs
+    shape.text_read = True
+    span = dml.element_span(shape.source, "xdr:txBody")
+    shape.text_rewritable = span is not None and _new_text_body(shape) == shape.source[span[0]:span[1]]
+
+
+def _with_loaded_text(markup: str, shape: Shape, was: Shape) -> str:
+    """A loaded shape's markup with what a macro changed of its text: written out if the model writes this text just as the file
+    does; otherwise only new words, in the first run's settings, with the frame and the first paragraph's kept."""
+    span = dml.element_span(markup, "xdr:txBody")
+    if span is None or shape.kind not in ("shape", "textBox"):
+        return dml.replace_text(markup, shape.text, "xdr:txBody") if shape.text != was.text else markup
+    if shape.text_read:
+        before = read_text(shape.source)
+        same = (before.look, before.marks, before.end, before.paragraphs) == (
+            shape.text_look, shape.text_marks, shape.text_end, shape.text_paragraphs)
+        if same and shape.text == loaded_text(shape.source):
+            return markup
+        if shape.text_rewritable:
+            return markup[:span[0]] + _new_text_body(shape) + markup[span[1]:]
+    elif shape.text == was.text:
+        return markup
+    return markup[:span[0]] + _new_words(markup[span[0]:span[1]], shape.text) + markup[span[1]:]
+
+
+def _new_words(body: str, text: str) -> str:
+    start = body.find("<a:p>") if "<a:p>" in body else body.find("<a:p ")
+    head = body if start < 0 else body[:start]
+    run = re.search(r"<a:rPr\b[^>]*?(?:/>|>.*?</a:rPr>)", body, re.DOTALL)
+    end = re.search(r"<a:endParaRPr\b[^>]*?(?:/>|>.*?</a:endParaRPr>)", body, re.DOTALL)
+    settings = re.search(r"<a:pPr\b[^>]*?(?:/>|>.*?</a:pPr>)", body, re.DOTALL)
+    paragraph = "" if settings is None else settings.group(0)
+    props = run.group(0) if run is not None else "" if end is None else end.group(0).replace("endParaRPr", "rPr")
+    lines: list[str] = []
+    for line in text.split("\n"):
+        inner = f"<a:r>{props}<a:t>{dml.escaped_text(line)}</a:t></a:r>" if line else (
+            "" if end is None and not props else (end.group(0) if end is not None else props.replace("rPr", "endParaRPr")))
+        lines.append(f"<a:p>{paragraph}{inner}</a:p>")
+    return head + "".join(lines) + "</xdr:txBody>"
+
+
+def _new_picture(shape: Shape) -> str:
+    """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
+    locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"
+    effects = _picture_effects(shape)
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ""
     blip = (f'r:link="{shape.image_relationship}"/>' if shape.image_link else
             f'r:embed="{shape.image_relationship}">{effects}<a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
@@ -1041,26 +1158,9 @@ def _new_element(shape: Shape) -> str:
     if shape.kind == "picture":
         return _new_picture(shape)
     line = shape.kind == "line"
-    body = "" if line else dml.text_body(shape.text, "xdr:txBody")
+    body = "" if line else _new_text_body(shape)
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
-    if shape.kind in ("shape", "freeform"):
-        # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
-        # (tests/fixtures/text_frame.json).
-        body = body.replace("<a:p>", '<a:p><a:pPr algn="l"/>', 1)
-    if shape.kind == "textBox":
-        # A text box's text runs across, as Excel writes it.
-        body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
-    if shape.kind == "shape" and shape.geometry in DARK_TEXT:
-        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
-                            '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
-    if shape.text_look is not None and body:
-        body = _laid_out(body, shape.text_look, _marked_paragraphs(shape, shape.text_look))
-    if shape.painted:
-        body = body.replace(
-            '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
-            '<a:pPr marL="0" indent="0" algn="l"/><a:endParaRPr lang="en-US" sz="1100"><a:solidFill><a:schemeClr val="lt1"/>'
-            '</a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:endParaRPr>')
     box = ' txBox="1"' if shape.kind == "textBox" else ""
     textlink = "" if line else ' textlink=""'
     identity = _identity(shape)
@@ -1371,8 +1471,10 @@ def _font_markup(look: TextLook) -> tuple[str, str]:
     if look.font_shadow:
         children += ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0">'
                      '<a:scrgbClr r="0" g="0" b="0"/></a:outerShdw></a:effectLst>')
-    if look.font_latin is not None:
-        children += look.font_latin
+    if look.font_effects is not None:
+        children += look.font_effects
+    children += (look.font_highlight or "") + (look.font_underline_line or "") + (look.font_underline_fill or "")
+    children += (look.font_latin or "") + (look.font_ea or "") + (look.font_cs or "") + (look.font_sym or "")
     return attributes, children
 
 
@@ -1431,6 +1533,10 @@ def _marked_paragraphs(shape: Shape, look: TextLook) -> str | None:
     return "".join(paragraphs)
 
 
+def _autofit(which: str) -> str:
+    return "<a:spAutoFit/>" if which == "sp" else f"<a:{which}Autofit/>"
+
+
 def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
     """A new shape's txBody with the layout TextFrame gave it: bodyPr's attributes in the schema's order, and each
     paragraph's algn and rtl (tests/fixtures/text_frame.json)."""
@@ -1441,10 +1547,11 @@ def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
         # Every attribute, each margin spelled out, as Excel writes an AutoShape whose overflow has changed.
         insets = "".join(f' {name}="{emu(value if value is not None else default)}"' for name, value, default in zip(
             ("lIns", "tIns", "rIns", "bIns"), look.margins, (7.2, 3.6, 7.2, 3.6)))
-        head = (f'<a:bodyPr rot="0" spcFirstLastPara="0" {overflow} vert="{look.vert or "horz"}" wrap="square"'
-                f'{insets} numCol="{look.columns}" spcCol="{emu(look.column_spacing)}" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="0"'
-                ' forceAA="0" compatLnSpc="1"><a:prstTxWarp prst="textNoShape"><a:avLst/></a:prstTxWarp>'
-                "<a:noAutofit/></a:bodyPr>")
+        upright = ' upright="1"' if look.upright else ""
+        head = (f'<a:bodyPr rot="0" spcFirstLastPara="0" {overflow} vert="{look.vert or "horz"}" wrap="{look.wrap or "square"}"'
+                f'{insets} numCol="{look.columns}" spcCol="{emu(look.column_spacing)}" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="{1 if look.anchor_center else 0}"'
+                f' forceAA="0"{upright} compatLnSpc="1"><a:prstTxWarp prst="textNoShape"><a:avLst/></a:prstTxWarp>'
+                f"{_autofit(look.autofit or 'no')}</a:bodyPr>")
     else:
         vert = f' vert="{look.vert}"' if look.vert else ""
         wrap = f' wrap="{look.wrap}"' if look.wrap else ""
@@ -1454,7 +1561,7 @@ def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
             f' spcCol="{emu(look.column_spacing)}"' if look.column_spacing else "")
         attributes = f'{overflow}{vert}{wrap}{insets}{columns} rtlCol="0" anchor="{look.anchor}"{centred}{upright}'
         # TextFrame2's AutoSize is bodyPr's one child (tests/fixtures/text_frame2.json).
-        head = (f"<a:bodyPr {attributes}><a:{look.autofit}Autofit/></a:bodyPr>" if look.autofit
+        head = (f"<a:bodyPr {attributes}>{_autofit(look.autofit)}</a:bodyPr>" if look.autofit
                 else f"<a:bodyPr {attributes}/>")
     body = re.sub(r"<a:bodyPr\b[^>]*/>", lambda _: head, body, count=1)
     if look.deleted:
@@ -1586,11 +1693,21 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
             element = re.search(r"<(xdr:(?:sp|cxnSp|pic|graphicFrame|grpSp))(?=[\s/>])", markup)
             if element:
                 markup = _attribute_on_tag(markup, element.group(1), "macro", shape.macro)
-    if shape.text != was.text:
-        # Excel-authored controls can also carry a hidden DrawingML
-        # caption. Excel prefers it to VML when both exist.
-        markup = dml.replace_text(markup, shape.text, "xdr:txBody")
+    # Excel-authored controls can also carry a hidden DrawingML
+    # caption. Excel prefers it to VML when both exist.
+    markup = _with_loaded_text(markup, shape, was)
+    if shape.kind == "picture":
+        markup = _with_loaded_picture(markup, shape, was)
+    if shape.kind == "line" and shape.links_read:
+        markup = _with_loaded_links(markup, shape)
+    if (shape.flip_h, shape.flip_v) != (was.flip_h, was.flip_v):
+        markup = re.sub(r"<a:xfrm\b[^>]*>", lambda _: f"<a:xfrm{_xfrm_attributes(shape)}>", markup, count=1)
     return _restyled(markup, shape, was, grid)
+
+
+def shape_as_loaded(shape: Shape) -> Shape | None:
+    """What a shape was when the file was opened, if it came from one."""
+    return _shape_of_source(shape) if shape.source else None
 
 
 def _shape_of_source(shape: Shape) -> Shape | None:

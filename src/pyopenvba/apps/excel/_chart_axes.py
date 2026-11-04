@@ -20,7 +20,7 @@ from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAArray, VBAIn
                                            to_text)
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._charts import Chart
+    from pyopenvba.apps.excel._charts import Chart, ChartState
     from pyopenvba.apps.excel._model import Worksheet
 
 SUPPORTED = {51, 57, 4, 65, 1, -4169, 5, -4120, 52, 53, 58, 59, 63, 64, 66, 67, 76, 77}
@@ -71,12 +71,21 @@ class AxisState:
     between: bool | None = None
     label_skip: int | None = None
     mark_skip: int | None = None
+    #: Which axes it belongs to; a secondary value axis crosses at the far side unless told otherwise, and reads that only
+    #: while its category axis shows (tests/fixtures/combo_charts.json).
+    group: int = 1
+    far_side: bool = False
     #: A category axis's CategoryType (xlAutomaticScale, xlCategoryScale or xlTimeScale), its BaseUnit once set,
     #: whether BaseUnitIsAuto still holds, and MajorUnitScale once set (tests/fixtures/chart_category_type.json).
     category_type: int = -4105
     base_unit: int | None = None
     base_auto: bool = True
     major_scale: int | None = None
+
+    @property
+    def tag(self) -> str:
+        """How the chart's looks and fonts name this axis's."""
+        return str(self.kind) if self.group == 1 else f'{self.kind}s'
 
 
 #: Axis.DisplayUnit and how the file spells it.
@@ -107,6 +116,24 @@ def states(chart: Chart) -> dict[int, AxisState]:
     return chart.state.axes
 
 
+def secondary_states(state: ChartState) -> dict[int, AxisState]:
+    """The axes a chart's first series on the secondary axes brings: a value axis showing and a category axis that does not."""
+    if not state.secondary_axes:
+        first, second = _random_ids(state)
+        state.secondary_axes = {1: AxisState(1, first, present=False, group=2, crosses='max'),
+                                2: AxisState(2, second, numeric=True, group=2, far_side=True)}
+    return state.secondary_axes
+
+
+def _random_ids(state: ChartState) -> tuple[int, int]:
+    from pyopenvba.apps.excel._chart_xml import axis_ids
+
+    while True:
+        first, second = axis_ids()
+        if not {first, second} & set(state.axis_ids):
+            return first, second
+
+
 def transition(chart: Chart, wanted: int) -> None:
     if not chart.state.axes:
         return
@@ -129,9 +156,11 @@ def axis(chart: Chart, kind: object, group: object = MISSING) -> Axis:
     kind_number = int(to_integer(kind, "Long"))
     group_number = 1 if group is MISSING else int(to_integer(group, "Long"))
     chart.admit_read()
+    if group_number == 2 and kind_number == 3 and chart.state.secondary_axes:
+        raise error(5, "Invalid procedure call or argument")
+    if group_number == 2 and kind_number in (1, 2) and chart.state.secondary_axes:
+        return Axis(chart, chart.state.secondary_axes[kind_number])
     if kind_number not in (1, 2) or group_number != 1:
-        if group_number == 2:
-            raise VBAUnsupportedError("Secondary chart axes are not implemented")
         raise error(-2147467259, "Method 'Axes' of object '_Chart' failed")
     return Axis(chart, states(chart)[kind_number], valid=chart.state.chart_type not in NO_AXES)
 
@@ -143,7 +172,12 @@ class Axes(VBACollection, ItemDefault, Created):
         self.chart = chart
 
     def vba_items(self) -> list[object]:
-        return [Axis(self.chart, entry) for entry in states(self.chart).values() if entry.present]
+        primary = [Axis(self.chart, entry) for entry in states(self.chart).values() if entry.present]
+        state = self.chart.state
+        if not state.secondary_axes:
+            return list(primary)
+        # With secondary axes the value axis comes before the category axis of each (tests/fixtures/combo_charts.json).
+        return [*reversed(primary), *(Axis(self.chart, state.secondary_axes[kind]) for kind in (2, 1) if state.secondary_axes[kind].present)]
 
     @member
     def Application(self) -> object:
@@ -170,7 +204,8 @@ class Axis(ElementProperties, Created):
         if not self.valid:
             # A chart without axes (tests/fixtures/chart_set_element.json).
             raise error(-2147467261, "Automation error\nInvalid pointer")
-        if self.chart.state.axes.get(self.entry.kind) is not self.entry:
+        held = self.chart.state.axes if self.entry.group == 1 else self.chart.state.secondary_axes
+        if held.get(self.entry.kind) is not self.entry:
             raise error(440, "Automation error")
 
     def change(self) -> None:
@@ -181,6 +216,8 @@ class Axis(ElementProperties, Created):
         self.read()
         # A time-scale category axis takes a major unit as a value axis does (tests/fixtures/chart_category_type.json).
         if not self.entry.numeric and not (field == "major" and self.timed()):
+            if self.entry.group == 2:
+                raise error(-2147467259, "Automation error\nUnspecified error")
             raise error(440, "Automation error")
 
     def timed(self) -> bool:
@@ -317,7 +354,7 @@ class Axis(ElementProperties, Created):
     @member
     def AxisGroup(self) -> object:
         self.read()
-        return VBAInt(1, "Long")
+        return VBAInt(self.entry.group, "Long")
 
     @member
     def HasTitle(self) -> object:
@@ -498,7 +535,7 @@ class Axis(ElementProperties, Created):
     def _major_gridlines(self, value: object) -> None:
         self.change()
         wanted = to_bool(value)
-        self.chart.keeps_look(f"grid{self.entry.kind}", wanted)
+        self.chart.keeps_look(f"grid{self.entry.tag}", wanted)
         self.chart.changed()
         self.entry.major_gridlines = wanted
 
@@ -517,11 +554,11 @@ class Axis(ElementProperties, Created):
     @member
     def Format(self) -> object:
         self.read()
-        return self.chart.format_of(self, f"axis{self.entry.kind}")
+        return self.chart.format_of(self, f"axis{self.entry.tag}")
 
     @member
     def Border(self) -> object:
-        return self.chart.border_of(self, f"axis{self.entry.kind}")
+        return self.chart.border_of(self, f"axis{self.entry.tag}")
 
     @member
     def MajorGridlines(self) -> object:
@@ -542,11 +579,21 @@ class Axis(ElementProperties, Created):
 
     @member
     def Crosses(self) -> object:
+        if self.entry.group == 2 and not self.entry.present:
+            self.read()
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        if self.entry.far_side:
+            self.read()
+            return VBAInt(2 if self.chart.state.secondary_axes[1].present else -4105, "Long")
         return self.spelled("crosses", CROSSINGS)
 
     @setter("Crosses")
     def _crosses(self, value: object) -> None:
+        if self.entry.group == 2 and not self.entry.present:
+            self.read()
+            raise error(-2147467259, "Automation error\nUnspecified error")
         self.set_spelled("crosses", CROSSINGS, value)
+        self.entry.far_side = False
         if self.entry.crosses == "autoZero":
             self.entry.crosses_at = 0.0
 
@@ -568,6 +615,7 @@ class Axis(ElementProperties, Created):
         if not self.entry.numeric and not wanted.is_integer():
             raise VBAUnsupportedError("Crossing a category axis between categories is not implemented")
         self.chart.changed()
+        self.entry.far_side = False
         self.entry.crosses, self.entry.crosses_at = "custom", wanted
 
     def kind_only(self, numeric: bool) -> AxisState:
@@ -768,7 +816,7 @@ class Axis(ElementProperties, Created):
     @method
     def Delete(self) -> object:
         self.read()
-        self.chart.vba_set("HasAxis", False, [VBAInt(self.entry.kind, "Long"), VBAInt(1, "Long")])
+        self.chart.vba_set("HasAxis", False, [VBAInt(self.entry.kind, "Long"), VBAInt(self.entry.group, "Long")])
         return EMPTY
 
 
@@ -785,7 +833,7 @@ class AxisTitle(ElementProperties, TitleMembers):
         """Excel's name by axis, whatever the text says: the value axis 1, the category axis 2, the secondary value
         axis 3 (tests/fixtures/unassessed_charts.json). Setting it is 450."""
         self.read()
-        number = {2: 1, 1: 2}.get(self.axis.entry.kind)
+        number = {(2, 1): 1, (1, 1): 2, (2, 2): 3}.get((self.axis.entry.kind, self.axis.entry.group))
         if number is None:
             raise VBAUnsupportedError("The name of this axis' title is not implemented")
         return f"Text Axis {number}"
@@ -984,11 +1032,11 @@ class Gridlines(ElementProperties, Created):
         self.shown()
         if not self.major:
             raise VBAUnsupportedError("The look of minor gridlines is not implemented")
-        return self.axis.chart.format_of(self, f"grid{self.axis.entry.kind}")
+        return self.axis.chart.format_of(self, f"grid{self.axis.entry.tag}")
 
     @member
     def Border(self) -> object:
-        return self.axis.chart.border_of(self, f"grid{self.axis.entry.kind}")
+        return self.axis.chart.border_of(self, f"grid{self.axis.entry.tag}")
 
     @method
     def Delete(self) -> object:
@@ -1024,13 +1072,13 @@ class TickLabels(Created):
     @member
     def Font(self) -> object:
         self.axis.read()
-        return self.axis.chart.font_of(self, f"tick{self.axis.entry.kind}")
+        return self.axis.chart.font_of(self, f"tick{self.axis.entry.tag}")
 
     @member
     def Format(self) -> object:
         """The axis's own look, which the labels share in the file (tests/fixtures/chart_group_looks.json)."""
         self.axis.read()
-        return self.axis.chart.format_of(self, f"axis{self.axis.entry.kind}")
+        return self.axis.chart.format_of(self, f"axis{self.axis.entry.tag}")
 
     @method
     def Select(self) -> object:

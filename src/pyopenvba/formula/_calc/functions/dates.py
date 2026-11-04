@@ -339,7 +339,8 @@ def WORKDAY_INTL(
 
 
 def _basis_days(year: int) -> int:
-    return 366 if dates.days_in_month(year, 2) == 29 else 365
+    """A year's days under basis 1, which knows 1900 was no leap year though the serials count its 29 February."""
+    return 366 if calendar.isleap(year) else 365
 
 
 def basis(context: Context, value: Scalar | None) -> int:
@@ -366,9 +367,9 @@ def days_between(first: int, last: int, kind: int, *, epoch_1904: bool = False) 
         d1 = 30
     elif d1 == 30 and d2 == 31:
         d2 = 30
-    elif m1 == 2 and m2 == 2 and d1 == dates.days_in_month(y1, 2) and d2 == dates.days_in_month(y2, 2):
+    elif m1 == 2 and m2 == 2 and d1 == calendar.monthrange(y1, 2)[1] and d2 == calendar.monthrange(y2, 2)[1]:
         d1 = d2 = 30
-    elif m1 == 2 and d1 == dates.days_in_month(y1, 2):
+    elif m1 == 2 and d1 == calendar.monthrange(y1, 2)[1]:
         d1 = 30
     return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
 
@@ -388,7 +389,7 @@ def year_fraction(first: int, last: int, kind: int, *, epoch_1904: bool = False)
     y2, m2, d2 = dates.calendar(last, epoch_1904=epoch_1904)
     if y1 == y2 or (y2 == y1 + 1 and (m1, d1) >= (m2, d2)):
         spans_leap = any(
-            dates.days_in_month(year, 2) == 29
+            calendar.isleap(year)
             and first <= dates.serial(year, 2, 29, epoch_1904=epoch_1904) <= last
             for year in {y1, y2}
         )

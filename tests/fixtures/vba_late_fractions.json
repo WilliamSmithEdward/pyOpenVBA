@@ -1,0 +1,33 @@
+{
+"measured_at": "2026-11-04T14:51:23.862609+00:00",
+"answers": {
+"o.MaxIterations 1.5": "0:1",
+"o.MaxIterations 1.7": "0:1",
+"o.MaxIterations 2.5": "0:2",
+"o.MaxIterations 2.6": "0:2",
+"o.MaxIterations 3.2": "0:3",
+"o.MaxIterations 3.5": "0:3",
+"o.MaxIterations -1.5": "1004:1",
+"ch.DisplayBlanksAs 1.5": "0:2",
+"ch.DisplayBlanksAs 1.7": "0:2",
+"ch.DisplayBlanksAs 2.5": "0:2",
+"ch.DisplayBlanksAs 2.6": "0:3",
+"ch.DisplayBlanksAs 3.2": "0:3",
+"ch.DisplayBlanksAs 3.5": "0:4",
+"ch.DisplayBlanksAs -1.5": "0:-2",
+"ch.ChartStyle 1.5": "0:2",
+"ch.ChartStyle 1.7": "0:2",
+"ch.ChartStyle 2.5": "0:2",
+"ch.ChartStyle 2.6": "0:3",
+"ch.ChartStyle 3.2": "0:3",
+"ch.ChartStyle 3.5": "0:4",
+"ch.ChartStyle -1.5": "5:1",
+"ws.Tab.ColorIndex 1.5": "0:2",
+"ws.Tab.ColorIndex 1.7": "0:2",
+"ws.Tab.ColorIndex 2.5": "0:2",
+"ws.Tab.ColorIndex 2.6": "0:3",
+"ws.Tab.ColorIndex 3.2": "0:3",
+"ws.Tab.ColorIndex 3.5": "0:4",
+"ws.Tab.ColorIndex -1.5": "9:1"
+}
+}

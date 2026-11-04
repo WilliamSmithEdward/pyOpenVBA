@@ -251,9 +251,18 @@ class TextLook:
     size: float | None = None
     bold: bool | None = None
     italic: bool | None = None
-    underline: bool = False
-    strike: bool = False
+    #: As the file spells them: sng, dbl or none, sngStrike or noStrike, each None while nothing was set.
+    underline: str | None = None
+    strike: str | None = None
+    #: The baseline the file holds, and Subscript and Superscript as they were set, which read back beside it.
+    baseline: int | None = None
+    subscript: bool | None = None
+    superscript: bool | None = None
+    #: ColorIndex xlColorIndexNone: fully transparent black.
+    hidden: bool | None = None
     rgb: str | None = None
+    #: A theme colour read from a file, as the file spells it.
+    scheme: str | None = None
     name: str | None = None
 
 
@@ -264,9 +273,12 @@ def default_run(look: TextLook | None) -> str:
     attributes = "" if look.size is None else f' sz="{round(look.size * 100)}"'
     attributes += "" if look.bold is None else f' b="{int(look.bold)}"'
     attributes += "" if look.italic is None else f' i="{int(look.italic)}"'
-    attributes += ' u="sng"' if look.underline else ""
-    attributes += ' strike="sngStrike"' if look.strike else ""
+    attributes += "" if look.underline is None else f' u="{look.underline}"'
+    attributes += "" if look.strike is None else f' strike="{look.strike}"'
+    attributes += "" if look.baseline is None else f' baseline="{look.baseline}"'
     inside = "" if look.rgb is None else f'<a:solidFill><a:srgbClr val="{look.rgb}"/></a:solidFill>'
+    if look.hidden:
+        inside = '<a:solidFill><a:srgbClr val="000000"><a:alpha val="0"/></a:srgbClr></a:solidFill>'
     if look.name is not None:
         face = escape_attribute(look.name)
         inside += f'<a:latin typeface="{face}"/><a:ea typeface="{face}"/><a:cs typeface="{face}"/>'
@@ -275,7 +287,7 @@ def default_run(look: TextLook | None) -> str:
 
 def text_properties(look: TextLook | None, body: str = "<a:bodyPr/>") -> str:
     """The txPr of an element whose text has a look, none without one."""
-    if look is None:
+    if look is None or default_run(look) == "<a:defRPr/>":
         return ""
     return (f"<c:txPr>{body}<a:lstStyle/><a:p><a:pPr>{default_run(look)}</a:pPr>"
             '<a:endParaRPr lang="en-US"/></a:p></c:txPr>')
@@ -566,6 +578,11 @@ def _axis_ids() -> tuple[int, int]:
     while second == first:
         second = random.randint(10**8, 2**31 - 1)
     return first, second
+
+
+def plain_label_text(xml: str) -> str:
+    """Data labels' text once the chart area has a font: their body is the plain one (tests/fixtures/chart_font_gaps.json)."""
+    return xml.replace(_LABEL_BODY, "<a:bodyPr/>")
 
 
 __all__ = ["CHART_KINDS", "CT_CHART", "ChartKind", "SeriesData", "chart_frame", "chart_part"]

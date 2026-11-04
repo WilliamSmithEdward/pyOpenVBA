@@ -131,6 +131,34 @@ def _set_column(sheet: Worksheet, column: int, style: S.Style | None) -> None:
 # --- formatting ------------------------------------------------------------------------------
 
 
+def keep_shown(sheet: Worksheet, area: Area, *, vertical: bool, delete: bool) -> None:
+    """Before cells shift: a position with no cell of its own whose inherited format differs from the one where it lands
+    gets a cell in its format, so the format moves along with the cells."""
+    dims = sheet.dims
+    lines = dims.rows if vertical else dims.columns
+    styled = [line for line, record in lines.items() if record.style is not None]
+    if not styled:
+        return
+    start, count = (area.top, area.rows) if vertical else (area.left, area.columns)
+    if delete:
+        start += count
+    step = -count if delete else count
+    across = range(area.left, area.right + 1) if vertical else range(area.top, area.bottom + 1)
+    limit = MAX_ROWS if vertical else MAX_COLUMNS
+    sources = {line for one in styled for line in (one, one - step) if start <= line <= limit and 1 <= line + step <= limit}
+    for line in sorted(sources):
+        for other in across:
+            row, column = (line, other) if vertical else (other, line)
+            to_row, to_column = (line + step, other) if vertical else (other, line + step)
+            if (row, column) in sheet.cells_:
+                continue
+            shown = sheet.inherited_style(row, column)
+            if shown != sheet.inherited_style(to_row, to_column):
+                cell = sheet.cell(row, column, create=True)
+                assert cell is not None
+                cell.style = shown
+
+
 def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change) -> None:
     """Whole rows formatted: each row's format and each of its cells change from what they show."""
     change = shared(change)

@@ -17,7 +17,7 @@ row.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -53,8 +53,8 @@ def group(sheet: Worksheet, area: Area, cells: list[Cell]) -> None:
         cell.shared = key
 
 
-def formula_elements(sheet: Worksheet, escape: Callable[[str], str],
-                     always: Callable[[str], bool]) -> dict[tuple[int, int], str]:
+def formula_elements(sheet: Worksheet, escape: Callable[[str], str], always: Callable[[str], bool],
+                     marked: Collection[tuple[int, int]] = ()) -> dict[tuple[int, int], str]:
     """The ``<f>`` element of each cell a save writes as part of a shared formula, by position.
 
     A group's first cell with a formula, in row order, carries the formula
@@ -64,7 +64,9 @@ def formula_elements(sheet: Worksheet, escape: Callable[[str], str],
     so is every cell of a group any of whose formulas names a sheet, as a
     cut to another sheet leaves them (tests/fixtures/formula_storage/
     sheets.json). Every cell of a group whose formula ``always`` works out
-    whenever anything changes is ca="1" (tests/fixtures/formula_prefixes/).
+    whenever anything changes is ca="1" (tests/fixtures/formula_prefixes/),
+    and so is each cell ``marked``, which reads one that does
+    (tests/fixtures/volatile_marks.json).
     """
     members: dict[int, list[tuple[int, int, Cell]]] = {}
     for (row, column), cell in sorted(sheet.cells_.items()):
@@ -81,10 +83,12 @@ def formula_elements(sheet: Worksheet, escape: Callable[[str], str],
         top, left, first = cells[0]
         block = sheet.shared_groups[key].address(absolute=False)
         volatile = ' ca="1"' if always(first.formula) else ""
-        out[(top, left)] = f'<f t="shared" ref="{block}"{volatile} si="{index}">{escape(first.formula[1:])}</f>'
+        head = ' ca="1"' if volatile or (top, left) in marked else ""
+        out[(top, left)] = f'<f t="shared" ref="{block}"{head} si="{index}">{escape(first.formula[1:])}</f>'
         for row, column, cell in cells[1:]:
             if shift_text(first.formula, row - top, column - left) == cell.formula:
-                out[(row, column)] = f'<f t="shared"{volatile} si="{index}"/>'
+                mark = ' ca="1"' if volatile or (row, column) in marked else ""
+                out[(row, column)] = f'<f t="shared"{mark} si="{index}"/>'
     return out
 
 

@@ -22,7 +22,7 @@ from __future__ import annotations
 import datetime as _dt
 import re
 from collections import deque
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
@@ -31,6 +31,7 @@ from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.apps.excel._arrays import array_at
 from pyopenvba.apps.excel._precision import shown
+from pyopenvba.formula._parse import FormulaError, split_sheet, tokenize
 from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS, EngineBook, calls_user, model_value, volatile
 from pyopenvba.formula._calc.evaluator import Context as EngineContext
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
@@ -102,6 +103,14 @@ class Compiled:
     table: DataTable | None = None
 
 
+def _names_one_of(formula: str, names: set[str]) -> bool:
+    """Whether a formula names one of ``names``, without its sheet."""
+    try:
+        return any(token.kind == "name" and split_sheet(token.text)[1].casefold() in names for token in tokenize(formula))
+    except FormulaError:
+        return False
+
+
 class Calculator:
     """A workbook's formulas, and what they come to."""
 
@@ -141,6 +150,8 @@ class Calculator:
         #: The sheets where a formula has been worked out since the last save, whose values a save may have to bring up
         #: to date though nobody wrote to them (see _io._write_cached_values).
         self.worked_out: set[Worksheet] = set()
+        #: What reading_volatile found for the save under way.
+        self.volatile_readers: set[CellKey] | None = None
         self.pending_notifications: set[Worksheet] = set()
         self._held_caches: set[CellKey] = set()
         self.automatic_pending = False
@@ -471,6 +482,32 @@ class Calculator:
                     cell.stale = True
                     marked.add(key)
         self._spoil(marked, set(marked))
+
+    def reading_volatile(self, calls_volatile: Callable[[str], bool]) -> set[CellKey]:
+        """The formulas a file marks ca="1", which Excel works out as it opens a file: those ``calls_volatile`` says so
+        of, a macro's volatile function, and what reads any of them, however far, for Excel does not otherwise work a
+        formula out on opening, and its value falls behind the volatile one's (tests/fixtures/volatile_marks.json). Not
+        all the engine works out after every edit: SUBTOTAL is, for hidden rows, and a file does not mark it."""
+        self.build()
+        names = {entry.name.rpartition("!")[2].casefold() for entry in self.book.names_.entries
+                 if calls_volatile(entry.refers_to)}
+        seeds: set[CellKey] = set(self._volatile_udfs)
+        for owner in self.book.sheets_:
+            for (row, column), cell in owner.cells_.items():
+                if cell.formula and (calls_volatile(cell.formula) or (names and _names_one_of(cell.formula, names))):
+                    seeds.add((owner.name.lower(), row, column))
+        seen = set(seeds)
+        waiting = seeds
+        while waiting:
+            following: set[CellKey] = set()
+            for name, row, column in waiting:
+                for key in self._reading(name, row, column) - seen:
+                    following.add(key)
+                    following.update(self._members(key))
+            following -= seen
+            seen |= following
+            waiting = following
+        return seen
 
     def _spoil(self, changed: set[CellKey], seen: set[CellKey]) -> None:
         """Mark stale what reads ``changed``, and what reads that, a wave at a time."""

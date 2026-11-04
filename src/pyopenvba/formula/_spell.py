@@ -190,6 +190,24 @@ def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False
     return deep(lambda: _spelled(formula, names, whole=whole, at=at, r1c1=r1c1))
 
 
+def _without_at(body: str, tokens: list[Token]) -> str:
+    """``body`` with each @ taken out but one standing on a single cell."""
+    out: list[str] = []
+    start = 0
+    for index, token in enumerate(tokens):
+        if token.kind != "op" or token.text != "@":
+            continue
+        after = _next(tokens, index)
+        if after is not None and after.kind == "name" and is_cell(after.text):
+            beyond = _next(tokens, index + 1)
+            if beyond is None or beyond.text != ":":
+                continue
+        out.append(body[start:token.at])
+        start = token.at + 1
+    out.append(body[start:])
+    return "".join(out)
+
+
 def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -> str:
     body = formula[1:]
     try:
@@ -200,7 +218,12 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
             raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented") from None
         raise
     if not at and any(token.kind == "op" and token.text == "@" for token in tokens):
-        raise UnmodelledFormulaError("'@' in a formula written through Range.Formula is not implemented")
+        # Written through Range.Formula an @ goes, but for one on a single cell; an array formula keeps each it is given
+        # (tests/fixtures/formula_reads.json).
+        if whole:
+            return _spelled(formula, names, whole=whole, at=True, r1c1=r1c1)
+        kept = _without_at(body, tokens)
+        return _spelled("=" + kept, names, whole=whole, at="@" in _QUOTED.sub('""', kept), r1c1=r1c1)
     _within_limits(tokens)
     bound_at = bound(body)
     if not r1c1 and any(token.kind == "name" and token.at in bound_at and is_cell(token.text) for token in tokens):

@@ -246,6 +246,23 @@ def _step(name: str, kind: str) -> Step | None:
     return None if kind in _NO_AXES else _WITH_AXES.get(name)
 
 
+def _secondary_element(chart: Chart, name: str) -> object:
+    """The elements of a combo chart's secondary axes that were measured (tests/fixtures/combo_charts.json)."""
+    from pyopenvba.apps.excel._chart_axes import axis
+    from pyopenvba.interpreter._values import VBAInt
+
+    two = VBAInt(2, 'Long')
+    if name == 'SecondaryValueAxisTitleAdjacentToAxis':
+        axis(chart, VBAInt(2, 'Long'), two).vba_set('HasTitle', True)
+    elif name == 'SecondaryCategoryAxisShow':
+        chart.vba_set('HasAxis', True, [VBAInt(1, 'Long'), two])
+    elif name == 'SecondaryValueAxisNone':
+        chart.vba_set('HasAxis', False, [VBAInt(2, 'Long'), two])
+    else:
+        raise unmeasured('This SetElement on secondary axes')
+    return True
+
+
 def set_element(chart: Chart, value: object) -> object:
     """Chart.SetElement."""
     from pyopenvba.apps.excel._charts import CHART_TYPES, shown_type
@@ -258,6 +275,8 @@ def set_element(chart: Chart, value: object) -> object:
         raise unmeasured('SetElement on this kind of chart')
     name = next((key[len('msoElement'):] for key, number in OFFICE_CONSTANTS.items()
                  if number == wanted and key.startswith('msoElement')), '')
+    if name.startswith('Secondary') and chart.state.secondary_axes:
+        return _secondary_element(chart, name)
     step = _step(name, kind)
     if step is None:
         if kind in _ANOTHER_FAILURE.get(name, ()):

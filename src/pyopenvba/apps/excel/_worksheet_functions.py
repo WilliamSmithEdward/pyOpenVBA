@@ -25,10 +25,11 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Iterator
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.apps.excel._engine_book import EngineBook
+from pyopenvba.apps.excel._given_values import currency_text
 from pyopenvba.apps.excel._worksheet_function_refusals import REFUSALS
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.cells import CellError
@@ -385,8 +386,7 @@ def _given_item(value: object) -> Scalar:
     if isinstance(value, VBACurrency):
         # A Currency reaches Excel as its text, in the currency format: $4.00 with a space after it, ($4.00) below nothing,
         # to the nearest cent, half away from nothing (tests/fixtures/worksheet_function_heldout.json).
-        cents = abs(Decimal(value)).quantize(Decimal("0.01"), ROUND_HALF_UP)
-        return f"(${cents:,.2f})" if value < 0 else f"${cents:,.2f} "
+        return currency_text(value)
     if isinstance(value, VBADate):
         # A Date reaches Excel as its text: IsText(Date) is TRUE, AND passes it over as it passes text over, and SUM
         # reads the number back (native probes).

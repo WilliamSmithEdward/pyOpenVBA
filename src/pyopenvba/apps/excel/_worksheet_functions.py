@@ -57,8 +57,9 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivot_reports import PivotReport
     from pyopenvba.formula._calc.evaluator import Context, TableShape
 
-#: Declared String, yet they take a range of several cells, typed too (tests/fixtures/worksheet_functions.json).
-_NOT_CONVERTED: Final = frozenset({"textjoin", "concat"})
+#: Declared String, yet they take a range of several cells, typed too (tests/fixtures/worksheet_function_types.json): the
+#: places of the texts each joins, and TextJoin's delimiter.
+_NOT_CONVERTED: Final = {"textjoin": (0, 2), "concat": (0,)}
 #: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
 _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
@@ -194,7 +195,7 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
     found: list[object] = []
     for index, value in enumerate(values):
         kind = declared[index] if index < len(declared) else "Variant"
-        if not late and kind != "Variant" and name.lower() not in _NOT_CONVERTED:
+        if not late and kind != "Variant" and index not in _NOT_CONVERTED.get(name.lower(), ()):
             value = _typed(value, kind)
         if value is NOTHING:
             raise error(5)
@@ -202,7 +203,10 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
         if value is NULL:
-            if index == minimum - 1 or (lower == "index" and index == 2):
+            # The last it cannot do without, with nothing after it, or a column; earlier ones are as if left blank
+            # (tests/fixtures/worksheet_function_types.json).
+            if (index == minimum - 1 and index == len(values) - 1) or (lower == "index" and index in (0, 2)) \
+                    or (lower in ("vlookup", "hlookup") and index == 2):
                 raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
             value = MISSING
         if lower in _ONE_VALUE and index == 2:

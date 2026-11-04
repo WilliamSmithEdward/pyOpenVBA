@@ -50,7 +50,7 @@ def test_a_tab_lands_where_excel_puts_it(row: dict[str, str]) -> None:
 @pytest.mark.parametrize("row", SAVED, ids=_id)
 def test_excel_reads_the_models_save_as_its_own(row: dict[str, str]) -> None:
     """Recorded by the probe: the action made by Excel and saved, and made by the model and saved, each read by Excel."""
-    assert row["model"] == row["excel"]
+    assert (row["model"], row["model_view"]) == (row["excel"], row["excel_view"])
 
 
 @pytest.mark.parametrize("row", [row for row in ROWS if _reported(row)], ids=_id)

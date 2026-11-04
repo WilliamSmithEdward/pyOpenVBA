@@ -13,9 +13,11 @@ writes tests/fixtures/chart_sheets/tabs.json, which tests/test_excel_chart_sheet
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sys
 import tempfile
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -84,6 +86,10 @@ PLAIN_ACTIONS: dict[str, str] = {
     "delete_before_active": "wb.Sheets(1).Delete",
     "delete_active": "wb.ActiveSheet.Delete",
     "hide_before_active": "wb.Sheets(1).Visible = 0",
+    "move_active_first": "wb.ActiveSheet.Move Before:=wb.Sheets(1)",
+    "add_before_then_back": "wb.Sheets.Add Before:=wb.Sheets(1): wb.Sheets(3).Activate",
+    "move_other_across": "wb.Sheets(3).Move Before:=wb.Sheets(1): wb.Sheets(3).Activate",
+    "activate_another": "wb.Sheets(3).Activate",
 }
 MAKE_PLAIN = '''Sub MakePlain(ByVal file As String)
     Dim wb As Workbook
@@ -150,6 +156,14 @@ End Function
 '''
 
 
+def _view(file: Path) -> str:
+    """The book's first and active tabs as the file has them."""
+    with zipfile.ZipFile(file) as package:
+        book = package.read("xl/workbook.xml").decode("utf-8")
+    found = re.search(r"<workbookView\b[^>]*>", book)
+    return " ".join(sorted(re.findall(r'\b(?:activeTab|firstSheet)="\d+"', found.group(0)))) if found else ""
+
+
 def _model_acted(action: str, file: Path) -> str:
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBAUnsupportedError
@@ -195,10 +209,11 @@ def gate(rows: list[dict[str, str]], folder: Path) -> list[dict[str, str]]:
                 first = excel.run_vba(READ, "ReadIt", (str(theirs),), timeout=45.0)
                 second = excel.run_vba(READ, "ReadIt", (str(ours),), timeout=45.0)
                 row = {"book": book, "case": case, "excel": str(first.value) if first.ok else f"failed {first.message[:80]}",
-                       "model": str(second.value) if second.ok else f"failed {second.message[:80]}"}
+                       "model": str(second.value) if second.ok else f"failed {second.message[:80]}",
+                       "excel_view": _view(theirs), "model_view": _view(ours)}
                 saved.append(row)
-                if row["excel"] != row["model"]:
-                    print("DIFFERS", book, case, "\n  excel", row["excel"], "\n  model", row["model"], flush=True)
+                if row["excel"] != row["model"] or row["excel_view"] != row["model_view"]:
+                    print("DIFFERS", book, case, "\n  excel", row["excel"], row["excel_view"], "\n  model", row["model"], row["model_view"], flush=True)
     return saved
 
 
@@ -229,7 +244,7 @@ def main() -> None:
         saved = gate(rows, folder)
         done.write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "probe": PROBE, "actions": ACTIONS, "rows": rows, "saved": saved}, indent=1) + "\n",
                         encoding="utf-8")
-        print(len(saved), "saved", sum(row["excel"] != row["model"] for row in saved), "differ", flush=True)
+        print(len(saved), "saved", sum(row["excel"] != row["model"] or row["excel_view"] != row["model_view"] for row in saved), "differ", flush=True)
     finally:
         shutil.rmtree(folder, ignore_errors=True)
 

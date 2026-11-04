@@ -1332,6 +1332,10 @@ class ChartPageSetup(Created):
         return VBAErrorValue(2042)
 
 
+#: The key of a data table's look among the chart's elements.
+DATA_TABLE_LOOK = 'axisDataTable'
+
+
 class ChartDataTable(Created):
     """The table of values under a chart (tests/fixtures/chart_members_more.json)."""
 
@@ -1351,6 +1355,15 @@ class ChartDataTable(Created):
     @member
     def Font(self) -> object:
         return self.chart.font_of(self, 'dataTable')
+
+    @member
+    def Format(self) -> object:
+        """A look like an axis's, kept under a key of the same family (tests/fixtures/chart_table_look.json)."""
+        return self.chart.format_of(self, DATA_TABLE_LOOK)
+
+    @member
+    def Border(self) -> object:
+        return self.chart.border_of(self, DATA_TABLE_LOOK)
 
     @member
     def ShowLegendKey(self) -> object:
@@ -2410,6 +2423,9 @@ class Chart(ElementProperties, Created):
         wanted = to_bool(value)
         self.changed()
         self.state.data_table = wanted
+        if not wanted:
+            # Its look goes with it (tests/fixtures/chart_table_look.json).
+            self.state.element_looks.pop(DATA_TABLE_LOOK, None)
 
     @member
     def Name(self) -> object:

@@ -35,7 +35,7 @@ _WHITE = 16777215
 _INVALID = (-2147024809, "The specified value is out of range.")
 _A14 = 'xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"'
 #: LineFormat.DashStyle and how the file writes it: its prstDash and the cap it takes.
-_DASHES = {4: ("dash", None), 3: ("dot", "rnd"), 7: ("lgDash", None)}
+_DASHES = {4: ("dash", None), 3: ("dot", "rnd"), 7: ("lgDash", None), 10: ("sysDash", None)}
 
 
 def unmeasured(what: str) -> VBAUnsupportedError:
@@ -523,7 +523,7 @@ class SeriesColor(Created):
 #: The elements whose Format has a 3-D look and a picture, and those with a text frame, by their type
 #: (tests/fixtures/chart_protection.json).
 _SOLID = ("Series", "Point", "ChartArea", "PlotArea", "Legend", "ChartTitle", "AxisTitle")
-_TEXTUAL = ("ChartArea", "Legend", "ChartTitle", "AxisTitle")
+_TEXTUAL = ("ChartArea", "Legend", "ChartTitle", "AxisTitle", "DataTable")
 _NO_MEMBER = (-2147467259, "Automation error\nUnspecified error")
 
 
@@ -736,7 +736,7 @@ class EffectMembers(Created):
 
     @member
     def PictureFormat(self) -> object:
-        if self._element_type() not in (*_SOLID, "TickLabels"):
+        if self._element_type() not in (*_SOLID, "TickLabels", "DataTable"):
             raise error(*_NO_MEMBER)
         return PictureRead(self)
 
@@ -1002,6 +1002,9 @@ class ElementLine(_ElementPart):
     def reads_hidden(self) -> bool:
         """A line that is no real line: hidden, or a weight or dash on an element with no line."""
         look = self.look()
+        if look.line_off:
+            # Hidden through its Border (tests/fixtures/chart_table_look.json).
+            return True
         return not _grey(self.key) and look.line_rgb is None and (
             look.line_full or look.line_width is not None or look.line_dash is not None)
 
@@ -1083,6 +1086,15 @@ class ElementLine(_ElementPart):
         if self.absent() or self.reads_hidden() or not self.touched():
             return VBASingle(_MIXED)
         return VBASingle(0.0)
+
+    @setter("Transparency")
+    def _transparency(self, value: object) -> None:
+        """With nothing set of the line it takes none (tests/fixtures/chart_table_look.json)."""
+        wanted = float(VBASingle(float(to_number(value))))
+        if not 0 <= wanted <= 1:
+            raise error(*_INVALID)
+        if self.touched():
+            raise unmeasured("The transparency of a chart element's line with a look")
 
 
 class EntryFill(ElementFill):

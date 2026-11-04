@@ -110,3 +110,48 @@ def test_the_type_of_a_project_class_is_not_the_librarys() -> None:
     app.add_module('Public Value As Long', name='Range', kind='class')
     app.add_module('Function Probe() As Long\n    Dim r As Range\n    Set r = New Range\n    r.Value = 4\n    Probe = r.Value\nEnd Function', name='Harness')
     assert app.run('Harness.Probe') == 4
+
+
+#: The line runs with ws the first sheet, which has no comments: what Comments(Null) answers says how the call was bound.
+SETUP = 'Dim ws As Worksheet, wo As Object, cs As Comments, co As Object, n As Long\nSet ws = ActiveSheet: Set wo = ws: Set cs = ws.Comments: Set co = cs\nOn Error Resume Next\n'
+
+
+@pytest.mark.parametrize(('line', 'expected'), [
+    ('n = TypeName(ws.Comments(Null))', 94),
+    ('n = TypeName(wo.Comments(Null))', 13),
+    ('n = TypeName(cs(Null))', 94),
+    ('n = TypeName(co(Null))', 13),
+    ('n = TypeName(cs.Item(Null))', 94),
+    ('n = TypeName(co.Item(Null))', 13),
+    ('With cs\nn = TypeName(.Item(Null))\nEnd With', 94),
+    ('With co\nn = TypeName(.Item(Null))\nEnd With', 13),
+    ('With ActiveSheet\nn = TypeName(.Comments(Null))\nEnd With', 13),
+    ('n = TypeName(ActiveCell.Worksheet.Comments(Null))', 94),
+    ('n = TypeName(Worksheets(1).Comments(Null))', 13),
+])
+def test_a_call_answers_by_how_it_was_bound(line: str, expected: int) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(f'Function Probe() As Long\n{SETUP}{line}\nProbe = Err.Number\nEnd Function', name='Harness')
+    assert app.run('Harness.Probe') == expected
+
+
+def test_a_parameter_binds_as_it_is_declared() -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module('''Function Typed(c As Comments) As Long
+    Dim v As Variant
+    On Error Resume Next
+    v = TypeName(c.Item(Null))
+    Typed = Err.Number
+End Function
+Function Loose(c As Object) As Long
+    Dim v As Variant
+    On Error Resume Next
+    v = TypeName(c.Item(Null))
+    Loose = Err.Number
+End Function
+Function Probe() As String
+    Probe = Typed(ActiveSheet.Comments) & " " & Loose(ActiveSheet.Comments)
+End Function''', name='Harness')
+    assert app.run('Harness.Probe') == '94 13'

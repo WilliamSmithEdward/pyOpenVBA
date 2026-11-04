@@ -355,6 +355,9 @@ class NoEffect(HeldPart):
     def Parent(self) -> object:
         return self.font
 
+    def vba_set(self, name: str, value: object, args: object = (), named: object = None, *, by_ref: bool = False) -> None:
+        raise VBAUnsupportedError(f"Setting {self.vba_type_name}.{name} here is not implemented")
+
     def vba_get(self, name: str, args: object = (), named: object = None) -> object:
         for key, value in self.answers.items():
             if key.lower() == name.lower():

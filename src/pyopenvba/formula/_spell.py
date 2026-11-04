@@ -63,11 +63,6 @@ _UNMODELLED: Final = re.compile(r"#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|S
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
 #: A cell, points and more after them, as one name: Excel writes it in apostrophes (tests/fixtures/value_gaps.json).
 _DOTTED_NAME: Final = re.compile(r"(?a)[A-Za-z]{1,3}\d+\.{2,}[^.].*")
-#: The functions that may stand beside a range, an intersection or a union, which can give cells; a function Excel has
-#: not got may too (tests/fixtures/value_gaps.json went through all of them).
-_GIVE_CELLS: Final = frozenset("""
-CHOOSE DROP IF IFS INDEX INDIRECT LAMBDA LET OFFSET REDUCE SINGLE SWITCH TAKE TRIMRANGE XLOOKUP
-""".split())
 #: Two points between two cells, as Lotus wrote a range: A1..A2 reads A1:A2 (tests/fixtures/value_gaps.json).
 _DOTS: Final = re.compile(rf"(?a)({_QUOTED.pattern})|(?<![\w.$])(\$?[A-Za-z]{{1,3}}\$?\d+)\.\.(\$?[A-Za-z]{{1,3}}\$?\d+)(?![\w.])")
 
@@ -326,7 +321,7 @@ def check_arguments(node: Node | None) -> None:
     """
     if isinstance(node, Binary) and node.op in REFERENCE_OPS:
         for side in (node.right,) if node.held else (node.left, node.right):
-            if isinstance(side, Call) and is_excel_function(function_key(side.name)) and function_key(side.name) not in _GIVE_CELLS:
+            if isinstance(side, Call) and is_excel_function(function_key(side.name)) and function_key(side.name) not in _ANSWER_CELLS:
                 raise FormulaError(f"{side.name} gives no cells for a reference operator")
     if isinstance(node, Call):
         name = function_key(node.name)
@@ -364,7 +359,7 @@ def _referring(node: Node | None) -> bool:
     has not got is let through, since what it answers with is not known
     here.
     """
-    if isinstance(node, (Reference, Structured)) or isinstance(node, Unary) and node.op == "#":
+    if isinstance(node, (Reference, Structured)) or isinstance(node, Unary) and node.op in ("#", "@"):
         return True
     if isinstance(node, Literal) and isinstance(node.value, ExcelError) and node.value.name == "#REF!":
         # What a deleted reference leaves is taken where a reference goes: ROW(#REF!) is #REF!

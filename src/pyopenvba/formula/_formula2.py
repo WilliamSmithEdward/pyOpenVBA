@@ -207,8 +207,8 @@ class _Walk:
                 if isinstance(node.right, Unary) and node.right.op == "@" and node.op != ":":
                     # =A1 @A2 and =A1,@A2 read back as they are; =A1:@A2 is a range all the same, and =SUM(A1:A2) @A2 as its
                     # left is (tests/fixtures/value_gaps.json).
-                    called = isinstance(node.left, Call) and function_key(node.left.name) in _CHOICES
-                    return left and node.op == " " and not called
+                    called = isinstance(node.left, Call) and function_key(node.left.name) not in _CHOICES
+                    return left and node.op == " " and called
                 return True
             inside = WHOLE if where == WHOLE else VALUE
             left = self.visit(node.left, inside)

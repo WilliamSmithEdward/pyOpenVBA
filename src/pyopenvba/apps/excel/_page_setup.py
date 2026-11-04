@@ -201,23 +201,23 @@ def deferred(sheet: Worksheet, value: object, apply: Callable[[], None]) -> None
 
 def flush(application: Application) -> None:
     """The PageSetup settings held back while PrintCommunication was False, applied in the order they were made,
-    the last of a property's winning. One Excel refuses is dropped without an error, as is one of Null or of text
-    that is no number (print_zoom_invalid, print_header_too_long, print_coercion), and one on a sheet or workbook
-    gone since (print_book_closed)."""
-    from pyopenvba.apps.excel._application_settings import number
-
+    the last of a property's winning. One Excel refuses is dropped, and setting PrintCommunication then fails
+    (print_zoom_invalid); one of Null or of text is dropped without an error (print_coercion), as is one on a sheet
+    or workbook gone since (print_book_closed)."""
     held, application.held_page_settings = application.held_page_settings, []
+    refused = False
     for sheet, value, apply in held:
         if sheet.book not in application.workbooks_.books or sheet not in sheet.book.sheets_:
             continue
         try:
             apply()
         except VBARuntimeError:
-            continue
+            refused = True
         except VBAUnsupportedError:
-            if value is NULL or (isinstance(value, str) and number(value) is None):
-                continue
-            raise
+            if value is not NULL and not isinstance(value, str):
+                raise
+    if refused:
+        raise error(1004, "Method 'PrintCommunication' of object '_Application' failed")
 
 
 def _set_header(sheet: Worksheet, child: str, code: str, value: object, message: str) -> None:
@@ -226,15 +226,21 @@ def _set_header(sheet: Worksheet, child: str, code: str, value: object, message:
     if sheet.book.application.udf_callers:
         raise unsupported('setting a header or footer from a worksheet function')
 
-    def apply() -> None:
-        text = to_text(value)
+    def updated() -> str:
         found = headers(sheet)
         if found.pictures:
             raise unsupported('setting a header or footer on a sheet with header pictures')
-        updated = with_section(found.texts.get(child, ''), code, text)
-        if len(updated) > LIMIT:
+        text = with_section(found.texts.get(child, ''), code, to_text(value))
+        # Refused as it is set, whatever PrintCommunication is (print_header_too_long).
+        if len(text) > LIMIT:
             raise error(1004, message)
-        found.texts[child] = updated
+        return text
+
+    updated()
+
+    def apply() -> None:
+        found = headers(sheet)
+        found.texts[child] = updated()
         found.changed = True
         sheet.book.saved = False
 
@@ -465,6 +471,9 @@ class PageSetup(ExcelObject):
                             if area.whole_rows != rows]
                 _name(self.sheet, 'Print_Titles', [*retained, *areas])
             return
+        if name == 'Orientation' and isinstance(value, str) and not self.sheet.book.application.print_communication:
+            # Refused as it is set, where LeftMargin = Null is not (print_coercion).
+            raise error(1004, 'Unable to set the Orientation property of the PageSetup class')
         deferred(self.sheet, value, lambda: self._apply(name, value, udf))
 
     def _apply(self, name: str, value: object, udf: bool) -> None:

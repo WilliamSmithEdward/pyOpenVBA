@@ -4,15 +4,15 @@ EnablePivotTable, EnableCalculation, TransitionExpEval, TransitionFormEntry and 
 Measured in live Excel (scripts/measure_worksheet_settings.py, tests/fixtures/worksheet_settings.json):
 
 - The switches take any value VBA turns into a Boolean, Empty as False;
-  Null and text that is no Boolean leave one as it was, with no error, as
-  Application's switches do.
+  Null is 94 and text that is no Boolean 13, VBA converting first as these
+  are bound early.
 - ScrollArea takes text Range takes on the sheet, one area of it, spaces
   round it dropped, a name too, and reads it back as the area's absolute
   address. Anything else -- two areas, another sheet's cells, text that is
-  no reference, Null, a number -- changes nothing, with no error; "" and
-  Empty clear it. Set while the active cell is outside the area, it
-  selects the area's first cell, and Goto outside it does too, while a
-  macro's Select and Activate still go there.
+  no reference, a number -- is 1004, Null 94 and a range of cells 13; ""
+  and Empty clear it. Set while the active cell is outside the area, it
+  selects the area's first cell. Goto outside it is 1004, while a macro's
+  Select and Activate still go there.
 - EnableCalculation False keeps every formula on the sheet as it is,
   through Calculate, Application.Calculate and CalculateFull alike, and
   another sheet reading one reads the value it keeps; a formula written
@@ -37,10 +37,9 @@ import re
 from typing import TYPE_CHECKING
 
 from pyopenvba._opc_xml import opc_part
-from pyopenvba.apps.excel._application_settings import flag
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import MemberSpec
-from pyopenvba.interpreter._values import EMPTY
+from pyopenvba.interpreter._values import VBAArray, error, to_bool, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
@@ -100,19 +99,22 @@ def with_transitions(sheet: Worksheet, xml: str) -> str:
 
 def scroll_area(sheet: Worksheet, value: object) -> None:
     """Set ScrollArea as Excel sets it (see the module's notes)."""
-    if value is EMPTY or value == '':
-        sheet.settings['ScrollArea'] = ''
-        return
-    if not isinstance(value, str):
-        return
-    try:
-        found = sheet.vba_get('Range', [value.strip()])
-    except VBARuntimeError:
-        return
     from pyopenvba.apps.excel._model import Range
 
-    if not isinstance(found, Range) or found.sheet is not sheet or len(found.areas) != 1:
+    if isinstance(value, VBAArray):
+        raise error(13)
+    # Bound early VBA turns it into text first, Null being 94 (tests/fixtures/worksheet_settings.json).
+    text = to_text(value)
+    if not text:
+        sheet.settings['ScrollArea'] = ''
         return
+    refused = error(1004, "Method 'ScrollArea' of object '_Worksheet' failed")
+    try:
+        found = sheet.vba_get('Range', [text.strip()])
+    except VBARuntimeError:
+        raise refused from None
+    if not isinstance(found, Range) or found.sheet is not sheet or len(found.areas) != 1:
+        raise refused
     sheet.settings['ScrollArea'] = str(found.vba_get('Address'))
     _keep_inside(sheet)
 
@@ -146,21 +148,21 @@ def _keep_inside(sheet: Worksheet) -> None:
         _select_corner(sheet, area)
 
 
-def after_goto(target: Range) -> None:
-    """Goto outside the sheet's scroll area: Excel selects the area's first cell instead (scroll_goto)."""
+def check_goto(target: Range) -> None:
+    """Goto outside the sheet's scroll area is 1004 (scroll_goto)."""
     area = _area(target.sheet)
     if area is None:
         return
     first, inside = target.first, area.first
     if not (inside.contains(first.top, first.left) and inside.contains(first.bottom, first.right)):
-        _select_corner(target.sheet, area)
+        raise error(1004, "Method 'Goto' of object '_Application' failed")
 
 
 def enable_calculation(sheet: Worksheet, value: object) -> None:
     """Set EnableCalculation: False keeps the sheet's formulas as they are; True again marks them all to be worked
     out, and works them out under automatic calculation (calc_back_on, manual_back_on)."""
-    found = flag(value)
-    if found is None or found == sheet.enable_calculation:
+    found = bool(to_bool(value))
+    if found == sheet.enable_calculation:
         return
     sheet.enable_calculation = found
     if found:
@@ -182,9 +184,8 @@ def _switch(name: str) -> MemberSpec:
         return sheet.settings.get(name, SWITCHES[name])
 
     def put(sheet: Worksheet, value: object) -> None:
-        found = flag(value)
-        if found is not None:
-            sheet.settings[name] = found
+        # Bound early VBA converts first, so text is 13 and Null 94 (tests/fixtures/settable_audit.json).
+        sheet.settings[name] = bool(to_bool(value))
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
@@ -194,11 +195,9 @@ def _transition(name: str) -> MemberSpec:
         return transitions(sheet).get(name, False)
 
     def put(sheet: Worksheet, value: object) -> None:
-        found = flag(value)
-        if found is not None:
-            transitions(sheet)[name] = found
-            sheet.transitions_changed = True
-            sheet.book.saved = False
+        transitions(sheet)[name] = bool(to_bool(value))
+        sheet.transitions_changed = True
+        sheet.book.saved = False
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
@@ -208,9 +207,7 @@ def _right_to_left() -> MemberSpec:
         return sheet.view.right_to_left
 
     def put(sheet: Worksheet, value: object) -> None:
-        found = flag(value)
-        if found is None:
-            return
+        found = bool(to_bool(value))
         if sheet.view.split_xml:
             raise VBAUnsupportedError("changing the view of a window whose panes the model does not lay out, a split "
                                       "Excel kept in twips of what the window shows, is not implemented")

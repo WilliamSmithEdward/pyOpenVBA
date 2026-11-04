@@ -1653,7 +1653,8 @@ def read_standard_width(sheet: Worksheet) -> object:
 
 
 def write_standard_width(sheet: Worksheet, value: object) -> None:
-    characters = _size(value)
+    # Bound early VBA converts first: text is 13 and Null 94, and True, -1, out of range (tests/fixtures/settable_audit.json).
+    characters = _size(-1.0 if value is True else to_number(value) if isinstance(value, str) or value is NULL else value)
     if characters < 0 or characters > MOST_CHARACTERS:
         raise error(1004, "the standard width can be from 0 to 255 characters")
     sheet.dims.set_standard_width(pixels_for(characters))

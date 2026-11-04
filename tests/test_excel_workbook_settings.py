@@ -20,9 +20,11 @@ SOURCE = FIXTURE["source"].replace('folder & "\\', f'folder & "{os.sep}')
 #: Settings whose place in a saved file was not measured report themselves unsupported when set to a value Excel
 #: takes; so does the default slicer or timeline style; and the criteria cases, which Excel refused anyway, use one.
 UNSUPPORTED_SETTINGS = ("ChartDataPointTrack", "AccuracyVersion", "DefaultSlicerStyle", "DefaultTimelineStyle")
-#: Late bound, Excel answers these 1004; typed, 13 (tests/fixtures/settable_audit.json). The model does not tell the two
+#: Late bound, Excel answers these 1004 or 450; typed, 13 or 5 (tests/fixtures/settable_audit.json). The model does not tell the two
 #: bindings apart yet and follows typed, as most macros are.
-TYPED_ANSWER = {'wbo.UpdateRemoteReferences = "x"': "Err 13 Type mismatch"}
+TYPED_ANSWER = {'wbo.UpdateRemoteReferences = "x"': "Err 13 Type mismatch",
+                'wbo.DefaultSlicerStyle = "NoSuch"': "Err 5 Invalid procedure call or argument",
+                'wbo.DefaultTimelineStyle = "NoSuch"': "Err 5 Invalid procedure call or argument"}
 
 
 def _unsupported(statements: list[str], answer: str) -> bool:

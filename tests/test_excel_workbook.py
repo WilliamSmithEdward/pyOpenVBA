@@ -261,8 +261,9 @@ def test_a_saved_change_keeps_every_other_part(tmp_path: Path) -> None:
     after = OpcFile.parse(out.read_bytes())
     assert after.names() == before.names()
     changed = [name for name in before.names() if before.read(name) != after.read(name)]
-    # The last author and the save time, which every save writes.
-    assert changed == ["xl/worksheets/sheet1.xml", "docProps/core.xml"]
+    # The last author and the save time, which every save writes, and the strings the written sheet now holds in its
+    # cells, which are emptied from the table so that no text a macro took out stays there.
+    assert changed == ["xl/worksheets/sheet1.xml", "xl/sharedStrings.xml", "docProps/core.xml"]
 
 
 def test_what_was_written_reads_back_the_same(tmp_path: Path) -> None:

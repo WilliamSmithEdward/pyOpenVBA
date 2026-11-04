@@ -553,7 +553,7 @@ class ExcelApplication(NamedRangeAPI):
         if book not in self.application.workbooks_.books:
             raise ValueError("Workbook is not open in this application")
         target = Path(path) if path is not None else Path(book.path) / book.name
-        format_code = {".xlsx": 51, ".xlsm": 52}.get(target.suffix.lower())
+        format_code = {".xlsx": 51, ".xlsm": 52, ".xltx": 54, ".xltm": 53}.get(target.suffix.lower())
         if not book.save_to(target, file_format=format_code, create_parents=True):
             raise VBARuntimeError(1004, "Save cancelled by a VBA event handler")
         return target

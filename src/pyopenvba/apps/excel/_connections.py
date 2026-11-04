@@ -15,22 +15,27 @@ Excel's rules for a name there already and for a connection string it does not t
 (scripts/measure_connection_members.py, tests/fixtures/connection_members.json). A workbook keeps these for the session;
 saving one reports itself.
 
-The model refreshes no connection, and it reports itself unsupported, as does a connection of another type.
+A query table over a text file has a connection of its own, xlConnectionTypeTEXT, which TextFileConnection and
+TextConnection answer for (see _query_tables, scripts/measure_query_table_connections.py,
+tests/fixtures/query_table_connections.json). The list runs in the order of the names, ignoring case.
+
+The model refreshes no other connection, and it reports itself unsupported, as does a connection of another type.
 """
 from __future__ import annotations
 
 from html import escape
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_integer, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Workbook
+    from pyopenvba.apps.excel._query_tables import TextLink
 
 PART = 'xl/connections.xml'
 NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
@@ -43,8 +48,13 @@ def entries(book: Workbook) -> list[XmlElement]:
     from pyopenvba.apps.excel._charts_file import xml_tree
 
     package = book.package
-    read = [] if package is None or not package.has(PART) else xml_tree(package.read(PART)).findall(NS + 'connection')
-    return [entry for entry in read if entry.get('name', '') not in book.connections_deleted] + book.connections_added
+    from pyopenvba.apps.excel._query_tables import links
+
+    # With a baseline every connection in the file is a query table's, which the links stand for.
+    read = [] if package is None or not package.has(PART) or book.query_baseline is not None else xml_tree(package.read(PART)).findall(NS + 'connection')
+    found = [entry for entry in read if entry.get('name', '') not in book.connections_deleted]
+    found += [link.element for link in links(book) if not link.deleted]
+    return sorted(found + book.connections_added, key=lambda entry: entry.get('name', '').lower())
 
 
 def refuse_changed(book: Workbook) -> None:
@@ -60,7 +70,11 @@ class Connections(VBACollection, ExcelObject):
         self.book = book
 
     def vba_items(self) -> list[object]:
-        return [WorkbookConnection(self.book, entry) for entry in entries(self.book)]
+        from pyopenvba.apps.excel._query_tables import links
+
+        text = {id(link.element): link for link in links(self.book)}
+        return [TextFileConnection(self.book, text[id(entry)]) if id(entry) in text else WorkbookConnection(self.book, entry)
+                for entry in entries(self.book)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
@@ -87,7 +101,10 @@ class Connections(VBACollection, ExcelObject):
         command_type = int(to_integer(lCmdtype, 'Long'))
         if kind is None or not 1 <= command_type <= 8:
             raise error(5, 'Invalid procedure call or argument')
-        taken = {entry.get('name', '').casefold() for entry in entries(self.book)}
+        from pyopenvba.apps.excel._query_tables import links
+
+        # A deleted connection's table still holds its name here, though a new table may take it.
+        taken = {entry.get('name', '').casefold() for entry in entries(self.book)} | {link.name.casefold() for link in links(self.book)}
         base = to_text(Name) or 'Connection'
         name, number = base, 0
         while name.casefold() in taken:
@@ -226,6 +243,151 @@ class WorkbookConnection(ExcelObject):
     @member
     def WorksheetDataConnection(self) -> object:
         return self._other()
+
+
+#: Excel's automation error, which a connection left behind by its table raises, and a text connection's delimiters.
+_AUTOMATION = (-2147417848, 'Automation error')
+
+
+class TextFileConnection(WorkbookConnection):
+    """The connection of a query table over a text file."""
+
+    vba_type_name = 'WorkbookConnection'
+
+    def __init__(self, book: Workbook, link: TextLink) -> None:
+        super().__init__(book, link.element)
+        self.link = link
+
+    def _check_alive(self) -> None:
+        from pyopenvba.apps.excel._query_tables import links
+
+        if self.link not in links(self.book) or self.link.deleted:
+            raise error(424, 'Object required')
+        super()._check_alive()
+
+    def _type(self) -> int:
+        if self.link.left_behind:
+            raise error(*_AUTOMATION)
+        return 4
+
+    @member(default=True)
+    def Name(self) -> object:
+        return self.link.name
+
+    @setter('Name')
+    def _set_name(self, value: object) -> None:
+        if self.link.left_behind:
+            raise VBAUnsupportedError('Naming a connection its query table left behind stops Excel, and is refused')
+        wanted = to_text(value)
+        others = {entry.get('name', '').casefold() for entry in entries(self.book) if entry is not self.entry}
+        if not wanted or wanted.casefold() in others:
+            raise error(5, 'Invalid procedure call or argument')
+        self.entry.set('name', wanted)
+        self.book.saved = False
+
+    @member
+    def Description(self) -> object:
+        return self.link.read_description
+
+    @setter('Description')
+    def _set_description(self, value: object) -> None:
+        self.link.description = to_text(value)
+        self.book.saved = False
+
+    @member
+    def RefreshWithRefreshAll(self) -> object:
+        return not self.link.excluded
+
+    @setter('RefreshWithRefreshAll')
+    def _set_refresh_with_refresh_all(self, value: object) -> None:
+        self.link.excluded = not to_bool(value)
+        self.book.saved = False
+
+    @member
+    def OLEDBConnection(self) -> object:
+        return self._other()
+
+    @member
+    def TextConnection(self) -> object:
+        self._type()
+        return TextConnection(self)
+
+    @method
+    def Refresh(self) -> object:
+        """The table again where it has been refreshed, whatever its BackgroundQuery; nothing where it never has."""
+        if self.link.left_behind:
+            raise error(-2147418113, 'Automation error')
+        if self.link.table.refreshed:
+            self.link.table.refresh()
+        return EMPTY
+
+    @method
+    def Delete(self) -> object:
+        if self.link.left_behind:
+            self.book.text_links.remove(self.link)
+        else:
+            self.link.deleted = True
+        self.book.saved = False
+        return EMPTY
+
+
+class TextConnection(ExcelObject):
+    vba_type_name = 'TextConnection'
+
+    def __init__(self, connection: TextFileConnection) -> None:
+        self.connection = connection
+
+    def table(self) -> Any:
+        return self.connection.link.table
+
+    @member
+    def TextFileHeaderRow(self) -> object:
+        """The one text member a query table does not have."""
+        return self.table().setting('TextFileHeaderRow', False)
+
+    @setter('TextFileHeaderRow')
+    def _set_header_row(self, value: object) -> None:
+        self.table().settings['TextFileHeaderRow'] = to_bool(value)
+
+    @member
+    def Parent(self) -> object:
+        return self.connection
+
+    @member
+    def Application(self) -> object:
+        return self.connection.book.application
+
+
+def _shared(name: str) -> MemberSpec:
+    """A member that is the query table's own."""
+
+    def get(connection: TextConnection) -> object:
+        return connection.table().vba_get(name, [])
+
+    def put(connection: TextConnection, value: object) -> None:
+        connection.table().vba_set(name, value)
+
+    return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
+def _delimiter(name: str) -> MemberSpec:
+    """Excel reads none of these from here, and setting one stops it."""
+
+    def get(connection: TextConnection) -> object:
+        raise error(*_AUTOMATION)
+
+    def put(connection: TextConnection, value: object) -> None:
+        raise VBAUnsupportedError('Setting a delimiter on a TextConnection stops Excel, and is refused')
+
+    return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
+for _name in ('Connection', 'TextFileColumnDataTypes', 'TextFileConsecutiveDelimiter', 'TextFileDecimalSeparator', 'TextFileFixedColumnWidths',
+              'TextFileOtherDelimiter', 'TextFileParseType', 'TextFilePlatform', 'TextFilePromptOnRefresh', 'TextFileStartRow',
+              'TextFileTextQualifier', 'TextFileThousandsSeparator', 'TextFileTrailingMinusNumbers', 'TextFileVisualLayout'):
+    TextConnection.vba_add_member(_shared(_name))
+for _name in ('TextFileCommaDelimiter', 'TextFileSemicolonDelimiter', 'TextFileSpaceDelimiter', 'TextFileTabDelimiter'):
+    TextConnection.vba_add_member(_delimiter(_name))
 
 
 def _flag(attribute: str, default: bool, *, owner: str = 'connection') -> MemberSpec:

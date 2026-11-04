@@ -58,11 +58,6 @@ HELPER = '''Private Function Shown(value As Variant) As String
     End If
 End Function
 
-Private Function Failure() As String
-    If Err.Number <> 0 Then Failure = "E" & Err.Number & ":" & Err.Description
-    Err.Clear
-End Function
-
 Private Function Book() As Workbook
     Dim wb As Workbook
     Set wb = Workbooks.Add(xlWBATWorksheet)
@@ -150,7 +145,7 @@ def setting_code(index: int, name: str, values: list[str]) -> str:
     for value in values:
         shown = value.replace('"', '""')
         lines += ["    Err.Clear", f"    ws.{name} = {value}",
-                  f'    out = out & "^{shown}=>" & Failure() & "|" & Shown(ws.{name})']
+                  f'    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description\n    Err.Clear\n    out = out & "^{shown}=>" & failure & "|" & Shown(ws.{name})']
     lines += ["    On Error GoTo 0", "    wb.Close False", f'    Setting{index} = out & "~"', "End Function"]
     return "\n".join(lines) + "\n"
 
@@ -160,9 +155,10 @@ def effect_code(index: int, name: str, steps: list[str], readings: list[str]) ->
              "    Dim wb As Workbook, ws As Worksheet, out As String",
              "    Set wb = Book()", "    Set ws = wb.Worksheets(1)", "    On Error Resume Next", f'    out = "{name}^"']
     for step in steps:
-        lines += ["    Err.Clear", f"    {step}", "    out = out & Failure()"]
+        lines += ["    Err.Clear", f"    {step}", '    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description', "    Err.Clear", "    out = out & failure"]
     for reading in readings:
-        lines += [f'    out = out & "^" & Shown({reading}) & Failure()']
+        lines += ["    Err.Clear", f"    held = Empty: held = {reading}", '    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description', "    Err.Clear",
+                  f'    out = out & "^" & Shown({reading}) & failure', "    Err.Clear"]
     lines += ["    ActiveWindow.DisplayRightToLeft = False", "    Application.Calculation = xlCalculationAutomatic",
               "    On Error GoTo 0", "    wb.Close False", f'    Effect{index} = out & "~"', "End Function"]
     return "\n".join(lines) + "\n"

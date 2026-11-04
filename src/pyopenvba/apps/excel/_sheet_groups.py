@@ -30,11 +30,14 @@ tests/fixtures/sheet_group_moves.json):
 
 from __future__ import annotations
 
+import re
+
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel import _events
 from pyopenvba.apps.excel._model import ExcelObject, Worksheet
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
+from pyopenvba._a1 import quote_sheet
 from pyopenvba.formula._parse import FormulaError, split_sheet, tokenize
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (ERR_SUBSCRIPT_OUT_OF_RANGE, EMPTY, MISSING, VBAArray, VBAInt, error,
@@ -245,11 +248,15 @@ def survivor(book: Workbook, going: list[Worksheet]) -> Worksheet | None:
 
 def set_visible(book: Workbook, sheets: list[Worksheet], value: object, refusal: str) -> None:
     """Hide or show ``sheets``; hiding every visible sheet is error 1004, and hiding the active one makes another
-    active."""
+    active. 1 shows them as xlSheetVisible does, and what Excel does not name is 1004 (tests/fixtures/settable_audit.json)."""
     from pyopenvba.apps.excel._protection import HIDING, refuse_structure
 
     refuse_structure(book, HIDING)
     state = VISIBLE if value is True else (0 if value is False else int(to_integer(value, "Long")))
+    if state == 1:
+        state = VISIBLE
+    if state not in (VISIBLE, 0, 2):
+        raise error(1004, refusal)
     if state == VISIBLE:
         for sheet in sheets:
             sheet.visible = state
@@ -302,22 +309,56 @@ def _refused_carriers(book: Workbook, names: set[str], staying: list[Worksheet])
                 if any(text and _reads(text, names) for series in chart.full_series or chart.series
                        for text in (series.name_reference, series.category_reference, series.value_reference)):
                     refuse("that a chart")
-            elif shape.source:
+            elif shape.kind == "chart" and shape.source:
                 refuse("beside a chart the model has not read, which may read it,")
+            else:
+                # A picture or a shape reads no sheet but through text linked to a cell.
+                linked = re.search(r'\btextlink="([^"]+)"', shape.source)
+                if linked is not None and _reads(linked.group(1), names):
+                    refuse("that a shape's text")
     # A pivot cache keeps the source its file or Create gave it, as before; Excel lets the sheet go, the cache
     # holding its records (tests/fixtures/pivot_column_fit/, whose macro deletes a table's source sheet).
 
 
-def gone_references(text: str, names: set[str]) -> str:
+def gone_references(text: str, names: set[str], order: list[str], tables: frozenset[str] = frozenset()) -> str:
     """A formula with each reference to a sheet ``names`` holds read as #REF! in the sheet's place: =Two!A1+1 is
-    =#REF!A1+1 once Two is deleted (tests/fixtures/sheet_groups.json, delete_read and delete_name_read)."""
+    =#REF!A1+1 once Two is deleted (tests/fixtures/sheet_groups.json, delete_read and delete_name_read). A span of
+    sheets, First:Last!A1, shrinks to the sheets of ``order``, the tabs before the deletion, left at its ends, and a
+    reference to one of the ``tables`` that went with them is #REF! whole (tests/fixtures/sheet_delete_refs.json)."""
     for token in reversed(tokenize(text)):
+        if token.kind == "structured" and token.text.partition("[")[0].casefold() in tables:
+            text = text[:token.at] + "#REF!" + text[token.at + len(token.text):]
+            continue
         if token.kind not in ("ref", "name"):
             continue
         sheet, body = split_sheet(token.text)
-        if sheet and sheet.casefold() in names:
-            text = text[:token.at] + "#REF!" + body + text[token.at + len(token.text):]
+        kept = _span_left(sheet, names, order) if ":" in sheet else None
+        if kept is not None:
+            text = text[:token.at] + kept + body + text[token.at + len(token.text):]
+        elif sheet and sheet.casefold() in names:
+            # A name of the sheet stays a name, of no sheet now, which a file spells [0]!Name; a cell is #REF!.
+            kept_text = "[0]!" if token.kind == "name" else "#REF!"
+            text = text[:token.at] + kept_text + body + text[token.at + len(token.text):]
     return text
+
+
+def _span_left(span: str, names: set[str], order: list[str]) -> str | None:
+    """What stands before a reference's ! for a span of sheets with ``names`` gone, or None if the span stays as it is."""
+    first, _, last = span.partition(":")
+    folded = [name.casefold() for name in order]
+    if first.casefold() not in folded or last.casefold() not in folded:
+        return None
+    if first.casefold() not in names and last.casefold() not in names:
+        return None
+    ends = sorted((folded.index(first.casefold()), folded.index(last.casefold())))
+    left = [name for name in order[ends[0]:ends[1] + 1] if name.casefold() not in names]
+    if not left:
+        return "#REF!"
+    if len(left) == 1:
+        return quote_sheet(left[0]) + "!"
+    if quote_sheet(left[0]) == left[0] and quote_sheet(left[-1]) == left[-1]:
+        return f"{left[0]}:{left[-1]}!"
+    return quote_sheet(f"{left[0]}:{left[-1]}") + "!"
 
 
 def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
@@ -337,6 +378,8 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
         # tests/fixtures/sheet_groups.json, delete_last_visible.
         raise error(1004, "A workbook must contain at least one visible worksheet.")
     names = {sheet.name.casefold() for sheet in going}
+    order = [sheet.name for sheet in book.sheets_]
+    tables = frozenset(table.name.casefold() for sheet in going for table in sheet.tables)
     _refused_carriers(book, names, staying)
     after = survivor(book, going)
     was_active = book.active_sheet
@@ -352,7 +395,7 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
     if len(retained) != len(book.names_.entries):
         book.names_.entries[:] = retained
         changed(book)
-    rewrite_formulas(book, lambda text: gone_references(text, names))
+    rewrite_formulas(book, lambda text: gone_references(text, names, order, tables))
     if after is not None:
         book.active_sheet_index = book.sheets_.index(after)
     book.selected_sheets = []

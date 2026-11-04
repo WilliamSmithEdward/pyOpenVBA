@@ -27,15 +27,7 @@ RENAMES = ("rename a sheet", "move and rename a sheet with formulas", "rename a 
 SAVED = {name: row for name, row in MEASURED["edits"].items() if "model_reads" in row}
 #: Where Excel reads the model's save differently, for reasons that are not the chain: the chain kept or dropped, Excel's
 #: own save reads the same without one (test_a_missing_chain_changes_nothing).
-READ_GAPS = {
-    "clear all of formula": "a formula on another sheet keeps its old value in the file",
-    "formula over a value": "a formula on another sheet keeps its old value in the file",
-    "copy over a formula": "a formula on another sheet keeps its old value in the file",
-    "cut a formula": "a formula on another sheet does not follow a Cut",
-    "sort formulas": "Sort of relative formulas gives #REF!, and a formula on another sheet keeps its old value",
-    "add a sheet": "Excel names the new sheet Sheet1, the model Sheet6",
-    "delete then add a sheet": "Excel names the new sheet Sheet1, the model Sheet6",
-}
+READ_GAPS: dict[str, str] = {}
 
 
 def _book(name: str) -> Path:
@@ -156,11 +148,11 @@ def test_a_binary_workbook_is_not_opened(tmp_path: Path) -> None:
 
 
 def test_each_format_opened_after_the_chain_went() -> None:
-    """A template without macros fails even after an edit the chain has nothing to do with: not the chain's doing."""
+    """Excel refused a template without macros while the model wrote a VBA project into it (see test_excel_template_saves)."""
     formats: dict[str, Any] = MEASURED["formats"]
-    for suffix in (".xlsm", ".xltm", ".xlam"):
+    for suffix in (".xlsm", ".xltx", ".xltm", ".xlam"):
         assert formats[suffix]["chain_in_excels_file"] and formats[suffix]["opened"] == "0"
-    assert formats[".xltx"]["opened"] == formats[".xltx"]["opened_after_unrelated_edit"] == "1004"
+    assert formats[".xltx"]["opened_after_unrelated_edit"] == "0"
 
 
 LIVE = os.environ.get("RUN_LIVE_EXCEL") == "1" and importlib.util.find_spec("pyvbaharness") is not None

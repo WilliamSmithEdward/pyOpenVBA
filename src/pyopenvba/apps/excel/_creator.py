@@ -9,7 +9,7 @@ from pyopenvba.apps.excel._item_indexes import item_error, loose_index
 from pyopenvba.apps.excel._read_only import let_error, listed_let_error, set_error, set_parent_error
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._inventory import member_exists, type_known
-from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method
+from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method
 from pyopenvba.interpreter._values import MISSING, NULL, VBAArray, VBAInt, error
 
 
@@ -73,7 +73,9 @@ class Created(VBAObject):
             return super().vba_get(name, args, named)
         if len(args) == 1 and not named:
             if self.vba_type_name == "Scenarios" and args[0] is NULL:
-                raise error(13)  # late bound Excel hands back the collection; bound early it is 13
+                if BINDING.late:
+                    return self
+                raise error(13)
             # o(Array(1)) on Hyperlinks is the collection, late bound (tests/fixtures/excel_everyday_14.json).
             if self.vba_type_name == "Hyperlinks" and isinstance(args[0], VBAArray):
                 return self

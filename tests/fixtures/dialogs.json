@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T03:29:58.760309+00:00",
+ "measured_at": "2026-11-04T04:03:53.896881+00:00",
  "fresh": {
   "defaults": [
    "For k = 1 To 4: Set x = d(k): s = s & k & \":\" & x.Title & \"|\" & x.ButtonName & \"|\" & x.AllowMultiSelect & \"|\" & x.InitialView & \"|\" & x.InitialFileName & \"|\" & x.FilterIndex & \"|\" & x.Filters.Count & \"|\" & x.SelectedItems.Count & \";\": Next",
@@ -2014,6 +2014,198 @@
    "ok Boolean:False",
    [
     "other bosa_sdm_XL9 Format Cells"
+   ]
+  ],
+  [
+   "Dim s As String: r = StrPtr(s) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = \"\": r = StrPtr(s) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: s = vbNullString: r = StrPtr(s) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = \"a\": s = \"\": r = StrPtr(s) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr(vbNullString) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "r = StrPtr(\"\") = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr(\"a\") = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = TypeName(StrPtr(\"a\"))",
+   "ok String:LongLong",
+   []
+  ],
+  [
+   "r = StrPtr(InputBox(\"p\", \"drive|ok|typed\")) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): r = StrPtr(s) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): Dim t As String: t = s: r = StrPtr(t) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): r = StrPtr(s & \"\") = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): r = StrPtr(Trim$(s)) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): r = StrPtr(Left$(s, 0)) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): r = StrPtr(CStr(s)) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): r = StrPtr(UCase$(s)) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): r = (s = \"\") & Len(s) & (s = vbNullString) & LenB(s)",
+   "ok String:True0True0",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): Dim v As Variant: v = s: r = StrPtr(v) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): s = s: r = StrPtr(s) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): Dim a(1) As String: a(1) = s: r = StrPtr(a(1)) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: s = InputBox(\"p\", \"drive|cancel\"): Dim c As New Collection: c.Add s: r = StrPtr(c(1)) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim v As Variant: v = InputBox(\"p\", \"drive|cancel\"): r = StrPtr(v) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim v As Variant: v = InputBox(\"p\", \"drive|cancel\"): r = TypeName(v) & (v = \"\")",
+   "ok String:StringTrue",
+   []
+  ],
+  [
+   "Dim v As Variant: v = vbNullString: r = StrPtr(v) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim v As Variant: v = \"\": r = StrPtr(v) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim v As Variant: r = StrPtr(v) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr(Null) = 0",
+   "Err 94 Invalid use of Null",
+   []
+  ],
+  [
+   "r = StrPtr(12) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr(True) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr(Application.InputBox(\"p\", \"drive|cancel\")) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim a(1) As String: r = StrPtr(a(1)) = 0",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String: r = StrPtr(s & \"\") = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: r = StrPtr(Trim$(s)) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr(ActiveSheet.Range(\"B9\").Value) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr(Left$(\"abc\", 0)) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "Dim s As String: s = \"a\": r = (StrPtr(s) = StrPtr(s))",
+   "ok Boolean:True",
+   []
+  ],
+  [
+   "Dim s As String * 2: r = StrPtr(s) = 0",
+   "ok Boolean:False",
+   []
+  ],
+  [
+   "r = StrPtr() = 0",
+   "breaks: timeout",
+   [
+    "OK / Help / Compile error:  Argument not optional"
    ]
   ]
  ]

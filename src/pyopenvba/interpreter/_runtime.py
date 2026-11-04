@@ -37,25 +37,28 @@ from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, met
 from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._values import (
     EMPTY,
-    ERROR_TEXT,
     ERR_INVALID_USE_OF_NULL,
     ERR_MEMBER_NOT_FOUND,
     ERR_OBJECT_VARIABLE_NOT_SET,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     ERR_TYPE_MISMATCH,
+    ERROR_TEXT,
     MISSING,
-    STORAGE_WIDTH,
     NOTHING,
     NULL,
+    NULL_STRING,
     PRINT_CONTINUE,
     PRINT_ZONE,
+    STORAGE_WIDTH,
+    NullString,
     VBAArray,
     VBAInt,
     add,
     coerce,
-    copy_value,
     compare,
     concat,
+    condition,
+    copy_value,
     default_for,
     divide,
     error,
@@ -72,15 +75,14 @@ from pyopenvba.interpreter._values import (
     multiply,
     negate,
     power,
+    release_in_order,
     subtract,
-    condition,
+    text_bytes,
     to_bool,
     to_integer,
-    text_bytes,
-    release_in_order,
+    to_number,
     to_text,
     type_name,
-    to_number,
 )
 
 #: How deep a call chain may go before this reports VBA's error 28.
@@ -589,6 +591,8 @@ class Collection(VBACollection):
     ) -> object:
         if Item is MISSING:
             raise error(449)
+        if isinstance(Item, NullString):  # a Collection keeps a new string
+            Item = ""
         # A key that is not String text (a number, Date, Empty or Null) is error 13;
         # Before and After together are error 5 (native probes).
         if Key is not MISSING and not isinstance(Key, str):
@@ -1184,7 +1188,7 @@ class Interpreter:
         """InputBox without a screen: False is Cancel, which reads as "", and None is OK on the default as it stands."""
         answer = self.next_answer("InputBox", prompt, title)
         if answer is False:
-            return ""
+            return NULL_STRING
         return default if answer is None else to_text(answer)
 
     def next_answer(self, kind: str, prompt: str = "", title: str = "", style: int = 0) -> object:

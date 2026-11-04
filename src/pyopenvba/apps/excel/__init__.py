@@ -482,7 +482,8 @@ class ExcelApplication(NamedRangeAPI):
     def answer_dialogs(self, *answers: object) -> None:
         """Queue what the next dialogs come back with, oldest first: each answer is what the dialog returns to the macro.
 
-        ``False`` is Cancel, for every dialog but MsgBox, whose answer is its button's number. A string is what was typed
+        ``False`` is Cancel, for every dialog but MsgBox, whose answer is its button's number; on InputBox that is the "" that
+        StrPtr reads as 0. A string is what was typed
         or the file chosen, a list several files, and ``None`` is OK on InputBox's default or GetSaveAsFilename's initial
         name. Application.InputBox reads text by its ``Type``, and takes the next answer if it turns one down, as Excel
         leaves the form up. A chosen path is only text: opening it goes through the sandbox like any other file. A dialog

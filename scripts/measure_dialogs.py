@@ -186,6 +186,17 @@ def _cases(folder: str) -> list[str]:
         'Set x = Application.FileDialog(1): x.Title = "t": Set y = Application.FileDialog(1): r = y.Title', 'r = Application.FileDialog(1) Is Application.FileDialog(1)', 'r = TypeName(Application.FileDialog(5))', 'r = TypeName(Application.FileDialog(0))', 'r = TypeName(Application.FileDialog("x"))',
         'r = TypeName(Application.Dialogs)', 'r = Application.Dialogs.Count', 'r = TypeName(Application.Dialogs(xlDialogOpen))', 'r = TypeName(Application.Dialogs(1))', 'r = Application.Dialogs(1).Show', 'r = TypeName(Application.Dialogs(99999))', 'r = TypeName(Application.Dialogs("x"))', 'r = TypeName(Application.Dialogs.Item(xlDialogOpen))', 'r = TypeName(Application.Dialogs(xlDialogOpen).Application)', 'r = TypeName(Application.Dialogs(xlDialogOpen).Parent)', 'r = Application.Dialogs(xlDialogOpen).Creator', 'r = Application.Dialogs(xlDialogOpen).Show', 'r = Application.Dialogs(xlDialogSaveAs).Show', 'r = Application.Dialogs(xlDialogFontProperties).Show',
     ]
+    cancelled = 'Dim s As String: s = InputBox("p", "drive|cancel"): '
+    cases += [
+        'Dim s As String: r = StrPtr(s) = 0', 'Dim s As String: s = "": r = StrPtr(s) = 0', 'Dim s As String: s = vbNullString: r = StrPtr(s) = 0', 'Dim s As String: s = "a": s = "": r = StrPtr(s) = 0',
+        'r = StrPtr(vbNullString) = 0', 'r = StrPtr("") = 0', 'r = StrPtr("a") = 0', 'r = TypeName(StrPtr("a"))', 'r = StrPtr(InputBox("p", "drive|ok|typed")) = 0',
+        cancelled + 'r = StrPtr(s) = 0', cancelled + 'Dim t As String: t = s: r = StrPtr(t) = 0', cancelled + 'r = StrPtr(s & "") = 0', cancelled + 'r = StrPtr(Trim$(s)) = 0', cancelled + 'r = StrPtr(Left$(s, 0)) = 0', cancelled + 'r = StrPtr(CStr(s)) = 0', cancelled + 'r = StrPtr(UCase$(s)) = 0',
+        cancelled + 'r = (s = "") & Len(s) & (s = vbNullString) & LenB(s)', cancelled + 'Dim v As Variant: v = s: r = StrPtr(v) = 0', cancelled + 's = s: r = StrPtr(s) = 0', cancelled + 'Dim a(1) As String: a(1) = s: r = StrPtr(a(1)) = 0',
+        cancelled + 'Dim c As New Collection: c.Add s: r = StrPtr(c(1)) = 0',
+        'Dim v As Variant: v = InputBox("p", "drive|cancel"): r = StrPtr(v) = 0', 'Dim v As Variant: v = InputBox("p", "drive|cancel"): r = TypeName(v) & (v = "")', 'Dim v As Variant: v = vbNullString: r = StrPtr(v) = 0', 'Dim v As Variant: v = "": r = StrPtr(v) = 0',
+        'Dim v As Variant: r = StrPtr(v) = 0', 'r = StrPtr(Null) = 0', 'r = StrPtr(12) = 0', 'r = StrPtr(True) = 0', 'r = StrPtr(Application.InputBox("p", "drive|cancel")) = 0', 'Dim a(1) As String: r = StrPtr(a(1)) = 0', 'Dim s As String: r = StrPtr(s & "") = 0', 'Dim s As String: r = StrPtr(Trim$(s)) = 0',
+        'r = StrPtr(ActiveSheet.Range("B9").Value) = 0', 'r = StrPtr(Left$("abc", 0)) = 0', 'Dim s As String: s = "a": r = (StrPtr(s) = StrPtr(s))', 'Dim s As String * 2: r = StrPtr(s) = 0', 'r = StrPtr() = 0',
+    ]
     return cases
 
 

@@ -61,7 +61,7 @@ def test_each_case_in_order_as_excel_answered(tmp_path: Path) -> None:
     wrong: list[tuple[int, str, str, str]] = []
     for index, (statement, answer, _alerts) in enumerate(RECORD['cases']):
         shown = statement.replace('Set x = Application.FileDialog', 'FileDialog')
-        if any(mark in shown for mark in EXTENSIONS) or 'StrPtr' in shown:
+        if any(mark in shown for mark in EXTENSIONS) or answer.startswith('breaks'):
             continue
         app.interpreter.answers[:] = _answers(statement, folder, retried=True)
         name = f'Case{index}'

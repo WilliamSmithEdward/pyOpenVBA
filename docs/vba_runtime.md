@@ -121,6 +121,11 @@ never carries on with a guess. So does an answer a dialog cannot take. Excel lea
 `Application.InputBox` up when it turns text down, so the next answer is the next
 try.
 
+`StrPtr` answers only whether a string is `vbNullString`, for the usual test
+`StrPtr(InputBox(...)) = 0`: 0 for it, which a cancelled `InputBox` and an unassigned
+`String` are, and 1 for any other. It is not an address, and `VarPtr` and `ObjPtr` are
+still refused.
+
 A path is only text, returned as given: a saving dialog's filter adds no extension,
 and no folder is looked at. Opening it goes through `Workbooks.Open`, which the
 sandbox stops as for any other file. `FileDialog.InitialFileName` with no folder

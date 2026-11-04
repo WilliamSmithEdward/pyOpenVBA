@@ -33,9 +33,11 @@ from pyopenvba.formula._calc import functions as functions  # imported to regist
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.nodes import Given, Missing, Node
 from pyopenvba.formula._calc.values import Area, Array, Empty, Omitted, Reference, Scalar, Value
+from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
+    NOTHING,
     NULL,
     VBAArray,
     VBACurrency,
@@ -44,6 +46,8 @@ from pyopenvba.interpreter._values import (
     VBAInt,
     VBASingle,
     error,
+    to_bool,
+    to_number,
     to_text,
 )
 
@@ -53,6 +57,10 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivot_reports import PivotReport
     from pyopenvba.formula._calc.evaluator import Context, TableShape
 
+#: Declared String, yet they take a range of several cells, typed too (tests/fixtures/worksheet_functions.json).
+_NOT_CONVERTED: Final = frozenset({"textjoin", "concat"})
+#: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
+_ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
 _VARIANT: Final = frozenset({
     "choose", "dget", "encodeurl", "fieldvalue", "filter", "filterxml", "frequency", "growth", "hlookup",
@@ -99,13 +107,18 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     if sheet is None:
         raise error(1004, "There is no workbook open")
     values = _laid_out(list(args), named or {})
+    entry = registry.FUNCTIONS[function]
+    if raising:
+        values = _as_excel_reads(name, values, entry.minimum, late=late)
+        # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
+        if name.lower() == "round" and len(values) == 2 and isinstance(values[1], float) and abs(values[1]) >= 2 ** 31:
+            return 0.0
     calculator = sheet.book.calculator
     books = _OpenBooks(calculator)
     nodes = tuple(_node(value, books) for value in values)
     single = not any(isinstance(value, (Range, VBAArray)) for value in values)
     now = calculator.now()
     context = Context(books, sheet.name, 1, 1, array=True, today=now.date(), now=now)
-    entry = registry.FUNCTIONS[function]
     if not entry.minimum <= len(nodes) <= entry.maximum:
         # Too few or too many arguments is error 1004 through Application as well: Application.Xnpv(values, dates)
         # (tests/fixtures/worksheet_functions_more.json).
@@ -118,7 +131,92 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
             and name.lower() not in _ALWAYS_ARRAY):
         # Given single values, a function whose answer is one item hands back the item: Transpose(5) is 5.
         found = found.rows[0][0]
+    if raising and name.lower() == "index" and isinstance(values[0], (int, VBAInt)) and not isinstance(values[0], bool) \
+            and isinstance(found, float):
+        # A whole number indexed answers as a Long (tests/fixtures/worksheet_function_args.json).
+        return VBAInt(int(found), "Long")
     return _returned(context, found, name, raising=raising, books_of=application, late=late)
+
+
+def _first_item(value: object) -> object:
+    """The first cell's value of a range, or an array's first item."""
+    from pyopenvba.apps.excel._model import Range
+
+    if isinstance(value, Range):
+        first = value.first
+        from pyopenvba._a1 import Area as SheetArea
+
+        return Range(value.sheet, [SheetArea(first.top, first.left, first.top, first.left, value.sheet.name)]).vba_value()
+    if isinstance(value, VBAArray):
+        return next(iter(_given_array(value).rows[0]))
+    return value
+
+
+def _typed(value: object, declared: str) -> object:
+    """An argument converted as VBA converts it for a parameter declared other than Variant, before Excel sees it."""
+    from pyopenvba.apps.excel._model import Range
+
+    if value is MISSING:
+        return value
+    if declared == "Range":
+        if isinstance(value, Range):
+            return value
+        if value is NOTHING:
+            raise error(5)
+        raise error(13 if isinstance(value, VBAObject) else 424)
+    if value is NOTHING:
+        raise error(91)
+    if isinstance(value, Range):
+        if not value.single:
+            raise error(13)
+        value = value.vba_value()
+    elif isinstance(value, VBAObject):
+        raise error(438)
+    if isinstance(value, (VBAArray, VBAErrorValue)):
+        raise error(13)
+    if value is NULL:
+        raise error(94)
+    if declared == "Double":
+        return float(to_number(value))
+    return to_text(value) if declared == "String" else bool(to_bool(value))
+
+
+def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool) -> list[object]:
+    """What WorksheetFunction gives the engine (tests/fixtures/worksheet_function_args.json). Typed, VBA converts first
+    for what the library declares. Then Nothing is 5 and an object that is no range 1004; Null counts as left out, but
+    for the last argument it cannot do without; and the column of a lookup and Match's type read one value."""
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.interpreter._type_library import find_class
+
+    library = find_class("excel", "worksheetfunction")
+    forms = library.members.get(name.lower(), []) if library is not None else []
+    declared = [one.split(":")[-1] for one in forms[0][4]] if forms else []
+    found: list[object] = []
+    for index, value in enumerate(values):
+        kind = declared[index] if index < len(declared) else "Variant"
+        if not late and kind != "Variant" and name.lower() not in _NOT_CONVERTED:
+            value = _typed(value, kind)
+        if value is NOTHING:
+            raise error(5)
+        if isinstance(value, VBAObject) and not isinstance(value, Range):
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        lower = name.lower()
+        if value is NULL:
+            if index == minimum - 1 or (lower == "index" and index == 2):
+                raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+            value = MISSING
+        if lower in _ONE_VALUE and index == 2:
+            if lower != "match" or isinstance(value, Range):
+                value = _first_item(value)
+            elif isinstance(value, VBAArray) and not late:
+                raise error(13)
+        found.append(value)
+    if name.lower() == "index" and found and found[0] is EMPTY:
+        raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+    # Left out at the end, it is no argument at all: Count(1, Null) is 1.
+    while found and found[-1] is MISSING:
+        found.pop()
+    return found
 
 
 def _laid_out(args: list[object], named: dict[str, object]) -> list[object]:

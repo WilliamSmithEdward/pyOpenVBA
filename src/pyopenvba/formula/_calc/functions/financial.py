@@ -84,6 +84,9 @@ def present_value(rate: float, periods: float, payment: float, future: float, du
     if rate == 0:
         return -precise.add(future, precise.multiply(payment, periods))
     growth, factor = _annuity(rate, periods, due)
+    if growth == 0.0:
+        # A rate of -100% (tests/fixtures/worksheet_function_types.json).
+        raise ExcelError(NUM)
     return -precise.divide(precise.add(future, precise.multiply(payment, factor)), growth)
 
 
@@ -676,6 +679,9 @@ def MIRR(context: Context, values: Value, finance: Scalar, reinvest: Scalar) -> 
     flows = [item for item, _ in context.scalars(values) if isinstance(item, float)]
     borrowed = context.number(finance)
     earned = context.number(reinvest)
+    if borrowed == -1 or earned == -1:
+        # Nothing to discount by (tests/fixtures/worksheet_function_types.json).
+        return NUM
     count = len(flows)
     positive = _npv(earned, [flow if flow > 0 else 0.0 for flow in flows])
     negative = _npv(borrowed, [flow if flow < 0 else 0.0 for flow in flows])

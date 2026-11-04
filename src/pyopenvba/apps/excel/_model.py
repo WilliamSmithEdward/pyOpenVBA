@@ -3264,6 +3264,10 @@ class Worksheet(ExcelObject):
         that grow by their fonts to move them by."""
         self.drawing_dirty = True
         self.book.saved = False
+        if any(one.begin_link is not None or one.end_link is not None for one in self.shapes_):
+            from pyopenvba.apps.excel._shape_connectors import follow
+
+            follow(self)
         self.dims.remember_shapes()
 
     def column_width_points(self, column: int) -> float:

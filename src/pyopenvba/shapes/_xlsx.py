@@ -1016,7 +1016,7 @@ def _new_element(shape: Shape) -> str:
     locks = "" if shape.lock_aspect is None else (
         '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>")
     properties = (
-        f"<xdr:nvCxnSpPr>{identity}<xdr:cNvCxnSpPr/></xdr:nvCxnSpPr>"
+        f"<xdr:nvCxnSpPr>{identity}{_connections(shape)}</xdr:nvCxnSpPr>"
         if line
         else f"<xdr:nvSpPr>{identity}<xdr:cNvSpPr{box}>{locks}</xdr:cNvSpPr></xdr:nvSpPr>".replace(
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
@@ -1260,6 +1260,13 @@ def _free_geometry(shape: Shape) -> str:
             f'<a:path w="{emu(shape.width)}" h="{emu(shape.height)}">{steps}</a:path></a:pathLst></a:custGeom>')
 
 
+def _connections(shape: Shape) -> str:
+    """A connector's cNvCxnSpPr, naming the shape and site each connected end holds (tests/fixtures/shape_connectors.json)."""
+    inside = "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
+    inside += "" if shape.end_link is None else f'<a:endCxn id="{shape.end_link.target}" idx="{shape.end_link.site - 1}"/>'
+    return f"<xdr:cNvCxnSpPr>{inside}</xdr:cNvCxnSpPr>" if inside else "<xdr:cNvCxnSpPr/>"
+
+
 def _text_line(line: TextLine) -> str:
     """The a:ln of a shape's letters (tests/fixtures/shape_font2_paint.json)."""
     if line.hidden:
@@ -1413,7 +1420,9 @@ def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
 
 
 def _identity(shape: Shape) -> str:
-    """A new shape's cNvPr: its id, name, alternative text and title, and the creation id Excel gives every shape."""
+    """A new shape's cNvPr: its id, name, alternative text and title, and the creation id Excel gives every shape. An elbow or
+    curve that keeps Excel's own name reads as "Elbow Connector 2" but is saved as "Connector: Elbow 2"
+    (tests/fixtures/shape_connectors.json)."""
     described = f' descr="{escape(shape.description)}"' if shape.description else ""
     titled = f' title="{escape(shape.title)}"' if shape.title else ""
     creation = "{" + str(uuid.uuid4()).upper() + "}"
@@ -1433,6 +1442,8 @@ def _identity(shape: Shape) -> str:
     if shape.kind == "freeform":
         # A freeform Excel named reads "Freeform 1" but is saved as "Freeform: Shape 1" (tests/fixtures/shape_polyline.json).
         name = re.sub(r"^Freeform (\d+)$", r"Freeform: Shape \1", name)
+    if shape.kind == "line":
+        name = re.sub(r"^(Elbow|Curved) Connector (\d+)$", r"Connector: \1 \2", name)
     return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(name)}"{described}{titled}{hidden}>'
             f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
 

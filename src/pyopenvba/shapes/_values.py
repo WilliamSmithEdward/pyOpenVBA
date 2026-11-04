@@ -175,6 +175,16 @@ class ControlInfo:
 
 
 @dataclass(frozen=True)
+class ConnectorLink:
+    """One end of a connector held on a shape's connection site: the shape's id and geometry, and where the site stood."""
+
+    target: int
+    site: int
+    point: tuple[float, float]
+    geometry: str
+
+
+@dataclass(frozen=True)
 class TextLine:
     """The line around a shape's letters (TextRange2.Font.Line). With no colour of its own, it is the preset black."""
 
@@ -492,6 +502,10 @@ class Shape:
     painted: bool = False
     #: Excel: Adjustments, as the file's values in the order of ADJUSTMENTS; None while the geometry's defaults stand.
     adjustments: tuple[int, ...] | None = None
+    #: Excel: ConnectorFormat's connections, and where the connector stood when last routed, which a move of its own changes.
+    begin_link: ConnectorLink | None = None
+    end_link: ConnectorLink | None = None
+    link_place: tuple[float, float, bool, bool, float] | None = None
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
     flip_h: bool = False
     flip_v: bool = False

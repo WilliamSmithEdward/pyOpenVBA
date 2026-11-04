@@ -27,6 +27,7 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
+    NOTHING,
     MISSING,
     VBAArray,
     VBAInt,
@@ -44,6 +45,7 @@ from pyopenvba.shapes._values import (
     EMU_PER_POINT,
     ControlInfo,
     Shape,
+    ConnectorLink,
     TextLook,
     child_space,
     emu,
@@ -1553,6 +1555,16 @@ class ShapeObject(_Drawn):
             raise _unsupported(f"{what} of this shape")
         return kind
 
+    @method
+    def RerouteConnections(self) -> object:
+        from pyopenvba.apps.excel._shape_connectors import rerouted
+
+        if self.shape.kind != "line":
+            raise error(-2147024809, "The specified value is out of range.")
+        rerouted(self.sheet, self.shape)
+        self.sheet.drawing_changed()
+        return EMPTY
+
     @member
     def ConnectionSiteCount(self) -> object:
         kind = self._measured_kind("ConnectionSiteCount")
@@ -2444,8 +2456,8 @@ class RangeConnector(Created):
 
 
 class ConnectorFormat(Created):
-    """A line or connector's connections (tests/fixtures/shape_adjustments.json). Every other shape gives this object,
-    but reading or setting anything on it is out of range. Connecting to shapes is not implemented."""
+    """A line or connector's connections (tests/fixtures/shape_adjustments.json, tests/fixtures/shape_connectors.json). Every
+    other shape gives this object, but reading or setting anything on it is out of range."""
 
     vba_type_name = "ConnectorFormat"
 
@@ -2493,15 +2505,90 @@ class ConnectorFormat(Created):
             shape.adjustments = (50000,)
         shape.geometry = CONNECTORS[wanted][0]
 
+    def _link(self, at_begin: bool) -> ConnectorLink | None:
+        from pyopenvba.apps.excel._shape_connectors import follow
+
+        line = self.connector()
+        follow(self.owner.sheet)
+        return line.begin_link if at_begin else line.end_link
+
+    def _connected_shape(self, at_begin: bool) -> object:
+        unconnected = error(1004, "Application-defined or object-defined error")
+        if self.owner.shape.kind != "line":
+            raise unconnected
+        link = self._link(at_begin)
+        if link is None:
+            raise unconnected
+        return ShapeObject(self.owner.sheet, next(one for one in self.owner.sheet.shapes_ if one.shape_id == link.target))
+
+    def _connect(self, shape: object, site: object, at_begin: bool) -> object:
+        from pyopenvba.apps.excel._shape_connectors import connected
+
+        line = self.connector()
+        if shape is MISSING or site is MISSING:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        if shape is NOTHING:
+            raise error(-2147417848, "Automation error")
+        if not isinstance(shape, ShapeObject):
+            raise error(13, "Type mismatch")
+        wanted = int(to_integer(site, "Long"))
+        if wanted < 1 or wanted > int(to_number(shape.vba_get("ConnectionSiteCount"))) and shape.shape is not line:
+            raise error(-2147024809, "The specified value is out of range.")
+        connected(self.owner.sheet, line, shape.shape, wanted, at_begin)
+        self.owner.sheet.drawing_changed()
+        return EMPTY
+
+    def _disconnect(self, at_begin: bool) -> object:
+        line = self.connector()
+        self._link(at_begin)
+        if at_begin:
+            line.begin_link = None
+        else:
+            line.end_link = None
+        self.owner.sheet.drawing_changed()
+        return EMPTY
+
     @member
     def BeginConnected(self) -> object:
-        self.connector()
-        return VBAInt(0, "Long")
+        return VBAInt(0 if self._link(True) is None else -1, "Long")
 
     @member
     def EndConnected(self) -> object:
-        self.connector()
-        return VBAInt(0, "Long")
+        return VBAInt(0 if self._link(False) is None else -1, "Long")
+
+    @member
+    def BeginConnectedShape(self) -> object:
+        return self._connected_shape(True)
+
+    @member
+    def EndConnectedShape(self) -> object:
+        return self._connected_shape(False)
+
+    @member
+    def BeginConnectionSite(self) -> object:
+        link = self._link(True)
+        return VBAInt(-1 if link is None else link.site, "Long")
+
+    @member
+    def EndConnectionSite(self) -> object:
+        link = self._link(False)
+        return VBAInt(-1 if link is None else link.site, "Long")
+
+    @method
+    def BeginConnect(self, ConnectedShape: object = MISSING, ConnectionSite: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        return self._connect(ConnectedShape, ConnectionSite, True)
+
+    @method
+    def EndConnect(self, ConnectedShape: object = MISSING, ConnectionSite: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        return self._connect(ConnectedShape, ConnectionSite, False)
+
+    @method
+    def BeginDisconnect(self) -> object:
+        return self._disconnect(True)
+
+    @method
+    def EndDisconnect(self) -> object:
+        return self._disconnect(False)
 
 
 class GroupItems(VBACollection, Created):
@@ -3295,6 +3382,11 @@ class ShapeFont2(_ShapeFontBase):
     vba_type_name = "Font2"
 
     @member
+    def Creator(self) -> object:
+        # Live Excel raises this on it (tests/fixtures/shape_connectors.json).
+        raise error(-2147024809, "The parameter is incorrect.")
+
+    @member
     def Fill(self) -> object:
         from pyopenvba.apps.excel._text_paint import TextFill
 
@@ -3585,6 +3677,11 @@ class TextRange2(_ShapeText):
     @member
     def Parent(self) -> object:
         return TextFrame2(self.owner)
+
+    @member
+    def Creator(self) -> object:
+        # Live Excel raises this on it (tests/fixtures/shape_connectors.json).
+        raise error(-2147024809, "The parameter is incorrect.")
 
     @member
     def Start(self) -> object:

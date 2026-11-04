@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._styles import DEFAULT_THEME
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import MISSING, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number
 from pyopenvba.shapes._values import FillGradient, FillLine, GradientPoint, emu, points
@@ -1136,7 +1136,12 @@ class GradientStops(Created):
         self.fill = fill
 
     def vba_iterate(self) -> Iterator[object]:
-        return iter([GradientStop(self.fill, index) for index in range(len(self.fill.gradient().stops))])
+        try:
+            stops = self.fill.gradient().stops
+        except VBARuntimeError as failure:
+            # Walking the stops of a fill with no gradient fails with its own number (tests/fixtures/shape_gradient_stops.json).
+            raise error(-2147352567, "Exception occurred.") from failure
+        return iter([GradientStop(self.fill, index) for index in range(len(stops))])
 
     @member
     def Parent(self) -> object:
@@ -1152,6 +1157,29 @@ class GradientStops(Created):
         if not 1 <= chosen <= len(self.fill.gradient().stops):
             raise error(*_INVALID)
         return GradientStop(self.fill, chosen - 1)
+
+    @member
+    def Application(self) -> object:
+        return self.fill.owner.sheet.book.application
+
+    @method
+    def Insert2(self, rgb: object = MISSING, position: object = MISSING, transparency: object = MISSING, index: object = MISSING, brightness: object = MISSING) -> object:
+        """Insert with a Brightness (tests/fixtures/shape_gradient_stops.json). Excel writes its alpha before the Brightness
+        here, after it elsewhere, which the model's stops do not hold, so a stop with both reports itself."""
+        if rgb is MISSING or position is MISSING:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        wanted = 0.0 if brightness is MISSING else float(VBASingle(float(to_number(brightness))))
+        if not -1 <= wanted <= 1:
+            self.fill.gradient()
+            raise error(*_INVALID)
+        if wanted and transparency is not MISSING and to_number(transparency):
+            raise _unmeasured("A new gradient stop with both a transparency and a brightness")
+        self.Insert(rgb, position, transparency, index)
+        if wanted:
+            stops = self.fill.gradient().stops
+            at = len(stops) - 1 if index is MISSING else int(to_integer(index, "Long")) - 1
+            changed(self.fill, stops[:at] + (replace(stops[at], mods=_lum(wanted)),) + stops[at + 1:])
+        return EMPTY
 
     @method
     def Insert(self, rgb: object, position: object, transparency: object = MISSING, index: object = MISSING) -> object:
@@ -1181,6 +1209,10 @@ class GradientStops(Created):
 
 class GradientStop(Created):
     vba_type_name = "GradientStop"
+
+    @member
+    def Application(self) -> object:
+        return self.fill.owner.sheet.book.application
 
     def __init__(self, fill: FillFormat, index: int) -> None:
         self.fill, self.index = fill, index

@@ -414,7 +414,8 @@ def read_book_view(book: Workbook, xml: str) -> None:
     book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
-    book.view.saved_first = book.view.first_sheet
+    # Excel opens a file whose first tab is past its active one with the first brought back to it.
+    book.view.saved_first, book.view.first_sheet = book.view.first_sheet, min(book.view.first_sheet, _active_place(book))
     book.view.saved_tab = _active_place(book)
 
 

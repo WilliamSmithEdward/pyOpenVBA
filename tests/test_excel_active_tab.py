@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import shutil
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,30 @@ def _acted(row: dict[str, str], tmp_path: Path) -> Path:
     app.add_module(MEASURED["act"].format(action=MEASURED["actions"][row["case"]]), name="M")
     app.run("Act", file.as_posix())
     return file
+
+
+@pytest.mark.parametrize(("action", "wanted"), [("wb.Sheets(1).Range(\"A1\").Value = 1", 'activeTab="2" firstSheet="2"'),
+                                                ("wb.Sheets(1).Delete", 'activeTab="1" firstSheet="1"')])
+def test_a_first_tab_past_the_active_one_comes_back_on_opening(action: str, wanted: str, tmp_path: Path) -> None:
+    """Measured live with a shown window on six sheets: firstSheet=4, activeTab=2 saves as 2,2, and with sheet 1 deleted as 1,1.
+    Excel may not write such a file itself, so this one is the scrolled book with its view changed by hand."""
+    source = HERE / "scrolled.xlsx"
+    file = tmp_path / "file.xlsx"
+    with zipfile.ZipFile(source) as given, zipfile.ZipFile(file, "w", zipfile.ZIP_DEFLATED) as made:
+        for info in given.infolist():
+            data = given.read(info.filename)
+            if info.filename == "xl/workbook.xml":
+                data = data.replace(b'firstSheet="2"', b'firstSheet="4"').replace(b'activeTab="4"', b'activeTab="2"')
+            elif info.filename == "xl/worksheets/sheet5.xml":
+                data = data.replace(b' tabSelected="1"', b"")
+            elif info.filename == "xl/worksheets/sheet3.xml":
+                data = data.replace(b"<sheetView ", b'<sheetView tabSelected="1" ', 1)
+            made.writestr(info, data)
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(MEASURED["act"].format(action=action), name="M")
+    app.run("Act", file.as_posix())
+    assert PROBE.view(file) == wanted
 
 
 @pytest.mark.parametrize("row", ROWS, ids=_id)

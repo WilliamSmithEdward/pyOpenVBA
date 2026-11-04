@@ -5894,10 +5894,17 @@ class Range(ExcelObject):
 
         set_page_break(self, value)
 
+    def _whole_lines(self) -> None:
+        """OutlineLevel is of whole rows or columns; a cell's is 1004, read or set (tests/fixtures/range_more.json)."""
+        area = self.first
+        if not (self.lines or area.left == 1 and area.right == MAX_COLUMNS or area.top == 1 and area.bottom == MAX_ROWS):
+            raise error(1004, "Unable to get the OutlineLevel property of the Range class")
+
     @member
     def OutlineLevel(self) -> object:
         from pyopenvba.apps.excel._outline import read_level
 
+        self._whole_lines()
         return read_level(self)
 
     @method
@@ -5909,6 +5916,7 @@ class Range(ExcelObject):
 
     @setter('OutlineLevel')
     def _set_outline_level(self, value: object) -> None:
+        self._whole_lines()
         from pyopenvba.apps.excel._outline import set_level
 
         set_level(self, value)

@@ -9,8 +9,10 @@ from pyopenvba.apps.excel._chart_format import unmeasured
 from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, LabelLook, TextLook
 from pyopenvba.apps.excel._charts import PointLabel, PointState
 from pyopenvba.apps.excel._chart_borders import INVALID_CALL, UNSPECIFIED, ElementProperties
+from pyopenvba.apps.excel._chart_format import EffectMembers
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
+from pyopenvba.shapes._values import FillLine
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._format import vba_format
 from pyopenvba.interpreter._values import MISSING, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
@@ -956,7 +958,15 @@ class _Unmodelled(Created):
         self.vba_type_name = type_name
 
 
-class _LabelsFormat(Created):
+class _NoAdjustments(Created):
+    vba_type_name = "Adjustments"
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(0, "Long")
+
+
+class _LabelsFormat(EffectMembers, Created):
     """The Format of a series' labels, a fill and an outline, shared with each point's until that has its own
     (tests/fixtures/trendline_members.json)."""
 
@@ -964,6 +974,22 @@ class _LabelsFormat(Created):
 
     def __init__(self, labels: DataLabels) -> None:
         self.labels = labels
+
+    def effect_look(self) -> FillLine:
+        return FillLine()
+
+    @member
+    def Adjustments(self) -> object:
+        return _NoAdjustments()
+
+    @member
+    def AutoShapeType(self) -> object:
+        return VBAInt(0, "Long")
+
+    @setter("AutoShapeType")
+    def _labels_shape(self, value: object) -> None:
+        del value
+        raise VBAUnsupportedError("The shape of a chart's data labels is not implemented")
 
     @member
     def Parent(self) -> object:

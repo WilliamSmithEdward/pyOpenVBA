@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
-from pyopenvba.apps.excel._chart_borders import INVALID_CALL, ElementProperties
+from pyopenvba.apps.excel._chart_borders import INVALID_CALL, UNSPECIFIED, ElementProperties
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAArray, VBAInt, error, to_bool, to_integer, to_number,
@@ -934,7 +934,9 @@ def _plain(axis: Axis, *, loaded: bool = False) -> AxisState:
     return axis.entry
 
 
-class Gridlines(Created):
+class Gridlines(ElementProperties, Created):
+    set_error = UNSPECIFIED
+
     """An axis's major or minor gridlines. Excel names the four of a chart in one order: the value axis's major and
     minor, then the category axis's (tests/fixtures/chart_axis_parts.json)."""
 

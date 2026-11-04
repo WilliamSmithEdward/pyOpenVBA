@@ -9,7 +9,7 @@ from pyopenvba.apps.excel import _formats as formats
 from pyopenvba.apps.excel import _styles as styles
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import member
+from pyopenvba.interpreter._objects import member, method
 from pyopenvba.interpreter._values import MISSING, NULL, error, to_integer
 
 if TYPE_CHECKING:
@@ -256,6 +256,11 @@ class DisplayFormat(ExcelObject):
     @member
     def Application(self) -> object:
         return self.sheet.book.application
+
+    @method
+    def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The range's own, a write through them included (tests/fixtures/small_rows.json)."""
+        return self.target.Characters(Start, Length)
 
     @member
     def MergeCells(self) -> object:

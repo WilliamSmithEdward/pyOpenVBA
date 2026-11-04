@@ -1569,6 +1569,14 @@ class Filter(ExcelObject):
         self.owner = owner
         self.index = index
 
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
     def _field(self) -> FieldFilter | None:
         found = self.owner.current()
         found_field = None if found is None else found.fields.get(self.index)

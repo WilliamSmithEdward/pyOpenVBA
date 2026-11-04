@@ -24,6 +24,7 @@ import re
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_reference, split_sheet
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import ExcelError
@@ -244,7 +245,7 @@ def written(sheet: Worksheet, xml: str) -> str:
     return xml
 
 
-class Errors(VBACollection, ExcelObject):
+class Errors(VBACollection, ItemDefault, ExcelObject):
     """A cell's error checks."""
 
     vba_type_name = "Errors"

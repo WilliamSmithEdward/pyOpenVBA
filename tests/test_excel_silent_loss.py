@@ -66,9 +66,10 @@ def _elements(file: Path) -> dict[str, str]:
     with zipfile.ZipFile(file) as package:
         book = package.read("xl/workbook.xml").decode("utf-8")
         sheets = sorted(name for name in package.namelist() if re.fullmatch(r"xl/worksheets/sheet\d+\.xml", name))
-        sheet = package.read(sheets[0]).decode("utf-8")
+        parts = [("book", book, BOOK_ELEMENTS)]
+        parts += [(sheet, package.read(sheet).decode("utf-8"), SHEET_ELEMENTS) for sheet in sheets]
     found: dict[str, str] = {}
-    for label, text, names in (("book", book, BOOK_ELEMENTS), ("sheet", sheet, SHEET_ELEMENTS)):
+    for label, text, names in parts:
         for element in names:
             match = re.search(rf"<{element}\b(?:[^>]*/>|.*?</{element}>)", text, re.DOTALL)
             found[f"{label}.{element}"] = match.group(0) if match else ""

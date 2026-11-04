@@ -36,6 +36,7 @@ from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
+from pyopenvba.interpreter._files import native_path, on_disk
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -1525,7 +1526,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise VBAUnsupportedError("Workbooks.Open with a Converter is not implemented")
         self.application.outside("Workbooks.Open")
         given = to_text(Filename)
-        path = Path(given)
+        path = Path(on_disk(given))
         if not path.is_file():
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         if path.suffix.lower() in (".xls", ".xla", ".xlt"):
@@ -1629,9 +1630,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                 decimal=DecimalSeparator, thousands=ThousandsSeparator, trailing_minus=TrailingMinusNumbers,
                 given=any(argument is not MISSING for argument in arguments))
 
-        if not Path(given).is_file():
+        if not Path(on_disk(given)).is_file():
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
-        self.open_file(Path(given), reader=read)
+        self.open_file(Path(on_disk(given)), reader=read)
         return EMPTY
 
     def open_file(self, path: Path, *, with_vba: bool = True, read_only: bool = False,
@@ -2505,7 +2506,7 @@ class Workbook(ExcelObject):
                 _events.after_save(self, False)
                 return False
             raise VBAUnsupportedError("SaveAs without a filename is not implemented; supply Filename")
-        target = Path(to_text(Filename))
+        target = Path(native_path(to_text(Filename)))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
         writer = text_writer(chosen)
         expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm", 53: ".xltm", 54: ".xltx"}.get(chosen)

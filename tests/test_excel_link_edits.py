@@ -5,7 +5,6 @@ from __future__ import annotations
 import base64
 import json
 import re
-import sys
 import zipfile
 from pathlib import Path
 from typing import Any
@@ -17,8 +16,6 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/link_edits.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: The macros name files by Windows paths.
-pytestmark = pytest.mark.skipif(sys.platform != 'win32', reason='the macros name files by Windows paths')
 #: A file named without its folder, which Excel looks for in its current folder, and a save to another folder.
 REFUSED = [index for index, name in enumerate(NAMES)
            if name.endswith(', "Gamma.xlsx"') or name.endswith(', 5') or 'C:\\Windows' in name]
@@ -40,7 +37,9 @@ def _opened(folder: Path) -> ExcelApplication:
 
 
 def _clean(text: str, folder: Path) -> str:
-    return re.sub(re.escape(str(folder)), '<folder>', text, flags=re.IGNORECASE)
+    # Off Windows a path in the folder has a slash after it, where Excel's has a backslash.
+    text = text.replace(f"file:///{str(folder).lstrip('/')}", 'file:///<folder>')  # a path that starts with / after file:///
+    return re.sub(re.escape(str(folder)), '<folder>', text, flags=re.IGNORECASE).replace('<folder>/', '<folder>\\')
 
 
 @pytest.mark.parametrize('index', KEPT, ids=[NAMES[index] for index in KEPT])

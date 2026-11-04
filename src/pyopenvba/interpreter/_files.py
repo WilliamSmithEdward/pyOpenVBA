@@ -100,8 +100,15 @@ def _decode(data: bytes) -> str:
     return "".join(bytes([byte]).decode("cp1252", errors="ignore") or chr(byte) for byte in data)
 
 
-def _native(path: str) -> str:
+def native_path(path: str) -> str:
+    """A path a macro gives, in VBA's backslashes, as this system spells it: off Windows, folder & "\\book.xlsx" is a file in
+    that folder, not a file with a backslash in its name."""
     return path.replace("\\", os.sep) if os.sep != "\\" else path
+
+
+def on_disk(path: str) -> str:
+    """The file a macro's path means on this system, in its spelling and with its case."""
+    return spelled(native_path(path))
 
 
 def spelled(path: str, separator: str = os.sep) -> str:
@@ -201,7 +208,7 @@ class FileTable:
     # -- paths
 
     def full(self, path: object) -> str:
-        return spelled(os.path.join(self.folder, _native(to_text(path))))
+        return spelled(os.path.join(self.folder, native_path(to_text(path))))
 
     def _key(self, path: str) -> str:
         return os.path.normcase(os.path.abspath(path))

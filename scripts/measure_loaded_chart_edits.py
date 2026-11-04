@@ -49,6 +49,12 @@ EDITS = (
     ('delete series', 'c.SeriesCollection(c.SeriesCollection.Count).Delete: r = c.SeriesCollection.Count'),
     ('source data', 'c.SetSourceData co.Parent.Range("A1:B3"): r = c.SeriesCollection.Count'),
     ('activate', 'co.Activate: r = c.HasTitle'),
+    ('HasTitle False then True', 'c.HasTitle = False: c.HasTitle = True: r = c.HasTitle'),
+    ('HasTitle True False True', 'c.HasTitle = True: c.HasTitle = False: c.HasTitle = True: r = c.HasTitle'),
+    ('title gone then read', 'c.HasTitle = True: c.HasTitle = False: r = c.HasTitle: Err.Clear: r = r & " " & TypeName(c.ChartTitle) & " " & Err.Number'),
+    ('title gone then activate', 'c.HasTitle = True: c.HasTitle = False: co.Activate: r = c.HasTitle'),
+    ('new title text read', 'c.HasTitle = True: r = c.ChartTitle.Text'),
+    ('title delete then True', 'c.HasTitle = True: c.ChartTitle.Delete: c.HasTitle = True: r = c.HasTitle'),
 )
 
 

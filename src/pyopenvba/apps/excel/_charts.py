@@ -172,6 +172,8 @@ class ChartState:
     title_look: TitleLook = field(default_factory=TitleLook)
     #: Set by ChartTitle.Delete, which Excel records as autoTitleDeleted.
     title_deleted: bool = False
+    #: A loaded chart's title element, kept once taken away for its look when a title comes back.
+    title_taken: str = ''
     legend: bool = True
     #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
     legend_position: str = 'r'
@@ -2532,8 +2534,12 @@ class Chart(ElementProperties, HeldPart):
 
     @setter('HasTitle')
     def _has_title(self, value: object) -> None:
+        from pyopenvba.apps.excel._chart_loaded import give_title, take_title_away
         from pyopenvba.apps.excel._chart_styled import is_styled
 
+        if self.state.original:
+            (give_title if to_bool(value) else take_title_away)(self)
+            return
         self.admit_change()
         wanted = to_bool(value)
         self.keeps_look('title', wanted)
@@ -2937,6 +2943,9 @@ class ChartTitle(ElementProperties, TitleMembers):
                 return state.title
             # The automatic title of a chart that draws one series is that series' name.
             return Series(self.chart, state.series[0]).Name()
+        if state.original and state.title == '' and not state.title_typed:
+            # A loaded chart's automatic title, with no one series to name it (tests/fixtures/loaded_chart_edits.json).
+            return 'Chart Title'
         return state.title or ''
 
     @setter('Text')
@@ -2949,6 +2958,11 @@ class ChartTitle(ElementProperties, TitleMembers):
 
     @method
     def Delete(self) -> object:
+        from pyopenvba.apps.excel._chart_loaded import take_title_away
+
+        if self.chart.state.original:
+            take_title_away(self.chart)
+            return EMPTY
         self.chart.admit_change()
         self.chart.keeps_look('title')
         self.chart.changed()

@@ -153,7 +153,8 @@ def found_link(book: Workbook, name: str) -> tuple[LinkedBook | None, bool]:
     wanted = name.replace("/", "\\").casefold()
     for broken, links in ((False, links_of(book)), (True, book.broken_links)):
         for linked in links:
-            if wanted in (linked.path(book.path).casefold(), linked.file.casefold()):
+            # Off Windows the workbook's own folder has / in a full name that LinkSources gives with a \\ before the file.
+            if wanted in (linked.path(book.path).replace("/", "\\").casefold(), linked.file.casefold()):
                 return linked, broken
     return None, False
 
@@ -161,9 +162,9 @@ def found_link(book: Workbook, name: str) -> tuple[LinkedBook | None, bool]:
 def _refuse_open(book: Workbook, linked: LinkedBook) -> None:
     """Report a link whose workbook is open too: Excel then works with that workbook, the model with the link's
     copy of its cells."""
-    full = linked.path(book.path).casefold()
+    full = linked.path(book.path).replace("/", "\\").casefold()
     for other in book.application.workbooks_.books:
-        if other is not book and str(other.FullName()).casefold() == full:
+        if other is not book and str(other.FullName()).replace("/", "\\").casefold() == full:
             raise VBAUnsupportedError("a link to a workbook that is open is not implemented: the model reads the "
                                       "link's copy of its cells")
 

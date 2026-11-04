@@ -32,3 +32,12 @@ def test_a_shape_in_a_group_from_a_file_refuses_a_change_a_save_would_lose() -> 
     app.add_module('Public Sub Paint()\n    ActiveWorkbook.Worksheets(1).Shapes("Grouped").GroupItems(1).Fill.ForeColor.RGB = 255\nEnd Sub\n', name='Probe')
     with pytest.raises(VBAUnsupportedError, match='in a group'):
         app.run('Probe.Paint')
+
+
+def test_a_fill_held_while_its_note_goes_answers_as_excel_did() -> None:
+    gone: dict[str, Any] = json.loads((FIXTURES / 'gone_note_fill.json').read_text(encoding='utf-8'))
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(gone['source'], name='Gone')
+    assert str(app.run('Gone.Tried')) == gone['answer']
+

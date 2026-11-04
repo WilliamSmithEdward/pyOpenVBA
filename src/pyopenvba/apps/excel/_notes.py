@@ -536,9 +536,15 @@ class NoteColor(HeldPart, ExcelObject):
     """A note box's fill colour, as Windows' info colour until set (tests/fixtures/note_shapes.json)."""
 
     vba_type_name = "ColorFormat"
+    #: With the note gone these still answer, and its colour is 424 (tests/fixtures/gone_note_fill.json).
+    held_free = frozenset({"parent", "application", "creator"})
 
     def __init__(self, owner: NoteShape) -> None:
         self.owner = owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
     @member
     def Parent(self) -> object:
@@ -570,9 +576,15 @@ class NoteFill(HeldPart, ExcelObject):
     """A note box's fill: only its colour is modelled."""
 
     vba_type_name = "FillFormat"
+    #: With the note gone these still answer, and its colour is 424 (tests/fixtures/gone_note_fill.json).
+    held_free = frozenset({"parent", "application", "creator"})
 
     def __init__(self, owner: NoteShape) -> None:
         self.owner = owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
     @member
     def Parent(self) -> object:

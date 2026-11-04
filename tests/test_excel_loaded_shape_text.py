@@ -107,3 +107,24 @@ def test_new_words_keep_a_foreign_shapes_frame_and_first_run(tmp_path: Path) -> 
     app.run('Probe.Go')
     app.save(tmp_path / 'saved.xlsx')
     assert '<a:rPr lang="fr-FR" sz="1200" dirty="0"/><a:t>Salut</a:t>' in _anchor(tmp_path / 'saved.xlsx', 'French')
+
+
+@pytest.mark.parametrize('name', ['Pic', 'Tuned', 'Clear'])
+@pytest.mark.parametrize(('member', 'value'), [('Brightness', '0.7'), ('Contrast', '0.3'), ('ColorType', '2')])
+def test_a_pictures_settings_come_back_from_the_file(name: str, member: str, value: str, tmp_path: Path) -> None:
+    source = 'Public Function Go(ByVal name As String) As String\n    With ActiveWorkbook.Worksheets(1).Shapes(name).PictureFormat\n'
+    app = ExcelApplication.open(FIXTURES / 'loaded_shape_text.xlsx', with_vba=False)
+    app.add_module(source + f'        .{member} = {value}\n        Go = .{member}\n    End With\nEnd Function\n', name='Probe')
+    assert str(app.run('Probe.Go', name)) == value
+    app.save(tmp_path / 'saved.xlsx')
+    reopened = ExcelApplication.open(tmp_path / 'saved.xlsx', with_vba=False)
+    reopened.add_module(source + f'        Go = .{member}\n    End With\nEnd Function\n', name='Probe')
+    assert str(reopened.run('Probe.Go', name)) == value
+
+
+def test_changing_a_loaded_connectors_type_reports_itself() -> None:
+    """The file would keep its old geometry."""
+    app = ExcelApplication.open(FIXTURES / 'loaded_shape_text.xlsx', with_vba=False)
+    app.add_module('Public Sub Go()\n    ActiveWorkbook.Worksheets(1).Shapes("Joined").ConnectorFormat.Type = 2\nEnd Sub\n', name='Probe')
+    with pytest.raises(VBAUnsupportedError):
+        app.run('Probe.Go')

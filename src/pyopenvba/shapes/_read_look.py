@@ -187,7 +187,7 @@ def has_own_shadow(markup: str, theme: str) -> bool | None:
 
 def read_picture(markup: str, shape: Shape) -> None:
     """What PictureFormat reads of a picture in a file: its blip's effects, its crop, and the fill behind it."""
-    blip = re.search(r"<a:blip\b.*?(?:</a:blip>|/>)", markup, re.DOTALL)
+    blip = re.search(r"<a:blip\b[^>]*/>|<a:blip\b.*?</a:blip>", markup, re.DOTALL)
     effects = "" if blip is None else blip.group(0)
     lum = re.search(r"<a:lum\b([^>]*)/>", effects)
     if lum is not None:

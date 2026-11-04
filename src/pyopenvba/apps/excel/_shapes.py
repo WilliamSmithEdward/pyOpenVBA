@@ -2604,6 +2604,8 @@ class ConnectorFormat(HeldPart):
     @setter("Type")
     def _type(self, value: object) -> None:
         shape = self.connector()
+        if shape.source:
+            raise _unsupported("changing the type of a connector in a file")
         wanted = int(to_number(value))
         if wanted not in CONNECTORS:
             raise error(-2147024809, "The specified value is out of range.")

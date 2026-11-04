@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import FillLine
+from pyopenvba.shapes._values import ConnectorLink, FillLine, Shape
 
 _COLOUR = re.compile(r'<a:(srgbClr|schemeClr|sysClr|prstClr|scrgbClr|hslClr)\b([^>]*?)(?:/>|>(.*?)</a:\1>)', re.DOTALL)
 _MOD = re.compile(r'<a:(\w+)\b[^>]*?\bval="(-?\d+)"')
@@ -162,6 +162,15 @@ def read_style(markup: str) -> StyleRefs:
     return StyleRefs(fill, line, line_index)
 
 
+def read_links(markup: str) -> tuple[ConnectorLink | None, ConnectorLink | None]:
+    """The shape and site each end of a connector in a file holds, with where the site stands not yet worked out."""
+    found: list[ConnectorLink | None] = []
+    for tag in ("a:stCxn", "a:endCxn"):
+        link = re.search(rf"<{tag}\b([^>]*)/>", markup)
+        found.append(None if link is None else ConnectorLink(int(_attribute(link.group(1), "id") or 0), int(_attribute(link.group(1), "idx") or 0) + 1, (0.0, 0.0), ""))
+    return found[0], found[1]
+
+
 def has_own_shadow(markup: str, theme: str) -> bool | None:
     """Whether a shape has a shadow, by its own effect list or else the theme effect its style names; None for a theme with no
     such effect to look at."""
@@ -174,6 +183,27 @@ def has_own_shadow(markup: str, theme: str) -> bool | None:
     effects = re.findall(r"<a:effectStyle>.*?</a:effectStyle>", theme, re.DOTALL)
     index = int(reference.group(1))
     return "<a:outerShdw" in effects[index - 1] if 0 < index <= len(effects) else None
+
+
+def read_picture(markup: str, shape: Shape) -> None:
+    """What PictureFormat reads of a picture in a file: its blip's effects, its crop, and the fill behind it."""
+    blip = re.search(r"<a:blip\b.*?(?:</a:blip>|/>)", markup, re.DOTALL)
+    effects = "" if blip is None else blip.group(0)
+    lum = re.search(r"<a:lum\b([^>]*)/>", effects)
+    if lum is not None:
+        shape.picture_lum = (int(_attribute(lum.group(1), "bright") or 0), int(_attribute(lum.group(1), "contrast") or 0))
+    shape.picture_colour_type = 2 if "<a:grayscl" in effects else 3 if "<a:biLevel" in effects else 4 if shape.picture_lum == (70000, -70000) else 1
+    clear = re.search(r'<a:clrFrom>\s*<a:srgbClr val="([0-9A-Fa-f]{6})"', effects)
+    if clear is not None:
+        shape.picture_clear = clear.group(1).upper()
+    rect = re.search(r"<a:srcRect\b([^>]*)/>", markup)
+    if rect is not None:
+        left, top, right, bottom = (int(_attribute(rect.group(1), name) or 0) for name in ("l", "t", "r", "b"))
+        shape.picture_crop = (left, top, right, bottom)
+    fill = _top(properties(markup), _FILLS)
+    if fill is not None and fill[0] == "a:solidFill":
+        paint = _paint(properties(markup)[fill[1]:fill[2]])
+        shape.picture_transparent = paint is not None and paint.alpha == 0
 
 
 def with_fill_line(markup: str, written: str) -> str:

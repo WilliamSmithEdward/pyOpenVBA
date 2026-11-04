@@ -3692,7 +3692,7 @@ class Worksheet(ExcelObject):
             from pyopenvba.apps.excel._tables import edited
 
             edited(self, row, column)
-        self.dims.fonts_changed(row)
+        self.dims.value_changed(row, column)
         calculator = self.book.calculator
         cell = self.cells_.get((row, column))
         if cell is not None:

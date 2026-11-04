@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.apps.excel._charts_file import _as_excel_reads  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.apps.excel._prefixed_parts import drawing_spelled
 
 FIXTURES = Path(__file__).parent / 'fixtures'
@@ -44,6 +46,21 @@ End Sub
     app.run('P.Save', str(book), str(out))
     with zipfile.ZipFile(book) as before, zipfile.ZipFile(out) as after:
         assert after.read('xl/drawings/drawing1.xml') == before.read('xl/drawings/drawing1.xml')
+
+
+@pytest.mark.parametrize('name', RECORD['moved'])
+def test_a_part_s_references_follow_their_cells(name: str, tmp_path: Path) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(RECORD['source'], name='P')
+    book, out = tmp_path / 'in.xlsx', tmp_path / 'out.xlsx'
+    shutil.copy(FIXTURES / name, book)
+    answer, references = RECORD['moved'][name]
+    assert app.run('P.Moved', str(book), str(out)) == answer
+    with zipfile.ZipFile(out) as package:
+        ours = re.findall(r'<(?:c:)?f>(.*?)</(?:c:)?f>', package.read('xl/charts/chart1.xml').decode('utf-8'))
+    # The part keeps its writer's spelling, which reads as what Excel saves.
+    assert [_as_excel_reads(one) for one in ours] == references
 
 
 @pytest.mark.parametrize('xml', [

@@ -369,7 +369,9 @@ def read_chart(xml: str, part: str) -> ChartState:
         item.category_reference, item.categories = _data(cat)
         item.value_reference, item.values = _data(val)
         smooth = series.find('c:smooth', NS)
-        item.smooth = smooth is not None and smooth.get('val', '1') in ('1', 'true')
+        # A line left without it means its default, on (tests/fixtures/tool_drawings.json).
+        item.smooth = (smooth.get('val', '1') in ('1', 'true') if smooth is not None
+                       else owners[id(series)].tag.endswith('}lineChart'))
         symbol = series.find('c:marker/c:symbol', NS)
         owner = owners[id(series)]
         owner_kind = owner.tag.rpartition('}')[2]
@@ -398,7 +400,9 @@ def read_chart(xml: str, part: str) -> ChartState:
             if leaders is not None:
                 item.leader_lines = leaders.get('val', '1') in ('1', 'true')
         invert = series.find('c:invertIfNegative', NS)
-        item.invert_if_negative = invert is not None and invert.get('val', '1') in ('1', 'true')
+        # Excel always writes it on bars; another writer leaving it out means its default, on (tests/fixtures/tool_drawings.json).
+        item.invert_if_negative = (invert.get('val', '1') in ('1', 'true') if invert is not None
+                                   else owner_kind in ('barChart', 'bar3DChart'))
         explosion = series.find('c:explosion', NS)
         if explosion is not None and re.fullmatch(r'[0-9]{1,9}', explosion.get('val', '')):
             item.explosion = int(explosion.get('val', ''))
@@ -480,9 +484,9 @@ def _read_group(result: ChartState, group: ET.Element) -> None:
         text = node.get('val', '') if node is not None else ''
         return int(text) if re.fullmatch(r'-?[0-9]{1,3}', text) else None
 
+    # Left out it means its default, on (tests/fixtures/tool_drawings.json).
     vary = group.find('c:varyColors', NS)
-    if vary is not None:
-        result.vary = vary.get('val', '1') in ('1', 'true')
+    result.vary = vary is None or vary.get('val', '1') in ('1', 'true')
     gap, overlap, first, hole = number('gapWidth'), number('overlap'), number('firstSliceAng'), number('holeSize')
     result.gap_width = gap if gap is not None else result.gap_width
     result.overlap = overlap if overlap is not None else result.overlap

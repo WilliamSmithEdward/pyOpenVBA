@@ -27,9 +27,9 @@ Step = Callable[[], None]
 #: A point's label that has lost its unique id, and still has to be written.
 NO_ID = -2
 #: A reference where a chart part spells one.
-_PART_REFERENCE = re.compile(r'<(c:f|c15:f|c15:sqref)>(.*?)</\1>', re.DOTALL)
+_PART_REFERENCE = re.compile(r'<((?:\w+:)?f|c15:sqref)>(.*?)</\1>', re.DOTALL)
 #: What a chart part numbers by its place among the series' cells.
-_NUMBERED = re.compile(r'<c:(?:dPt|dLbl)>')
+_NUMBERED = re.compile(r'<(?:\w+:)?(?:dPt|dLbl)>')
 
 
 def renamed(formula: str, old: str, new: str) -> str:

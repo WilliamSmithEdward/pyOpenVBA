@@ -887,13 +887,13 @@ class _ConditionalRule(RuleObject):
     def Font(self) -> object:
         from pyopenvba.apps.excel._differential import ConditionalFont
 
-        return ConditionalFont(self._dxf(), self._style_changed, self.sheet)
+        return ConditionalFont(self._dxf(), self._style_changed, self.sheet, parent=self)
 
     @member
     def Interior(self) -> object:
         from pyopenvba.apps.excel._differential import ConditionalInterior
 
-        return ConditionalInterior(self._dxf(), self._style_changed, self.sheet)
+        return ConditionalInterior(self._dxf(), self._style_changed, self.sheet, parent=self)
 
     @member
     def Borders(self, Index: object = MISSING) -> object:
@@ -901,7 +901,7 @@ class _ConditionalRule(RuleObject):
         from pyopenvba.apps.excel._differential import ConditionalBorders
 
         collection = ConditionalBorders(self._dxf(), self._style_changed, self.sheet,
-                                        color_source=lambda: resolve(self.sheet, self.rule))
+                                        color_source=lambda: resolve(self.sheet, self.rule), parent=self)
         return collection if Index is MISSING else collection.Item(Index)
 
     @member

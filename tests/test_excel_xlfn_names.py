@@ -48,7 +48,7 @@ def test_each_function_brings_the_names_it_did(name: str) -> None:
 
 
 def _broken(tmp_path: Path, part: str, how: str) -> Path:
-    file = tmp_path / f"{re.sub(r'\W', '', part)}.xlsx"
+    file = tmp_path / f"{part}.xlsx"
     with zipfile.ZipFile(HERE / "bad_xml/base.xlsx") as given, zipfile.ZipFile(file, "w", zipfile.ZIP_DEFLATED) as made:
         for info in given.infolist():
             data = given.read(info.filename)

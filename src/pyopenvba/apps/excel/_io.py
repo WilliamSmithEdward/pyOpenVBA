@@ -1610,6 +1610,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         from pyopenvba.apps.excel._scenarios import written as with_scenarios
 
         patched = with_scenarios(sheet, patched)
+        from pyopenvba.apps.excel._allow_edit_ranges import written as with_allow_edit_ranges
+
+        patched = with_allow_edit_ranges(sheet, patched)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
             if outline_changes and sheet.outline_state is not None:
@@ -1651,6 +1654,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._workbook_links import write as write_workbook_links
 
     write_workbook_links(book, package)
+    from pyopenvba.apps.excel._connections import refuse_changed
+
+    refuse_changed(book)
     from pyopenvba.apps.excel._workbook_more import refuse_added_parts, write_theme
 
     write_theme(book, package)

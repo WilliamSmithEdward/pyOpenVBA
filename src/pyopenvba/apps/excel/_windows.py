@@ -678,7 +678,7 @@ class Pane(ExcelObject):
         return self.window.book.application
 
 
-class Panes(VBACollection, ExcelObject):
+class Panes(VBACollection, ItemDefault, ExcelObject):
     """A window's panes: one, two when it is split one way, four when both."""
 
     vba_type_name = "Panes"

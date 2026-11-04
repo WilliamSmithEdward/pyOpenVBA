@@ -69,6 +69,8 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
+    from pyopenvba.apps.excel._charts_file import XmlElement
+    from pyopenvba.apps.excel._allow_edit_ranges import SheetRanges
     from pyopenvba.apps.excel._external_links import LinkedBook
     from pyopenvba.apps.excel._workbook_more import CustomXMLPart
     from pyopenvba.apps.excel._hyperlinks import Link
@@ -1436,6 +1438,42 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                               "is not valid. Verify that the file has not been corrupted and that the file extension "
                               "matches the format of the file.") from None
 
+    def _not_found(self, name: object) -> str:
+        self.application.outside("Opening a file")
+        given = to_text(name)
+        if Path(given).is_file():
+            return given
+        raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
+
+    @method
+    def CheckOut(self, Filename: object = MISSING) -> object:
+        self._not_found(Filename)
+        raise error(1004, "This document cannot be checked out.")
+
+    @method
+    def CanCheckOut(self, Filename: object = MISSING) -> object:
+        self._not_found(Filename)
+        raise VBAUnsupportedError("Workbooks.CanCheckOut of a file that is there is not implemented")
+
+    @method
+    def OpenDatabase(self, Filename: object = MISSING, CommandText: object = MISSING, CommandType: object = MISSING,
+                     BackgroundQuery: object = MISSING, ImportDataAs: object = MISSING) -> object:
+        if Filename is MISSING:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        self._not_found(Filename)
+        raise VBAUnsupportedError("Workbooks.OpenDatabase is not implemented")
+
+    @method
+    def OpenXML(self, Filename: object = MISSING, Stylesheets: object = MISSING, LoadOption: object = MISSING) -> object:
+        if Filename is MISSING:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        self.application.outside("Workbooks.OpenXML")
+        given = to_text(Filename)
+        full = Path(given) if Path(given).is_absolute() else Path.home() / "Documents" / given
+        if full.is_file():
+            raise VBAUnsupportedError("Workbooks.OpenXML is not implemented")
+        raise error(1004, f"Sorry, we couldn't find {full}. Is it possible it was moved, renamed or deleted?")
+
     @method
     def OpenText(self, Filename: object = MISSING, Origin: object = MISSING, StartRow: object = MISSING,
                  DataType: object = MISSING, TextQualifier: object = MISSING, ConsecutiveDelimiter: object = MISSING,
@@ -1609,6 +1647,9 @@ class Workbook(ExcelObject):
         self.ink_comments = True
         self.remove_personal = False
         self.read_only_recommended = False
+        #: The data connections a macro added, and the names of those of the file it deleted (see _connections).
+        self.connections_added: list[XmlElement] = []
+        self.connections_deleted: set[str] = set()
         #: Whether a macro changed a colour of the theme, and the workbook's custom XML parts once asked for, with how
         #: many came from its file (see _workbook_more).
         self.theme_colours_changed = False
@@ -3188,6 +3229,8 @@ class Worksheet(ExcelObject):
         self.protection: SheetProtection | None = None
         #: The Allow options the last Protect gave, which Unprotect leaves in place.
         self.protection_allows: frozenset[str] = frozenset()
+        #: The ranges a protected sheet lets a macro edit, once asked for (see _allow_edit_ranges).
+        self.allow_edit_ranges: SheetRanges | None = None
         #: True once a macro protects or unprotects the sheet, so a save writes its sheetProtection again.
         self.protection_changed = False
         #: EnableSelection: xlNoRestrictions, 0, until a macro sets it.
@@ -7527,6 +7570,14 @@ class Queries(VBACollection, ExcelObject):
 
     def vba_items(self) -> list[object]:
         return [WorkbookQuery(entry, self.book) for entry in self.entries]
+
+    @member
+    def FastCombine(self) -> object:
+        return False
+
+    @setter("FastCombine")
+    def _set_fast_combine(self, value: object) -> None:
+        raise VBAUnsupportedError("Queries.FastCombine, which a save would have to write, is not implemented")
 
     @member
     def Parent(self) -> object:

@@ -51,7 +51,11 @@ CASES = {
     'events off': 'Application.EnableEvents = False',
     'argument': 'mode = "argument"',
     'value': 'mode = "value"',
+    'one changed quiet': 'b.Worksheets(1).Range("A1").Value = 2: Application.DisplayAlerts = False: mode = "one"',
+    'one changed false': 'b.Worksheets(1).Range("A1").Value = 2: mode = "one false"',
 }
+#: Each closes the macro's own workbook, so only a file can say how far the macro ran.
+OWN_CLOSES = {'this false': 'ThisWorkbook.Close False', 'this quiet': 'ThisWorkbook.Saved = False: ThisWorkbook.Close', 'active': 'ThisWorkbook.Activate: ActiveWorkbook.Close False'}
 
 MODULE = r'''Option Explicit
 
@@ -71,6 +75,8 @@ Public Function Tried(ByVal setup As Long, ByVal folder As String) As String
     Select Case mode
     Case "argument": held.Close 1
     Case "value": r = TypeName(held.Close)
+    Case "one": b.Close
+    Case "one false": b.Close False
     Case Else: Workbooks.Close
     End Select
     s = "ok " & r
@@ -129,7 +135,7 @@ Public Sub Tried(ByVal folder As String)
     Set other = Workbooks.Add(xlWBATWorksheet)
     other.SaveAs folder & "\Other.xlsx", xlOpenXMLWorkbook
     Note folder, "before " & Workbooks.Count
-    Workbooks.Close
+    @@CLOSE@@
     Note folder, "after " & Workbooks.Count
 End Sub
 
@@ -158,10 +164,16 @@ def main() -> None:
             print(name, '=>', answers[name], flush=True)
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as folder, ExcelSession(_with_log(config, folder)) as excel:
         excel.new_document()
-        result = excel.run_vba(OWN, 'Tried', (folder,), timeout=30.0)
+        result = excel.run_vba(OWN.replace('@@CLOSE@@', 'Workbooks.Close'), 'Tried', (folder,), timeout=30.0)
         answers['own workbook'] = f'{result.outcome}: ' + (Path(folder) / 'log.txt').read_text(encoding='ascii').replace('\r\n', ';').replace('\n', ';')
         print('own workbook =>', answers['own workbook'], flush=True)
-    record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'cases': CASES, 'sink': SINK, 'source': source, 'answers': answers}
+    for name, statement in OWN_CLOSES.items():
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as folder, ExcelSession(_with_log(config, folder)) as excel:
+            excel.new_document()
+            result = excel.run_vba(OWN.replace('@@CLOSE@@', statement), 'Tried', (folder,), timeout=30.0)
+            answers[f'own {name}'] = f'{result.outcome}: ' + (Path(folder) / 'log.txt').read_text(encoding='ascii').replace('\r\n', ';').replace('\n', ';')
+            print(name, '=>', answers[f'own {name}'], flush=True)
+    record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'cases': CASES, 'own_closes': OWN_CLOSES, 'sink': SINK, 'source': source, 'answers': answers}
     OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
 
 

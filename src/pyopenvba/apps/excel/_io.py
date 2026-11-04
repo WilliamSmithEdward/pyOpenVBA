@@ -229,6 +229,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
     read_book_protection(book, workbook_xml)
     _read_queries(book, path)
+    from pyopenvba.apps.excel._query_tables import read as read_query_tables
+
+    read_query_tables(book, package, _sheet_relationships, _resolved)
     from pyopenvba.apps.excel._calculation_settings import read as read_calculation
 
     book.saved = True
@@ -1698,6 +1701,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._document_properties import write as write_properties
 
     write_properties(book, package)
+    from pyopenvba.apps.excel._query_tables import write as write_query_tables
+
+    write_query_tables(book, package, _add_sheet_relationship, _override_before_properties, _sheet_relationships, _resolved, _drop_sheet_part)
     book.application.outside("Saving a workbook")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())

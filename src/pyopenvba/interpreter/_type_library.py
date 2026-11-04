@@ -6,6 +6,7 @@ time a host that has one compiles a procedure. A type the table does not hold is
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
@@ -151,14 +152,57 @@ def refusal(library: str, found: LibraryClass, member: str, use: str, shape: Cal
         if returned in _LOOSE:
             return None
         held = find_class(library, returned)
-        if held is None or not held.default:
-            return None
-        # A Let goes to the default member of what it answers, which has to take one.
-        takes = [one for one in held.members[held.default] if one[0] in (4, 8)]
-        if not takes:
-            reading = held.reading(held.default)
-            return NOT_OPTIONAL if reading is not None and reading[0] == 1 and reading[1] else 'Invalid use of property'
-        return NOT_OPTIONAL if len(takes[0][4]) > 1 and takes[0][1] > 1 else None
+        return None if held is None else let_refusal(held)
+    return None
+
+
+def let_refusal(held: LibraryClass) -> str | None:
+    """What the compiler says of a Let into something of this class, which goes to its default member if it has one."""
+    if not held.default:
+        return None
+    takes = [one for one in held.members[held.default] if one[0] in (4, 8)]
+    if not takes:
+        reading = held.reading(held.default)
+        return NOT_OPTIONAL if reading is not None and reading[0] == 1 and reading[1] else 'Invalid use of property'
+    return NOT_OPTIONAL if len(takes[0][4]) > 1 and takes[0][1] > 1 else None
+
+
+def let_error(held: LibraryClass) -> int | None:
+    """The error of a Let into an object of this class bound late, or None if its default member takes it."""
+    if not held.default:
+        return 438
+    if any(one[0] in (4, 8) for one in held.members[held.default]):
+        return None
+    reading = held.reading(held.default)
+    return 438 if reading is not None and reading[4] else 450
+
+
+#: Value properties on these answer 450 for arguments, where other classes answer 451.
+_SCALAR_450 = frozenset({'_Worksheet', 'PageSetup'})
+
+
+def late_error(found: LibraryClass, member: str, positional: int, named: Sequence[str]) -> int | None:
+    """The error of a call bound late that the table decides, or None to let the member answer.
+
+    Too few arguments is 449 or 450 by member, a Variant property's arguments are 450 or 451 by member, and an object's default
+    depends on what it holds, so those stay with the member (tests/fixtures/vba_late_errors.json).
+    """
+    key = member.lower()
+    form = found.reading(key)
+    if form is None or (not positional and not named):
+        return None
+    returned = form[3]
+    if key in _RESTRICTED:
+        return 1004 if named else 438
+    names = {one.split(':')[0].lower() for one in form[4]}
+    if any(name.lower() not in names for name in named):
+        if form[4] or returned in _SCALARS or returned in _LOOSE or not returned:
+            return 448 if returned and returned not in _SCALARS and returned not in _LOOSE else 1004
+        return None
+    if form[4] or form[2]:
+        return 450 if positional + len(named) > len(form[4]) and not form[2] else None
+    if returned in _SCALARS:
+        return 450 if found.name in _SCALAR_450 else 451
     return None
 
 

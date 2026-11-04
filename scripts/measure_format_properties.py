@@ -24,10 +24,15 @@ COLOURS = ['0', '255', '16777215', '16777216', '-1', '-2', '1.5', '"255"', *BAD]
 INDEXES = ['0', '1', '3', '56', '57', '-1', 'xlNone', 'xlAutomatic', '1.5', '"3"', *BAD]
 THEMES = ['1', '2', '12', '0', '13', '-1', '1.5', '"2"', *BAD]
 TINTS = ['0', '0.5', '-0.5', '1', '-1', '1.1', '-1.1', '0.123456', '"0.5"', *BAD]
+SWITCHES = ['True', 'False', '1', '0', '-1', '2', '"True"', '"x"', 'Null', 'Empty', '""']
+LINES = ['xlContinuous', 'xlDash', 'xlDashDot', 'xlDashDotDot', 'xlDot', 'xlDouble', 'xlSlantDashDot', 'xlLineStyleNone',
+         '1', '0', '2', '99', '"1"', *BAD[1:]]
+#: Null is left out of these two: the assignment ends Excel (the next call fails with -2147417848).
+WEIGHTS = ['xlHairline', 'xlThin', 'xlMedium', 'xlThick', '3', '0', '5', 'xlAutomatic', '-1', '"2"', *BAD[1:]]
 #: How each family reaches its object, what is read back, and what a formatted cell has first.
 FAMILIES = {
     'Font': ('c.Font', ['Name', 'Size', 'Underline', 'ThemeFont', 'Background', 'Color', 'ColorIndex', 'ThemeColor',
-                        'TintAndShade', 'Bold', 'Italic', 'FontStyle'],
+                        'TintAndShade', 'Bold', 'Italic', 'FontStyle', 'Strikethrough', 'Subscript', 'Superscript'],
              ['', 'c.Font.Name = "Arial": c.Font.Size = 14: c.Font.Underline = xlUnderlineStyleSingle']),
     'Interior': ('c.Interior', ['Color', 'ColorIndex', 'Pattern', 'PatternColor', 'PatternColorIndex', 'ThemeColor',
                                 'TintAndShade', 'PatternThemeColor', 'PatternTintAndShade', 'InvertIfNegative'],
@@ -49,17 +54,21 @@ VALUES = {
                            'xlUnderlineStyleSingleAccounting', 'xlUnderlineStyleDoubleAccounting', 'False', '3', '0',
                            '1', '99', '"2"', *BAD],
              'ThemeFont': ['0', '1', '2', '3', '4', '-1', '1.5', '"1"', *BAD],
-             'Background': ['1', '2', '3', 'xlAutomatic', '0', *BAD]},
+             'Background': ['1', '2', '3', 'xlAutomatic', '0', *BAD],
+             'Bold': SWITCHES, 'Italic': SWITCHES, 'Strikethrough': SWITCHES, 'Subscript': SWITCHES,
+             'Superscript': SWITCHES, 'Color': COLOURS, 'ColorIndex': INDEXES, 'ThemeColor': THEMES,
+             'TintAndShade': TINTS,
+             'FontStyle': ['"Regular"', '"Bold"', '"Italic"', '"Bold Italic"', '"bold"', '"No Such Style"', '5', *BAD]},
     'Interior': {'Color': COLOURS, 'ColorIndex': INDEXES,
                  'Pattern': ['xlSolid', 'xlNone', 'xlAutomatic', 'xlGray50', 'xlChecker', 'xlHorizontal', 'xlLightUp',
                              '0', '2', '99', '"1"', *BAD],
                  'PatternColor': COLOURS, 'PatternColorIndex': INDEXES, 'ThemeColor': THEMES, 'TintAndShade': TINTS,
                  'PatternThemeColor': THEMES, 'PatternTintAndShade': TINTS, 'InvertIfNegative': ['True', 'False', '1']},
-    'Border': {'ColorIndex': INDEXES, 'TintAndShade': TINTS,
-               'Weight': ['xlHairline', 'xlThin', 'xlMedium', 'xlThick', '3', '0', '5', 'xlAutomatic', '-1', '"2"',
-                          # Null is left out: the assignment ends Excel (the next call fails with -2147417848).
-                          *BAD[1:]]},
-    'Borders': {'ColorIndex': INDEXES, 'ThemeColor': THEMES, 'TintAndShade': TINTS},
+    'Border': {'ColorIndex': INDEXES, 'TintAndShade': TINTS, 'Color': COLOURS, 'ThemeColor': THEMES,
+               'LineStyle': LINES,
+               'Weight': WEIGHTS},
+    'Borders': {'ColorIndex': INDEXES, 'ThemeColor': THEMES, 'TintAndShade': TINTS, 'Color': COLOURS, 'LineStyle': LINES,
+                'Value': LINES, 'Weight': WEIGHTS},
     'Range': {'HorizontalAlignment': ['xlGeneral', 'xlLeft', 'xlCenter', 'xlRight', 'xlFill', 'xlJustify',
                                       'xlCenterAcrossSelection', 'xlDistributed', '0', '1', '-1', '99', '"-4108"', *BAD],
               'VerticalAlignment': ['xlTop', 'xlCenter', 'xlBottom', 'xlJustify', 'xlDistributed', 'xlLeft', '0', '1',

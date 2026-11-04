@@ -192,6 +192,15 @@ def _number_tint(value: object) -> int:
     return _tint(value)
 
 
+def _font_switch(value: object, what: str) -> bool:
+    """A Font's True or False property's value, and error 1004 for text that is neither
+    (tests/fixtures/format_properties.json)."""
+    try:
+        return bool(to_bool(value))
+    except VBARuntimeError as failed:
+        raise error(1004, f"Unable to set the {what} property of the Font class") from failed
+
+
 def _whole(value: object) -> int:
     """A format's code as a Long: True is -1 and Null 0."""
     if value is NULL:
@@ -302,7 +311,9 @@ class Font(ExcelObject):
 
     @setter("Bold")
     def _set_bold(self, value: object) -> None:
-        bold = to_bool(value)
+        if value is NULL:
+            return
+        bold = _font_switch(value, "Bold")
         self._write(lambda font: replace(font, bold=bold))
 
     @member
@@ -311,7 +322,9 @@ class Font(ExcelObject):
 
     @setter("Italic")
     def _set_italic(self, value: object) -> None:
-        italic = to_bool(value)
+        if value is NULL:
+            return
+        italic = _font_switch(value, "Italic")
         self._write(lambda font: replace(font, italic=italic))
 
     @member
@@ -320,7 +333,9 @@ class Font(ExcelObject):
 
     @setter("Strikethrough")
     def _set_strikethrough(self, value: object) -> None:
-        strike = to_bool(value)
+        if value is NULL:
+            return
+        strike = _font_switch(value, "Strikethrough")
         self._write(lambda font: replace(font, strike=strike))
 
     @member
@@ -329,7 +344,9 @@ class Font(ExcelObject):
 
     @setter("Superscript")
     def _set_superscript(self, value: object) -> None:
-        on = to_bool(value)
+        if value is NULL:
+            return
+        on = _font_switch(value, "Superscript")
         self._write(lambda font: replace(font, vert_align="superscript" if on else (
             "" if font.vert_align == "superscript" else font.vert_align)))
 
@@ -339,7 +356,9 @@ class Font(ExcelObject):
 
     @setter("Subscript")
     def _set_subscript(self, value: object) -> None:
-        on = to_bool(value)
+        if value is NULL:
+            return
+        on = _font_switch(value, "Subscript")
         self._write(lambda font: replace(font, vert_align="subscript" if on else (
             "" if font.vert_align == "subscript" else font.vert_align)))
 
@@ -365,6 +384,8 @@ class Font(ExcelObject):
 
     @setter("FontStyle")
     def _set_font_style(self, value: object) -> None:
+        if value is NULL:
+            return
         wanted = to_text(value).strip().lower()
         known = {"regular": (False, False), "bold": (True, False), "italic": (False, True),
                  "bold italic": (True, True)}
@@ -379,7 +400,13 @@ class Font(ExcelObject):
 
     @setter("Color")
     def _set_color(self, value: object) -> None:
-        color = S.Color.from_bgr(int(to_integer(value, "Long")))
+        """-1 is automatic, Null changes nothing and True is 1004 (tests/fixtures/format_properties.json)."""
+        if value is NULL:
+            return
+        if value is True:
+            raise error(1004, "Unable to set the Color property of the Font class")
+        number = int(to_integer(value, "Long"))
+        color = None if number == -1 else S.Color.from_bgr(number)
         self._write(lambda font: replace(font, color=color))
 
     @member
@@ -388,10 +415,12 @@ class Font(ExcelObject):
 
     @setter("ColorIndex")
     def _set_color_index(self, value: object) -> None:
-        index = int(to_integer(value, "Long"))
-        if index == XL_NONE:
+        if value is NULL:
             return
-        color = None if index == 0 else _palette_color(value)
+        index = _whole(value)
+        if index in (XL_NONE, -1):
+            return
+        color = None if index == 0 else _palette_color(index)
         self._write(lambda font: replace(font, color=color))
 
     @member
@@ -400,6 +429,8 @@ class Font(ExcelObject):
 
     @setter("ThemeColor")
     def _set_theme_color(self, value: object) -> None:
+        if value is NULL:
+            return
         color = _theme_color(value)
         self._write(lambda font: replace(font, color=color))
 
@@ -409,7 +440,7 @@ class Font(ExcelObject):
 
     @setter("TintAndShade")
     def _set_tint(self, value: object) -> None:
-        tint = _tint(value)
+        tint = _number_tint(value)
 
         def change(font: S.Font) -> S.Font:
             # An automatic colour takes the tint for as long as the workbook is open;
@@ -1114,26 +1145,33 @@ def side_answer(colors: S.Colors, side: S.Side, what: str) -> object:
 
 
 def side_change(what: str, value: object) -> Callable[[S.Side], S.Side]:
-    """How setting one Border property changes a side."""
+    """How setting one Border property changes a side. Null changes nothing (tests/fixtures/format_properties.json),
+    though Excel ends on Weight or LineStyle = Null, so those two are not measured."""
+    if value is NULL:
+        return lambda side: side
     if what == "LineStyle":
-        line_style = int(to_integer(value, "Long"))
+        line_style = 1 if value is True else int(cast(int, _refused(value, "LineStyle property of the Border class")))
+        line_style = {0: XL_NONE, 2: -4115}.get(line_style, line_style)
         return lambda side: with_line_style(side, line_style)
     if what == "Weight":
         weight = 1 if value is True else int(cast("int", _refused(value, "Weight property of the Border class")))
         return lambda side: with_weight(side, weight)
     if what == "Color":
-        color = S.Color.from_bgr(int(to_integer(value, "Long")))
+        if value is True:
+            raise error(1004, "Unable to set the Color property of the Border class")
+        number = int(to_integer(value, "Long"))
+        if number == -1:
+            return lambda side: side
+        color = S.Color.from_bgr(number)
         return lambda side: with_side_color(side, color)
     if what == "ColorIndex":
         # Null, True and -1 change nothing on one border; 0 and Empty are automatic
         # (tests/fixtures/format_properties.json).
-        wanted = -1 if value is NULL else _whole(value)
+        wanted = _whole(value)
         if wanted in (XL_NONE, -1):
             return lambda side: side
         palette = _palette_color(XL_AUTOMATIC if wanted == 0 else wanted) or S.FOREGROUND
         return lambda side: with_side_color(side, palette)
-    if value is NULL:
-        return lambda side: side
     if what == "ThemeColor":
         theme = _theme_color(value)
         return lambda side: with_side_color(side, theme)
@@ -1359,6 +1397,8 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         if what == "ColorIndex" and value is not NULL and _whole(value) in (XL_NONE, -1):
             # Over the whole collection these take the lines away (tests/fixtures/format_properties.json).
             what, value = "LineStyle", XL_NONE
+        elif what == "Color" and value is not NULL and value is not True and int(to_integer(value, "Long")) == -1:
+            what, value = "ColorIndex", XL_AUTOMATIC
         for index in self._indexes():
             Border(self.target, index).assign(what, value)
 
@@ -1376,6 +1416,9 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
 
     @setter("Value")
     def _set_value(self, value: object) -> None:
+        # Value takes LineStyle's codes but for the negative ones (tests/fixtures/format_properties.json).
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and value < 0:
+            raise error(1004, "Unable to set the Value property of the Borders class")
         self._set_all("LineStyle", value)
 
     @member

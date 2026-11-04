@@ -1,5 +1,5 @@
 {
-"measured_at": "2026-11-04T08:46:44.025182+00:00",
+"measured_at": "2026-11-04T08:49:55.199087+00:00",
 "make": "Public Function Make(ByVal folder As String) As String\n    Dim wb As Workbook, m As Worksheet, o As Worksheet, d As Worksheet, g As Worksheet, ext As Workbook, c As ChartObject\n    Application.DisplayAlerts = False\n    Set ext = Workbooks.Add\n    ext.Worksheets(1).Name = \"Sheet1\": ext.Worksheets(1).Range(\"A1\").Value = \"MKEXT\"\n    ext.SaveAs folder & \"\\ext.xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Add\n    Do While wb.Worksheets.Count < 4: wb.Worksheets.Add After:=wb.Worksheets(wb.Worksheets.Count): Loop\n    Set m = wb.Worksheets(1): m.Name = \"Main\"\n    Set o = wb.Worksheets(2): o.Name = \"Other\"\n    Set d = wb.Worksheets(3): d.Name = \"Src\"\n    Set g = wb.Worksheets(4): g.Name = \"MKSHEET\"\n    m.Range(\"A1\").Value = \"MKCLEAR\"\n    m.Range(\"A2\").Value = \"MKOVER\"\n    m.Range(\"A3\").Value = \"MKCELLCLEAR\"\n    m.Range(\"A5\").Value = \"MKROW\"\n    m.Range(\"A6\").Value = 314159\n    m.Range(\"A7\").Formula = \"=\"\"MKFORMULA\"\"\"\n    m.Range(\"A8\").Value = \"MKKEPT\"\n    m.Range(\"A9\").Value = \"MKTWICE\"\n    m.Range(\"B9\").Value = \"MKTWICE\"\n    m.Range(\"Z1\").Value = \"MKCOLUMN\"\n    m.Shapes.AddShape(1, 300, 10, 40, 40).Name = \"MKSHAPE\"\n    m.Shapes(\"MKSHAPE\").TextFrame.Characters.Text = \"MKSHAPETEXT\"\n    m.Range(\"C1\").AddComment \"MKNOTE\"\n    m.Hyperlinks.Add m.Range(\"C2\"), \"http://example.com/MKLINK\", , , \"shown\"\n    m.Range(\"E1\").Value = \"MKTABLEHEAD\": m.Range(\"E2\").Value = 1\n    m.ListObjects.Add(xlSrcRange, m.Range(\"E1:E2\"), , xlYes).Name = \"MKTABLE\"\n    m.Range(\"G1\").Value = 1: m.Range(\"G2\").Value = 2\n    Set c = m.ChartObjects.Add(300, 100, 200, 120)\n    c.Name = \"MKCHART\"\n    c.Chart.SetSourceData m.Range(\"G1:G2\")\n    c.Chart.HasTitle = True: c.Chart.ChartTitle.Text = \"MKCHARTTITLE\"\n    m.Shapes.AddPicture(folder & \"\\p.png\", False, True, 300, 250, 20, 20).Name = \"MKPIC\"\n    wb.Names.Add \"MKNAME\", \"=\"\"MKNAMEVALUE\"\"\"\n    m.Range(\"K1\").Formula = \"=[ext.xlsx]Sheet1!$A$1\"\n    d.Range(\"A1\").Value = \"h\": d.Range(\"B1\").Value = \"i\": d.Range(\"A2\").Value = \"MKRECORD\": d.Range(\"B2\").Value = 2\n    wb.PivotCaches.Create(xlDatabase, d.Range(\"A1:B2\")).CreatePivotTable o.Range(\"B3\"), \"MKPIVOT\"\n    g.Range(\"A1\").Value = \"MKSHEETCELL\"\n    wb.BuiltinDocumentProperties(\"Title\").Value = \"MKTITLE\"\n    ext.Close False\n    wb.SaveAs folder & \"\\book.xlsx\", xlOpenXMLWorkbook\n    wb.SaveAs folder & \"\\macro.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Dim one As Object\n    For Each one In wb.VBProject.VBComponents\n        If one.Type = 100 Then\n            If one.Properties(\"Name\").Value = \"MKSHEET\" Then one.CodeModule.AddFromString \"Public Sub MKVBASUB()\" & vbCrLf & \"    Debug.Print \"\"MKVBATEXT\"\"\" & vbCrLf & \"End Sub\"\n        End If\n    Next\n    wb.VBProject.VBComponents.Add(1).Name = \"MKMODULE\"\n    wb.VBProject.VBComponents(\"MKMODULE\").CodeModule.AddFromString \"Public Sub MKMODSUB()\" & vbCrLf & \"End Sub\"\n    wb.Save\n    wb.Close False\n    Application.DisplayAlerts = True\n    Make = \"ok\"\nEnd Function\n",
 "markers": [
 "314159",
@@ -4057,7 +4057,7 @@
 }
 },
 "a sheet deleted": {
-"edit": "wb.Worksheets(\"MKSHEET\").Delete",
+"edit": "wb.Worksheets(4).Delete",
 "macro": false,
 "should_go": [
 "MKSHEET",
@@ -4398,7 +4398,7 @@
 }
 },
 "a sheet with VBA deleted": {
-"edit": "wb.Worksheets(\"MKSHEET\").Delete",
+"edit": "wb.Worksheets(4).Delete",
 "macro": true,
 "should_go": [
 "MKSHEET",
@@ -4572,9 +4572,6 @@
 ],
 "MKMODSUB": [
 "vba:MKMODULE"
-],
-"MKSHEET": [
-"vba:sheet"
 ]
 }
 },

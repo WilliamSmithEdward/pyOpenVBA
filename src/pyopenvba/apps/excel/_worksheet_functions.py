@@ -29,6 +29,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.apps.excel._engine_book import EngineBook
+from pyopenvba.apps.excel._worksheet_function_refusals import REFUSALS
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.nodes import Given, Missing, Node
@@ -173,8 +174,8 @@ def _typed(value: object, declared: str) -> object:
     if value is NOTHING:
         raise error(91)
     if isinstance(value, Range):
-        if not value.single:
-            raise error(13)
+        # Its value, as VBA reads it: several cells of one area are an array, and of several areas the first area's
+        # (the held-out cases of tests/fixtures/worksheet_function_types.json).
         value = value.vba_value()
     elif isinstance(value, VBAObject):
         raise error(438)
@@ -185,6 +186,25 @@ def _typed(value: object, declared: str) -> object:
     if declared == "Double":
         return float(to_number(value))
     return to_text(value) if declared == "String" else bool(to_bool(value))
+
+
+def _kind_of(value: object) -> str:
+    """The kind of value, as _worksheet_function_refusals has them."""
+    from pyopenvba.apps.excel._model import Range
+
+    if isinstance(value, Range):
+        if not value.single:
+            return "cells"
+        return "empty cell" if value.vba_value() is EMPTY else "cell"
+    if isinstance(value, VBAArray):
+        return "array"
+    if value is NULL:
+        return "null"
+    if value is EMPTY:
+        return "empty"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return "other"
 
 
 def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool) -> list[object]:
@@ -205,6 +225,8 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         if value is NOTHING:
             raise error(5)
         if isinstance(value, VBAObject) and not isinstance(value, Range):
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
         if value is NULL:

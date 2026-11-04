@@ -2,8 +2,6 @@
 import json
 from pathlib import Path
 
-from pyvbaharness import ExcelSession
-
 ROOT = Path(__file__).resolve().parent.parent
 PROBES = {
     "set_off": "sh.ControlFormat.Value = -4146",
@@ -53,6 +51,9 @@ def report_source(statement: str) -> str:
 
 
 def main() -> None:
+    # Here, as the replay reads report_source where no Excel is.
+    from pyvbaharness import ExcelSession
+
     records = []
     with ExcelSession() as excel:
         excel.new_document()

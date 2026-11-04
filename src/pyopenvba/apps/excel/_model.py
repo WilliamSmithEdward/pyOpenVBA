@@ -5761,6 +5761,8 @@ class Range(ExcelObject):
 
     @setter("ColumnWidth")
     def _set_column_width(self, value: object) -> None:
+        if value is NULL:
+            return  # Null changes nothing (tests/fixtures/range_sizes.json).
         _dimensions.write_column_width(self, value)
 
     @member
@@ -5769,6 +5771,8 @@ class Range(ExcelObject):
 
     @setter("RowHeight")
     def _set_row_height(self, value: object) -> None:
+        if value is NULL:
+            return  # Null changes nothing (tests/fixtures/range_sizes.json).
         before = _dimensions.visibility_state(self)
         _dimensions.write_row_height(self, value)
         _dimensions.recalculate_visibility(self, before)

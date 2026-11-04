@@ -1,0 +1,206 @@
+{
+ "measured_at": "2026-11-04T01:53:35.740980+00:00",
+ "probe": "Dim Log As String\nSub Note(ByVal s As Variant)\n    Log = Log & CStr(s) & \"|\"\nEnd Sub\nFunction Probe() As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\n    On Error GoTo Failed\n{action}\n    GoTo Done\nFailed:\n    Log = Log & \"!E\" & Err.Number\nDone:\n    On Error Resume Next\n    wb.Close False\n    Probe = Log\nEnd Function\n",
+ "rows": [
+  {
+   "name": "shadow_new",
+   "action": "Note sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "0,-2,5,2.079952,2.079952|"
+  },
+  {
+   "name": "shadow_types",
+   "action": "Note TypeName(sh.Shadow) & \",\" & TypeName(sh.Shadow.Parent) & \",\" & sh.Shadow.Creator",
+   "result": "ShadowFormat,Shape,1480803660|"
+  },
+  {
+   "name": "shadow_visible",
+   "action": "sh.Shadow.Visible = True\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "-1,-2,5,2.079952,2.079952|"
+  },
+  {
+   "name": "shadow_visible_off",
+   "action": "sh.Shadow.Visible = True\nsh.Shadow.Visible = False\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "0,-2,5,2.079952,2.079952|"
+  },
+  {
+   "name": "shadow_blur",
+   "action": "sh.Shadow.Blur = 4\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "0,-2,4,2.079952,2.079952|"
+  },
+  {
+   "name": "shadow_blur_negative",
+   "action": "sh.Shadow.Blur = -1\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "shadow_blur_far",
+   "action": "sh.Shadow.Blur = 200\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "0,-2,200,2.079952,2.079952|"
+  },
+  {
+   "name": "shadow_offset",
+   "action": "sh.Shadow.OffsetX = 3\nsh.Shadow.OffsetY = -2\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "0,-2,5,2.999959,-1.999991|"
+  },
+  {
+   "name": "shadow_offset_far",
+   "action": "sh.Shadow.OffsetX = 5000\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "0,-2,5,5000,2.079851|"
+  },
+  {
+   "name": "shadow_type",
+   "action": "sh.Shadow.Type = msoShadow21\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "-1,21,4,2.12132,2.12132|"
+  },
+  {
+   "name": "shadow_type_2",
+   "action": "sh.Shadow.Type = msoShadow1\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "-1,1,5,-5.999996,-5.999996|"
+  },
+  {
+   "name": "shadow_type_bad",
+   "action": "sh.Shadow.Type = 999\nNote sh.Shadow.Visible & \",\" & sh.Shadow.Type & \",\" & sh.Shadow.Blur & \",\" & sh.Shadow.OffsetX & \",\" & sh.Shadow.OffsetY",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "shadow_visible_text",
+   "action": "sh.Shadow.Visible = \"x\"",
+   "result": "!E13"
+  },
+  {
+   "name": "glow_new",
+   "action": "Note sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "0,-2.147484E+09|"
+  },
+  {
+   "name": "glow_types",
+   "action": "Note TypeName(sh.Glow) & \",\" & TypeName(sh.Glow.Color) & \",\" & TypeName(sh.Glow.Parent) & \",\" & sh.Glow.Creator",
+   "result": "!E438"
+  },
+  {
+   "name": "glow_radius",
+   "action": "sh.Glow.Radius = 5\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "5,0|"
+  },
+  {
+   "name": "glow_radius_negative",
+   "action": "sh.Glow.Radius = -1\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "glow_radius_far",
+   "action": "sh.Glow.Radius = 500\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "glow_transparency",
+   "action": "sh.Glow.Radius = 5\nsh.Glow.Transparency = 0.5\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "5,0.5|"
+  },
+  {
+   "name": "glow_transparency_without_radius",
+   "action": "sh.Glow.Transparency = 0.5\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "0,0.5|"
+  },
+  {
+   "name": "glow_transparency_far",
+   "action": "sh.Glow.Radius = 5\nsh.Glow.Transparency = 2\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "glow_radius_off",
+   "action": "sh.Glow.Radius = 5\nsh.Glow.Radius = 0\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "0,-2.147484E+09|"
+  },
+  {
+   "name": "glow_color",
+   "action": "sh.Glow.Radius = 5\nsh.Glow.Color.RGB = 255\nNote sh.Glow.Color.RGB\nNote sh.Glow.Radius & \",\" & sh.Glow.Transparency",
+   "result": "255|5,0|"
+  },
+  {
+   "name": "edge_new",
+   "action": "Note sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "0,0|"
+  },
+  {
+   "name": "edge_types",
+   "action": "Note TypeName(sh.SoftEdge) & \",\" & TypeName(sh.SoftEdge.Parent) & \",\" & sh.SoftEdge.Creator",
+   "result": "!E438"
+  },
+  {
+   "name": "edge_type_1",
+   "action": "sh.SoftEdge.Type = 1\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "1,1|"
+  },
+  {
+   "name": "edge_type_6",
+   "action": "sh.SoftEdge.Type = 6\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "6,50|"
+  },
+  {
+   "name": "edge_type_none",
+   "action": "sh.SoftEdge.Type = 1\nsh.SoftEdge.Type = 0\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "0,0|"
+  },
+  {
+   "name": "edge_type_bad",
+   "action": "sh.SoftEdge.Type = 7\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "edge_radius",
+   "action": "sh.SoftEdge.Radius = 3\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "0,3|"
+  },
+  {
+   "name": "edge_radius_matches",
+   "action": "sh.SoftEdge.Radius = 2.5\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "2,2.5|"
+  },
+  {
+   "name": "edge_radius_negative",
+   "action": "sh.SoftEdge.Radius = -1\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "edge_radius_far",
+   "action": "sh.SoftEdge.Radius = 500\nNote sh.SoftEdge.Type & \",\" & sh.SoftEdge.Radius",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "three_chart",
+   "action": "Dim ca As Object\nSet ca = ws.ChartObjects.Add(10, 10, 200, 100).Chart.ChartArea\nNote ca.Format.ThreeD.Visible & \",\" & ca.Format.ThreeD.BevelTopType",
+   "result": "0,1|"
+  },
+  {
+   "name": "three_chart_types",
+   "action": "Dim ca As Object\nSet ca = ws.ChartObjects.Add(10, 10, 200, 100).Chart.ChartArea\nNote TypeName(ca.Format.ThreeD) & \",\" & TypeName(ca.Format.ThreeD.Parent) & \",\" & ca.Format.ThreeD.Creator",
+   "result": "ThreeDFormat,ChartFormat,1480803660|"
+  },
+  {
+   "name": "three_shape",
+   "action": "Note sh.ThreeD.Visible",
+   "result": "0|"
+  },
+  {
+   "name": "adjustments_creator",
+   "action": "Note sh.Adjustments.Creator",
+   "result": "1480803660|"
+  },
+  {
+   "name": "callout_creator",
+   "action": "Dim c As Object\nSet c = ws.Shapes.AddCallout(2, 10, 10, 50, 50)\nNote c.Callout.Creator",
+   "result": "1480803660|"
+  },
+  {
+   "name": "freeform_creator",
+   "action": "Note ws.Shapes.BuildFreeform(0, 10, 10).Creator",
+   "result": "1480803660|"
+  },
+  {
+   "name": "group_application",
+   "action": "Dim o As Object\nSet o = ws.Shapes.AddShape(1, 60, 60, 20, 20)\nNote TypeName(ws.Shapes.Range(Array(sh.Name, o.Name)).Group.GroupItems.Application)",
+   "result": "Application|"
+  }
+ ]
+}

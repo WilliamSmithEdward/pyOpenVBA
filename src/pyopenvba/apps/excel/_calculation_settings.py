@@ -24,6 +24,7 @@ def read(book: Workbook, xml: str) -> None:
     found = _CALC.search(xml)
     values = attributes(found.group(0)) if found else {}
     _application_settings(book, values)
+    book.file_calculation_mode = values.get('calcMode', 'auto')
     book.precision_as_displayed = values.get('fullPrecision', '1').lower() in ('0', 'false')
     calc_id = values.get('calcId', '')
     opened(book, int(calc_id) if calc_id.isdigit() else 0, values.get('fullCalcOnLoad', '0').lower() in ('1', 'true'),
@@ -56,7 +57,10 @@ def write(book: Workbook, xml: str) -> str:
     old = found.group(0) if found else '<calcPr/>'
     application = book.application
     values = attributes(old)
-    desired = {'calcMode': {value: key for key, value in _MODES.items()}.get(application.calculation, 'auto'),
+    # A workbook keeps the mode its file had, opened after another or not, until a macro sets Application.Calculation
+    # while it is open; the rest are the application's (tests/fixtures/silent_loss/calc_kept.json).
+    desired = {'calcMode': book.file_calculation_mode or
+               {value: key for key, value in _MODES.items()}.get(application.calculation, 'auto'),
                'calcOnSave': '1' if application.calculate_before_save else '0'}
     pending = any(cell.formula and cell.stale for sheet in book.sheets_ for cell in sheet.cells_.values())
     if not book.calculator.automatic and pending:
@@ -99,6 +103,10 @@ def write(book: Workbook, xml: str) -> str:
         if values.get(name, _DEFAULTS.get(name, '1')) == value:
             continue
         pattern = re.compile(r'\s' + name + r'="[^"]*"')
+        if name in ('calcMode', 'calcOnSave') and value == _DEFAULTS.get(name, '1'):
+            # Excel writes neither at its default.
+            changed = pattern.sub('', changed)
+            continue
         if pattern.search(changed):
             changed = pattern.sub(f' {name}="{value}"', changed)
         else:

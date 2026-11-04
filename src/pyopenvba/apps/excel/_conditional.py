@@ -1209,6 +1209,15 @@ class UniqueValues(_StatisticalRule):
     vba_type_name = 'UniqueValues'
 
     @member
+    def CalcFor(self) -> object:
+        """Top 10 and average rules have it, this one does not (tests/fixtures/unassessed_more.json)."""
+        raise error(438, "Object doesn't support this property or method")
+
+    @setter('CalcFor')
+    def _set_calc_for(self, value: object) -> None:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
     def Type(self) -> object:
         return VBAInt(8, 'Long')
 

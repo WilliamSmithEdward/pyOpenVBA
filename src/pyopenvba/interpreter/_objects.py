@@ -224,6 +224,9 @@ class VBAObject:
         if function is None and by_ref and spec.setter is not None:
             function = spec.setter
         if function is None:
+            refused = self.vba_let_refused(spec.name)
+            if refused is not None:
+                raise refused
             if not by_ref and spec.getter is not None:
                 # A read-only member that answers an object takes a value in
                 # that object's default member: ws.Range("A1") = 5 fills A1.
@@ -232,6 +235,8 @@ class VBAObject:
                 if isinstance(found, VBAObject) and default is not None and default.setter is not None:
                     found.vba_set(default.name, value)
                     return
+                if isinstance(found, VBAObject) or found is NOTHING:
+                    raise self.vba_read_only_object(spec.name, found)
             raise self.vba_read_only(spec.name)
         if _takes_only_the_value(function):
             # The common shape: a setter that ignores the getter's
@@ -292,6 +297,14 @@ class VBAObject:
                 )
             return error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name} has no member named {name}")
         return VBAUnsupportedError(f"{self.vba_type_name}.{name} is not implemented by pyOpenVBA")
+
+    def vba_let_refused(self, name: str) -> Exception | None:
+        """An error for assigning to this read-only member that comes before anything reads it, if it has one."""
+        return None
+
+    def vba_read_only_object(self, name: str, found: object) -> Exception:
+        """Assigning to a read-only member whose answer is an object that takes no value."""
+        return self.vba_read_only(name)
 
     def vba_read_only(self, name: str) -> Exception:
         """The right error for assigning to a member this object only reads: a gap where the real class lets a macro

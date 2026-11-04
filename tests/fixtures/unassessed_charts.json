@@ -1,0 +1,256 @@
+{
+ "measured_at": "2026-11-04T01:56:57.818524+00:00",
+ "probe": "Dim Log As String\nSub Note(ByVal s As Variant)\n    Log = Log & CStr(s) & \"|\"\nEnd Sub\nFunction Probe() As String\n    Dim wb As Workbook, ws As Worksheet, ch As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:C1\").Value = Array(\"\", \"Up\", \"Down\")\n    ws.Range(\"A2:C2\").Value = Array(\"a\", 1, 4)\n    ws.Range(\"A3:C3\").Value = Array(\"b\", 2, 3)\n    ws.Range(\"A4:C4\").Value = Array(\"c\", 5, 6)\n    ws.Range(\"D1\").Value = \"More\": ws.Range(\"D2\").Value = 7: ws.Range(\"D3\").Value = 8: ws.Range(\"D4\").Value = 9\n    Set ch = ws.ChartObjects.Add(10, 10, 300, 200).Chart\n    ch.SetSourceData ws.Range(\"A1:C3\")\n    ch.ChartType = xlLineMarkers\n    On Error GoTo Failed\n{action}\n    GoTo Done\nFailed:\n    Log = Log & \"!E\" & Err.Number\nDone:\n    On Error Resume Next\n    Application.CutCopyMode = False\n    wb.Close False\n    Probe = Log\nEnd Function\n",
+ "rows": [
+  {
+   "name": "table_types",
+   "action": "ch.HasDataTable = True\nNote TypeName(ch.DataTable) & \",\" & TypeName(ch.DataTable.Parent) & \",\" & TypeName(ch.DataTable.Application) & \",\" & ch.DataTable.Creator",
+   "result": "DataTable,Chart,Application,1480803660|"
+  },
+  {
+   "name": "table_borders",
+   "action": "ch.HasDataTable = True\nNote ch.DataTable.HasBorderHorizontal & \",\" & ch.DataTable.HasBorderVertical & \",\" & ch.DataTable.HasBorderOutline & \",\" & ch.DataTable.ShowLegendKey",
+   "result": "True,True,True,True|"
+  },
+  {
+   "name": "table_borders_set",
+   "action": "ch.HasDataTable = True\nch.DataTable.HasBorderHorizontal = False\nch.DataTable.HasBorderVertical = False\nch.DataTable.HasBorderOutline = False\nch.DataTable.ShowLegendKey = True\nNote ch.DataTable.HasBorderHorizontal & \",\" & ch.DataTable.HasBorderVertical & \",\" & ch.DataTable.HasBorderOutline & \",\" & ch.DataTable.ShowLegendKey",
+   "result": "False,False,False,True|"
+  },
+  {
+   "name": "table_font",
+   "action": "ch.HasDataTable = True\nNote TypeName(ch.DataTable.Font)",
+   "result": "Font|"
+  },
+  {
+   "name": "table_select",
+   "action": "ch.HasDataTable = True\nNote ch.DataTable.Select\nNote TypeName(Selection)",
+   "result": "|DataTable|"
+  },
+  {
+   "name": "table_select_then_cell",
+   "action": "ch.HasDataTable = True\nch.DataTable.Select\nws.Range(\"A1\").Select\nNote TypeName(Selection)",
+   "result": "Range|"
+  },
+  {
+   "name": "table_delete",
+   "action": "ch.HasDataTable = True\nNote TypeName(ch.DataTable.Delete)\nNote ch.HasDataTable",
+   "result": "Empty|False|"
+  },
+  {
+   "name": "table_none",
+   "action": "Note TypeName(ch.DataTable)",
+   "result": "!E1004"
+  },
+  {
+   "name": "full_types",
+   "action": "Note TypeName(ch.FullSeriesCollection) & \",\" & TypeName(ch.FullSeriesCollection.Parent) & \",\" & TypeName(ch.FullSeriesCollection.Application) & \",\" & ch.FullSeriesCollection.Creator & \",\" & ch.FullSeriesCollection.Count",
+   "result": "FullSeriesCollection,Chart,Application,1480803660,2|"
+  },
+  {
+   "name": "full_item",
+   "action": "Note TypeName(ch.FullSeriesCollection(1)) & \",\" & ch.FullSeriesCollection(1).Name & \",\" & ch.FullSeriesCollection.Item(2).Name",
+   "result": "Series,a,b|"
+  },
+  {
+   "name": "full_default",
+   "action": "Note ch.FullSeriesCollection.[_Default](2).Name",
+   "result": "!E438"
+  },
+  {
+   "name": "full_item_out",
+   "action": "Note TypeName(ch.FullSeriesCollection(9))",
+   "result": "!E1004"
+  },
+  {
+   "name": "full_item_name",
+   "action": "Note ch.FullSeriesCollection(\"Up\").Name",
+   "result": "!E1004"
+  },
+  {
+   "name": "full_new_series",
+   "action": "Note TypeName(ch.FullSeriesCollection.NewSeries)\nNote ch.FullSeriesCollection.Count & \",\" & ch.SeriesCollection.Count",
+   "result": "!E438"
+  },
+  {
+   "name": "full_add",
+   "action": "Note TypeName(ch.FullSeriesCollection.Add(ws.Range(\"D1:D3\")))\nNote ch.FullSeriesCollection.Count",
+   "result": "!E438"
+  },
+  {
+   "name": "full_extend",
+   "action": "Note TypeName(ch.FullSeriesCollection.Extend(ws.Range(\"B4:C4\")))\nNote ch.FullSeriesCollection.Count",
+   "result": "!E438"
+  },
+  {
+   "name": "full_filtered",
+   "action": "ch.FullSeriesCollection(1).IsFiltered = True\nNote ch.FullSeriesCollection.Count & \",\" & ch.SeriesCollection.Count",
+   "result": "2,1|"
+  },
+  {
+   "name": "key_types",
+   "action": "ch.HasLegend = True\nNote TypeName(ch.Legend.LegendEntries(1).LegendKey) & \",\" & TypeName(ch.Legend.LegendEntries(1).LegendKey.Parent) & \",\" & ch.Legend.LegendEntries(1).LegendKey.Creator & \",\" & TypeName(ch.Legend.LegendEntries(1).LegendKey.Format)",
+   "result": "LegendKey,LegendEntry,1480803660,ChartFormat|"
+  },
+  {
+   "name": "key_marker",
+   "action": "ch.HasLegend = True\nNote ch.Legend.LegendEntries(1).LegendKey.MarkerStyle & \",\" & ch.Legend.LegendEntries(1).LegendKey.Smooth & \",\" & ch.Legend.LegendEntries(1).LegendKey.InvertIfNegative",
+   "result": "-4105,False,False|"
+  },
+  {
+   "name": "key_marker_set",
+   "action": "ch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.MarkerStyle = xlMarkerStyleCircle\nNote ch.Legend.LegendEntries(1).LegendKey.MarkerStyle & \",\" & ch.SeriesCollection(1).MarkerStyle",
+   "result": "8,8|"
+  },
+  {
+   "name": "key_smooth_set",
+   "action": "ch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.Smooth = True\nNote ch.Legend.LegendEntries(1).LegendKey.Smooth & \",\" & ch.SeriesCollection(1).Smooth",
+   "result": "True,True|"
+  },
+  {
+   "name": "key_invert_set",
+   "action": "ch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.InvertIfNegative = True\nNote ch.Legend.LegendEntries(1).LegendKey.InvertIfNegative",
+   "result": "True|"
+  },
+  {
+   "name": "key_smooth_off",
+   "action": "ch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.Smooth = True\nch.Legend.LegendEntries(1).LegendKey.Smooth = False\nNote ch.SeriesCollection(1).Smooth",
+   "result": "False|"
+  },
+  {
+   "name": "key_smooth_text",
+   "action": "ch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.Smooth = \"x\"",
+   "result": "!E13"
+  },
+  {
+   "name": "key_invert_series",
+   "action": "ch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.InvertIfNegative = True\nNote ch.SeriesCollection(1).InvertIfNegative",
+   "result": "True|"
+  },
+  {
+   "name": "key_invert_bar",
+   "action": "ch.ChartType = xlColumnClustered\nch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.InvertIfNegative = True\nNote ch.Legend.LegendEntries(1).LegendKey.InvertIfNegative & \",\" & ch.SeriesCollection(1).InvertIfNegative",
+   "result": "True,True|"
+  },
+  {
+   "name": "key_select",
+   "action": "ch.HasLegend = True\nNote ch.Legend.LegendEntries(1).LegendKey.Select\nNote TypeName(Selection)",
+   "result": "True|Series|"
+  },
+  {
+   "name": "key_delete",
+   "action": "ch.HasLegend = True\nch.Legend.LegendEntries(1).LegendKey.Delete",
+   "result": ""
+  },
+  {
+   "name": "category_types",
+   "action": "Note TypeName(ch.ChartGroups(1).FullCategoryCollection) & \",\" & TypeName(ch.ChartGroups(1).FullCategoryCollection.Parent) & \",\" & TypeName(ch.ChartGroups(1).FullCategoryCollection.Application) & \",\" & ch.ChartGroups(1).FullCategoryCollection.Creator & \",\" & ch.ChartGroups(1).FullCategoryCollection.Count",
+   "result": "!E1004"
+  },
+  {
+   "name": "category_item",
+   "action": "Note TypeName(ch.ChartGroups(1).FullCategoryCollection(1)) & \",\" & ch.ChartGroups(1).FullCategoryCollection(1).Name & \",\" & ch.ChartGroups(1).FullCategoryCollection.Item(2).Name & \",\" & ch.ChartGroups(1).FullCategoryCollection.[_Default](1).Name",
+   "result": "!E438"
+  },
+  {
+   "name": "category_item_out",
+   "action": "Note TypeName(ch.ChartGroups(1).FullCategoryCollection(9))",
+   "result": "!E1004"
+  },
+  {
+   "name": "category_members",
+   "action": "Note TypeName(ch.ChartGroups(1).FullCategoryCollection(1).Parent) & \",\" & TypeName(ch.ChartGroups(1).FullCategoryCollection(1).Application) & \",\" & ch.ChartGroups(1).FullCategoryCollection(1).Creator & \",\" & ch.ChartGroups(1).FullCategoryCollection(1).IsFiltered",
+   "result": "Nothing,Application,1480803660,False|"
+  },
+  {
+   "name": "category_filtered",
+   "action": "ch.ChartGroups(1).FullCategoryCollection(1).IsFiltered = True\nNote ch.ChartGroups(1).FullCategoryCollection.Count & \",\" & ch.ChartGroups(1).CategoryCollection.Count & \",\" & ch.ChartGroups(1).FullCategoryCollection(1).IsFiltered",
+   "result": "2,1,True|"
+  },
+  {
+   "name": "category_group",
+   "action": "Note TypeName(ch.ChartGroups(1).CategoryCollection) & \",\" & ch.ChartGroups(1).CategoryCollection.Count",
+   "result": "CategoryCollection,2|"
+  },
+  {
+   "name": "leaders_types",
+   "action": "ch.SeriesCollection(1).HasDataLabels = True\nch.SeriesCollection(1).HasLeaderLines = True\nNote TypeName(ch.SeriesCollection(1).LeaderLines) & \",\" & TypeName(ch.SeriesCollection(1).LeaderLines.Parent) & \",\" & TypeName(ch.SeriesCollection(1).LeaderLines.Application) & \",\" & ch.SeriesCollection(1).LeaderLines.Creator",
+   "result": "LeaderLines,Series,Application,1480803660|"
+  },
+  {
+   "name": "leaders_border",
+   "action": "ch.SeriesCollection(1).HasDataLabels = True\nch.SeriesCollection(1).HasLeaderLines = True\nNote TypeName(ch.SeriesCollection(1).LeaderLines.Border) & \",\" & TypeName(ch.SeriesCollection(1).LeaderLines.Format)",
+   "result": "Border,ChartFormat|"
+  },
+  {
+   "name": "leaders_delete",
+   "action": "ch.SeriesCollection(1).HasDataLabels = True\nch.SeriesCollection(1).HasLeaderLines = True\nNote TypeName(ch.SeriesCollection(1).LeaderLines.Delete)\nNote ch.SeriesCollection(1).HasLeaderLines",
+   "result": "Empty|False|"
+  },
+  {
+   "name": "leaders_none",
+   "action": "Note TypeName(ch.SeriesCollection(1).LeaderLines)",
+   "result": "LeaderLines|"
+  },
+  {
+   "name": "axis_title",
+   "action": "ch.Axes(1).HasTitle = True\nNote TypeName(ch.Axes(1).AxisTitle.Border) & \",\" & ch.Axes(1).AxisTitle.Name",
+   "result": "Border,Text Axis 2|"
+  },
+  {
+   "name": "axis_value",
+   "action": "ch.Axes(2).HasTitle = True\nNote ch.Axes(2).AxisTitle.Name",
+   "result": "Text Axis 1|"
+  },
+  {
+   "name": "axis_category_text",
+   "action": "ch.Axes(1).HasTitle = True\nch.Axes(1).AxisTitle.Text = \"Mine\"\nNote ch.Axes(1).AxisTitle.Name",
+   "result": "Text Axis 2|"
+  },
+  {
+   "name": "axis_secondary",
+   "action": "ch.SeriesCollection(2).AxisGroup = 2\nch.Axes(2, 2).HasTitle = True\nNote ch.Axes(2, 2).AxisTitle.Name",
+   "result": "Text Axis 3|"
+  },
+  {
+   "name": "axis_name_set",
+   "action": "ch.Axes(1).HasTitle = True\nch.Axes(1).AxisTitle.Name = \"x\"",
+   "result": "!E450"
+  },
+  {
+   "name": "axis_title_select",
+   "action": "ch.Axes(1).HasTitle = True\nNote ch.Axes(1).AxisTitle.Select\nNote TypeName(Selection)",
+   "result": "True|AxisTitle|"
+  },
+  {
+   "name": "chart_area",
+   "action": "Note TypeName(ch.ChartArea.Border)",
+   "result": "Border|"
+  },
+  {
+   "name": "surface",
+   "action": "Note ch.PlotArea.Name & \",\" & ch.PlotArea.Creator",
+   "result": "Plot,1480803660|"
+  },
+  {
+   "name": "walls",
+   "action": "ch.ChartType = xl3DColumn\nNote ch.Walls.Name & \",\" & ch.Walls.Creator & \",\" & ch.Floor.Name & \",\" & ch.Floor.Creator",
+   "result": "Walls,1480803660,Floor,1480803660|"
+  },
+  {
+   "name": "chart_title",
+   "action": "ch.HasTitle = True\nch.ChartTitle.Text = \"T\"\nNote TypeName(ch.ChartTitle.Border)",
+   "result": "Border|"
+  },
+  {
+   "name": "chart_title_select",
+   "action": "ch.HasTitle = True\nch.ChartTitle.Text = \"T\"\nNote ch.ChartTitle.Select\nNote TypeName(Selection)",
+   "result": "True|ChartTitle|"
+  },
+  {
+   "name": "held_by_chart",
+   "action": "Note ch.Shapes.Count & \",\" & TypeName(ch.Shapes) & \",\" & TypeName(ch.Shapes.Application) & \",\" & TypeName(ch.Shapes.Parent) & \",\" & ch.Shapes.Creator",
+   "result": "0,Shapes,Application,Chart,1480803660|"
+  }
+ ]
+}

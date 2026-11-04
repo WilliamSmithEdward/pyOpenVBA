@@ -1306,8 +1306,34 @@ class ListColumns(VBACollection, ItemDefault, ExcelObject):
         return ListColumn(self.table, add_column(self.table, where))
 
 
+class XPathOfCells(ExcelObject):
+    """The XML mapping of cells with none (tests/fixtures/small_rows.json)."""
+
+    vba_type_name = "XPath"
+
+    @member(default=True)
+    def Value(self) -> object:
+        return ""
+
+    @member
+    def Repeating(self) -> object:
+        raise error(1004, "Unable to get the Repeating property of the XPath class")
+
+    @member
+    def Map(self) -> object:
+        raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @method
+    def Clear(self) -> object:
+        return EMPTY
+
+
 class ListColumn(ExcelObject):
     vba_type_name = "ListColumn"
+
+    @member
+    def XPath(self) -> object:
+        return XPathOfCells()
 
     def __init__(self, table: Table, index: int) -> None:
         self.table = table

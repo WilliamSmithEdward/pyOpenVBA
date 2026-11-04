@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -13,6 +13,7 @@ from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/worksheet_function_edges.json').read_text(encoding='utf-8'))
+CASES = cast('list[list[str]]', RECORD['cases'])
 #: ZTEST's far tail agrees to 13 digits; erfc is not Excel's series.
 KNOWN = {'=ZTEST({3,6,7,8,6,5,4,2,1,9},-1,1)', '=ZTEST({3,6,7,8,6,5,4,2,1,9},0,1)', '=ZTEST({3,6,7,8,6,5,4,2,1,9},1,1)'}
 
@@ -25,7 +26,7 @@ def found() -> list[str]:
     return str(app.run('Edges.Probe')).split('@@')
 
 
-@pytest.mark.parametrize(('number', 'case'), list(enumerate(RECORD['cases'])), ids=[case[0] for case in RECORD['cases']])
+@pytest.mark.parametrize(('number', 'case'), list(enumerate(CASES)), ids=[case[0] for case in CASES])
 def test_each_as_excel_answered(found: list[str], number: int, case: list[str]) -> None:
     if case[0] in KNOWN:
         assert found[number] != case[1] and found[number][:20] == case[1][:20]

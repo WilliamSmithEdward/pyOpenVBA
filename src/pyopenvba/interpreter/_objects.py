@@ -315,7 +315,8 @@ class VBAObject:
         return VBAUnsupportedError(f"{self.vba_type_name}.{name} is not implemented by pyOpenVBA")
 
     def vba_given(self, name: str, value: object) -> object:
-        """What the property makes of a value a macro assigns, before its setter sees it, whichever way the call was bound."""
+        """What the property makes of a value a macro assigns by Let, before its setter sees it, whichever way the call was bound.
+        An object is still whole here. What it answers, the interpreter hands over its default member if it is an object still."""
         return value
 
     def vba_let_refused(self, name: str) -> Exception | None:

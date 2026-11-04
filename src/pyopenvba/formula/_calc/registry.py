@@ -41,11 +41,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
+from decimal import DecimalException
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba.formula._calc.nodes import Call, CellReference, Missing, NameReference, Node, Paren
 from pyopenvba.formula._calc.cells import CellError
-from pyopenvba.formula._calc.values import EMPTY, REF as REF_ERROR, VALUE, Array, ExcelError, Reference, Scalar, Value
+from pyopenvba.formula._calc.values import EMPTY, NUM, REF as REF_ERROR, VALUE, Array, ExcelError, Reference, Scalar, Value
 
 if TYPE_CHECKING:
     from pyopenvba.formula._calc.evaluator import Context
@@ -256,6 +257,9 @@ def invoke(entry: Function, context: Context, args: list[Any]) -> Value:
         result: Value = entry.implementation(context, *args)
     except ExcelError as error:
         return error.error
+    except (OverflowError, DecimalException):
+        # A number past what the arithmetic holds, as Excel's own overflow is (tests/fixtures/worksheet_function_kinds.json).
+        return NUM
     return result
 
 

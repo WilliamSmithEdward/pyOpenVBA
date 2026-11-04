@@ -81,8 +81,10 @@ def ISREF(context: Context, value: Node) -> Value:
 
 
 @function("ISFORMULA", REF)
-def ISFORMULA(context: Context, reference: Reference) -> Value:
+def ISFORMULA(context: Context, reference: object) -> Value:
     """Measured: ``#N/A`` of a closed workbook, read from its link."""
+    if not isinstance(reference, Reference):
+        return VALUE
     area = reference.areas[0]
     if area.external:
         return NA

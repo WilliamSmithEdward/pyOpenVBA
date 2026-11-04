@@ -5693,6 +5693,10 @@ class Range(ExcelObject):
 
     @setter("FormulaHidden")
     def _set_formula_hidden(self, value: object) -> None:
+        from pyopenvba.interpreter._values import NULL
+
+        if value is NULL:
+            return
         self._set_format("FormulaHidden", value)
 
     # -- sizes: pyopenvba.apps.excel._dimensions has the rules

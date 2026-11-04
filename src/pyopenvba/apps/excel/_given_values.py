@@ -5,7 +5,8 @@ The type library declares these properties Variant, so what a property is shows 
 
 - A colour or a shade converts as VBA does, so a Currency rounds and separate areas read as the first: it is left alone.
 - A property that holds a formula or a value reads separate areas as the first, too: it is left alone.
-- Any other property refuses separate areas with 1004.
+- Any other property refuses separate areas with 1004, and takes a block of cells as its last cell's value.
+- A border's Weight and LineStyle, and a font's Background, read a number cut to a whole one, a block as its first cell.
 - One that answers a Boolean also refuses a Currency and a Date with 1004.
 - One that answers text takes a Currency's text, $1.50 with a space after it. NumberFormat refuses a Date.
 """
@@ -15,9 +16,10 @@ from __future__ import annotations
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Final
 
+from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError
 from pyopenvba.interpreter._objects import VBAObject
-from pyopenvba.interpreter._values import NULL, VBACurrency, VBADate, error
+from pyopenvba.interpreter._values import EMPTY, NULL, VBACurrency, VBADate, VBASingle, error, to_number
 
 #: The classes the rule was measured on.
 MEASURED: Final = frozenset({'Range', 'Font', 'Interior', 'Border', 'Borders', 'Style', 'Characters'})
@@ -26,6 +28,9 @@ CONVERTING: Final = frozenset({'color', 'colorindex', 'themecolor', 'tintandshad
 #: Hold what they are given.
 HOLDING: Final = frozenset({'value', 'value2', 'formula', 'formular1c1', 'formulalocal', 'formular1c1local', 'formula2', 'formula2r1c1', 'formula2local', 'formula2r1c1local', 'formulaarray'})
 NUMBER_FORMATS: Final = frozenset({'numberformat', 'numberformatlocal'})
+#: Read a number cut to a whole one, and a block as its first cell.
+CUTTING: Final = frozenset({'weight', 'linestyle', 'background'})
+BACKGROUNDS: Final = frozenset({1, 2, 3, -4105})
 
 
 def currency_text(value: VBACurrency) -> str:
@@ -37,15 +42,40 @@ def currency_text(value: VBACurrency) -> str:
 
 def given(target: VBAObject, name: str, value: object) -> object:
     """``value`` as the property ``name`` of ``target`` is to be given it."""
+    from pyopenvba.apps.excel._model import Range
+
     lower = name.lower()
-    if target.vba_type_name not in MEASURED or lower in CONVERTING or lower in HOLDING:
+    if target.vba_type_name not in MEASURED:
         return value
-    separate = len(getattr(value, 'areas', ())) > 1
-    if not (separate or isinstance(value, (VBACurrency, VBADate))):
+    if isinstance(value, Range) and value.areas[0].rows * value.areas[0].columns > 1:
+        # A first area of several cells is nothing to hold, and no shade.
+        if lower in HOLDING:
+            return EMPTY
+        if lower == 'tintandshade':
+            raise error(5)
+    if lower in CONVERTING or lower in HOLDING:
         return value
     refusal = error(1004, f'Unable to set the {name} property of the {target.vba_type_name} class')
-    if separate:
-        raise refusal
+    if isinstance(value, Range):
+        if len(value.areas) > 1:
+            raise refusal
+        if value.single:
+            value = value.vba_value()
+        else:
+            area = value.first
+            row, column = (area.top, area.left) if lower in CUTTING else (area.bottom, area.right)
+            value = Range(value.sheet, [Area(row, column, row, column, value.sheet.name)]).vba_value()
+    if lower in CUTTING and isinstance(value, (float, VBACurrency, VBADate, VBASingle, Decimal)) and not isinstance(value, bool):
+        # A date's number, as it stands in a cell.
+        whole = int(float(to_number(value)))
+        if lower == 'background' and whole not in BACKGROUNDS:
+            raise refusal
+        return whole
+    if lower == 'horizontalalignment' and not isinstance(value, bool) and value == 2:
+        # Excel's own number for xlLeft.
+        return -4131
+    if not isinstance(value, (VBACurrency, VBADate)):
+        return value
     try:
         answer = target.vba_get(name)
     except VBARuntimeError:

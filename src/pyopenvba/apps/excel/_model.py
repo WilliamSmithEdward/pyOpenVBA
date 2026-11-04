@@ -1841,6 +1841,8 @@ class Workbook(ExcelObject):
         self.chart_sheets: list[ChartSheet] = []
         self.file_tabs: list[Worksheet | ChartSheet] = []
         self.active_chart_sheet: ChartSheet | None = None
+        #: Chart sheets a macro deleted, whose parts the next save removes.
+        self.deleted_chart_sheets: list[ChartSheet] = []
         #: Whether a macro has fetched a Name: LinkSources then leaves out links no cell refers to (see _workbook_links).
         self.names_fetched = False
         self.project_runtime: Interpreter | None = None
@@ -3236,7 +3238,9 @@ class Workbook(ExcelObject):
 
         self.active_chart_sheet = None
         self.active_sheet_index = self.sheets_.index(sheet)
-        self.view.first_sheet = min(self.view.first_sheet, self.tabs().index(sheet))
+        # A copy is made active before it has its place among chart sheets, which then bring this back (see _chart_sheets).
+        self.view.first_sheet = min(self.view.first_sheet, next((at for at, tab in enumerate(self.tabs()) if tab is sheet),
+                                                                self.view.first_sheet))
         # A sheet of the group stays in it as it becomes active; any other stands alone
         # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
         if not any(one is sheet for one in self.selected_sheets):
@@ -3256,7 +3260,7 @@ class Workbook(ExcelObject):
     def add_sheet(self, name: str = "", *, at: int | None = None, numbered: bool = False) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
         chosen = name or self._next_sheet_name()
-        if any(_names.same_sheet_name(sheet.name, chosen) for sheet in self.sheets_):
+        if any(_names.same_sheet_name(sheet.name, chosen) for sheet in self.tabs()):
             raise error(1004, f"a sheet called {chosen} is already there")
         sheet = Worksheet(self, chosen)
         if at is None:
@@ -3272,7 +3276,7 @@ class Workbook(ExcelObject):
         """The number after the last the workbook gave, past any name taken in any case. Deleting or renaming a sheet gives
         none back; a sheet given a name, as a copy is, raises it to the count of sheets; and opening a file starts it from
         nothing, whatever its sheets are called (tests/fixtures/new_sheet_names.json)."""
-        taken = {sheet.name.lower() for sheet in self.sheets_}
+        taken = {sheet.name.lower() for sheet in self.tabs()}
         number = self.sheet_name_counter + 1
         while f"sheet{number}" in taken:
             number += 1
@@ -3381,7 +3385,6 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
     ) -> object:
         from pyopenvba.apps.excel._protection import ADDING, refuse_structure
 
-        self.book.refuse_chart_sheets("Adding a sheet")
         refuse_structure(self.book, ADDING)
         if len(self.book.selected()) > 1:
             # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
@@ -3402,10 +3405,20 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
             left = After
         elif self.book.active_sheet is not None:
             at = self.book.sheets_.index(self.book.active_sheet)
+        position: int | None = None
+        if self.book.chart_sheets:
+            # Before and After count every tab, and with neither the new sheet goes before the active one, chart or not
+            # (tests/fixtures/chart_sheets/tabs.json).
+            from pyopenvba.apps.excel._chart_sheets import tab_position
+
+            position = tab_position(self.book, Before, After)
+            at = sum(isinstance(tab, Worksheet) for tab in self.book.tabs()[:position])
         names = self.book.allocate_sheet_names(count)
         added: list[Worksheet] = []
         for offset, name in enumerate(reversed(names)):
             sheet = self.book.add_sheet(name, at=None if at is None else at + offset, numbered=True)
+            if position is not None:
+                self.book.file_tabs.insert(position + offset, sheet)
             added.append(sheet)
             self.book.activate_sheet(sheet)
             _events.new_sheet(self.book, sheet, left)
@@ -3747,11 +3760,14 @@ class Worksheet(ExcelObject):
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
-        self.book.refuse_chart_sheets("Renaming a sheet")
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
 
         refuse_structure(self.book, APPLICATION_DEFINED)
         wanted = to_text(value)
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import admit_rename
+
+            admit_rename(self, wanted)
         from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
         refuse_sparklines(self, "Renaming")
@@ -4289,7 +4305,10 @@ class Worksheet(ExcelObject):
     def Delete(self) -> object:
         """Take the sheet out: the formulas and names that read it read #REF! instead, and where it was active the
         next visible sheet after it is, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
-        self.book.refuse_chart_sheets("Deleting a sheet")
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import admit_delete
+
+            admit_delete(self)
         from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
         from pyopenvba.apps.excel._sheet_groups import delete
 
@@ -4318,10 +4337,13 @@ class Worksheet(ExcelObject):
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
-        self.book.refuse_chart_sheets("Copying a sheet")
         from pyopenvba.apps.excel._protection import COPYING
         from pyopenvba.apps.excel._sheet_copy import copy_sheet
 
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import copy_among_tabs
+
+            return copy_among_tabs(self, Before, After)
         self.guard_structure(Before, After, COPYING, "Copying")
         return copy_sheet(self, Before, After)
 
@@ -4338,10 +4360,13 @@ class Worksheet(ExcelObject):
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
-        self.book.refuse_chart_sheets("Moving a sheet")
         from pyopenvba.apps.excel._protection import MOVING
         from pyopenvba.apps.excel._sheet_move import move_sheet
 
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import move_tab
+
+            return move_tab(self, Before, After)
         self.guard_structure(Before, After, MOVING, "Moving")
         return move_sheet(self, Before, After)
 

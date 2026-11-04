@@ -24,7 +24,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, cast
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel import _row_formats
@@ -32,7 +32,7 @@ from pyopenvba.apps.excel import _styles as S
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.apps.excel._visible import visible_areas
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -55,7 +55,7 @@ if TYPE_CHECKING:
 UNDERLINES = {"": -4142, "single": 2, "double": -4119, "singleAccounting": 4, "doubleAccounting": 5}
 #: True is -1, and 3 is double, as Excel reads them.
 _UNDERLINE_OF = {-4142: "", 2: "single", -1: "single", -4119: "double", 3: "double", 4: "singleAccounting",
-                 5: "doubleAccounting", 0: ""}
+                 5: "doubleAccounting", 1: ""}
 PATTERNS = {"none": -4142, "solid": 1, "darkGray": -4126, "mediumGray": -4125, "lightGray": -4124,
             "gray125": 17, "gray0625": 18, "darkHorizontal": -4128, "darkVertical": -4166, "darkDown": -4121,
             "darkUp": -4162, "darkGrid": 9, "darkTrellis": 10, "lightHorizontal": 11, "lightVertical": 12,
@@ -184,6 +184,29 @@ def _tint(value: object) -> int:
     return S.tint_of(tint)
 
 
+def _number_tint(value: object) -> int:
+    """A fill's or border's tint, which takes a number and nothing else: not text of one, True or Empty
+    (tests/fixtures/format_properties.json)."""
+    if isinstance(value, (str, bool)) or value is EMPTY or value is NULL:
+        raise error(5)
+    return _tint(value)
+
+
+def _whole(value: object) -> int:
+    """A format's code as a Long: True is -1 and Null 0."""
+    if value is NULL:
+        return 0
+    return -1 if value is True else int(to_integer(value, "Long"))
+
+
+def _refused(value: object, what: str, read: Callable[[object], object] = lambda value: to_integer(value, "Long")) -> object:
+    """A number from text or a number, and error 1004 for text that is none (tests/fixtures/format_properties.json)."""
+    try:
+        return read(value)
+    except VBARuntimeError as failed:
+        raise error(1004, f"Unable to set the {what}") from failed
+
+
 # --- Font -----------------------------------------------------------------------------------------
 
 
@@ -210,7 +233,8 @@ class Font(ExcelObject):
 
     @setter("Background")
     def _set_background(self, value: object) -> None:
-        to_integer(value, "Long")
+        if value is not NULL and int(cast("int", _refused(value, "Background property of the Font class"))) == 0:
+            raise error(1004, "Unable to set the Background property of the Font class")
 
     def _fonts(self) -> list[S.Font]:
         """Every font the range shows: each position's format's, and that of each run of a cell's text in a font
@@ -240,8 +264,13 @@ class Font(ExcelObject):
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
-        name = to_text(value)
+        """Null changes nothing; empty text keeps the name, which is then no longer the theme's
+        (tests/fixtures/format_properties.json)."""
+        if value is NULL:
+            return
+        name = str(value).upper() if isinstance(value, bool) else to_text(value)
         if not name:
+            self._write(lambda font: replace(font, scheme=""))
             return
         self._write(lambda font: font if font.name == name else replace(
             font, name=name, scheme="", family=S.font_family(name, font.family)))
@@ -252,7 +281,9 @@ class Font(ExcelObject):
 
     @setter("Size")
     def _set_size(self, value: object) -> None:
-        size = float(to_number(value))
+        if value is NULL:
+            return
+        size = 1.0 if value is True else float(cast("float", _refused(value, "Size property of the Font class", to_number)))
         if not 1 <= size <= 409.5:
             raise error(1004, "Unable to set the Size property of the Font class")
         self._write(lambda font: replace(font, size=size))
@@ -318,9 +349,12 @@ class Font(ExcelObject):
 
     @setter("Underline")
     def _set_underline(self, value: object) -> None:
-        wanted = int(to_integer(value, "Long"))
+        if value is NULL:
+            return
+        wanted = (-1 if value else -4142) if isinstance(value, bool) else int(
+            cast("int", _refused(value, "Underline property of the Font class")))
         if wanted not in _UNDERLINE_OF:
-            raise VBAUnsupportedError(f"Font.Underline = {wanted} is not implemented")
+            raise error(1004, "Unable to set the Underline property of the Font class")
         underline = _UNDERLINE_OF[wanted]
         self._write(lambda font: replace(font, underline=underline))
 
@@ -388,11 +422,24 @@ class Font(ExcelObject):
     @member
     def ThemeFont(self) -> object:
         """xlThemeFontMajor (1) for the theme's heading font, xlThemeFontMinor (2) for its body font, else 0."""
-        return self._read(lambda font: _long({"major": 1, "minor": 2}.get(font.scheme, 0)))
+        found = self._read(lambda font: _long({"major": 1, "minor": 2}.get(font.scheme, 0)))
+        return _long(0) if found is NULL else found
 
     @setter("ThemeFont")
     def _set_theme_font(self, value: object) -> None:
-        raise VBAUnsupportedError(f"Font.ThemeFont = {to_text(value)} on a range is not implemented")
+        """The theme's heading or body font by name, or 0 to keep the name apart from the theme; Null and text that
+        is no number are 13 (tests/fixtures/format_properties.json)."""
+        if value is NULL:
+            raise error(13)
+        wanted = int(to_integer(value, "Long"))
+        if wanted == 0:
+            self._write(lambda font: replace(font, scheme=""))
+            return
+        if wanted not in (1, 2):
+            raise error(1004, "Unable to set the ThemeFont property of the Font class")
+        name = self.target.sheet.book.stylesheet.theme_fonts[wanted - 1]
+        scheme = "major" if wanted == 1 else "minor"
+        self._write(lambda font: replace(font, name=name, scheme=scheme, family=S.font_family(name, font.family)))
 
     @member
     def Parent(self) -> object:
@@ -778,7 +825,7 @@ class Interior(ExcelObject):
 
     @setter("Color")
     def _set_color(self, value: object) -> None:
-        color = S.Color.from_bgr(int(to_integer(value, "Long")))
+        color = S.Color.from_bgr(1 if value is True else _whole(value))
         self._write(lambda fill: self._colored(fill, color))
 
     @member
@@ -787,10 +834,11 @@ class Interior(ExcelObject):
 
     @setter("ColorIndex")
     def _set_color_index(self, value: object) -> None:
-        if int(to_integer(value, "Long")) in (XL_NONE, 0):
+        wanted = _whole(value)
+        if wanted in (XL_NONE, 0):
             self._write(lambda _: S.Fill())
             return
-        color = _palette_color(value) or S.BACKGROUND
+        color = _palette_color(XL_AUTOMATIC if wanted == -1 else wanted) or S.BACKGROUND
         self._write(lambda fill: self._colored(fill, color))
 
     @member
@@ -799,7 +847,10 @@ class Interior(ExcelObject):
 
     @setter("ThemeColor")
     def _set_theme_color(self, value: object) -> None:
-        color = _theme_color(value)
+        if value is NULL:
+            self._write(lambda _: S.Fill())
+            return
+        color = _theme_color(1 if value is True else value)
         self._write(lambda fill: self._colored(fill, color))
 
     @member
@@ -808,7 +859,7 @@ class Interior(ExcelObject):
 
     @setter("TintAndShade")
     def _set_tint(self, value: object) -> None:
-        tint = _tint(value)
+        tint = _number_tint(value)
 
         def change(fill: S.Fill) -> S.Fill:
             if fill.pattern == "none":
@@ -830,7 +881,15 @@ class Interior(ExcelObject):
 
     @setter("Pattern")
     def _set_pattern(self, value: object) -> None:
-        wanted = int(to_integer(value, "Long"))
+        if value is NULL:
+            return
+        wanted = 1 if value is True else int(to_integer(value, "Long"))
+        if wanted == 0:
+            wanted = XL_NONE
+        elif wanted == 2:
+            wanted = -4125  # Excel reads 2 as xlGray50
+        elif wanted > 18 and wanted not in (LINEAR_GRADIENT, RECTANGULAR_GRADIENT):
+            raise error(9)
         if wanted in (LINEAR_GRADIENT, RECTANGULAR_GRADIENT):
             self.write_fill(GradientFill.new(wanted == RECTANGULAR_GRADIENT).fill())
             return
@@ -843,12 +902,14 @@ class Interior(ExcelObject):
 
     @member
     def PatternColor(self) -> object:
-        found = self._answer(pattern_color, "Color", 0.0)
+        found = self._answer(pattern_color, "Color", NULL)
         return _long(int(found)) if isinstance(found, float) else found
 
     @setter("PatternColor")
     def _set_pattern_color(self, value: object) -> None:
-        color = S.Color.from_bgr(int(to_integer(value, "Long")))
+        if value is NULL:
+            return
+        color = S.Color.from_bgr(1 if value is True else _whole(value))
         self._write(lambda fill: self._with_pattern_color(fill, color))
 
     @staticmethod
@@ -866,19 +927,24 @@ class Interior(ExcelObject):
 
     @setter("PatternColorIndex")
     def _set_pattern_color_index(self, value: object) -> None:
-        if int(to_integer(value, "Long")) == XL_NONE:
+        if value is NULL:
+            return
+        wanted = _whole(value)
+        if wanted in (XL_NONE, 0):
             self._write(lambda _: S.Fill())
             return
-        color = _palette_color(value) or S.FOREGROUND
+        color = _palette_color(XL_AUTOMATIC if wanted == -1 else wanted) or S.FOREGROUND
         self._write(lambda fill: self._with_pattern_color(fill, color))
 
     @member
     def PatternThemeColor(self) -> object:
-        return self._answer(pattern_color, "ThemeColor", NULL)
+        return self._answer(pattern_color, "ThemeColor", _long(-1))
 
     @setter("PatternThemeColor")
     def _set_pattern_theme_color(self, value: object) -> None:
-        color = _theme_color(value)
+        if value is NULL:
+            return
+        color = _theme_color(1 if value is True else value)
         self._write(lambda fill: self._with_pattern_color(fill, color))
 
     @member
@@ -887,11 +953,13 @@ class Interior(ExcelObject):
 
     @setter("PatternTintAndShade")
     def _set_pattern_tint(self, value: object) -> None:
-        tint = _tint(value)
+        tint = _number_tint(value)
 
         def change(fill: S.Fill) -> S.Fill:
+            if fill.pattern == "none":
+                return fill
             color = pattern_color(fill)
-            if fill.pattern == "none" or color in (S.FOREGROUND, S.BACKGROUND) or color.kind == "auto":
+            if color in (S.FOREGROUND, S.BACKGROUND) or color.kind == "auto":
                 raise VBAUnsupportedError("PatternTintAndShade on an automatic pattern colour is not implemented")
             return self._with_pattern_color(fill, replace(color, tint=tint))
 
@@ -1051,20 +1119,25 @@ def side_change(what: str, value: object) -> Callable[[S.Side], S.Side]:
         line_style = int(to_integer(value, "Long"))
         return lambda side: with_line_style(side, line_style)
     if what == "Weight":
-        weight = int(to_integer(value, "Long"))
+        weight = 1 if value is True else int(cast("int", _refused(value, "Weight property of the Border class")))
         return lambda side: with_weight(side, weight)
     if what == "Color":
         color = S.Color.from_bgr(int(to_integer(value, "Long")))
         return lambda side: with_side_color(side, color)
     if what == "ColorIndex":
-        if int(to_integer(value, "Long")) == XL_NONE:
+        # Null, True and -1 change nothing on one border; 0 and Empty are automatic
+        # (tests/fixtures/format_properties.json).
+        wanted = -1 if value is NULL else _whole(value)
+        if wanted in (XL_NONE, -1):
             return lambda side: side
-        palette = _palette_color(value) or S.FOREGROUND
+        palette = _palette_color(XL_AUTOMATIC if wanted == 0 else wanted) or S.FOREGROUND
         return lambda side: with_side_color(side, palette)
+    if value is NULL:
+        return lambda side: side
     if what == "ThemeColor":
         theme = _theme_color(value)
         return lambda side: with_side_color(side, theme)
-    tint = _tint(value)
+    tint = _number_tint(value)
 
     def tinted(side: S.Side) -> S.Side:
         # A tint draws a missing border, but only an RGB or theme colour takes it.
@@ -1108,13 +1181,13 @@ class Border(ExcelObject):
         self.target.note_formatted()
 
     def side(self) -> S.Side:
-        """What the range answers for this border: its first cell along it."""
+        """What the range answers for this border: its first cell along a top or left edge, its last along a bottom or
+        right one (tests/fixtures/format_properties.json)."""
         sheet, area = self.target.sheet, self.target.first
         if self.index in EDGES:
             name = EDGES[self.index]
-            row = area.bottom if name == "bottom" else area.top
-            column = area.right if name == "right" else area.left
-            return effective_side(sheet, row, column, name)
+            last = name in ("bottom", "right")
+            return effective_side(sheet, area.bottom if last else area.top, area.right if last else area.left, name)
         if self.index == 11:
             return effective_side(sheet, area.top, area.left, "right") if area.columns > 1 else S.NO_SIDE
         if self.index == 12:
@@ -1273,11 +1346,19 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
     def _all(self, what: str) -> object:
         """Every cell along every edge and inside edge; mixed is Null, and a mixed Color is 0."""
         colors = _colors(self.target)
-        found = uniform(side_answer(colors, side, what)
-                        for index in self._indexes() for side in Border(self.target, index).sides())
+        sides = [side for index in self._indexes() for side in Border(self.target, index).sides()]
+        if what in ("ColorIndex", "ThemeColor", "TintAndShade"):
+            # These answer the first edge when the edges differ (tests/fixtures/format_properties.json).
+            return side_answer(colors, sides[0], what)
+        if what == "Weight" and any(side.style for side in sides) and not all(side.style for side in sides):
+            return NULL
+        found = uniform(side_answer(colors, side, what) for side in sides)
         return 0.0 if found is NULL and what == "Color" else found
 
     def _set_all(self, what: str, value: object) -> None:
+        if what == "ColorIndex" and value is not NULL and _whole(value) in (XL_NONE, -1):
+            # Over the whole collection these take the lines away (tests/fixtures/format_properties.json).
+            what, value = "LineStyle", XL_NONE
         for index in self._indexes():
             Border(self.target, index).assign(what, value)
 

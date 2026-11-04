@@ -483,6 +483,12 @@ class Shape:
     former_group: Shape | None = field(default=None, compare=False)
     #: Excel: the text layout TextFrame set on a new shape, None while it is the one Excel starts with.
     text_look: TextLook | None = None
+    #: Each character's own font settings over text_look, by TextLook's field names; empty when none has any.
+    text_marks: list[dict[str, object]] = field(default_factory=list[dict[str, object]])
+    #: The settings the last paragraph's end holds, once replacing the text has left it any.
+    text_end: dict[str, object] | None = None
+    #: Each edit of the text as (where, how much went, how much came, whether all of it went), for a TextRange2 held across it.
+    text_edits: list[tuple[int, int, int, bool]] = field(default_factory=list[tuple[int, int, int, bool]])
     #: Excel: a new freeform's path, each step its command (moveTo, lnTo, cubicBezTo or close) and its points in EMU
     #: from the path's corner (tests/fixtures/shape_polyline.json).
     path: list[tuple[str, tuple[tuple[int, int], ...]]] = field(default_factory=lambda: [])

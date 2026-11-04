@@ -3234,40 +3234,40 @@ TextRange2,BoundLeft,"property, read-only",As Single,,MISSING,,
 TextRange2,BoundTop,"property, read-only",As Single,,MISSING,,
 TextRange2,BoundWidth,"property, read-only",As Single,,MISSING,,
 TextRange2,ChangeCase,method,ChangeCase(Type As MsoTextChangeCase),,MISSING,,
-TextRange2,Characters,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Characters,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Start and length as Excel clamps them; 0 or -1 for either is its default, and a range past the text raises."
 TextRange2,Copy,method,Copy(),,MISSING,,
-TextRange2,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"What the range counts: 1 for TextRange itself, else its Characters, Runs, Words or Paragraphs."
 TextRange2,Creator,"property, read-only",As Long,,UNASSESSED,,
 TextRange2,Cut,method,Cut(),,MISSING,,
-TextRange2,Delete,method,Delete(),,MISSING,,
+TextRange2,Delete,method,Delete(),,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,An empty range raises.
 TextRange2,Find,method,"Find(FindWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
-TextRange2,Font,"property, read-only",As Font2,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
-TextRange2,InsertAfter,method,InsertAfter([NewText As String]) As TextRange2,,MISSING,,
-TextRange2,InsertBefore,method,InsertBefore([NewText As String]) As TextRange2,,MISSING,,
+TextRange2,Font,"property, read-only",As Font2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,All of the text or part of it. A range with no characters reports itself; font members mixed across a range read as Excel does.
+TextRange2,InsertAfter,method,InsertAfter([NewText As String]) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Takes the settings of the character before.
+TextRange2,InsertBefore,method,InsertBefore([NewText As String]) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Takes the settings of the character before, or at the start after."
 TextRange2,InsertChartField,method,"InsertChartField(ChartFieldType As MsoChartFieldType, [Formula As String], [Position As Long]) As TextRange2",,MISSING,,
 TextRange2,InsertSymbol,method,"InsertSymbol(FontName As String, CharNumber As Long, [Unicode As MsoTriState]) As TextRange2",,MISSING,,
-TextRange2,Item,method,Item(Index As Variant) As TextRange2,,MISSING,,
+TextRange2,Item,method,Item(Index As Variant) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,By what the range counts.
 TextRange2,LanguageID,property,As MsoLanguageID,,MISSING,,
-TextRange2,Length,"property, read-only",As Long,,MISSING,,
+TextRange2,Length,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Measured.
 TextRange2,Lines,"property, read-only",As TextRange2,,MISSING,,
 TextRange2,LtrRun,method,LtrRun(),,MISSING,,
 TextRange2,MathZones,"property, read-only",As TextRange2,,MISSING,,
 TextRange2,ParagraphFormat,"property, read-only",As ParagraphFormat2,,MISSING,,
-TextRange2,Paragraphs,"property, read-only",As TextRange2,,MISSING,,
-TextRange2,Parent,"property, read-only",As Object,,MISSING,,
+TextRange2,Paragraphs,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Text cut to the range.
+TextRange2,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,The TextFrame2.
 TextRange2,Paste,method,Paste() As TextRange2,,MISSING,,
 TextRange2,PasteSpecial,method,PasteSpecial(Format As MsoClipboardFormat) As TextRange2,,MISSING,,
 TextRange2,RemovePeriods,method,RemovePeriods(),,MISSING,,
 TextRange2,Replace,method,"Replace(FindWhat As String, ReplaceWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
 TextRange2,RotatedBounds,method,"RotatedBounds(X1 As Single, Y1 As Single, X2 As Single, Y2 As Single, X3 As Single, Y3 As Single, x4 As Single, y4 As Single)",,MISSING,,
 TextRange2,RtlRun,method,RtlRun(),,MISSING,,
-TextRange2,Runs,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Runs,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Characters alike in what they write, across a paragraph end too."
 TextRange2,Select,method,Select(),,MISSING,,
 TextRange2,Sentences,"property, read-only",As TextRange2,,MISSING,,
-TextRange2,Start,"property, read-only",As Long,,MISSING,,
-TextRange2,Text,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,Start,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Measured.
+TextRange2,Text,property,As String,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Whole or part; a range kept across an edit at or inside it reports itself.
 TextRange2,TrimText,method,TrimText() As TextRange2,,MISSING,,
-TextRange2,Words,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Words,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Plain text only: text with a break, non-ASCII or a leading space reports itself."
 ThemeColor,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeColor,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeColor,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."

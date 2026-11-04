@@ -1004,7 +1004,7 @@ def _new_element(shape: Shape) -> str:
         body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
                             '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
     if shape.text_look is not None and body:
-        body = _laid_out(body, shape.text_look)
+        body = _laid_out(body, shape.text_look, _marked_paragraphs(shape, shape.text_look))
     if shape.painted:
         body = body.replace(
             '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
@@ -1294,7 +1294,62 @@ def _font_markup(look: TextLook) -> tuple[str, str]:
     return attributes, children
 
 
-def _laid_out(body: str, look: TextLook) -> str:
+def _run_markup(look: TextLook, mark: dict[str, object]) -> tuple[str, str]:
+    return _font_markup(replace(look, **mark))  # pyright: ignore[reportArgumentType]
+
+
+def text_run_spans(shape: Shape) -> list[tuple[int, int]]:
+    """Where each run of a new shape's text starts, and its length: characters alike in what they write run together,
+    across a paragraph's end too (tests/fixtures/shape_runs.json)."""
+    spans: list[tuple[int, int]] = []
+    last: tuple[str, str] | None = None
+    marks: list[dict[str, object]] = shape.text_marks or [{} for _ in shape.text]
+    for at, mark in enumerate(marks):
+        markup = _run_markup(shape.text_look or TextLook(), mark)
+        if spans and markup == last:
+            spans[-1] = (spans[-1][0], spans[-1][1] + 1)
+        else:
+            spans.append((at, 1))
+        last = markup
+    return spans
+
+
+def _props(tag: str, markup: tuple[str, str]) -> str:
+    return f'<{tag} lang="en-US"{markup[0]}>{markup[1]}</{tag}>' if markup[1] else f'<{tag} lang="en-US"{markup[0]}/>'
+
+
+def _marked_paragraphs(shape: Shape, look: TextLook) -> str | None:
+    """A text's paragraphs with their runs, when some of it has settings of its own (tests/fixtures/shape_runs.json).
+
+    A paragraph's end is written only where it holds settings its last run does not write, and an empty paragraph always."""
+    if not shape.text_marks and shape.text_end is None:
+        return None
+    marks: list[dict[str, object]] = shape.text_marks or [{} for _ in shape.text]
+    paragraphs: list[str] = []
+    at = 0
+    lines = shape.text.split("\n")
+    for index, line in enumerate(lines):
+        runs = ""
+        written: tuple[str, str] | None = None
+        pending = ""
+        for offset, character in enumerate(line):
+            markup = _run_markup(look, marks[at + offset])
+            if markup != written and pending:
+                runs += f'<a:r>{_props("a:rPr", written or markup)}<a:t>{dml.escaped_text(pending)}</a:t></a:r>'
+                pending = ""
+            written = markup
+            pending += character
+        if pending:
+            runs += f'<a:r>{_props("a:rPr", written or _font_markup(look))}<a:t>{dml.escaped_text(pending)}</a:t></a:r>'
+        end = marks[at + len(line)] if index < len(lines) - 1 else shape.text_end
+        if not line or (end is not None and (end or index == len(lines) - 1) and _run_markup(look, end) != written):
+            runs += _props("a:endParaRPr", _run_markup(look, end or {}))
+        paragraphs.append(f"<a:p>{runs}</a:p>")
+        at += len(line) + 1
+    return "".join(paragraphs)
+
+
+def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
     """A new shape's txBody with the layout TextFrame gave it: bodyPr's attributes in the schema's order, and each
     paragraph's algn and rtl (tests/fixtures/text_frame.json)."""
     insets = "".join(f' {name}="{emu(value)}"' for name, value in zip(("lIns", "tIns", "rIns", "bIns"), look.margins)
@@ -1327,6 +1382,8 @@ def _laid_out(body: str, look: TextLook) -> str:
         for tag in ("a:rPr", "a:endParaRPr"):
             body = body.replace(f'<{tag} lang="en-US" sz="1100"/>', f'<{tag} lang="en-US"{attributes}>{children}</{tag}>'
                                 if children else f'<{tag} lang="en-US"{attributes}/>')
+    if paragraphs is not None:
+        body = re.sub(r"<a:p>.*</a:p>", lambda _: paragraphs, body, flags=re.DOTALL)
     settings = (f' algn="{look.align}"' if look.align else "") + (
         "" if look.rtl is None else f' rtl="{1 if look.rtl else 0}"')
     paragraph = f"<a:p><a:pPr{settings}/>" if settings else "<a:p>"

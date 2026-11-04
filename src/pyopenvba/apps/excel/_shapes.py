@@ -17,10 +17,10 @@ from __future__ import annotations
 import math
 import re
 from pathlib import Path
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from copy import deepcopy
-from dataclasses import replace
-from typing import TYPE_CHECKING, cast
+from dataclasses import fields, replace
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
@@ -38,6 +38,7 @@ from pyopenvba.interpreter._values import (
     to_text,
 )
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT, EXCEL_ALIASES, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
+from pyopenvba.shapes._xlsx import text_run_spans
 from pyopenvba.shapes._values import (
     Box,
     EMU_PER_POINT,
@@ -2626,7 +2627,12 @@ class TextFrame(_TextLayout):
 
     @member
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
-        return Characters(self.owner, Start is not MISSING or Length is not MISSING)
+        return Characters(self.owner, Start, Length)
+
+    @setter("Characters")
+    def _set_characters(self, value: object, Start: object = MISSING, Length: object = MISSING) -> None:
+        # Characters has no default member to take a value.
+        raise error(438, "Object doesn't support this property or method")
 
     @member
     def AutoSize(self) -> object:
@@ -2857,39 +2863,129 @@ class TextFrame2(_TextLayout):
     def DeleteText(self) -> object:
         """The text gone, its empty paragraph left without a size, as Excel leaves it."""
         look = self._changed()
-        self.owner.shape.text = ""
+        shape = self.owner.shape
+        if shape.text_marks and shape.text_marks[-1] or shape.text_end:
+            raise _unsupported("DeleteText over a text whose last run has settings of its own")
+        shape.text, shape.text_marks, shape.text_end = "", [], None
+        shape.text_edits.append((0, 0, 0, True))
         look.deleted = True
         return EMPTY
 
 
-class Characters(_Drawn):
-    """The characters of a shape's text."""
+def _shape_text(value: object) -> str:
+    """Text as the model holds it: \\n ends a paragraph, as vbCr and vbCrLf do; \\x0b breaks a line within one, as vbLf does.
+    Both read back as vbLf (tests/fixtures/shape_runs.json)."""
+    return to_text(value).replace("\r\n", "\r").replace("\n", "\x0b").replace("\r", "\n")
 
-    vba_type_name = "Characters"
 
-    def __init__(self, shape: ShapeObject, partial: bool = False) -> None:
+def _edit_text(owner: ShapeObject, at: int, removed: int, new: str) -> None:
+    """Replace part of a shape's text. What comes takes the settings of the first character that went; inserted text, those
+    of the character before it or, at the start, after it. Replacing it all can leave its last settings on the paragraph's
+    end (tests/fixtures/shape_runs.json)."""
+    shape = owner.shape
+    whole = removed == len(shape.text)
+    marks = shape.text_marks
+    if whole and not marks:
+        if shape.text_end is not None and new and not shape.text:
+            shape.text_marks = [dict(shape.text_end) for _ in new]
+            shape.text_end = None
+    elif whole:
+        first, last = marks[0], marks[-1]
+        if shape.text_end is None and (not new or _run_differs(shape, first, last)):
+            shape.text_end = dict(last)
+        shape.text_marks = [dict(first) for _ in new]
+    elif marks:
+        like = marks[at] if removed else marks[max(at - 1, 0)]
+        shape.text_marks = [*marks[:at], *(dict(like) for _ in new), *marks[at + removed:]]
+    if not any(shape.text_marks):
+        shape.text_marks = []
+    shape.text = shape.text[:at] + new + shape.text[at + removed:]
+    shape.text_edits.append((at, removed, len(new), whole))
+    owner.sheet.drawing_changed()
+
+
+def _run_differs(shape: Shape, first: dict[str, object], last: dict[str, object]) -> bool:
+    return len(text_run_spans(replace(shape, text="ab", text_marks=[first, last]))) == 2
+
+
+class _ShapeText(_Drawn):
+    """What Characters and TextRange2 share: some of a shape's text, its Text and its Count."""
+
+    vba_type_name = ""
+
+    def __init__(self, shape: ShapeObject) -> None:
         self.owner = shape
         self.sheet = shape.sheet
-        self.partial = partial
+
+    def span(self) -> tuple[int, int]:
+        """Where this text starts, from 0, and how long it is."""
+        raise NotImplementedError
+
+    def shown(self) -> str:
+        at, count = self.span()
+        return self.owner.shape.text[at:at + count].replace("\x0b", "\n")
+
+    def replaced(self, value: object) -> None:
+        at, count = self.span()
+        _edit_text(self.owner, at, count, _shape_text(value))
 
     @member
-    def Font(self) -> object:
-        if self.partial:
-            raise _unsupported("the Font of some of a shape's characters")
-        return ShapeFont(self)
-
-    @member(default=True)
     def Text(self) -> object:
-        return self.owner.shape.text
+        return self.shown()
 
     @setter("Text")
     def _set_text(self, value: object) -> None:
-        self.owner.shape.text = to_text(value)
-        self.owner.sheet.drawing_changed()
+        self.replaced(value)
 
     @member
     def Count(self) -> object:
-        return VBAInt(len(self.owner.shape.text), "Long")
+        return VBAInt(self.span()[1], "Long")
+
+
+class Characters(_ShapeText):
+    """The characters of a shape's text, or some of them (tests/fixtures/shape_runs.json)."""
+
+    vba_type_name = "Characters"
+
+    def __init__(self, shape: ShapeObject, start: object = MISSING, length: object = MISSING) -> None:
+        super().__init__(shape)
+        self.start = start
+        self.length = length
+
+    def span(self) -> tuple[int, int]:
+        """Where these characters start in the text, from 0, and how many they are. A start before the text is its first
+        character, one past it raises; a length that is not positive, or too long, runs to the end."""
+        size = len(self.owner.shape.text)
+        if self.start is MISSING and self.length is MISSING:
+            return 0, size
+        start = 1 if self.start is MISSING else max(int(to_number(self.start)), 1)
+        if start > size:
+            raise error(1004, "Unable to get the Characters property of the TextFrame class")
+        length = 0 if self.length is MISSING else int(to_number(self.length))
+        rest = size - start + 1
+        return start - 1, rest if length <= 0 else min(length, rest)
+
+    @member
+    def Font(self) -> object:
+        return ShapeFont(self)
+
+    @member
+    def Caption(self) -> object:
+        return self.shown()
+
+    @setter("Caption")
+    def _set_caption(self, value: object) -> None:
+        self.replaced(value)
+
+    @method
+    def Insert(self, String: object = MISSING) -> object:
+        self.replaced("" if String is MISSING else String)
+        return True
+
+    @method
+    def Delete(self) -> object:
+        self.replaced("")
+        return True
 
 
 #: What Characters.Font writes for each Underline it takes.
@@ -2899,20 +2995,84 @@ _FONT_LATIN = {"Arial": '<a:latin typeface="Arial" panose="020B0604020202020204"
                "": '<a:latin typeface=""/>'}
 
 
+class _RunLook(TextLook):
+    """The look of part of a shape's text, as its first character has it. What is set on it goes to these marks, or, for all
+    of the text, to the whole text's look in place of any character's own."""
+
+    __slots__ = ("targets",)
+
+    def __init__(self, base: TextLook, first: dict[str, object], marks: list[dict[str, object]], whole: bool) -> None:
+        object.__setattr__(self, "targets", None)
+        TextLook.__init__(self, **{one.name: getattr(base, one.name) for one in fields(TextLook)})
+        for name, value in first.items():
+            object.__setattr__(self, name, value)
+        object.__setattr__(self, "targets", (base, marks, whole))
+
+    def __setattr__(self, name: str, value: object) -> None:
+        object.__setattr__(self, name, value)
+        targets: tuple[TextLook, list[dict[str, object]], bool] | None = getattr(self, "targets")
+        if targets is None:
+            return
+        base, marks, whole = targets
+        if whole:
+            setattr(base, name, value)
+        for mark in marks:
+            if whole:
+                mark.pop(name, None)
+            else:
+                mark[name] = value
+
+
 class _ShapeFontBase(Created):
-    """What Characters.Font and TextRange2.Font share (tests/fixtures/shape_font.json)."""
+    """What Characters.Font and TextRange2.Font share (tests/fixtures/shape_font.json), over all of a shape's text or part
+    of it (tests/fixtures/shape_runs.json): a range with more than one setting reads as its first character does, but for
+    the members in `mixed`."""
 
     vba_type_name = ""
+    #: What a member answers when these settings differ across the range, by the member's name.
+    mixed: ClassVar[dict[str, tuple[tuple[str, ...], Callable[[_ShapeFontBase], object]]]] = {}
 
-    def __init__(self, characters: Characters) -> None:
+    def __init__(self, characters: _ShapeText) -> None:
         self.characters = characters
         self.frame = TextFrame(characters.owner)
 
     def look(self) -> TextLook:
-        return self.frame._look()  # pyright: ignore[reportPrivateUsage]
+        base = self.frame._look()  # pyright: ignore[reportPrivateUsage]
+        shape = self.characters.owner.shape
+        at, count = self.characters.span()
+        if not shape.text and shape.text_end:
+            # No text reads as what its paragraph's end holds.
+            return _RunLook(base, shape.text_end, [], False)
+        if not shape.text_marks and count == len(shape.text):
+            return base
+        return _RunLook(base, shape.text_marks[at] if shape.text_marks and count else {}, [], False)
 
     def changed(self) -> TextLook:
-        return self.frame._changed()  # pyright: ignore[reportPrivateUsage]
+        base = self.frame._changed()  # pyright: ignore[reportPrivateUsage]
+        shape = self.characters.owner.shape
+        at, count = self.characters.span()
+        if count == len(shape.text):
+            if not shape.text_marks and shape.text_end is None:
+                return base
+            marks = [*shape.text_marks, *([] if shape.text_end is None else [shape.text_end])]
+            return _RunLook(base, shape.text_marks[0] if shape.text_marks else {}, marks, True)
+        if not shape.text_marks:
+            shape.text_marks = [{} for _ in shape.text]
+        return _RunLook(base, shape.text_marks[at], shape.text_marks[at:at + count], False)
+
+    def values(self, names: tuple[str, ...]) -> list[tuple[object, ...]]:
+        """These settings of each character in the range."""
+        shape = self.characters.owner.shape
+        base = self.frame._look()  # pyright: ignore[reportPrivateUsage]
+        at, count = self.characters.span()
+        return [tuple(mark.get(name, getattr(base, name)) for name in names) for mark in shape.text_marks[at:at + count]]
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        spec = self.vba_member(name)
+        rule = self.mixed.get(spec.name) if spec is not None else None
+        if rule is not None and len(set(self.values(rule[0]))) > 1:
+            return rule[1](self)
+        return super().vba_get(name, args, named)
 
     def text_box(self) -> bool:
         return self.characters.owner.shape.kind == "textBox"
@@ -3026,7 +3186,7 @@ class ShapeFont(_ShapeFontBase):
 
     @member
     def Strikethrough(self) -> object:
-        return self.look().font_strike is not None and self.look().font_strike != "noStrike"
+        return self.look().font_strike == "sngStrike"
 
     @setter("Strikethrough")
     def _strikethrough(self, value: object) -> None:
@@ -3168,7 +3328,7 @@ class ShapeFont2(_ShapeFontBase):
         chosen = self.look().font_underline
         if chosen in (None, "none"):
             return VBAInt(0, "Long")
-        found = {"sng": 2, "dbl": 3}.get(chosen or "")
+        found = {"words": 1, "sng": 2, "dbl": 3}.get(chosen or "")
         if found is None:
             raise _unsupported("this UnderlineStyle of a shape's font")
         return VBAInt(found, "Long")
@@ -3297,14 +3457,192 @@ class ShapeFont2(_ShapeFontBase):
         self.changed().font_normalize = True
 
 
-class TextRange2(Characters):
-    """TextFrame2.TextRange, the same text as Characters."""
+_COLOUR_FIELDS = ("font_rgb", "font_index", "font_tint")
+_MIXED_NUMBER = VBAInt(-2147483648, "Long")
+_MIXED_SINGLE = VBASingle(-2147483648.0)
+
+
+def _colour_index_of_mixed(_: _ShapeFontBase) -> object:
+    raise error(-2147467259, "Unspecified error")
+
+
+def _mixed_style(font: _ShapeFontBase) -> object:
+    bold, italic = (all(one[0] for one in font.values((name,))) for name in ("font_bold", "font_italic"))
+    return {(False, False): "Regular", (True, False): "Bold", (False, True): "Italic", (True, True): "Bold Italic"}[(bold, italic)]
+
+
+ShapeFont.mixed = {
+    "Bold": (("font_bold",), lambda font: all(one[0] for one in font.values(("font_bold",)))),
+    "Italic": (("font_italic",), lambda font: all(one[0] for one in font.values(("font_italic",)))),
+    "FontStyle": (("font_bold", "font_italic"), _mixed_style),
+    "Name": (("font_latin",), lambda _: ""),
+    "Color": (_COLOUR_FIELDS, lambda _: _MIXED_NUMBER),
+    "ColorIndex": (_COLOUR_FIELDS, _colour_index_of_mixed),
+    "TintAndShade": (_COLOUR_FIELDS, lambda _: _MIXED_SINGLE),
+    "Shadow": (("font_shadow",), lambda _: True),
+}
+ShapeFont2.mixed = {
+    "Bold": (("font_bold",), lambda _: VBAInt(-2, "Long")),
+    "Italic": (("font_italic",), lambda _: VBAInt(-2, "Long")),
+    "Name": (("font_latin",), lambda _: ""),
+    "Kerning": (("font_kern",), lambda _: _MIXED_SINGLE),
+    "Equalize": (("font_normalize",), lambda _: VBAInt(-2, "Long")),
+}
+#: What Words can read here: plain text, with no breaks, and no space at its start. Rules for the rest are not measured.
+_WORD = re.compile(r"\w+ *|[^\w\s]+ *", re.ASCII)
+
+
+class TextRange2(_ShapeText):
+    """TextFrame2.TextRange, the same text as Characters, and the ranges inside it (tests/fixtures/shape_runs.json).
+
+    `kind` is what the range counts and indexes: nothing for TextRange itself, which is one item, or Characters, Runs, Words
+    or Paragraphs, each cut to the range. A range kept while the text changes follows its characters."""
 
     vba_type_name = "TextRange2"
 
+    def __init__(self, shape: ShapeObject, at: int | None = None, length: int = 0, kind: str = "") -> None:
+        super().__init__(shape)
+        self.at = at
+        self.size = length
+        self.kind = kind
+        self.seen = len(shape.shape.text_edits)
+
+    def span(self) -> tuple[int, int]:
+        edits = self.owner.shape.text_edits
+        for at, removed, added, whole in edits[self.seen:]:
+            if self.at is None:
+                break
+            if whole:
+                self.at = None
+            elif at + removed <= self.at and removed:
+                self.at += added - removed
+            elif at > self.at + self.size:
+                continue
+            else:
+                raise _unsupported("a TextRange2 kept while the text changes at or inside it")
+        self.seen = len(edits)
+        return (0, len(self.owner.shape.text)) if self.at is None else (self.at, self.size)
+
+    def parts(self, kind: str) -> list[tuple[int, int]]:
+        """What this range holds of a kind: where each starts, from 0, and its length."""
+        start, count = self.span()
+        shape = self.owner.shape
+        if kind == "Characters":
+            return [(at, 1) for at in range(start, start + count)]
+        if kind == "Runs":
+            found = text_run_spans(shape)
+        elif kind == "Paragraphs":
+            found = [(match.start(), match.end() - match.start()) for match in re.finditer(r"[^\n]*\n|[^\n]+$", shape.text)]
+        elif kind == "Words":
+            if _WORD.sub("", shape.text):
+                raise _unsupported(f"the Words of {shape.text!r}")
+            found = [(match.start(), match.end() - match.start()) for match in _WORD.finditer(shape.text)]
+        else:
+            return [(start, count)]
+        cut = [(max(at, start), min(at + size, start + count) - max(at, start)) for at, size in found]
+        return [one for one in cut if one[1] > 0]
+
+    def counted(self, kind: str, start: object, length: object) -> TextRange2:
+        """Runs, Words or Paragraphs: the whole range counting them, or one of them and any after it."""
+        if start is MISSING and length is MISSING:
+            self.span()
+            return TextRange2(self.owner, self.at, self.size, kind)
+        parts = self.parts(kind)
+        first = 1 if start is MISSING else int(to_number(start))
+        many = 1 if length is MISSING else int(to_number(length))
+        if many == 0:
+            raise _unsupported(f"{kind} of no length")
+        if first < 1 or many < 1 or first + many - 1 > len(parts):
+            raise error(-2147024809, "The parameter is incorrect.")
+        begin = parts[first - 1][0]
+        return TextRange2(self.owner, begin, parts[first + many - 2][0] + parts[first + many - 2][1] - begin, kind)
+
+    def _inserted(self, place: int, value: object) -> object:
+        new = _shape_text("" if value is MISSING else value)
+        _edit_text(self.owner, place, 0, new)
+        return TextRange2(self.owner, place, len(new), "Characters")
+
     @member
     def Font(self) -> object:
+        if self.span()[1] == 0 and self.owner.shape.text:
+            raise _unsupported("the Font of a TextRange2 with no characters")
         return ShapeFont2(self)
+
+    @member
+    def Parent(self) -> object:
+        return TextFrame2(self.owner)
+
+    @member
+    def Start(self) -> object:
+        return VBAInt(self.span()[0] + 1, "Long")
+
+    @member
+    def Length(self) -> object:
+        return VBAInt(self.span()[1], "Long")
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(len(self.parts(self.kind)) if self.kind else 1, "Long")
+
+    @member
+    def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        """Either part left out, or -1, is its default: the first character, and one of them. With both, all of them."""
+        at, count = self.span()
+        start = -1 if Start is MISSING else int(to_number(Start))
+        length = -1 if Length is MISSING else int(to_number(Length))
+        if start == -1 and length == -1:
+            return TextRange2(self.owner, self.at, self.size, "Characters")
+        start, length = 1 if start == -1 else start, 1 if length == -1 else length
+        if start < 1 or length < 0 or start + length - 1 > count:
+            raise error(-2147024809, "The parameter is incorrect.")
+        return TextRange2(self.owner, at + start - 1, length, "Characters")
+
+    @member
+    def Runs(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        return self.counted("Runs", Start, Length)
+
+    @member
+    def Words(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        return self.counted("Words", Start, Length)
+
+    @member
+    def Paragraphs(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        return self.counted("Paragraphs", Start, Length)
+
+    @method
+    def Item(self, Index: object = MISSING) -> object:
+        number = int(to_number(Index))
+        if not self.kind and number == 1:
+            return self
+        parts = self.parts(self.kind) if self.kind else []
+        if not 1 <= number <= len(parts):
+            raise error(-2147024809, "The parameter is incorrect.")
+        return TextRange2(self.owner, *parts[number - 1], self.kind)
+
+    @method
+    def InsertAfter(self, NewText: object = MISSING) -> object:
+        at, count = self.span()
+        return self._inserted(at + count, NewText)
+
+    @method
+    def InsertBefore(self, NewText: object = MISSING) -> object:
+        return self._inserted(self.span()[0], NewText)
+
+    @method
+    def Delete(self) -> object:
+        at, count = self.span()
+        if self.at is not None and not count:
+            raise error(-2147467259, "Unspecified error")
+        _edit_text(self.owner, at, count, "")
+        return EMPTY
+
+    def vba_default_call(self, args: Sequence[object], named: dict[str, object]) -> object:
+        raise error(451, "Property let procedure not defined and property get procedure did not return an object")
+
+    def vba_iterate(self) -> Iterator[object]:
+        if not self.kind:
+            return iter([self])
+        return iter([TextRange2(self.owner, at, size, self.kind) for at, size in self.parts(self.kind)])
 
 
 class ControlFormat(_Drawn):
@@ -3666,7 +4004,8 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
     copy = replace(shape, name=name, shape_id=shapes._free_id(),  # pyright: ignore[reportPrivateUsage]
                    left=shape.left + 12, top=shape.top + 12, children=[], source="", source_at=0, former_group=None,
                    # The copy's looks are its own, so changing one leaves the original alone.
-                   text_look=deepcopy(shape.text_look), fill_line=deepcopy(shape.fill_line))
+                   text_look=deepcopy(shape.text_look), text_marks=deepcopy(shape.text_marks), text_end=deepcopy(shape.text_end), text_edits=[],
+                   fill_line=deepcopy(shape.fill_line))
     if chart is not None:
         # A chart of its own, with a part of its own when it is saved (tests/fixtures/chart_copies.json).
         own = deepcopy(chart)

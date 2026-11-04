@@ -1,5 +1,5 @@
 {
-  "raw_sha256": "11a65f9f82bed5aa3dd6819381cd2dc3882be5a6f80eb63dc962ee3b28e172ef",
+  "raw_sha256": "95c77fc99e6e9473895ecf249d7dbd754a29cbc63592b056533638e6d6835283",
   "cases": {
     "fresh-applied-order-options": {
       "source_sha256": "53902f602b987412cfd22f272ccc6032fe873918aeeb732fec45079cc1e60f90",
@@ -18,8 +18,8 @@
     }
   },
   "samples": {
-    "fresh-applied-order-options.xlsx": "9dd7f46c75150a4768142c3bcea9f80a85ffd955cee0e54a9ccbe6f22badcca9",
-    "imported-order-options.xlsx": "605c2bf3ea72697690b56d32e75de2858e4edcd56dbbe9f638e6d7067fe21fe7",
-    "imported-clear.xlsx": "dfc49a3e2158ad650a7368a1d4b2ad4d141e3f207807e03d7befb55c9495f845"
+    "fresh-applied-order-options.xlsx": "db83e6bca25a46269789ccb762012cefb84407bddb11a9dc2408166e203c5580",
+    "imported-order-options.xlsx": "06c27e604b8c531b6b3a853e8722cbbcf9b4414426428cf4de7f87a41b3e605a",
+    "imported-clear.xlsx": "7e166cb8ef2592a17e9022754d17fd61a51441c7d095b2befc3a38bb8bdc7b76"
   }
 }

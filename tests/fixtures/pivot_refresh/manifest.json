@@ -3,8 +3,8 @@
   "raw_files": {
     "initial.json": "3c4e4b9a6ebb77038e7507eb0c3fe5549497e21f6b4a835c655a413650fb9d81",
     "followup.json": "ca90a5164389de3605d8b7c0a74ba929c15f22e88fbc446d242846b4bb8fc1dc",
-    "events_save.json": "6d055e7dfa123437dee0af065204c645abeb5869af4777fde56a6ecf676a7eca",
-    "imported.json": "17072961854b5733dacc2a2230146af1b1e3a5294b5ae48449cb33f10d848420",
+    "events_save.json": "a3dde3e3ce55e7d7509592bb897b748f110dc0aa100a031ad900cf0336fb392e",
+    "imported.json": "7c0f5463227a75577bd52b8f38911224418b3a0f3e7ab619ec9b19e866a8e3fe",
     "growth.json": "59ff3cea7decb06ee9d9a996a30bbebff5c99347d96d0a704ff6a532cbcc460d"
   },
   "cases": {
@@ -135,7 +135,7 @@
     {
       "case": "cache-auto",
       "filename": "cache-auto.xlsm",
-      "sha256": "e1e7b60bcd6e72bc9cd3903854a919b391b6c722b0aef45733323fbb31bf924b",
+      "sha256": "a23ba30bcb903be708da6410d8f3f0c2416c6b65525198dfb8381459d8fa74ce",
       "vba_sha256": "24f0608fd8a56dcafa5ef18d1df3e04b1e03a223103f0b226f5d970a5b577eed",
       "native_file_format": 52,
       "derived": false
@@ -143,7 +143,7 @@
     {
       "case": "table-auto",
       "filename": "table-auto.xlsm",
-      "sha256": "3076fbffb61d0ecb07489ef684eabf195884a566c904e975fc0e3be07375ef27",
+      "sha256": "a1b740d387eba8a280af87464bb03fd197dae7d545455944c7cfbfd62e18e9ea",
       "vba_sha256": "fbbe3e9b66d2a6478ef667b2147db246aeb89b78f8abfc1326876e9419963e36",
       "native_file_format": 52,
       "derived": false
@@ -151,7 +151,7 @@
     {
       "case": "cache-manual",
       "filename": "cache-manual.xlsm",
-      "sha256": "c5d9c405b2064dd036b7126ee05ec134bbe3bf27c8ea505e44c1f90871996d38",
+      "sha256": "f059045fc61ff0cdaf58c93198da6821423eb6aee6ce22bc280ec3607bc7bc12",
       "vba_sha256": "f88d3a78c1f458e5ef43295ac480f5a4a5a391d004bf9dd3b41f3aca0677b39b",
       "native_file_format": 52,
       "derived": false
@@ -159,7 +159,7 @@
     {
       "case": "table-manual",
       "filename": "table-manual.xlsm",
-      "sha256": "32eb1a359bc047d9ec95f2f44968510bdcb9852be2492f4fa33041d38aa38bc0",
+      "sha256": "0b376031d6cf8f9feb2117a2132971e12fdf3bf870a835050d93847eff339ec1",
       "vba_sha256": "835999de0838f69c955b65ee5efb626bda8b2211b5c333b597c65a33cc26614d",
       "native_file_format": 52,
       "derived": false
@@ -167,7 +167,7 @@
     {
       "case": "cache-events-disabled",
       "filename": "cache-events-disabled.xlsm",
-      "sha256": "93bfe42907c840eff95258d4dfa21e64aea6ce4bd4de168af9b4005b5db4ff29",
+      "sha256": "e6caa6a1b3a799d0807babb2de97acf14a92cc40e11b86ab3e337a0bf9a2d2b5",
       "vba_sha256": "bedaec0b936247688ab41dcf76d0cbdc0623d3b55b48e31a0e32ff26afa8f5cc",
       "native_file_format": 52,
       "derived": false
@@ -175,7 +175,7 @@
     {
       "case": "imported-cache-auto",
       "filename": "imported-cache-auto.xlsm",
-      "sha256": "67dcc7f5d3e06c12d8f983e387d50952e56e21fce8e05b484a0ff7d79b3c509d",
+      "sha256": "8d5b66d9bc9e26ede6fd4efdf8adddd8baadceb341014fb5acdb5a0bb5adbfd1",
       "vba_sha256": "d41adc98f705b68c94e420703819c90b68ae779e2f62eb690938a355f7903c63",
       "native_file_format": 52,
       "derived": false
@@ -183,7 +183,7 @@
     {
       "case": "imported-cache-manual",
       "filename": "imported-cache-manual.xlsm",
-      "sha256": "c7afd4bdb212c0cef82560f4f25e2ce413487d4567430cd0624f26144794026d",
+      "sha256": "7bdc31067d12fa22ebdd1683bacdcfc2bea5ed502789c68dd360ecd2215a40ff",
       "vba_sha256": "66e1e61f4995bec4b851679ea8035b0ea5ba09cfedd10d042319a987c5ce1367",
       "native_file_format": 52,
       "derived": false

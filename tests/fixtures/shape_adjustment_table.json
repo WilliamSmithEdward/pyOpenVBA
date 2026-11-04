@@ -1,0 +1,955 @@
+{
+"source": "\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim t As Long, k As Long, wb As Workbook, ws As Worksheet, sh As Object, s As String, n As Long, d As Double\n    Application.DisplayAlerts = False\n    For t = first To last\n        Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n        On Error Resume Next\n        Err.Clear\n        Set sh = Nothing\n        Set sh = ws.Shapes.AddShape(t, 10, 10, 100, 40)\n        If Err.Number <> 0 Or sh Is Nothing Then\n            s = s & \"@@@\" & t & \"|E\" & Err.Number\n            Err.Clear\n        Else\n            n = sh.Adjustments.Count\n            s = s & \"@@@\" & t & \"|\" & sh.AutoShapeType & \"|\" & sh.Name & \"|\" & n\n            For k = 1 To n\n                s = s & \"|\" & sh.Adjustments(k)\n            Next\n            For k = 1 To n\n                d = sh.Adjustments(k)\n                sh.Adjustments(k) = d + 0.1\n                If Err.Number <> 0 Then s = s & \"|S\" & k & \"E\" & Err.Number: Err.Clear\n                s = s & \"|R\" & k & \"=\" & sh.Adjustments(k)\n            Next\n            s = s & \"|T=\" & sh.Type\n            wb.SaveAs folder & \"\\t\" & t & \".xlsx\", xlOpenXMLWorkbook\n        End If\n        On Error GoTo 0\n        wb.Close False\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+"rows": [
+[
+"1|1|Rectangle 1|0|T=1",
+"<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"2|2|Parallelogram 1|1|0.25|R1=0.35|T=1",
+"<a:prstGeom prst=\"parallelogram\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"3|3|Trapezoid 1|1|0.25|R1=0.35|T=1",
+"<a:prstGeom prst=\"trapezoid\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"4|4|Diamond 1|0|T=1",
+"<a:prstGeom prst=\"diamond\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"5|5|Rounded Rectangle 1|1|0.16667|R1=0.26667|T=1",
+"<a:prstGeom prst=\"roundRect\"><a:avLst><a:gd name=\"adj\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"6|6|Octagon 1|1|0.29289|R1=0.39289|T=1",
+"<a:prstGeom prst=\"octagon\"><a:avLst><a:gd name=\"adj\" fmla=\"val 39289\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"7|7|Isosceles Triangle 1|1|0.5|R1=0.6|T=1",
+"<a:prstGeom prst=\"triangle\"><a:avLst><a:gd name=\"adj\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"8|8|Right Triangle 1|0|T=1",
+"<a:prstGeom prst=\"rtTriangle\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"9|9|Oval 1|0|T=1",
+"<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"10|10|Hexagon 1|2|0.25|1.1547|R1=0.35|R2=1.2547|T=1",
+"<a:prstGeom prst=\"hexagon\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/><a:gd name=\"vf\" fmla=\"val 125470\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"11|11|Cross 1|1|0.25|R1=0.35|T=1",
+"<a:prstGeom prst=\"plus\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"12|12|Regular Pentagon 1|2|1.05146|1.10557|R1=1.15146|R2=1.20557|T=1",
+"<a:prstGeom prst=\"pentagon\"><a:avLst><a:gd name=\"hf\" fmla=\"val 115146\"/><a:gd name=\"vf\" fmla=\"val 120557\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"13|13|Can 1|1|0.25|R1=0.35|T=1",
+"<a:prstGeom prst=\"can\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"14|14|Cube 1|1|0.25|R1=0.35|T=1",
+"<a:prstGeom prst=\"cube\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"15|15|Bevel 1|1|0.125|R1=0.225|T=1",
+"<a:prstGeom prst=\"bevel\"><a:avLst><a:gd name=\"adj\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"16|16|Folded Corner 1|1|0.16667|R1=0.26667|T=1",
+"<a:prstGeom prst=\"foldedCorner\"><a:avLst><a:gd name=\"adj\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"17|17|Smiley Face 1|1|0.04653|R1=0.14653|T=1",
+"<a:prstGeom prst=\"smileyFace\"><a:avLst><a:gd name=\"adj\" fmla=\"val 14653\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"18|18|Donut 1|1|0.25|R1=0.35|T=1",
+"<a:prstGeom prst=\"donut\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"19|19|\"No\" Symbol 1|1|0.1875|R1=0.2875|T=1",
+"<a:prstGeom prst=\"noSmoking\"><a:avLst><a:gd name=\"adj\" fmla=\"val 28750\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"20|20|Block Arc 1|3|180|0|0.25|R1=-179.9|R2=0.1|R3=0.35|T=1",
+"<a:prstGeom prst=\"blockArc\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 10806000\"/><a:gd name=\"adj2\" fmla=\"val 6000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"21|21|Heart 1|0|T=1",
+"<a:prstGeom prst=\"heart\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"22|22|Lightning Bolt 1|0|T=1",
+"<a:prstGeom prst=\"lightningBolt\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"23|23|Sun 1|1|0.25|R1=0.35|T=1",
+"<a:prstGeom prst=\"sun\"><a:avLst><a:gd name=\"adj\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"24|24|Moon 1|1|0.5|R1=0.6|T=1",
+"<a:prstGeom prst=\"moon\"><a:avLst><a:gd name=\"adj\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"25|25|Arc 1|2|-90|0|R1=-89.9|R2=0.1|T=1",
+"<a:prstGeom prst=\"arc\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 16206000\"/><a:gd name=\"adj2\" fmla=\"val 6000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"26|26|Double Bracket 1|1|0.16667|R1=0.26667|T=1",
+"<a:prstGeom prst=\"bracketPair\"><a:avLst><a:gd name=\"adj\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"27|27|Double Brace 1|1|0.08333|R1=0.18333|T=1",
+"<a:prstGeom prst=\"bracePair\"><a:avLst><a:gd name=\"adj\" fmla=\"val 18333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"28|28|Plaque 1|1|0.16667|R1=0.26667|T=1",
+"<a:prstGeom prst=\"plaque\"><a:avLst><a:gd name=\"adj\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"29|29|Left Bracket 1|1|0.08333|R1=0.18333|T=1",
+"<a:prstGeom prst=\"leftBracket\"><a:avLst><a:gd name=\"adj\" fmla=\"val 18333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"30|30|Right Bracket 1|1|0.08333|R1=0.18333|T=1",
+"<a:prstGeom prst=\"rightBracket\"><a:avLst><a:gd name=\"adj\" fmla=\"val 18333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"31|31|Left Brace 1|2|0.08333|0.5|R1=0.18333|R2=0.6|T=1",
+"<a:prstGeom prst=\"leftBrace\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18333\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"32|32|Right Brace 1|2|0.08333|0.5|R1=0.18333|R2=0.6|T=1",
+"<a:prstGeom prst=\"rightBrace\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 18333\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"33|33|Right Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"rightArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"34|34|Left Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"leftArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"35|35|Up Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"upArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"36|36|Down Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"downArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"37|37|Left-Right Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"leftRightArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"38|38|Up-Down Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"upDownArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"39|39|Quad Arrow 1|3|0.225|0.225|0.225|R1=0.325|R2=0.325|R3=0.325|T=1",
+"<a:prstGeom prst=\"quadArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 32500\"/><a:gd name=\"adj2\" fmla=\"val 32500\"/><a:gd name=\"adj3\" fmla=\"val 32500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"40|40|Left-Right-Up Arrow 1|3|0.25|0.25|0.25|R1=0.35|R2=0.35|R3=0.35|T=1",
+"<a:prstGeom prst=\"leftRightUpArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"41|41|Bent Arrow 1|4|0.25|0.25|0.25|0.4375|R1=0.35|R2=0.35|R3=0.35|R4=0.5375|T=1",
+"<a:prstGeom prst=\"bentArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 53750\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"42|42|U-Turn Arrow 1|5|0.25|0.25|0.25|0.4375|0.75|R1=0.35|R2=0.35|R3=0.35|R4=0.5375|R5=0.85|T=1",
+"<a:prstGeom prst=\"uturnArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 53750\"/><a:gd name=\"adj5\" fmla=\"val 85000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"43|43|Left-Up Arrow 1|3|0.25|0.25|0.25|R1=0.35|R2=0.35|R3=0.35|T=1",
+"<a:prstGeom prst=\"leftUpArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"44|44|Bent-Up Arrow 1|3|0.25|0.25|0.25|R1=0.35|R2=0.35|R3=0.35|T=1",
+"<a:prstGeom prst=\"bentUpArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"45|45|Curved Right Arrow 1|3|0.25|0.5|0.25|R1=0.35|R2=0.6|R3=0.35|T=1",
+"<a:prstGeom prst=\"curvedRightArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"46|46|Curved Left Arrow 1|3|0.25|0.5|0.25|R1=0.35|R2=0.6|R3=0.35|T=1",
+"<a:prstGeom prst=\"curvedLeftArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"47|47|Curved Up Arrow 1|3|0.25|0.5|0.25|R1=0.35|R2=0.6|R3=0.35|T=1",
+"<a:prstGeom prst=\"curvedUpArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"48|48|Curved Down Arrow 1|3|0.25|0.5|0.25|R1=0.35|R2=0.6|R3=0.35|T=1",
+"<a:prstGeom prst=\"curvedDownArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"49|49|Striped Right Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"stripedRightArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"50|50|Notched Right Arrow 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"notchedRightArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"51|51|Pentagon 1|1|0.5|R1=0.6|T=1",
+"<a:prstGeom prst=\"homePlate\"><a:avLst><a:gd name=\"adj\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"52|52|Chevron 1|1|0.5|R1=0.6|T=1",
+"<a:prstGeom prst=\"chevron\"><a:avLst><a:gd name=\"adj\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"53|53|Right Arrow Callout 1|4|0.25|0.25|0.25|0.64977|R1=0.35|R2=0.35|R3=0.35|R4=0.74977|T=1",
+"<a:prstGeom prst=\"rightArrowCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 74977\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"54|54|Left Arrow Callout 1|4|0.25|0.25|0.25|0.64977|R1=0.35|R2=0.35|R3=0.35|R4=0.74977|T=1",
+"<a:prstGeom prst=\"leftArrowCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 74977\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"55|55|Up Arrow Callout 1|4|0.25|0.25|0.25|0.64977|R1=0.35|R2=0.35|R3=0.35|R4=0.74977|T=1",
+"<a:prstGeom prst=\"upArrowCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 74977\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"56|56|Down Arrow Callout 1|4|0.25|0.25|0.25|0.64977|R1=0.35|R2=0.35|R3=0.35|R4=0.74977|T=1",
+"<a:prstGeom prst=\"downArrowCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 74977\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"57|57|Left-Right Arrow Callout 1|4|0.25|0.25|0.25|0.48123|R1=0.35|R2=0.35|R3=0.35|R4=0.58123|T=1",
+"<a:prstGeom prst=\"leftRightArrowCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 58123\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"58|58|Up-Down Arrow Callout 1|4|0.25|0.25|0.25|0.48123|R1=0.35|R2=0.35|R3=0.35|R4=0.58123|T=1",
+"<a:prstGeom prst=\"upDownArrowCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/><a:gd name=\"adj3\" fmla=\"val 35000\"/><a:gd name=\"adj4\" fmla=\"val 58123\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"59|59|Quad Arrow Callout 1|4|0.18515|0.18515|0.18515|0.48123|R1=0.28515|R2=0.28515|R3=0.28515|R4=0.58123|T=1",
+"<a:prstGeom prst=\"quadArrowCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28515\"/><a:gd name=\"adj2\" fmla=\"val 28515\"/><a:gd name=\"adj3\" fmla=\"val 28515\"/><a:gd name=\"adj4\" fmla=\"val 58123\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"60|60|Circular Arrow 1|5|0.125|19.03865|-19.03865|180|0.125|R1=0.225|R2=19.13865|R3=-18.93865|R4=-179.9|R5=0.225|T=1",
+"<a:prstGeom prst=\"circularArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 22500\"/><a:gd name=\"adj2\" fmla=\"val 1148319\"/><a:gd name=\"adj3\" fmla=\"val 20463681\"/><a:gd name=\"adj4\" fmla=\"val 10806000\"/><a:gd name=\"adj5\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"61|61|Flowchart: Process 1|0|T=1",
+"<a:prstGeom prst=\"flowChartProcess\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"62|62|Flowchart: Alternate Process 1|0|T=1",
+"<a:prstGeom prst=\"flowChartAlternateProcess\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"63|63|Flowchart: Decision 1|0|T=1",
+"<a:prstGeom prst=\"flowChartDecision\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"64|64|Flowchart: Data 1|0|T=1",
+"<a:prstGeom prst=\"flowChartInputOutput\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"65|65|Flowchart: Predefined Process 1|0|T=1",
+"<a:prstGeom prst=\"flowChartPredefinedProcess\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"66|66|Flowchart: Internal Storage 1|0|T=1",
+"<a:prstGeom prst=\"flowChartInternalStorage\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"67|67|Flowchart: Document 1|0|T=1",
+"<a:prstGeom prst=\"flowChartDocument\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"68|68|Flowchart: Multidocument 1|0|T=1",
+"<a:prstGeom prst=\"flowChartMultidocument\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"69|69|Flowchart: Terminator 1|0|T=1",
+"<a:prstGeom prst=\"flowChartTerminator\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"70|70|Flowchart: Preparation 1|0|T=1",
+"<a:prstGeom prst=\"flowChartPreparation\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"71|71|Flowchart: Manual Input 1|0|T=1",
+"<a:prstGeom prst=\"flowChartManualInput\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"72|72|Flowchart: Manual Operation 1|0|T=1",
+"<a:prstGeom prst=\"flowChartManualOperation\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"73|73|Flowchart: Connector 1|0|T=1",
+"<a:prstGeom prst=\"flowChartConnector\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"74|74|Flowchart: Off-page Connector 1|0|T=1",
+"<a:prstGeom prst=\"flowChartOffpageConnector\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"75|75|Flowchart: Card 1|0|T=1",
+"<a:prstGeom prst=\"flowChartPunchedCard\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"76|76|Flowchart: Punched Tape 1|0|T=1",
+"<a:prstGeom prst=\"flowChartPunchedTape\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"77|77|Flowchart: Summing Junction 1|0|T=1",
+"<a:prstGeom prst=\"flowChartSummingJunction\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"78|78|Flowchart: Or 1|0|T=1",
+"<a:prstGeom prst=\"flowChartOr\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"79|79|Flowchart: Collate 1|0|T=1",
+"<a:prstGeom prst=\"flowChartCollate\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"80|80|Flowchart: Sort 1|0|T=1",
+"<a:prstGeom prst=\"flowChartSort\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"81|81|Flowchart: Extract 1|0|T=1",
+"<a:prstGeom prst=\"flowChartExtract\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"82|82|Flowchart: Merge 1|0|T=1",
+"<a:prstGeom prst=\"flowChartMerge\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"83|83|Flowchart: Stored Data 1|0|T=1",
+"<a:prstGeom prst=\"flowChartOnlineStorage\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"84|84|Flowchart: Delay 1|0|T=1",
+"<a:prstGeom prst=\"flowChartDelay\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"85|85|Flowchart: Sequential Access Storage 1|0|T=1",
+"<a:prstGeom prst=\"flowChartMagneticTape\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"86|86|Flowchart: Magnetic Disk 1|0|T=1",
+"<a:prstGeom prst=\"flowChartMagneticDisk\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"87|87|Flowchart: Direct Access Storage 1|0|T=1",
+"<a:prstGeom prst=\"flowChartMagneticDrum\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"88|88|Flowchart: Display 1|0|T=1",
+"<a:prstGeom prst=\"flowChartDisplay\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"89|89|Explosion 1 1|0|T=1",
+"<a:prstGeom prst=\"irregularSeal1\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"90|90|Explosion 2 1|0|T=1",
+"<a:prstGeom prst=\"irregularSeal2\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"91|91|4-Point Star 1|1|0.125|R1=0.225|T=1",
+"<a:prstGeom prst=\"star4\"><a:avLst><a:gd name=\"adj\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"92|92|5-Point Star 1|3|0.19098|1.05146|1.10557|R1=0.29098|R2=1.15146|R3=1.20557|T=1",
+"<a:prstGeom prst=\"star5\"><a:avLst><a:gd name=\"adj\" fmla=\"val 29098\"/><a:gd name=\"hf\" fmla=\"val 115146\"/><a:gd name=\"vf\" fmla=\"val 120557\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"93|93|8-Point Star 1|1|0.375|R1=0.475|T=1",
+"<a:prstGeom prst=\"star8\"><a:avLst><a:gd name=\"adj\" fmla=\"val 47500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"94|94|16-Point Star 1|1|0.375|R1=0.475|T=1",
+"<a:prstGeom prst=\"star16\"><a:avLst><a:gd name=\"adj\" fmla=\"val 47500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"95|95|24-Point Star 1|1|0.375|R1=0.475|T=1",
+"<a:prstGeom prst=\"star24\"><a:avLst><a:gd name=\"adj\" fmla=\"val 47500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"96|96|32-Point Star 1|1|0.375|R1=0.475|T=1",
+"<a:prstGeom prst=\"star32\"><a:avLst><a:gd name=\"adj\" fmla=\"val 47500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"97|97|Up Ribbon 1|2|0.16667|0.5|R1=0.26667|R2=0.6|T=1",
+"<a:prstGeom prst=\"ribbon2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 26667\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"98|98|Down Ribbon 1|2|0.16667|0.5|R1=0.26667|R2=0.6|T=1",
+"<a:prstGeom prst=\"ribbon\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 26667\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"99|99|Curved Up Ribbon 1|3|0.25|0.5|0.125|R1=0.35|R2=0.6|R3=0.225|T=1",
+"<a:prstGeom prst=\"ellipseRibbon2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/><a:gd name=\"adj3\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"100|100|Curved Down Ribbon 1|3|0.25|0.5|0.125|R1=0.35|R2=0.6|R3=0.225|T=1",
+"<a:prstGeom prst=\"ellipseRibbon\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/><a:gd name=\"adj3\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"101|101|Vertical Scroll 1|1|0.125|R1=0.225|T=1",
+"<a:prstGeom prst=\"verticalScroll\"><a:avLst><a:gd name=\"adj\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"102|102|Horizontal Scroll 1|1|0.125|R1=0.225|T=1",
+"<a:prstGeom prst=\"horizontalScroll\"><a:avLst><a:gd name=\"adj\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"103|103|Wave 1|2|0.125|0|R1=0.225|R2=0.1|T=1",
+"<a:prstGeom prst=\"wave\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 22500\"/><a:gd name=\"adj2\" fmla=\"val 10000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"104|104|Double Wave 1|2|0.0625|0|R1=0.1625|R2=0.1|T=1",
+"<a:prstGeom prst=\"doubleWave\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 16250\"/><a:gd name=\"adj2\" fmla=\"val 10000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"105|105|Rectangular Callout 1|2|-0.20833|0.625|R1=-0.10833|R2=0.725|T=1",
+"<a:prstGeom prst=\"wedgeRectCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val -10833\"/><a:gd name=\"adj2\" fmla=\"val 72500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"106|106|Rounded Rectangular Callout 1|3|-0.20833|0.625|0.16667|R1=-0.10833|R2=0.725|R3=0.26667|T=1",
+"<a:prstGeom prst=\"wedgeRoundRectCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val -10833\"/><a:gd name=\"adj2\" fmla=\"val 72500\"/><a:gd name=\"adj3\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"107|107|Oval Callout 1|2|-0.20833|0.625|R1=-0.10833|R2=0.725|T=1",
+"<a:prstGeom prst=\"wedgeEllipseCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val -10833\"/><a:gd name=\"adj2\" fmla=\"val 72500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"108|108|Cloud Callout 1|2|-0.20833|0.625|R1=-0.10833|R2=0.725|T=1",
+"<a:prstGeom prst=\"cloudCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val -10833\"/><a:gd name=\"adj2\" fmla=\"val 72500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"109|109|Line Callout 1 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"borderCallout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"110|109|Line Callout 1 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"borderCallout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"111|111|Line Callout 2 1|6|0.1875|-0.08333|0.1875|-0.16667|1.125|-0.46667|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.225|R6=-0.36667|T=2",
+"<a:prstGeom prst=\"borderCallout2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 122500\"/><a:gd name=\"adj6\" fmla=\"val -36667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"112|112|Line Callout 3 1|8|0.1875|-0.08333|0.1875|-0.16667|1|-0.16667|1.12963|-0.08333|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.1|R6=-0.06667|R7=1.22963|R8=0.01667|T=2",
+"<a:prstGeom prst=\"borderCallout3\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 110000\"/><a:gd name=\"adj6\" fmla=\"val -6667\"/><a:gd name=\"adj7\" fmla=\"val 122963\"/><a:gd name=\"adj8\" fmla=\"val 1667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"113|113|Line Callout 1 (No Border) 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"114|114|Line Callout 1 (Accent Bar) 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"accentCallout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"115|115|Line Callout 2 (Accent Bar) 1|6|0.1875|-0.08333|0.1875|-0.16667|1.125|-0.46667|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.225|R6=-0.36667|T=2",
+"<a:prstGeom prst=\"accentCallout2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 122500\"/><a:gd name=\"adj6\" fmla=\"val -36667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"116|116|Line Callout 3 (Accent Bar) 1|8|0.1875|-0.08333|0.1875|-0.16667|1|-0.16667|1.12963|-0.08333|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.1|R6=-0.06667|R7=1.22963|R8=0.01667|T=2",
+"<a:prstGeom prst=\"accentCallout3\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 110000\"/><a:gd name=\"adj6\" fmla=\"val -6667\"/><a:gd name=\"adj7\" fmla=\"val 122963\"/><a:gd name=\"adj8\" fmla=\"val 1667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"117|113|Line Callout 1 (No Border) 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"118|113|Line Callout 1 (No Border) 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"callout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"119|119|Line Callout 2 (No Border) 1|6|0.1875|-0.08333|0.1875|-0.16667|1.125|-0.46667|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.225|R6=-0.36667|T=2",
+"<a:prstGeom prst=\"callout2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 122500\"/><a:gd name=\"adj6\" fmla=\"val -36667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"120|120|Line Callout 3 (No Border) 1|8|0.1875|-0.08333|0.1875|-0.16667|1|-0.16667|1.12963|-0.08333|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.1|R6=-0.06667|R7=1.22963|R8=0.01667|T=2",
+"<a:prstGeom prst=\"callout3\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 110000\"/><a:gd name=\"adj6\" fmla=\"val -6667\"/><a:gd name=\"adj7\" fmla=\"val 122963\"/><a:gd name=\"adj8\" fmla=\"val 1667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"121|109|Line Callout 1 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"borderCallout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"122|122|Line Callout 1 (Border and Accent Bar) 1|4|0.1875|-0.08333|1.125|-0.38333|R1=0.2875|R2=0.01667|R3=1.225|R4=-0.28333|T=2",
+"<a:prstGeom prst=\"accentBorderCallout1\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 122500\"/><a:gd name=\"adj4\" fmla=\"val -28333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"123|123|Line Callout 2 (Border and Accent Bar) 1|6|0.1875|-0.08333|0.1875|-0.16667|1.125|-0.46667|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.225|R6=-0.36667|T=2",
+"<a:prstGeom prst=\"accentBorderCallout2\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 122500\"/><a:gd name=\"adj6\" fmla=\"val -36667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"124|124|Line Callout 3 (Border and Accent Bar) 1|8|0.1875|-0.08333|0.1875|-0.16667|1|-0.16667|1.12963|-0.08333|R1=0.2875|R2=0.01667|R3=0.2875|R4=-0.06667|R5=1.1|R6=-0.06667|R7=1.22963|R8=0.01667|T=2",
+"<a:prstGeom prst=\"accentBorderCallout3\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 28750\"/><a:gd name=\"adj2\" fmla=\"val 1667\"/><a:gd name=\"adj3\" fmla=\"val 28750\"/><a:gd name=\"adj4\" fmla=\"val -6667\"/><a:gd name=\"adj5\" fmla=\"val 110000\"/><a:gd name=\"adj6\" fmla=\"val -6667\"/><a:gd name=\"adj7\" fmla=\"val 122963\"/><a:gd name=\"adj8\" fmla=\"val 1667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"125|125|Action Button: Custom 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonBlank\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"126|126|Action Button: Home 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonHome\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"127|127|Action Button: Help 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonHelp\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"128|128|Action Button: Information 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonInformation\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"129|129|Action Button: Back or Previous 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonBackPrevious\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"130|130|Action Button: Forward or Next 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonForwardNext\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"131|131|Action Button: Beginning 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonBeginning\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"132|132|Action Button: End 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonEnd\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"133|133|Action Button: Return 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonReturn\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"134|134|Action Button: Document 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonDocument\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"135|135|Action Button: Sound 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonSound\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"136|136|Action Button: Movie 1|0|T=1",
+"<a:prstGeom prst=\"actionButtonMovie\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"137|106|Rounded Rectangular Callout 1|3|-0.20833|0.625|0.16667|R1=-0.10833|R2=0.725|R3=0.26667|T=1",
+"<a:prstGeom prst=\"wedgeRoundRectCallout\"><a:avLst><a:gd name=\"adj1\" fmla=\"val -10833\"/><a:gd name=\"adj2\" fmla=\"val 72500\"/><a:gd name=\"adj3\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"138|E1004",
+"",
+""
+],
+[
+"139|139| 1|0|T=1",
+"<a:prstGeom prst=\"flowChartOfflineStorage\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"140|140|Shape 1|3|0.5|0.5|0.16667|R1=0.6|R2=0.6|R3=0.26667|T=1",
+"<a:prstGeom prst=\"leftRightRibbon\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/><a:gd name=\"adj3\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"141|141|Diagonal Stripe 1|1|0.5|R1=0.6|T=1",
+"<a:prstGeom prst=\"diagStripe\"><a:avLst><a:gd name=\"adj\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"142|142|Pie 1|2|0|-90|R1=0.1|R2=-89.9|T=1",
+"<a:prstGeom prst=\"pie\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 6000\"/><a:gd name=\"adj2\" fmla=\"val 16206000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"143|143|Shape 1|2|0.25|0.25|R1=0.35|R2=0.35|T=1",
+"<a:prstGeom prst=\"nonIsoscelesTrapezoid\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 35000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"144|144|Decagon 1|1|1.05146|R1=1.15146|T=1",
+"<a:prstGeom prst=\"decagon\"><a:avLst><a:gd name=\"vf\" fmla=\"val 115146\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"145|145|Heptagon 1|2|1.02572|1.0521|R1=1.12572|R2=1.1521|T=1",
+"<a:prstGeom prst=\"heptagon\"><a:avLst><a:gd name=\"hf\" fmla=\"val 112572\"/><a:gd name=\"vf\" fmla=\"val 115210\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"146|146|Dodecagon 1|0|T=1",
+"<a:prstGeom prst=\"dodecagon\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"147|147|6-Point Star 1|2|0.28868|1.1547|R1=0.38868|R2=1.2547|T=1",
+"<a:prstGeom prst=\"star6\"><a:avLst><a:gd name=\"adj\" fmla=\"val 38868\"/><a:gd name=\"hf\" fmla=\"val 125470\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"148|148|7-Point Star 1|3|0.34601|1.02572|1.0521|R1=0.44601|R2=1.12572|R3=1.1521|T=1",
+"<a:prstGeom prst=\"star7\"><a:avLst><a:gd name=\"adj\" fmla=\"val 44601\"/><a:gd name=\"hf\" fmla=\"val 112572\"/><a:gd name=\"vf\" fmla=\"val 115210\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"149|149|10-Point Star 1|2|0.42533|1.05146|R1=0.52533|R2=1.15146|T=1",
+"<a:prstGeom prst=\"star10\"><a:avLst><a:gd name=\"adj\" fmla=\"val 52533\"/><a:gd name=\"hf\" fmla=\"val 115146\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"150|150|12-Point Star 1|1|0.375|R1=0.475|T=1",
+"<a:prstGeom prst=\"star12\"><a:avLst><a:gd name=\"adj\" fmla=\"val 47500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"151|151|Round Single Corner Rectangle 1|1|0.16667|R1=0.26667|T=1",
+"<a:prstGeom prst=\"round1Rect\"><a:avLst><a:gd name=\"adj\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"152|152|Round Same Side Corner Rectangle 1|2|0.16667|0|R1=0.26667|R2=0.1|T=1",
+"<a:prstGeom prst=\"round2SameRect\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 26667\"/><a:gd name=\"adj2\" fmla=\"val 10000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"153|153|Round Diagonal Corner Rectangle 1|2|0.16667|0|R1=0.26667|R2=0.1|T=1",
+"<a:prstGeom prst=\"round2DiagRect\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 26667\"/><a:gd name=\"adj2\" fmla=\"val 10000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"154|154|Snip and Round Single Corner Rectangle 1|2|0.16667|0.16667|R1=0.26667|R2=0.26667|T=1",
+"<a:prstGeom prst=\"snipRoundRect\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 26667\"/><a:gd name=\"adj2\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"155|155|Snip Single Corner Rectangle 1|1|0.16667|R1=0.26667|T=1",
+"<a:prstGeom prst=\"snip1Rect\"><a:avLst><a:gd name=\"adj\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"156|156|Snip Same Side Corner Rectangle 1|2|0.16667|0|R1=0.26667|R2=0.1|T=1",
+"<a:prstGeom prst=\"snip2SameRect\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 26667\"/><a:gd name=\"adj2\" fmla=\"val 10000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"157|157|Snip Diagonal Corner Rectangle 1|2|0|0.16667|R1=0.1|R2=0.26667|T=1",
+"<a:prstGeom prst=\"snip2DiagRect\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 10000\"/><a:gd name=\"adj2\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"158|158|Frame 1|1|0.125|R1=0.225|T=1",
+"<a:prstGeom prst=\"frame\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"159|159|Half Frame 1|2|0.33333|0.33333|R1=0.43333|R2=0.43333|T=1",
+"<a:prstGeom prst=\"halfFrame\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 43333\"/><a:gd name=\"adj2\" fmla=\"val 43333\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"160|160|Teardrop 1|1|1|R1=1.1|T=1",
+"<a:prstGeom prst=\"teardrop\"><a:avLst><a:gd name=\"adj\" fmla=\"val 110000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"161|161|Chord 1|2|45|-90|R1=45.1|R2=-89.9|T=1",
+"<a:prstGeom prst=\"chord\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 2706000\"/><a:gd name=\"adj2\" fmla=\"val 16206000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"162|162|L-Shape 1|2|0.5|0.5|R1=0.6|R2=0.6|T=1",
+"<a:prstGeom prst=\"corner\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 60000\"/><a:gd name=\"adj2\" fmla=\"val 60000\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"163|163|Plus 1|1|0.2352|R1=0.3352|T=1",
+"<a:prstGeom prst=\"mathPlus\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 33520\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"164|164|Minus 1|1|0.2352|R1=0.3352|T=1",
+"<a:prstGeom prst=\"mathMinus\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 33520\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"165|165|Multiply 1|1|0.2352|R1=0.3352|T=1",
+"<a:prstGeom prst=\"mathMultiply\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 33520\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"166|166|Division 1|3|0.2352|0.0588|0.1176|R1=0.3352|R2=0.1588|R3=0.2176|T=1",
+"<a:prstGeom prst=\"mathDivide\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 33520\"/><a:gd name=\"adj2\" fmla=\"val 15880\"/><a:gd name=\"adj3\" fmla=\"val 21760\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"167|167|Equal 1|2|0.2352|0.1176|R1=0.3352|R2=0.2176|T=1",
+"<a:prstGeom prst=\"mathEqual\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 33520\"/><a:gd name=\"adj2\" fmla=\"val 21760\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"168|168|Not Equal 1|3|0.2352|110|0.1176|R1=0.3352|R2=110.1|R3=0.2176|T=1",
+"<a:prstGeom prst=\"mathNotEqual\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 33520\"/><a:gd name=\"adj2\" fmla=\"val 6606000\"/><a:gd name=\"adj3\" fmla=\"val 21760\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"169|169| 1|0|T=1",
+"<a:prstGeom prst=\"cornerTabs\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"170|170| 1|0|T=1",
+"<a:prstGeom prst=\"squareTabs\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"171|171| 1|0|T=1",
+"<a:prstGeom prst=\"plaqueTabs\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"172|172|Shape 1|2|0.15|0.03526|R1=0.25|R2=0.13526|T=1",
+"<a:prstGeom prst=\"gear6\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 25000\"/><a:gd name=\"adj2\" fmla=\"val 13526\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"173|173|Shape 1|2|0.1|0.01763|R1=0.2|R2=0.11763|T=1",
+"<a:prstGeom prst=\"gear9\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 20000\"/><a:gd name=\"adj2\" fmla=\"val 11763\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"174|174|Shape 1|0|T=1",
+"<a:prstGeom prst=\"funnel\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"175|175|Pie 1|0|T=1",
+"<a:prstGeom prst=\"pieWedge\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"176|176|Shape 1|5|0.125|-19.03865|19.03865|180|0.125|R1=0.225|R2=-18.93865|R3=19.13865|R4=-179.9|R5=0.225|T=1",
+"<a:prstGeom prst=\"leftCircularArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 22500\"/><a:gd name=\"adj2\" fmla=\"val 20463681\"/><a:gd name=\"adj3\" fmla=\"val 1148319\"/><a:gd name=\"adj4\" fmla=\"val 10806000\"/><a:gd name=\"adj5\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"177|177|Shape 1|5|0.125|19.03865|-19.03865|-160.9613|0.125|R1=0.225|R2=19.13865|R3=-18.93865|R4=-160.8613|R5=0.225|T=1",
+"<a:prstGeom prst=\"leftRightCircularArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 22500\"/><a:gd name=\"adj2\" fmla=\"val 1148319\"/><a:gd name=\"adj3\" fmla=\"val 20463681\"/><a:gd name=\"adj4\" fmla=\"val 11948319\"/><a:gd name=\"adj5\" fmla=\"val 22500\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"178|178|Shape 1|2|0.25|0.16667|R1=0.35|R2=0.26667|T=1",
+"<a:prstGeom prst=\"swooshArrow\"><a:avLst><a:gd name=\"adj1\" fmla=\"val 35000\"/><a:gd name=\"adj2\" fmla=\"val 26667\"/></a:avLst></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"><a:solidFill><a:schemeClr val=\"tx1\"/></a:solidFill></a:endParaRPr></a:p></xdr:txBody>"
+],
+[
+"179|179|Cloud 1|0|T=1",
+"<a:prstGeom prst=\"cloud\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"180|180| 1|0|T=1",
+"<a:prstGeom prst=\"chartX\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"181|181| 1|0|T=1",
+"<a:prstGeom prst=\"chartStar\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"182|182| 1|0|T=1",
+"<a:prstGeom prst=\"chartPlus\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"183|183|Straight Connector 1|0|T=1",
+"<a:prstGeom prst=\"lineInv\"><a:avLst/></a:prstGeom>",
+"<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+],
+[
+"184|E1004",
+"",
+""
+],
+[
+"185|E1004",
+"",
+""
+],
+[
+"186|E1004",
+"",
+""
+],
+[
+"187|E1004",
+"",
+""
+],
+[
+"188|E1004",
+"",
+""
+],
+[
+"189|E1004",
+"",
+""
+],
+[
+"190|E1004",
+"",
+""
+]
+]
+}

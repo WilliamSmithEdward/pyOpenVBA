@@ -47,6 +47,7 @@ from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MI
                                            to_bool, to_integer, to_text)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._pivots import PivotTable
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.apps.excel._sort import SortState
@@ -1244,11 +1245,11 @@ class ListObject(ExcelObject):
 
 
 class TableSlicers(VBACollection, ExcelObject):
-    """ListObject.Slicers: the model's tables have none."""
+    """ListObject.Slicers and PivotTable.Slicers: the model's tables have none."""
 
     vba_type_name = "Slicers"
 
-    def __init__(self, owner: ListObject) -> None:
+    def __init__(self, owner: ListObject | PivotTable) -> None:
         self.owner = owner
 
     def vba_items(self) -> list[object]:
@@ -1297,8 +1298,34 @@ class ListColumns(VBACollection, ItemDefault, ExcelObject):
         return ListColumn(self.table, add_column(self.table, where))
 
 
+class XPathOfCells(ExcelObject):
+    """The XML mapping of cells with none (tests/fixtures/small_rows.json)."""
+
+    vba_type_name = "XPath"
+
+    @member(default=True)
+    def Value(self) -> object:
+        return ""
+
+    @member
+    def Repeating(self) -> object:
+        raise error(1004, "Unable to get the Repeating property of the XPath class")
+
+    @member
+    def Map(self) -> object:
+        raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @method
+    def Clear(self) -> object:
+        return EMPTY
+
+
 class ListColumn(ExcelObject):
     vba_type_name = "ListColumn"
+
+    @member
+    def XPath(self) -> object:
+        return XPathOfCells()
 
     def __init__(self, table: Table, index: int) -> None:
         self.table = table

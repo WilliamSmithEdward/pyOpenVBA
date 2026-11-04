@@ -1,0 +1,174 @@
+{
+ "measured_at": "2026-11-03T20:47:31.949296+00:00",
+ "probe": "Function One(ByVal text As String) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    v = Application.ExecuteExcel4Macro(text)\n    If IsError(v) Then\n        One = \"error:\" & CStr(v)\n    ElseIf IsObject(v) Then\n        One = \"object:\" & TypeName(v)\n    ElseIf IsArray(v) Then\n        One = \"array\"\n    Else\n        One = TypeName(v) & \":\" & CStr(v)\n    End If\n    Exit Function\nFailed:\n    One = \"E\" & Err.Number\nEnd Function\n\nFunction Setup(ByVal folder As String) As String\n    Application.DisplayAlerts = False\n    Dim b As Workbook, here As Workbook\n    Set here = ActiveWorkbook\n    here.Worksheets(1).Range(\"A1\").Value = 11\n    here.Worksheets(1).Range(\"A2\").Value = \"two\"\n    Set b = Workbooks.Add\n    b.Worksheets(1).Name = \"Data\"\n    b.Worksheets(1).Range(\"A1\").Value = 42\n    b.Worksheets(1).Range(\"B1\").Value = \"word\"\n    b.Worksheets(1).Range(\"A2\").Value = True\n    b.Worksheets(1).Range(\"A3\").Formula = \"=A1*2\"\n    b.Worksheets(1).Range(\"A4\").Value = DateSerial(2026, 1, 2)\n    b.SaveAs folder & \"\\closed.xlsx\", 51\n    b.Close False\n    here.Activate\n    Setup = here.Name\nEnd Function\n",
+ "rows": [
+  {
+   "text": "1+1",
+   "result": "Double:2"
+  },
+  {
+   "text": "2*3+4",
+   "result": "Double:10"
+  },
+  {
+   "text": "\"a\"&\"b\"",
+   "result": "String:ab"
+  },
+  {
+   "text": "TRUE",
+   "result": "Boolean:True"
+  },
+  {
+   "text": "FALSE",
+   "result": "Boolean:False"
+  },
+  {
+   "text": "1/0",
+   "result": "error:Error 2007"
+  },
+  {
+   "text": "NA()",
+   "result": "error:Error 2042"
+  },
+  {
+   "text": "\"text\"",
+   "result": "String:text"
+  },
+  {
+   "text": "SUM(1,2,3)",
+   "result": "Double:6"
+  },
+  {
+   "text": "LEN(\"abc\")",
+   "result": "Double:3"
+  },
+  {
+   "text": "",
+   "result": "String:="
+  },
+  {
+   "text": " ",
+   "result": "E1004"
+  },
+  {
+   "text": "1+",
+   "result": "E1004"
+  },
+  {
+   "text": "NoSuchName",
+   "result": "error:Error 2029"
+  },
+  {
+   "text": "NOSUCH(1)",
+   "result": "error:Error 2029"
+  },
+  {
+   "text": "R1C1",
+   "result": "E1004"
+  },
+  {
+   "text": "R2C1",
+   "result": "E1004"
+  },
+  {
+   "text": "!R1C1",
+   "result": "Double:11"
+  },
+  {
+   "text": "RC",
+   "result": "E1004"
+  },
+  {
+   "text": "R[1]C[1]",
+   "result": "E1004"
+  },
+  {
+   "text": "A1",
+   "result": "E1004"
+  },
+  {
+   "text": "Sheet1!R1C1",
+   "result": "Double:11"
+  },
+  {
+   "text": "Sheet1!R2C1",
+   "result": "String:two"
+  },
+  {
+   "text": "Sheet1!A1",
+   "result": "E1004"
+  },
+  {
+   "text": "'Sheet1'!R1C1",
+   "result": "Double:11"
+  },
+  {
+   "text": "Nowhere!R1C1",
+   "result": "error:Error 2023"
+  },
+  {
+   "text": "SUM(Sheet1!R1C1:R2C1)",
+   "result": "Double:11"
+  },
+  {
+   "text": "Sheet1!R1C1:R2C1",
+   "result": "String:two"
+  },
+  {
+   "text": "Sheet1!R9C9",
+   "result": "Double:0"
+  },
+  {
+   "text": "'[<here>]Sheet1'!R1C1",
+   "result": "Double:11"
+  },
+  {
+   "text": "'[<here>]Sheet1'!R2C1",
+   "result": "String:two"
+  },
+  {
+   "text": "'[<here>]Sheet1'!R9C9",
+   "result": "Double:0"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Data'!R1C1",
+   "result": "Double:42"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Data'!R1C2",
+   "result": "String:word"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Data'!R2C1",
+   "result": "Boolean:True"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Data'!R3C1",
+   "result": "Double:84"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Data'!R4C1",
+   "result": "Double:46024"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Data'!R9C9",
+   "result": "Double:0"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Nowhere'!R1C1",
+   "result": "error:Error 2023"
+  },
+  {
+   "text": "'<folder>\\[missing.xlsx]Data'!R1C1",
+   "result": "error:Error 2023"
+  },
+  {
+   "text": "'<folder>\\[closed.xlsx]Data'!A1",
+   "result": "E1004"
+  },
+  {
+   "text": "SUM('<folder>\\[closed.xlsx]Data'!R1C1:R1C1)",
+   "result": "Double:42"
+  }
+ ]
+}

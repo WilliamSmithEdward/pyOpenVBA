@@ -48,6 +48,8 @@ class LinkedBook:
     part: str = ""
     #: Whether the link keeps the linked cells' values: a workbook saved with SaveLinkValues False keeps none.
     kept: bool = True
+    #: The sheets a save lists after the workbook's own once ChangeLink has pointed the link at it (see _link_edits).
+    extra_sheets: tuple[str, ...] = ()
 
     def folder(self, here: str) -> str:
         """The folder the linked workbook is in, ``here`` being this workbook's own."""
@@ -186,6 +188,7 @@ def shown(book: Workbook, formula: str) -> str:
     """A formula's references to linked workbooks as Range.Formula shows them: each [1]Sheet1! as the path of the
     workbook the link points at, 'C:\\dir\\[Source.xlsx]Sheet1'!, and each [1]! of a name as 'C:\\dir\\Source.xlsx'!.
     A link the workbook does not list is left as it is."""
+    from pyopenvba.apps.excel._link_edits import source_is_open
     from pyopenvba.formula import _parse as P
 
     if "[" not in formula or not getattr(book, "linked_books", None):
@@ -203,8 +206,13 @@ def shown(book: Workbook, formula: str) -> str:
         linked = book.linked_books.get(int(found.group(1))) if found is not None else None
         if found is not None and linked is not None:
             sheet = found.group(2)
-            folder = linked.folder(book.path)
-            place = (folder + "\\" if folder else "") + (f"[{linked.file}]{sheet}" if sheet else linked.file)
-            text = "'" + place.replace("'", "''") + "'!" + text[found.end():]
+            if source_is_open(book, linked):
+                place = f"[{linked.file}]{sheet}" if sheet else linked.file
+                quoted = re.search(r"[^A-Za-z0-9_.\[\]]", place) is not None
+                text = ("'" + place.replace("'", "''") + "'" if quoted else place) + "!" + text[found.end():]
+            else:
+                folder = linked.folder(book.path)
+                place = (folder + "\\" if folder else "") + (f"[{linked.file}]{sheet}" if sheet else linked.file)
+                text = "'" + place.replace("'", "''") + "'!" + text[found.end():]
         out.append(text)
     return "=" + "".join(out)

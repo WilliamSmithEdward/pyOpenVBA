@@ -42,7 +42,7 @@ from typing import TYPE_CHECKING, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba._xml import attributes, tag_attributes
-from pyopenvba.apps.excel import _dimensions
+from pyopenvba.apps.excel import _dimensions, _events
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._styles import XL_AUTOMATIC
@@ -93,6 +93,7 @@ class SheetViewState:
     """A sheet's view in its workbook's window, as the sheet's first sheetView keeps it."""
 
     view: int = 1
+    data_type_icons: bool = True
     #: zoomScale, the zoom of the view the sheet is in.
     zoom: int = 100
     #: The normal view's zoom, the page break preview's and the page layout view's once each is kept apart; 0 before.
@@ -144,8 +145,10 @@ class BookViewState:
     date_grouping: bool = True
     #: What Caption was set to; the workbook's name until it is.
     caption: str | None = None
-    #: WindowState, Width and Height once a macro sets them; before, they are the screen's.
+    #: WindowState, Left, Top, Width and Height once a macro sets them; before, they are the screen's.
     state: int | None = None
+    left: float | None = None
+    top: float | None = None
     width: float | None = None
     height: float | None = None
     #: The sheet whose tab the file has selected, so a save moves that only when another sheet is active.
@@ -565,6 +568,29 @@ def brought_forward(application: Application, book: Workbook) -> None:
     order.insert(0, book)
 
 
+def print_out(book: Workbook, sheet: Worksheet | None, preview: object, printer: object, to_file: object) -> None:
+    """A print that goes nowhere: the model has no printer, so all a macro sees of it is BeforePrint. A sheet not active
+    in its workbook is active for the event and made active again without one, and a hidden sheet is refused
+    (tests/fixtures/more_events.json print_*)."""
+    if preview is not MISSING and to_bool(preview):
+        raise VBAUnsupportedError("PrintOut with Preview, which waits for someone at the screen, is not implemented")
+    if printer is not MISSING:
+        raise VBAUnsupportedError("PrintOut naming a printer is not implemented")
+    if sheet is not None and sheet.visible != -1:  # xlSheetVisible
+        raise error(1004, "PrintOut method of Worksheet class failed")
+    active = book.active_sheet
+    moving = sheet is not None and active is not sheet
+    if sheet is not None and moving:
+        if book.application.active_book is not book:
+            raise VBAUnsupportedError("PrintOut of a sheet not active in a workbook behind is not implemented")
+        sheet.Activate()
+    going_ahead = _events.before_print(book)
+    if moving and active is not None:
+        book.active_sheet_index = book.sheets_.index(active)
+    if going_ahead and to_file is not MISSING and to_bool(to_file):
+        raise VBAUnsupportedError("PrintOut to a file, which a printer driver writes, is not implemented")
+
+
 def window_of(book: Workbook) -> Window:
     """The workbook's one window, the same object each time it is asked for."""
     if book.view.window is None:
@@ -599,7 +625,26 @@ class Windows(VBACollection, ItemDefault, ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.application
+        return self.application if self.book is None else self.book
+
+    # -- side by side, which one window at a time never is (tests/fixtures/window_members.json)
+
+    @member
+    def SyncScrollingSideBySide(self) -> object:
+        return False
+
+    @method
+    def BreakSideBySide(self) -> object:
+        return False
+
+    @method
+    def ResetPositionsSideBySide(self) -> object:
+        return EMPTY
+
+    @method
+    def CompareSideBySideWith(self, WindowName: object = MISSING) -> object:  # noqa: N803
+        self.vba_lookup(WindowName, self.vba_items())
+        return False
 
 
 def pane_count(view: SheetViewState) -> int:
@@ -610,6 +655,27 @@ def pane_count(view: SheetViewState) -> int:
         both = float(split.get("xSplit", "0") or 0) and float(split.get("ySplit", "0") or 0)
         return 4 if both else 2
     return 4 if view.rows and view.columns else 2
+
+
+class Pane(ExcelObject):
+    """The one pane of a window with no split (tests/fixtures/window_members.json)."""
+
+    vba_type_name = "Pane"
+
+    def __init__(self, window: Window) -> None:
+        self.window = window
+
+    @member
+    def Index(self) -> object:
+        return VBAInt(1, "Long")
+
+    @member
+    def Parent(self) -> object:
+        return self.window
+
+    @member
+    def Application(self) -> object:
+        return self.window.book.application
 
 
 class Panes(VBACollection, ExcelObject):
@@ -629,6 +695,8 @@ class Panes(VBACollection, ExcelObject):
         return self.window.book.application
 
     def vba_items(self) -> list[object]:
+        if pane_count(self.window.view()) == 1:
+            return [Pane(self.window)]
         raise VBAUnsupportedError("a window's panes, each scrolled on its own, are not implemented; Panes.Count is")
 
     @member
@@ -694,6 +762,16 @@ class WorksheetView(ExcelObject):
     def Sheet(self) -> object:
         self.view()
         return self.sheet
+
+    @member
+    def DisplayDataTypeIcons(self) -> object:
+        """Kept for the session; whether it reaches the file was not measured (tests/fixtures/small_rows.json)."""
+        return self.view().data_type_icons
+
+    @setter("DisplayDataTypeIcons")
+    def _display_data_type_icons(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.view().data_type_icons = wanted
 
     @member
     def DisplayGridlines(self) -> object:
@@ -828,6 +906,46 @@ class Window(ExcelObject):
         self.book.application.activate_book(self.book)
         return EMPTY
 
+    @member
+    def ActivePane(self) -> object:
+        """The one pane of a window with no split; with panes, which is active the model does not keep."""
+        if pane_count(self.view()) != 1:
+            raise VBAUnsupportedError("the active pane of a split window is not implemented")
+        return Pane(self)
+
+    @setter("ActivePane")
+    def _set_active_pane(self, value: object) -> None:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def EnableResize(self) -> object:
+        return True
+
+    @member
+    def DisplayDataTypeIcons(self) -> object:
+        return True
+
+    @method
+    def ScrollWorkbookTabs(self, Sheets: object = MISSING, Position: object = MISSING) -> object:  # noqa: N803
+        """No tabs to scroll here: 1004 given nothing, and anything else goes by (tests/fixtures/window_members.json)."""
+        if Sheets is MISSING and Position is MISSING:
+            raise error(1004, "ScrollWorkbookTabs method of Window class failed")
+        return EMPTY
+
+    @method
+    def Close(self, SaveChanges: object = MISSING, Filename: object = MISSING,  # noqa: N803
+              RouteWorkbook: object = MISSING) -> object:  # noqa: N803
+        """A workbook's only window closed: the workbook closes (tests/fixtures/more_events.json)."""
+        self.book.Close(SaveChanges, Filename, RouteWorkbook)
+        return True
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
+        """Refused before any event (tests/fixtures/more_events.json print_window)."""
+        raise error(1004, "PrintOut method of Window class failed")
+
     @method
     def ActivateNext(self) -> object:
         """The window behind this one activated, so that two in a row swap the front two; True
@@ -875,7 +993,27 @@ class Window(ExcelObject):
 
     @setter("WindowState")
     def _set_window_state(self, value: object) -> None:
-        self.book.view.state = int(to_integer(value, "Long"))
+        state = int(to_integer(value, "Long"))
+        changed = state != self.book.view.state
+        self.book.view.state = state
+        if changed:
+            _events.window_resized(self.book)
+
+    @member
+    def Left(self) -> object:
+        return self._size(self.book.view.left)
+
+    @setter("Left")
+    def _set_left(self, value: object) -> None:
+        self.book.view.left = float(to_number(value))
+
+    @member
+    def Top(self) -> object:
+        return self._size(self.book.view.top)
+
+    @setter("Top")
+    def _set_top(self, value: object) -> None:
+        self.book.view.top = float(to_number(value))
 
     @member
     def Width(self) -> object:
@@ -883,7 +1021,10 @@ class Window(ExcelObject):
 
     @setter("Width")
     def _set_width(self, value: object) -> None:
-        self.book.view.width = float(to_number(value))
+        width = float(to_number(value))
+        changed = width != self.book.view.width
+        self.book.view.width = width
+        self._resized(changed)
 
     @member
     def Height(self) -> object:
@@ -891,7 +1032,17 @@ class Window(ExcelObject):
 
     @setter("Height")
     def _set_height(self, value: object) -> None:
-        self.book.view.height = float(to_number(value))
+        height = float(to_number(value))
+        changed = height != self.book.view.height
+        self.book.view.height = height
+        self._resized(changed)
+
+    def _resized(self, changed: bool) -> None:
+        """A width or height set raises WindowResize, whatever it was, and again when it changes
+        (tests/fixtures/more_events.json)."""
+        _events.window_resized(self.book)
+        if changed:
+            _events.window_resized(self.book)
 
     @staticmethod
     def _size(points: float | None) -> object:

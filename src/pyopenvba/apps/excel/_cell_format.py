@@ -21,8 +21,8 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import MemberSpec, member, method
-from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, to_bool, to_integer, to_number, to_text
+from pyopenvba.interpreter._objects import MemberSpec, member, method, setter
+from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, error, to_bool, to_integer, to_number, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Worksheet
@@ -149,9 +149,19 @@ def _colors(unset: object) -> list[MemberSpec]:
 class CellFormatFont(_Part):
     vba_type_name = "Font"
 
+    @member
+    def Parent(self) -> object:
+        """The CellFormat, which is made fresh and keeps nothing of its own (tests/fixtures/object_trio.json)."""
+        return CellFormat(self.application, self.kept)
+
 
 class CellFormatInterior(_Part):
     vba_type_name = "Interior"
+
+    @member
+    def Parent(self) -> object:
+        """The CellFormat, as a Font's (tests/fixtures/object_trio.json)."""
+        return CellFormat(self.application, self.kept)
 
 
 class CellFormat(_Part):
@@ -172,6 +182,17 @@ class CellFormat(_Part):
     @member
     def Borders(self) -> object:
         raise VBAUnsupportedError("CellFormat Borders is not implemented")
+
+    @member
+    def NumberFormatLocal(self) -> object:
+        """NumberFormat under another name, in the only locale measured (tests/fixtures/small_rows.json)."""
+        return self.vba_get("NumberFormat", [])
+
+    @setter("NumberFormatLocal")
+    def _number_format_local(self, value: object) -> None:
+        if "[" in to_text(value) and "]" not in to_text(value):
+            raise error(1004, "Unable to set the NumberFormatLocal property of the CellFormat class")
+        self.vba_set("NumberFormat", value)
 
     @method
     def Clear(self) -> object:

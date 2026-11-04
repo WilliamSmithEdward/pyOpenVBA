@@ -24,6 +24,19 @@ Excel does.
 * Deactivate, then Activate: another sheet made active; a new sheet is
   NewSheet first, and deactivates the sheet it was placed beside, or the
   active one.
+
+tests/fixtures/more_events.json measures the rest:
+
+* BeforeDelete: for each worksheet of a delete Excel does not refuse, last tab
+  first, before the first one named deactivates, active or not.
+* NewChart: a chart made, or a copy by Duplicate; not one a sheet copy carries.
+* WindowDeactivate, Deactivate, Activate, WindowActivate: another workbook's
+  window to the front, a workbook closing among them, the left and the coming.
+* WindowResize: once for a width or height set, twice when it changes; once for
+  a state that changes.
+* BeforePrint: before a print, its sheet active by then if it was not.
+* FollowHyperlink: after the link has gone to its place.
+* NewWorkbook: a workbook made, before its window comes to the front.
 """
 
 from __future__ import annotations
@@ -72,13 +85,13 @@ def _sinks(book: Workbook, source: VBAObject, event: str, args: list[object]) ->
         interpreter.raise_event(source, event, args)
 
 
-def _workbook(book: Workbook, event: str, args: list[object]) -> None:
+def _workbook(book: Workbook, event: str, args: list[object], on_application: str | None = None) -> None:
     if not _on(book):
         return
     _sinks(book, book, event, args)
     _handle(book, f"Workbook_{event}", args)
     if _on(book):
-        _sinks(book, book.application, f"Workbook{event}", [book, *args])
+        _sinks(book, book.application, on_application or f"Workbook{event}", [book, *args])
 
 
 def before_save(book: Workbook, save_as_ui: bool = False) -> bool:
@@ -102,13 +115,48 @@ def opened(book: Workbook) -> None:
     _workbook(book, "Open", [])
 
 
+def _window(book: Workbook, event: str) -> None:
+    from pyopenvba.apps.excel._windows import window_of
+
+    _workbook(book, event, [window_of(book)], event)
+
+
+def book_left(book: Workbook) -> None:
+    _window(book, "WindowDeactivate")
+    _workbook(book, "Deactivate", [])
+
+
+def book_entered(book: Workbook) -> None:
+    _workbook(book, "Activate", [])
+    _window(book, "WindowActivate")
+
+
 def book_activated(book: Workbook, before: Workbook | None) -> None:
     """Changing workbook windows does not re-activate their active sheet."""
     if before is book:
         return
     if before is not None:
-        _workbook(before, "Deactivate", [])
-    _workbook(book, "Activate", [])
+        book_left(before)
+    book_entered(book)
+
+
+def window_resized(book: Workbook) -> None:
+    _window(book, "WindowResize")
+
+
+def new_workbook(book: Workbook) -> None:
+    if _on(book):
+        _sinks(book, book.application, "NewWorkbook", [book])
+
+
+def new_chart(book: Workbook, chart: VBAObject) -> None:
+    _workbook(book, "NewChart", [chart])
+
+
+def before_print(book: Workbook) -> bool:
+    cancel = Slot(False, "Boolean")
+    _workbook(book, "BeforePrint", [cancel])
+    return not to_bool(cancel.get())
 
 
 def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
@@ -128,6 +176,22 @@ def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
 
 def changed(target: Range) -> None:
     _both(target.sheet, "Change", [target])
+
+
+def before_delete(sheet: Worksheet) -> None:
+    _both(sheet, "BeforeDelete", [])
+
+
+def sheet_left(sheet: Worksheet) -> None:
+    _both(sheet, "Deactivate", [])
+
+
+def sheet_entered(sheet: Worksheet) -> None:
+    _both(sheet, "Activate", [])
+
+
+def followed(sheet: Worksheet, link: VBAObject) -> None:
+    _both(sheet, "FollowHyperlink", [link])
 
 
 def pivot_updated(table: PivotTable) -> None:

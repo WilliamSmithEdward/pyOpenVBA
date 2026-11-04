@@ -57,10 +57,12 @@ from pyopenvba.formula._values import ExcelError, number_text
 LARGEST: Final = 9.99999999999999e307
 _CORNER: Final = re.compile(r"(\$?)([A-Za-z]{1,3})?(\$?)([0-9]{1,7})?")
 #: What Excel reads in a formula that the model does not: the dynamic-array operators.
-_UNMODELLED: Final = re.compile(r"@|#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|SPILL!|CALC!|GETTING_DATA)",
+_UNMODELLED: Final = re.compile(r"#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|SPILL!|CALC!|GETTING_DATA)",
                                 re.IGNORECASE)
 #: A string, or a sheet's name in apostrophes, where any character may stand.
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
+#: Two points between two cells, as Lotus wrote a range: A1..A2 reads A1:A2 (tests/fixtures/value_gaps.json).
+_DOTS: Final = re.compile(rf"(?a)({_QUOTED.pattern})|(?<![\w.$])(\$?[A-Za-z]{{1,3}}\$?\d+)\.\.(\$?[A-Za-z]{{1,3}}\$?\d+)(?![\w.])")
 
 
 @dataclass(frozen=True)
@@ -207,7 +209,10 @@ def _without_at(body: str, tokens: list[Token]) -> str:
 
 
 def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -> str:
-    body = formula[1:]
+    body = _DOTS.sub(lambda found: found.group(1) or f"{found.group(2)}:{found.group(3)}", formula[1:])
+    if "\t" in re.sub(r"\[[^\]]*\]", "", _QUOTED.sub('""', body)):
+        # In a string, a sheet's name or a table's column it may stand; anywhere else Excel refuses it.
+        raise FormulaError("a tab stands outside a string")
     try:
         tokens = tokenize(body, spaces=True)
     except FormulaError:
@@ -246,7 +251,8 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
         if token.kind == "eof":
             break
         if token.kind == "ws":
-            if not array and after.kind not in ("comma", "eof"):
+            if not array and after.kind != "eof" and (after.kind != "comma" or not calls):
+                # Before a comma between arguments a space goes; before a union's, with no brackets round it, it stays.
                 pieces.append(token.text)
             index += 1
             continue

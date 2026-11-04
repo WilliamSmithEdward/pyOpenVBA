@@ -481,6 +481,8 @@ class Parser:
         self.at = 0
         #: Where each node's text starts in the source, by the node's id.
         self.starts: dict[int, int] = {}
+        #: How many calls, brackets and arrays the parser is inside. Outside them a comma joins references.
+        self.inside = 0
 
     def placed(self, node: Node, start: int) -> Node:
         """``node``, noted as starting at ``start`` in the source."""
@@ -573,13 +575,30 @@ class Parser:
         while True:
             if self.token.kind == "op" and self.token.text == ":":
                 self.advance()
-                joined = Binary(op=":", left=self.referable(node), right=self.referable(self.primary()))
+                joined = Binary(op=":", left=self.referable(node), right=self.referable(self.joined_operand()))
                 node = self.placed(joined, self.start(node))
-            elif self.token.kind in ("ref", "structured", "name", "open") and self.spaced():
-                joined = Binary(op=" ", left=self.referable(node), right=self.referable(self.primary()))
+            elif (self.token.kind in ("ref", "structured", "name", "open") or self._at_sign()) and self.spaced():
+                joined = Binary(op=" ", left=self.referable(node), right=self.referable(self.joined_operand()))
+                node = self.placed(joined, self.start(node))
+            elif self.token.kind == "comma" and not self.inside:
+                # With nothing round it a comma is a reference operator that binds as tightly as these: -A1,A2 and
+                # A1,A2+1 are a union with a sign and a union plus 1, and A1+1,A2 is refused (tests/fixtures/value_gaps.json).
+                self.advance()
+                joined = Binary(op=",", left=self.referable(node), right=self.referable(self.joined_operand()))
                 node = self.placed(joined, self.start(node))
             else:
                 return node
+
+    def _at_sign(self) -> bool:
+        return self.token.kind == "op" and self.token.text == "@"
+
+    def joined_operand(self) -> Node:
+        """What a reference operator joins on its right: one reference, an @ perhaps before it."""
+        if self._at_sign():
+            start = self.token.at
+            self.advance()
+            return self.placed(Unary(op="@", operand=self.spilled(self.primary())), start)
+        return self.spilled(self.primary())
 
     def spilled(self, node: Node) -> Node:
         """``node`` and a ``#`` after it, what spilled from a cell: A1#."""
@@ -598,7 +617,7 @@ class Parser:
     def referable(self, node: Node) -> Node:
         """A reference operator's operand, which has to be a reference, a name or a call that might give one."""
         if isinstance(node, (Reference, Structured, NameNode, Call)) \
-                or (isinstance(node, Binary) and node.op in REFERENCE_OPS) or isinstance(node, Unary) and node.op == "#":
+                or (isinstance(node, Binary) and node.op in REFERENCE_OPS) or isinstance(node, Unary) and node.op in ("#", "@"):
             return node
         raise FormulaError(f"a reference operator needs references in {self.source!r}")
 
@@ -644,12 +663,14 @@ class Parser:
     def bracketed(self) -> Node:
         """What stands in brackets, the node inside them keeping its own start."""
         self.advance()
+        self.inside += 1
         inner = self.expression()
         while self.token.kind == "comma":
             # Inside brackets a comma joins references into a union.
             self.advance()
             joined = Binary(op=",", left=self.referable(inner), right=self.referable(self.expression()))
             inner = self.placed(joined, self.start(inner))
+        self.inside -= 1
         self.expect("close")
         if isinstance(inner, Binary):
             inner.grouped = True
@@ -678,6 +699,7 @@ class Parser:
         if self.at_kind("close"):
             self.advance()
             return args
+        self.inside += 1
         while True:
             if self.at_kind("comma", "close"):
                 # An argument left out, as in OFFSET(A1,1,,2).
@@ -688,11 +710,13 @@ class Parser:
                 self.advance()
                 continue
             break
+        self.inside -= 1
         self.expect("close")
         return args
 
     def array(self) -> Node:
         self.expect("lbrace")
+        self.inside += 1
         rows: list[list[Node]] = [[]]
         while True:
             rows[-1].append(self.expression())
@@ -704,7 +728,10 @@ class Parser:
                 rows.append([])
                 continue
             break
+        self.inside -= 1
         self.expect("rbrace")
+        if len({len(row) for row in rows}) > 1:
+            raise FormulaError(f"an array's rows differ in length in {self.source!r}")
         return ArrayLiteral(rows=rows)
 
 

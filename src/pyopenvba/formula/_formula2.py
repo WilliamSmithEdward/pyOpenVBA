@@ -144,6 +144,8 @@ class _Walk:
     body: str = ""
     merging: bool = False
     merged: set[int] = field(default_factory=lambda: set())
+    #: Whether a table's reference may stand here, as it may in what Range.Formula keeps (see :func:`written`).
+    tables: bool = False
     reference_handoff: int = 0
     array_evaluation: bool = False
 
@@ -156,7 +158,12 @@ class _Walk:
         return many
 
     def _takes(self, node: Node | None) -> bool:
-        """Whether a thing that can give several values takes an @ where one is wanted: all but a union."""
+        """Whether a thing that can give several values takes an @ where one is wanted: all but a union, or an intersection
+        of two single cells (tests/fixtures/value_gaps.json)."""
+        if isinstance(node, Binary) and isinstance(node.right, Unary) and node.right.op == "@":
+            return False
+        if isinstance(node, Binary) and node.op == " ":
+            return not all(isinstance(side, Reference) and ":" not in side.text for side in (node.left, node.right))
         return not (isinstance(node, Binary) and node.op == ",")
 
     def _many(self, node: Node | None, where: str) -> bool:
@@ -172,7 +179,11 @@ class _Walk:
                 # Written through Range.Formula, an @ on a table's cells goes as one on any other cells does
                 # (tests/fixtures/formula_reads.json).
                 return True
-            raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
+            if not self.tables:
+                raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
+            # Written through Range.Formula beside an @ that stays: this row's, or a heading or total of one column, is one value.
+            one_column = node.first is not None and node.first == node.last
+            return "#This Row" not in node.items and not (one_column and set(node.items) & {"#Headers", "#Totals"})
         if isinstance(node, ArrayLiteral):
             for row in node.rows:
                 for item in row:
@@ -193,7 +204,8 @@ class _Walk:
             if node.op in (":", " ", ","):
                 self.visit(node.left, WHOLE)
                 self.visit(node.right, WHOLE)
-                return True
+                # An @ on the right of a reference operator is enough for it: =A1 @A2 reads back as it is.
+                return not (isinstance(node.right, Unary) and node.right.op == "@")
             inside = WHOLE if where == WHOLE else VALUE
             left = self.visit(node.left, inside)
             right = self.visit(node.right, inside)
@@ -345,7 +357,7 @@ class _Walk:
         """Whether a function that gives several values only when given them does so here; ``many`` says which
         arguments can give several."""
         if key == "INDEX":
-            if not args or not isinstance(args[0], (Reference, NameNode)):
+            if not args or not isinstance(args[0], (Reference, NameNode, Structured)):
                 return True
             return any(not _whole_number(argument) for argument in args[1:3])
         if key == "OFFSET":
@@ -469,9 +481,9 @@ def formula2(formula: str, named: Callable[[str], str | None], *, whole: bool = 
     return deep(lambda: _formula2(formula, named, whole=whole))
 
 
-def _formula2(formula: str, named: Callable[[str], str | None], *, whole: bool) -> str:
+def _formula2(formula: str, named: Callable[[str], str | None], *, whole: bool, tables: bool = False) -> str:
     tree, starts = parse_placed(formula)
-    walk = _Walk(starts, named)
+    walk = _Walk(starts, named, tables=tables)
     walk.visit(tree, WHOLE if whole else VALUE)
     body = formula[1:] if formula.startswith("=") else formula
     for start in sorted(walk.marks, reverse=True):
@@ -501,7 +513,7 @@ def _written(formula: str, named: Callable[[str], str | None]) -> str:
     tokens = tokenize(body, spaces=True)
     kept = "=" + "".join(token.text for token in tokens
                          if not (token.kind == "op" and token.text == "@" and token.at in walk.merged))
-    return _formula2(kept, named, whole=False) if intersected(kept) else kept
+    return _formula2(kept, named, whole=False, tables=True) if intersected(kept) else kept
 
 
 __all__ = ["UnreadFormula2Error", "formula2", "written"]

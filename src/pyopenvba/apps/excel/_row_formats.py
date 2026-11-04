@@ -298,13 +298,10 @@ _ROWS_FROM = 3
 
 def _lift_column_formats(sheet: Worksheet, top: int, styled: dict[int, S.Style]) -> None:
     """Rows cleared to the sheet's last row take the columns' formats away: the rows above keep showing them, by a
-    row format of each where three columns or more were formatted, else by a cell at each formatted column
-    (tests/fixtures/clear_rows_formats.json)."""
-    if len(styled) >= _ROWS_FROM:
-        formats = set(styled.values())
-        if len(formats) > 1:
-            raise VBAUnsupportedError("clearing rows to the last row under columns of different formats is not "
-                                      "implemented")
+    row format of each where three columns or more were formatted alike, else by a cell at each formatted column
+    (tests/fixtures/clear_rows_formats.json, tests/fixtures/value_gaps.json)."""
+    formats = set(styled.values())
+    if len(styled) >= _ROWS_FROM and len(formats) == 1:
         shown = formats.pop()
         for row in range(1, top):
             record = sheet.dims.rows.get(row)

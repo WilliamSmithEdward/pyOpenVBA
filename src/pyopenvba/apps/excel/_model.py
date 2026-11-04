@@ -8589,15 +8589,9 @@ def legacy_formula(sheet: Worksheet, formula: str) -> str:
     """A formula written through Range.Formula, spelled, as Excel keeps it: a call of SINGLE an @, an @ left out
     where the formula cuts to one value anyway, and where one is kept every @ Formula2 shows written out
     (see pyopenvba.formula._formula2.written)."""
-    from pyopenvba.formula._formula2 import UnreadFormula2Error, written
-    from pyopenvba.formula._parse import FormulaError
+    from pyopenvba.formula._formula2 import written
 
-    try:
-        return written(formula, lambda name: defined_formula(sheet, name))
-    except UnreadFormula2Error as exc:
-        raise VBAUnsupportedError(str(exc)) from None
-    except FormulaError:
-        raise VBAUnsupportedError(f"Range.Formula given {formula} is not implemented") from None
+    return written(formula, lambda name: defined_formula(sheet, name))
 
 
 def defined_formula(sheet: Worksheet, name: str) -> str | None:

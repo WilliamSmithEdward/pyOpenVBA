@@ -1310,12 +1310,12 @@ Font2,DoubleStrikeThrough,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_
 Font2,Embeddable,"property, read-only",As MsoTriState,,MISSING,,
 Font2,Embedded,"property, read-only",As MsoTriState,,MISSING,,
 Font2,Equalize,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,Fill,"property, read-only",As FillFormat,,MISSING,,
+Font2,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_font2_paint.json; tests/test_excel_shape_font2_paint.py,"Visible, solid colours, theme colours, Brightness, TintAndShade and Transparency, over all of the text or part. Gradients, patterns, textures and SchemeColor report themselves."
 Font2,Glow,"property, read-only",As GlowFormat,,MISSING,,
 Font2,Highlight,"property, read-only",As ColorFormat,,MISSING,,
 Font2,Italic,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Kerning,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,Line,"property, read-only",As LineFormat,,MISSING,,
+Font2,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/shape_font2_paint.json; tests/test_excel_shape_font2_paint.py,"Visible, colours, Weight, DashStyle 1 and 4, Style 2 and Transparency, over all of the text or part. Patterns and other dashes report themselves."
 Font2,Name,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,NameAscii,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,NameComplexScript,property,As String,,MISSING,,

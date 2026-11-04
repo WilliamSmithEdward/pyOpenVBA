@@ -29,7 +29,7 @@ from html.parser import HTMLParser
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
-from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects,
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects, TextLine,
                                       TextLook, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
@@ -1260,6 +1260,23 @@ def _free_geometry(shape: Shape) -> str:
             f'<a:path w="{emu(shape.width)}" h="{emu(shape.height)}">{steps}</a:path></a:pathLst></a:custGeom>')
 
 
+def _text_line(line: TextLine) -> str:
+    """The a:ln of a shape's letters (tests/fixtures/shape_font2_paint.json)."""
+    if line.hidden:
+        return "<a:ln><a:noFill/></a:ln>"
+    if line.rgb is None and line.scheme is None:
+        inside = "".join(f'<a:{name} val="{value}"/>' for name, value in line.mods) + ("" if line.alpha is None else f'<a:alpha val="{line.alpha}"/>')
+        ink = f'<a:prstClr val="black">{inside}</a:prstClr>' if inside else '<a:prstClr val="black"/>'
+    else:
+        ink = _colour(line.rgb, line.scheme or "", 0, line.alpha, line.mods)
+    if line.full:
+        return (f'<a:ln w="{9525 if line.width is None else line.width}" cap="flat" cmpd="{line.compound or "sng"}" algn="ctr"><a:solidFill>{ink}</a:solidFill>'
+                f'<a:prstDash val="{line.dash or "solid"}"/><a:round/><a:headEnd type="none" w="med" len="med"/><a:tailEnd type="none" w="med" len="med"/></a:ln>')
+    attributes = ("" if line.width is None else f' w="{line.width}"') + ("" if line.compound is None else f' cmpd="{line.compound}"')
+    dash = "" if line.dash is None else f'<a:prstDash val="{line.dash}"/>'
+    return f"<a:ln{attributes}><a:solidFill>{ink}</a:solidFill>{dash}</a:ln>"
+
+
 def _font_markup(look: TextLook) -> tuple[str, str]:
     """What Characters.Font writes on a run or a paragraph's end: its attributes and its children."""
     attributes = f' sz="{round(look.font_size * 100)}"'
@@ -1282,10 +1299,15 @@ def _font_markup(look: TextLook) -> tuple[str, str]:
     if look.font_baseline is not None:
         attributes += f' baseline="{look.font_baseline}"'
     children = ""
-    if look.font_rgb is not None:
-        children += f'<a:solidFill>{_colour(look.font_rgb, "", 0, None, (), look.font_index)}</a:solidFill>'
-    elif look.font_tint is not None:
-        children += f'<a:solidFill><a:schemeClr val="lt1"><a:tint val="{look.font_tint}"/></a:schemeClr></a:solidFill>'
+    if look.font_line is not None:
+        children += _text_line(look.font_line)
+    mods = (("tint", look.font_tint),) if look.font_tint is not None else look.font_mods
+    if look.font_no_fill:
+        children += "<a:noFill/>"
+    elif look.font_rgb is not None:
+        children += f'<a:solidFill>{_colour(look.font_rgb, "", 0, look.font_alpha, mods, look.font_index)}</a:solidFill>'
+    elif look.font_theme is not None or mods or look.font_alpha is not None or look.font_solid:
+        children += f'<a:solidFill>{_colour(None, look.font_theme or look.font_scheme, 0, look.font_alpha, mods)}</a:solidFill>'
     if look.font_shadow:
         children += ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0">'
                      '<a:scrgbClr r="0" g="0" b="0"/></a:outerShdw></a:effectLst>')

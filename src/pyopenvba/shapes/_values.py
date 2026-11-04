@@ -174,6 +174,23 @@ class ControlInfo:
     lock_text: bool = True
 
 
+@dataclass(frozen=True)
+class TextLine:
+    """The line around a shape's letters (TextRange2.Font.Line). With no colour of its own, it is the preset black."""
+
+    hidden: bool = False
+    rgb: str | None = None
+    scheme: str | None = None
+    preset: bool = False
+    mods: tuple[tuple[str, int], ...] = ()
+    alpha: int | None = None
+    width: int | None = None
+    compound: str | None = None
+    dash: str | None = None
+    #: Setting its transparency writes every attribute out.
+    full: bool = False
+
+
 @dataclass(slots=True)
 class TextLook:
     """Excel: how a new shape lays out its text, as TextFrame sets it and bodyPr and pPr keep it
@@ -217,6 +234,15 @@ class TextLook:
     font_tint: int | None = None
     font_shadow: bool = False
     font_latin: str | None = None
+    #: What TextRange2.Font.Fill adds: no fill, a theme colour, its Brightness, its transparency, and a colour written out.
+    font_no_fill: bool = False
+    font_theme: str | None = None
+    font_mods: tuple[tuple[str, int], ...] = ()
+    font_alpha: int | None = None
+    font_solid: bool = False
+    #: The theme colour letters take by default: light on a shape, dark in a text box.
+    font_scheme: str = "lt1"
+    font_line: TextLine | None = None
     #: TextFrame2.Column: bodyPr's numCol, and its spcCol in points (tests/fixtures/shape_columns.json).
     columns: int = 1
     column_spacing: float = 0.0

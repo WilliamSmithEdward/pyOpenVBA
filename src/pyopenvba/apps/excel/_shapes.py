@@ -2556,7 +2556,8 @@ class _TextLayout(Created):
             raise _unsupported("the text layout of this shape")
         if shape.text_look is None:
             shape.text_look = TextLook(align="l" if shape.kind == "shape" else None,
-                                       vert="horz" if shape.kind == "textBox" else None)
+                                       vert="horz" if shape.kind == "textBox" else None,
+                                       font_scheme="dk1" if shape.kind == "textBox" else "lt1")
         return shape.text_look
 
     def _changed(self) -> TextLook:
@@ -3065,6 +3066,8 @@ class _ShapeFontBase(Created):
         shape = self.characters.owner.shape
         base = self.frame._look()  # pyright: ignore[reportPrivateUsage]
         at, count = self.characters.span()
+        if not shape.text_marks or not count:
+            return [tuple(getattr(self.look(), name) for name in names)]
         return [tuple(mark.get(name, getattr(base, name)) for name in names) for mark in shape.text_marks[at:at + count]]
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
@@ -3129,17 +3132,16 @@ class ShapeFont(_ShapeFontBase):
 
     @member
     def Color(self) -> object:
-        look = self.look()
-        if look.font_rgb is not None:
-            red, green, blue = (int(look.font_rgb[at:at + 2], 16) for at in (0, 2, 4))
-            return VBAInt(red | green << 8 | blue << 16, "Long")
-        return VBAInt(0 if self.text_box() else 16777215, "Long")
+        from pyopenvba.apps.excel._text_paint import font_ink
+
+        return VBAInt(font_ink(self), "Long")
 
     @setter("Color")
     def _color(self, value: object) -> None:
         colour = int(to_number(value)) & 0xFFFFFF
         look = self.changed()
         look.font_rgb, look.font_index, look.font_tint = f"{colour & 255:02X}{colour >> 8 & 255:02X}{colour >> 16 & 255:02X}", None, None
+        look.font_no_fill, look.font_theme, look.font_mods = False, None, ()
 
     @member
     def ColorIndex(self) -> object:
@@ -3245,7 +3247,7 @@ class ShapeFont(_ShapeFontBase):
     @setter("TintAndShade")
     def _tint_and_shade(self, value: object) -> None:
         wanted = float(VBASingle(float(to_number(value))))
-        if self.text_box() or wanted <= 0:
+        if wanted <= 0:
             raise _unsupported("this TintAndShade of a shape's font")
         look = self.changed()
         look.font_tint, look.font_rgb, look.font_index = round((1 - wanted) * 100000), None, None
@@ -3291,6 +3293,18 @@ class ShapeFont2(_ShapeFontBase):
     few more. Its Fill, Line and effects, far-east and other font names are not built."""
 
     vba_type_name = "Font2"
+
+    @member
+    def Fill(self) -> object:
+        from pyopenvba.apps.excel._text_paint import TextFill
+
+        return TextFill(self)
+
+    @member
+    def Line(self) -> object:
+        from pyopenvba.apps.excel._text_paint import TextLineFormat
+
+        return TextLineFormat(self)
 
     @member
     def Bold(self) -> object:
@@ -3457,7 +3471,7 @@ class ShapeFont2(_ShapeFontBase):
         self.changed().font_normalize = True
 
 
-_COLOUR_FIELDS = ("font_rgb", "font_index", "font_tint")
+_COLOUR_FIELDS = ("font_rgb", "font_index", "font_tint", "font_theme", "font_mods", "font_no_fill")
 _MIXED_NUMBER = VBAInt(-2147483648, "Long")
 _MIXED_SINGLE = VBASingle(-2147483648.0)
 
@@ -3564,7 +3578,7 @@ class TextRange2(_ShapeText):
 
     @member
     def Font(self) -> object:
-        if self.span()[1] == 0 and self.owner.shape.text:
+        if self.span()[1] == 0 and self.owner.shape.text:  # Excel sets the word around the place, by rules not worked out.
             raise _unsupported("the Font of a TextRange2 with no characters")
         return ShapeFont2(self)
 

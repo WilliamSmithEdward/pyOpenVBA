@@ -1,0 +1,214 @@
+{
+ "measured_at": "2026-11-04T05:24:19.451653+00:00",
+ "answers": {
+  "CompileOnDemand": null,
+  "BackGroundCompile": null,
+  "same_module_other_procedure_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "bad_procedure_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nCan't assign to read-only property"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "other_module_not_called": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "other_module_called": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nCan't assign to read-only property"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "reached_after_work": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nCan't assign to read-only property"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "on_error_in_caller": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nCan't assign to read-only property"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "on_error_other_module": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nCan't assign to read-only property"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "read_only neighbour_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "read_only itself_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nCan't assign to read-only property"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "argument_count neighbour_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "argument_count itself_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nWrong number of arguments or invalid property assignment"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "named_argument neighbour_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "named_argument itself_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nNamed argument not found"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "sub_as_value neighbour_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "sub_as_value itself_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nExpected Function or variable"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "unknown_member neighbour_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "unknown_member itself_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nMethod or data member not found"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "undeclared_explicit neighbour_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "undeclared_explicit itself_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nVariable not defined"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  },
+  "project_function_count neighbour_run": {
+   "ok": true,
+   "value": "ran",
+   "dialogs": [],
+   "error": null,
+   "message": null
+  },
+  "project_function_count itself_run": {
+   "ok": false,
+   "value": null,
+   "dialogs": [
+    {
+     "kind": "compile-error",
+     "text": "Compile error:\n\nWrong number of arguments or invalid property assignment"
+    }
+   ],
+   "error": null,
+   "message": "Blocked by a modal dialog: Microsoft Visual Basic for Applications"
+  }
+ }
+}

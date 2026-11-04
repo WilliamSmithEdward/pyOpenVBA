@@ -3404,6 +3404,9 @@ class Worksheet(ExcelObject):
         #: the last id it gave (see _notes.next_shape_id).
         self.vml_block = 0
         self.vml_last_id = 0
+        #: The cells a save marked ca="1" on a sheet it did not write whole, as not yet worked out (see
+        #: _io._write_cached_values), so a later save can take the mark off once they are.
+        self.marked_to_calculate: set[tuple[int, int]] = set()
 
     def touched(self) -> None:
         self.dirty = True

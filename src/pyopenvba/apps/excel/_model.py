@@ -5521,7 +5521,7 @@ class Range(ExcelObject):
                     if item is NOT_IN_ARRAY:
                         self._put(row, column, NA)
                         continue
-                    if item is NULL:
+                    if item is NULL or isinstance(item, VBAArray):
                         item = EMPTY
                     if isinstance(item, VBAErrorValue):
                         from pyopenvba.apps.excel._calc import from_vba

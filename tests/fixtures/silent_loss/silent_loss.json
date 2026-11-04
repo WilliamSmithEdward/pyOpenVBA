@@ -1,0 +1,779 @@
+{
+ "measured_at": "2026-11-04T05:44:31.483381+00:00",
+ "help": "Private Function WrongPassword(ws As Object) As String\n    On Error Resume Next\n    ws.Unprotect \"no\"\n    WrongPassword = \"E\" & Err.Number & \",\" & ws.ProtectContents\nEnd Function\nPrivate Function RightPassword(ws As Object) As String\n    On Error Resume Next\n    ws.Unprotect \"pw\"\n    RightPassword = \"E\" & Err.Number & \",\" & ws.ProtectContents\nEnd Function\nPrivate Function BookPassword(wb As Object) As String\n    On Error Resume Next\n    wb.Unprotect \"no\"\n    BookPassword = \"E\" & Err.Number & \",\" & wb.ProtectStructure\nEnd Function\nPrivate Function Tried(ByVal n As Long, wb As Object, ws As Object) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    Select Case n\n{cases}\n    End Select\n    Tried = CStr(v)\n    Exit Function\nFailed:\n    Tried = \"E\" & Err.Number\nEnd Function\n",
+ "rows": [
+  {
+   "name": "tab_color",
+   "action": "ws.Tab.Color = 255",
+   "reads": [
+    "ws.Tab.Color",
+    "ws.Tab.ColorIndex"
+   ],
+   "excel": "255|3",
+   "model": "255|3",
+   "after": "255|3",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "tab_color_index",
+   "action": "ws.Tab.ColorIndex = 6",
+   "reads": [
+    "ws.Tab.Color",
+    "ws.Tab.ColorIndex"
+   ],
+   "excel": "65535|6",
+   "model": "65535|6",
+   "after": "65535|6",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "tab_theme",
+   "action": "ws.Tab.ThemeColor = 5\nws.Tab.TintAndShade = 0.4",
+   "reads": [
+    "ws.Tab.ThemeColor",
+    "ws.Tab.TintAndShade",
+    "ws.Tab.ColorIndex"
+   ],
+   "excel": "5|0.399975585192419|42",
+   "model": "5|0.399975585192419|42",
+   "after": "5|0.399975585192419|42",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "protect_plain",
+   "action": "ws.Protect",
+   "reads": [
+    "ws.ProtectContents",
+    "ws.ProtectDrawingObjects",
+    "ws.ProtectScenarios"
+   ],
+   "excel": "True|True|True",
+   "model": "True|True|True",
+   "after": "True|True|True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "protect_contents_only",
+   "action": "ws.Protect DrawingObjects:=False, Contents:=True, Scenarios:=False",
+   "reads": [
+    "ws.ProtectContents",
+    "ws.ProtectDrawingObjects",
+    "ws.ProtectScenarios"
+   ],
+   "excel": "True|False|False",
+   "model": "True|False|False",
+   "after": "True|False|False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "protect_allows",
+   "action": "ws.Protect AllowFormattingCells:=True, AllowSorting:=True, AllowFiltering:=True, AllowInsertingRows:=True",
+   "reads": [
+    "ws.Protection.AllowFormattingCells",
+    "ws.Protection.AllowSorting",
+    "ws.Protection.AllowFiltering",
+    "ws.Protection.AllowInsertingRows",
+    "ws.Protection.AllowDeletingRows"
+   ],
+   "excel": "True|True|True|True|False",
+   "model": "True|True|True|True|False",
+   "after": "True|True|True|True|False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "protect_password",
+   "action": "ws.Protect Password:=\"pw\"",
+   "reads": [
+    "ws.ProtectContents",
+    "WrongPassword(ws)",
+    "RightPassword(ws)"
+   ],
+   "excel": "True|E1004,True|E0,False",
+   "model": "True|E1004,True|E0,False",
+   "after": "True|E1004,True|E0,False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "protect_select",
+   "action": "ws.EnableSelection = xlUnlockedCells\nws.Protect",
+   "reads": [
+    "ws.ProtectContents",
+    "ws.EnableSelection"
+   ],
+   "excel": "True|1",
+   "model": "True|1",
+   "after": "True|1",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "book_protect",
+   "action": "wb.Protect Structure:=True",
+   "reads": [
+    "wb.ProtectStructure",
+    "wb.ProtectWindows"
+   ],
+   "excel": "True|False",
+   "model": "True|False",
+   "after": "True|False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "book_protect_password",
+   "action": "wb.Protect Password:=\"pw\", Structure:=True",
+   "reads": [
+    "wb.ProtectStructure",
+    "BookPassword(wb)"
+   ],
+   "excel": "True|E1004,True",
+   "model": "True|E1004,True",
+   "after": "True|E1004,True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "zoom",
+   "action": "wb.Windows(1).Zoom = 150",
+   "reads": [
+    "wb.Windows(1).Zoom"
+   ],
+   "excel": "150",
+   "model": "150",
+   "after": "150",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "gridlines",
+   "action": "wb.Windows(1).DisplayGridlines = False",
+   "reads": [
+    "wb.Windows(1).DisplayGridlines"
+   ],
+   "excel": "False",
+   "model": "False",
+   "after": "False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "headings",
+   "action": "wb.Windows(1).DisplayHeadings = False",
+   "reads": [
+    "wb.Windows(1).DisplayHeadings"
+   ],
+   "excel": "False",
+   "model": "False",
+   "after": "False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "zeros",
+   "action": "wb.Windows(1).DisplayZeros = False",
+   "reads": [
+    "wb.Windows(1).DisplayZeros"
+   ],
+   "excel": "False",
+   "model": "False",
+   "after": "False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "formulas",
+   "action": "wb.Windows(1).DisplayFormulas = True",
+   "reads": [
+    "wb.Windows(1).DisplayFormulas"
+   ],
+   "excel": "True",
+   "model": "True",
+   "after": "True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "outline_symbols",
+   "action": "wb.Windows(1).DisplayOutline = False",
+   "reads": [
+    "wb.Windows(1).DisplayOutline"
+   ],
+   "excel": "False",
+   "model": "False",
+   "after": "False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "ruler_tabs",
+   "action": "wb.Windows(1).DisplayWorkbookTabs = False\nwb.Windows(1).TabRatio = 0.3",
+   "reads": [
+    "wb.Windows(1).DisplayWorkbookTabs",
+    "wb.Windows(1).TabRatio"
+   ],
+   "excel": "False|0.3",
+   "model": "False|0.3",
+   "after": "False|0.3",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "scroll_bars",
+   "action": "wb.Windows(1).DisplayHorizontalScrollBar = False\nwb.Windows(1).DisplayVerticalScrollBar = False",
+   "reads": [
+    "wb.Windows(1).DisplayHorizontalScrollBar",
+    "wb.Windows(1).DisplayVerticalScrollBar"
+   ],
+   "excel": "False|False",
+   "model": "False|False",
+   "after": "False|False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "view",
+   "action": "wb.Windows(1).View = xlPageBreakPreview",
+   "reads": [
+    "wb.Windows(1).View",
+    "wb.Windows(1).Zoom"
+   ],
+   "excel": "2|60",
+   "model": "2|60",
+   "after": "2|60",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "right_to_left",
+   "action": "ws.DisplayRightToLeft = True",
+   "reads": [
+    "ws.DisplayRightToLeft"
+   ],
+   "excel": "True",
+   "model": "True",
+   "after": "True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "scroll",
+   "action": "",
+   "reads": [
+    "wb.Windows(1).ScrollRow",
+    "wb.Windows(1).ScrollColumn"
+   ],
+   "excel": "20|5",
+   "model": "20|5",
+   "after": "20|5",
+   "edited": "None",
+   "lost": {
+    "sheet.dimension": [
+     "<dimension ref=\"A1\"/>",
+     "<dimension ref=\"H20\"/>"
+    ]
+   }
+  },
+  {
+   "name": "selection",
+   "action": "ws.Range(\"C3:D4\").Select",
+   "reads": [
+    "wb.Windows(1).RangeSelection.Address",
+    "wb.Windows(1).ActiveCell.Address"
+   ],
+   "excel": "$C$3:$D$4|$C$3",
+   "model": "$C$3:$D$4|$C$3",
+   "after": "$C$3:$D$4|$C$3",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "selection_areas",
+   "action": "ws.Range(\"A1,C3:D4\").Select",
+   "reads": [
+    "wb.Windows(1).RangeSelection.Address",
+    "wb.Windows(1).ActiveCell.Address"
+   ],
+   "excel": "$A$1,$C$3:$D$4|$A$1",
+   "model": "$A$1,$C$3:$D$4|$A$1",
+   "after": "$A$1,$C$3:$D$4|$A$1",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "freeze_rows",
+   "action": "",
+   "reads": [
+    "wb.Windows(1).FreezePanes",
+    "wb.Windows(1).SplitRow",
+    "wb.Windows(1).SplitColumn"
+   ],
+   "excel": "True|1|0",
+   "model": "True|2|0",
+   "after": "True|1|0",
+   "edited": "None",
+   "lost": {
+    "sheet.dimension": [
+     "<dimension ref=\"A1\"/>",
+     "<dimension ref=\"H20\"/>"
+    ]
+   }
+  },
+  {
+   "name": "freeze_columns",
+   "action": "",
+   "reads": [
+    "wb.Windows(1).FreezePanes",
+    "wb.Windows(1).SplitRow",
+    "wb.Windows(1).SplitColumn"
+   ],
+   "excel": "True|0|1",
+   "model": "True|0|2",
+   "after": "True|0|1",
+   "edited": "None",
+   "lost": {
+    "sheet.dimension": [
+     "<dimension ref=\"A1\"/>",
+     "<dimension ref=\"H20\"/>"
+    ]
+   }
+  },
+  {
+   "name": "freeze_both",
+   "action": "",
+   "reads": [
+    "wb.Windows(1).FreezePanes",
+    "wb.Windows(1).SplitRow",
+    "wb.Windows(1).SplitColumn"
+   ],
+   "excel": "True|0|0",
+   "model": "True|1|1",
+   "after": "True|0|0",
+   "edited": "None",
+   "lost": {
+    "sheet.dimension": [
+     "<dimension ref=\"A1\"/>",
+     "<dimension ref=\"H20\"/>"
+    ]
+   }
+  },
+  {
+   "name": "split",
+   "action": "",
+   "reads": [
+    "wb.Windows(1).Split",
+    "wb.Windows(1).SplitRow",
+    "wb.Windows(1).FreezePanes"
+   ],
+   "excel": "True|0|False",
+   "model": "reports: panes the model does not lay out, a split Excel kept in twips, are not counted i",
+   "after": "True|0|False",
+   "edited": "None",
+   "lost": {
+    "sheet.dimension": [
+     "<dimension ref=\"A1\"/>",
+     "<dimension ref=\"H20\"/>"
+    ]
+   }
+  },
+  {
+   "name": "split_columns",
+   "action": "",
+   "reads": [
+    "wb.Windows(1).Split",
+    "wb.Windows(1).SplitColumn",
+    "wb.Windows(1).FreezePanes"
+   ],
+   "excel": "True|0|False",
+   "model": "reports: panes the model does not lay out, a split Excel kept in twips, are not counted i",
+   "after": "True|0|False",
+   "edited": "None",
+   "lost": {
+    "sheet.dimension": [
+     "<dimension ref=\"A1\"/>",
+     "<dimension ref=\"H20\"/>"
+    ]
+   }
+  },
+  {
+   "name": "active_sheet",
+   "action": "wb.Worksheets(2).Activate",
+   "reads": [
+    "wb.ActiveSheet.Name"
+   ],
+   "excel": "Sheet2",
+   "model": "Sheet2",
+   "after": "Sheet2",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "group",
+   "action": "wb.Worksheets(Array(1, 2)).Select",
+   "reads": [
+    "wb.Windows(1).SelectedSheets.Count",
+    "wb.ActiveSheet.Name"
+   ],
+   "excel": "2|Sheet1",
+   "model": "2|Sheet1",
+   "after": "2|Sheet1",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "scroll_area",
+   "action": "ws.ScrollArea = \"A1:B2\"",
+   "reads": [
+    "ws.ScrollArea"
+   ],
+   "excel": "",
+   "model": "",
+   "after": "",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "row_height",
+   "action": "ws.Rows(3).RowHeight = 30",
+   "reads": [
+    "ws.Rows(3).RowHeight",
+    "ws.Rows(4).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "excel": "30|15|15",
+   "model": "30|15|15",
+   "after": "30|15|15",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "default_height",
+   "action": "ws.Rows.RowHeight = 25",
+   "reads": [
+    "ws.Rows(3).RowHeight",
+    "ws.StandardHeight"
+   ],
+   "excel": "25|25",
+   "model": "25|25",
+   "after": "25|25",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "column_width",
+   "action": "ws.Columns(2).ColumnWidth = 20",
+   "reads": [
+    "ws.Columns(2).ColumnWidth",
+    "ws.Columns(3).ColumnWidth"
+   ],
+   "excel": "20|8.43",
+   "model": "20|8.43",
+   "after": "20|8.43",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "standard_width",
+   "action": "ws.StandardWidth = 12",
+   "reads": [
+    "ws.StandardWidth",
+    "ws.Columns(3).ColumnWidth"
+   ],
+   "excel": "12|12",
+   "model": "12|12",
+   "after": "12|12",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "hidden_row",
+   "action": "ws.Rows(3).Hidden = True",
+   "reads": [
+    "ws.Rows(3).Hidden",
+    "ws.Rows(3).RowHeight"
+   ],
+   "excel": "True|0",
+   "model": "True|0",
+   "after": "True|0",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "hidden_column",
+   "action": "ws.Columns(2).Hidden = True",
+   "reads": [
+    "ws.Columns(2).Hidden",
+    "ws.Columns(2).ColumnWidth"
+   ],
+   "excel": "True|0",
+   "model": "True|0",
+   "after": "True|0",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "outline_rows",
+   "action": "ws.Rows(\"2:3\").Group",
+   "reads": [
+    "ws.Rows(2).OutlineLevel",
+    "ws.Rows(4).OutlineLevel"
+   ],
+   "excel": "2|1",
+   "model": "2|1",
+   "after": "2|1",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "outline_collapsed",
+   "action": "ws.Rows(\"2:3\").Group\nws.Outline.ShowLevels RowLevels:=1",
+   "reads": [
+    "ws.Rows(2).Hidden",
+    "ws.Rows(2).OutlineLevel"
+   ],
+   "excel": "True|2",
+   "model": "True|2",
+   "after": "True|2",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "outline_summary",
+   "action": "ws.Outline.SummaryRow = xlAbove\nws.Outline.SummaryColumn = xlLeft",
+   "reads": [
+    "ws.Outline.SummaryRow",
+    "ws.Outline.SummaryColumn"
+   ],
+   "excel": "0|-4131",
+   "model": "0|-4131",
+   "after": "0|-4131",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "outline_columns",
+   "action": "ws.Columns(\"B:C\").Group",
+   "reads": [
+    "ws.Columns(2).OutlineLevel",
+    "ws.Columns(4).OutlineLevel"
+   ],
+   "excel": "2|1",
+   "model": "2|1",
+   "after": "2|1",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "transition",
+   "action": "ws.TransitionExpEval = True\nws.TransitionFormEntry = True",
+   "reads": [
+    "ws.TransitionExpEval",
+    "ws.TransitionFormEntry"
+   ],
+   "excel": "True|True",
+   "model": "True|True",
+   "after": "True|True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "code_name",
+   "action": "",
+   "reads": [
+    "ws.CodeName"
+   ],
+   "excel": "",
+   "model": "",
+   "after": "",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "date_1904",
+   "action": "wb.Date1904 = True",
+   "reads": [
+    "wb.Date1904"
+   ],
+   "excel": "True",
+   "model": "True",
+   "after": "True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "precision",
+   "action": "ws.Range(\"A1\").NumberFormat = \"0.0\"\nws.Range(\"A1\").Value = 1.26\nwb.PrecisionAsDisplayed = True",
+   "reads": [
+    "wb.PrecisionAsDisplayed",
+    "ws.Range(\"A1\").Value2"
+   ],
+   "excel": "True|1.3",
+   "model": "True|1.3",
+   "after": "True|1.3",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "force_full",
+   "action": "wb.ForceFullCalculation = True",
+   "reads": [
+    "wb.ForceFullCalculation"
+   ],
+   "excel": "True",
+   "model": "True",
+   "after": "True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "save_link_values",
+   "action": "wb.SaveLinkValues = False",
+   "reads": [
+    "wb.SaveLinkValues"
+   ],
+   "excel": "False",
+   "model": "False",
+   "after": "False",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "update_links",
+   "action": "wb.UpdateLinks = xlUpdateLinksNever",
+   "reads": [
+    "wb.UpdateLinks"
+   ],
+   "excel": "2",
+   "model": "2",
+   "after": "2",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "check_compatibility",
+   "action": "wb.CheckCompatibility = True",
+   "reads": [
+    "wb.CheckCompatibility"
+   ],
+   "excel": "True",
+   "model": "True",
+   "after": "True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "remove_personal",
+   "action": "wb.RemovePersonalInformation = True",
+   "reads": [
+    "wb.RemovePersonalInformation"
+   ],
+   "excel": "True",
+   "model": "True",
+   "after": "True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "drawing_objects",
+   "action": "wb.DisplayDrawingObjects = xlHide",
+   "reads": [
+    "wb.DisplayDrawingObjects"
+   ],
+   "excel": "3",
+   "model": "3",
+   "after": "3",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "read_only_recommended",
+   "action": "wb.ReadOnlyRecommended = True",
+   "reads": [
+    "wb.ReadOnlyRecommended"
+   ],
+   "excel": "True",
+   "model": "True",
+   "after": "True",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "default_table_style",
+   "action": "wb.DefaultTableStyle = \"TableStyleLight1\"",
+   "reads": [
+    "wb.DefaultTableStyle"
+   ],
+   "excel": "TableStyleLight1",
+   "model": "TableStyleLight1",
+   "after": "TableStyleLight1",
+   "edited": "None",
+   "lost": {}
+  },
+  {
+   "name": "calc_manual",
+   "action": "Application.Calculation = xlCalculationManual",
+   "reads": [],
+   "excel": "",
+   "model": "",
+   "after": "",
+   "edited": "None",
+   "lost": {
+    "book.calcPr": [
+     "<calcPr calcId=\"191029\" calcMode=\"manual\"/>",
+     "<calcPr calcId=\"191029\" calcMode=\"auto\"/>"
+    ]
+   }
+  },
+  {
+   "name": "calc_iteration",
+   "action": "Application.Iteration = True\nApplication.MaxIterations = 50\nApplication.MaxChange = 0.5",
+   "reads": [],
+   "excel": "",
+   "model": "",
+   "after": "",
+   "edited": "None",
+   "lost": {
+    "book.calcPr": [
+     "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.5\"/>",
+     "<calcPr calcId=\"191029\"/>"
+    ]
+   }
+  },
+  {
+   "name": "calc_not_before_save",
+   "action": "Application.Calculation = xlCalculationManual\nApplication.CalculateBeforeSave = False",
+   "reads": [],
+   "excel": "",
+   "model": "",
+   "after": "",
+   "edited": "None",
+   "lost": {
+    "book.calcPr": [
+     "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>",
+     "<calcPr calcId=\"191029\" calcMode=\"auto\" calcOnSave=\"1\"/>"
+    ]
+   }
+  },
+  {
+   "name": "calc_semi",
+   "action": "Application.Calculation = 2",
+   "reads": [],
+   "excel": "",
+   "model": "",
+   "after": "",
+   "edited": "None",
+   "lost": {
+    "book.calcPr": [
+     "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>",
+     "<calcPr calcId=\"191029\" calcMode=\"auto\"/>"
+    ]
+   }
+  }
+ ]
+}

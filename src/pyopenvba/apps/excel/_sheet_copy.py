@@ -290,6 +290,9 @@ def _published(stage: _Staged, destination: Workbook, at: int | None, external: 
     copied.shared_groups = dict(source.shared_groups)
     copied.array_formulas = dict(source.array_formulas)
     copied.data_tables = dict(source.data_tables)
+    from pyopenvba.apps.excel._query_tables import copied_to
+
+    copied_to(source, copied)
     copied.dims = source.dims.copied(copied)
     from pyopenvba.apps.excel._outline import copied as copied_outline
 

@@ -325,7 +325,10 @@ def typed_field(field: str, current: str, separators: tuple[str, str] = (".", ",
     decimal, thousands = separators
     if (decimal, thousands) != (".", ","):
         # Read with the separators given alone: 234.5 is text where . separates thousands
-        # (tests/fixtures/open_text.json, separators).
+        # (tests/fixtures/open_text.json, separators), and a comma that is neither makes text
+        # (tests/fixtures/query_tables.json).
+        if "," in field and "," not in separators:
+            return Typed(field)
         text = field.replace(thousands, "\0").replace(decimal, ".").replace("\0", ",")
     trailing = _TRAILING_MINUS.fullmatch(text)
     if minus and trailing is not None:

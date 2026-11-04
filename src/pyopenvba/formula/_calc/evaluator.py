@@ -494,9 +494,36 @@ class Context:
             return self._reference_operator(node)
         return self.operate(node.op, self.evaluate(node.left), self.evaluate(node.right))
 
+    def _reference_operand(self, node: Node) -> Value:
+        """One side of a reference operator. An @ there, or a call of SINGLE as a file keeps one, leaves the one cell it cuts
+        to, still a reference: with A1:A3 in row 2, =A1:@A1:A3 reads A1:A2 (tests/fixtures/value_gaps.json)."""
+        held: Node | None = None
+        if isinstance(node, Unary) and node.op == "@":
+            held = node.operand
+        elif isinstance(node, Call) and node.name.upper().removeprefix("_XLFN.") == "SINGLE" and len(node.args) == 1:
+            held = node.args[0]
+        if held is None:
+            return self.evaluate(node)
+        value = self.evaluate(held)
+        if not isinstance(value, Reference):
+            return value if isinstance(value, CellError) else VALUE
+        area = value.area
+        if area is None:
+            return REF if value.three_d else VALUE
+        row, column = area.top, area.left
+        if area.height > 1:
+            if not area.top <= self.row <= area.bottom:
+                return VALUE
+            row = self.row
+        if area.width > 1:
+            if not area.left <= self.column <= area.right:
+                return VALUE
+            column = self.column
+        return Reference.of(Area(area.sheet, row, column, row, column))
+
     def _reference_operator(self, node: Binary) -> Value:
-        left = self.evaluate(node.left)
-        right = self.evaluate(node.right)
+        left = self._reference_operand(node.left)
+        right = self._reference_operand(node.right)
         for side in (left, right):
             if isinstance(side, CellError):
                 return side

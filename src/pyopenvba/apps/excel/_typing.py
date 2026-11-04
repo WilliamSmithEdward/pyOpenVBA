@@ -451,6 +451,11 @@ def _after_space(body: str) -> Typed | None:
 
 #: What fills the place after the last one read, in a time read one place along: a day less 10,000 of that place's unit.
 _NOT_READ: Final = -10000
+def _past_their_limits(places: list[int]) -> int:
+    """How many of an hour, a minute and a second are past where a clock's stop."""
+    return sum(place >= limit for place, limit in zip(places, (24, 60, 60), strict=False))
+
+
 #: What AM and PM are read as, where one is taken for a number: a whole number kept in 32 bits, unsigned.
 _HALF_NUMBERS: Final = {"a": 2 ** 32 - 22, "p": 2 ** 32 - 21}
 
@@ -482,6 +487,8 @@ def _shifted(body: str) -> Typed | None:
     if time.fraction:
         # As in a time with a point: the numbers before it end at the minute, and the digits after it are the second.
         places = [*([0] * (2 - len(places))), *places, int(time.fraction)]
+        if _past_their_limits(places) > 1:
+            return Typed(None, code)
         return Typed(serial + (places[0] * 3600 + places[1] * 60 + places[2]) / 86400, "mm:ss.0")
     if time.half is not None:
         if len(places) == 2:
@@ -492,6 +499,9 @@ def _shifted(body: str) -> Typed | None:
     extra = re.search(r"(?a)\d+", body[time.end:])
     places.append(int(extra.group()) if extra is not None else _NOT_READ)
     hours, minutes, seconds = (*places, 0, 0)[:3]
+    if _past_their_limits([hours, minutes, seconds]) > 1 and time.half is None:
+        # One place past its limit is General; two leave the text, with the date's format.
+        return Typed(None, code)
     value = serial + (hours * 3600 + minutes * 60 + seconds) / 86400
     if time.half is not None or hours >= 24 or minutes >= 60 or seconds >= 60:
         return Typed(value, "General")
@@ -663,6 +673,11 @@ def _clock(text: str, start: int) -> _Clock | None:
     return _Clock(tuple(int(field) for field in fields), fraction, half.group(1) if half is not None else None, at, past)
 
 
+def _milliseconds(digits: str) -> float:
+    """The digits after a point in a typed second, to the millisecond, a 5 rounding up."""
+    return float(Decimal("0." + digits).quantize(Decimal("0.001"), ROUND_HALF_UP))
+
+
 def _clock_value(time: _Clock) -> tuple[float, str] | None:
     """A typed time's day fraction and format, or None where AM or PM cannot hold it.
 
@@ -678,7 +693,7 @@ def _clock_value(time: _Clock) -> tuple[float, str] | None:
         if hours >= 24 or minutes >= 60:
             return None
         assert time.half is not None
-        seconds = _HALF_NUMBERS[time.half[0].lower()] + round(float("0." + time.past), 3)
+        seconds = _HALF_NUMBERS[time.half[0].lower()] + _milliseconds(time.past)
         return (hours * 3600 + minutes * 60 + seconds) / 86400, "mm:ss.0"
     if time.fraction and len(fields) == 2:
         hours, minutes, seconds = 0, *fields
@@ -689,7 +704,7 @@ def _clock_value(time: _Clock) -> tuple[float, str] | None:
             return None
         hours = hours % 12 + (12 if time.half[0] in "Pp" else 0)
     # Excel keeps a typed fraction of a second to the millisecond.
-    part = round(float("0." + time.fraction), 3) if time.fraction else 0
+    part = _milliseconds(time.fraction) if time.fraction else 0
     value = (hours * 3600 + minutes * 60 + seconds + part) / 86400
     if time.fraction:
         code = "mm:ss.0"

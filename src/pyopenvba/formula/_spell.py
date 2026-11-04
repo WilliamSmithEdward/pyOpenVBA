@@ -45,7 +45,7 @@ from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._deep import deep
-from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node,
+from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, Literal, NameNode, is_one_cell, Node,
                                       Reference, Structured, Token, Unary, literal, parse, read_structured, split_sheet,
                                       tokenize)
 from pyopenvba.formula._prefixes import bound
@@ -61,9 +61,8 @@ _UNMODELLED: Final = re.compile(r"#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|S
                                 re.IGNORECASE)
 #: A string, or a sheet's name in apostrophes, where any character may stand.
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
-_RANGE_AT: Final = re.compile(rf"(?a)({_QUOTED.pattern})|(?<![\w.$@:])((?:\$?[A-Za-z]{{1,3}}\$?\d+:)+)@(?=\$?[A-Za-z])")
 #: A cell, points and more after them, as one name: Excel writes it in apostrophes (tests/fixtures/value_gaps.json).
-_DOTTED_NAME: Final = re.compile(r"(?a)[A-Za-z]{1,3}\d+\.{2,}.+")
+_DOTTED_NAME: Final = re.compile(r"(?a)[A-Za-z]{1,3}\d+\.{2,}[^.].*")
 #: The functions that may stand beside a range, an intersection or a union, which can give cells; a function Excel has
 #: not got may too (tests/fixtures/value_gaps.json went through all of them).
 _GIVE_CELLS: Final = frozenset("""
@@ -200,23 +199,6 @@ def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False
     return deep(lambda: _spelled(formula, names, whole=whole, at=at, r1c1=r1c1))
 
 
-def _at_on_range(body: str) -> str:
-    """A range with an @ on its last cell has one on its first too, =A1:@A2 reading back =@A1:@A2, but in a call's
-    brackets, =SUM(A1:@A2) (tests/fixtures/value_gaps.json)."""
-    if ":@" not in body:
-        return body
-
-    def replaced(found: re.Match[str]) -> str:
-        if found.group(1):
-            return found.group(0)
-        inside = 0
-        for match in re.finditer(r"(\w?)([()])", _QUOTED.sub('""', body[:found.start()])):
-            inside = max(inside - 1, 0) if match.group(2) == ")" else inside + 1 if match.group(1) or inside else inside
-        return found.group(0) if inside else f"@{found.group(2)}@"
-
-    return _RANGE_AT.sub(replaced, body)
-
-
 def _without_at(body: str, tokens: list[Token]) -> str:
     """``body`` with each @ taken out but one standing on a single cell."""
     out: list[str] = []
@@ -227,6 +209,8 @@ def _without_at(body: str, tokens: list[Token]) -> str:
         after = _next(tokens, index)
         if after.kind == "name" and is_cell(after.text) and _next(tokens, index + 1).text != ":":
             continue
+        if after.kind == "structured" and is_one_cell(read_structured(after.text, at=after.at)):
+            continue
         out.append(body[start:token.at])
         start = token.at + 1
     out.append(body[start:])
@@ -235,7 +219,6 @@ def _without_at(body: str, tokens: list[Token]) -> str:
 
 def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -> str:
     body = _DOTS.sub(lambda found: found.group(1) or f"{found.group(2)}:{found.group(3)}", formula[1:])
-    body = _at_on_range(body)
     formula = "=" + body
     if "\t" in re.sub(r"\[[^\]]*\]", "", _QUOTED.sub('""', body)):
         # In a string, a sheet's name or a table's column it may stand; anywhere else Excel refuses it.
@@ -243,7 +226,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
     try:
         tokens = tokenize(body, spaces=True)
     except FormulaError:
-        unmodelled = _UNMODELLED.search(_QUOTED.sub('""', body))
+        unmodelled = _UNMODELLED.search(re.sub(r"\[[^\]]*\]", "", _QUOTED.sub('""', body)))
         if unmodelled is not None:
             raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented") from None
         raise
@@ -342,7 +325,7 @@ def check_arguments(node: Node | None) -> None:
     tests/fixtures/formula_refusals.json.
     """
     if isinstance(node, Binary) and node.op in REFERENCE_OPS:
-        for side in (node.left, node.right):
+        for side in (node.right,) if node.held else (node.left, node.right):
             if isinstance(side, Call) and is_excel_function(function_key(side.name)) and function_key(side.name) not in _GIVE_CELLS:
                 raise FormulaError(f"{side.name} gives no cells for a reference operator")
     if isinstance(node, Call):

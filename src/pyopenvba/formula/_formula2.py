@@ -52,7 +52,7 @@ from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._deep import deep
-from pyopenvba.formula._parse import (ArrayLiteral, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node,
+from pyopenvba.formula._parse import (ArrayLiteral, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node, is_one_cell,
                                       Reference, Structured, Unary, parse, parse_placed, tokenize)
 from pyopenvba.formula._prefixes import at_kept, intersected
 
@@ -175,15 +175,15 @@ class _Walk:
             # (tests/fixtures/workbook_links.json).
             return ":" in node.text or ":" in node.sheet.rpartition("]")[2]
         if isinstance(node, Structured):
+            if is_one_cell(node):
+                return False
             if self.merging:
                 # Written through Range.Formula, an @ on a table's cells goes as one on any other cells does
                 # (tests/fixtures/formula_reads.json).
                 return True
             if not self.tables:
                 raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
-            # Written through Range.Formula beside an @ that stays: this row's, or a heading or total of one column, is one value.
-            one_column = node.first is not None and node.first == node.last
-            return "#This Row" not in node.items and not (one_column and set(node.items) & {"#Headers", "#Totals"})
+            return True
         if isinstance(node, ArrayLiteral):
             for row in node.rows:
                 for item in row:
@@ -202,10 +202,14 @@ class _Walk:
             return self.visit(node.operand, WHOLE if where == WHOLE else VALUE) and where == WHOLE
         if isinstance(node, Binary):
             if node.op in (":", " ", ","):
-                self.visit(node.left, WHOLE)
+                left = self.visit(node.left, WHOLE)
                 self.visit(node.right, WHOLE)
-                # An @ on the right of a reference operator is enough for it: =A1 @A2 reads back as it is.
-                return not (isinstance(node.right, Unary) and node.right.op == "@")
+                if isinstance(node.right, Unary) and node.right.op == "@" and node.op != ":":
+                    # =A1 @A2 and =A1,@A2 read back as they are; =A1:@A2 is a range all the same, and =SUM(A1:A2) @A2 as its
+                    # left is (tests/fixtures/value_gaps.json).
+                    called = isinstance(node.left, Call) and function_key(node.left.name) in _CHOICES
+                    return left and node.op == " " and not called
+                return True
             inside = WHOLE if where == WHOLE else VALUE
             left = self.visit(node.left, inside)
             right = self.visit(node.right, inside)
@@ -219,7 +223,8 @@ class _Walk:
     def _at(self, node: Unary, where: str) -> bool:
         """An @, a call of SINGLE: one value, from what it holds taken as a range. Merging, an @ standing where one
         value is wanted, over something the formula cuts there anyway and not in brackets, is noted as that cut."""
-        if self.merging and where == VALUE and not self.body[self.starts[id(node)] + 1:].lstrip().startswith("("):
+        if self.merging and where == VALUE and (not self.body[self.starts[id(node)] + 1:].lstrip().startswith("(")
+                                                 or isinstance(node.operand, Binary) and node.operand.op == " " and not node.operand.grouped):
             marks, merged = set(self.marks), set(self.merged)
             if self._many(node.operand, VALUE) and self._takes(node.operand):
                 self.merged.add(self.starts[id(node)])

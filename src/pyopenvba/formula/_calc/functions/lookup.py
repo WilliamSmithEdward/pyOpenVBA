@@ -93,8 +93,19 @@ def _first_cell(context: Context, line: Area, target: Scalar) -> int | None:
 
 def _approximate(values: list[Scalar], target: Scalar, *, descending: bool = False) -> int | None:
     """Binary search, among values of ``target``'s type, for the last not
-    above it, or with ``descending`` the last not below it."""
+    above it. With ``descending`` it walks instead, stopping at the first equal to it or below it, and answers that
+    one if equal and otherwise the one before it (see docs/formula_engine.md)."""
     positions = [index for index, value in enumerate(values) if _same_kind(target, value)]
+    if descending:
+        walked: int | None = None
+        for position in positions:
+            order = _order(values[position], target)
+            if order == 0:
+                return position
+            if order < 0:
+                break
+            walked = position
+        return walked
     low, high = 0, len(positions) - 1
     found: int | None = None
     while low <= high:

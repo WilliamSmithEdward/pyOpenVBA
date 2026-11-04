@@ -26,7 +26,7 @@ from functools import lru_cache
 from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
-from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
+from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
@@ -35,27 +35,31 @@ from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import BINDING, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
+from pyopenvba.interpreter._type_library import LibraryClass, find_class, late_error, let_error
 from pyopenvba.interpreter._values import (
     EMPTY,
-    ERROR_TEXT,
     ERR_INVALID_USE_OF_NULL,
     ERR_MEMBER_NOT_FOUND,
     ERR_OBJECT_VARIABLE_NOT_SET,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     ERR_TYPE_MISMATCH,
+    ERROR_TEXT,
     MISSING,
-    STORAGE_WIDTH,
     NOTHING,
     NULL,
+    NULL_STRING,
     PRINT_CONTINUE,
     PRINT_ZONE,
+    STORAGE_WIDTH,
+    NullString,
     VBAArray,
     VBAInt,
     add,
     coerce,
-    copy_value,
     compare,
     concat,
+    condition,
+    copy_value,
     default_for,
     divide,
     error,
@@ -72,15 +76,14 @@ from pyopenvba.interpreter._values import (
     multiply,
     negate,
     power,
+    release_in_order,
     subtract,
-    condition,
+    text_bytes,
     to_bool,
     to_integer,
-    text_bytes,
-    release_in_order,
+    to_number,
     to_text,
     type_name,
-    to_number,
 )
 
 #: How deep a call chain may go before this reports VBA's error 28.
@@ -589,6 +592,8 @@ class Collection(VBACollection):
     ) -> object:
         if Item is MISSING:
             raise error(449)
+        if isinstance(Item, NullString):  # a Collection keeps a new string
+            Item = ""
         # A key that is not String text (a number, Date, Empty or Null) is error 13;
         # Before and After together are error 5 (native probes).
         if Key is not MISSING and not isinstance(Key, str):
@@ -1098,7 +1103,7 @@ class Interpreter:
         self.internet_sessions: dict[str, Sessions] = {}
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
-        #: Every MsgBox and InputBox the run put up, in order.
+        #: Every dialog the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
         self.answers: list[object] = []
@@ -1181,10 +1186,24 @@ class Interpreter:
         return VBAInt(_default_button(style), "Integer")
 
     def ask_for_input(self, prompt: str, title: str, default: str) -> object:
-        self.dialogs.append(("InputBox", prompt, title, 0))
-        if self.answers:
-            return to_text(self.answers.pop(0))
-        return default
+        """InputBox without a screen: False is Cancel, which reads as "", and None is OK on the default as it stands."""
+        answer = self.next_answer("InputBox", prompt, title)
+        if answer is False:
+            return NULL_STRING
+        return default if answer is None else to_text(answer)
+
+    def next_answer(self, kind: str, prompt: str = "", title: str = "", style: int = 0) -> object:
+        """Record a dialog going up and take the answer the caller queued for it; with none, stop the run, as nobody
+        is at the screen to answer."""
+        self.dialogs.append((kind, prompt, title, style))
+        return self.next_retry(kind)
+
+    def next_retry(self, kind: str) -> object:
+        """The answer for a dialog already up, which turned the last one down."""
+        if not self.answers:
+            raise VBADialogError(f"{kind} is waiting for an answer and none is queued; answer_dialogs queues them",
+                                 where=self.current_where())
+        return self.answers.pop(0)
 
     def create_com(self, class_name: str) -> object:
         from pyopenvba.interpreter._scripting import in_memory
@@ -1730,7 +1749,12 @@ class Interpreter:
             self._pad_assign(statement, frame)
             return
         if statement.kind == "let" and isinstance(statement.target, A.Name):
-            self._check_let_into_object(statement.target.name, frame)
+            held = self._check_let_into_object(statement.target.name, frame)
+            if held is not None:
+                found = find_class(self.host.vba_type_library, held.vba_type_name)  # type: ignore[attr-defined]
+                assert found is not None
+                self._let_default(held, self.evaluate(statement.value, frame), found)
+                return
         value = self.evaluate(statement.value, frame, want_object=statement.kind == "set")
         if statement.kind == "set" and not is_object(value) and value is not NOTHING:
             # A value Set into a Variant is a type mismatch, and into an object variable wants an object
@@ -1750,10 +1774,24 @@ class Interpreter:
                 value = value.vba_value()
         target.put(value, statement.kind == "set")
 
-    def _check_let_into_object(self, name: str, frame: Frame) -> None:
+    def _let_default(self, held: VBAObject, value: object, found: LibraryClass) -> None:
+        """r = 1: a Let into a variable that holds an object goes to the object's default member. A value that is an object
+        hands over its own default, and one with none cannot be taken (tests/fixtures/vba_default_let.json)."""
+        number = let_error(found)
+        if number is not None:
+            raise error(number, f"{found.name} has no default member to assign to")
+        if isinstance(value, VBAObject):
+            if value.vba_default_member() is None:
+                raise error(1004, f"{found.name} cannot take a {value.vba_type_name}")
+            value = value.vba_value()
+        if value is NOTHING:
+            raise error(ERR_OBJECT_VARIABLE_NOT_SET)
+        held.vba_set(found.default, value, [], {})
+
+    def _check_let_into_object(self, name: str, frame: Frame) -> VBAObject | None:
         """A Let into an object variable assigns its object's default member, so one
         that holds Nothing is error 91 before the value is looked at: q = p and
-        o = 5 alike (native probes)."""
+        o = 5 alike (native probes). The object it holds, where the host's library knows its class."""
         key = _bare(name)
         slot = frame.locals.get(key)
         if slot is None and isinstance(frame.me, UserClassInstance):
@@ -1763,6 +1801,13 @@ class Interpreter:
         if (type(slot) is Slot and not slot.array_of and slot.declared not in ("Variant", "")
                 and default_for(slot.declared) is NOTHING and slot.value is NOTHING):
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
+        if type(slot) is not Slot or slot.array_of or slot.declared in ("Variant", "") or default_for(slot.declared) is not NOTHING:
+            return None
+        library = getattr(self.host, "vba_type_library", None)
+        held = slot.value
+        if library is None or not isinstance(held, VBAObject) or isinstance(held, UserClassInstance):
+            return None
+        return held if find_class(library, held.vba_type_name) is not None else None
 
     def _pad_assign(self, statement: A.Assign, frame: Frame) -> None:
         """LSet and RSet: the text cut or padded with spaces to the length the
@@ -1898,6 +1943,10 @@ class Interpreter:
         self.write_line(f"[Stop at {self.current_where()}]")
 
     def _do_end(self, statement: A.EndStmt, frame: Frame) -> None:
+        self.end_run()
+
+    def end_run(self) -> None:
+        """Stop the running macro where it is, as End does."""
         raise _EndSignal()
 
     def _do_option(self, statement: A.OptionStmt, frame: Frame) -> None:
@@ -2324,9 +2373,26 @@ class Interpreter:
         program = frame.program if frame is not None else None
         BINDING.late = program is not None and id(expression) not in program.early_bound_members
 
+    def _check_late_call(self, target: object, name: str, positional: list[object], named: dict[str, object]) -> None:
+        """A call bound late reaches the object's Invoke, which refuses arguments that do not fit before the member runs."""
+        library = getattr(self.host, "vba_type_library", None)
+        if library is None or not isinstance(target, VBAObject) or isinstance(target, UserClassInstance):
+            return
+        found = find_class(library, target.vba_type_name)
+        if found is None:
+            return
+        count = len(positional)
+        while count and positional[count - 1] is MISSING:
+            count -= 1
+        number = late_error(found, strip_suffix(name), count, list(named))
+        if number is not None:
+            raise error(number)
+
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
         target = self._member_target(expression, frame)
         self._note_binding(expression, frame)
+        if BINDING.late:
+            self._check_late_call(target, expression.name, [], {})
         return _dispatch_get(target, expression.name, [], {})
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
@@ -2391,6 +2457,8 @@ class Interpreter:
                        for index, parameter in enumerate(procedure.params)):
                     raise error(450)
             self._note_binding(callee, frame)
+            if BINDING.late:
+                self._check_late_call(target, callee.name, positional, named)
             return _dispatch_get(target, callee.name, positional, named)
         if isinstance(callee, A.Index):
             inner = self.evaluate_call(callee.target, callee.args, frame)

@@ -49,6 +49,7 @@ from pyopenvba.interpreter._values import (
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     MISSING,
     NOTHING,
+    NULL,
     VBADate,
     VBAInt,
     error,
@@ -262,7 +263,7 @@ def base_table_xml(table: Table) -> str:
     columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column, names)
                       for column in table.columns)
     counts = _totals_counts(table)
-    style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
+    style = (f'<tableStyleInfo{_style_name(table)} showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
              f'showColumnStripes="{int(table.column_stripes)}"/>')
     comment = f' comment="{_column_attribute(table.comment)}"' if table.comment else ""
@@ -326,7 +327,7 @@ def _patched_xml(table: Table) -> str:
         opened = _TABLE.search(xml)
         assert opened is not None
         xml = xml[: opened.end()] + element + xml[opened.end():]
-    style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
+    style = (f'<tableStyleInfo{_style_name(table)} showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
              f'showColumnStripes="{int(table.column_stripes)}"/>')
     shown = _STYLE.search(xml)
@@ -395,6 +396,11 @@ def patched_xml(table: Table) -> str:
     from pyopenvba.apps.excel._table_sort import write_state
 
     return write_state(table, _patched_xml(table))
+
+
+def _style_name(table: Table) -> str:
+    """A table with no style has no name for it, where a save would otherwise write an empty one."""
+    return f' name="{escape(table.style)}"' if table.style else ""
 
 
 def _totals_counts(table: Table) -> str:
@@ -1088,11 +1094,24 @@ class ListObject(ExcelObject):
 
     @member
     def TableStyle(self) -> object:
-        return self.table.style
+        """The style as an object, or a space for none (tests/fixtures/settable_lists.json)."""
+        from pyopenvba.apps.excel._workbook_settings import table_style_named
+
+        return table_style_named(self.sheet.book, self.table.style) or " "
 
     @setter("TableStyle")
     def _set_table_style(self, value: object) -> None:
-        self.table.style = to_text(value.vba_get("Name") if isinstance(value, ExcelObject) else value)
+        """A style by name in any case, or none for "", Empty and Null; anything else is error 450."""
+        from pyopenvba.apps.excel._workbook_settings import table_style_named
+
+        wanted = value.vba_get("Name") if isinstance(value, ExcelObject) else value
+        if wanted is EMPTY or wanted is NULL or wanted == "":
+            self.table.style = ""
+        else:
+            found = table_style_named(self.sheet.book, wanted) if isinstance(wanted, str) else None
+            if found is None:
+                raise error(450, "Wrong number of arguments or invalid property assignment")
+            self.table.style = found.name
         self._changed()
 
     @member

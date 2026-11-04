@@ -30,8 +30,14 @@ def macro_type(entry: NameEntry) -> int:
 
 
 def set_macro_type(entry: NameEntry, value: object) -> None:
-    """Only xlFunction and xlCommand are taken; xlNotXLM and anything else are refused with 1004."""
+    """xlFunction and xlCommand, and xlNone to make it an ordinary name; anything else is refused with 1004
+    (tests/fixtures/settable_lists.json, name_saves.json)."""
     wanted = int(to_integer(value))
+    if wanted == -4142:
+        if entry.macro_type:
+            entry.macro_type = 0
+            entry.macro_changed = True
+        return
     if wanted not in (1, 2):
         raise error(1004)
     if not entry.macro_type:
@@ -52,8 +58,8 @@ def shortcut_key(entry: NameEntry) -> str:
 
 def set_shortcut_key(entry: NameEntry, value: object) -> None:
     """The first character, a letter; "" takes the key away."""
-    _macro(entry)
     text = to_text(value)[:1]
+    _macro(entry)
     if text and not ('a' <= text.lower() <= 'z'):
         if text.isalpha():
             raise VBAUnsupportedError('A shortcut key outside A to Z is not implemented')
@@ -69,8 +75,8 @@ def category(entry: NameEntry) -> str:
 
 def set_category(entry: NameEntry, value: object) -> None:
     """One of Excel's categories in its own spelling, matched ignoring case; any other text as given."""
-    _macro(entry)
     text = to_text(value)
+    _macro(entry)
     at = next((at for at, one in enumerate(CATEGORIES, start=1) if one.lower() == text.lower()), None)
     entry.category, entry.group = (CATEGORIES[at - 1], at) if at is not None else (text, _OTHER)
     entry.macro_changed = True

@@ -55,6 +55,14 @@ def _custom_styles(book: Workbook) -> bool:
     return re.search(r"<(?:[\w.-]+:)?(?:tableStyle|slicerStyle|timelineStyle)\b", book.stylesheet.xml) is not None
 
 
+def table_style_named(book: Workbook, name: str) -> TableStyle | None:
+    """The built-in style of this name in any case, or None; a workbook's own style is kept by its name as given."""
+    found = _BUILT_IN.get(name.lower())
+    if found is None and name and _custom_styles(book):
+        return TableStyle(book, name)
+    return None if found is None else TableStyle(book, found)
+
+
 class TableStyles(VBACollection, ItemDefault, ExcelObject):
     """The workbook's table styles: the 170 built in, in Excel's order (tests/fixtures/table_styles.json)."""
 

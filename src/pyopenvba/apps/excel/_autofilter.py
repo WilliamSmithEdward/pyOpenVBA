@@ -1258,7 +1258,7 @@ def set_mode(sheet: Worksheet, value: object) -> None:
     from pyopenvba.apps.excel._table_filters import context_table, refocus, turn_off
 
     if to_bool(value):
-        raise VBAUnsupportedError("setting AutoFilterMode to True is not implemented")
+        raise error(1004, "setting AutoFilterMode to True is not implemented")
     if sheet.auto_filter is None:
         return
     table = context_table(sheet)

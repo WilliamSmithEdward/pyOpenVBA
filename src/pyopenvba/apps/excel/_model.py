@@ -554,7 +554,8 @@ class Application(ExcelObject):
 
     @member
     def Calculation(self) -> object:
-        return VBAInt(self.calculation, "Long")
+        """A Long, but xlCalculationSemiautomatic reads as a Double (tests/fixtures/settable_audit.json)."""
+        return float(self.calculation) if self.calculation == 2 else VBAInt(self.calculation, "Long")
 
     @member
     def CalculateBeforeSave(self) -> object:
@@ -709,7 +710,8 @@ class Application(ExcelObject):
 
     @setter("StatusBar")
     def _set_status_bar(self, value: object) -> None:
-        self.status_bar = value
+        """Empty text, Empty and Null give the bar back to Excel, and it reads False (tests/fixtures/settable_audit.json)."""
+        self.status_bar = None if value is EMPTY or value is NULL or value == "" else value
 
     @member
     def CutCopyMode(self) -> object:
@@ -1994,13 +1996,12 @@ class Workbook(ExcelObject):
 
     @member
     def UpdateRemoteReferences(self) -> object:
-        return True
+        return self.session_properties.get("UpdateRemoteReferences", True)
 
     @setter("UpdateRemoteReferences")
     def _set_update_remote_references(self, value: object) -> None:
-        from pyopenvba.apps.excel._workbook_settings import unmeasured_set
-
-        unmeasured_set("UpdateRemoteReferences", value, 1004)
+        """Reads back for the session; the file does not keep it, and it opens True (tests/fixtures/settable_reopen.json)."""
+        self.session_properties["UpdateRemoteReferences"] = to_bool(value)
 
     @member
     def ChartDataPointTrack(self) -> object:
@@ -2814,12 +2815,17 @@ class Workbook(ExcelObject):
 
     @member
     def DisplayDrawingObjects(self) -> object:
-        return VBAInt(self.drawing_objects, "Long")
+        """xlDisplayShapes is a Long; anything else reads as a Double, its 32 bits unsigned
+        (tests/fixtures/settable_audit.json)."""
+        if self.drawing_objects == -4104:
+            return VBAInt(-4104, "Long")
+        return float(self.drawing_objects & 0xFFFFFFFF)
 
     @setter("DisplayDrawingObjects")
     def _set_drawing_objects(self, value: object) -> None:
-        """A Long as VBA passes it; the workbook is no longer saved."""
-        self.drawing_objects = int(to_integer(value, "Long"))
+        """A Long as VBA passes it, 1 being xlDisplayShapes again; the workbook is no longer saved."""
+        number = int(to_integer(value, "Long"))
+        self.drawing_objects = -4104 if number == 1 else number
         self.saved = False
 
     @member
@@ -4141,7 +4147,10 @@ class Worksheet(ExcelObject):
 
     @setter("EnableSelection")
     def _set_enable_selection(self, value: object) -> None:
+        """Kept in the file, on a sheet that is not protected too (tests/fixtures/settable_reopen.json)."""
         self.enable_selection = int(to_integer(value, "Long"))
+        self.protection_changed = True
+        self.touched()
 
     # -- Python side
 
@@ -4618,6 +4627,8 @@ class Range(ExcelObject):
 
     @setter("Formula2R1C1")
     def _set_formula2_r1c1(self, value: object) -> None:
+        if value is NULL:
+            value = ""
         _within_length(value)
         written, dynamic = self._legacy(value, r1c1=True)
         self._formula_written(written, dynamic=dynamic)
@@ -5205,6 +5216,8 @@ class Range(ExcelObject):
 
     @setter("Formula2Local")
     def _set_formula2_local(self, value: object) -> None:
+        if value is NULL:
+            value = ""
         self._set_formula2(value)
 
     @member
@@ -5213,6 +5226,8 @@ class Range(ExcelObject):
 
     @setter("Formula2R1C1Local")
     def _set_formula2_r1c1_local(self, value: object) -> None:
+        if value is NULL:
+            value = ""
         self._set_formula2_r1c1(value)
 
     # -- geometry

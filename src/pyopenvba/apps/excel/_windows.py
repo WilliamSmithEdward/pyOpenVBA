@@ -54,6 +54,7 @@ from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     MISSING,
+    NULL,
     VBAInt,
     error,
     to_bool,
@@ -222,6 +223,10 @@ def _number(text: str | None, default: int) -> int:
         return int(text) if text else default
     except ValueError:
         return default
+
+
+#: What Window.Caption holds before error 1004 (tests/fixtures/member_audit.json).
+CAPTION_LIMIT = 200
 
 
 def _flag(text: str | None, default: bool) -> bool:
@@ -1025,7 +1030,11 @@ class Window(ExcelObject):
 
     @setter("Caption")
     def _set_caption(self, value: object) -> None:
-        self.book.view.caption = to_text(value)
+        """Null is empty, and Excel refuses more than it holds (tests/fixtures/member_audit.json)."""
+        text = "" if value is NULL else str(value).upper() if isinstance(value, bool) else to_text(value)
+        if len(text) > CAPTION_LIMIT:
+            raise error(1004, "Unable to set the Caption property of the Window class")
+        self.book.view.caption = text
 
     @member
     def Visible(self) -> object:
@@ -1488,7 +1497,8 @@ class Window(ExcelObject):
 
     @setter("TabRatio")
     def _set_tab_ratio(self, value: object) -> None:
-        ratio = float(to_number(value))
+        """The size of a number: -0.1 is 0.1 and True is 1 (tests/fixtures/member_audit.json)."""
+        ratio = abs(float(to_number(value)))
         if not 0 <= ratio <= 1:
             raise error(1004, "Unable to set the TabRatio property of the Window class")
         self._book_changing().tab_ratio = ratio

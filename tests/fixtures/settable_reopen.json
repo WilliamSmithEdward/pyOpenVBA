@@ -1,0 +1,259 @@
+{
+ "measured_at": "2026-11-04T04:32:50.872137+00:00",
+ "lag": {
+  "one_sheet": "True",
+  "added_first": "True",
+  "added_after": "True,False",
+  "added_not_activated": "True",
+  "on_the_added": "True",
+  "set_twice": "True",
+  "written_cell": "True"
+ },
+ "lag_probe": "Function Lag() As String\n    Dim wb As Workbook, ws As Worksheet, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    {action}\n    wb.Close False\n    Lag = s\nEnd Function\n",
+ "lag_actions": {
+  "one_sheet": "ws.EnableFormatConditionsCalculation = False\ns = ws.EnableFormatConditionsCalculation",
+  "added_first": "wb.Worksheets.Add After:=ws\nws.Activate\nws.EnableFormatConditionsCalculation = False\ns = ws.EnableFormatConditionsCalculation",
+  "added_after": "ws.EnableFormatConditionsCalculation = False\ns = ws.EnableFormatConditionsCalculation\nwb.Worksheets.Add After:=ws\ns = s & \",\" & ws.EnableFormatConditionsCalculation",
+  "added_not_activated": "wb.Worksheets.Add After:=ws\nws.EnableFormatConditionsCalculation = False\ns = ws.EnableFormatConditionsCalculation",
+  "on_the_added": "Dim n As Worksheet\nSet n = wb.Worksheets.Add(After:=ws)\nn.EnableFormatConditionsCalculation = False\ns = n.EnableFormatConditionsCalculation",
+  "set_twice": "ws.EnableFormatConditionsCalculation = False\nws.EnableFormatConditionsCalculation = False\ns = ws.EnableFormatConditionsCalculation",
+  "written_cell": "ws.Range(\"A1\").Value = 1\nws.EnableFormatConditionsCalculation = False\ns = ws.EnableFormatConditionsCalculation"
+ },
+ "probe": "Function Reopen(ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, other As Worksheet, s As String, file As String, was As Variant\n    Application.DisplayAlerts = False\n    was = Application.Calculation\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    ws.Activate\n    On Error GoTo Failed\n    {target}.{member} = {value}\n    s = \"set=\" & CStr({read})\n    file = folder & \"\\reopen.xlsx\"\n    wb.SaveAs file, 51\n    wb.Close False\n    Application.Calculation = xlCalculationAutomatic\n    Set wb = Workbooks.Open(file)\n    Set ws = wb.Worksheets(1): Set other = wb.Worksheets(2)\n    s = s & \"|reopened=\" & CStr({read})\n    GoTo Done\nFailed:\n    s = s & \"|E\" & Err.Number\nDone:\n    On Error Resume Next\n    Application.Calculation = was\n    wb.Close False\n    Kill file\n    Reopen = s\nEnd Function\n",
+ "settings": [
+  {
+   "target": "ws",
+   "member": "DisplayRightToLeft",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "ws",
+   "member": "EnableCalculation",
+   "value": "False",
+   "answer": "set=False|reopened=True"
+  },
+  {
+   "target": "ws",
+   "member": "EnableOutlining",
+   "value": "True",
+   "answer": "set=True|reopened=False"
+  },
+  {
+   "target": "ws",
+   "member": "EnableAutoFilter",
+   "value": "True",
+   "answer": "set=True|reopened=False"
+  },
+  {
+   "target": "ws",
+   "member": "EnablePivotTable",
+   "value": "True",
+   "answer": "set=True|reopened=False"
+  },
+  {
+   "target": "ws",
+   "member": "EnableSelection",
+   "value": "1",
+   "answer": "set=1|reopened=1"
+  },
+  {
+   "target": "ws",
+   "member": "Name",
+   "value": "\"Renamed\"",
+   "answer": "set=Renamed|reopened=Renamed"
+  },
+  {
+   "target": "ws",
+   "member": "ScrollArea",
+   "value": "\"A1:B2\"",
+   "answer": "set=$A$1:$B$2|reopened="
+  },
+  {
+   "target": "ws",
+   "member": "StandardWidth",
+   "value": "12",
+   "answer": "set=12|reopened=12"
+  },
+  {
+   "target": "ws",
+   "member": "TransitionExpEval",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "ws",
+   "member": "TransitionFormEntry",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "other",
+   "member": "Visible",
+   "value": "0",
+   "answer": "set=0|reopened=0"
+  },
+  {
+   "target": "other",
+   "member": "Visible",
+   "value": "2",
+   "answer": "set=2|reopened=2"
+  },
+  {
+   "target": "ws",
+   "member": "DisplayPageBreaks",
+   "value": "True",
+   "answer": "set=True|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "Date1904",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "ForceFullCalculation",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "PrecisionAsDisplayed",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "SaveLinkValues",
+   "value": "False",
+   "answer": "set=False|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "ReadOnlyRecommended",
+   "value": "False",
+   "answer": "set=False|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "RemovePersonalInformation",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "CheckCompatibility",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "DisplayDrawingObjects",
+   "value": "3",
+   "answer": "set=3|reopened=3"
+  },
+  {
+   "target": "wb",
+   "member": "DisplayDrawingObjects",
+   "value": "2",
+   "answer": "set=2|reopened=2"
+  },
+  {
+   "target": "wb",
+   "member": "UpdateRemoteReferences",
+   "value": "False",
+   "answer": "set=False|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "ShowPivotTableFieldList",
+   "value": "False",
+   "answer": "set=False|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "ShowPivotChartActiveFields",
+   "value": "True",
+   "answer": "set=True|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "EnableAutoRecover",
+   "value": "False",
+   "answer": "set=False|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "UpdateLinks",
+   "value": "2",
+   "answer": "set=2|reopened=2"
+  },
+  {
+   "target": "wb",
+   "member": "ChartDataPointTrack",
+   "value": "False",
+   "answer": "set=False|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "DisplayInkComments",
+   "value": "False",
+   "answer": "set=False|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "InactiveListBorderVisible",
+   "value": "False",
+   "answer": "set=False|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "PersonalViewListSettings",
+   "value": "False",
+   "answer": "set=False|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "PersonalViewPrintSettings",
+   "value": "False",
+   "answer": "set=False|reopened=True"
+  },
+  {
+   "target": "wb",
+   "member": "TemplateRemoveExtData",
+   "value": "True",
+   "answer": "set=True|reopened=False"
+  },
+  {
+   "target": "wb",
+   "member": "DefaultTableStyle",
+   "value": "\"TableStyleLight1\"",
+   "answer": "set=TableStyleLight1|reopened=TableStyleLight1"
+  },
+  {
+   "target": "wb",
+   "member": "DefaultPivotTableStyle",
+   "value": "\"PivotStyleDark1\"",
+   "answer": "set=PivotStyleDark1|reopened=PivotStyleDark1"
+  },
+  {
+   "target": "wb",
+   "member": "KeepChangeHistory",
+   "value": "False",
+   "answer": "set=False|reopened=True"
+  },
+  {
+   "target": "Application",
+   "member": "Calculation",
+   "value": "xlCalculationManual",
+   "answer": "set=-4135|reopened=-4105"
+  },
+  {
+   "target": "Application",
+   "member": "Calculation",
+   "value": "2",
+   "answer": "set=2|reopened=-4105"
+  }
+ ]
+}

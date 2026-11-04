@@ -314,6 +314,10 @@ class VBAObject:
             return error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name} has no member named {name}")
         return VBAUnsupportedError(f"{self.vba_type_name}.{name} is not implemented by pyOpenVBA")
 
+    def vba_given(self, name: str, value: object) -> object:
+        """What the property makes of a value a macro assigns, before its setter sees it, whichever way the call was bound."""
+        return value
+
     def vba_let_refused(self, name: str) -> Exception | None:
         """An error for assigning to this read-only member that comes before anything reads it, if it has one."""
         return None

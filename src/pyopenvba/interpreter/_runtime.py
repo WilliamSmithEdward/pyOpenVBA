@@ -35,7 +35,7 @@ from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import BINDING, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
-from pyopenvba.interpreter._type_library import UNDESCRIBED, LibraryClass, find_class, late_error, let_error
+from pyopenvba.interpreter._type_library import UNDESCRIBED, LibraryClass, find_class, late_error, late_let_error, let_error
 from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_INVALID_USE_OF_NULL,
@@ -2739,8 +2739,11 @@ class Interpreter:
                 raise error(424 if evaluating.evaluates else ERR_MEMBER_NOT_FOUND)
             slot = self.member_variable(target, name, frame)
             spec = target.vba_member(name) if isinstance(target, VBAObject) else None
+            library = getattr(self.host, "vba_type_library", None)
+            late = (find_class(library, target.vba_type_name)
+                    if BINDING.late and library is not None and isinstance(target, VBAObject) and not isinstance(target, UserClassInstance) else None)
             return Assignable(
-                put=lambda value, by_ref: _dispatch_set(target, name, value, [], {}, by_ref),
+                put=lambda value, by_ref: _set_member(target, name, value, by_ref, late),
                 take=lambda: _dispatch_get(target, name, [], {}),
                 declared=slot.declared if slot is not None else 'Variant',
                 takes_objects=bool(spec is not None and getattr(spec.setter, '_vba_let_objects', False)),
@@ -3131,6 +3134,23 @@ def _dispatch_get(target: object, name: str, args: list[object], named: dict[str
     if target is NOTHING:
         raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     raise error(424, f"{type_name(target)} has no member named {name}")
+
+
+def _set_member(target: object, name: str, value: object, by_ref: bool, late: LibraryClass | None) -> None:
+    """A property set. Bound early VBA turns the value into the parameter's type first, which the setters answer: Null is 94 and
+    text that is no number 13. Bound late the object takes the Variant itself and answers otherwise (tests/fixtures/settable_audit.json)."""
+    try:
+        if isinstance(target, VBAObject) and not by_ref:
+            value = target.vba_given(strip_suffix(name), value)
+        _dispatch_set(target, name, value, [], {}, by_ref)
+    except VBARuntimeError as failed:
+        number = None if late is None else late_let_error(late, strip_suffix(name), failed.number, value is NULL, isinstance(value, str))
+        if number is None:
+            raise
+        if number == 1004:
+            raise error(1004, f"Unable to set the {strip_suffix(name)} property of the {target.vba_type_name} class") from failed  # type: ignore[attr-defined]
+        if number:
+            raise error(number) from failed
 
 
 def _dispatch_set(

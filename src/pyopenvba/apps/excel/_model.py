@@ -8237,10 +8237,6 @@ def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
         return formula
     from pyopenvba.apps.excel._external_links import shown as linked_shown
 
-    if "[0]!" in formula:
-        # A name of a deleted sheet, as this workbook's: a file holds [0]!Name, and Excel shows the workbook's name as
-        # it is now (tests/fixtures/sheet_delete_refs.json).
-        formula = formula.replace("[0]!", quote_sheet(sheet.book.name) + "!")
     formula = linked_shown(sheet.book, formula)
     if not sheet.tables:
         return formula

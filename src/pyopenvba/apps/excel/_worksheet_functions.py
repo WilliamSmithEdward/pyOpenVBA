@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Iterator
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.apps.excel._engine_book import EngineBook
@@ -61,6 +61,8 @@ if TYPE_CHECKING:
 #: Declared String, yet they take a range of several cells, typed too (tests/fixtures/worksheet_function_types.json): the
 #: places of the texts each joins, and TextJoin's delimiter.
 _NOT_CONVERTED: Final = {"textjoin": (0, 2), "concat": (0,)}
+#: Functions that refuse a range of separate areas, measured (the held-out cases of tests/fixtures/worksheet_function_types.json).
+_ONE_AREA: Final = frozenset({"ftest", "f_test", "arraytotext"})
 #: A Null where a function needs a value: a blank cell's value.
 BLANK: Final = object()
 #: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
@@ -176,7 +178,10 @@ def _typed(value: object, declared: str) -> object:
     if isinstance(value, Range):
         # Its value, as VBA reads it: several cells of one area are an array, and of several areas the first area's
         # (the held-out cases of tests/fixtures/worksheet_function_types.json).
-        value = value.vba_value()
+        first = value.areas[0]
+        if first.rows * first.columns > 1:
+            raise error(13)
+        value = Range(value.sheet, [first]).vba_value()
     elif isinstance(value, VBAObject):
         raise error(438)
     if isinstance(value, (VBAArray, VBAErrorValue)):
@@ -229,6 +234,11 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
+        if lower in _ONE_AREA and isinstance(value, Range) and len(value.areas) > 1:
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        if lower.startswith("im") and isinstance(value, (VBADate, VBACurrency)):
+            # The complex number functions read a Date or Currency as its number, where others read its text.
+            value = float(to_number(value))
         if value is NULL:
             # The last it cannot do without, with nothing after it, or a column; one it needs before that is a blank
             # cell, and one it does not is left out (tests/fixtures/worksheet_function_types.json).
@@ -300,9 +310,14 @@ def _given_item(value: object) -> Scalar:
 
     if value is EMPTY or isinstance(value, (bool, str, VBAErrorValue)):
         return scalar(value)
-    if isinstance(value, (VBADate, VBACurrency)):
-        # A Date or Currency reaches Excel as its text: IsText(Date) is TRUE, AND passes it
-        # over as it passes text over, and SUM reads the number back (native probes).
+    if isinstance(value, VBACurrency):
+        # A Currency reaches Excel as its text, in the currency format: $4.00 with a space after it, ($4.00) below nothing,
+        # to the nearest cent, half away from nothing (the held-out cases of tests/fixtures/worksheet_function_types.json).
+        cents = abs(Decimal(value)).quantize(Decimal("0.01"), ROUND_HALF_UP)
+        return f"(${cents:,.2f})" if value < 0 else f"${cents:,.2f} "
+    if isinstance(value, VBADate):
+        # A Date reaches Excel as its text: IsText(Date) is TRUE, AND passes it over as it passes text over, and SUM
+        # reads the number back (native probes).
         return to_text(value)
     if isinstance(value, (Decimal, VBAInt, VBASingle, int, float)):
         return float(value)

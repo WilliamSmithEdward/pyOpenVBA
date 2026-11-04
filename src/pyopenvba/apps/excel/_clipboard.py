@@ -670,8 +670,11 @@ def move(source: Range, area: Area, destination: Range) -> None:
     for owner in book.sheets_:
         for position, cell in owner.cells_.items():
             if cell.formula:
-                cell.formula = moved_references(cell.formula, owner.name, sheet.name, area, target.name, landing,
-                                                down, across, moving=owner is sheet and position in moving)
+                followed = moved_references(cell.formula, owner.name, sheet.name, area, target.name, landing,
+                                            down, across, moving=owner is sheet and position in moving)
+                if followed != cell.formula:
+                    cell.formula = followed
+                    owner.touched()
     from pyopenvba.apps.excel._editing import name_scope
 
     for entry in book.names_.entries:

@@ -115,7 +115,8 @@ def persist_project(book: Workbook, package: OpcFile) -> OpcFile:
     from pyopenvba.apps.excel._io import workbook_format
 
     interpreter = book.project_runtime
-    if interpreter is None or workbook_format(book) == 51:
+    # Excel refuses to open a macro-free format holding a project, a template as much as a workbook.
+    if interpreter is None or workbook_format(book) in (51, 54):
         return package
     sources = [(runtime.name, runtime.parsed.source, runtime.parsed.kind) for runtime in interpreter.modules.values()]
     sources.extend((name, source, "document") for name, source in book.pending_document_sources.items())

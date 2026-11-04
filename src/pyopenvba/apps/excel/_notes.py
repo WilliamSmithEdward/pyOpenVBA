@@ -35,6 +35,7 @@ from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
+    NULL,
     EMPTY,
     MISSING,
     NOTHING,
@@ -413,6 +414,8 @@ class Comment(ExcelObject):
 
     @setter("Visible")
     def _set_visible(self, value: object) -> None:
+        if value is NULL:
+            raise error(13)
         shown = to_bool(value)
         note = self.note
         if shown != note.visible:

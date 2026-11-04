@@ -66,7 +66,7 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import (EMPTY, MISSING, NOTHING, VBAArray, VBAInt, error, to_bool, to_integer,
+from pyopenvba.interpreter._values import (EMPTY, NULL, MISSING, NOTHING, VBAArray, VBAInt, error, to_bool, to_integer,
                                             to_text)
 
 if TYPE_CHECKING:
@@ -947,6 +947,8 @@ class SortObject(ExcelObject):
 
     @setter("MatchCase")
     def _set_match_case(self, value: object) -> None:
+        if value is NULL:
+            raise error(13)
         self.state.match_case = to_bool(value)
 
     @member

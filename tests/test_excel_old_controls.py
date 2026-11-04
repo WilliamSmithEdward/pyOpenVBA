@@ -118,3 +118,37 @@ End Sub
 End Function
 ''', name='Read')
     assert again.run('Read.Read') == '11111 Button 1 5'
+
+
+MACROS: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/form_control_macros.json').read_text(encoding='utf-8'))
+
+
+def test_excel_names_the_workbook_of_a_form_controls_macro() -> None:
+    """What the rule in ShapeObject.OnAction rests on: the file's [0] is the workbook itself, and [1] a link to another."""
+    answers = MACROS['answers']
+    assert answers['set from another workbook'] == 'Book1!Clicked'
+    assert answers['autoshape'] == 'Plain'
+    assert answers['reopened own'] == 'made.xlsx!Own'
+    assert answers['reopened foreign'] == 'Book1!Clicked'
+    sheet = next(found for name, found in MACROS['files'].items() if name.endswith('sheet1.xml'))
+    assert 'macro="[0]!Own"' in sheet and 'macro="[1]!Clicked"' in sheet
+
+
+def _macro_in_another_book(path: Path) -> ExcelApplication:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(f'''Public Function Go() As String
+    Dim wb As Workbook, o As Object
+    Set wb = Workbooks.Add
+    Set o = wb.Worksheets(1).Buttons.Add(48, 96, 72, 24)
+    o.OnAction = "Clicked"
+    Go = Replace(o.OnAction, ThisWorkbook.Name, "<this>")
+    wb.SaveAs "{path}", xlOpenXMLWorkbook
+End Function
+''', name='Other')
+    return app
+
+
+def test_a_macro_in_another_workbook_is_named_and_refused_at_save(tmp_path: Path) -> None:
+    with pytest.raises(VBAUnsupportedError, match='external link'):
+        _macro_in_another_book(tmp_path / 'made.xlsx').run('Other.Go')

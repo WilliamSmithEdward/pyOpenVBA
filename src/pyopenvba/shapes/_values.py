@@ -418,6 +418,8 @@ class Shape:
     text: str = ""
     #: The procedure a click runs, where the host has one.
     macro: str = ""
+    #: A form control's macro set from another workbook: that workbook's name, which saving as a link is not built for.
+    macro_book: str = ""
     #: The id the file gives it, unique within its part.
     shape_id: int = 0
     #: A form control's own settings, where it is one.

@@ -1420,17 +1420,28 @@ class ShapeObject(_Drawn):
 
     @member
     def OnAction(self) -> object:
-        """A form control's macro reads with the name of the workbook running the macro, an AutoShape's as it was given
-        (tests/fixtures/old_controls.json, and on_action_prefix below)."""
+        """A form control's macro reads with the name of its workbook, or of another that set it, however it was given or
+        read from the file; an AutoShape's as it was given (tests/fixtures/form_control_macros.json)."""
         macro = self.shape.macro
         if self.shape.kind == "formControl" and macro and "!" not in macro:
-            running = self.sheet.book.application.vba_get("ThisWorkbook", [])
-            return f"{getattr(running, 'name', self.sheet.book.name)}!{macro}"
+            return f"{self.shape.macro_book or self.sheet.book.name}!{macro}"
         return macro
 
     @setter("OnAction")
     def _set_onaction(self, value: object) -> None:
-        self.shape.macro = to_text(value)
+        wanted = to_text(value)
+        self.shape.macro_book = ""
+        if self.shape.kind == "formControl" and wanted:
+            own = f"{self.sheet.book.name}!"
+            if wanted.lower().startswith(own.lower()):
+                wanted = wanted[len(own):]
+            elif "!" in wanted:
+                raise _unsupported("a form control's macro in another workbook, named")
+            else:
+                # An unnamed macro belongs to the workbook running this one.
+                running = getattr(self.sheet.book.application.vba_get("ThisWorkbook", []), "name", own[:-1])
+                self.shape.macro_book = "" if running == own[:-1] else running
+        self.shape.macro = wanted
         self.sheet.drawing_changed()
 
     @member

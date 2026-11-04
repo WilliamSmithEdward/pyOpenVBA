@@ -1,0 +1,26 @@
+{
+ "measured_at": "2026-11-04T02:06:01.507614+00:00",
+ "answers": {
+  "set from another workbook": "Book1!Clicked",
+  "shape": "Book1!Clicked",
+  "own name": "<new>!Own",
+  "added as a shape": "Book1!ViaAdd",
+  "autoshape": "Plain",
+  "after save": "Book1!Clicked",
+  "reopened foreign": "Book1!Clicked",
+  "reopened own": "made.xlsx!Own",
+  "reopened through Buttons": "made.xlsx!Own"
+ },
+ "files": {
+  "xl/worksheets/sheet1.xml": [
+   "macro=\"[1]!Clicked\"",
+   "macro=\"[0]!Own\"",
+   "macro=\"[1]!ViaAdd\""
+  ],
+  "xl/drawings/vmlDrawing1.vml": [
+   "<x:FmlaMacro>[1]!Clicked",
+   "<x:FmlaMacro>[0]!Own",
+   "<x:FmlaMacro>[1]!ViaAdd"
+  ]
+ }
+}

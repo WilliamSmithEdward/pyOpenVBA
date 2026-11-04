@@ -1688,6 +1688,10 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._document_properties import write as write_properties
 
     write_properties(book, package)
+    for sheet in book.sheets_:
+        for shape in sheet.shapes_:
+            if shape.macro_book:
+                raise VBAUnsupportedError(f"Saving a form control whose macro is in {shape.macro_book}, an external link in the file, is not implemented")
     book.application.outside("Saving a workbook")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())

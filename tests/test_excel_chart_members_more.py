@@ -16,15 +16,10 @@ from test_excel_chart_markup import chart_part
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_members_more.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: Refused, which each case below checks: a chart's protection and page setup, a point's own shadow, the fonts of some of a
-#: title's characters, a filtered category, changing or selecting leader lines, a data table's Border and Format, a legend
-#: entry's text frame, and where a slice lies, which needs the chart's layout.
-REFUSED = ('ch.Protect ', 'ch.Protect:', 'ch.Protect,', 'ws.Protect: ch.Protect', 'ch.Unprotect', 'ch.ProtectFormatting =', 'ch.ProtectData =', 'ch.ProtectSelection =',
-           'ch.PageSetup', '.Points(2).Shadow =', '.Font.Bold', 'IsFiltered = True', 'LeaderLines.Border.Color = 255', 'LeaderLines.Select', 'DataTable.Border',
-           'Format.TextFrame2', 'Format.Glow', 'PieSliceLocation(xlHorizontalCoordinate) ', 'PieSliceLocation(xlVerticalCoordinate)')
-#: What Excel raises from a member the model does not have.
-ABSENT = ('ch.ProtectGoalSeek =', 'r = ch.ProtectContents')
-
+#: Refused, which each case below checks: a point's own shadow, the fonts of some of a title's characters, a filtered category, changing or selecting leader lines, a data table's Border and Format, and
+#: where a slice lies, which needs the chart's layout.
+REFUSED = ('.Points(2).Shadow =', '.Font.Bold', 'IsFiltered = True', 'LeaderLines.Border.Color = 255', 'LeaderLines.Select', 'DataTable.Border',
+           'PieSliceLocation(xlHorizontalCoordinate) ', 'PieSliceLocation(xlVerticalCoordinate)')
 
 def _refused(name: str) -> bool:
     if 'DataTable.Font.Bold' in name or 'LE.Font.Bold' in name or 'LegendEntries(1).Font.Bold' in name:
@@ -34,8 +29,8 @@ def _refused(name: str) -> bool:
     return any(text in name for text in REFUSED)
 
 
-REFUSALS = [index for index, name in enumerate(NAMES) if _refused(name) and not any(text in name for text in ABSENT)]
-KEPT = [index for index, name in enumerate(NAMES) if index not in REFUSALS and not any(text in name for text in ABSENT)]
+REFUSALS = [index for index, name in enumerate(NAMES) if _refused(name)]
+KEPT = [index for index in range(len(NAMES)) if index not in REFUSALS]
 
 
 def _source(kept: set[int]) -> str:

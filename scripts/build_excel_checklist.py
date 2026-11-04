@@ -68,6 +68,7 @@ def bound_classes() -> dict[str, type]:
         _pivot_cells,
         _pivot_criteria,
         _pivot_items,
+        _old_controls,
         _pivots,
         _protection,
         _rich_text,
@@ -88,7 +89,7 @@ def bound_classes() -> dict[str, type]:
 
     found: dict[str, type] = {}
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
-                   _cell_styles, _hyperlinks, _charts, _chart_axes, _pivots, _pivot_criteria, _pivot_calculated,
+                   _cell_styles, _hyperlinks, _charts, _chart_axes, _old_controls, _pivots, _pivot_criteria, _pivot_calculated,
                    _pivot_cells, _sheet_tabs, _conditional,
                    _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _page_breaks, _outline,
                    _document_properties, _rich_text, _custom_properties, _error_checks,

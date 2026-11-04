@@ -24,6 +24,8 @@ def _type_name(shape: Shape) -> str | None:
     """The drawing object a shape answers as, for those measured; another kind of shape does not join the selection."""
     if shape.kind == "textBox":
         return "TextBox"
+    if shape.kind == "formControl" and shape.control is not None:
+        return {"Button": "Button", "CheckBox": "CheckBox", "Radio": "OptionButton", "Drop": "DropDown", "List": "ListBox"}.get(shape.control.kind)
     return _DRAWN.get(shape.geometry) if shape.kind in {"autoShape", "shape", "line", "connector"} else None
 
 
@@ -47,6 +49,11 @@ def answer(sheet: Worksheet) -> object | None:
     shapes = selected(sheet)
     if not shapes:
         return None
+    if len(shapes) == 1 and shapes[0].kind == "formControl":
+        from pyopenvba.apps.excel._old_controls import item_of
+
+        # What the macro recorder writes next goes to this: Selection.OnAction, Selection.Characters.Text.
+        return item_of(sheet, shapes[0])
     return SelectedDrawing(sheet, shapes[0]) if len(shapes) == 1 else SelectedDrawings(sheet, shapes)
 
 

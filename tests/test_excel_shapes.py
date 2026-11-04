@@ -60,10 +60,10 @@ def test_a_macro_sees_what_the_file_holds(tmp_path: Path) -> None:
     assert app.evaluate('Worksheets(1).Shapes("Button1").Type') == 8
 
 
-def test_a_form_controls_macro_is_read_without_its_workbook(tmp_path: Path) -> None:
-    """The file says [0]!Clicked; a macro asks for the procedure."""
+def test_a_form_controls_macro_is_read_with_its_workbook(tmp_path: Path) -> None:
+    """The file says [0]!Clicked, and Excel reads that with the file's name (tests/fixtures/form_control_macros.json)."""
     app = opened(tmp_path)
-    assert app.evaluate('Worksheets(1).Shapes("Button1").OnAction') == "Clicked"
+    assert app.evaluate('Worksheets(1).Shapes("Button1").OnAction') == "shapes.xlsm!Clicked"
 
 
 def test_a_missing_shape_raises_what_excel_raises(tmp_path: Path) -> None:
@@ -157,8 +157,8 @@ def test_a_form_controls_macro_reaches_both_parts_that_hold_it(tmp_path: Path) -
     assert "<x:FmlaMacro>[0]!Other</x:FmlaMacro>" in vml
 
     again = ExcelApplication.open(out)
-    assert again.evaluate('Worksheets(1).Shapes("Button1").OnAction') == "Other"
-    assert again.evaluate('Worksheets(1).Shapes("Check1").OnAction') == "Clicked"
+    assert again.evaluate('Worksheets(1).Shapes("Button1").OnAction') == "wired.xlsm!Other"
+    assert again.evaluate('Worksheets(1).Shapes("Check1").OnAction') == "wired.xlsm!Clicked"
 
 
 def test_a_form_controls_macro_can_be_taken_off_again(tmp_path: Path) -> None:
@@ -205,7 +205,7 @@ def test_a_form_control_can_be_made_from_nothing(tmp_path: Path) -> None:
     again = ExcelApplication.open(out)
     assert again.evaluate("ActiveSheet.Shapes.Count") == 1
     assert again.evaluate("ActiveSheet.Shapes(1).Type") == 8
-    assert again.evaluate("ActiveSheet.Shapes(1).OnAction") == "Clicked"
+    assert again.evaluate("ActiveSheet.Shapes(1).OnAction") == "control.xlsm!Clicked"
     assert again.evaluate("ActiveSheet.Shapes(1).Left") == 100
 
 

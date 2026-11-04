@@ -4936,7 +4936,7 @@ DropDown,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As
 DropDown,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-DropDown,LinkedObject,"property, read-only",As Variant,,MISSING,,
+DropDown,LinkedObject,"property, read-only",As Variant,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,Reads as measured with nothing linked; setting it is refused.
 DropDown,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -5082,7 +5082,7 @@ ListBox,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As 
 ListBox,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-ListBox,LinkedObject,"property, read-only",As Variant,,MISSING,,
+ListBox,LinkedObject,"property, read-only",As Variant,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,Reads as measured with nothing linked; setting it is refused.
 ListBox,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -5170,7 +5170,7 @@ OptionButton,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_con
 OptionButton,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
 OptionButton,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-OptionButton,GroupBox,"property, read-only",As GroupBox,,MISSING,,
+OptionButton,GroupBox,"property, read-only",As GroupBox,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,Nothing on a sheet with no group box; a sheet with group boxes reports itself.
 OptionButton,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,Interior,"property, read-only",As Interior,,MISSING,,
@@ -5567,14 +5567,14 @@ TextBoxes,VerticalAlignment,property,As Variant,,MISSING,,
 TextBoxes,Visible,property,As Boolean,,MISSING,,
 TextBoxes,Width,property,As Double,,MISSING,,
 TextBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
-Worksheet,Arcs,not in the type library,,,UNASSESSED,,
-Worksheet,Buttons,not in the type library,,,UNASSESSED,,
-Worksheet,CheckBoxes,not in the type library,,,UNASSESSED,,
-Worksheet,DropDowns,not in the type library,,,UNASSESSED,,
-Worksheet,Lines,not in the type library,,,UNASSESSED,,
-Worksheet,ListBoxes,not in the type library,,,UNASSESSED,,
-Worksheet,OptionButtons,not in the type library,,,UNASSESSED,,
-Worksheet,Ovals,not in the type library,,,UNASSESSED,,
-Worksheet,Pictures,not in the type library,,,UNASSESSED,,
-Worksheet,Rectangles,not in the type library,,,UNASSESSED,,
-Worksheet,TextBoxes,not in the type library,,,UNASSESSED,,
+Worksheet,Arcs,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,Buttons,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,CheckBoxes,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,DropDowns,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,Lines,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,ListBoxes,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,OptionButtons,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,Ovals,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,Pictures,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,Rectangles,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."
+Worksheet,TextBoxes,not in the type library,,,PARTIAL,tests/fixtures/old_collection_members.json; tests/test_excel_old_collection_members.py; tests/fixtures/old_collection_edits.json; tests/test_excel_old_collection_edits.py,"Hidden member. Read typed and late, on a file Excel saved, and Excel read the save; text layout, some settings of a control from a file and sets through the collection Font, Interior and Border report themselves."

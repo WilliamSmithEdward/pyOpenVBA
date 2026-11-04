@@ -483,6 +483,8 @@ class OLEFormat(Created):
 class SpreadPart(Created):
     """A collection's own Font, Interior, Border or Characters, answering for all its items. Changing one is refused until what it writes is measured."""
 
+    vba_type_name = ''
+
     def __init__(self, owner: OldControls, part: str) -> None:
         self.owner, self.part = owner, part
         self.vba_type_name = part

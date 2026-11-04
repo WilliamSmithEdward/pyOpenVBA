@@ -23,7 +23,7 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
@@ -4647,6 +4647,10 @@ def _formula_of_long_text(found: object) -> object:
     return found
 
 
+#: What _array_item answers past an array's size.
+NOT_IN_ARRAY: Final = object()
+
+
 class Range(ExcelObject):
     """A rectangle of cells, or several of them."""
 
@@ -5496,6 +5500,7 @@ class Range(ExcelObject):
             self._share(placed, first[0])
 
     def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
+        from pyopenvba.apps.excel._visible import visible_areas
         from pyopenvba.formula._values import NA
 
         if array.dimensions not in (1, 2):
@@ -5506,21 +5511,16 @@ class Range(ExcelObject):
         source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
         # Validate the existing write-size limit before changing any area.
         self.writable_positions()
-        for area in self._array_areas(array):
+        for place, area in enumerate(visible_areas(self) or self.areas):
             for row in range(area.top, area.bottom + 1):
                 for column in range(area.left, area.right + 1):
                     if not _merges.writable(self.sheet, row, column):
                         continue
                     down, across = row - area.top, column - area.left
-                    source_row = 0 if source_rows == 1 else down
-                    source_column = 0 if source_columns == 1 else across
-                    if source_row >= source_rows or source_column >= source_columns:
+                    item = self._array_item(array, down, across, swapped=place % 2 == 1)
+                    if item is NOT_IN_ARRAY:
                         self._put(row, column, NA)
                         continue
-                    indices = [array.bounds[-1][0] + source_column]
-                    if array.dimensions == 2:
-                        indices.insert(0, array.bounds[0][0] + source_row)
-                    item = array.get(indices)
                     if item is NULL:
                         item = EMPTY
                     if isinstance(item, VBAErrorValue):
@@ -7583,46 +7583,41 @@ class Range(ExcelObject):
                 self._type_into(row, column, value, raw=raw)
 
     def _write_array(self, array: VBAArray, *, raw: bool = False) -> None:
-        """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item."""
-        areas = self._array_areas(array)
-        for area in areas:
-            if array.dimensions == 1:
-                # A flat array is one row, laid across and repeated down
-                # every row of the range, which is what Excel does with it.
-                items = array.elements()
-                for offset, item in enumerate(items):
-                    column = area.left + offset
-                    if column > area.right:
-                        break
-                    for row in range(area.top, area.bottom + 1):
-                        self._put(row, column, item, raw=raw)
-                continue
-            rows, columns = array.bounds[0], array.bounds[1]
-            for row_index in range(rows[0], rows[1] + 1):
-                for column_index in range(columns[0], columns[1] + 1):
-                    row = area.top + row_index - rows[0]
-                    column = area.left + column_index - columns[0]
-                    if row > area.bottom or column > area.right:
-                        continue
-                    self._put(row, column, array.get([row_index, column_index]), raw=raw)
+        """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item. A row or
+        column of one repeats across the area; past the array's size each cell is #N/A (tests/fixtures/array_areas.json)."""
+        from pyopenvba.apps.excel._visible import visible_areas
+        from pyopenvba.formula._values import NA
+
+        for place, area in enumerate(visible_areas(self) or self.areas):
+            if area.rows * area.columns > 1048576:
+                raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
+            for row in range(area.rows):
+                for column in range(area.columns):
+                    item = self._array_item(array, row, column, swapped=place % 2 == 1)
+                    self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
         self.sheet.touched()
 
-    def _array_areas(self, array: VBAArray) -> list[Area]:
-        """The areas an array is written to, each from the array's start.
-
-        Excel reads a two-dimensional array for the second of several
-        areas at another stride -- {11,12;21,22;...;61,62} written to
-        A2:B2, A4:B4 and A6:B6 leaves 11 and 31 in A4:B4 -- so areas wider
-        than one column report themselves; one column wide, each takes the
-        array's first column.
-        """
-        from pyopenvba.apps.excel._visible import visible_areas
-
-        areas = visible_areas(self) or self.areas
-        if len(areas) > 1 and array.dimensions == 2 and any(area.columns > 1 for area in areas):
-            raise VBAUnsupportedError("writing a two-dimensional array to several areas wider than one column is "
-                                      "not implemented")
-        return areas
+    def _array_item(self, array: VBAArray, row: int, column: int, *, swapped: bool) -> object:
+        """The item for a cell of an area. A flat array is one row, repeated down. Excel reads a two-dimensional array for every
+        second area with its sizes the other way about, down the columns as they are stored: {11,12;21,22;...;61,62} written to
+        A2:B2, A4:B4 and A6:B6 leaves 11 and 31 in A4:B4."""
+        if array.dimensions == 1:
+            items = array.elements()
+            at = 0 if len(items) == 1 else column
+            return items[at] if at < len(items) else NOT_IN_ARRAY
+        (low, high), (left, right) = array.bounds[0], array.bounds[1]
+        height, width = high - low + 1, right - left + 1
+        if swapped:
+            # Sizes the other way about, and items as stored, a column at a time.
+            down, across = 0 if width == 1 else row, 0 if height == 1 else column
+            if down >= width or across >= height:
+                return NOT_IN_ARRAY
+            stored = down + across * width
+            return array.get([low + stored % height, left + stored // height])
+        down, across = 0 if height == 1 else row, 0 if width == 1 else column
+        if down >= height or across >= width:
+            return NOT_IN_ARRAY
+        return array.get([low + down, left + across])
 
     def _put(self, row: int, column: int, value: object, *, raw: bool = False, r1c1: bool = False) -> None:
         """Write one cell as Value does; ``r1c1`` for a formula already turned from R1C1 into A1."""

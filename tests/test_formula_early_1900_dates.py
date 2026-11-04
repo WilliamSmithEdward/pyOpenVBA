@@ -1,10 +1,10 @@
 """Bond and date functions at the start of the 1900 calendar, measured by scripts/measure_early_1900_dates.py.
 
 Excel's bond functions give #NUM! for a settlement in the first months
-of 1900, its coupon dates there stop at serial 0, and YEARFRAC on basis 1
-averages the real years' lengths, 1900 having 365 days. The engine, as
-copied from pyOfficeEditor, does none of that yet: those items are in
-GAPS and must still differ. The day-count functions that take the dates
+of 1900 and its coupon dates there stop at serial 0. The engine, as
+copied from pyOfficeEditor, does neither yet: those items are in GAPS and
+must still differ. YEARFRAC on basis 1 averages the real years' lengths,
+1900 having 365 days, as the engine now does. The day-count functions that take the dates
 as they are already agree.
 """
 from __future__ import annotations
@@ -18,7 +18,7 @@ from pyopenvba.apps.excel import ExcelApplication
 PROBE: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/formula/early_1900_dates.json').read_text(encoding='utf-8'))['probes'][0]
 #: ODDLPRICE, ODDLYIELD, PRICE, YIELD, COUPDAYS, COUPPCD, ACCRINT, YEARFRAC and DISC near serial 60.
-GAPS = frozenset({0, 1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20})
+GAPS = frozenset({0, 1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 18})
 
 
 def test_dates_at_the_start_of_the_1900_calendar() -> None:

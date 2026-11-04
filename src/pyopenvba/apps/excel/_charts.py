@@ -4097,6 +4097,8 @@ class Series(PictureMembers, Created):
         self.chart.admit_change()
         if wanted in (0, -1) or wanted not in KNOWN_TYPES:
             raise error(-2147467259, 'Automation error\nUnspecified error')
+        if self.entry.format_look is not None or self.entry.points or self.entry.label_look.font is not None:
+            raise VBAUnsupportedError('Changing the type of a series with a look of its own is not implemented')
         if wanted in FAMILIES:
             set_series_type(self.chart.state, self.entry, wanted)
             self.chart.changed()

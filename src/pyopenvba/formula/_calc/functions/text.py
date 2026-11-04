@@ -735,7 +735,7 @@ def ENCODEURL(context: Context, text: Scalar) -> Value:
 _PCRE_ONLY = re.compile(r"\\[pPKGhHvVRXNQEg]|\(\*|\(\?(?:R|[0-9+-]|\||&|P>|>)|[*+?}]\+")
 
 
-def _pattern(context: Context, pattern: Scalar, case: Scalar | None) -> re.Pattern[str]:
+def regular_expression(context: Context, pattern: Scalar, case: Scalar | None) -> re.Pattern[str]:
     """A regular expression as Python reads one. Excel's are PCRE2's; the
     difference that comes up, a named group written ``(?<name>...)``, is
     translated. A pattern neither reads is ``#VALUE!``, as ``[`` is in
@@ -753,7 +753,7 @@ def _pattern(context: Context, pattern: Scalar, case: Scalar | None) -> re.Patte
 
 @function("REGEXTEST", V, V, V, minimum=2)
 def REGEXTEST(context: Context, text: Scalar, pattern: Scalar, case: Scalar | None = None) -> Value:
-    return _pattern(context, pattern, case).search(context.text(text)) is not None
+    return regular_expression(context, pattern, case).search(context.text(text)) is not None
 
 
 @function("REGEXEXTRACT", V, V, V, V, minimum=2)
@@ -763,7 +763,7 @@ def REGEXEXTRACT(
     """The first match, every match as a column, or the first match's
     groups as a row, for return modes 0, 1 and 2."""
     source = context.text(text)
-    expression = _pattern(context, pattern, case)
+    expression = regular_expression(context, pattern, case)
     which = 0 if mode is None or isinstance(mode, Empty) else context.integer(mode)
     if which == 1:
         found: list[list[Scalar]] = [[match.group(0)] for match in expression.finditer(source)]
@@ -791,7 +791,7 @@ def REGEXREPLACE(
     """Every match replaced, or only the n-th, from the end when n is
     negative; ``$1`` in the replacement is the first group."""
     source = context.text(text)
-    expression = _pattern(context, pattern, case)
+    expression = regular_expression(context, pattern, case)
     template = re.sub(r"\$(\d+)|\$\{(\w+)\}", lambda found: "\\g<" + (found.group(1) or found.group(2)) + ">",
                       context.text(replacement).replace("\\", "\\\\"))  # fmt: skip
     which = 0 if occurrence is None or isinstance(occurrence, Empty) else context.integer(occurrence)

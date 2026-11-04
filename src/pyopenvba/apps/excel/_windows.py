@@ -45,7 +45,7 @@ from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba._xml import attributes, tag_attributes
 from pyopenvba.apps.excel import _dimensions, _events
 from pyopenvba.apps.excel._creator import ItemDefault
-from pyopenvba.apps.excel._model import ExcelObject, Range
+from pyopenvba.apps.excel._model import ExcelObject, Range, Worksheet
 from pyopenvba.apps.excel._styles import XL_AUTOMATIC
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._r1c1 import to_a1
@@ -265,13 +265,16 @@ def _spelled(area: Area) -> str:
 
 
 def _active_place(book: Workbook) -> int:
-    return book.sheets_.index(book.active_sheet) if book.active_sheet is not None else 0
+    """The active tab's place among the tabs, chart sheets counted."""
+    current = book.active_chart_sheet or book.active_sheet
+    return book.tabs().index(current) if current is not None else 0
 
 
 def _first_place(book: Workbook) -> int:
     """The first tab the bar shows: not past the active one, and not a hidden one, which it passes over."""
     first = min(book.view.first_sheet, _active_place(book))
-    while first < len(book.sheets_) - 1 and book.sheets_[first].visible != -1:
+    tabs = book.tabs()
+    while first < len(tabs) - 1 and tabs[first].visible != -1:
         first += 1
     return first
 
@@ -409,7 +412,12 @@ def read_book_view(book: Workbook, xml: str) -> None:
         view.tab_ratio = _number(head.get("tabRatio"), 600) / 1000
         view.date_grouping = _flag(head.get("autoFilterDateGrouping"), True)
         if book.sheets_:
-            book.active_sheet_index = min(_number(head.get("activeTab"), 0), len(book.sheets_) - 1)
+            tabs = book.tabs()
+            tab = tabs[min(_number(head.get("activeTab"), 0), len(tabs) - 1)]
+            if isinstance(tab, Worksheet):
+                book.active_sheet_index = book.sheets_.index(tab)
+            else:
+                book.active_chart_sheet = tab
     # A group the file keeps selected, its active tab among them, stays selected.
     book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
@@ -587,7 +595,7 @@ def _scroll_to(view: SheetViewState, axis: int, number: int) -> None:
 
 def front_to_back(application: Application) -> list[Workbook]:
     """The open workbooks by their windows, front to back."""
-    books = application.workbooks_.books
+    books = [book for book in application.workbooks_.books if not book.is_addin]
     known = [book for book in application.window_order if book in books]
     return known + [book for book in reversed(books) if book not in known]
 
@@ -642,7 +650,7 @@ class Windows(VBACollection, ItemDefault, ExcelObject):
         self.book = book
 
     def vba_items(self) -> list[object]:
-        books = [self.book] if self.book is not None else front_to_back(self.application)
+        books = ([] if self.book.is_addin else [self.book]) if self.book is not None else front_to_back(self.application)
         return [window_of(book) for book in books]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:

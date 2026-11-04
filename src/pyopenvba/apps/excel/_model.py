@@ -2178,6 +2178,8 @@ class Workbook(ExcelObject):
         """The data connections the file keeps (see _connections)."""
         from pyopenvba.apps.excel._connections import Connections
 
+        if any(sheet.query_tables for sheet in self.sheets_):
+            raise VBAUnsupportedError("Workbook.Connections with a query table on a sheet is not implemented")
         return Connections(self)
 
     @member
@@ -3228,6 +3230,9 @@ class Worksheet(ExcelObject):
         self.notes: dict[tuple[int, int], Note] = {}
         #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
         self.held_kinds: set[str] = set()
+        #: The sheet's query tables, the newest first, and how many it has ever had (see _query_tables).
+        self.query_tables: list[Any] = []
+        self.query_table_count = 0
         #: The PNG SetBackgroundPicture gave the sheet, None for none; True once it changed, so a save writes it.
         self.background: bytes | None = None
         self.background_changed = False
@@ -3540,8 +3545,11 @@ class Worksheet(ExcelObject):
 
     @member
     def QueryTables(self) -> object:
-        """None on a sheet the model holds (tests/fixtures/empty_collections.json)."""
-        return self._empty("QueryTables")
+        """Those added since the sheet was made or opened; a sheet loaded with any is refused (see _query_tables)."""
+        from pyopenvba.apps.excel._query_tables import QueryTables
+
+        self._empty("QueryTables")
+        return QueryTables(self)
 
     @method
     def OLEObjects(self, Index: object = MISSING) -> object:
@@ -4788,7 +4796,12 @@ class Range(ExcelObject):
 
     @member
     def QueryTable(self) -> object:
-        """Error 1004: the model holds no query tables (tests/fixtures/range_small_reads.json)."""
+        """The query table whose result holds the first cell, or error 1004 (tests/fixtures/range_small_reads.json)."""
+        area = self.areas[0]
+        for table in self.sheet.query_tables:
+            found = table.result_area()
+            if found is not None and found.top <= area.top <= found.bottom and found.left <= area.left <= found.right:
+                return table
         raise error(1004)
 
     @member

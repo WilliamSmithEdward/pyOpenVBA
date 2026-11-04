@@ -1339,20 +1339,6 @@ GlowFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
 GlowFormat,Parent,not in the type library,,,UNASSESSED,,
 GlowFormat,Radius,property,As Single,no setter,UNASSESSED,,
 GlowFormat,Transparency,property,As Single,no setter,UNASSESSED,,
-Graphic,Application,"property, read-only",As Application,,MISSING,,
-Graphic,Brightness,property,As Single,,MISSING,,
-Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
-Graphic,Contrast,property,As Single,,MISSING,,
-Graphic,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,CropBottom,property,As Single,,MISSING,,
-Graphic,CropLeft,property,As Single,,MISSING,,
-Graphic,CropRight,property,As Single,,MISSING,,
-Graphic,CropTop,property,As Single,,MISSING,,
-Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Width,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 GradientStop,Application,"property, read-only",As Object,,MISSING,,
 GradientStop,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
 GradientStop,Creator,"property, read-only",As Long,,UNASSESSED,,
@@ -1367,6 +1353,20 @@ GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Tran
 GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,MISSING,,
 GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+Graphic,Application,"property, read-only",As Application,,MISSING,,
+Graphic,Brightness,property,As Single,,MISSING,,
+Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
+Graphic,Contrast,property,As Single,,MISSING,,
+Graphic,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,CropBottom,property,As Single,,MISSING,,
+Graphic,CropLeft,property,As Single,,MISSING,,
+Graphic,CropRight,property,As Single,,MISSING,,
+Graphic,CropTop,property,As Single,,MISSING,,
+Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Width,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Gridlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_borders.json; tests/test_excel_chart_borders.py,"Color, ColorIndex, Weight and LineStyle, with the markup Excel writes."
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
@@ -2356,6 +2356,83 @@ Queries,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small
 Queries,FastCombine,property,As Boolean,,MISSING,,
 Queries,Item,method,Item(NameOrIndex As Variant) As WorkbookQuery,no NameOrIndex,PARTIAL,tests/fixtures/unassessed_members.json; tests/test_excel_unassessed_members.py,By name or number; a number out of range raises -2147352565.
 Queries,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,The workbook.
+QueryTable,AdjustColumnWidth,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,AfterRefresh,event,AfterRefresh(Success As Boolean),,MISSING,,
+QueryTable,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,BackgroundQuery,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,BeforeRefresh,event,BeforeRefresh(Cancel As Boolean),,MISSING,,
+QueryTable,CancelRefresh,method,CancelRefresh(),,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,CommandText,property,As Variant,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,CommandType,property,As XlCmdType,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Connection,property,As Variant,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Delete,method,Delete(),,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Destination,"property, read-only",As Range,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,EditWebPage,property,As Variant,,MISSING,,
+QueryTable,EnableEditing,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,EnableRefresh,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,FetchedRowOverflow,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,FieldNames,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,FillAdjacentFormulas,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,ListObject,"property, read-only",As ListObject,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,MaintainConnection,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Name,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Parameters,"property, read-only",As Parameters,,MISSING,,
+QueryTable,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,PostText,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,PreserveColumnInfo,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,PreserveFormatting,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,QueryType,"property, read-only",As XlQueryType,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Recordset,property,As Object,no setter,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Refresh,method,Refresh([BackgroundQuery As Variant]) As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Refreshing,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,RefreshOnFileOpen,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,RefreshPeriod,property,As Long,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,RefreshStyle,property,As XlCellInsertionMode,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,ResetTimer,method,ResetTimer(),,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,ResultRange,"property, read-only",As Range,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,RobustConnect,property,As XlRobustConnect,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,RowNumbers,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,SaveAsODC,method,"SaveAsODC(ODCFileName As String, [Description As Variant], [Keywords As Variant])",,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,SaveData,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,SavePassword,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,Sort,"property, read-only",As Sort,,MISSING,,
+QueryTable,SourceConnectionFile,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,SourceDataFile,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileColumnDataTypes,property,As Variant,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileCommaDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileConsecutiveDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileDecimalSeparator,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileFixedColumnWidths,property,As Variant,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileOtherDelimiter,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileParseType,property,As XlTextParsingType,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFilePlatform,property,As Long,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFilePromptOnRefresh,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileSemicolonDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileSpaceDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileStartRow,property,As Long,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileTabDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileTextQualifier,property,As XlTextQualifier,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileThousandsSeparator,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileTrailingMinusNumbers,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,TextFileVisualLayout,property,As XlTextVisualLayoutType,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebConsecutiveDelimitersAsOne,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebDisableDateRecognition,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebDisableRedirections,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebFormatting,property,As XlWebFormatting,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebPreFormattedTextToColumns,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebSelectionType,property,As XlWebSelectionType,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebSingleBlockTextImport,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WebTables,property,As String,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTable,WorkbookConnection,"property, read-only",As WorkbookConnection,,MISSING,,
+QueryTables,_Default,"property, read-only",As QueryTable,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTables,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+QueryTables,Add,method,"Add(Connection As Variant, Destination As Range, [Sql As Variant]) As QueryTable",,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTables,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTables,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTables,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTables,Item,method,Item(Index As Variant) As QueryTable,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
+QueryTables,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_query_tables.py,"As live Excel, over a local text file."
 Range,_Default,property,As Variant,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Read with no index raises 438; with one, Item; set, Value."
 Range,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Range,Activate,method,Activate() As Variant,,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,"Moves the active cell within the selection, else selects the range."
@@ -2632,8 +2709,8 @@ Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json;
 Series,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The chart's ChartGroup.
 Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,Paste,method,Paste() As Variant,,MISSING,,
-Series,PictureType,property,As XlChartPictureType,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlStretch; the setter is not implemented.
-Series,PictureUnit2,property,As Double,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 0; the setter is not implemented.
+Series,PictureType,property,As XlChartPictureType,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlStretch; the setter is not implemented.
+Series,PictureUnit2,property,As Double,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 0; the setter is not implemented.
 Series,PlotColorIndex,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The series' idx plus 1.
 Series,PlotOrder,property,As Long,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,Points,method,Points([Index As Variant]) As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"One per value; by number, 1004 out of range and 13 for text."
@@ -2645,7 +2722,7 @@ Series,SeriesColorMaxGradientStop,"property, read-only",As ChartSeriesGradientSt
 Series,SeriesColorMidGradientStop,"property, read-only",As ChartSeriesGradientStopData,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,SeriesColorMinGradientStop,"property, read-only",As ChartSeriesGradientStopData,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
-Series,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; the setter is not implemented.
+Series,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; the setter is not implemented.
 Series,Smooth,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,Line and scatter series; 1004 on other kinds. Kept through ChartType.
 Series,Trendlines,method,Trendlines([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,"Trendlines.Add of every type, with order, period, forward, intercept, the equation and R-squared flags and a name; Count, Item, Parent. The Trendline object reads and sets Type, Order, Period, Forward, Name, NameIsAuto, DisplayEquation and DisplayRSquared, reads Backward, Intercept, InterceptIsAuto and Index, and deletes. Out-of-range values raise as Excel raises them; pie and stacked column charts raise -2147467259. Doughnut and other stacked charts, an automatic intercept's value, a scatter chart's Backward and the label's formatting are not implemented."
 Series,Type,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"The gallery constant of the chart's kind: xlColumn for any column chart, xlLine with markers or without."
@@ -3162,12 +3239,6 @@ ThemeFont,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/wo
 ThemeFont,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFont,Name,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFont,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-ThemeFonts,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Item,method,Item(Index As MsoFontLanguageIndex) As ThemeFont,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Load,method,Load(FileName As String),,MISSING,,
@@ -3175,6 +3246,12 @@ ThemeFontScheme,MajorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fix
 ThemeFontScheme,MinorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Save,method,Save(FileName As String),,MISSING,,
+ThemeFonts,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+ThemeFonts,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Item,method,Item(Index As MsoFontLanguageIndex) As ThemeFont,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThreeDFormat,Application,"property, read-only",As Object,,MISSING,,
 ThreeDFormat,BevelBottomDepth,property,As Single,,MISSING,,
 ThreeDFormat,BevelBottomInset,property,As Single,,MISSING,,

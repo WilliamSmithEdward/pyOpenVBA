@@ -902,6 +902,8 @@ class HeaderFooter(ExcelObject):
 
 def guard_copy(sheet: Worksheet) -> None:
     """Refuse configured copies until printer/name-copy persistence is measured."""
+    if sheet.query_tables:
+        raise unsupported('copying a worksheet with query tables')
     if _entry(sheet, 'Print_Area') is not None or _entry(sheet, 'Print_Titles') is not None:
         raise unsupported('copying a worksheet with print names')
     if headers(sheet).pictures:

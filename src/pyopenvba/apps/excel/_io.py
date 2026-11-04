@@ -1647,6 +1647,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._document_properties import write as write_properties
 
     write_properties(book, package)
+    from pyopenvba.apps.excel._query_tables import write as write_query_tables
+
+    write_query_tables(book, package, _add_sheet_relationship, _override_before_properties)
     book.application.outside("Saving a workbook")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())

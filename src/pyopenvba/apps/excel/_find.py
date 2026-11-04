@@ -28,9 +28,10 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
+from pyopenvba.apps.excel._method_arguments import look_at_number, search_number, search_switch
 from pyopenvba.apps.excel._visible import visible
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, error, to_bool, to_integer, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
@@ -75,6 +76,15 @@ def _pattern(text: str, whole: bool, match_case: bool) -> re.Pattern[str]:
 
 
 def _sought(value: object) -> str:
+    """What to look for or put in: Null is nothing, and a range of several cells its first cell's value
+    (tests/fixtures/range_methods_search.json)."""
+    from pyopenvba.apps.excel._model import Range
+
+    if value is NULL:
+        return ""
+    if isinstance(value, Range) and not value.single:
+        first = value.first
+        value = Range(value.sheet, [Area(first.top, first.left, first.top, first.left, value.sheet.name)]).vba_value()
     return ("TRUE" if value else "FALSE") if isinstance(value, bool) else to_text(value)
 
 
@@ -92,28 +102,37 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
     state = target.sheet.book.application.find_state
     # FindNext and FindPrevious leave the format out (tests/fixtures/find_format.json).
     wanted = state.find_format if not again and search_format is not MISSING and to_bool(search_format) else {}
-    source = state.look_in if look_in is MISSING else int(to_integer(look_in, "Long"))
-    whole = state.look_at if look_at is MISSING else int(to_integer(look_at, "Long"))
-    traversal = state.order if order is MISSING else int(to_integer(order, "Long"))
+    source = state.look_in if look_in is MISSING else search_number(look_in)
+    whole = state.look_at if look_at is MISSING else look_at_number(look_at)
+    traversal = state.order if order is MISSING else search_number(order)
     if source in {-4144, -4184}:
+        if not target.sheet.notes:
+            # Nothing to look in finds nothing (tests/fixtures/range_methods_search.json).
+            return NOTHING
         raise VBAUnsupportedError("Range.Find in comments is not implemented")
     if source not in {-4123, -4163} or whole not in {1, 2} or traversal not in {1, 2}:
         raise error(9)
     area = target.first
     anchor = (area.top, area.left)
+    if again and after is NULL:
+        after = MISSING
     if after is not MISSING:
+        # FindNext and FindPrevious refuse with 1004 where Find does with 13 (tests/fixtures/range_methods_search.json).
+        refused = error(1004) if again else error(13)
         if not isinstance(after, Range) or not after.single or after.sheet is not target.sheet:
-            raise error(13)
+            raise refused
         anchor = (after.first.top, after.first.left)
         if not area.contains(*anchor):
-            raise error(13)
+            raise refused
     if again:
         what, case = state.what, state.match_case
         if what is MISSING:
             return NOTHING
     else:
-        case = False if match_case is MISSING else to_bool(match_case)
+        case = False if match_case is MISSING else search_switch(match_case)
     text = _sought(what)
+    if len(text) > 255:
+        raise error(13)
     pattern = _pattern(text, whole == 1, case)
     state.look_in, state.look_at, state.order = source, whole, traversal
     state.what, state.match_case = what, case
@@ -178,17 +197,17 @@ def replace(target: Range, what: object, replacement: object, look_at: object = 
     from pyopenvba.apps.excel._typing import edit_text
 
     if what is MISSING or replacement is MISSING:
-        raise error(449)
+        raise error(450)
     if match_byte is not MISSING and to_bool(match_byte):
         raise VBAUnsupportedError("Range.Replace MatchByte=True is not implemented")
     if formula_version is not MISSING and int(to_integer(formula_version, "Long")) != 0:
         raise VBAUnsupportedError("Range.Replace with Formula2 semantics is not implemented")
     state = target.sheet.book.application.find_state
-    whole = state.look_at if look_at is MISSING else int(to_integer(look_at, "Long"))
-    traversal = state.order if order is MISSING else int(to_integer(order, "Long"))
+    whole = state.look_at if look_at is MISSING else look_at_number(look_at)
+    traversal = state.order if order is MISSING else search_number(order)
     if whole not in {1, 2} or traversal not in {1, 2}:
         raise error(9)
-    case = False if match_case is MISSING else to_bool(match_case)
+    case = False if match_case is MISSING else search_switch(match_case)
     text, new = _sought(what), _sought(replacement)
     if len(text) > 255 or len(new) > 255:
         raise error(13)

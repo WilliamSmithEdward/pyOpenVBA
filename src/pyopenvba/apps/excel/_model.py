@@ -5546,6 +5546,9 @@ class Range(ExcelObject):
 
     @member
     def Offset(self, RowOffset: object = MISSING, ColumnOffset: object = MISSING) -> object:
+        # Null is 13, not VBA's 94 (tests/fixtures/range_methods_moves.json).
+        if RowOffset is NULL or ColumnOffset is NULL:
+            raise error(13)
         down = 0 if RowOffset is MISSING else int(to_integer(RowOffset, "Long"))
         across = 0 if ColumnOffset is MISSING else int(to_integer(ColumnOffset, "Long"))
         areas: list[Area] = []
@@ -5561,8 +5564,12 @@ class Range(ExcelObject):
     @member
     def Resize(self, RowSize: object = MISSING, ColumnSize: object = MISSING) -> object:
         area = self.first
-        rows = area.rows if RowSize is MISSING else int(to_integer(RowSize, "Long"))
-        columns = area.columns if ColumnSize is MISSING else int(to_integer(ColumnSize, "Long"))
+        try:
+            rows = area.rows if RowSize is MISSING else int(to_integer(RowSize, "Long"))
+            columns = area.columns if ColumnSize is MISSING else int(to_integer(ColumnSize, "Long"))
+        except VBARuntimeError:
+            # Whatever is no number is 1004 here (tests/fixtures/range_methods_moves.json).
+            raise error(ERR_APPLICATION_DEFINED, "Resize needs a number") from None
         if rows < 1 or columns < 1:
             raise error(ERR_APPLICATION_DEFINED, "Resize needs at least one row and column")
         if area.top + rows - 1 > MAX_ROWS or area.left + columns - 1 > MAX_COLUMNS:
@@ -6051,7 +6058,7 @@ class Range(ExcelObject):
         # Clear takes the range's sparklines too; ClearContents leaves them (tests/fixtures/sparklines.json).
         sparklines_cleared(target)
         _events.after_edit(self)
-        return EMPTY
+        return True
 
     @method
     def ResetContents(self) -> object:
@@ -6266,18 +6273,31 @@ class Range(ExcelObject):
         the sheet, with no Shift too, and one that pulls them left takes
         the visible cells.
         """
+        from pyopenvba.apps.excel._method_arguments import given, variant_number
         from pyopenvba.apps.excel._protection import check_delete
         from pyopenvba.apps.excel._visible import filtering
 
         check_delete(self)
         where = self.place_now()
-        # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
-        self.sheet.book.application.clipboard = None
         filtered = filtering(self.sheet) and not all(area.whole_columns for area in self.areas)
-        if Shift is MISSING:
+        shift = given(Shift)
+        lines = all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas)
+        if shift is MISSING:
             up = filtered or self.first.rows <= self.first.columns
         else:
-            up = int(to_integer(Shift, "Long")) == -4162  # xlUp
+            # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on
+            # cells, and whole rows and columns do not look (tests/fixtures/range_methods_moves.json).
+            refusal = "Delete method of Range class failed"
+            which = variant_number(shift, refusal)
+            if which in (3, 4) and not lines:
+                entire = self.vba_get("EntireRow" if which == 3 else "EntireColumn")
+                assert isinstance(entire, Range)
+                return entire.Delete()
+            if which not in (-4162, -4159, 1, 2) and not lines:
+                raise error(1004, refusal)
+            up = which in (-4162, 2)
+        # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
+        self.sheet.book.application.clipboard = None
         if filtered:
             self._delete_filtered(up)
         elif all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas):
@@ -6287,7 +6307,7 @@ class Range(ExcelObject):
         else:
             self._delete_cells(self.first, up)
         _events.after_edit(where, calculate_first=True)
-        return EMPTY
+        return True
 
     def _delete_lines(self) -> None:
         """Whole rows or columns deleted, the last area first, so that each goes from where it was."""
@@ -6333,14 +6353,18 @@ class Range(ExcelObject):
         error 1004.
         """
         where = self.place_now()
+        from pyopenvba.apps.excel._method_arguments import given, variant_number
         from pyopenvba.apps.excel._protection import check_insert
         from pyopenvba.apps.excel._visible import filtering, visible_rows
 
         check_insert(self)
         area = self.first
+        refusal = "Insert method of Range class failed"
+        Shift = given(Shift)
+        CopyOrigin = given(CopyOrigin)
         # xlFormatFromRightOrBelow: the new lines take the formats, height or width of the line after them, not
         # before (tests/fixtures/excel_everyday_2.json, insert_from_below_*).
-        below = CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) == 1
+        below = CopyOrigin is not MISSING and variant_number(CopyOrigin, refusal) == 1
         filtered = filtering(self.sheet)
         application = self.sheet.book.application
         clip = application.clipboard
@@ -6355,7 +6379,7 @@ class Range(ExcelObject):
                     raise VBAUnsupportedError("inserting copied or cut cells on a filtered sheet, or in several areas, "
                                               "is not implemented")
                 _events.after_edit(insert(self, clip, Shift, below), calculate_first=False)
-                return EMPTY
+                return True
         if area.whole_rows or area.whole_columns:
             from pyopenvba.apps.excel._editing import edit
 
@@ -6366,22 +6390,34 @@ class Range(ExcelObject):
                 inserted = Range(self.sheet, [area], whole="rows")
                 edit(inserted, delete=False, below=below)
                 _events.after_edit(inserted, calculate_first=False)
-                return EMPTY
+                return True
             edit(self, delete=False, below=below)
             _events.after_edit(where, calculate_first=False)
-            return EMPTY
+            return True
         if filtered:
             raise error(1004, "Insert method of Range class failed")
         if len(self.areas) != 1:
             raise VBAUnsupportedError("inserting cells in several areas is not implemented")
         from pyopenvba.apps.excel._editing import shift_cells
 
+        if Shift is MISSING:
+            # With no Shift a range taller than it is wide pushes cells right, any other range down.
+            down = area.rows <= area.columns
+        else:
+            # By name or by Excel's own number, 3 and 4 taking in whole rows or columns; anything else is 1004
+            # (tests/fixtures/range_methods_moves.json).
+            which = variant_number(Shift, refusal)
+            if which in (3, 4):
+                entire = self.vba_get("EntireRow" if which == 3 else "EntireColumn")
+                assert isinstance(entire, Range)
+                return entire.Insert(MISSING, CopyOrigin)
+            if which not in (-4121, -4161, 1, 2):
+                raise error(1004, refusal)
+            down = which in (-4121, 2)
         self.shifting_cells()
-        # With no Shift a range taller than it is wide pushes cells right, any other range down.
-        down = area.rows <= area.columns if Shift is MISSING else int(to_integer(Shift, "Long")) == -4121  # xlDown
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)
-        return EMPTY
+        return True
 
     def shifting_cells(self) -> None:
         """Refuse to shift cells on a sheet whose rows or columns carry formats.
@@ -6399,13 +6435,15 @@ class Range(ExcelObject):
     def Copy(self, Destination: object = MISSING) -> object:
         from pyopenvba.apps.excel._clipboard import copy, copy_range
 
-        return copy(self) if Destination is MISSING else copy_range(self, Destination)
+        # Null is no destination (tests/fixtures/range_methods_clipboard.json).
+        return copy(self) if Destination is MISSING or Destination is NULL else copy_range(self, Destination)
 
     @method
     def Cut(self, Destination: object = MISSING) -> object:
         from pyopenvba.apps.excel._clipboard import cut
 
-        return cut(self, Destination)
+        # Null is no destination (tests/fixtures/range_methods_clipboard.json).
+        return cut(self, MISSING if Destination is NULL else Destination)
 
     @method
     def PasteSpecial(self, Paste: object = MISSING, Operation: object = MISSING, SkipBlanks: object = MISSING,
@@ -6875,8 +6913,10 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._region import holds_content
 
         if Direction is MISSING:
-            raise error(449)
+            raise error(450)
         which = int(to_integer(Direction, "Long"))
+        # Excel's own numbers for the four, 1 to 4 (tests/fixtures/range_methods_moves.json).
+        which = {1: -4159, 2: -4161, 3: -4162, 4: -4121}.get(which, which)
         row, column = self.first.top, self.first.left
         steps = {-4162: (-1, 0), -4121: (1, 0), -4159: (0, -1), -4161: (0, 1)}
         if which not in steps:
@@ -6924,10 +6964,13 @@ class Range(ExcelObject):
         return Range(self.sheet, [Area(row, column, row, column, self.first.sheet)])
 
     @method
-    def Find(self, What: object, After: object = MISSING, LookIn: object = MISSING,
+    def Find(self, What: object = MISSING, After: object = MISSING, LookIn: object = MISSING,
              LookAt: object = MISSING, SearchOrder: object = MISSING, SearchDirection: object = MISSING,
              MatchCase: object = MISSING, MatchByte: object = MISSING, SearchFormat: object = MISSING) -> object:
         from pyopenvba.apps.excel._find import find
+
+        if What is MISSING:
+            raise error(450)
         return find(self, What, After, LookIn, LookAt, SearchOrder, SearchDirection,
                     MatchCase, MatchByte, SearchFormat)
 
@@ -7024,7 +7067,10 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse
 
         refuse(self.sheet, APPLICATION_DEFINED)
-        _merges.merge(self, False if Across is MISSING else to_bool(Across))
+        from pyopenvba.apps.excel._method_arguments import switch
+
+        # Null and text that is no Boolean are 1004 (tests/fixtures/range_methods_moves.json).
+        _merges.merge(self, False if Across is MISSING else switch(Across, "Merge method of Range class failed"))
         return EMPTY
 
     @method

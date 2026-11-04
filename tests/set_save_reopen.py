@@ -4,13 +4,16 @@ lost, which no read-back alone can show.
     TARGETS = [Target('rect', 'Set s = ws.Shapes.AddShape(1, 10, 10, 100, 40): s.Name = "T"', 'Set s = ws.Shapes("T")')]
     SETTINGS = {'s.Rotation': ['30']}
     ACCEPTED = {'rect: s.Rotation = 30': 'why the file does not keep it yet'}
+    EXCEL_LOSES = {'sheet: s.ScrollArea = "A1:B2"': 'the fixture that measured Excel losing it too'}
 
     @pytest.mark.parametrize('case', cases(TARGETS, SETTINGS), ids=str)
     def test_each_setting_comes_back(case, tmp_path):
-        check(case, tmp_path, ACCEPTED)
+        check(case, tmp_path, ACCEPTED, EXCEL_LOSES)
 
 A set the model refuses, or that raises as a macro would see, passes: nothing was claimed. A lost value fails unless ACCEPTED names it,
-and a named one that now comes back fails too, so the list only shrinks. It says nothing of whether a kept value matches Excel; that takes
+and a named one that now comes back fails too, so the list only shrinks. EXCEL_LOSES is what Excel's own save drops as well, by a fixture
+that measured it: the model is right to lose those, and fails if it ever keeps one. A value naming its workbook, as OnAction's Book1!M does,
+is compared without the name. It says nothing of whether a kept value matches Excel; that takes
 a measurement. No case may use a member that sends mail or follows a link.
 """
 from __future__ import annotations
@@ -62,7 +65,13 @@ def cases(targets: list[Target], settings: dict[str, list[str]], kinds: dict[str
 
 def _reader(make: str, statement: str, read: str) -> str:
     return (f'Public Function Go() As String\n    Dim ws As Object, s As Object, v As Variant\n    Set ws = ActiveWorkbook.Worksheets(1)\n    {make}\n    {statement}\n'
-            f'    v = {read}\n    If IsObject(v) Then Go = "object" Else Go = CStr(v)\nEnd Function\n')
+            f'    v = {read}\n    If IsObject(v) Then Go = "object" Else Go = CStr(v)\nEnd Function\n'
+            'Public Function Book() As String\n    Book = ActiveWorkbook.Name\nEnd Function\n')
+
+
+def without_book(value: str, book: str) -> str:
+    """A value with the name of its workbook taken from any reference to it, quoted or not, since a save renames the book."""
+    return value.replace(f"'{book}'!", '').replace(f'{book}!', '')
 
 
 def outcome(case: Case, folder: Path) -> tuple[str, str]:
@@ -76,7 +85,7 @@ def outcome(case: Case, folder: Path) -> tuple[str, str]:
         app.add_workbook()
     app.add_module(_reader(target.make, f'{case.path} = {case.value}', case.path), name='Sweep')
     try:
-        before = str(app.run('Sweep.Go'))
+        before = without_book(str(app.run('Sweep.Go')), str(app.run('Sweep.Book')))
     except (VBAUnsupportedError, VBARuntimeError) as refused:
         return 'no claim', str(refused)[:100]
     saved = folder / 'saved.xlsx'
@@ -84,7 +93,7 @@ def outcome(case: Case, folder: Path) -> tuple[str, str]:
     again = ExcelApplication.open(saved, with_vba=False)
     again.add_module(_reader(target.find, '', case.path), name='Sweep')
     try:
-        after = str(again.run('Sweep.Go'))
+        after = without_book(str(again.run('Sweep.Go')), str(again.run('Sweep.Book')))
     except VBAUnsupportedError as refused:
         return 'no claim', f'the set stood at {before}; the reopened file reports {str(refused)[:80]}'
     if after == before:
@@ -92,11 +101,13 @@ def outcome(case: Case, folder: Path) -> tuple[str, str]:
     return 'lost', f'{before} before the save, {after} after it'
 
 
-def check(case: Case, folder: Path, accepted: dict[str, str]) -> None:
-    """A loss must be on the accepted list, and what the list names must still be lost."""
+def check(case: Case, folder: Path, accepted: dict[str, str], excel_loses: dict[str, str] | None = None) -> None:
+    """A loss must be on one of the lists, and what the lists name must still be lost."""
     result, seen = outcome(case, folder)
     name = str(case)
-    if name in accepted:
+    if excel_loses is not None and name in excel_loses:
+        assert result == 'lost', f'{name} is lost by Excel too ({excel_loses[name]}), and the model does not lose it ({result}: {seen})'
+    elif name in accepted:
         assert result == 'lost', f'{name} no longer loses its value ({result}: {seen}): take it off the accepted list'
     else:
         assert result != 'lost', f'{name} is lost across a save: {seen}'

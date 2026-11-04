@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from set_save_reopen import Case, Target, cases, check
+from set_save_reopen import Case, Target, cases, check, without_book
 
 BOOK = Path(__file__).parent / 'fixtures/loaded_shape_text.xlsx'
 _NEW = 'ws.Shapes.Add'
@@ -44,3 +44,19 @@ ACCEPTED: dict[str, str] = {f'{control}: {setting}': "a new form control's drawi
 @pytest.mark.parametrize('case', cases(TARGETS, SETTINGS, KINDS), ids=str)
 def test_each_setting_comes_back_from_the_file(case: Case, tmp_path: Path) -> None:
     check(case, tmp_path, ACCEPTED)
+
+
+
+def test_a_value_is_compared_without_the_name_of_its_book() -> None:
+    assert without_book('Book1!M', 'Book1') == 'M'
+    assert without_book("'my book.xlsx'!M", 'my book.xlsx') == 'M'
+    assert without_book('Sheet1!A1', 'Book1') == 'Sheet1!A1'
+
+
+def test_the_lists_hold_a_value_to_what_they_say(tmp_path: Path) -> None:
+    kept = Case(TARGETS[0], 's.AlternativeText', '"Alt"')
+    check(kept, tmp_path, {})
+    with pytest.raises(AssertionError, match='no longer loses'):
+        check(kept, tmp_path, {str(kept): 'said to be lost'})
+    with pytest.raises(AssertionError, match='lost by Excel too'):
+        check(kept, tmp_path, {}, {str(kept): 'a fixture'})

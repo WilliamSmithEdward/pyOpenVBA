@@ -163,3 +163,11 @@ End Function
 ''', name='Both')
     cell, chart = str(app.run('Both.Go')).split('|')
     assert cell == chart
+
+
+def test_each_font_read_has_the_type_excel_gives_it() -> None:
+    record = json.loads((Path(__file__).parent / 'fixtures/chart_font_types.json').read_text(encoding='utf-8'))
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(record['source'], name='P')
+    assert str(app.run('P.Probe')) == record['types']

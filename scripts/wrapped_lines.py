@@ -35,7 +35,7 @@ def lines_of(text: str, column: int, extent: Callable[[str], int], digit: int) -
             line = ''
         # A word too long for a line breaks between characters, where a hyphen takes its own room.
         if not fits(piece, column, extent, digit) and len(piece.rstrip(' ').removesuffix('-')) > 1:
-            while len(piece.rstrip(' ')) > 1 and column < room_for(extent(piece.rstrip(' ')), digit):
+            while len(piece.rstrip(' ')) > 1 and not fits(piece, column, extent, digit):
                 part = piece[0]
                 for character in piece[1:]:
                     if column < room_for(extent(part + character), digit):

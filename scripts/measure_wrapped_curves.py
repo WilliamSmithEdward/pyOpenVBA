@@ -29,10 +29,7 @@ SOURCE = r'''Public Function Go(ByVal text As String, ByVal font As String, ByVa
         .Font.Bold = bold
     End With
     For Each one In Split(columns, ",")
-        ws.Columns(1).ColumnWidth = 0.1
-        Do While ws.Columns(1).Width * 4 / 3 < Val(one) - 0.01
-            ws.Columns(1).ColumnWidth = ws.Columns(1).ColumnWidth + 1 / 14
-        Loop
+        ws.Columns(1).ColumnWidth = Val(one) / 7
         ws.Rows(1).AutoFit
         r = r & "|" & CLng(ws.Columns(1).Width * 4 / 3) & "," & ws.Rows(1).RowHeight
     Next
@@ -102,7 +99,7 @@ def main() -> None:
                 assert bare.ok, bare
                 history['no height in the file'] = {'set, opened, after': str(bare.value), 'row': row_markup(Path(folder) / 'bare.xlsx')}
         for case in record['cases']:
-            result = excel.run_vba(SOURCE, 'Go', (case['text'], case['font'], case['size'], case['bold'], columns), timeout=120.0, line_numbers=False)
+            result = excel.run_vba(SOURCE, 'Go', (case['text'], case['font'], case['size'], case['bold'], columns), timeout=200.0, line_numbers=False)
             assert result.ok and not result.dialogs, (case['text'], result)
             height, *steps = str(result.value).split('|')
             assert height == '15', f'Excel is not at 96 DPI: StandardHeight reads {height}'

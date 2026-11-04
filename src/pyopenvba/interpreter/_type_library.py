@@ -28,6 +28,11 @@ class LibraryClass:
         """The form of a member that answers a value: a method, or a property's get."""
         return next((form for form in self.members.get(member.lower(), ()) if form[0] in (1, 2)), None)
 
+    @property
+    def evaluates(self) -> bool:
+        """Whether the class takes DISPID_EVALUATE, which is what target.[text] calls where no member is bound to it."""
+        return '_evaluate' in self.members
+
     def result(self, member: str) -> str | None:
         """What the member returns, '' if nothing, None if the class has no such member."""
         form = self.reading(member)
@@ -40,6 +45,10 @@ class LibraryClass:
     @property
     def default_result(self) -> str | None:
         return self.result(self.default) if self.default else None
+
+
+#: A host object of a class no library here describes, such as Office's DocumentProperties, which is no dispinterface.
+UNDESCRIBED = LibraryClass('', False, False, '', {})
 
 
 @lru_cache(maxsize=None)
@@ -204,6 +213,18 @@ def late_error(found: LibraryClass, member: str, positional: int, named: Sequenc
     if returned in _SCALARS:
         return 450 if found.name in _SCALAR_450 else 451
     return None
+
+
+def late_let_error(found: LibraryClass, member: str, number: int, is_null: bool, is_text: bool) -> int | None:
+    """What a property set bound late answers for what it answers typed: 0 for no error, None if the typed answer stands."""
+    from pyopenvba.interpreter._late_lets import LATE_LETS
+
+    measured = LATE_LETS.get(f"{found.name.lstrip('_').lower()}.{member.lower()}", {})
+    if number == 94 and is_null:
+        return measured.get('null')
+    if number == 13 and is_text:
+        return measured.get('text')
+    return measured.get('five') if number == 5 else None
 
 
 def build() -> tuple[str, dict[str, str]]:

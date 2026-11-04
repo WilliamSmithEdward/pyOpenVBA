@@ -690,6 +690,8 @@ class Application(ExcelObject):
         for book in self.workbooks_.books:
             book.calculator.settle_automatic_cache()
         self.calculation = int(to_integer(value, "Long"))
+        for book in self.workbooks_.books:
+            book.file_calculation_mode = None
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
             # Back to automatic works out what manual mode left stale, with its
             # Calculate events. Volatile UDFs in the active workbook run too;
@@ -1810,6 +1812,9 @@ class Workbook(ExcelObject):
         #: ForceFullCalculation is on; and whether it was opened wanting a full calculation it has not had yet
         #: (see _calculation_state).
         self.calculation_version = VERSION
+        #: calcPr's calcMode as the file has it, kept in a save until a macro sets Application.Calculation
+        #: (see _calculation_settings).
+        self.file_calculation_mode: str | None = None
         self.force_full_calculation = False
         self.full_pending = False
         #: True once a sheet's custom properties change, so a save writes them all (see _custom_properties).

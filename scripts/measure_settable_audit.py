@@ -54,6 +54,8 @@ APPLICATION = {
     "Calculation": NUMBER + ["-4105", "-4135", "2"], "Cursor": NUMBER + ["-4143", "xlWait", "xlIBeam", "xlNorthwestArrow"],
     "StatusBar": sorted({*VARIANT, "False"}), "CutCopyMode": NUMBER + ["False", "xlCopy", "xlCut"],
 }
+#: A Workbook property that outlasts its workbook, in the user's registry: put back like Application's.
+USER_LEVEL = {"DoNotPromptForConvert"}
 TARGETS = {"Worksheet": "ws", "Workbook": "wb", "Application": "Application"}
 OBJECTS = {"Worksheet": WORKSHEET, "Workbook": WORKBOOK, "Application": APPLICATION}
 
@@ -110,9 +112,9 @@ def source(obj: str, prop: str, values: list[str]) -> str:
     typed = [f"    Case {index + len(values)}\n        {TARGETS[obj]}.{prop} = {value}" for index, value in enumerate(values)]
     cases = "\n".join([*late, *typed])
     keep = restore = ""
-    if obj == "Application":
-        keep = f"was = Application.{prop}"
-        restore = f"Application.{prop} = was"
+    if obj == "Application" or prop in USER_LEVEL:
+        keep = f"was = {TARGETS[obj]}.{prop}"
+        restore = f"{TARGETS[obj]}.{prop} = was"
     return TEMPLATE.format(prop=prop, target=TARGETS[obj], cases=cases, keep=keep, restore=restore)
 
 

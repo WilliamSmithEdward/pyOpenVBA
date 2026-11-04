@@ -504,7 +504,7 @@ class Context:
             held = node.args[0]
         if held is None:
             return self.evaluate(node)
-        value = self.evaluate(held)
+        value = self._reference_operand(held)
         if not isinstance(value, Reference):
             return value if isinstance(value, CellError) else VALUE
         area = value.area

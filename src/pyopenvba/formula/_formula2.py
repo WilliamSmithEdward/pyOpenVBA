@@ -159,12 +159,24 @@ class _Walk:
 
     def _takes(self, node: Node | None) -> bool:
         """Whether a thing that can give several values takes an @ where one is wanted: all but a union, or an intersection
-        of two single cells (tests/fixtures/value_gaps.json)."""
+        with one cell, which is one value already, unless its other side is a name or a call that may give several
+        (tests/fixtures/value_gaps.json)."""
         if isinstance(node, Binary) and node.op == " ":
-            # An intersection with one cell, of a cell or of what stands in brackets, is one value already.
-            cell = [isinstance(side, Reference) and ":" not in side.text for side in (node.left, node.right)]
-            return not (cell[0] or (cell[1] and isinstance(node.left, Binary)))
+            sides = (node.left, node.right)
+            one_cell = any(isinstance(side, Reference) and ":" not in side.text
+                           or isinstance(side, Structured) and is_one_cell(side) for side in sides)
+            return not one_cell or any(self._may_give_many(side) for side in sides)
         return not (isinstance(node, Binary) and node.op == ",")
+
+    def _may_give_many(self, node: Node | None) -> bool:
+        if isinstance(node, NameNode):
+            return True
+        if not isinstance(node, Call) or function_key(node.name) in _CHOICES:
+            return False
+        marks, merged = set(self.marks), set(self.merged)
+        many = self._many(node, VALUE)
+        self.marks, self.merged = marks, merged
+        return many
 
     def _many(self, node: Node | None, where: str) -> bool:
         if node is None or isinstance(node, Literal):

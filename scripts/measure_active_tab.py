@@ -46,6 +46,18 @@ SCROLLED_ACTIONS: dict[str, str] = {
     "move_active_before_4": "wb.ActiveSheet.Move Before:=wb.Sheets(4)",
     "add_after_fifth_then_back": "Set s = wb.ActiveSheet: wb.Sheets.Add After:=wb.Sheets(5): s.Activate",
 }
+#: Six sheets with the first active, moved past the last.
+SIX_ACTIONS: dict[str, str] = {"move_first_after_sixth": "wb.Worksheets(1).Move After:=wb.Worksheets(6)"}
+MAKE_SIX = '''Sub MakeSix(ByVal file As String)
+    Dim wb As Workbook
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Add(-4167)
+    Do While wb.Worksheets.Count < 6: wb.Worksheets.Add After:=wb.Worksheets(wb.Worksheets.Count): Loop
+    wb.Worksheets(1).Activate
+    wb.SaveAs file, 51
+    wb.Close False
+End Sub
+'''
 MAKE_SCROLLED = '''Sub MakeScrolled(ByVal file As String)
     Dim wb As Workbook
     Application.DisplayAlerts = False
@@ -176,9 +188,20 @@ def main() -> None:
                 read = excel.run_vba(READ, "ReadIt", (str(file),), timeout=45.0)
                 rows.append({"book": "scrolled", "case": case, "reads": str(read.value), "view": view(file)})
                 print("scrolled", case, rows[-1]["reads"], rows[-1]["view"], flush=True)
+            base = folder / "six_sheets.xlsx"
+            excel.run_vba(MAKE_SIX, "MakeSix", (str(base),), timeout=45.0)
+            shutil.copy(base, OUT / base.name)
+            strip_save_path(OUT / base.name)
+            for case, action in SIX_ACTIONS.items():
+                file = folder / f"six_{case}.xlsx"
+                shutil.copy(base, file)
+                excel.run_vba(SHOWN_ACT.format(action=action), "Act", (str(file),), timeout=45.0)
+                read = excel.run_vba(READ, "ReadIt", (str(file),), timeout=45.0)
+                rows.append({"book": "six_sheets", "case": case, "reads": str(read.value), "view": view(file)})
+                print("six_sheets", case, rows[-1]["reads"], rows[-1]["view"], flush=True)
     finally:
         shutil.rmtree(folder, ignore_errors=True)
-    (OUT / "active_tab.json").write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "actions": {**ACTIONS, **SCROLLED_ACTIONS}, "act": ACT, "read": READ, "rows": rows},
+    (OUT / "active_tab.json").write_text(json.dumps({"measured_at": datetime.now(timezone.utc).isoformat(), "actions": {**ACTIONS, **SCROLLED_ACTIONS, **SIX_ACTIONS}, "act": ACT, "read": READ, "rows": rows},
                                                     indent=1) + "\n", encoding="utf-8")
 
 

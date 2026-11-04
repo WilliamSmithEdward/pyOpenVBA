@@ -6379,7 +6379,7 @@ class Range(ExcelObject):
     def _delete_cells(self, area: Area, up: bool) -> None:
         from pyopenvba.apps.excel._editing import shift_cells
 
-        self.shifting_cells()
+        self.shifting_cells(area, vertical=up, delete=True)
         shift_cells(self, area, delete=True, vertical=up)
 
     def _insert_areas(self, shift: object, below: bool, refusal: str) -> None:
@@ -6403,8 +6403,8 @@ class Range(ExcelObject):
         if which not in (-4121, -4161, 1, 2):
             raise error(1004, refusal)
         down = which in (-4121, 2)
-        self.shifting_cells()
         for one in sorted(self.areas, key=lambda area: (area.top, area.left) if down else (area.left, area.top), reverse=True):
+            self.shifting_cells(one, vertical=down, delete=False)
             shift_cells(Range(self.sheet, [one]), one, delete=False, vertical=down, below=below)
 
     @method
@@ -6483,22 +6483,17 @@ class Range(ExcelObject):
             if which not in (-4121, -4161, 1, 2):
                 raise error(1004, refusal)
             down = which in (-4121, 2)
-        self.shifting_cells()
+        self.shifting_cells(area, vertical=down, delete=False)
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)
         return True
 
-    def shifting_cells(self) -> None:
-        """Refuse to shift cells on a sheet whose rows or columns carry formats.
+    def shifting_cells(self, area: Area, *, vertical: bool, delete: bool) -> None:
+        """Excel moves the format each position shows along with the cells, so where a row's or column's format would
+        otherwise take over, the cell takes it now (tests/fixtures/range_shifts.json)."""
+        from pyopenvba.apps.excel._row_formats import keep_shown
 
-        Excel moves the format each position shows along with the cells,
-        which the model does not work out.
-        """
-        dims = self.sheet.dims
-        if any(record.style is not None for record in dims.rows.values()) or \
-                any(record.style is not None for record in dims.columns.values()):
-            raise VBAUnsupportedError("shifting cells on a sheet whose rows or columns carry formats is not "
-                                      "implemented")
+        keep_shown(self.sheet, area, vertical=vertical, delete=delete)
 
     @method
     def Copy(self, Destination: object = MISSING) -> object:

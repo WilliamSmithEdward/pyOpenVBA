@@ -434,7 +434,11 @@ def with_book_view(book: Workbook, xml: str) -> str:
                         ("showVerticalScroll", "" if view.vertical_scroll else "0"),
                         ("showSheetTabs", "" if view.tabs else "0"),
                         ("tabRatio", "" if ratio == 600 else str(ratio)),
+<<<<<<< HEAD
                         ("firstSheet", str(_first_place(book)) if _first_place(book) else ""),
+=======
+                        ("firstSheet", str(view.first_sheet) if view.first_sheet else ""),
+>>>>>>> origin/main
                         ("activeTab", str(active) if active else ""),
                         ("autoFilterDateGrouping", "" if view.date_grouping else "0")):
         opening = with_attribute(opening, name, value, _BOOK_VIEW_ORDER)

@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T11:17:32.764759+00:00",
+ "measured_at": "2026-11-04T11:58:53.319634+00:00",
  "actions": {
   "edit": "wb.Sheets(1).Range(\"A1\").Value = 1",
   "move_active_last": "wb.ActiveSheet.Move After:=wb.Sheets(3)",
@@ -27,7 +27,8 @@
   "activate_2_then_back": "Set s = wb.ActiveSheet: wb.Sheets(2).Activate: s.Activate",
   "activate_4": "wb.Sheets(4).Activate",
   "move_active_before_4": "wb.ActiveSheet.Move Before:=wb.Sheets(4)",
-  "add_after_fifth_then_back": "Set s = wb.ActiveSheet: wb.Sheets.Add After:=wb.Sheets(5): s.Activate"
+  "add_after_fifth_then_back": "Set s = wb.ActiveSheet: wb.Sheets.Add After:=wb.Sheets(5): s.Activate",
+  "move_first_after_sixth": "wb.Worksheets(1).Move After:=wb.Worksheets(6)"
  },
  "act": "Sub Act(ByVal file As String)\n    Dim wb As Workbook, s As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(file)\n    {action}\n    wb.Save\n    wb.Close False\nEnd Sub\n",
  "read": "Function ReadIt(ByVal file As String) As String\n    Dim wb As Workbook, s As Object, t As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(file)\n    For Each s In wb.Sheets\n        t = t & \",\" & s.Name\n    Next\n    ReadIt = Mid$(t, 2) & \"|\" & wb.ActiveSheet.Name & \"|\" & wb.Windows(1).SelectedSheets.Count\n    wb.Close False\nEnd Function\n",
@@ -367,6 +368,12 @@
    "case": "add_after_fifth_then_back",
    "reads": "Sheet1,Sheet2,Sheet3,Sheet4,Sheet5,Sheet6|Sheet5|1",
    "view": "activeTab=\"4\" firstSheet=\"2\""
+  },
+  {
+   "book": "six_sheets",
+   "case": "move_first_after_sixth",
+   "reads": "Sheet2,Sheet3,Sheet4,Sheet5,Sheet6,Sheet1|Sheet1|1",
+   "view": "activeTab=\"5\" firstSheet=\"1\""
   }
  ]
 }

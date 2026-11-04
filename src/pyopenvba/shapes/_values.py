@@ -436,6 +436,8 @@ class Shape:
     #: Where the shape's markup was, so an untouched one is written
     #: back exactly as it came in.
     source: str = ""
+    #: The hlinkClick its name carries in a file: its relationship, tip and place; a load makes the first the address.
+    link: tuple[str, str, str] | None = None
     #: Where in the part that markup started.
     source_at: int = 0
     #: Word only: the anchor's relativeHeight, which is the order Word

@@ -1053,8 +1053,9 @@ class ShapeObject(_Drawn):
 
     @member
     def AutoShapeType(self) -> object:
-        """Which AutoShape it is, which a text box answers as a rectangle, and a line or connector as mixed."""
-        if self.shape.kind == "line":
+        """Which AutoShape it is, which a text box answers as a rectangle, and a line, connector, group or form control
+        as mixed (tests/fixtures/object_roundtrip.json)."""
+        if self.shape.kind in ("line", "group", "formControl"):
             return VBAInt(-2, "Long")
         return VBAInt(getattr(self.shape, "auto_shape_type", 1), "Long")
 
@@ -1227,7 +1228,8 @@ class ShapeObject(_Drawn):
 
     @member
     def AlternativeText(self) -> object:
-        return self.shape.description
+        """A form control with none of its own answers its caption (tests/fixtures/object_roundtrip.json)."""
+        return self.shape.description or (self.shape.text if self.shape.kind == "formControl" else "")
 
     @setter("AlternativeText")
     def _alternative_text(self, value: object) -> None:
@@ -1236,6 +1238,8 @@ class ShapeObject(_Drawn):
 
     @member
     def Title(self) -> object:
+        if self.shape.kind == "formControl":  # tests/fixtures/object_roundtrip.json
+            raise error(445, "Object doesn't support this action")
         return self.shape.title
 
     @setter("Title")
@@ -1485,10 +1489,12 @@ class ShapeObject(_Drawn):
 
     @member
     def Hyperlink(self) -> object:
-        """A shape's hyperlink, which no shape the model makes has (tests/fixtures/missing_reads.json)."""
-        if self.shape.source:
-            raise _unsupported("Hyperlink of a loaded shape")
-        raise error(1004, "Unable to get the Hyperlink property of the Shape class")
+        """A shape's hyperlink, read from its file; no shape the model makes has one (tests/fixtures/missing_reads.json)."""
+        if self.shape.link is None:
+            raise error(1004, "Unable to get the Hyperlink property of the Shape class")
+        from pyopenvba.apps.excel._hyperlinks import shape_link
+
+        return shape_link(self.sheet, self.shape)
 
     def on_sheet(self) -> None:
         # A deleted shape has nothing to answer with (tests/fixtures/shape_range_fill_line.json).
@@ -1677,7 +1683,14 @@ class ShapeObject(_Drawn):
         return EMPTY
 
     def _position(self) -> int:
-        for index, one in enumerate(self.sheet.shapes_, start=1):
+        """Its place in the stack, in which a group's members each have one after the group's
+        (tests/fixtures/object_roundtrip.json)."""
+        def walked(shapes: list[Shape]) -> Iterator[Shape]:
+            for one in shapes:
+                yield one
+                yield from walked(one.children)
+
+        for index, one in enumerate(walked(self.sheet.shapes_), start=1):
             if one is self.shape:
                 return index
         return 1

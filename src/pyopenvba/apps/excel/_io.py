@@ -615,6 +615,16 @@ def _area_of(reference: str) -> tuple[int, int, int, int]:
     return area.top, area.left, area.bottom, area.right
 
 
+def _read_shape_links(shapes: list[ShapeState], relationships: dict[str, tuple[str, str]]) -> None:
+    """Each shape's hyperlink, its relationship made the address it names."""
+    for shape in shapes:
+        if shape.link is not None:
+            relationship, tip, place = shape.link
+            target = relationships.get(relationship, ("", ""))[1]
+            shape.link = (target, tip, place)
+        _read_shape_links(shape.children, relationships)
+
+
 def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     """The sheet's drawing, read into the model.
 
@@ -632,6 +642,7 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     # Anchors are read against the model's own rows and columns, the ones
     # a save writes them against, so a shape nobody moved stays put.
     sheet.shapes_ = read_drawing(sheet.drawing_xml, sheet.drawing_grid())
+    _read_shape_links(sheet.shapes_, _sheet_relationships(package, part))
     from pyopenvba.apps.excel import _charts_file
 
     _charts_file.read(sheet, package)

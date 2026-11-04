@@ -458,10 +458,10 @@ class Font(ExcelObject):
 
     @setter("ThemeFont")
     def _set_theme_font(self, value: object) -> None:
-        """The theme's heading or body font by name, or 0 to keep the name apart from the theme; Null and text that
-        is no number are 13 (tests/fixtures/format_properties.json)."""
+        """The theme's heading or body font by name, or 0 to keep the name apart from the theme; text that is no number
+        is 13 and, bound early, Null 94 (tests/fixtures/format_properties.json)."""
         if value is NULL:
-            raise error(13)
+            raise error(94)
         wanted = int(to_integer(value, "Long"))
         if wanted == 0:
             self._write(lambda font: replace(font, scheme=""))
@@ -1545,9 +1545,23 @@ def _switch(value: object, what: str) -> bool:
         raise error(1004, f"Unable to set the {what} property of the Range class") from failed
 
 
+def _reading_order(value: object) -> Callable[[S.Alignment], S.Alignment]:
+    """Declared As Long, so bound early VBA converts first: Null is 94, text that is no number 13, and True, -1, is no
+    code (tests/fixtures/format_properties.json)."""
+    number = int(to_integer(value, "Long"))
+    if number == 1:
+        return lambda alignment: alignment
+    if number not in _READING_OF:
+        raise error(1004, "Unable to set the ReadingOrder property of the Range class")
+    order = _READING_OF[number]
+    return lambda alignment: replace(alignment, reading_order=order)
+
+
 def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alignment]:
     """Null changes nothing and True is 1; a code taken from a list refuses even text of a number, and a count or angle
     takes such text and drops a fraction (tests/fixtures/format_properties.json)."""
+    if what == "ReadingOrder":
+        return _reading_order(value)
     if value is NULL:
         return lambda alignment: alignment
     if what in ("WrapText", "ShrinkToFit", "AddIndent"):
@@ -1555,7 +1569,7 @@ def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alig
         name = {"WrapText": "wrap", "ShrinkToFit": "shrink", "AddIndent": "justify_last_line"}[what]
         return lambda alignment: replace(alignment, **{name: on})
     refusal = f"{what} property of the Range class"
-    if isinstance(value, str) and what in ("HorizontalAlignment", "VerticalAlignment", "ReadingOrder"):
+    if isinstance(value, str) and what in ("HorizontalAlignment", "VerticalAlignment"):
         raise error(1004, f"Unable to set the {refusal}")
     number = 1 if value is True else int(cast(float, _refused(value, refusal, to_number)))
     if what == "HorizontalAlignment":
@@ -1585,13 +1599,6 @@ def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alig
             return replace(alignment, indent=number, horizontal=horizontal)
 
         return indent
-    if what == "ReadingOrder":
-        if number == 1:
-            return lambda alignment: alignment
-        if number not in _READING_OF:
-            raise error(1004, "Unable to set the ReadingOrder property of the Range class")
-        order = _READING_OF[number]
-        return lambda alignment: replace(alignment, reading_order=order)
     # Orientation
     special = {-4128: 0, -4166: 255, 255: 255, -4171: 90, -4170: 180}
     if number in special:

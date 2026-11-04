@@ -304,7 +304,7 @@ def _lift_column_formats(sheet: Worksheet, top: int, styled: dict[int, S.Style])
     (tests/fixtures/clear_rows_formats.json, tests/fixtures/value_gaps.json)."""
     last = styled.get(MAX_COLUMNS)
     if last is not None and styled.get(1, last) != last:
-        styled = {}
+        pass
     elif last is not None and sum(style == last for style in styled.values()) > MAX_COLUMNS // 2:
         default = sheet.book.stylesheet.default
         others = {column: styled.get(column, default) for column in range(1, MAX_COLUMNS + 1) if styled.get(column) != last}

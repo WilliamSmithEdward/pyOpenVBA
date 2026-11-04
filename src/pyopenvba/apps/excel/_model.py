@@ -62,6 +62,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._rich_text import Run
     from pyopenvba.apps.excel._udf import EvaluationOrigin
     from pyopenvba.powerquery._opc import Entry
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
@@ -781,7 +782,7 @@ class Application(ExcelObject):
     @member
     def ActiveSheet(self) -> object:
         book = self.active_book
-        return book.active_sheet if book is not None else NOTHING
+        return book.vba_get("ActiveSheet") if book is not None else NOTHING
 
     @member
     def ActiveWindow(self) -> object:
@@ -1746,6 +1747,11 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: The chart sheets the file has, its tabs in order where it has any, and the chart sheet that is active (see
+        #: _chart_sheets). sheets_ holds worksheets alone.
+        self.chart_sheets: list[ChartSheet] = []
+        self.file_tabs: list[Worksheet | ChartSheet] = []
+        self.active_chart_sheet: ChartSheet | None = None
         #: Whether a macro has fetched a Name: LinkSources then leaves out links no cell refers to (see _workbook_links).
         self.names_fetched = False
         self.project_runtime: Interpreter | None = None
@@ -2317,8 +2323,14 @@ class Workbook(ExcelObject):
 
     @member
     def Charts(self, Index: object = MISSING) -> object:
-        """No chart sheets: a workbook with one is refused as it opens (tests/fixtures/empty_collections.json)."""
-        return self._empty("Charts", Index)
+        """The chart sheets (see _chart_sheets); of a workbook with none, an empty collection
+        (tests/fixtures/empty_collections.json)."""
+        if not self.chart_sheets:
+            return self._empty("Charts", Index)
+        from pyopenvba.apps.excel._chart_sheets import ChartSheets
+
+        found = ChartSheets(self)
+        return found if Index is MISSING else found.vba_get("Item", [Index])
 
     @member
     def Excel4MacroSheets(self, Index: object = MISSING) -> object:
@@ -2350,11 +2362,12 @@ class Workbook(ExcelObject):
 
     @member
     def Worksheets(self, Index: object = MISSING) -> object:
-        return self.Sheets(Index)
+        sheets = Sheets(self, worksheets=True)
+        return sheets if Index is MISSING else sheets.vba_get("Item", [Index])
 
     @member
     def ActiveSheet(self) -> object:
-        sheet = self.active_sheet
+        sheet = self.active_chart_sheet or self.active_sheet
         return sheet if sheet is not None else NOTHING
 
     @member
@@ -2363,6 +2376,8 @@ class Workbook(ExcelObject):
         (tests/fixtures/active_chart.json)."""
         from pyopenvba.apps.excel._charts import active_chart
 
+        if self.active_chart_sheet is not None:
+            return self.active_chart_sheet
         return active_chart(self.active_sheet) if self.active_sheet is not None else NOTHING
 
     @member
@@ -3071,9 +3086,18 @@ class Workbook(ExcelObject):
             return None
         return self.sheets_[min(self.active_sheet_index, len(self.sheets_) - 1)]
 
+    def tabs(self) -> list[Worksheet | ChartSheet]:
+        """The tabs in order, which is what Sheets, Index and a file's activeTab and localSheetId count."""
+        return self.file_tabs if self.chart_sheets else list(self.sheets_)
+
+    def refuse_chart_sheets(self, what: str) -> None:
+        if self.chart_sheets:
+            raise VBAUnsupportedError(f"{what} in a workbook with a chart sheet is not implemented")
+
     def activate_sheet(self, sheet: Worksheet) -> None:
         from pyopenvba.apps.excel._table_filters import refocus
 
+        self.active_chart_sheet = None
         self.active_sheet_index = self.sheets_.index(sheet)
         # A sheet of the group stays in it as it becomes active; any other stands alone
         # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
@@ -3085,7 +3109,7 @@ class Workbook(ExcelObject):
         """The sheets the workbook's window has selected, in tab order: the group the active sheet is in, or the
         active sheet alone."""
         active = self.active_sheet
-        if active is None:
+        if active is None or self.active_chart_sheet is not None:
             return []
         if not any(one is active for one in self.selected_sheets):
             return [active]
@@ -3149,16 +3173,22 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
 
     vba_type_name = "Sheets"
 
-    def __init__(self, book: Workbook) -> None:
+    def __init__(self, book: Workbook, *, worksheets: bool = False) -> None:
         self.book = book
+        #: Workbook.Worksheets, which passes over chart sheets (see _chart_sheets).
+        self.worksheets = worksheets
 
     def vba_items(self) -> list[object]:
-        return list(self.book.sheets_)
+        return list(self.book.sheets_ if self.worksheets else self.book.tabs())
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
+            for chart_sheet in () if self.worksheets else self.book.chart_sheets:
+                if _names.same_name(chart_sheet.name, index):
+                    return chart_sheet
             return self.book.sheet_found(index)
         if isinstance(index, VBAArray):
+            self.book.refuse_chart_sheets("Sheets of an array")
             from pyopenvba.apps.excel._sheet_groups import group
 
             return group(self.book, index)
@@ -3200,6 +3230,7 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
     ) -> object:
         from pyopenvba.apps.excel._protection import ADDING, refuse_structure
 
+        self.book.refuse_chart_sheets("Adding a sheet")
         refuse_structure(self.book, ADDING)
         if len(self.book.selected()) > 1:
             # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
@@ -3243,14 +3274,17 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Copying sheets")
         return self._all().Copy(Before, After)
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Moving sheets")
         return self._all().Move(Before, After)
 
     @method
     def Delete(self) -> object:
+        self.book.refuse_chart_sheets("Deleting sheets")
         return self._all().Delete()
 
     @member
@@ -3552,6 +3586,7 @@ class Worksheet(ExcelObject):
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
+        self.book.refuse_chart_sheets("Renaming a sheet")
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
 
         refuse_structure(self.book, APPLICATION_DEFINED)
@@ -3572,19 +3607,21 @@ class Worksheet(ExcelObject):
 
     @member
     def Index(self) -> object:
-        return VBAInt(self.book.sheets_.index(self) + 1, "Long")
+        return VBAInt(self.book.tabs().index(self) + 1, "Long")
 
     @member
     def Next(self) -> object:
         """The sheet after this one, or Nothing after the last."""
-        index = self.book.sheets_.index(self)
-        return self.book.sheets_[index + 1] if index + 1 < len(self.book.sheets_) else NOTHING
+        tabs = self.book.tabs()
+        index = tabs.index(self)
+        return tabs[index + 1] if index + 1 < len(tabs) else NOTHING
 
     @member
     def Previous(self) -> object:
         """The sheet before this one, or Nothing before the first."""
-        index = self.book.sheets_.index(self)
-        return self.book.sheets_[index - 1] if index > 0 else NOTHING
+        tabs = self.book.tabs()
+        index = tabs.index(self)
+        return tabs[index - 1] if index > 0 else NOTHING
 
     @member
     def Visible(self) -> object:
@@ -4002,6 +4039,7 @@ class Worksheet(ExcelObject):
     def Delete(self) -> object:
         """Take the sheet out: the formulas and names that read it read #REF! instead, and where it was active the
         next visible sheet after it is, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
+        self.book.refuse_chart_sheets("Deleting a sheet")
         from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
         from pyopenvba.apps.excel._sheet_groups import delete
 
@@ -4021,6 +4059,7 @@ class Worksheet(ExcelObject):
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Copying a sheet")
         from pyopenvba.apps.excel._protection import COPYING
         from pyopenvba.apps.excel._sheet_copy import copy_sheet
 
@@ -4040,6 +4079,7 @@ class Worksheet(ExcelObject):
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
+        self.book.refuse_chart_sheets("Moving a sheet")
         from pyopenvba.apps.excel._protection import MOVING
         from pyopenvba.apps.excel._sheet_move import move_sheet
 

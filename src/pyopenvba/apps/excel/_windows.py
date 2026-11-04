@@ -45,7 +45,7 @@ from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba._xml import attributes, tag_attributes
 from pyopenvba.apps.excel import _dimensions, _events
 from pyopenvba.apps.excel._creator import ItemDefault
-from pyopenvba.apps.excel._model import ExcelObject, Range
+from pyopenvba.apps.excel._model import ExcelObject, Range, Worksheet
 from pyopenvba.apps.excel._styles import XL_AUTOMATIC
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._r1c1 import to_a1
@@ -389,7 +389,12 @@ def read_book_view(book: Workbook, xml: str) -> None:
         view.tab_ratio = _number(head.get("tabRatio"), 600) / 1000
         view.date_grouping = _flag(head.get("autoFilterDateGrouping"), True)
         if book.sheets_:
-            book.active_sheet_index = min(_number(head.get("activeTab"), 0), len(book.sheets_) - 1)
+            tabs = book.tabs()
+            tab = tabs[min(_number(head.get("activeTab"), 0), len(tabs) - 1)]
+            if isinstance(tab, Worksheet):
+                book.active_sheet_index = book.sheets_.index(tab)
+            else:
+                book.active_chart_sheet = tab
     # A group the file keeps selected, its active tab among them, stays selected.
     book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
@@ -406,7 +411,8 @@ def with_book_view(book: Workbook, xml: str) -> str:
     opening = tag[:-len(closing)].rstrip()
     view = book.view
     ratio = round(view.tab_ratio * 1000)
-    active = book.sheets_.index(book.active_sheet) if book.active_sheet is not None else 0
+    current = book.active_chart_sheet or book.active_sheet
+    active = book.tabs().index(current) if current is not None else 0
     for name, value in (("showHorizontalScroll", "" if view.horizontal_scroll else "0"),
                         ("showVerticalScroll", "" if view.vertical_scroll else "0"),
                         ("showSheetTabs", "" if view.tabs else "0"),

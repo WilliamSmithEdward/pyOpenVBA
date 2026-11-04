@@ -748,15 +748,16 @@ def _named_range(text: str, tables: set[str]) -> bool:
     return False
 
 
-def _titles(book: Workbook) -> tuple[list[str], list[str]]:
-    """The sheets in tab order, and the visible names that stand for cells in the order the Names collection has
+def _titles(book: Workbook) -> tuple[list[str], list[str], list[str]]:
+    """The worksheets in tab order, the chart sheets, and the visible names that stand for cells in the order the Names collection has
     them, a sheet's own spelt with its sheet. Excel lists chart sheets under a heading of their own after the
-    worksheets (chart_sheet), which the model, holding none, never writes."""
+    worksheets (chart_sheet)."""
     from pyopenvba.apps.excel._editing import name_scope
     from pyopenvba.apps.excel._model import DefinedName
 
     # A very hidden sheet is not listed (tests/fixtures/parts_loss/later_sheets.xlsx).
     sheets = [sheet.name for sheet in book.sheets_ if sheet.visible != 2]
+    charts = [sheet.name for sheet in book.chart_sheets if sheet.visible != 2]
     tables = {table.name.casefold() for sheet in book.sheets_ for table in sheet.tables}
     names: list[str] = []
     for item in book.names_.vba_items():
@@ -765,7 +766,7 @@ def _titles(book: Workbook) -> tuple[list[str], list[str]]:
         if entry.visible and _named_range(entry.refers_to, tables):
             scope, bare = name_scope(book, entry), split_sheet(entry.name)[1]
             names.append(quote_sheet(scope) + "!" + bare if scope else bare)
-    return sheets, names
+    return sheets, charts, names
 
 
 #: What Excel escapes in a docProps part: the underscore of a run that reads as an escape, and the characters XML
@@ -804,8 +805,8 @@ def _core(found: Properties) -> str:
 
 
 def _app(book: Workbook, found: Properties) -> str:
-    sheets, names = _titles(book)
-    headings = [(heading, len(titles)) for heading, titles in (("Worksheets", sheets), ("Named Ranges", names))
+    sheets, charts, names = _titles(book)
+    headings = [(heading, len(titles)) for heading, titles in (("Worksheets", sheets), ("Charts", charts), ("Named Ranges", names))
                 if titles]
     parts: list[str] = []
     for element in _APP:
@@ -817,7 +818,7 @@ def _app(book: Workbook, found: Properties) -> str:
             parts.append(f'<HeadingPairs><vt:vector size="{2 * len(headings)}" baseType="variant">{items}'
                          "</vt:vector></HeadingPairs>")
         elif element == "TitlesOfParts":
-            titles = sheets + names
+            titles = sheets + charts + names
             items = "".join(f"<vt:lpstr>{_spelled(title)}</vt:lpstr>" for title in titles)
             parts.append(f'<TitlesOfParts><vt:vector size="{len(titles)}" baseType="lpstr">{items}</vt:vector>'
                          "</TitlesOfParts>")

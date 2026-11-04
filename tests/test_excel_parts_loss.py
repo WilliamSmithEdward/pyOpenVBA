@@ -25,11 +25,11 @@ _spec.loader.exec_module(PROBE)
 
 ROWS: list[dict[str, Any]] = [row for row in MEASURED["rows"] if "failed" not in row]
 #: Files or members the model says it cannot read, which a save keeps all the same.
-REPORTED = {"chart_styled", "chart_sheet", "pivot_slicer", "vba_project", "vba_form", "format_xls", "custom_views", "ignored_errors"}
+REPORTED = {"chart_styled", "pivot_slicer", "vba_project", "vba_form", "format_xls", "custom_views", "ignored_errors"}
 #: The model answers these wrongly rather than reporting: a header picture read back as none, and Worksheet.Buttons.
 WRONG = {"image_header": "a header picture in a loaded file reads as none", "form_button": "Worksheet.Buttons of a loaded sheet is 438"}
 #: The model does not open these, so nothing is saved.
-REFUSED = {"chart_sheet", "format_xls", "format_xlsb"}
+REFUSED = {"format_xls", "format_xlsb"}
 
 
 def _lines(text: object) -> str:

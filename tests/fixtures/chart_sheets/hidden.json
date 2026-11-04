@@ -1,0 +1,45 @@
+{
+ "measured_at": "2026-11-04T08:07:56.486447+00:00",
+ "answers": "Function Answers(ByVal file As String) As String\n    Dim wb As Workbook, s As String, c As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(file)\n    Set c = wb.Charts(1)\n    On Error Resume Next\n    c.Activate\n    s = Err.Number & \"|\" & wb.ActiveSheet.Name & \"|\" & c.Visible: Err.Clear\n    c.Select\n    s = s & \"|\" & Err.Number: Err.Clear\n    wb.Close False\n    Answers = s\nEnd Function\n",
+ "save": "Sub Save1(ByVal file As String)\n    Dim wb As Workbook\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(file)\n    wb.Charts(1).Activate\n    wb.Save\n    wb.Close False\nEnd Sub\n",
+ "rows": {
+  "hidden": {
+   "answers": "0|C|0|1004",
+   "read": "C|-1|1",
+   "views": {
+    "active": [
+     "firstSheet=\"1\""
+    ],
+    "sheets": [
+     "<sheet name=\"C\" sheetId=\"2\" state=\"hidden\" r:id=\"rId1\"/>",
+     "<sheet name=\"Sheet1\" sheetId=\"1\" r:id=\"rId2\"/>"
+    ],
+    "sheet": [
+     "<sheetView workbookViewId=\"0\"/>"
+    ],
+    "chart": [
+     "<sheetView tabSelected=\"1\" zoomScale=\"10\" workbookViewId=\"0\" zoomToFit=\"1\"/>"
+    ]
+   }
+  },
+  "very_hidden": {
+   "answers": "0|C|2|1004",
+   "read": "Sheet1|2|1",
+   "views": {
+    "active": [
+     "firstSheet=\"1\""
+    ],
+    "sheets": [
+     "<sheet name=\"C\" sheetId=\"2\" state=\"veryHidden\" r:id=\"rId1\"/>",
+     "<sheet name=\"Sheet1\" sheetId=\"1\" r:id=\"rId2\"/>"
+    ],
+    "sheet": [
+     "<sheetView workbookViewId=\"0\"/>"
+    ],
+    "chart": [
+     "<sheetView tabSelected=\"1\" zoomScale=\"10\" workbookViewId=\"0\" zoomToFit=\"1\"/>"
+    ]
+   }
+  }
+ }
+}

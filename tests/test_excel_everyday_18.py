@@ -56,6 +56,14 @@ def test_a_whole_sheet_of_blanks_shows_one_text_without_reading_each_cell() -> N
     assert app.run('H.Probe') == 'String|String|Null|'
 
 
+def test_not_of_an_unallocated_array_is_a_64_bit_address() -> None:
+    """Measured when the language fixtures were rerun asking each answer's type: tests/fixtures/vba_arrays.json records only its text."""
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module('Function Probe()\n    Dim a() As Long\n    Probe = TypeName(Not a) & "|" & (Not a)\nEnd Function\n', name='H')
+    assert app.run('H.Probe') == 'LongLong|-1'
+
+
 @pytest.mark.parametrize('sized', ['Resize()', 'Resize(1)', 'Resize(1, 1)', 'Resize(, 1)'])
 def test_resize_takes_one_area(sized: str) -> None:
     app = ExcelApplication(sandbox=False)

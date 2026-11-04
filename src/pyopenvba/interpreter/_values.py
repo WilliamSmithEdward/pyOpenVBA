@@ -1548,6 +1548,13 @@ def _as_kind(value: int | float | Decimal, kind: str) -> object:
 
 
 def _both_numbers(left: object, right: object, op: str) -> tuple[Any, Any, str]:
+    from pyopenvba.interpreter._objects import VBAObject
+
+    # An object answers for its default member, and an array is no number (tests/fixtures/range_area_reads.json).
+    left = left.vba_value() if isinstance(left, VBAObject) else left
+    right = right.vba_value() if isinstance(right, VBAObject) else right
+    if isinstance(left, VBAArray) or isinstance(right, VBAArray):
+        raise error(ERR_TYPE_MISMATCH)
     kind = _result_kind(left, right, op)
     first = to_number(left)
     second = to_number(right)
@@ -1867,12 +1874,22 @@ def _order(left: object, right: object, *, text_compare: bool, kinds: tuple[str,
             return _order(left, right, text_compare=text_compare)
         if kinds is not None and "variant" in kinds:
             return _mixed_order(left, right, kinds)
+        # A Date reads text beside it as a date: #1/2/2020# = "1/2/2020" (tests/fixtures/excel_fits.json).
+        if isinstance(left, VBADate) and isinstance(right, str):
+            right = _as_date_or_number(right)
+        elif isinstance(right, VBADate) and isinstance(left, str):
+            left = _as_date_or_number(left)
     first_number = to_number(left)
     second_number = to_number(right)
     if isinstance(first_number, Decimal) or isinstance(second_number, Decimal):
         first_number = Decimal(str(first_number))
         second_number = Decimal(str(second_number))
     return (first_number > second_number) - (first_number < second_number)
+
+
+def _as_date_or_number(text: str) -> object:
+    found = parse_date_text(text)
+    return text if found is None else found
 
 
 def _mixed_order(left: object, right: object, kinds: tuple[str, str]) -> int:
@@ -1892,6 +1909,8 @@ def _mixed_order(left: object, right: object, kinds: tuple[str, str]) -> int:
         except VBARuntimeError:
             if str(text).strip().lower() in ("true", "false"):
                 read = VBAInt(-1 if str(text).strip().lower() == "true" else 0, "Integer")
+            elif isinstance(number, VBADate):
+                read = parse_date_text(str(text))
     if read is None:
         return 1 if text_first else -1
     if text_first:

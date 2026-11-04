@@ -223,7 +223,9 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
         if whole:
             return _spelled(formula, names, whole=whole, at=True, r1c1=r1c1)
         kept = _without_at(body, tokens)
-        return _spelled("=" + kept, names, whole=whole, at="@" in _QUOTED.sub('""', kept), r1c1=r1c1)
+        # An @ on a table's column keeps the whole column in this session; a file loaded later reads it as this row's.
+        on_column = any(token.kind == "op" and token.text == "@" and _next(tokens, index).kind == "structured" for index, token in enumerate(tokens))
+        return _spelled("=" + kept, names, whole=on_column, at="@" in _QUOTED.sub('""', kept), r1c1=r1c1)
     _within_limits(tokens)
     bound_at = bound(body)
     if not r1c1 and any(token.kind == "name" and token.at in bound_at and is_cell(token.text) for token in tokens):

@@ -1,4 +1,4 @@
-"""Font, Interior, Border and Borders on cells: each settable property given each kind of value, on a fresh cell and on
+"""Font, Interior, Border, Borders and a Range's alignment and protection on cells: each settable property given each kind of value, on a fresh cell and on
 one already formatted; what it then reads, and what it reads after a save and reopen; and what a range of two cells that
 differ reads.
 
@@ -37,6 +37,9 @@ FAMILIES = {
                 'c.Borders(xlEdgeBottom).Color = 66051']),
     'Borders': ('c.Borders', ['LineStyle', 'Weight', 'Color', 'ColorIndex', 'ThemeColor', 'TintAndShade'],
                 ['', 'c.Borders.LineStyle = xlContinuous', 'c.Borders(xlEdgeTop).LineStyle = xlContinuous']),
+    'Range': ('c', ['HorizontalAlignment', 'VerticalAlignment', 'WrapText', 'Orientation', 'IndentLevel', 'AddIndent',
+                    'ShrinkToFit', 'ReadingOrder', 'Locked', 'FormulaHidden'],
+              ['', 'c.HorizontalAlignment = xlLeft: c.IndentLevel = 2: c.WrapText = True: c.Locked = False']),
 }
 #: Each family's property given the values to try.
 VALUES = {
@@ -57,6 +60,19 @@ VALUES = {
                           # Null is left out: the assignment ends Excel (the next call fails with -2147417848).
                           *BAD[1:]]},
     'Borders': {'ColorIndex': INDEXES, 'ThemeColor': THEMES, 'TintAndShade': TINTS},
+    'Range': {'HorizontalAlignment': ['xlGeneral', 'xlLeft', 'xlCenter', 'xlRight', 'xlFill', 'xlJustify',
+                                      'xlCenterAcrossSelection', 'xlDistributed', '0', '1', '-1', '99', '"-4108"', *BAD],
+              'VerticalAlignment': ['xlTop', 'xlCenter', 'xlBottom', 'xlJustify', 'xlDistributed', 'xlLeft', '0', '1',
+                                    '-1', '"-4108"', *BAD],
+              'WrapText': ['True', 'False', '1', '0', '-1', '2', '"True"', '"x"', 'Null', 'Empty', '""'],
+              'Orientation': ['xlHorizontal', 'xlVertical', 'xlUpward', 'xlDownward', '0', '45', '-45', '90', '-90',
+                              '91', '-91', '180', '255', '1.5', '"45"', *BAD],
+              'IndentLevel': ['0', '1', '15', '250', '251', '-1', '1.5', '"3"', *BAD],
+              'AddIndent': ['True', 'False', '1', '0', '"True"', '"x"', 'Null', 'Empty', '""'],
+              'ShrinkToFit': ['True', 'False', '1', '0', '"True"', '"x"', 'Null', 'Empty', '""'],
+              'ReadingOrder': ['xlContext', 'xlLTR', 'xlRTL', '0', '1', '-1', '"-5002"', *BAD],
+              'Locked': ['True', 'False', '1', '0', '"True"', '"x"', 'Null', 'Empty', '""'],
+              'FormulaHidden': ['True', 'False', '1', '0', '"True"', '"x"', 'Null', 'Empty', '""']},
 }
 #: Two cells differing in one property, read through the range: (family, the first's set, the second's set, read).
 MIXED = [(family, f'{prop} = {a}', f'{prop} = {b}', prop) for family, prop, a, b in [
@@ -68,6 +84,10 @@ MIXED = [(family, f'{prop} = {a}', f'{prop} = {b}', prop) for family, prop, a, b
     ('Interior', 'PatternThemeColor', '1', '2'), ('Interior', 'PatternTintAndShade', '0.5', '-0.5'),
     ('Borders', 'ColorIndex', '3', '4'), ('Borders', 'ThemeColor', '1', '2'), ('Borders', 'TintAndShade', '0.5', '-0.5'),
     ('Border', 'ColorIndex', '3', '4'), ('Border', 'TintAndShade', '0.5', '-0.5'), ('Border', 'Weight', '2', '4'),
+    ('Range', 'HorizontalAlignment', 'xlLeft', 'xlRight'), ('Range', 'VerticalAlignment', 'xlTop', 'xlBottom'),
+    ('Range', 'WrapText', 'True', 'False'), ('Range', 'Orientation', '45', '-45'), ('Range', 'IndentLevel', '1', '2'),
+    ('Range', 'ShrinkToFit', 'True', 'False'), ('Range', 'ReadingOrder', 'xlLTR', 'xlRTL'),
+    ('Range', 'Locked', 'True', 'False'), ('Range', 'FormulaHidden', 'True', 'False'),
 ]]
 
 
@@ -121,15 +141,26 @@ def source() -> str:
     return body
 
 
+def _runner(calls: list[str], name: str) -> str:
+    """A function answering each of the calls joined by @@, split up since one procedure cannot hold them all."""
+    parts = [calls[at:at + 300] for at in range(0, len(calls), 300)]
+    body = ''
+    for number, part in enumerate(parts):
+        lines = ''.join(f'    out = out & "@@" & {call}()\n' for call in part)
+        body += f'\nPrivate Function {name}{number}() As String\n    Dim out As String\n{lines}    {name}{number} = Mid(out, 3)\nEnd Function\n'
+    joined = ' & "@@" & '.join(f'{name}{number}()' for number in range(len(parts)))
+    return body + f'\nPrivate Function {name}() As String\n    {name} = {joined}\nEnd Function\n'
+
+
 def main() -> None:
     every = cases()
     probe = source()
-    runner = ('\nPublic Function Probe(ByVal folder As String) As String\n    Dim out As String\n    Setup\n'
-              + ''.join(f'    out = out & "@@" & S{number}()\n' for number in range(len(every)))
-              + ''.join(f'    out = out & "@@" & M{number}()\n' for number in range(len(MIXED)))
-              + '    Reopen folder\n'
-              + ''.join(f'    out = out & "@@" & A{number}()\n' for number in range(len(every)))
-              + '    Finish\n    Probe = Mid(out, 3)\nEnd Function\n')
+    runner = _runner(['S' + str(number) for number in range(len(every))]
+                     + ['M' + str(number) for number in range(len(MIXED))], 'First')
+    runner += _runner(['A' + str(number) for number in range(len(every))], 'Second')
+    runner += ('\nPublic Function Probe(ByVal folder As String) As String\n    Dim out As String\n    Setup\n'
+               '    out = First()\n    Reopen folder\n    out = out & "@@" & Second()\n    Finish\n'
+               '    Probe = out\nEnd Function\n')
     with tempfile.TemporaryDirectory() as folder, ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
         excel.new_document()
         result = excel.run_vba(probe + runner, 'Probe', (folder,), timeout=300.0)

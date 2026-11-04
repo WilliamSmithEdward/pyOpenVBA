@@ -1444,7 +1444,8 @@ def border_around(target: Range, line_style: object, weight: object, color_index
 
 def read_alignment(target: Range, what: str) -> object:
     values = [alignment_answer(style, what) for style in styles_of(target)]
-    return uniform(values)
+    # A range that differs answers Null, but its first cell for ReadingOrder (tests/fixtures/format_properties.json).
+    return values[0] if what == "ReadingOrder" and values else uniform(values)
 
 
 def alignment_answer(style: S.Style, what: str) -> object:
@@ -1474,7 +1475,7 @@ def alignment_answer(style: S.Style, what: str) -> object:
 
 def write_alignment(target: Range, what: str, value: object) -> None:
     if what in ("Locked", "FormulaHidden"):
-        on = to_bool(value)
+        on = _switch(value, what)
         field_name = "locked" if what == "Locked" else "hidden"
         restyle(target, lambda style: S.applying(style, "protection",
                                                  protection=replace(style.protection, **{field_name: on})))
@@ -1484,20 +1485,36 @@ def write_alignment(target: Range, what: str, value: object) -> None:
     def changed(alignment: S.Alignment) -> S.Alignment:
         # A cell cannot be both indented and turned, where a style can: indenting straightens it, and turning an
         # indented cell does nothing (tests/fixtures/excel_everyday_4.json).
-        if what == "Orientation" and alignment.indent:
-            return alignment
         made = change(alignment)
+        if what == "Orientation" and alignment.indent and made.text_rotation != 255:
+            return alignment
         return replace(made, text_rotation=0) if what == "IndentLevel" and made.indent else made
 
     restyle(target, lambda style: S.applying(style, "alignment", alignment=changed(style.alignment)))
 
 
+def _switch(value: object, what: str) -> bool:
+    """A True or False property's value, and error 1004 for text that is neither
+    (tests/fixtures/format_properties.json)."""
+    try:
+        return bool(to_bool(value))
+    except VBARuntimeError as failed:
+        raise error(1004, f"Unable to set the {what} property of the Range class") from failed
+
+
 def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alignment]:
+    """Null changes nothing and True is 1; a code taken from a list refuses even text of a number, and a count or angle
+    takes such text and drops a fraction (tests/fixtures/format_properties.json)."""
+    if value is NULL:
+        return lambda alignment: alignment
     if what in ("WrapText", "ShrinkToFit", "AddIndent"):
-        on = to_bool(value)
+        on = _switch(value, what)
         name = {"WrapText": "wrap", "ShrinkToFit": "shrink", "AddIndent": "justify_last_line"}[what]
         return lambda alignment: replace(alignment, **{name: on})
-    number = int(to_integer(value, "Long"))
+    refusal = f"{what} property of the Range class"
+    if isinstance(value, str) and what in ("HorizontalAlignment", "VerticalAlignment", "ReadingOrder"):
+        raise error(1004, f"Unable to set the {refusal}")
+    number = 1 if value is True else int(cast(float, _refused(value, refusal, to_number)))
     if what == "HorizontalAlignment":
         if number not in _HORIZONTAL_OF:
             raise error(1004, "Unable to set the HorizontalAlignment property of the Range class")
@@ -1506,11 +1523,15 @@ def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alig
         return lambda alignment: replace(alignment, horizontal=horizontal,
                                          indent=alignment.indent if keeps_indent else 0)
     if what == "VerticalAlignment":
+        if number == 1:
+            number = -4160  # Excel reads 1 as xlTop
         if number not in _VERTICAL_OF:
             raise error(1004, "Unable to set the VerticalAlignment property of the Range class")
         vertical = _VERTICAL_OF[number]
         return lambda alignment: replace(alignment, vertical=vertical)
     if what == "IndentLevel":
+        if number == -1:
+            return lambda alignment: alignment
         if not 0 <= number <= 250:
             raise error(1004, "Unable to set the IndentLevel property of the Range class")
 
@@ -1522,12 +1543,14 @@ def alignment_change(what: str, value: object) -> Callable[[S.Alignment], S.Alig
 
         return indent
     if what == "ReadingOrder":
+        if number == 1:
+            return lambda alignment: alignment
         if number not in _READING_OF:
             raise error(1004, "Unable to set the ReadingOrder property of the Range class")
         order = _READING_OF[number]
         return lambda alignment: replace(alignment, reading_order=order)
     # Orientation
-    special = {-4128: 0, -4166: 255, -4171: 90, -4170: 180}
+    special = {-4128: 0, -4166: 255, 255: 255, -4171: 90, -4170: 180}
     if number in special:
         rotation = special[number]
     elif -90 <= number <= 90:

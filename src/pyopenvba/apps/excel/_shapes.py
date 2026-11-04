@@ -538,6 +538,10 @@ class ShapeRange(VBACollection, HeldPart):
         self.shapes = shapes
         self.emptied = False
 
+    def vba_value(self) -> object:
+        # Its default member takes an index (tests/fixtures/old_collection_members.json).
+        raise error(450, "Wrong number of arguments or invalid property assignment")
+
     def held_gone(self) -> bool:
         """A range goes on with the shapes it has left, and has gone with the last of them."""
         left = [one for one in self.shapes if not one.held_gone()]
@@ -4107,14 +4111,14 @@ class ControlFormat(_Drawn):
             if kind in ("Drop", "List", "Checkbox", "Button"):
                 raise error(438, "Object doesn't support this property or method")
             raise VBAUnsupportedError(f"This setting of a {kind} control is not implemented")
-        if self.shape.source:
-            raise VBAUnsupportedError("This setting of a control loaded from a file is not implemented")
         return control
 
     def _changed(self, *kinds: str) -> ControlInfo:
         from pyopenvba.apps.excel._protection import guard_drawing
 
         control = self._settings(*kinds)
+        if self.shape.source:
+            raise VBAUnsupportedError("Changing this setting of a control loaded from a file is not implemented")
         guard_drawing(self.sheet, "ControlFormat")
         self.sheet.drawing_changed()
         return control

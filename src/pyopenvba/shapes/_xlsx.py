@@ -398,6 +398,7 @@ def read_controls(sheet_xml: str, parts: dict[str, str]) -> dict[int, ControlInf
                 values = {key: unescape(value) for key, value in _ATTRIBUTE.findall(settings.group(1))}
                 control.kind = values.get("objectType", "control")
                 control.first_button = values.get("firstButton", "0") == "1"
+                control.lock_text = values.get("lockText", "0") == "1"
                 control.linked_cell = values.get("fmlaLink", "")
                 control.list_range = values.get("fmlaRange", "")
                 control.value = int(_number(values.get("val"), 0))
@@ -755,7 +756,8 @@ def _vml_shape_span(vml: str, spid: str) -> tuple[int, int] | None:
         if span is None:
             return None
         at = span[1]
-        if f'o:spid="{spid}"' in vml[span[0] : span[1]]:
+        # Excel's own file names a control by its id, and the model's by its spid.
+        if f'"{spid}"' in vml[span[0] : vml.index(">", span[0])]:
             return span
 
 
@@ -790,6 +792,20 @@ def control_text(vml: str, shape_id: int) -> str:
     reader.feed(markup[box[0]:box[1]])
     reader.close()
     return "\n".join(line.strip() for line in "".join(reader.pieces).splitlines()).strip()
+
+
+def read_control_settings(vml: str, shape: Shape, control: ControlInfo) -> None:
+    """A control's Visible, Locked, Enabled, PrintObject and DropDownLines, which only its VML holds (tests/fixtures/old_collection_members.json)."""
+    span = _vml_shape_span(vml, f"_x0000_s{shape.shape_id}")
+    if span is None:
+        return
+    markup = vml[span[0] : span[1]]
+    shape.hidden = "visibility:hidden" in markup
+    shape.locked = re.search(r"<x:Locked>\s*False", markup) is None
+    control.disabled = "<x:Disabled" in markup
+    control.print_object = re.search(r"<x:PrintObject>\s*False", markup) is None
+    lines = re.search(r"<x:DropLines>\s*(\d+)", markup)
+    control.drop_lines = int(lines.group(1)) if lines else None
 
 
 def without_control(sheet_xml: str, shape_id: int) -> str:
@@ -836,6 +852,44 @@ def with_control_shape(sheet_xml: str, shape: Shape, grid: SheetGrid) -> str:
     return _CONTROL.sub(change, sheet_xml)
 
 
+def with_control_state(sheet_xml: str, shape: Shape) -> str:
+    """Patch what the sheet says of a control's Locked and Placement (tests/fixtures/old_collection_edits.json)."""
+    def change(found: re.Match[str]) -> str:
+        markup = found.group(0)
+        head = _CONTROL_HEAD.search(markup)
+        if head is None or dict(_ATTRIBUTE.findall(head.group(1))).get("shapeId") != str(shape.shape_id):
+            return markup
+        markup = _attribute_on_tag(markup, "controlPr", "locked", None if shape.locked else "0")
+        markup = _attribute_on_tag(markup, "anchor", "moveWithCells", None if shape.edit_as == "absolute" else "1")
+        return _attribute_on_tag(markup, "anchor", "sizeWithCells", "1" if shape.edit_as in ("", "twoCell") else None)
+
+    return _CONTROL.sub(change, sheet_xml)
+
+
+def _vml_flag(markup: str, tag: str, wanted: str) -> str:
+    """One setting among a VML client's, as ``wanted`` spells it, none where that is empty."""
+    found = re.search(rf"\s*<x:{tag}\b[^>]*?(?:/>|>.*?</x:{tag}>)", markup, re.DOTALL)
+    if found is not None and wanted:
+        return markup
+    if found is not None:
+        return markup[:found.start()] + markup[found.end():]
+    return markup.replace("</x:ClientData>", f"{wanted}</x:ClientData>") if wanted else markup
+
+
+def _vml_state(markup: str, shape: Shape) -> str:
+    """A control's Visible, Locked and Placement in its VML, changed only where they differ."""
+    if shape.hidden != ("visibility:hidden" in markup):
+        if not shape.hidden:
+            markup = re.sub(r";?visibility:hidden", "", markup, count=1)
+        elif "mso-wrap-style" in markup:
+            markup = markup.replace("mso-wrap-style", "visibility:hidden;mso-wrap-style", 1)
+        else:
+            markup = re.sub(r"(\bstyle=['\"][^'\"]*)", r"\1;visibility:hidden", markup, count=1)
+    markup = _vml_flag(markup, "Locked", "" if shape.locked else "<x:Locked>False</x:Locked>")
+    markup = _vml_flag(markup, "MoveWithCells", "<x:MoveWithCells/>" if shape.edit_as == "absolute" else "")
+    return _vml_flag(markup, "SizeWithCells", "" if shape.edit_as in ("", "twoCell") else "<x:SizeWithCells/>")
+
+
 def _attribute_on_tag(markup: str, tag: str, name: str, value: str | None) -> str:
     found = re.search(rf"<{re.escape(tag)}(?=[\s/>])[^>]*>", markup)
     if found is None:
@@ -860,7 +914,10 @@ def with_vml_control(vml: str, shape: Shape, before: Shape, grid: SheetGrid) -> 
         return vml
     markup = vml[span[0]:span[1]]
     if shape.name != before.name:
+        # What it was found by goes on, as Excel's does (tests/fixtures/old_collection_edits.json).
+        markup = _attribute_on_tag(markup, "v:shape", "o:spid", f"_x0000_s{shape.shape_id}")
         markup = _attribute_on_tag(markup, "v:shape", "id", _vml_id(shape.name))
+    markup = _vml_state(markup, shape)
     if (shape.left, shape.top, shape.width, shape.height) != (before.left, before.top, before.width, before.height):
         style = re.search(r"\bstyle=([\"'])(.*?)\1", markup, re.DOTALL)
         if style:

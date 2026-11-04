@@ -1,5 +1,5 @@
 {
-"measured_at": "2026-11-04T08:27:49.839817+00:00",
+"measured_at": "2026-11-04T10:24:09.415137+00:00",
 "make": "Public Function Make(ByVal path As String) As String\n    Dim wb As Workbook, s As Worksheet\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add\n    wb.Worksheets.Add After:=wb.Worksheets(1)\n    wb.Worksheets(1).Name = \"V\": wb.Worksheets(2).Name = \"O\"\n    wb.Names.Add \"VolName\", \"=RAND()\"\n    wb.Names.Add \"PlainName\", \"=V!$A$1\"\n    Set s = wb.Worksheets(\"V\")\n    s.Range(\"A1\").Formula = \"=RAND()\"\n    s.Range(\"B1\").Formula = \"=A1+1\"\n    s.Range(\"C1\").Formula = \"=B1+1\"\n    s.Range(\"D1\").Formula = \"=SUM(A1:A2)\"\n    s.Range(\"E1\").Formula = \"=IF(FALSE,A1,5)\"\n    s.Range(\"F1\").Formula = \"=VolName\"\n    s.Range(\"G1\").Formula = \"=PlainName+1\"\n    s.Range(\"H1\").Formula = \"=TODAY()\"\n    s.Range(\"I1\").Formula = \"=H1+1\"\n    s.Range(\"J1\").Formula = \"=1+1\"\n    s.Range(\"K1\").Formula = \"=J1+1\"\n    s.Range(\"L1\").Formula = \"=RANDBETWEEN(1,1)\"\n    s.Range(\"M1\").Formula = \"=L1+1\"\n    s.Range(\"N1\").Formula = \"=OFFSET(J1,0,0)\"\n    s.Range(\"P1\").Formula = \"=N1+1\"\n    s.Range(\"Q1\").Formula = \"=INDIRECT(\"\"J1\"\")\"\n    s.Range(\"R1:R3\").Formula = \"=$A$1+ROW()\"\n    s.Range(\"S1:S2\").FormulaArray = \"=A1+1\"\n    s.Range(\"T1:T2\").Formula = \"=A1+1\"\n    s.Range(\"U1\").Formula = \"=IF(J1>0,A1,5)\"\n    s.Range(\"U2\").Formula = \"=IF(J1<0,A1,5)\"\n    s.Range(\"U3\").Formula = \"=CHOOSE(1,5,A1)\"\n    s.Range(\"W1\").Formula = \"=ISNUMBER(A1)\"\n    s.Range(\"X1\").Formula = \"=IFERROR(A1,5)\"\n    s.Range(\"Y1\").Formula = \"=ROW(A1)\"\n    Set s = wb.Worksheets(\"O\")\n    s.Range(\"A1\").Formula = \"=V!B1\"\n    s.Range(\"B1\").Formula = \"=A1+1\"\n    s.Range(\"C1\").Formula = \"=V!J1\"\n    s.Range(\"D1\").Formula = \"=C1+1\"\n    wb.SaveAs path, xlOpenXMLWorkbook\n    wb.Close False\n    Application.DisplayAlerts = True\n    Make = \"ok\"\nEnd Function\n",
 "agrees": {
 "V!B1": "v.Range(\"B1\").Value2 - v.Range(\"A1\").Value2 - 1",
@@ -60,8 +60,8 @@
 },
 "effect": {
 "marked": "|V!B1=0|V!C1=0|V!D1=0|V!G1=0|V!I1=0|V!K1=0|V!R1=0|V!R3=0|V!S1=0|V!S2=0|V!T1=0|V!U1=0|O!A1=0|O!B1=0|O!C1=0|O!D1=0",
-"marks_gone": "|V!B1=0.66938064|V!C1=0.66938064|V!D1=0.66938064|V!G1=0.66938064|V!I1=0|V!K1=0|V!R1=0.66938064|V!R3=0.66938064|V!S1=0|V!S2=0|V!T1=0.66938064|V!U1=0.66938064|O!A1=0.66938064|O!B1=0.66938064|O!C1=0|O!D1=0",
-"marks_gone_wrong_values": "|V!B1=997.00596491|V!C1=996.00596491|V!D1=998.00596491|V!G1=997.00596491|V!I1=-45332|V!K1=-1|V!R1=997.00596491|V!R3=995.00596491|V!S1=0|V!S2=0|V!T1=997.00596491|V!U1=998.00596491|O!A1=997.00596491|O!B1=996.00596491|O!C1=0|O!D1=-1"
+"marks_gone": "|V!B1=-0.11293804|V!C1=-0.11293804|V!D1=-0.11293804|V!G1=-0.11293804|V!I1=0|V!K1=0|V!R1=-0.11293804|V!R3=-0.11293804|V!S1=0|V!S2=0|V!T1=-0.11293804|V!U1=-0.11293804|O!A1=-0.11293804|O!B1=-0.11293804|O!C1=0|O!D1=0",
+"marks_gone_wrong_values": "|V!B1=997.71770775|V!C1=996.71770775|V!D1=998.71770775|V!G1=997.71770775|V!I1=-45332|V!K1=-1|V!R1=997.71770775|V!R3=995.71770775|V!S1=0|V!S2=0|V!T1=997.71770775|V!U1=998.71770775|O!A1=997.71770775|O!B1=996.71770775|O!C1=0|O!D1=-1"
 },
 "edits": {
 "write on the sheet, so it is rewritten": {
@@ -599,7 +599,7 @@
 "D1": ""
 }
 },
-"excel_agrees": "|V!B1=0|V!C1=0|V!D1=0|V!G1=-0.59981738|V!I1=0|V!K1=0|V!R1=0|V!R3=0|V!S1=0|V!S2=0|V!T1=0|V!U1=0|O!A1=0|O!B1=0|O!C1=0|O!D1=0",
+"excel_agrees": "|V!B1=0|V!C1=0|V!D1=0|V!G1=0.51730801|V!I1=0|V!K1=0|V!R1=0|V!R3=0|V!S1=0|V!S2=0|V!T1=0|V!U1=0|O!A1=0|O!B1=0|O!C1=0|O!D1=0",
 "model_marks": {
 "V": {
 "A1": "ca=\"1\"",
@@ -639,7 +639,7 @@
 "D1": ""
 }
 },
-"model_agrees": "|V!B1=0|V!C1=0|V!D1=0|V!G1=0.36715743|V!I1=0|V!K1=0|V!R1=0|V!R3=0|V!S1=0|V!S2=0|V!T1=0|V!U1=0|O!A1=0|O!B1=0|O!C1=0|O!D1=0"
+"model_agrees": "|V!B1=0|V!C1=0|V!D1=0|V!G1=0.36430177|V!I1=0|V!K1=0|V!R1=0|V!R3=0|V!S1=0|V!S2=0|V!T1=0|V!U1=0|O!A1=0|O!B1=0|O!C1=0|O!D1=0"
 }
 }
 }

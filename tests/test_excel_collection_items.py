@@ -39,8 +39,33 @@ def test_each_index_as_excel_answered(app: ExcelApplication, number: int, owner:
         found = str(app.run(f'Items.C{number}'))
     except VBAUnsupportedError:
         pytest.skip('reported as a gap')
-    # The model follows early binding, whose answer "early" holds where the two differ. The first workbook's name is the
-    # session's.
+    # The first workbook's name is the session's.
     found = found.replace(str(app.run('Items.BookName')), '<book>')
-    expected = RECORD['early'].get(str(number), answer)
-    assert re.sub(r'Workbook:Book\d+', 'Workbook:', found) == re.sub(r'Workbook:Book\d+', 'Workbook:', expected)
+    assert re.sub(r'Workbook:Book\d+', 'Workbook:', found) == re.sub(r'Workbook:Book\d+', 'Workbook:', answer)
+
+
+@pytest.mark.parametrize('number', sorted(int(key) for key in RECORD['early']))
+def test_null_through_a_variable_of_the_class_answers_as_bound_early(number: int) -> None:
+    owner, reach, _, _ = RECORD['cases'][number]
+    source = RECORD['source']
+    source = source[:source.index('Public Function BookName')]
+    made = ExcelApplication(sandbox=False)
+    made.add_workbook()
+    made.add_module(source + f'''
+Public Function Typed() As String
+    Dim o As {owner}, q As Object
+    On Error Resume Next
+    Set o = {reach}
+    Set q = o.Item(Null)
+    If Err.Number = 0 Then
+        Typed = TypeName(q) & ":" & q.Name
+    Else
+        Typed = "e" & Err.Number
+    End If
+End Function
+''', name='Items')
+    made.run('Items.Setup')
+    try:
+        assert made.run('Items.Typed') == RECORD['early'][str(number)]
+    except VBAUnsupportedError:
+        pytest.skip('reported as a gap')

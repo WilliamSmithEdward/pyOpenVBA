@@ -155,6 +155,12 @@ _LINKED = rf"\[[0-9]+\](?:{BARE_SHEET}(?::{BARE_SHEET})?)?!"
 #: Another workbook's sheet as a macro may write it, by its file's name: [Source.xlsx]Sheet1!.
 _BOOK_SHEET = rf"\[[^\[\]'!]+\]{BARE_SHEET}(?::{BARE_SHEET})?!"
 
+#: What a reference to a deleted sheet leaves after its #REF!, #REF!A1 for Gone!A1: Excel reads it as the error, and
+#: writes only the error in a file (tests/fixtures/sheet_delete_refs.json).
+_DANGLING: Final = (rf"(?i:\#REF!)(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})"
+                    r"(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff])")
+_DANGLING_OR_QUOTED: Final = re.compile(rf"""\"(?:[^\"]|\"\")*\"|'(?:[^']|'')*'|(?P<dangling>{_DANGLING})""")
+
 _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
@@ -162,7 +168,7 @@ _TOKEN: Final = re.compile(
   | (?P<linked_ref>(?:{_LINKED}|{_BOOK_SHEET})(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff]))
   | (?P<linked_name>{_LINKED}[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*)
   | (?P<structured>{STRUCTURED})
-  | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
+  | (?P<error>{_DANGLING}|(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff]))
   | (?P<name>(?:{_SHEET})?(?:[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*|'(?:[^']|'')+'(?!!)))
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
@@ -215,6 +221,18 @@ def tokenize(source: str, *, spaces: bool = False) -> list[Token]:
         out.extend(_three_d(Token(kind, match.group(0), match.start()), bracketed=calls[-1:] == [False]))
     out.append(Token("eof", "", len(source)))
     return _bind_cells(out)
+
+
+def has_dangling_reference(formula: str) -> bool:
+    """Whether a formula holds what a deleted sheet leaves, which Excel shows but will not take as typed."""
+    return "#REF!" in formula.upper() and any(found.group("dangling") for found in _DANGLING_OR_QUOTED.finditer(formula))
+
+
+def without_dangling_references(formula: str) -> str:
+    """A formula as a file holds it, with what a deleted sheet left after each #REF! gone."""
+    if "#REF!" not in formula.upper():
+        return formula
+    return _DANGLING_OR_QUOTED.sub(lambda found: "#REF!" if found.group("dangling") else found.group(0), formula)
 
 
 def _three_d(token: Token, *, bracketed: bool) -> list[Token]:
@@ -602,6 +620,8 @@ class Parser:
         if token.kind == "error":
             self.advance()
             text = ("#" + token.text.rpartition("!#")[2] if "!#" in token.text else token.text).upper()
+            if text.startswith("#REF!"):
+                text = "#REF!"
             return Literal(value=ERRORS.get(text, ExcelError(text)))
         if token.kind == "ref":
             self.advance()
@@ -823,6 +843,54 @@ def shift_text(formula: str, down: int, across: int) -> str:
     for start, stop, replacement in reversed(pieces):
         out = out[:start] + replacement + out[stop:]
     return ("=" if formula.startswith("=") else "") + out
+
+
+def sorted_text(formula: str, down: int, across: int) -> str:
+    """A formula Range.Sort moved ``down`` and ``across``, which treats references its own way
+    (tests/fixtures/sort_formulas.json). A reference naming a sheet stays as it is, even the sheet's own name. A range moves
+    with each end stopped at the sheet's edge, and is #REF! only if all of it would be past the edge; a single cell past
+    the edge is #REF!, as in a copy.
+    """
+    if not down and not across:
+        return formula
+    body = formula[1:] if formula.startswith("=") else formula
+    pieces: list[tuple[int, int, str]] = []
+    for token in tokenize(body):
+        if token.kind != "ref" or "!" in token.text:
+            continue
+        pieces.append((token.at, token.at + len(token.text), _sorted_reference(token.text, down, across)))
+    out = body
+    for start, stop, replacement in reversed(pieces):
+        out = out[:start] + replacement + out[stop:]
+    return ("=" if formula.startswith("=") else "") + out
+
+
+def _sorted_reference(text: str, down: int, across: int) -> str:
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_letter, column_number
+
+    parts = text.split(":")
+    if len(parts) != 2:
+        return shift_reference(text, down, across)
+    start, end = _CORNER.match(parts[0]), _CORNER.match(parts[1])
+    if start is None or end is None:
+        return text
+
+    def moved(fixed: str, value: int | None, by: int) -> int | None:
+        return value if value is None or fixed else value + by
+
+    corners: list[list[str]] = [[start.group(1), start.group(2) or "", start.group(3), start.group(4) or ""],
+                                [end.group(1), end.group(2) or "", end.group(3), end.group(4) or ""]]
+    columns = [column_number(corner[1]) if corner[1] else None for corner in corners]
+    rows = [int(corner[3]) if corner[3] else None for corner in corners]
+    for values, by, last, fixed_at in ((columns, across, MAX_COLUMNS, 0), (rows, down, MAX_ROWS, 2)):
+        shifted = [moved(corners[index][fixed_at], values[index], by) for index in range(2)]
+        known = [value for value in shifted if value is not None]
+        if known and (all(value < 1 for value in known) or all(value > last for value in known)):
+            return "#REF!"
+        values[:] = [None if value is None else min(max(value, 1), last) for value in shifted]
+    spelled = [f"{corner[0]}{column_letter(column) if column is not None else ''}{corner[2]}{row if row is not None else ''}"
+               for corner, column, row in zip(corners, columns, rows, strict=True)]
+    return ":".join(_in_order(spelled))
 
 
 def transpose_text(formula: str, source: tuple[int, int], target: tuple[int, int]) -> str:

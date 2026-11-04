@@ -300,7 +300,9 @@ not measured, and why.
   read over cells that differ. Live Office opens a file the model saved and
   reads the same answers.
 - **A method.** No arguments, each argument alone, and the kinds of value
-  above for each. Its effects, and what a save keeps of them.
+  above for each. Its effects, and what a save keeps of them. If it changes
+  what is saved, live Office opens a file the model saved and reads the same
+  answers.
 - **A collection's Count and Item.** Count on a populated collection, and on
   an empty one where a sheet can leave it empty. Item with no argument, the
   first and last, past either end, zero, a negative, a fraction, text of a
@@ -327,6 +329,11 @@ answer meanwhile, so a row whose bindings differ stays PARTIAL, with a note,
 until tracking lands. Assigning to a read-only member can only be late bound,
 since VBA refuses it at compile time when bound early. A hidden member, whose
 answer depends on binding altogether, is one such row.
+
+The check that live Office opens the model's file is the one most likely to
+find something a replay cannot: a file Office refuses outright. It applies to
+every row that changes saved state, and `scripts/check_saved_files.py` runs it
+for the audits' fixtures. Read-only rows do not need it.
 
 A row whose evidence predates this standard is audited against it. A row
 that fails goes back to PARTIAL until it is fixed.

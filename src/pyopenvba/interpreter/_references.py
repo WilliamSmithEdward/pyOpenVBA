@@ -342,6 +342,10 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
         if isinstance(value, A.Index):
             info = visit(value.target, context, callee=True)
             visit(value.args, context)
+            if isinstance(value.target, A.Name) and info is not None and not info[1]:
+                held = library_class(info[0], info[2])
+                if held is not None:
+                    program.early_bound_members[id(value.target)] = held.name
             check_call(value.target, value.args, context, explicit=True)
             if info is not None and info[1] and value.args:
                 return info[0], False, info[2]

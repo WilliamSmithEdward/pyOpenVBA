@@ -32,6 +32,7 @@ from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _e
 from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
+from pyopenvba.formula._parse import without_dangling_references
 from pyopenvba.formula._prefixes import calculated_always, calls_only_ordinary_functions
 from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
@@ -240,6 +241,8 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     book.saved = True
     # Last, as a workbook worked out in full as it opens may be left unsaved (see _calculation_state).
     read_calculation(book, workbook_xml)
+    # Excel's numbering of new sheets starts again in an opened file (tests/fixtures/new_sheet_names.json).
+    book.sheet_name_counter = 0
     return book
 
 
@@ -995,6 +998,48 @@ def _read_tables(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
 _AFTER_TABLE_PARTS = re.compile(r"<extLst\b|</worksheet>")
 
 
+def _drop_gone_tables(book: Workbook, package: OpcFile) -> None:
+    """Take from the file each table of a sheet that the macro deleted or unlisted, which left in its part and tableParts
+    comes back on opening, or over cleared cells has Excel refuse the file (tests/fixtures/deleted_data.json)."""
+    for sheet in book.sheets_:
+        if not sheet.part_name or not package.has(sheet.part_name):
+            continue
+        held = {table.part for table in sheet.tables}
+        gone = {relationship: _resolved(target) for relationship, (kind, target) in _sheet_relationships(package, sheet.part_name).items()
+                if kind == "table" and _resolved(target) not in held}
+        if not gone:
+            continue
+        xml = package.read(sheet.part_name).decode("utf-8", errors="replace")
+        for relationship in gone:
+            xml = re.sub(r'<tablePart\b[^>]*\br:id="' + re.escape(relationship) + r'"[^>]*/>', "", xml)
+        left = re.findall(r"<tablePart\b[^>]*/>", xml)
+        element = f'<tableParts count="{len(left)}">{"".join(left)}</tableParts>' if left else ""
+        xml = re.sub(r"<tableParts\b.*?</tableParts>|<tableParts\b[^>]*/>", lambda _: element, xml, count=1, flags=re.DOTALL)
+        package.write(sheet.part_name, xml.encode("utf-8"))
+        for part in gone.values():
+            _drop_sheet_part(package, sheet, part)
+
+
+def _drop_gone_pivot_tables(book: Workbook, package: OpcFile) -> None:
+    """Take from the file each pivot table a macro deleted, and its cache if no table is left to use it."""
+    from pyopenvba.apps.excel._pivots import PivotTable
+
+    for sheet in book.sheets_:
+        if not sheet.part_name or not package.has(sheet.part_name):
+            continue
+        tables: list[PivotTable] = sheet.pivot_tables
+        held = {table.part for table in tables}
+        gone = [_resolved(target) for kind, target in _sheet_relationships(package, sheet.part_name).values()
+                if kind == "pivotTable" and _resolved(target) not in held and package.has(_resolved(target))]
+        for part in gone:
+            tree = _part_tree(package, part)
+            for relationship, (_kind, target) in _sheet_relationships(package, sheet.part_name).items():
+                if _resolved(target) == part:
+                    _remove_sheet_relationship(package, sheet.part_name, relationship)
+            _remove_unused_pivot_caches(book, package, tree)
+            _remove_parts_left_unreached(package, tree)
+
+
 def _write_tables(book: Workbook, package: OpcFile) -> None:
     """Every table the model made or changed, in its own part; a sheet with a new one names it in tableParts."""
     from pyopenvba.apps.excel._table_sort import changed as sort_changed
@@ -1062,6 +1107,11 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         package.write(part, written(sheet.shapes_, original, sheet.drawing_grid()).encode("utf-8"))
         sheet.drawing_part = part
         sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
+        for relationship, (kind, target) in _sheet_relationships(package, part).items():
+            # A deleted picture's image goes with it, unless another picture holds the same one.
+            if kind == "image" and f'"{relationship}"' not in sheet.drawing_xml:
+                _remove_sheet_relationship(package, part, relationship)
+                _remove_unreferenced_part(package, _resolved(target))
         _sync_controls(package, sheet, before)
         _write_new_controls(package, sheet)
         _write_control_macros(package, sheet)
@@ -1530,16 +1580,19 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         for shape in sheet.shapes_:
             refresh(sheet, shape)
     package = book.package
+    removed_sheets = False
     if package is None:
         package = _fresh_package(fresh_suffix if fresh_suffix is not None else target.suffix.lower())
         book.package = package
         _match_sheets_to_package(book, package)
     else:
         _sync_sheets(book, package)
+        removed_sheets = _remove_deleted_sheets(book, package)
     from pyopenvba.apps.excel._cell_styles import prepare_save
     from pyopenvba.apps.excel._windows import saved, tabs_moved, with_book_view, with_view
 
     tabs = tabs_moved(book)
+    before = {sheet.part_name: package.read(sheet.part_name) for sheet in book.sheets_ if sheet.part_name and package.has(sheet.part_name)}
     # A style a cell uses is written before the cells' formats, whose parts follow its own.
     prepare_save(book)
     collector = Collector()
@@ -1630,6 +1683,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
             if outline_changes and sheet.outline_state is not None:
                 sheet.outline_state.axes_checked = False
     _write_cached_values(book, package)
+    if removed_sheets or any(sheet.part_name and package.has(sheet.part_name) and package.read(sheet.part_name) != before.get(sheet.part_name)
+                             for sheet in book.sheets_):
+        _blank_unused_strings(book, package)
     collector.write(package)
     from pyopenvba.apps.excel._pivot_rich import write as write_rich_pivots
 
@@ -1650,7 +1706,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         if viewed != text:
             package.write("xl/workbook.xml", viewed.encode("utf-8"))
     _resize_loaded_tables(book, package)
+    _drop_gone_tables(book, package)
     _write_tables(book, package)
+    _drop_gone_pivot_tables(book, package)
     from pyopenvba.apps.excel._pivot_create import write as write_pivots
     from pyopenvba.apps.excel._pivots import number_parts
 
@@ -1748,8 +1806,10 @@ def _fresh_package(suffix: str) -> OpcFile:
     from pyopenvba._templates import EMPTY_XLSM_BYTES
 
     package = OpcFile.parse(EMPTY_XLSM_BYTES)
-    if suffix in (".xlsx", ""):
+    if suffix in (".xlsx", ".xltx", ""):
         _make_macro_free(package)
+    if suffix in (".xltx", ".xltm"):
+        _write_main_type(package, 54 if suffix == ".xltx" else 53)
     return package
 
 
@@ -1799,7 +1859,7 @@ def prepare_format(book: Workbook, file_format: int) -> None:
                 # current in-memory rule geometry or API projection.
                 sheet.conditional_changed = True
                 sheet.touched()
-    if file_format == 51:
+    if file_format in (51, 54):
         from pyopenvba._package_signature import relationships_part, without_signature
 
         for part, data in without_signature(list(package.names()), package.read, "xl/vbaProject.bin").items():
@@ -1811,9 +1871,17 @@ def prepare_format(book: Workbook, file_format: int) -> None:
         if package.has(rels):
             package.remove(rels)
         _make_macro_free(package)
+    _write_main_type(package, file_format)
+
+
+def _write_main_type(package: OpcFile, file_format: int) -> None:
+    """The content type that says what the package is."""
     content = package.read("[Content_Types].xml").decode("utf-8")
-    main = ("application/vnd.ms-excel.sheet.macroEnabled.main+xml" if file_format == 52
-            else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
+    main = {52: "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
+            53: "application/vnd.ms-excel.template.macroEnabled.main+xml",
+            54: "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml"}.get(
+                file_format, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
+
     def changed(match: re.Match[str]) -> str:
         tag = match.group(0)
         if _content_attributes(tag).get("PartName") != "/xl/workbook.xml":
@@ -1902,6 +1970,115 @@ def has_reserved_sheet_names(sheet: Worksheet) -> bool:
                   if relationships.get(node.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id", "")) == sheet.part_name), "")
     return any(node.attrib.get("name", "").startswith("_xlnm") and node.attrib.get("localSheetId") == index
                for node in root.iter())
+
+
+def _part_tree(package: OpcFile, part: str) -> set[str]:
+    """A part and every part its relationships reach, however far."""
+    found: set[str] = set()
+    waiting = [part]
+    while waiting:
+        one = waiting.pop()
+        if one in found or not package.has(one):
+            continue
+        found.add(one)
+        folder, _, name = one.rpartition("/")
+        rels = f"{folder}/_rels/{name}.rels" if folder else f"_rels/{name}.rels"
+        if not package.has(rels):
+            continue
+        for element in re.findall(r"<Relationship\b[^>]*/>", package.read(rels).decode("utf-8")):
+            attributes = _attributes(element)
+            if attributes.get("TargetMode") == "External":
+                continue
+            target = attributes.get("Target", "")
+            waiting.append(target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join(folder, target)))
+    return found
+
+
+def _remove_deleted_sheets(book: Workbook, package: OpcFile) -> bool:
+    """Take a deleted sheet out of the file, as Excel does, with all it alone reaches and any pivot cache no table is left
+    to use: only its entry in the workbook's list goes when the sheet is deleted, which leaves its cells, notes, shapes,
+    charts, tables and pivot tables for anyone who opens the package (tests/fixtures/deleted_sheet_parts.json). Whether
+    any did."""
+    kept = {sheet.part_name for sheet in book.sheets_}
+    gone = {key: part for key, (part, kind) in _relationships(package).items()
+            if kind.endswith("/worksheet") and part not in kept}
+    if not gone:
+        return False
+    text = package.read("xl/_rels/workbook.xml.rels").decode("utf-8")
+    text = re.sub(r"<Relationship\b[^>]*/>",
+                  lambda found: "" if _attributes(found.group(0)).get("Id") in gone else found.group(0), text)
+    package.write("xl/_rels/workbook.xml.rels", in_office_order(text).encode("utf-8"))
+    tree: set[str] = set()
+    for part in gone.values():
+        tree |= _part_tree(package, part)
+    _remove_unused_pivot_caches(book, package, tree)
+    _remove_parts_left_unreached(package, tree)
+    return True
+
+
+def _remove_parts_left_unreached(package: OpcFile, tree: set[str]) -> None:
+    """Take out each part of ``tree`` that nothing in the workbook reaches now, with its relationships and Override."""
+    still = _part_tree(package, "xl/workbook.xml")
+    for part in sorted(tree - still):
+        folder, _, name = part.rpartition("/")
+        rels = f"{folder}/_rels/{name}.rels"
+        if package.has(rels):
+            package.remove(rels)
+        package.remove(part)
+        types = package.read("[Content_Types].xml").decode("utf-8")
+        types = re.sub(r"<Override\b[^>]*/>",
+                       lambda found: "" if _attributes(found.group(0)).get("PartName") == f"/{part}" else found.group(0), types)
+        package.write("[Content_Types].xml", types.encode("utf-8"))
+
+
+def _remove_unused_pivot_caches(book: Workbook, package: OpcFile, tree: set[str]) -> None:
+    """Take from the workbook each pivot cache in ``tree`` that no remaining sheet's table uses."""
+    used: set[str] = set()
+    for sheet in book.sheets_:
+        if sheet.part_name:
+            used |= _part_tree(package, sheet.part_name)
+    linked = _relationships(package)
+    unused = {key for key, (part, _kind) in linked.items() if part in tree and part not in used and "pivotCacheDefinition" in part}
+    if not unused:
+        return
+    parts = {linked[key][0] for key in unused}
+    book.pivot_caches[:] = [cache for cache in book.pivot_caches if cache.part not in parts]
+    text = package.read("xl/_rels/workbook.xml.rels").decode("utf-8")
+    text = re.sub(r"<Relationship\b[^>]*/>",
+                  lambda found: "" if _attributes(found.group(0)).get("Id") in unused else found.group(0), text)
+    package.write("xl/_rels/workbook.xml.rels", in_office_order(text).encode("utf-8"))
+    workbook = package.read("xl/workbook.xml").decode("utf-8")
+    workbook = re.sub(r"<pivotCache\b[^>]*/>",
+                      lambda found: "" if _attributes(found.group(0)).get("r:id") in unused else found.group(0), workbook)
+    workbook = re.sub(r"<pivotCaches>\s*</pivotCaches>", "", workbook)
+    package.write("xl/workbook.xml", workbook.encode("utf-8"))
+
+
+def _blank_unused_strings(book: Workbook, package: OpcFile) -> None:
+    """Empty each shared string no sheet uses any more, so text a macro cleared, overwrote or deleted with its sheet does
+    not stay in the file (tests/fixtures/deleted_data.json). Excel leaves such a string out and numbers the rest again;
+    this keeps every number, as the sheets kept whole hold them, and so does not match Excel's bytes. The byte fidelity rule
+    is broken knowingly here, until the save writes the table as Excel does."""
+    if not package.has("xl/sharedStrings.xml"):
+        return
+    used: set[int] = set()
+    for sheet in book.sheets_:
+        if sheet.part_name and package.has(sheet.part_name):
+            used.update(map(int, _SHARED_REFERENCE.findall(package.read(sheet.part_name))))
+    data = package.read("xl/sharedStrings.xml")
+    pieces: list[bytes] = []
+    done = 0
+    for index, found in enumerate(_SHARED_ITEM_BYTES.finditer(data)):
+        if index not in used:
+            pieces += [data[done:found.start()], b"<si><t/></si>"]
+            done = found.end()
+    if pieces:
+        package.write("xl/sharedStrings.xml", b"".join([*pieces, data[done:]]))
+
+
+#: The number in a cell holding a shared string, and one string of the table.
+_SHARED_REFERENCE = re.compile(rb'\st="s"[^>]*>(?:<f\b[^>]*?(?:/>|>[^<]*</f>))?<v>([0-9]+)</v>')
+_SHARED_ITEM_BYTES = re.compile(rb"<si\b[^>]*?(?:/>|>.*?</si>)", re.DOTALL)
 
 
 def _sync_sheets(book: Workbook, package: OpcFile) -> None:
@@ -2593,7 +2770,7 @@ def _formula_xml(text: str, tables: Collection[str]) -> str:
     (pyopenvba.formula._structured.in_file), a newer function and a name a LET binds with their prefixes
     (pyopenvba.formula._prefixes), a line break as Excel writes one there, CR LF, and a carriage return on its own
     as _x000D_ (tests/fixtures/structured_references/)."""
-    spelled = prefixes.in_file(in_file("=" + text, tables))
+    spelled = without_dangling_references(prefixes.in_file(in_file("=" + text, tables)))
     return _escape_text(_encode_string(spelled[1:])).replace("\n", "\r\n")
 
 
@@ -2755,7 +2932,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     # Excel leaves Excel 4 macro names out of a workbook saved without macros (tests/fixtures/name_macro.json).
     macros = workbook_format(book) in (52, 53, 55)
     for entry in book.names_.entries:
-        if entry.macro_type and not macros:
+        if (entry.macro_type and not macros) or any(entry is lost for lost in book.query_names_lost):
             continue
         # A name that came from the file keeps the attributes it came
         # with; localSheetId and hidden are not the model's to drop.
@@ -2786,7 +2963,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
             for key, value in macro_saved(entry).items():
                 attributes = patch_attribute(attributes, key, value)
         attributes = attributes.strip()
-        refers_to = saved_name(prefixes.in_file(in_file(entry.refers_to, tables)).lstrip("="))
+        refers_to = saved_name(without_dangling_references(prefixes.in_file(in_file(entry.refers_to, tables))).lstrip("="))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
                         f"<definedName {attributes}>{_escape(refers_to)}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and

@@ -23,6 +23,22 @@ from dataclasses import dataclass
 from typing import Any, ClassVar
 
 from pyopenvba.exceptions import VBAUnsupportedError
+
+
+class CallBinding:
+    """How the member call under way was bound, for the few members that answer differently by it.
+
+    The interpreter sets it just before it dispatches, once the arguments are evaluated, so a member reads it on entry.
+    Outside a macro it is early.
+    """
+
+    __slots__ = ('late',)
+
+    def __init__(self) -> None:
+        self.late = False
+
+
+BINDING = CallBinding()
 from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_MEMBER_NOT_FOUND,

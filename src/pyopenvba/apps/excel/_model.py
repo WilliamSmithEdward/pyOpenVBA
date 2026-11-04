@@ -25,9 +25,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
-from pyopenvba.formula._parse import shift_text
+from pyopenvba.formula._parse import has_dangling_reference, shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._clipboard_ends import ENDING
@@ -36,7 +36,7 @@ from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
-from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
+from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_APPLICATION_DEFINED,
@@ -693,7 +693,9 @@ class Application(ExcelObject):
         before = self.calculation
         for book in self.workbooks_.books:
             book.calculator.settle_automatic_cache()
-        self.calculation = int(to_integer(value, "Long"))
+        # What is no setting reads as automatic below 2 and manual above it (tests/fixtures/settable_audit.json).
+        wanted = int(to_integer(value, "Long"))
+        self.calculation = wanted if wanted in (-4105, -4135, 2) else -4105 if wanted < 2 else -4135
         for book in self.workbooks_.books:
             book.file_calculation_mode = None
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
@@ -1461,6 +1463,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         #: The number the next new workbook of each kind takes: Book for one with no template, Sheet for one made
         #: from xlWBATWorksheet, each counting on its own and taking none back (tests/fixtures/workbook_names.json).
         self._next_numbers = {"Book": 1, "Sheet": 1}
+        #: How many books the session has made from templates, whichever templates (tests/fixtures/template_opens.json).
+        self.templates_used = 0
 
     def next_name(self, stem: str = "Book") -> str:
         while True:
@@ -1482,6 +1486,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Add(self, Template: object = MISSING) -> object:
+        if isinstance(Template, str):
+            return self._from_template(Path(self._not_found(Template)))
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
         book = Workbook(self.application, self.next_name("Book" if Template is MISSING else "Sheet"))
@@ -1504,8 +1510,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
              Editable: object = MISSING, Notify: object = MISSING, Converter: object = MISSING,
              AddToMru: object = MISSING, Local: object = MISSING, CorruptLoad: object = MISSING) -> object:
         """A workbook, or a CSV or text file read as Excel reads one (see _text_files). UpdateLinks, Password,
-        WriteResPassword, IgnoreReadOnlyRecommended, Editable, Notify, AddToMru and Local change nothing for the
-        files the model opens, which it neither updates links in nor decrypts (tests/fixtures/text_files.json)."""
+        WriteResPassword, IgnoreReadOnlyRecommended, Notify, AddToMru and Local change nothing for the files the model
+        opens, which it neither updates links in nor decrypts (tests/fixtures/text_files.json). A template makes a new book
+        unless Editable is True (tests/fixtures/template_opens.json)."""
         from pyopenvba.apps.excel._text_files import is_text, remember_format
 
         if Filename is MISSING:
@@ -1529,6 +1536,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             # A text file Workbooks.Open reads puts OpenText's code page back to Windows-1252
             # (tests/fixtures/open_text.json).
             self.application.text_import.origin = 1252
+        if path.suffix.lower() in (".xltx", ".xltm") and not (Editable is not MISSING and to_bool(Editable)):
+            return self._from_template(path)
         try:
             return self.open_file(path, read_only=read_only, format_code=format_code)
         except PowerQueryError:
@@ -1539,6 +1548,21 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise error(1004, f"Excel cannot open the file '{path.name}' because the file format or file extension "
                               "is not valid. Verify that the file has not been corrupted and that the file extension "
                               "matches the format of the file.") from None
+
+    def _from_template(self, path: Path) -> Workbook:
+        """The new book a file makes as a template: its contents, under the file's name and a number that goes on through
+        the session, with no path, as an ordinary workbook of its kind (tests/fixtures/template_opens.json)."""
+        from pyopenvba.apps.excel._io import prepare_format
+
+        suffix = path.suffix.lower()
+        if suffix not in (".xlsx", ".xlsm", ".xltx", ".xltm"):
+            raise VBAUnsupportedError(f"A new workbook from a {suffix} file is not implemented")
+        book = self.open_file(path)
+        self.templates_used += 1
+        prepare_format(book, 52 if suffix in (".xlsm", ".xltm") else 51)
+        book.name, book.path = f"{path.stem}{self.templates_used}", ""
+        book.saved = True
+        return book
 
     def _not_found(self, name: object) -> str:
         self.application.outside("Opening a file")
@@ -1780,6 +1804,9 @@ class Workbook(ExcelObject):
         self.held_kinds: set[str] = set()
         #: What the file's query tables said when read or last saved, None where it has none (see _query_tables).
         self.query_baseline: list[str] | None = None
+        #: The connections of the workbook's query tables, and the names a deletion cost the file (see _query_tables).
+        self.text_links: list[Any] = []
+        self.query_names_lost: list[Any] = []
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
         #: None until a formula is written, when the formulas it has teach it.
@@ -2053,6 +2080,7 @@ class Workbook(ExcelObject):
 
     @setter("AutoUpdateSaveChanges")
     def _set_auto_update_save_changes(self, value: object) -> None:
+        to_bool(value)  # Bound early VBA converts first: text is 13 and Null 94 (tests/fixtures/settable_audit.json).
         raise error(1004)
 
     @member
@@ -2331,10 +2359,6 @@ class Workbook(ExcelObject):
         """The data connections the file keeps (see _connections)."""
         from pyopenvba.apps.excel._connections import Connections
 
-        from pyopenvba.apps.excel._query_tables import connections_stale
-
-        if connections_stale(self):
-            raise VBAUnsupportedError("Workbook.Connections with a query table changed since the file was read is not implemented")
         return Connections(self)
 
     @member
@@ -2484,7 +2508,7 @@ class Workbook(ExcelObject):
         target = Path(to_text(Filename))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
         writer = text_writer(chosen)
-        expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm"}.get(chosen)
+        expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm", 53: ".xltm", 54: ".xltx"}.get(chosen)
         if expected is None:
             raise VBAUnsupportedError(f"SaveAs FileFormat {chosen} is not implemented by the Excel cell model")
         if not target.suffix:
@@ -2998,8 +3022,10 @@ class Workbook(ExcelObject):
         (tests/fixtures/pivot_shared_caches/ refresh_all_three, refresh_all_reordered, refresh_all_disabled;
         tests/fixtures/calculate_order.json refresh_all_once)."""
         from pyopenvba.apps.excel._pivot_refresh import refresh as refresh_cache
+        from pyopenvba.apps.excel._query_tables import refresh_all
         from pyopenvba.apps.excel._refresh import refresh
 
+        refresh_all(self)
         for entry in list(self.queries_.entries):
             refresh(self, entry.name)
         used = {id(table.cache) for sheet in self.sheets_ for table in sheet.pivot_tables}
@@ -3041,7 +3067,7 @@ class Workbook(ExcelObject):
             return [active]
         return [sheet for sheet in self.sheets_ if any(one is sheet for one in self.selected_sheets)]
 
-    def add_sheet(self, name: str = "", *, at: int | None = None) -> Worksheet:
+    def add_sheet(self, name: str = "", *, at: int | None = None, numbered: bool = False) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
         chosen = name or self._next_sheet_name()
         if any(_names.same_sheet_name(sheet.name, chosen) for sheet in self.sheets_):
@@ -3052,10 +3078,14 @@ class Workbook(ExcelObject):
         else:
             self.sheets_.insert(at, sheet)
         self.saved = False
-        self.sheet_name_counter = max(self.sheet_name_counter, len(self.sheets_))
+        if name and not numbered:
+            self.sheet_name_counter = max(self.sheet_name_counter, len(self.sheets_))
         return sheet
 
     def _next_sheet_name(self) -> str:
+        """The number after the last the workbook gave, past any name taken in any case. Deleting or renaming a sheet gives
+        none back; a sheet given a name, as a copy is, raises it to the count of sheets; and opening a file starts it from
+        nothing, whatever its sheets are called (tests/fixtures/new_sheet_names.json)."""
         taken = {sheet.name.lower() for sheet in self.sheets_}
         number = self.sheet_name_counter + 1
         while f"sheet{number}" in taken:
@@ -3173,7 +3203,7 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
         names = self.book.allocate_sheet_names(count)
         added: list[Worksheet] = []
         for offset, name in enumerate(reversed(names)):
-            sheet = self.book.add_sheet(name, at=None if at is None else at + offset)
+            sheet = self.book.add_sheet(name, at=None if at is None else at + offset, numbered=True)
             added.append(sheet)
             self.book.activate_sheet(sheet)
             _events.new_sheet(self.book, sheet, left)
@@ -4129,8 +4159,6 @@ class Worksheet(ExcelObject):
 
     @setter("EnableFormatConditionsCalculation")
     def _set_format_conditions_calculation(self, value: object) -> None:
-        if value is NULL:
-            raise error(13)
         to_bool(value)  # Excel takes any Boolean, and keeps reading True; anything else is a type mismatch.
 
     @member
@@ -4162,8 +4190,12 @@ class Worksheet(ExcelObject):
 
     @setter("EnableSelection")
     def _set_enable_selection(self, value: object) -> None:
-        """Kept in the file, on a sheet that is not protected too (tests/fixtures/settable_reopen.json)."""
-        self.enable_selection = int(to_integer(value, "Long"))
+        """Kept in the file, on a sheet that is not protected too (tests/fixtures/settable_reopen.json). 2 is taken
+        as xlNoSelection, and what Excel does not name is 1004 (tests/fixtures/settable_audit.json)."""
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (0, 1, 2, -4142):
+            raise error(1004, "Method 'EnableSelection' of object '_Worksheet' failed")
+        self.enable_selection = -4142 if wanted == 2 else wanted
         self.protection_changed = True
         self.touched()
 
@@ -4572,7 +4604,21 @@ class Range(ExcelObject):
 
     @setter("Name")
     def _set_range_name(self, value: object) -> None:
-        self.sheet.book.names_.Add(Name=value, RefersTo=self)
+        """A name for the range; Null and True are 1004, and a name that will not do is 450 where the range has one already
+        (tests/fixtures/range_more.json)."""
+        try:
+            self.vba_get("Name")
+            refused = 450
+        except VBARuntimeError:
+            refused = 1004
+        if value is NULL or value is True:
+            raise error(refused, "Unable to set the Name property of the Range class")
+        try:
+            self.sheet.book.names_.Add(Name=value, RefersTo=self)
+        except VBARuntimeError as failed:
+            if failed.number != 1004:
+                raise
+            raise error(refused, "Unable to set the Name property of the Range class") from failed
 
     @setter("Formula")
     def _set_formula(self, value: object) -> None:
@@ -4586,6 +4632,9 @@ class Range(ExcelObject):
         """
         value = _not_null(value)
         _within_length(value)
+        if isinstance(value, str) and has_dangling_reference(value):
+            # #REF!A1 is what Excel shows for a deleted sheet's cell, and not a formula it takes (tests/fixtures/sheet_delete_refs.json).
+            raise error(1004, "Application-defined or object-defined error")
         self._formula_written(value)
 
     def _formula_written(self, value: object, *, dynamic: bool = False) -> None:
@@ -4659,6 +4708,7 @@ class Range(ExcelObject):
 
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
+        value = _not_null(value)
         _within_length(value)
         written, dynamic = self._legacy(value, r1c1=False)
         self._formula_written(written, dynamic=dynamic)
@@ -4918,9 +4968,12 @@ class Range(ExcelObject):
     def _set_formula_array(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import whole
 
+        value = _not_null(value)
         text = to_text(value.vba_value() if isinstance(value, VBAObject) else value)
         if not _is_formula(text):
-            raise VBAUnsupportedError("FormulaArray set to a value rather than a formula is not implemented")
+            # What is no formula goes in as Formula would take it, and makes no array (tests/fixtures/range_more.json).
+            self._set_formula(value)
+            return
         if len(text) > LONGEST_ARRAY_FORMULA:
             raise error(1004, "Unable to set the FormulaArray property of the Range class")
         if self.sheet.data_tables:
@@ -5101,6 +5154,7 @@ class Range(ExcelObject):
     def _set_formula_r1c1(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        value = _not_null(value)
         _within_length(value)
         if not _arrays.write_admitted(self):
             return
@@ -5240,6 +5294,9 @@ class Range(ExcelObject):
     def _set_number_format_local(self, value: object) -> None:
         from pyopenvba.apps.excel._number_format import from_local
 
+        if value is NULL or isinstance(value, (bool, VBAObject)):
+            self._set_number_format(value)
+            return
         self._set_number_format(from_local(to_text(value), self.sheet.book.application.locale))
 
     @member
@@ -5522,6 +5579,9 @@ class Range(ExcelObject):
 
     @member
     def Offset(self, RowOffset: object = MISSING, ColumnOffset: object = MISSING) -> object:
+        # Null is 13, not VBA's 94 (tests/fixtures/range_methods_moves.json).
+        if RowOffset is NULL or ColumnOffset is NULL:
+            raise error(13)
         down = 0 if RowOffset is MISSING else int(to_integer(RowOffset, "Long"))
         across = 0 if ColumnOffset is MISSING else int(to_integer(ColumnOffset, "Long"))
         areas: list[Area] = []
@@ -5537,8 +5597,12 @@ class Range(ExcelObject):
     @member
     def Resize(self, RowSize: object = MISSING, ColumnSize: object = MISSING) -> object:
         area = self.first
-        rows = area.rows if RowSize is MISSING else int(to_integer(RowSize, "Long"))
-        columns = area.columns if ColumnSize is MISSING else int(to_integer(ColumnSize, "Long"))
+        try:
+            rows = area.rows if RowSize is MISSING else int(to_integer(RowSize, "Long"))
+            columns = area.columns if ColumnSize is MISSING else int(to_integer(ColumnSize, "Long"))
+        except VBARuntimeError:
+            # Whatever is no number is 1004 here (tests/fixtures/range_methods_moves.json).
+            raise error(ERR_APPLICATION_DEFINED, "Resize needs a number") from None
         if rows < 1 or columns < 1:
             raise error(ERR_APPLICATION_DEFINED, "Resize needs at least one row and column")
         if area.top + rows - 1 > MAX_ROWS or area.left + columns - 1 > MAX_COLUMNS:
@@ -5883,10 +5947,17 @@ class Range(ExcelObject):
 
         set_page_break(self, value)
 
+    def _whole_lines(self) -> None:
+        """OutlineLevel is of whole rows or columns; a cell's is 1004, read or set (tests/fixtures/range_more.json)."""
+        area = self.first
+        if not (self.lines or area.left == 1 and area.right == MAX_COLUMNS or area.top == 1 and area.bottom == MAX_ROWS):
+            raise error(1004, "Unable to get the OutlineLevel property of the Range class")
+
     @member
     def OutlineLevel(self) -> object:
         from pyopenvba.apps.excel._outline import read_level
 
+        self._whole_lines()
         return read_level(self)
 
     @method
@@ -5898,6 +5969,7 @@ class Range(ExcelObject):
 
     @setter('OutlineLevel')
     def _set_outline_level(self, value: object) -> None:
+        self._whole_lines()
         from pyopenvba.apps.excel._outline import set_level
 
         set_level(self, value)
@@ -5921,7 +5993,8 @@ class Range(ExcelObject):
     @setter("Hidden")
     def _set_hidden(self, value: object) -> None:
         before = _dimensions.visibility_state(self)
-        _dimensions.write_hidden(self, value)
+        # Null shows them, as False does (tests/fixtures/range_more.json).
+        _dimensions.write_hidden(self, False if value is NULL else value)
         _dimensions.recalculate_visibility(self, before)
 
     @member
@@ -5931,7 +6004,8 @@ class Range(ExcelObject):
     @setter("UseStandardHeight")
     def _set_use_standard_height(self, value: object) -> None:
         before = _dimensions.visibility_state(self)
-        _dimensions.write_use_standard_height(self, value)
+        # Null is False here, and changes nothing for the width (tests/fixtures/range_more.json).
+        _dimensions.write_use_standard_height(self, False if value is NULL else value)
         _dimensions.recalculate_visibility(self, before)
 
     @member
@@ -5940,7 +6014,8 @@ class Range(ExcelObject):
 
     @setter("UseStandardWidth")
     def _set_use_standard_width(self, value: object) -> None:
-        _dimensions.write_use_standard_width(self, value)
+        if value is not NULL:
+            _dimensions.write_use_standard_width(self, value)
 
     # -- methods
 
@@ -6016,7 +6091,7 @@ class Range(ExcelObject):
         # Clear takes the range's sparklines too; ClearContents leaves them (tests/fixtures/sparklines.json).
         sparklines_cleared(target)
         _events.after_edit(self)
-        return EMPTY
+        return True
 
     @method
     def ResetContents(self) -> object:
@@ -6231,28 +6306,47 @@ class Range(ExcelObject):
         the sheet, with no Shift too, and one that pulls them left takes
         the visible cells.
         """
+        from pyopenvba.apps.excel._method_arguments import given, variant_number
         from pyopenvba.apps.excel._protection import check_delete
         from pyopenvba.apps.excel._visible import filtering
 
         check_delete(self)
         where = self.place_now()
-        # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
-        self.sheet.book.application.clipboard = None
         filtered = filtering(self.sheet) and not all(area.whole_columns for area in self.areas)
-        if Shift is MISSING:
+        shift = given(Shift)
+        lines = all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas)
+        if shift is MISSING:
             up = filtered or self.first.rows <= self.first.columns
         else:
-            up = int(to_integer(Shift, "Long")) == -4162  # xlUp
+            # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on
+            # cells, and whole rows and columns do not look (tests/fixtures/range_methods_moves.json).
+            refusal = "Delete method of Range class failed"
+            which = variant_number(shift, refusal)
+            if which in (3, 4) and not lines:
+                entire = self.vba_get("EntireRow" if which == 3 else "EntireColumn")
+                assert isinstance(entire, Range)
+                return entire.Delete()
+            if which not in (-4162, -4159, 1, 2) and not lines:
+                raise error(1004, refusal)
+            up = which in (-4162, 2)
+        # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
+        self.sheet.book.application.clipboard = None
         if filtered:
             self._delete_filtered(up)
         elif all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas):
             self._delete_lines()
         elif len(self.areas) != 1:
-            raise VBAUnsupportedError("deleting cells in several areas is not implemented")
+            # Each area alone, the last on the sheet first; areas that overlap are 1004 (tests/fixtures/range_areas.json).
+            if _merges.overlap(self.areas):
+                raise error(1004, "Delete method of Range class failed")
+            if any(area.whole_rows or area.whole_columns for area in self.areas):
+                raise VBAUnsupportedError("deleting cells and whole lines together is not implemented")
+            for one in sorted(self.areas, key=lambda area: (area.top, area.left) if up else (area.left, area.top), reverse=True):
+                self._delete_cells(one, up)
         else:
             self._delete_cells(self.first, up)
         _events.after_edit(where, calculate_first=True)
-        return EMPTY
+        return True
 
     def _delete_lines(self) -> None:
         """Whole rows or columns deleted, the last area first, so that each goes from where it was."""
@@ -6287,6 +6381,31 @@ class Range(ExcelObject):
         self.shifting_cells()
         shift_cells(self, area, delete=True, vertical=up)
 
+    def _insert_areas(self, shift: object, below: bool, refusal: str) -> None:
+        """Insert in each of several areas alone, the last on the sheet first; areas that overlap are 1004, and which
+        way they go follows the first (tests/fixtures/range_areas.json)."""
+        from pyopenvba.apps.excel._editing import edit, shift_cells
+        from pyopenvba.apps.excel._method_arguments import variant_number
+
+        if _merges.overlap(self.areas):
+            raise error(1004, refusal)
+        rows, columns = all(one.whole_rows for one in self.areas), all(one.whole_columns for one in self.areas)
+        if rows or columns:
+            for one in sorted(self.areas, key=lambda area: (area.top, area.left), reverse=True):
+                edit(Range(self.sheet, [one], whole="rows" if rows else "columns"), delete=False, below=below)
+            return
+        if any(one.whole_rows or one.whole_columns for one in self.areas):
+            raise VBAUnsupportedError("inserting cells and whole lines together is not implemented")
+        which = -4121 if self.first.rows <= self.first.columns else -4161
+        if shift is not MISSING:
+            which = variant_number(shift, refusal)
+        if which not in (-4121, -4161, 1, 2):
+            raise error(1004, refusal)
+        down = which in (-4121, 2)
+        self.shifting_cells()
+        for one in sorted(self.areas, key=lambda area: (area.top, area.left) if down else (area.left, area.top), reverse=True):
+            shift_cells(Range(self.sheet, [one]), one, delete=False, vertical=down, below=below)
+
     @method
     def Insert(self, Shift: object = MISSING, CopyOrigin: object = MISSING) -> object:
         """Insert, which pushes cells down or right.
@@ -6298,14 +6417,18 @@ class Range(ExcelObject):
         error 1004.
         """
         where = self.place_now()
+        from pyopenvba.apps.excel._method_arguments import given, variant_number
         from pyopenvba.apps.excel._protection import check_insert
         from pyopenvba.apps.excel._visible import filtering, visible_rows
 
         check_insert(self)
         area = self.first
+        refusal = "Insert method of Range class failed"
+        Shift = given(Shift)
+        CopyOrigin = given(CopyOrigin)
         # xlFormatFromRightOrBelow: the new lines take the formats, height or width of the line after them, not
         # before (tests/fixtures/excel_everyday_2.json, insert_from_below_*).
-        below = CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) == 1
+        below = CopyOrigin is not MISSING and variant_number(CopyOrigin, refusal) == 1
         filtered = filtering(self.sheet)
         application = self.sheet.book.application
         clip = application.clipboard
@@ -6320,7 +6443,11 @@ class Range(ExcelObject):
                     raise VBAUnsupportedError("inserting copied or cut cells on a filtered sheet, or in several areas, "
                                               "is not implemented")
                 _events.after_edit(insert(self, clip, Shift, below), calculate_first=False)
-                return EMPTY
+                return True
+        if len(self.areas) != 1 and not filtered:
+            self._insert_areas(Shift, below, refusal)
+            _events.after_edit(where, calculate_first=False)
+            return True
         if area.whole_rows or area.whole_columns:
             from pyopenvba.apps.excel._editing import edit
 
@@ -6331,22 +6458,34 @@ class Range(ExcelObject):
                 inserted = Range(self.sheet, [area], whole="rows")
                 edit(inserted, delete=False, below=below)
                 _events.after_edit(inserted, calculate_first=False)
-                return EMPTY
+                return True
             edit(self, delete=False, below=below)
             _events.after_edit(where, calculate_first=False)
-            return EMPTY
+            return True
         if filtered:
             raise error(1004, "Insert method of Range class failed")
         if len(self.areas) != 1:
             raise VBAUnsupportedError("inserting cells in several areas is not implemented")
         from pyopenvba.apps.excel._editing import shift_cells
 
+        if Shift is MISSING:
+            # With no Shift a range taller than it is wide pushes cells right, any other range down.
+            down = area.rows <= area.columns
+        else:
+            # By name or by Excel's own number, 3 and 4 taking in whole rows or columns; anything else is 1004
+            # (tests/fixtures/range_methods_moves.json).
+            which = variant_number(Shift, refusal)
+            if which in (3, 4):
+                entire = self.vba_get("EntireRow" if which == 3 else "EntireColumn")
+                assert isinstance(entire, Range)
+                return entire.Insert(MISSING, CopyOrigin)
+            if which not in (-4121, -4161, 1, 2):
+                raise error(1004, refusal)
+            down = which in (-4121, 2)
         self.shifting_cells()
-        # With no Shift a range taller than it is wide pushes cells right, any other range down.
-        down = area.rows <= area.columns if Shift is MISSING else int(to_integer(Shift, "Long")) == -4121  # xlDown
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)
-        return EMPTY
+        return True
 
     def shifting_cells(self) -> None:
         """Refuse to shift cells on a sheet whose rows or columns carry formats.
@@ -6364,13 +6503,15 @@ class Range(ExcelObject):
     def Copy(self, Destination: object = MISSING) -> object:
         from pyopenvba.apps.excel._clipboard import copy, copy_range
 
-        return copy(self) if Destination is MISSING else copy_range(self, Destination)
+        # Null is no destination (tests/fixtures/range_methods_clipboard.json).
+        return copy(self) if Destination is MISSING or Destination is NULL else copy_range(self, Destination)
 
     @method
     def Cut(self, Destination: object = MISSING) -> object:
         from pyopenvba.apps.excel._clipboard import cut
 
-        return cut(self, Destination)
+        # Null is no destination (tests/fixtures/range_methods_clipboard.json).
+        return cut(self, MISSING if Destination is NULL else Destination)
 
     @method
     def PasteSpecial(self, Paste: object = MISSING, Operation: object = MISSING, SkipBlanks: object = MISSING,
@@ -6840,8 +6981,10 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._region import holds_content
 
         if Direction is MISSING:
-            raise error(449)
+            raise error(450)
         which = int(to_integer(Direction, "Long"))
+        # Excel's own numbers for the four, 1 to 4 (tests/fixtures/range_methods_moves.json).
+        which = {1: -4159, 2: -4161, 3: -4162, 4: -4121}.get(which, which)
         row, column = self.first.top, self.first.left
         steps = {-4162: (-1, 0), -4121: (1, 0), -4159: (0, -1), -4161: (0, 1)}
         if which not in steps:
@@ -6889,10 +7032,13 @@ class Range(ExcelObject):
         return Range(self.sheet, [Area(row, column, row, column, self.first.sheet)])
 
     @method
-    def Find(self, What: object, After: object = MISSING, LookIn: object = MISSING,
+    def Find(self, What: object = MISSING, After: object = MISSING, LookIn: object = MISSING,
              LookAt: object = MISSING, SearchOrder: object = MISSING, SearchDirection: object = MISSING,
              MatchCase: object = MISSING, MatchByte: object = MISSING, SearchFormat: object = MISSING) -> object:
         from pyopenvba.apps.excel._find import find
+
+        if What is MISSING:
+            raise error(450)
         return find(self, What, After, LookIn, LookAt, SearchOrder, SearchDirection,
                     MatchCase, MatchByte, SearchFormat)
 
@@ -6989,7 +7135,10 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse
 
         refuse(self.sheet, APPLICATION_DEFINED)
-        _merges.merge(self, False if Across is MISSING else to_bool(Across))
+        from pyopenvba.apps.excel._method_arguments import switch
+
+        # Null and text that is no Boolean are 1004 (tests/fixtures/range_methods_moves.json).
+        _merges.merge(self, False if Across is MISSING else switch(Across, "Merge method of Range class failed"))
         return EMPTY
 
     @method
@@ -7006,7 +7155,14 @@ class Range(ExcelObject):
 
     @setter("MergeCells")
     def _set_merge_cells(self, value: object) -> None:
-        if to_bool(value):
+        # Null changes nothing, and text that is neither is 1004 (tests/fixtures/range_more.json).
+        if value is NULL:
+            return
+        try:
+            merging = to_bool(value)
+        except VBARuntimeError as failed:
+            raise error(1004, "Unable to set the MergeCells property of the Range class") from failed
+        if merging:
             _merges.merge(self, False)
         else:
             _merges.unmerge(self)
@@ -7871,7 +8027,7 @@ class WorksheetFunction(ExcelObject):
         from pyopenvba.interpreter._inventory import member_exists
 
         if engine_name(name) is not None and member_exists("WorksheetFunction", name, "excel"):
-            return call(self.application, name, args, named, raising=True)
+            return call(self.application, name, args, named, raising=True, late=BINDING.late)
         spec = self.vba_member(name)
         if spec is None:
             # A sheet function WorksheetFunction does not carry, If or Sin, is no member either (error 438).
@@ -8081,6 +8237,10 @@ def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
         return formula
     from pyopenvba.apps.excel._external_links import shown as linked_shown
 
+    if "[0]!" in formula:
+        # A name of a deleted sheet, as this workbook's: a file holds [0]!Name, and Excel shows the workbook's name as
+        # it is now (tests/fixtures/sheet_delete_refs.json).
+        formula = formula.replace("[0]!", quote_sheet(sheet.book.name) + "!")
     formula = linked_shown(sheet.book, formula)
     if not sheet.tables:
         return formula

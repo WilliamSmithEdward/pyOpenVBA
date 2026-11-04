@@ -104,6 +104,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
 from pyopenvba.apps.excel._creator import ItemDefault
+from pyopenvba.apps.excel._method_arguments import enum_number, given, switch
 from pyopenvba.apps.excel._model import ExcelObject, NameEntry, Range
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._display import UndisplayableError, shown
@@ -1099,7 +1100,14 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
         raise VBAUnsupportedError('AutoFilter combined with an active AdvancedFilter is not implemented')
     if sub_field is not MISSING:
         raise VBAUnsupportedError("AutoFilter's SubField is not implemented")
-    hidden_button = visible_dropdown is not MISSING and not to_bool(visible_dropdown)
+    # Null is left out, and text that is no number or Boolean is 1004 (tests/fixtures/range_methods_order.json).
+    refusal = "AutoFilter method of Range class failed"
+    field_argument, criteria1, criteria2 = given(field_argument), given(criteria1), given(criteria2)
+    visible_dropdown = given(visible_dropdown)
+    if operator is not MISSING and not AND <= enum_number(operator, refusal) <= NO_ICON:
+        # 0, -1 and 99 measured; the last the model knows ends the list.
+        raise error(1004, refusal)
+    hidden_button = visible_dropdown is not MISSING and not switch(visible_dropdown, refusal)
     table = table_of(target)
     if table is not None:
         return _filter_table(table, field_argument, criteria1, operator, criteria2, hidden_button=hidden_button)
@@ -1127,7 +1135,7 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
     area = grown(sheet, asked)
     if meets_table(sheet, area):
         raise VBAUnsupportedError("a sheet's AutoFilter grown over a table is not implemented")
-    index = int(to_integer(field_argument, "Long"))
+    index = enum_number(field_argument, refusal)
     if not 1 <= index <= area.columns:
         raise error(1004, "AutoFilter's field is outside the range")
     fresh = False

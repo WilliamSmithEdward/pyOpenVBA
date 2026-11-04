@@ -93,6 +93,10 @@ def _written_sheets(name: str) -> set[str]:
     edit = SAVED[name]["edit"]
     if name == "insert a row":
         return {"One", "Two", "Three", "Vol", "Link", "Untouched"}
+    if name == "delete the sheet of the sum":
+        # A formula on Three read it, and a changed formula has its sheet written whole. Vol's cells take new style
+        # numbers, as the only date format went with the sheet and the save leaves out what nothing uses.
+        return {"Three", "Vol"}
     if name == "delete a sheet nothing reads":
         # The active sheet went, so the one before it is selected now.
         return {"Link"}

@@ -28,7 +28,7 @@ class Program:
     labels: dict[str, int] = field(default_factory=lambda: {})
     arrays: list[A.VarDecl] = field(default_factory=lambda: [])
     late_bound_members: set[int] = field(default_factory=lambda: set())
-    #: Each member call made through a library class the compiler knows, with that class.
+    #: Each member call made through a library class the compiler knows, with that class. Any other call is bound late.
     early_bound_members: dict[int, str] = field(default_factory=lambda: {})
 
 

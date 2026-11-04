@@ -28,6 +28,13 @@ WRITES_OR_READS = [
     'ActiveWorkbook.SaveCopyAs folder & "/out.xlsx"',
     'Workbooks.Open folder & "/there.xlsx"',
     'Workbooks.Open folder & "/not there.xlsx"',
+    # A backslash or another case reaches nothing the plain path could not: off Windows the path is turned into the disk's own only past the gate.
+    'Workbooks.Open folder & "\\there.xlsx"',
+    'Workbooks.Open UCase(folder) & "/THERE.XLSX"',
+    'Workbooks.Open "..\\" & folder & "\\there.xlsx"',
+    'ActiveWorkbook.SaveAs folder & "\\out.xlsx"',
+    'ActiveWorkbook.SaveCopyAs folder & "\\out.xlsx"',
+    'Workbooks.OpenText UCase(folder) & "\\THERE.CSV"',
     'Workbooks.OpenText folder & "/there.csv"',
     'ActiveSheet.SetBackgroundPicture folder & "/there.png"',
     'ActiveWorkbook.ApplyTheme folder & "/there.png"',

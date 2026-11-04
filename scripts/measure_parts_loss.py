@@ -103,7 +103,9 @@ ROWS: dict[str, tuple[str, str, list[str]]] = {
     wb.CustomDocumentProperties.Add "Flag", False, 2, True
     wb.CustomDocumentProperties.Add "When", False, 3, DateSerial(2020, 2, 3)
     wb.CustomDocumentProperties.Add Name:="Link", LinkToContent:=True, Type:=4, LinkSource:="Linked"''',
-                          ["wb.CustomDocumentProperties.Count"] + [f'wb.CustomDocumentProperties("{name}").Value' for name in ("Text", "Whole", "Real", "Flag", "When", "Link")]
+                          ["wb.CustomDocumentProperties.Count"] + [f'wb.CustomDocumentProperties("{name}").Value' for name in ("Text", "Whole", "Real", "Flag", "Link")]
+                          # A date is kept in UTC and read in the machine's zone, so its year, which no zone here moves.
+                          + ['Year(wb.CustomDocumentProperties("When").Value)']
                           + ['wb.CustomDocumentProperties("Link").LinkToContent']),
     "theme": ("xlsx", '''wb.Theme.ThemeColorScheme.Colors(5).RGB = RGB(1, 2, 3)
     wb.Theme.ThemeFontScheme.MajorFont(1).Name = "Arial"

@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T14:34:55.243100+00:00",
+ "measured_at": "2026-11-04T16:44:49.136584+00:00",
  "help": "Private Function Tried(ByVal n As Long, wb As Object, ws As Object) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    Select Case n\n{cases}\n    End Select\n    Tried = CStr(v)\n    Exit Function\nFailed:\n    Tried = \"E\" & Err.Number\nEnd Function\n",
  "sequences": {
   "link_only_a_name": "1|count 1|sheet count 1|item Empty|named Empty Empty|refers Empty|each Empty|cell 1|set Empty Empty",
@@ -305,30 +305,6 @@
    "after_macro": "T|S|K|C|G|M|Y|http://example.com/",
    "lost_macro": {},
    "after_python": "T|S|K|C|G|M|Y|http://example.com/",
-   "lost_python": {}
-  },
-  {
-   "name": "properties_custom",
-   "format": "xlsx",
-   "action": "wb.Names.Add \"Linked\", \"=Sheet1!$A$2\"\n    wb.CustomDocumentProperties.Add \"Text\", False, 4, \"x\"\n    wb.CustomDocumentProperties.Add \"Whole\", False, 1, 7\n    wb.CustomDocumentProperties.Add \"Real\", False, 5, 1.5\n    wb.CustomDocumentProperties.Add \"Flag\", False, 2, True\n    wb.CustomDocumentProperties.Add \"When\", False, 3, DateSerial(2020, 2, 3)\n    wb.CustomDocumentProperties.Add Name:=\"Link\", LinkToContent:=True, Type:=4, LinkSource:=\"Linked\"",
-   "reads": [
-    "wb.CustomDocumentProperties.Count",
-    "wb.CustomDocumentProperties(\"Text\").Value",
-    "wb.CustomDocumentProperties(\"Whole\").Value",
-    "wb.CustomDocumentProperties(\"Real\").Value",
-    "wb.CustomDocumentProperties(\"Flag\").Value",
-    "wb.CustomDocumentProperties(\"When\").Value",
-    "wb.CustomDocumentProperties(\"Link\").Value",
-    "wb.CustomDocumentProperties(\"Link\").LinkToContent"
-   ],
-   "control": "6|x|7|1.5|True|2/3/2020|a|True",
-   "excel": "6|x|7|1.5|True|2/3/2020|a|True",
-   "model": "6|x|7|1.5|True|2/3/2020|a|True",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "6|x|7|1.5|True|2/3/2020|a|True",
-   "lost_macro": {},
-   "after_python": "6|x|7|1.5|True|2/3/2020|a|True",
    "lost_python": {}
   },
   {
@@ -722,6 +698,30 @@
    "after_macro": "1|13",
    "lost_macro": {},
    "after_python": "1|13",
+   "lost_python": {}
+  },
+  {
+   "name": "properties_custom",
+   "format": "xlsx",
+   "action": "wb.Names.Add \"Linked\", \"=Sheet1!$A$2\"\n    wb.CustomDocumentProperties.Add \"Text\", False, 4, \"x\"\n    wb.CustomDocumentProperties.Add \"Whole\", False, 1, 7\n    wb.CustomDocumentProperties.Add \"Real\", False, 5, 1.5\n    wb.CustomDocumentProperties.Add \"Flag\", False, 2, True\n    wb.CustomDocumentProperties.Add \"When\", False, 3, DateSerial(2020, 2, 3)\n    wb.CustomDocumentProperties.Add Name:=\"Link\", LinkToContent:=True, Type:=4, LinkSource:=\"Linked\"",
+   "reads": [
+    "wb.CustomDocumentProperties.Count",
+    "wb.CustomDocumentProperties(\"Text\").Value",
+    "wb.CustomDocumentProperties(\"Whole\").Value",
+    "wb.CustomDocumentProperties(\"Real\").Value",
+    "wb.CustomDocumentProperties(\"Flag\").Value",
+    "wb.CustomDocumentProperties(\"Link\").Value",
+    "Year(wb.CustomDocumentProperties(\"When\").Value)",
+    "wb.CustomDocumentProperties(\"Link\").LinkToContent"
+   ],
+   "control": "6|x|7|1.5|True|a|2020|True",
+   "excel": "6|x|7|1.5|True|a|2020|True",
+   "model": "6|x|7|1.5|True|a|2020|True",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "6|x|7|1.5|True|a|2020|True",
+   "lost_macro": {},
+   "after_python": "6|x|7|1.5|True|a|2020|True",
    "lost_python": {}
   }
  ]

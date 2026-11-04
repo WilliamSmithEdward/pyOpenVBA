@@ -1625,8 +1625,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
     def _not_found(self, name: object) -> str:
         self.application.outside("Opening a file")
         given = to_text(name)
-        if Path(given).is_file():
-            return given
+        if Path(on_disk(given)).is_file():
+            return on_disk(given)
         raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
 
     @method

@@ -130,6 +130,14 @@ class ShadowFormat(_Effect):
 
     @member
     def Visible(self) -> object:
+        shape = self.owner.shape
+        if shape.source and shape.fill_line is None or shape.source and (shape.fill_line is not None and shape.fill_line.extra is None):
+            from pyopenvba.shapes._read_look import has_own_shadow
+
+            # A shape from a file, by its own effect list; a theme's effects report themselves (tests/fixtures/object_roundtrip.json).
+            found = has_own_shadow(shape.source)
+            if found is not None:
+                return VBAInt(-1 if found else 0, 'Long')
         return VBAInt(-1 if self.held().shadow_visible else 0, 'Long')
 
     @setter('Visible')

@@ -1,0 +1,566 @@
+{
+ "measured_at": "2026-11-04T07:54:03.811713+00:00",
+ "reads": [
+  "Fill.Visible",
+  "Fill.Type",
+  "Fill.ForeColor.RGB",
+  "Fill.ForeColor.ObjectThemeColor",
+  "Fill.ForeColor.Type",
+  "Fill.Transparency",
+  "Fill.Pattern",
+  "Line.Visible",
+  "Line.ForeColor.RGB",
+  "Line.ForeColor.ObjectThemeColor",
+  "Line.Weight",
+  "Line.DashStyle",
+  "Line.Transparency",
+  "Line.BeginArrowheadStyle",
+  "Line.EndArrowheadStyle",
+  "Shadow.Visible"
+ ],
+ "changes": [
+  "Fill.ForeColor.RGB = 255",
+  "Fill.ForeColor.ObjectThemeColor = 6",
+  "Fill.Visible = msoFalse",
+  "Fill.Visible = msoTrue",
+  "Fill.Transparency = 0.25",
+  "Fill.Solid",
+  "Fill.Patterned 5",
+  "Line.ForeColor.RGB = 65280",
+  "Line.ForeColor.ObjectThemeColor = 7",
+  "Line.Visible = msoFalse",
+  "Line.Visible = msoTrue",
+  "Line.Weight = 4",
+  "Line.DashStyle = 4",
+  "Line.Transparency = 0.5",
+  "Line.EndArrowheadStyle = 2"
+ ],
+ "source": "Private Function One(s As Object, ByVal which As Long) As String\n    Dim v As Variant\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = s.Fill.Visible\n    Case 1\n        v = s.Fill.Type\n    Case 2\n        v = s.Fill.ForeColor.RGB\n    Case 3\n        v = s.Fill.ForeColor.ObjectThemeColor\n    Case 4\n        v = s.Fill.ForeColor.Type\n    Case 5\n        v = s.Fill.Transparency\n    Case 6\n        v = s.Fill.Pattern\n    Case 7\n        v = s.Line.Visible\n    Case 8\n        v = s.Line.ForeColor.RGB\n    Case 9\n        v = s.Line.ForeColor.ObjectThemeColor\n    Case 10\n        v = s.Line.Weight\n    Case 11\n        v = s.Line.DashStyle\n    Case 12\n        v = s.Line.Transparency\n    Case 13\n        v = s.Line.BeginArrowheadStyle\n    Case 14\n        v = s.Line.EndArrowheadStyle\n    Case 15\n        v = s.Shadow.Visible\n    End Select\n    If Err.Number Then\n        One = \"E\" & Err.Number\n    Else\n        One = CStr(v)\n    End If\nEnd Function\n\nPublic Function ReadShape(s As Object) As String\n    Dim i As Long, t As String\n    For i = 0 To 15\n        t = t & \"|\" & One(s, i)\n    Next\n    ReadShape = Mid$(t, 2)\nEnd Function\n\nPublic Function ReadAt(ByVal path As String, ByVal target As String) As String\n    Dim wb As Workbook\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    ReadAt = ReadShape(wb.Worksheets(1).Shapes(target))\n    wb.Close False\nEnd Function\n\nPrivate Sub Change(s As Object, ByVal which As Long)\n    Select Case which\n    Case 0\n        s.Fill.ForeColor.RGB = 255\n    Case 1\n        s.Fill.ForeColor.ObjectThemeColor = 6\n    Case 2\n        s.Fill.Visible = msoFalse\n    Case 3\n        s.Fill.Visible = msoTrue\n    Case 4\n        s.Fill.Transparency = 0.25\n    Case 5\n        s.Fill.Solid\n    Case 6\n        s.Fill.Patterned 5\n    Case 7\n        s.Line.ForeColor.RGB = 65280\n    Case 8\n        s.Line.ForeColor.ObjectThemeColor = 7\n    Case 9\n        s.Line.Visible = msoFalse\n    Case 10\n        s.Line.Visible = msoTrue\n    Case 11\n        s.Line.Weight = 4\n    Case 12\n        s.Line.DashStyle = 4\n    Case 13\n        s.Line.Transparency = 0.5\n    Case 14\n        s.Line.EndArrowheadStyle = 2\n    End Select\nEnd Sub\n\nPublic Function InModel(ByVal target As String, ByVal which As Long) As String\n    Dim t As String, s As Object\n    Set s = ActiveWorkbook.Worksheets(1).Shapes(target)\n    On Error Resume Next\n    Change s, which\n    t = \"E\" & Err.Number & \"@\"\n    Err.Clear\n    On Error GoTo 0\n    InModel = t & ReadShape(s)\nEnd Function\n",
+ "cases": [
+  {
+   "target": "Hidden",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@-1|1|255|0|1|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|255|0|1|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|255|0|1|0|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Fill.ForeColor.ObjectThemeColor = 6",
+   "excel": "E0@-1|1|3305961|6|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|3305961|6|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|3305961|6|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Fill.Visible = msoFalse",
+   "excel": "E0@0|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "0|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "0|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Fill.Visible = msoTrue",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Fill.Transparency = 0.25",
+   "excel": "E0@-1|1|8544277|5|2|0.25|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0.25|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0.25|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Fill.Solid",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Fill.Patterned 5",
+   "excel": "E0@-1|2|8544277|5|2|0|5|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|2|8544277|5|2|0|5|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|2|8544277|5|2|0|5|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.ForeColor.RGB = 65280",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|65280|0|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|65280|0|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|65280|0|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.ForeColor.ObjectThemeColor = 7",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|2386713|7|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|2386713|7|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|2386713|7|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.Visible = msoFalse",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|0|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|0|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|0|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.Visible = msoTrue",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.Weight = 4",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|3351556|5|4|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|4|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|4|1|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.DashStyle = 4",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|4|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|4|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|4|0|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.Transparency = 0.5",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0.5|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0.5|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0.5|1|1|0"
+  },
+  {
+   "target": "Hidden",
+   "change": "Line.EndArrowheadStyle = 2",
+   "excel": "E-2147024809@-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0",
+   "model_reopened": "-1|1|8544277|5|2|0|-2|-1|3351556|5|1.5|1|0|1|1|0"
+  },
+  {
+   "target": "Painted",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Fill.ForeColor.ObjectThemeColor = 6",
+   "excel": "E0@-1|1|3305961|6|2|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|3305961|6|2|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|3305961|6|2|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Fill.Visible = msoFalse",
+   "excel": "E0@0|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "0|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "0|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Fill.Visible = msoTrue",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Fill.Transparency = 0.25",
+   "excel": "E0@-1|1|255|0|1|0.25|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.25|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.25|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Fill.Solid",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Fill.Patterned 5",
+   "excel": "E0@-1|2|255|0|1|0|5|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|2|255|0|1|0|5|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|2|255|0|1|0.5|5|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.ForeColor.RGB = 65280",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.ForeColor.ObjectThemeColor = 7",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|2386713|7|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|2386713|7|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|2386713|7|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.Visible = msoFalse",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|0|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|0|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|0|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.Visible = msoTrue",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.Weight = 4",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|4|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|4|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|4|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.DashStyle = 4",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.Transparency = 0.5",
+   "excel": "E0@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0.5|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0.5|1|1|-1",
+   "model_reopened": "reports The transparency of a hidden or dashed line is not implemented"
+  },
+  {
+   "target": "Painted",
+   "change": "Line.EndArrowheadStyle = 2",
+   "excel": "E-2147024809@-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1",
+   "model_reopened": "-1|1|255|0|1|0.5|-2|-1|65280|0|3|4|0|1|1|-1"
+  },
+  {
+   "target": "Box",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@-1|1|255|0|1|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|255|0|1|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|255|0|1|0|-2|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Fill.ForeColor.ObjectThemeColor = 6",
+   "excel": "E0@-1|1|3305961|6|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|3305961|6|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|3305961|6|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Fill.Visible = msoFalse",
+   "excel": "E0@0|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "0|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "0|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Fill.Visible = msoTrue",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Fill.Transparency = 0.25",
+   "excel": "E0@-1|1|16777215|2|2|0.25|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0.25|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0.25|-2|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Fill.Solid",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "reports Solid on this kind of shape, or with the fill or line hidden, is not implemented"
+  },
+  {
+   "target": "Box",
+   "change": "Fill.Patterned 5",
+   "excel": "E0@-1|2|16777215|2|2|0|5|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|2|16777215|2|2|0|5|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|2|16777215|2|2|0|5|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Line.ForeColor.RGB = 65280",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|65280|0|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|65280|0|0.75|1|0|1|1|0",
+   "model_reopened": "reports Setting a text box's line colour is not implemented"
+  },
+  {
+   "target": "Box",
+   "change": "Line.ForeColor.ObjectThemeColor = 7",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|2386713|7|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|2386713|7|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0|-2|-1|2386713|7|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Line.Visible = msoFalse",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|0|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|0|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0|-2|0|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Line.Visible = msoTrue",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Line.Weight = 4",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|12369084|2|4|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|4|1|0|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|4|1|0|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Line.DashStyle = 4",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|4|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|4|0|1|1|0",
+   "model_reopened": "reports This line dash style is not implemented"
+  },
+  {
+   "target": "Box",
+   "change": "Line.Transparency = 0.5",
+   "excel": "E0@-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0.5|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0.5|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0.5|1|1|0"
+  },
+  {
+   "target": "Box",
+   "change": "Line.EndArrowheadStyle = 2",
+   "excel": "E-2147024809@-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0",
+   "model_reopened": "-1|1|16777215|2|2|0|-2|-1|12369084|2|0.75|1|0|1|1|0"
+  },
+  {
+   "target": "Joined",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Fill.ForeColor.ObjectThemeColor = 6",
+   "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Fill.Visible = msoFalse",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Fill.Visible = msoTrue",
+   "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Fill.Transparency = 0.25",
+   "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The fill transparency of a line, under a hidden line, or of a fill hidden bare, "
+  },
+  {
+   "target": "Joined",
+   "change": "Fill.Solid",
+   "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports Solid on this kind of shape, or with the fill or line hidden, is not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Fill.Patterned 5",
+   "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.ForeColor.RGB = 65280",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|65280|0|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|65280|0|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.ForeColor.ObjectThemeColor = 7",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|2386713|7|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|2386713|7|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.Visible = msoFalse",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|0|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|0|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.Visible = msoTrue",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.Weight = 4",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|4|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|4|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.DashStyle = 4",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|4|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|4|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.Transparency = 0.5",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0.5|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0.5|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Joined",
+   "change": "Line.EndArrowheadStyle = 2",
+   "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
+   "model_reopened": "reports The effects of this shape are not implemented"
+  },
+  {
+   "target": "Pic",
+   "change": "Fill.ForeColor.RGB = 255",
+   "excel": "E0@-1|1|255|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "-1|1|255|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Fill.ForeColor.ObjectThemeColor = 6",
+   "excel": "E0@-1|1|3305961|6|2|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "-1|1|3305961|6|2|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Fill.Visible = msoFalse",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Fill.Visible = msoTrue",
+   "excel": "E0@-1|1|14934203|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "-1|1|14934203|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Fill.Transparency = 0.25",
+   "excel": "E0@-1|1|8544277|5|2|0.25|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "-1|1|8544277|5|2|0.25|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "-1|1|8544277|5|2|0.25|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Fill.Solid",
+   "excel": "E0@-1|1|8544277|5|2|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "-1|1|8544277|5|2|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "reports Solid on this kind of shape, or with the fill or line hidden, is not implemented"
+  },
+  {
+   "target": "Pic",
+   "change": "Fill.Patterned 5",
+   "excel": "E0@-1|2|8544277|5|2|0|5|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "-1|2|8544277|5|2|0|5|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.ForeColor.RGB = 65280",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.ForeColor.ObjectThemeColor = 7",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.Visible = msoFalse",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|3351556|5|1|1|0|1|1|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.Visible = msoTrue",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|-1|0|0|0.75|1|0|1|1|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|-1|0|0|0.75|1|0|1|1|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.Weight = 4",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|-1|0|13|4|1|0|1|1|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|-1|0|13|4|1|0|1|1|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.DashStyle = 4",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|-1|0|13|0.75|4|0|1|1|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|-1|0|13|0.75|4|0|1|1|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.Transparency = 0.5",
+   "excel": "E0@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|-1|3351556|5|1|1|0.5|1|1|0"
+  },
+  {
+   "target": "Pic",
+   "change": "Line.EndArrowheadStyle = 2",
+   "excel": "E-2147024809@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+  }
+ ]
+}

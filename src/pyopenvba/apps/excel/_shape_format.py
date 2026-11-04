@@ -12,6 +12,7 @@ The style's colours are the default Office theme's; a workbook with another them
 that were not measured report themselves unsupported."""
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import replace
 from typing import TYPE_CHECKING
@@ -21,9 +22,11 @@ from pyopenvba.apps.excel._styles import DEFAULT_THEME
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import MISSING, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number
+from pyopenvba.shapes._read_look import Paint, read_look, read_style
 from pyopenvba.shapes._values import FillGradient, FillLine, GradientPoint, emu, points
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._model import Workbook
     from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange
     from pyopenvba.shapes._values import Shape
 
@@ -166,6 +169,23 @@ def _unmeasured(what: str) -> VBAUnsupportedError:
     return VBAUnsupportedError(f"{what} is not implemented")
 
 
+#: The kinds of shape from a file whose fill and line are read from its markup (see _read_look).
+_LOADED_KINDS = frozenset({"shape", "textBox", "line", "picture"})
+#: The line widths of the new Office theme, for a workbook with no theme part.
+_THEME_WIDTHS = (12700, 19050, 25400)
+
+
+def _theme_line_width(book: Workbook, index: int) -> int:
+    """The width of a style's line, the index-th in the theme's list."""
+    widths = _THEME_WIDTHS
+    package = book.package
+    if package is not None and package.has("xl/theme/theme1.xml"):
+        found = re.search(r"<a:lnStyleLst>(.*?)</a:lnStyleLst>", package.read("xl/theme/theme1.xml").decode("utf-8", "replace"), re.DOTALL)
+        if found is not None:
+            widths = tuple(int(one) for one in re.findall(r'<a:ln\b[^>]*?\bw="(\d+)"', found.group(1))) or widths
+    return widths[min(max(index, 1), len(widths)) - 1]
+
+
 class _Format(Created):
     """What Fill and Line share: the shape, its kind's style, and the look a change writes."""
 
@@ -178,20 +198,45 @@ class _Format(Created):
     def shape(self) -> Shape:
         return self.owner.shape
 
-    def style(self) -> tuple[int | None, int, int, int, float]:
+    def style(self) -> tuple[int | None, int, int | None, int, float]:
         shape = self.shape
         if not shape.source and shape.kind == "freeform":
             # An open path has a line's style and a closed one an AutoShape's (tests/fixtures/shape_builders.json).
             closed = any(command == "close" for command, _ in shape.path)
             return STYLE["shape" if closed else "line"]
+        if shape.source and shape.kind in _LOADED_KINDS:
+            return self.loaded_style()
         if shape.source or shape.kind not in STYLE:
             raise VBAUnsupportedError("The fill and line of this shape are not implemented")
         if self.owner.sheet.book.stylesheet.colors.theme != DEFAULT_THEME:
             raise VBAUnsupportedError("The fill and line of a shape under another theme are not implemented")
         return STYLE[shape.kind]
 
+    def loaded_style(self) -> tuple[int | None, int, int | None, int, float]:
+        """What a shape from a file falls back on: its xdr:style, its colours and line width from the workbook's theme, or
+        for a shape with no style what its own spPr holds (tests/fixtures/object_roundtrip.json)."""
+        refs = read_style(self.shape.source)
+        look = self.look()
+        fill = self.theme_paint(refs.fill) if refs.fill is not None else None
+        if fill is None and (look.fill_rgb is not None or look.fill_scheme is not None):
+            fill = self.theme_paint(Paint(look.fill_rgb, look.fill_scheme, look.fill_mods))
+        line = self.theme_paint(refs.line) if refs.line is not None else None
+        if line is None and (look.line_rgb is not None or look.line_scheme is not None):
+            line = self.theme_paint(Paint(look.line_rgb, look.line_scheme, look.line_mods))
+        fill_theme = _scheme_number(refs.fill.scheme) if refs.fill is not None and refs.fill.scheme else -2
+        line_theme = _scheme_number(refs.line.scheme) if refs.line is not None and refs.line.scheme else -2
+        return fill, fill_theme, line, line_theme, points(_theme_line_width(self.owner.sheet.book, refs.line_index))
+
+    def theme_paint(self, paint: Paint) -> int:
+        colours = self.owner.sheet.book.stylesheet.colors.theme
+        base = paint.rgb if paint.rgb is not None else colours[_THEME_SLOT[paint.scheme or "accent1"]]
+        return painted(base, paint.mods)
+
     def look(self) -> FillLine:
-        return self.shape.fill_line or FillLine()
+        shape = self.shape
+        if shape.fill_line is not None:
+            return shape.fill_line
+        return read_look(shape.source) if shape.source and shape.kind in _LOADED_KINDS else FillLine()
 
     def change(self) -> FillLine:
         self.style()
@@ -199,7 +244,14 @@ class _Format(Created):
             raise _unmeasured("Changing the fill or line of a freeform")
         self.owner.guard("Fill" if isinstance(self, FillFormat) else "Line")
         if self.shape.fill_line is None:
-            self.shape.fill_line = FillLine()
+            self.shape.fill_line = self.look()
+            if self.shape.source:
+                refs = read_style(self.shape.source)
+                self.shape.fill_line.style_fill = refs.fill.scheme if refs.fill is not None else None
+                if refs.line is not None:
+                    shade = next((value for name, value in refs.line.mods if name == "shade"), 0)
+                    self.shape.fill_line.style_line = (refs.line.scheme or "accent1", shade)
+                self.shape.fill_line.style_width = _theme_line_width(self.owner.sheet.book, refs.line_index)
         self.owner.restyled()
         return self.shape.fill_line
 
@@ -541,8 +593,8 @@ class LineFormat(_Format):
 
     @member
     def Visible(self) -> object:
-        self.style()
-        return VBAInt(0 if self.look().line_hidden else -1, "Long")
+        style = self.style()
+        return VBAInt(0 if self.look().line_hidden or style[2] is None else -1, "Long")
 
     @setter("Visible")
     def _visible(self, value: object) -> None:
@@ -692,7 +744,7 @@ class LineFormat(_Format):
     def Weight(self) -> object:
         style = self.style()
         look = self.look()
-        if look.line_lost:
+        if look.line_lost or (style[2] is None and look.line_width is None):
             return VBASingle(_MIXED)
         return VBASingle(style[4] if look.line_width is None else points(look.line_width))
 
@@ -706,9 +758,9 @@ class LineFormat(_Format):
 
     @member
     def DashStyle(self) -> object:
-        self.style()
+        style = self.style()
         look = self.look()
-        if look.line_lost:
+        if look.line_lost or (style[2] is None and look.line_dash is None):
             return VBAInt(-2, "Long")
         return VBAInt(next((key for key, (name, _) in DASHES.items() if name == look.line_dash), 1), "Long")
 
@@ -825,6 +877,9 @@ class ColorFormat(Created):
         if (not isinstance(self.owner, LineFormat) or self.own() is not None or self.scheme() is not None
                 or self.patterned() or self.owner.look().line_plain):
             return 0
+        if self.owner.shape.source:
+            refs = read_style(self.owner.shape.source)
+            return next((value for name, value in refs.line.mods if name == "shade"), 0) if refs.line is not None else 0
         return _LINE_SHADES[self.owner.shape.kind]
 
     def theme_hex(self, scheme: str) -> str:
@@ -858,7 +913,7 @@ class ColorFormat(Created):
         if self.lost() or self.bare():
             return VBAInt(16777215, "Long")
         if colour is None:
-            return VBAInt(0, "Long")
+            return VBAInt(16777215 if self.owner.shape.kind == "picture" else 0, "Long")
         own, scheme, mods = self.own(), self.scheme(), self.mods()
         if own is not None:
             # A SchemeColor's brightness is already in the RGB the file holds.

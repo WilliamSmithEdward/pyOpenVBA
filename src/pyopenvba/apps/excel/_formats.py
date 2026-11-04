@@ -843,7 +843,8 @@ class Interior(ExcelObject):
         if fills and fills[0].gradient:
             # A gradient's Interior answers black, automatic, no theme colour (tests/fixtures/interior_gradient.json).
             return {"Color": 0.0, "ColorIndex": _long(XL_AUTOMATIC), "ThemeColor": _long(0)}.get(what, 0.0)
-        colors = {pick(fill) for fill in fills}
+        # A style's automatic pattern colour and a macro's are the one colour, though they are stored apart.
+        colors = {S.FOREGROUND if pick is not cell_color and pick(fill) == S.BACKGROUND else pick(fill) for fill in fills}
         if len(colors) != 1:
             return mixed
         color: S.Color | None = next(iter(colors))

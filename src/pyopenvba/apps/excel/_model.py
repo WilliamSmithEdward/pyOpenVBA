@@ -346,6 +346,9 @@ class ErrorCheckingOptions(ExcelObject):
         return VBAInt(1480803660, "Long")
 
 
+_INSTALL_PATH = "C:\\Program Files\\Microsoft Office\\root\\Office16"
+
+
 class Application(ExcelObject):
     """The Excel instance: the root of everything a macro can reach."""
 
@@ -855,7 +858,14 @@ class Application(ExcelObject):
 
     @member
     def Path(self) -> object:
-        return str(Path.cwd())
+        """A chosen install path, not a measured one: a real one names the machine, and the current folder is none of
+        Excel's (William's decision, 2026-11-03)."""
+        return _INSTALL_PATH
+
+    @member
+    def LibraryPath(self) -> object:
+        """Path and LIBRARY, as measured (tests/fixtures/application_paths.json)."""
+        return _INSTALL_PATH + "\\LIBRARY"
 
     @member
     def PathSeparator(self) -> object:

@@ -136,9 +136,12 @@ def touches(sheet: Worksheet, areas: list[Area]) -> bool:
 
 
 def _refuse_locked(sheet: Worksheet, links: list[Link]) -> None:
-    from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
+    from pyopenvba.apps.excel._protection import PROTECTED, enforced, locked
 
-    if links and enforced(sheet) is not None and any_locked(sheet, [link.area for link in links]):
+    # A range a macro may edit on a protected sheet does not let it take a link off a locked cell.
+    if enforced(sheet) is not None and any(locked(sheet, row, column) for link in links
+                                           for row in range(link.area.top, link.area.bottom + 1)
+                                           for column in range(link.area.left, link.area.right + 1)):
         raise error(1004, PROTECTED)
 
 
@@ -604,6 +607,8 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
     def __init__(self, sheet: Worksheet, areas: list[Area] | None = None) -> None:
         self.sheet = sheet
         self.areas = None if areas is None else [Area(one.top, one.left, one.bottom, one.right) for one in areas]
+        #: Whether the range held any link when this was fetched: with none, Delete has nothing to do; with none left, it fails.
+        self.held_some = bool(links_of(sheet, self.areas)) if self.areas is not None else False
 
     def vba_items(self) -> list[object]:
         found: list[object] = [Hyperlink(self.sheet, link) for link in links_of(self.sheet, self.areas)]
@@ -634,7 +639,7 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
     @method
     def Delete(self) -> object:
         links = links_of(self.sheet, self.areas)
-        if self.areas is not None and not links:
+        if self.areas is not None and not links and self.held_some:
             # A range's links, none left, unlike a sheet's (tests/fixtures/held_objects.json).
             raise error(1004, "Delete method of Hyperlinks class failed")
         _refuse_locked(self.sheet, links)
@@ -656,7 +661,12 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
 
 def clear_links(target: Range) -> None:
     """Range.ClearHyperlinks: the links the range holds go, their cells' formats as they are."""
+    from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
+
     links = links_of(target.sheet, list(target.areas))
     _refuse_locked(target.sheet, links)
+    if enforced(target.sheet) is not None and any_locked(target.sheet, list(target.areas)):
+        # Locked cells refuse it, links or none.
+        raise error(1004, PROTECTED)
     if links:
         _take(target.sheet, links, formats=False)

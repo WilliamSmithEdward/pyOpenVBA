@@ -8,6 +8,8 @@ Measured in live Excel (scripts/measure_allow_edit_ranges.py, tests/fixtures/all
   The cell still reads Locked, and formats are still refused.
 - A range follows its cells through inserts, deletes and cuts, and a sheet's copy has copies of its ranges.
 - The sheet part keeps them as protectedRanges, after sheetProtection, a password as a SHA-512 hash with a new salt.
+- A file's older 16-bit password stays as it is until its Unprotect opens it, which writes it as SHA-512
+  (tests/test_excel_allow_edit_ranges.py).
 
 Users takes Everyone, for whom Excel saves a fixed security descriptor. Any other account, which depends on the machine,
 and a right other than edit report themselves.
@@ -23,7 +25,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import parse_area
 from pyopenvba.apps.excel._model import ExcelObject, Range
-from pyopenvba.apps.excel._protection import FOLLOWING_PROTECTION, enforced, spun
+from pyopenvba.apps.excel._protection import FOLLOWING_PROTECTION, enforced, legacy_hash, spun
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, ref_setter, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, error, to_integer, to_text
@@ -51,6 +53,8 @@ class Kept:
     hashed: tuple[str, str, int] | None = None
     descriptor: str = ""
     opened: bool = False
+    #: The older 16-bit hash a file may hold in place of ``hashed``.
+    legacy: str = ""
 
 
 @dataclass
@@ -73,13 +77,11 @@ def state(sheet: Worksheet) -> SheetRanges:
             element = _ELEMENT.search(package.read(sheet.part_name).decode("utf-8", errors="replace"))
             for text in re.findall(r"<protectedRange\b[^>]*/>", element.group(0) if element else ""):
                 fields = _attributes(text)
-                if "password" in fields:
-                    raise VBAUnsupportedError("a protected range with an older kind of password is not implemented")
                 areas = [parse_area(one) for one in fields.get("sqref", "").split()]
                 hashed = (fields["hashValue"], fields["saltValue"], int(fields.get("spinCount", "0"))) \
                     if "hashValue" in fields else None
                 found.items.append(Kept(fields.get("name", ""), Range(sheet, areas), hashed,
-                                        fields.get("securityDescriptor", "")))
+                                        fields.get("securityDescriptor", ""), legacy=fields.get("password", "")))
         sheet.allow_edit_ranges = found
     return sheet.allow_edit_ranges
 
@@ -89,7 +91,7 @@ def editable(sheet: Worksheet, row: int, column: int) -> bool:
     if sheet.allow_edit_ranges is None and (sheet.book.package is None or not sheet.part_name):
         return False
     for kept in state(sheet).items:
-        if kept.hashed is None or kept.opened:
+        if (kept.hashed is None and not kept.legacy) or kept.opened:
             if kept.cells.sheet is sheet and any(area.contains(row, column) for area in kept.cells.areas):
                 return True
     return False
@@ -207,6 +209,7 @@ class AllowEditRange(ExcelObject):
         self._alive()
         _guard(self.sheet)
         self.kept.hashed = _hashed(to_text(Password))
+        self.kept.legacy = ""
         self.kept.opened = False
         self._changed()
         return EMPTY
@@ -216,6 +219,12 @@ class AllowEditRange(ExcelObject):
         """Opens a range with a password on a protected sheet, for the session."""
         self._alive()
         hashed = self.kept.hashed
+        if self.kept.legacy and enforced(self.sheet) is not None and Password is not MISSING:
+            if legacy_hash(to_text(Password)) != self.kept.legacy.upper():
+                raise _refused()
+            self.kept.hashed, self.kept.legacy, self.kept.opened = _hashed(to_text(Password)), "", True
+            self._changed()
+            return EMPTY
         if enforced(self.sheet) is None or hashed is None or Password is MISSING:
             raise _refused()
         if spun(to_text(Password), base64.b64decode(hashed[1]), hashed[2]) != hashed[0]:
@@ -272,7 +281,7 @@ def copied(source: Worksheet, copy: Worksheet) -> None:
     """A sheet's copy has copies of its ranges."""
     kept = state(source)
     if kept.items:
-        copy.allow_edit_ranges = SheetRanges([Kept(one.title, Range(copy, list(one.cells.areas)), one.hashed, one.descriptor)
+        copy.allow_edit_ranges = SheetRanges([Kept(one.title, Range(copy, list(one.cells.areas)), one.hashed, one.descriptor, legacy=one.legacy)
                                               for one in kept.items], True)
 
 
@@ -286,7 +295,7 @@ def written(sheet: Worksheet, xml: str) -> str:
     for one in kept.items:
         if not one.cells.areas:
             raise VBAUnsupportedError("saving a protected range whose cells have gone is not implemented")
-        password = "" if one.hashed is None else \
+        password = f'password="{one.legacy}" ' if one.legacy else "" if one.hashed is None else \
             f'algorithmName="SHA-512" hashValue="{one.hashed[0]}" saltValue="{one.hashed[1]}" spinCount="{one.hashed[2]}" '
         sqref = " ".join(area.address(absolute=False) for area in one.cells.areas)
         security = f' securityDescriptor="{one.descriptor}"' if one.descriptor else ""

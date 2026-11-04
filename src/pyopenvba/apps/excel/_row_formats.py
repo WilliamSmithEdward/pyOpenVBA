@@ -298,10 +298,10 @@ _ROWS_FROM = 3
 
 def _lift_column_formats(sheet: Worksheet, top: int, styled: dict[int, S.Style]) -> None:
     """Rows cleared to the sheet's last row take the columns' formats away: the rows above keep showing them. Where most of
-    the columns up to the last share its format, a row format shows that and a cell each of the others; else a cell at each
-    formatted column. And where the first column and the last are formatted differently they are all simply gone. Between 2
-    columns and 16,383 sharing the last's format was not measured: most is a guess there
-    (tests/fixtures/clear_rows_formats.json, tests/fixtures/value_gaps.json)."""
+    the columns share the last's format, 8,193 of 16,384, a row format shows that and a cell each of the others; else a cell
+    at each formatted column. And where the first column and the last are formatted differently they are all simply gone
+    (tests/fixtures/clear_rows_formats.json, tests/fixtures/value_gaps.json; where most starts, by binary search on a run
+    of columns up to the last)."""
     last = styled.get(MAX_COLUMNS)
     if last is not None and styled.get(1, last) != last:
         pass

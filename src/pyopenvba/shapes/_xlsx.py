@@ -519,7 +519,7 @@ def control_drawing(shape: Shape, grid: SheetGrid | None = None) -> str:
     return (
         '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
         '<mc:Choice xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" Requires="a14">'
-        '<xdr:twoCellAnchor editAs="oneCell">'
+        f"<xdr:twoCellAnchor{f' editAs="{shape.edit_as}"' if shape.edit_as else ''}>"
         f"{_corner_markup('from', grid, shape.left, shape.top)}"
         f"{_corner_markup('to', grid, shape.left + shape.width, shape.top + shape.height)}"
         '<xdr:sp macro="" textlink="">'
@@ -555,8 +555,8 @@ def control_entry(shape: Shape, relationship: str, grid: SheetGrid | None = None
         '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
         '<mc:Choice Requires="x14">'
         f'<control shapeId="{shape.shape_id}" r:id="{relationship}" name="{escape(shape.name)}">'
-        f'<controlPr defaultSize="0" autoFill="0" autoPict="0"{macro}>'
-        '<anchor moveWithCells="1">'
+        f'<controlPr{"" if shape.locked else " locked=" + chr(34) + "0" + chr(34)} defaultSize="0" autoFill="0" autoPict="0"{macro}{_alt_text(shape)}>'
+        f"<anchor{_anchor_flags(shape)}>"
         f"{_corner_markup('from', grid, shape.left, shape.top).replace('xdr:from', 'from')}"
         f"{_corner_markup('to', grid, shape.left + shape.width, shape.top + shape.height).replace('xdr:to', 'to')}"
         "</anchor>"
@@ -565,6 +565,15 @@ def control_entry(shape: Shape, relationship: str, grid: SheetGrid | None = None
         "</mc:Choice>"
         "</mc:AlternateContent>"
     )
+
+
+def _alt_text(shape: Shape) -> str:
+    return f' altText="{escape(shape.description)}"' if shape.description else ""
+
+
+def _anchor_flags(shape: Shape) -> str:
+    """How a control's anchor in the sheet says what its Placement does."""
+    return ("" if shape.edit_as == "absolute" else ' moveWithCells="1"') + (' sizeWithCells="1"' if shape.edit_as in ("", "twoCell") else "")
 
 
 def control_properties(shape: Shape) -> str:
@@ -664,14 +673,16 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
         if shape.text
         else ""
     )
-    return (
+    alternative = f' alt="{escape(shape.description)}"' if shape.description else ""
+    locks = ' aspectratio="t"' if shape.lock_aspect else ""
+    return _vml_state((
         f'<v:shape id="{_vml_id(shape.name)}" o:spid="_x0000_s{shape.shape_id}"'
-        ' type="#_x0000_t201"'
+        f' type="#_x0000_t201"{alternative}'
         f" style='position:absolute;margin-left:{shape.left:g}pt;margin-top:{shape.top:g}pt;"
         f"width:{shape.width:g}pt;height:{shape.height:g}pt;z-index:1;mso-wrap-style:tight'"
         ' o:button="t" fillcolor="buttonFace [67]" o:insetmode="auto">'
         '<v:fill color2="buttonFace [67]" o:detectmouseclick="t"/>'
-        '<o:lock v:ext="edit" rotation="t"/>'
+        f'<o:lock v:ext="edit" rotation="t"{locks}/>'
         f"{text}"
         f'<x:ClientData ObjectType="{kind}">'
         f"<x:Anchor>{control_anchor(shape, grid)}</x:Anchor>"
@@ -682,7 +693,7 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
         "<x:TextVAlign>Center</x:TextVAlign>"
         "</x:ClientData>"
         "</v:shape>"
-    )
+    ), shape)
 
 
 def _vml_settings(kind: str, control: ControlInfo | None) -> str:
@@ -805,6 +816,9 @@ def read_control_settings(vml: str, shape: Shape, control: ControlInfo) -> None:
         return
     markup = vml[span[0] : span[1]]
     shape.hidden = "visibility:hidden" in markup
+    alternative = re.search(r'<v:shape\b[^>]*?\balt="([^"]*)"', markup, re.DOTALL)
+    shape.description = unescape(alternative.group(1)) if alternative else ""
+    shape.lock_aspect = 'aspectratio="t"' in markup
     shape.locked = re.search(r"<x:Locked>\s*False", markup) is None
     control.disabled = "<x:Disabled" in markup
     control.print_object = re.search(r"<x:PrintObject>\s*False", markup) is None
@@ -864,6 +878,7 @@ def with_control_state(sheet_xml: str, shape: Shape) -> str:
         if head is None or dict(_ATTRIBUTE.findall(head.group(1))).get("shapeId") != str(shape.shape_id):
             return markup
         markup = _attribute_on_tag(markup, "controlPr", "locked", None if shape.locked else "0")
+        markup = _attribute_on_tag(markup, "controlPr", "altText", shape.description or None)
         markup = _attribute_on_tag(markup, "anchor", "moveWithCells", None if shape.edit_as == "absolute" else "1")
         return _attribute_on_tag(markup, "anchor", "sizeWithCells", "1" if shape.edit_as in ("", "twoCell") else None)
 
@@ -889,6 +904,7 @@ def _vml_state(markup: str, shape: Shape) -> str:
             markup = markup.replace("mso-wrap-style", "visibility:hidden;mso-wrap-style", 1)
         else:
             markup = re.sub(r"(\bstyle=['\"][^'\"]*)", r"\1;visibility:hidden", markup, count=1)
+    markup = _attribute_on_tag(markup, "v:shape", "alt", shape.description or None)
     markup = _vml_flag(markup, "Locked", "" if shape.locked else "<x:Locked>False</x:Locked>")
     markup = _vml_flag(markup, "MoveWithCells", "<x:MoveWithCells/>" if shape.edit_as == "absolute" else "")
     return _vml_flag(markup, "SizeWithCells", "" if shape.edit_as in ("", "twoCell") else "<x:SizeWithCells/>")

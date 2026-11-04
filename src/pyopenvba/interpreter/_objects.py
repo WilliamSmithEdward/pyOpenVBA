@@ -319,6 +319,10 @@ class VBAObject:
         An object is still whole here. What it answers, the interpreter hands over its default member if it is an object still."""
         return value
 
+    def vba_given_arguments(self, name: str, positional: list[object], named: dict[str, object]) -> tuple[list[object], dict[str, object]]:
+        """What a member makes of the arguments a macro gives it, before it sees them, whichever way the call was bound."""
+        return positional, named
+
     def vba_let_refused(self, name: str) -> Exception | None:
         """An error for assigning to this read-only member that comes before anything reads it, if it has one."""
         return None

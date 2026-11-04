@@ -603,7 +603,7 @@ Chart,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,tests
 Chart,Name,property,As String,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The sheet's name and the chart object's; setting it raises 7.
 Chart,Next,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"Raises 1004, as Excel does."
-Chart,PageSetup,"property, read-only",As PageSetup,,MISSING,,
+Chart,PageSetup,"property, read-only",As PageSetup,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 Chart,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,Paste,method,Paste([Type As Variant]),,MISSING,,
 Chart,Perspective,property,As Long,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
@@ -615,13 +615,14 @@ Chart,Previous,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_r
 Chart,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
 Chart,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant])",,MISSING,,
 Chart,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
-Chart,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant])",,MISSING,,
+Chart,Protect,method,"Protect([Password As Variant], [DrawingObjects As Variant], [Contents As Variant], [Scenarios As Variant], [UserInterfaceOnly As Variant])",,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 Chart,ProtectContents,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,ProtectData,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectData,property,As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,ProtectDrawingObjects,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,ProtectFormatting,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectFormatting,property,As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectGoalSeek,not in the type library,,,UNASSESSED,,
 Chart,ProtectionMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,ProtectSelection,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
+Chart,ProtectSelection,property,As Boolean,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Refresh,method,Refresh(),,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,Nothing to do: the model reads cells as it is asked.
 Chart,Resize,event,Resize(),,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"Raises 438, as Excel does on an embedded chart."
 Chart,RightAngleAxes,property,As Variant,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
@@ -647,7 +648,7 @@ Chart,ShowReportFilterFieldButtons,property,As Boolean,no setter,PARTIAL,tests/f
 Chart,ShowValueFieldButtons,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,SideWall,"property, read-only",As Walls,,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"TypeName, and Name raising 1004 on a 2-D chart."
 Chart,Tab,"property, read-only",As Tab,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,Unprotect,method,Unprotect([Password As Variant]),,MISSING,,
+Chart,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 Chart,Visible,property,As XlSheetVisibility,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Walls,"property, read-only",As Walls,,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"TypeName, and Name raising 1004 on a 2-D chart."
 ChartArea,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
@@ -673,19 +674,19 @@ ChartCategory,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
 ChartCategory,IsFiltered,property,As Boolean,,UNASSESSED,,
 ChartCategory,Name,"property, read-only",As String,,UNASSESSED,,
 ChartCategory,Parent,"property, read-only",As Object,,UNASSESSED,,
-ChartFormat,Adjustments,"property, read-only",As Adjustments,,MISSING,,
+ChartFormat,Adjustments,"property, read-only",As Adjustments,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 ChartFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,Read.
-ChartFormat,AutoShapeType,property,As MsoAutoShapeType,,MISSING,,
+ChartFormat,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 ChartFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,Read.
 ChartFormat,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"A series or element's fill, by its kind."
-ChartFormat,Glow,"property, read-only",As GlowFormat,,MISSING,,
+ChartFormat,Glow,"property, read-only",As GlowFormat,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 ChartFormat,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"A series or element's line, by its kind."
 ChartFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,The series or chart element.
-ChartFormat,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
-ChartFormat,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
-ChartFormat,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
-ChartFormat,TextFrame2,"property, read-only",As TextFrame2,,MISSING,,
-ChartFormat,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
+ChartFormat,PictureFormat,"property, read-only",As PictureFormat,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
+ChartFormat,Shadow,"property, read-only",As ShadowFormat,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
+ChartFormat,SoftEdge,"property, read-only",As SoftEdgeFormat,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
+ChartFormat,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
+ChartFormat,ThreeD,"property, read-only",As ThreeDFormat,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartGroup,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
 ChartGroup,BinsCountValue,property,As Long,,MISSING,,
@@ -1385,6 +1386,12 @@ FullSeriesCollection,Extend,not in the type library,,,UNASSESSED,,
 FullSeriesCollection,Item,method,Item(Index As Variant) As Series,,UNASSESSED,,
 FullSeriesCollection,NewSeries,not in the type library,,,UNASSESSED,,
 FullSeriesCollection,Parent,"property, read-only",As Object,,UNASSESSED,,
+GlowFormat,Application,"property, read-only",As Object,,MISSING,,
+GlowFormat,Color,"property, read-only",As ColorFormat,,UNASSESSED,,
+GlowFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+GlowFormat,Parent,not in the type library,,,UNASSESSED,,
+GlowFormat,Radius,property,As Single,no setter,UNASSESSED,,
+GlowFormat,Transparency,property,As Single,no setter,UNASSESSED,,
 Graphic,Application,"property, read-only",As Application,,MISSING,,
 Graphic,Brightness,property,As Single,,MISSING,,
 Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
@@ -2719,6 +2726,22 @@ SeriesLines,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_t
 SeriesLines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,The chart group.
 SeriesLines,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 SeriesLines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
+ShadowFormat,Application,"property, read-only",As Object,,MISSING,,
+ShadowFormat,Blur,property,As Single,no setter,UNASSESSED,,
+ShadowFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+ShadowFormat,ForeColor,property,As ColorFormat,,MISSING,,
+ShadowFormat,IncrementOffsetX,method,IncrementOffsetX(Increment As Single),,MISSING,,
+ShadowFormat,IncrementOffsetY,method,IncrementOffsetY(Increment As Single),,MISSING,,
+ShadowFormat,Obscured,property,As MsoTriState,,MISSING,,
+ShadowFormat,OffsetX,property,As Single,no setter,UNASSESSED,,
+ShadowFormat,OffsetY,property,As Single,no setter,UNASSESSED,,
+ShadowFormat,Parent,"property, read-only",As Object,,UNASSESSED,,
+ShadowFormat,RotateWithShape,property,As MsoTriState,,MISSING,,
+ShadowFormat,Size,property,As Single,,MISSING,,
+ShadowFormat,Style,property,As MsoShadowStyle,,MISSING,,
+ShadowFormat,Transparency,property,As Single,,MISSING,,
+ShadowFormat,Type,property,As MsoShadowType,no setter,UNASSESSED,,
+ShadowFormat,Visible,property,As MsoTriState,no setter,UNASSESSED,,
 Shape,Adjustments,"property, read-only",As Adjustments,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,Every AutoShape type measured; a loaded shape is refused.
 Shape,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"Written as cNvPr descr, on new and loaded shapes; empty removes it."
 Shape,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
@@ -2966,6 +2989,11 @@ SmartDocument,PickSolution,method,PickSolution([ConsiderAllSchemas As Boolean]),
 SmartDocument,RefreshPane,method,RefreshPane(),,MISSING,,
 SmartDocument,SolutionID,property,As String,,MISSING,,
 SmartDocument,SolutionURL,property,As String,,MISSING,,
+SoftEdgeFormat,Application,"property, read-only",As Object,,MISSING,,
+SoftEdgeFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+SoftEdgeFormat,Parent,not in the type library,,,UNASSESSED,,
+SoftEdgeFormat,Radius,property,As Single,no setter,UNASSESSED,,
+SoftEdgeFormat,Type,property,As MsoSoftEdgeType,no setter,UNASSESSED,,
 Sort,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Worksheet and table Sort expose their owning Application; native defaults and identity controls.
 Sort,Apply,method,Apply(),,PARTIAL,tests/fixtures/sort.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_array_edits.json; tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/; tests/fixtures/sort_colour/sort_colour.json,"Sorts the range by its fields in order, keeping them; a header only with xlYes. Several areas report themselves unsupported. On a filtered sheet the visible rows sort among themselves. Table Apply stages ordinary local rows, formulas and sort metadata; protected/UDF/event controls are native-measured. Filtered/rich table paths are refused before mutation. Worksheet metadata hydration streams unrelated data and bounds complete selected XML, including closing tags; UTF-8 declarations are required. Worksheet save preflight limits persisted fields to 64 as an engine metadata limit. With no range or no field it sorts nothing and raises no error, as Excel. The file keeps the rows sorted, under a header given xlYes."
 Sort,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Returns native Long 1480803660 for worksheet and table Sort.
@@ -3265,6 +3293,45 @@ ThemeFontScheme,MajorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fix
 ThemeFontScheme,MinorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Save,method,Save(FileName As String),,MISSING,,
+ThreeDFormat,Application,"property, read-only",As Object,,MISSING,,
+ThreeDFormat,BevelBottomDepth,property,As Single,,MISSING,,
+ThreeDFormat,BevelBottomInset,property,As Single,,MISSING,,
+ThreeDFormat,BevelBottomType,property,As MsoBevelType,,MISSING,,
+ThreeDFormat,BevelTopDepth,property,As Single,,MISSING,,
+ThreeDFormat,BevelTopInset,property,As Single,,MISSING,,
+ThreeDFormat,BevelTopType,property,As MsoBevelType,no setter,UNASSESSED,,
+ThreeDFormat,ContourColor,"property, read-only",As ColorFormat,,MISSING,,
+ThreeDFormat,ContourWidth,property,As Single,,MISSING,,
+ThreeDFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+ThreeDFormat,Depth,property,As Single,,MISSING,,
+ThreeDFormat,ExtrusionColor,"property, read-only",As ColorFormat,,MISSING,,
+ThreeDFormat,ExtrusionColorType,property,As MsoExtrusionColorType,,MISSING,,
+ThreeDFormat,FieldOfView,property,As Single,,MISSING,,
+ThreeDFormat,IncrementRotationHorizontal,method,IncrementRotationHorizontal(Increment As Single),,MISSING,,
+ThreeDFormat,IncrementRotationVertical,method,IncrementRotationVertical(Increment As Single),,MISSING,,
+ThreeDFormat,IncrementRotationX,method,IncrementRotationX(Increment As Single),,MISSING,,
+ThreeDFormat,IncrementRotationY,method,IncrementRotationY(Increment As Single),,MISSING,,
+ThreeDFormat,IncrementRotationZ,method,IncrementRotationZ(Increment As Single),,MISSING,,
+ThreeDFormat,LightAngle,property,As Single,,MISSING,,
+ThreeDFormat,Parent,"property, read-only",As Object,,UNASSESSED,,
+ThreeDFormat,Perspective,property,As MsoTriState,,MISSING,,
+ThreeDFormat,PresetCamera,"property, read-only",As MsoPresetCamera,,MISSING,,
+ThreeDFormat,PresetExtrusionDirection,"property, read-only",As MsoPresetExtrusionDirection,,MISSING,,
+ThreeDFormat,PresetLighting,property,As MsoLightRigType,,MISSING,,
+ThreeDFormat,PresetLightingDirection,property,As MsoPresetLightingDirection,,MISSING,,
+ThreeDFormat,PresetLightingSoftness,property,As MsoPresetLightingSoftness,,MISSING,,
+ThreeDFormat,PresetMaterial,property,As MsoPresetMaterial,,MISSING,,
+ThreeDFormat,PresetThreeDFormat,"property, read-only",As MsoPresetThreeDFormat,,MISSING,,
+ThreeDFormat,ProjectText,property,As MsoTriState,,MISSING,,
+ThreeDFormat,ResetRotation,method,ResetRotation(),,MISSING,,
+ThreeDFormat,RotationX,property,As Single,,MISSING,,
+ThreeDFormat,RotationY,property,As Single,,MISSING,,
+ThreeDFormat,RotationZ,property,As Single,,MISSING,,
+ThreeDFormat,SetExtrusionDirection,method,SetExtrusionDirection(PresetExtrusionDirection As MsoPresetExtrusionDirection),,MISSING,,
+ThreeDFormat,SetPresetCamera,method,SetPresetCamera(PresetCamera As MsoPresetCamera),,MISSING,,
+ThreeDFormat,SetThreeDFormat,method,SetThreeDFormat(PresetThreeDFormat As MsoPresetThreeDFormat),,MISSING,,
+ThreeDFormat,Visible,property,As MsoTriState,no setter,UNASSESSED,,
+ThreeDFormat,Z,property,As Single,,MISSING,,
 TickLabels,Alignment,property,As Long,no setter,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"What a new chart reads; refused on imported, scatter and deleted axes. The value axis raises -2147467259. No setter."
 TickLabels,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 TickLabels,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.

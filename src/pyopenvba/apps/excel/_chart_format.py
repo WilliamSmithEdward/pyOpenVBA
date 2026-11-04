@@ -13,7 +13,7 @@ A series the model made has no look of its own until one is set, and reads what 
 Combinations no case measured, a series past the sixth accent, and an imported chart report themselves unsupported."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from pyopenvba._xml import escape
 from pyopenvba.apps.excel._chart_styled import is_styled, line_read, point_line_weight, series_line_weight
@@ -67,6 +67,41 @@ def solid_fill(rgb: str, alpha: int | None = None) -> str:
     return _solid(rgb, alpha)
 
 
+def effect_list(look: FillLine) -> str:
+    """The effect set on a chart element, as Excel spells it (tests/fixtures/chart_protection.json)."""
+    if look.chart_effect is None:
+        return ""
+    name, value = look.chart_effect
+    black = '<a:scrgbClr r="0" g="0" b="0"/>'
+    if name == "Glow.Radius":
+        inside = f'<a:glow rad="{round(float(str(value)) * 12700)}">{black}</a:glow>'
+    elif name == "Glow.RGB":
+        inside = f'<a:glow><a:srgbClr val="{value}"/></a:glow>'
+    elif name == "Shadow.Visible":
+        inside = f'<a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0">{black}</a:outerShdw>'
+    elif name == "Shadow.Type":
+        inside = ('<a:outerShdw blurRad="50800" dist="38100" dir="2700000" algn="tl">'
+                  '<a:prstClr val="black"><a:alpha val="40000"/></a:prstClr></a:outerShdw>')
+    else:
+        inside = f'<a:softEdge rad="{round(float(str(value)) * 12700)}"/>'
+    return f"<a:effectLst>{inside}</a:effectLst>"
+
+
+def with_effect(properties: str, look: FillLine | None) -> str:
+    """A spPr with the effect set on the element in its place, before any extensions."""
+    effect = "" if look is None else effect_list(look)
+    if not effect:
+        return properties
+    if not properties:
+        return f"<c:spPr>{effect}</c:spPr>"
+    if "<a:effectLst" in properties:
+        raise VBAUnsupportedError("An effect on a chart element whose line or fill is hidden is not implemented")
+    place = properties.find("<a:extLst>")
+    if place < 0:
+        place = properties.rindex("</c:spPr>")
+    return properties[:place] + effect + properties[place:]
+
+
 def plain_line(look: FillLine) -> str:
     """A line as Excel writes what was set of it."""
     if look.line_rgb is None and look.line_width is None and look.line_dash is None and look.line_compound is None:
@@ -92,9 +127,9 @@ def markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, ...]) ->
         return ""
     if kind in ("lineMarkers", "scatter"):
         # Only Border reaches the line of these.
-        return look_markup(look, "line", accent_colour(theme, place)) if plain_line(look) else ""
+        return look_markup(look, "line", accent_colour(theme, place)) if plain_line(look) else with_effect("", look)
     if kind not in (*FILLED, "line"):
-        return ""
+        return with_effect("", look)
     return look_markup(look, kind, accent_colour(theme, place))
 
 
@@ -126,7 +161,7 @@ def look_markup(look: FillLine, kind: str, accent: str) -> str:
                            f"<a14:hiddenLine {_A14}><a:noFill/></a14:hiddenLine></a:ext>")
     if extensions:
         body += f"<a:extLst>{extensions}</a:extLst>"
-    return f"<c:spPr>{body}</c:spPr>" if body else ""
+    return with_effect(f"<c:spPr>{body}</c:spPr>" if body else "", look)
 
 
 class _Part(Created):
@@ -485,13 +520,260 @@ class SeriesColor(Created):
         return VBAInt(-2 if self.colourless() else 1, "Long")
 
 
-class ChartFormat(Created):
+#: The elements whose Format has a 3-D look and a picture, and those with a text frame, by their type
+#: (tests/fixtures/chart_protection.json).
+_SOLID = ("Series", "Point", "ChartArea", "PlotArea", "Legend", "ChartTitle", "AxisTitle")
+_TEXTUAL = ("ChartArea", "Legend", "ChartTitle", "AxisTitle")
+_NO_MEMBER = (-2147467259, "Automation error\nUnspecified error")
+
+
+class _EffectRead(Created):
+    """An effect of a chart element as it reads with nothing set. Setting one is not built, so its setters report so."""
+
+    vba_type_name = ""
+
+    def __init__(self, owner: object) -> None:
+        self.owner = owner
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    def vba_set(self, name: str, value: object, *args: Any, **named: Any) -> None:
+        del value, args, named
+        raise unmeasured(f"Setting {self.vba_type_name}.{name} on a chart element")
+
+    def set_effect(self) -> tuple[str, object] | None:
+        owner = cast(EffectMembers, self.owner)
+        return owner.effect_look().chart_effect
+
+    def read(self, wanted: tuple[str, ...]) -> object:
+        """The value of the effect set if it is one of these. Under another effect nothing was measured."""
+        effect = self.set_effect()
+        if effect is None:
+            return None
+        if effect[0] not in wanted:
+            raise unmeasured(f"Reading {self.vba_type_name} with {effect[0]} set on a chart element")
+        return effect[1]
+
+    def write(self, name: str, value: object) -> None:
+        effect = self.set_effect()
+        if effect is not None and effect[0] != name:
+            raise unmeasured(f"{name} with {effect[0]} set on a chart element")
+        cast(EffectMembers, self.owner).effect_change().chart_effect = (name, value)
+
+
+class EffectColorRead(_EffectRead):
+    vba_type_name = "ColorFormat"
+
+    @member
+    def RGB(self) -> object:
+        found = cast(_EffectRead, self.owner).read(("Glow.RGB",))
+        return VBAInt(-2147483648 if found is None else bgr(str(found)), "Long")
+
+    def vba_set(self, name: str, value: object, *args: Any, **named: Any) -> None:
+        if name.lower() != "rgb":
+            raise unmeasured(f"Setting ColorFormat.{name} of a chart element's glow")
+        del args, named
+        cast(_EffectRead, self.owner).write("Glow.RGB", _rgb(int(to_integer(value, "Long")) & 0xFFFFFF))
+
+    def set_effect(self) -> tuple[str, object] | None:
+        return cast(_EffectRead, self.owner).set_effect()
+
+
+class GlowRead(_EffectRead):
+    vba_type_name = "GlowFormat"
+
+    @member
+    def Radius(self) -> object:
+        found = self.read(("Glow.Radius",))
+        return VBASingle(0.0 if found is None else float(str(found)))
+
+    @member
+    def Color(self) -> object:
+        return EffectColorRead(self)
+
+    @member
+    def Transparency(self) -> object:
+        self.read(())
+        return VBASingle(_MIXED)
+
+    def vba_set(self, name: str, value: object, *args: Any, **named: Any) -> None:
+        del args, named
+        if name.lower() != "radius":
+            raise unmeasured(f"Setting GlowFormat.{name} on a chart element")
+        self.write("Glow.Radius", float(to_number(value)))
+
+
+class ShadowRead(_EffectRead):
+    vba_type_name = "ShadowFormat"
+
+    @member
+    def Visible(self) -> object:
+        effect = self.read(("Shadow.Visible", "Shadow.Type"))
+        return VBAInt(0 if effect is None else -1, "Long")
+
+    @member
+    def Type(self) -> object:
+        effect = self.set_effect()
+        if effect is not None and effect[0] == "Shadow.Type":
+            return VBAInt(cast(int, effect[1]), "Long")
+        self.read(("Shadow.Visible",))
+        return VBAInt(-2, "Long")
+
+    @member
+    def Blur(self) -> object:
+        self.read(("Shadow.Visible",))
+        return VBASingle(5.0)
+
+    @member
+    def OffsetX(self) -> object:
+        self.read(())
+        return VBASingle(2.079952)
+
+    @member
+    def OffsetY(self) -> object:
+        self.read(())
+        return VBASingle(2.079952)
+
+    def vba_set(self, name: str, value: object, *args: Any, **named: Any) -> None:
+        del args, named
+        wanted = int(to_integer(value, "Long"))
+        if name.lower() == "visible" and wanted == -1:
+            self.write("Shadow.Visible", True)
+        elif name.lower() == "type" and wanted == 21:
+            self.write("Shadow.Type", wanted)
+        else:
+            raise unmeasured(f"Setting ShadowFormat.{name} to {wanted} on a chart element")
+
+
+class SoftEdgeRead(_EffectRead):
+    vba_type_name = "SoftEdgeFormat"
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(0 if self.read(("SoftEdge.Type",)) is None else 1, "Long")
+
+    @member
+    def Radius(self) -> object:
+        found = self.read(("SoftEdge.Type", "SoftEdge.Radius"))
+        return VBASingle(0.0 if found is None else float(str(found)))
+
+    def vba_set(self, name: str, value: object, *args: Any, **named: Any) -> None:
+        del args, named
+        if name.lower() == "type" and int(to_integer(value, "Long")) == 1:
+            self.write("SoftEdge.Type", 1.0)
+        elif name.lower() == "radius":
+            self.write("SoftEdge.Radius", float(to_number(value)))
+        else:
+            raise unmeasured(f"Setting SoftEdgeFormat.{name} on a chart element")
+
+
+class ThreeDRead(_EffectRead):
+    vba_type_name = "ThreeDFormat"
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
+    def BevelTopType(self) -> object:
+        return VBAInt(1, "Long")
+
+
+class PictureRead(_EffectRead):
+    vba_type_name = "PictureFormat"
+
+
+class TextFrameRead(_EffectRead):
+    vba_type_name = "TextFrame2"
+
+    def __init__(self, owner: object, titled: bool) -> None:
+        super().__init__(owner)
+        self.titled = titled
+
+    @member
+    def HasText(self) -> object:
+        return VBAInt(-1 if self.titled else 0, "Long")
+
+
+class EffectMembers(Created):
+    """What every chart element's Format offers beyond its fill and line."""
+
+    vba_type_name = ""
+
+    def effect_look(self) -> FillLine:
+        """The element's look as it stands, for its effect."""
+        raise unmeasured("The effects of this chart element")
+
+    def effect_change(self) -> FillLine:
+        raise unmeasured("The effects of this chart element")
+
+    def _element_type(self) -> str:
+        element = self.vba_get("Parent", [])
+        return str(getattr(element, "vba_type_name", ""))
+
+    def _solid(self) -> None:
+        if self._element_type() not in _SOLID:
+            raise error(*_NO_MEMBER)
+
+    @member
+    def Glow(self) -> object:
+        return GlowRead(self)
+
+    @member
+    def Shadow(self) -> object:
+        return ShadowRead(self)
+
+    @member
+    def SoftEdge(self) -> object:
+        return SoftEdgeRead(self)
+
+    @member
+    def ThreeD(self) -> object:
+        self._solid()
+        return ThreeDRead(self)
+
+    @member
+    def PictureFormat(self) -> object:
+        if self._element_type() not in (*_SOLID, "TickLabels"):
+            raise error(*_NO_MEMBER)
+        return PictureRead(self)
+
+    @member
+    def TextFrame2(self) -> object:
+        kind = self._element_type()
+        if kind not in _TEXTUAL:
+            raise error(*_NO_MEMBER)
+        return TextFrameRead(self, kind in ("ChartTitle", "AxisTitle"))
+
+    @member
+    def Adjustments(self) -> object:
+        raise error(*_NO_MEMBER)
+
+    @member
+    def AutoShapeType(self) -> object:
+        raise error(*_NO_MEMBER)
+
+    @setter("AutoShapeType")
+    def _auto_shape_type(self, value: object) -> None:
+        del value
+        raise error(*_NO_MEMBER)
+
+
+class ChartFormat(EffectMembers, Created):
     """A series' look; ElementFormat is the same type for the chart's other elements."""
 
     vba_type_name = "ChartFormat"
 
     def __init__(self, series: Series) -> None:
         self.series = series
+
+    def effect_look(self) -> FillLine:
+        return SeriesFill(self).look()
+
+    def effect_change(self) -> FillLine:
+        return SeriesFill(self).change()
 
     @member
     def Parent(self) -> object:
@@ -561,16 +843,22 @@ def element_markup(key: str, look: FillLine | None) -> str:
                        f"<a14:hiddenLine {inside}</a14:hiddenLine></a:ext>")
     body = fill + line + ("<a:effectLst/>" if look.effects else "") + (
         f"<a:extLst>{extensions}</a:extLst>" if extensions else "")
-    return f"<c:spPr>{body}</c:spPr>" if body else ""
+    return with_effect(f"<c:spPr>{body}</c:spPr>" if body else "", look)
 
 
-class ElementFormat(Created):
+class ElementFormat(EffectMembers, Created):
     """The Format of a chart's element, other than a series."""
 
     vba_type_name = "ChartFormat"
 
     def __init__(self, element: object, chart: Chart, key: str) -> None:
         self.element, self.chart, self.key = element, chart, key
+
+    def effect_look(self) -> FillLine:
+        return ElementFill(self).look()
+
+    def effect_change(self) -> FillLine:
+        return ElementFill(self).written()
 
     @member
     def Parent(self) -> object:
@@ -818,6 +1106,14 @@ class EntryFormat(ElementFormat):
     @member
     def Line(self) -> object:
         raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @member
+    def Glow(self) -> object:
+        raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @member
+    def TextFrame2(self) -> object:
+        return TextFrameRead(self, False)
 
 
 class ElementColor(Created):

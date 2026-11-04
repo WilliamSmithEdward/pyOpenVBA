@@ -19,9 +19,10 @@ from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Sh
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.apps.excel._chart_borders import INVALID_CALL, NOT_A_PROPERTY, UNSPECIFIED, ElementProperties, PictureMembers
+from pyopenvba._xml import escape_text
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAErrorValue, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 from pyopenvba.shapes._values import FillLine, Shape, emu, points
 
 if TYPE_CHECKING:
@@ -224,6 +225,9 @@ class ChartState:
     #: Those whose cells are all hidden, who leave SeriesCollection and FullSeriesCollection until they are shown
     #: again and stay in the file (tests/fixtures/chart_hidden_cells.json); kept in full_series meanwhile.
     out_of_sight: list[SeriesState] = field(default_factory=lambda: [])
+    #: ProtectData, ProtectFormatting and ProtectSelection once set, and what PageSetup was told.
+    protection: dict[str, bool] = field(default_factory=lambda: {})
+    page: dict[str, object] = field(default_factory=lambda: {})
     data_table: bool = False
     #: A data table's HasBorderHorizontal, HasBorderVertical and HasBorderOutline.
     data_table_borders: tuple[bool, bool, bool] = (True, True, True)
@@ -1006,6 +1010,328 @@ def select_element(chart: Chart, element: object, plotted: bool) -> object:
     return True
 
 
+#: What a chart's PageSetup answers until told otherwise, in points where it is a margin; and each margin's name in the file.
+_PAGE_DEFAULTS: dict[str, object] = {'Orientation': 1, 'Zoom': 100, 'PaperSize': 1, 'LeftMargin': 50.4, 'RightMargin': 50.4, 'TopMargin': 54.0,
+                                     'BottomMargin': 54.0, 'HeaderMargin': 21.6, 'FooterMargin': 21.6, 'FirstPageNumber': -4105,
+                                     'BlackAndWhite': False, 'Draft': False}
+_PAGE_MARGINS = {'BottomMargin': 'b', 'LeftMargin': 'l', 'RightMargin': 'r', 'TopMargin': 't', 'HeaderMargin': 'header',
+                 'FooterMargin': 'footer'}
+_HEADERS = {'LeftHeader': ('oddHeader', '&L'), 'CenterHeader': ('oddHeader', '&C'), 'RightHeader': ('oddHeader', '&R'),
+            'LeftFooter': ('oddFooter', '&L'), 'CenterFooter': ('oddFooter', '&C'), 'RightFooter': ('oddFooter', '&R')}
+
+
+def page_markup(state: ChartState) -> str:
+    """The chart's printSettings: an orientation once anything of the page was read, what was set, and otherwise the
+    bare elements every chart writes (tests/fixtures/chart_protection.json)."""
+    page = state.page
+    margins = ' '.join(f'{name}="{format(float(cast(float, page[key])) / 72, ".17g") if key in page else default}"'
+                       for key, name, default in (('BottomMargin', 'b', '0.75'), ('LeftMargin', 'l', '0.7'), ('RightMargin', 'r', '0.7'),
+                                                  ('TopMargin', 't', '0.75'), ('HeaderMargin', 'header', '0.3'), ('FooterMargin', 'footer', '0.3')))
+    parts = {tag: ''.join(escape_text(code + to_text(page[key])) for key, (where, code) in _HEADERS.items() if where == tag and key in page)
+             for tag in ('oddHeader', 'oddFooter')}
+    header = ''.join(f'<c:{tag}>{text}</c:{tag}>' for tag, text in parts.items() if text)
+    if not page.get('read'):
+        setup = '<c:pageSetup/>'
+    else:
+        attributes = (f' paperSize="{page["PaperSize"]}"' if 'PaperSize' in page else '') + (
+            f' firstPageNumber="{page["FirstPageNumber"]}"' if 'FirstPageNumber' in page else '') + (
+            f' orientation="{"landscape" if page.get("Orientation") == 2 else "portrait"}"') + (
+            ' blackAndWhite="1"' if page.get('BlackAndWhite') else '') + (' draft="1"' if page.get('Draft') else '') + (
+            ' useFirstPageNumber="1"' if 'FirstPageNumber' in page else '')
+        setup = f'<c:pageSetup{attributes}/>'
+    return (f'<c:printSettings>{f"<c:headerFooter>{header}</c:headerFooter>" if header else "<c:headerFooter/>"}'
+            f'<c:pageMargins {margins}/>{setup}</c:printSettings>')
+
+
+class ChartPageSetup(Created):
+    """The PageSetup of a chart on a sheet, its own and not the sheet's. Reading or setting nearly any of it writes the
+    orientation into the file (tests/fixtures/chart_protection.json)."""
+
+    vba_type_name = 'PageSetup'
+
+    def __init__(self, chart: Chart) -> None:
+        self.chart = chart
+
+    def _read(self, name: str) -> object:
+        self.chart.admit_read()
+        self.chart.state.page['read'] = True
+        return self.chart.state.page.get(name, _PAGE_DEFAULTS.get(name, ''))
+
+    def _write(self, name: str, value: object) -> None:
+        self.chart.admit_change()
+        self.chart.changed()
+        self.chart.state.page['read'] = True
+        self.chart.state.page[name] = value
+
+    def _whole(self, name: str, value: object) -> None:
+        self._write(name, int(to_integer(value, 'Long')))
+
+    def _switch(self, name: str, value: object) -> None:
+        self._write(name, to_bool(value))
+
+    def _points(self, name: str, value: object) -> None:
+        wanted = float(to_number(value))
+        if wanted < 0:
+            raise VBAUnsupportedError('A negative margin on a chart is not implemented')
+        self._write(name, wanted)
+
+    def _headed(self, name: str, value: object) -> None:
+        where = _HEADERS[name][0]
+        if any(other != name and tag == where and other in self.chart.state.page for other, (tag, _) in _HEADERS.items()):
+            raise VBAUnsupportedError('A second part of a chart\'s header or footer is not implemented')
+        self._write(name, to_text(value))
+
+    def _no_setting(self) -> object:
+        self.chart.admit_read()
+        self.chart.state.page['read'] = True
+        raise error(1004, 'Unable to get the property of the PageSetup class')
+
+    @member
+    def Parent(self) -> object:
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def Orientation(self) -> object:
+        return VBAInt(cast(int, self._read('Orientation')), 'Long')
+
+    @setter('Orientation')
+    def _orientation(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        if wanted not in (1, 2):
+            raise VBAUnsupportedError('This chart orientation is not implemented')
+        self._write('Orientation', wanted)
+
+    @member
+    def ChartSize(self) -> object:
+        self._read('ChartSize')
+        return VBAInt(1, 'Long')
+
+    @setter('ChartSize')
+    def _chart_size(self, value: object) -> None:
+        # It takes any size and goes on answering the same.
+        to_integer(value, 'Long')
+        self.chart.admit_change()
+        self.chart.changed()
+        self.chart.state.page['read'] = True
+
+    @member
+    def Zoom(self) -> object:
+        return VBAInt(cast(int, self._read('Zoom')), 'Long')
+
+    @setter('Zoom')
+    def _zoom(self, value: object) -> None:
+        if value is False:
+            self._no_setting()
+        wanted = int(to_integer(value, 'Long'))
+        if not 10 <= wanted <= 400:
+            raise VBAUnsupportedError('This chart zoom is not implemented')
+        self._write('Zoom', wanted)
+
+    @member
+    def FitToPagesWide(self) -> object:
+        return self._no_setting()
+
+    @setter('FitToPagesWide')
+    def _fit_to_pages_wide(self, value: object) -> None:
+        del value
+        self._no_setting()
+
+    @member
+    def FitToPagesTall(self) -> object:
+        return self._no_setting()
+
+    @setter('FitToPagesTall')
+    def _fit_to_pages_tall(self, value: object) -> None:
+        del value
+        self._no_setting()
+
+    @member
+    def PaperSize(self) -> object:
+        return VBAInt(cast(int, self._read('PaperSize')), 'Long')
+
+    @setter('PaperSize')
+    def _paper_size(self, value: object) -> None:
+        self._whole('PaperSize', value)
+
+    @member
+    def LeftMargin(self) -> object:
+        return self._read('LeftMargin')
+
+    @setter('LeftMargin')
+    def _left_margin(self, value: object) -> None:
+        self._points('LeftMargin', value)
+
+    @member
+    def RightMargin(self) -> object:
+        return self._read('RightMargin')
+
+    @setter('RightMargin')
+    def _right_margin(self, value: object) -> None:
+        self._points('RightMargin', value)
+
+    @member
+    def TopMargin(self) -> object:
+        return self._read('TopMargin')
+
+    @setter('TopMargin')
+    def _top_margin(self, value: object) -> None:
+        self._points('TopMargin', value)
+
+    @member
+    def BottomMargin(self) -> object:
+        return self._read('BottomMargin')
+
+    @setter('BottomMargin')
+    def _bottom_margin(self, value: object) -> None:
+        self._points('BottomMargin', value)
+
+    @member
+    def HeaderMargin(self) -> object:
+        return self._read('HeaderMargin')
+
+    @setter('HeaderMargin')
+    def _header_margin(self, value: object) -> None:
+        self._points('HeaderMargin', value)
+
+    @member
+    def FooterMargin(self) -> object:
+        return self._read('FooterMargin')
+
+    @setter('FooterMargin')
+    def _footer_margin(self, value: object) -> None:
+        self._points('FooterMargin', value)
+
+    @member
+    def CenterHorizontally(self) -> object:
+        self._read('CenterHorizontally')
+        return False
+
+    @setter('CenterHorizontally')
+    def _center_horizontally(self, value: object) -> None:
+        # A chart's page takes it and goes on answering False.
+        to_bool(value)
+        self.chart.admit_change()
+        self.chart.changed()
+        self.chart.state.page['read'] = True
+
+    @member
+    def CenterVertically(self) -> object:
+        self._read('CenterVertically')
+        return False
+
+    @member
+    def LeftHeader(self) -> object:
+        return self._read('LeftHeader')
+
+    @setter('LeftHeader')
+    def _left_header(self, value: object) -> None:
+        self._headed('LeftHeader', value)
+
+    @member
+    def CenterHeader(self) -> object:
+        return self._read('CenterHeader')
+
+    @setter('CenterHeader')
+    def _center_header(self, value: object) -> None:
+        self._headed('CenterHeader', value)
+
+    @member
+    def RightHeader(self) -> object:
+        return self._read('RightHeader')
+
+    @setter('RightHeader')
+    def _right_header(self, value: object) -> None:
+        self._headed('RightHeader', value)
+
+    @member
+    def LeftFooter(self) -> object:
+        return self._read('LeftFooter')
+
+    @setter('LeftFooter')
+    def _left_footer(self, value: object) -> None:
+        self._headed('LeftFooter', value)
+
+    @member
+    def CenterFooter(self) -> object:
+        return self._read('CenterFooter')
+
+    @setter('CenterFooter')
+    def _center_footer(self, value: object) -> None:
+        self._headed('CenterFooter', value)
+
+    @member
+    def RightFooter(self) -> object:
+        return self._read('RightFooter')
+
+    @setter('RightFooter')
+    def _right_footer(self, value: object) -> None:
+        self._headed('RightFooter', value)
+
+    @member
+    def FirstPageNumber(self) -> object:
+        return VBAInt(cast(int, self._read('FirstPageNumber')), 'Long')
+
+    @setter('FirstPageNumber')
+    def _first_page_number(self, value: object) -> None:
+        self._whole('FirstPageNumber', value)
+
+    @member
+    def BlackAndWhite(self) -> object:
+        return self._read('BlackAndWhite')
+
+    @setter('BlackAndWhite')
+    def _black_and_white(self, value: object) -> None:
+        self._switch('BlackAndWhite', value)
+
+    @member
+    def Draft(self) -> object:
+        return self._read('Draft')
+
+    @setter('Draft')
+    def _draft(self, value: object) -> None:
+        self._switch('Draft', value)
+
+    @member
+    def PrintArea(self) -> object:
+        self.chart.admit_read()
+        raise error(1004, 'Unable to get the PrintArea property of the PageSetup class')
+
+    @setter('PrintArea')
+    def _print_area(self, value: object) -> None:
+        del value
+        self.chart.admit_read()
+        raise error(1004, 'Unable to set the PrintArea property of the PageSetup class')
+
+    @member
+    def PrintTitleRows(self) -> object:
+        self._read('PrintTitleRows')
+        return VBAErrorValue(2042)
+
+    @setter('PrintTitleRows')
+    def _print_title_rows(self, value: object) -> None:
+        del value
+        self._no_setting()
+
+    @member
+    def PrintGridlines(self) -> object:
+        self._read('PrintGridlines')
+        return VBAErrorValue(2042)
+
+    @member
+    def Order(self) -> object:
+        self._read('Order')
+        return VBAErrorValue(2042)
+
+    @member
+    def PrintNotes(self) -> object:
+        self._read('PrintNotes')
+        return VBAErrorValue(2042)
+
+
 class ChartDataTable(Created):
     """The table of values under a chart (tests/fixtures/chart_members_more.json)."""
 
@@ -1613,17 +1939,68 @@ class Chart(ElementProperties, Created):
     @member
     def ProtectData(self) -> object:
         self.admit_read()
-        return False
+        return self.state.protection.get('data', False)
+
+    @setter('ProtectData')
+    def _protectdata(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.admit_change()
+        self.changed()
+        self.state.protection['data'] = wanted
 
     @member
     def ProtectFormatting(self) -> object:
         self.admit_read()
-        return False
+        return self.state.protection.get('formatting', False)
+
+    @setter('ProtectFormatting')
+    def _protectformatting(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.admit_change()
+        self.changed()
+        self.state.protection['formatting'] = wanted
 
     @member
     def ProtectSelection(self) -> object:
         self.admit_read()
+        return self.state.protection.get('selection', False)
+
+    @setter('ProtectSelection')
+    def _protectselection(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.admit_change()
+        self.changed()
+        self.state.protection['selection'] = wanted
+
+    @member
+    def ProtectGoalSeek(self) -> object:
+        """Takes True and goes on answering False (tests/fixtures/chart_protection.json)."""
+        self.admit_read()
         return False
+
+    @setter('ProtectGoalSeek')
+    def _protect_goal_seek(self, value: object) -> None:
+        to_bool(value)
+        self.admit_read()
+
+    @method
+    def Protect(self, Password: object = MISSING, DrawingObjects: object = MISSING, Contents: object = MISSING,  # noqa: N803 - native named arguments
+                Scenarios: object = MISSING, UserInterfaceOnly: object = MISSING) -> object:
+        """Refused on a chart on a sheet (tests/fixtures/chart_protection.json)."""
+        del Password, DrawingObjects, Contents, Scenarios, UserInterfaceOnly
+        self.admit_read()
+        raise error(1004, 'Protect method of Chart class failed')
+
+    @method
+    def Unprotect(self, Password: object = MISSING) -> object:  # noqa: N803 - native named argument
+        del Password
+        self.admit_read()
+        raise error(1004, 'Unprotect method of Chart class failed')
+
+    @member
+    def PageSetup(self) -> object:
+        self.admit_read()
+        return ChartPageSetup(self)
 
     @member
     def PivotLayout(self) -> object:

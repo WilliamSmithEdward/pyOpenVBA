@@ -833,7 +833,7 @@ class AxisTitle(ElementProperties, TitleMembers):
         """Excel's name by axis, whatever the text says: the value axis 1, the category axis 2, the secondary value
         axis 3 (tests/fixtures/unassessed_charts.json). Setting it is 450."""
         self.read()
-        number = {2: 1, 1: 2}.get(self.axis.entry.kind)
+        number = {(2, 1): 1, (1, 1): 2, (2, 2): 3}.get((self.axis.entry.kind, self.axis.entry.group))
         if number is None:
             raise VBAUnsupportedError("The name of this axis' title is not implemented")
         return f"Text Axis {number}"

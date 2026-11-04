@@ -71,8 +71,10 @@ def COUNTA(context: Context, *args: Value) -> Value:
 
 
 @function("COUNTBLANK", REF)
-def COUNTBLANK(context: Context, range_: Reference) -> Value:
+def COUNTBLANK(context: Context, range_: object) -> Value:
     """Measured: only a range of one area will do."""
+    if not isinstance(range_, Reference):
+        return VALUE
     area = range_.area
     if area is None:
         return VALUE

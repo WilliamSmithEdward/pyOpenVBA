@@ -214,6 +214,8 @@ def _year_frac_item(values: list[Any], context: Context) -> Scalar | None:
     if isinstance(kind, (int, float, VBAInt)) and not 0 <= math.trunc(float(kind)) <= 4:
         return "#NUM!"
     for date in (start, stop):
+        if isinstance(date, Range) and date.single:
+            date = date.vba_value()
         if isinstance(date, (VBAErrorValue, CellError)):
             return _given_item(date) if isinstance(date, VBAErrorValue) else date
         if date is NULL:
@@ -243,7 +245,7 @@ def _year_frac_lifted(values: list[object], entry: Any, context: Context, books:
     for row in range(height):
         line: list[Scalar] = []
         for column in range(width):
-            items = [arrays[place].at(row, column) if place in arrays else value for place, value in enumerate(values)]
+            items: list[Any] = [arrays[place].at(row, column) if place in arrays else value for place, value in enumerate(values)]
             failed = _year_frac_item(items, context)
             if failed is not None:
                 line.append(CellError(failed) if isinstance(failed, str) else failed)

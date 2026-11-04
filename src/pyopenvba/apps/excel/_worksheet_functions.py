@@ -81,7 +81,7 @@ def engine_name(name: str) -> str | None:
     return upper if upper in registry.FUNCTIONS else None
 
 
-def call(application: Application, name: str, args: Any, named: Any, *, raising: bool) -> object:
+def call(application: Application, name: str, args: Any, named: Any, *, raising: bool, late: bool = False) -> object:
     """``name`` called with VBA ``args``: through WorksheetFunction when ``raising``, else through Application.
 
     The arguments are handed to the engine as they are, a Range as its cells and Empty as an argument left out,
@@ -118,7 +118,7 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
             and name.lower() not in _ALWAYS_ARRAY):
         # Given single values, a function whose answer is one item hands back the item: Transpose(5) is 5.
         found = found.rows[0][0]
-    return _returned(context, found, name, raising=raising)
+    return _returned(context, found, name, raising=raising, books_of=application, late=late)
 
 
 def _laid_out(args: list[object], named: dict[str, object]) -> list[object]:
@@ -189,6 +189,8 @@ class _OpenBooks(EngineBook):
     def __init__(self, calculator: Calculator) -> None:
         super().__init__(calculator)
         self._others: dict[str, tuple[EngineBook, str]] = {}
+        #: The sheet behind each key, for an answer that is a range.
+        self.other_sheets: dict[str, Any] = {}
 
     def key(self, sheet: Worksheet) -> str:
         """The name the engine reads a sheet by: its own in the active workbook, a key in another."""
@@ -196,6 +198,7 @@ class _OpenBooks(EngineBook):
             return sheet.name
         key = f"\0{id(sheet.book)}\0{sheet.name}"
         self._others[key] = (sheet.book.calculator.engine_book, sheet.name)
+        self.other_sheets[key] = sheet
         return key
 
     def _routed(self, sheet: str) -> tuple[EngineBook, str]:
@@ -245,10 +248,13 @@ class _OpenBooks(EngineBook):
         return None if found is None else dataclasses.replace(found, sheet=sheet)
 
 
-def _returned(context: Context, found: Value, name: str, *, raising: bool) -> object:
+def _returned(context: Context, found: Value, name: str, *, raising: bool, books_of: Application, late: bool = False) -> object:
     """The engine's answer as VBA reads it: an error raised by WorksheetFunction and handed back by Application,
     part of a range as Range.Value reads it, and an array counted from 1."""
     whole = False
+    if raising and isinstance(found, Reference) and found.area is not None and name.lower() in ("index", "choose"):
+        # WorksheetFunction.Index and Choose answer the range itself: f.Index(r, 0, 1).Address (tests/fixtures/excel_everyday_15.json).
+        return _range_of(books_of, found, getattr(context.book, 'other_sheets', {}))
     if isinstance(found, Reference):
         if found.area is None:
             found = CellError("#VALUE!")
@@ -259,11 +265,32 @@ def _returned(context: Context, found: Value, name: str, *, raising: bool) -> ob
             found, whole = context.array_of(found), True
     if isinstance(found, CellError) and raising:
         raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
-    if isinstance(found, Array) and raising and name.lower() not in _VARIANT:
+    # Called through an Object nothing holds it to its signature: Match(Array(1, 2), r, 0) is an array and Bin2Dec a number, where
+    # typed they are error 13 and text (tests/fixtures/excel_everyday_15.json, tests/fixtures/worksheet_functions_more.json).
+    if isinstance(found, Array) and raising and not late and name.lower() not in _VARIANT:
         raise error(13, "Type mismatch")
-    if raising and isinstance(found, float) and name.lower() in _STRING:
+    if raising and not late and isinstance(found, float) and name.lower() in _STRING:
         return to_text(found)
     return answer(found, whole=whole)
+
+
+def _range_of(application: Application, found: Reference, other_sheets: dict[str, Any]) -> object:
+    from pyopenvba._a1 import Area
+    from pyopenvba.apps.excel._model import Range
+
+    area = found.area
+    assert area is not None
+    held = other_sheets.get(area.sheet)
+    if held is not None:
+        return Range(held, [Area(area.top, area.left, area.bottom, area.right, held.name)])
+    book = application.active_book
+    assert book is not None
+    for sheet in book.sheets_:
+        if sheet.name.casefold() == area.sheet.casefold():
+            return Range(sheet, [Area(area.top, area.left, area.bottom, area.right, sheet.name)])
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    raise VBAUnsupportedError("WorksheetFunction.Index of a range in another workbook is not implemented")
 
 
 def answer(value: Scalar | Array, *, whole: bool = False) -> object:

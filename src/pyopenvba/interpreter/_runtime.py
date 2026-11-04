@@ -1914,6 +1914,10 @@ class Interpreter:
         self.write_line(f"[Stop at {self.current_where()}]")
 
     def _do_end(self, statement: A.EndStmt, frame: Frame) -> None:
+        self.end_run()
+
+    def end_run(self) -> None:
+        """Stop the running macro where it is, as End does."""
         raise _EndSignal()
 
     def _do_option(self, statement: A.OptionStmt, frame: Frame) -> None:

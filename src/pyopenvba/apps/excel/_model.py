@@ -872,6 +872,8 @@ class Application(ExcelObject):
     @member(default=True)
     def Range(self, Cell1: object = MISSING, Cell2: object = MISSING) -> object:
         """The active sheet's Range, but cells on another sheet are taken there (tests/fixtures/cross_sheet_ranges.json)."""
+        if self.active_book is None:  # tests/fixtures/workbooks_close.json
+            raise error(1004, "Method 'Range' of object '_Global' failed")
         return self._require_sheet().resolved_range(Cell1, Cell2, foreign=True)
 
     @member
@@ -1598,6 +1600,30 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
     def Parent(self) -> object:
         return self.application
 
+    @method
+    def Close(self) -> object:
+        """Every book, or none: BeforeClose in the collection's order, whichever window is in front, stops at the first
+        that cancels, and then nothing closes. Only the front book's window then raises its leaving, and none comes in
+        behind it. A macro in one of them ends there. With alerts off changes are lost; with
+        them on Excel asks, which is not modelled (tests/fixtures/workbooks_close.json)."""
+        books = list(self.books)
+        for book in books:
+            if not _events.before_close(book):
+                return True
+        if self.application.display_alerts and any(not book.saved for book in self.books):
+            raise VBAUnsupportedError("Workbooks.Close with a changed workbook and alerts on needs a save prompt; "
+                                      "set DisplayAlerts False or save first")
+        interpreter = self.application.interpreter
+        running = self.application.vba_get("ThisWorkbook") if interpreter is not None and interpreter.frames else None
+        if self.application.active_book is not None:
+            _events.book_left(self.application.active_book)
+        for book in books:
+            if book in self.books:
+                book.closed_now(one_of_all=True)
+        if running in books and interpreter is not None:
+            interpreter.end_run()
+        return True
+
     def remove(self, book: Workbook) -> None:
         from pyopenvba.apps.excel._windows import front_to_back
 
@@ -1964,7 +1990,20 @@ class Workbook(ExcelObject):
     EnvelopeVisible, _set_envelope_visible = _session_property("EnvelopeVisible")
     Excel8CompatibilityMode, _set_excel8_compatibility_mode = _session_property("Excel8CompatibilityMode")
     HighlightChangesOnScreen, _set_highlight_changes_on_screen = _session_property("HighlightChangesOnScreen")
-    IsAddin, _set_is_addin = _session_property("IsAddin")
+    IsAddin, _ = _session_property("IsAddin")
+
+    @setter("IsAddin")
+    def set_is_addin(self, value: object) -> None:
+        """An add-in stays open and its macros run, but it is out of the Workbooks collection, and back at its end when
+        it stops being one (tests/fixtures/workbooks_close.json)."""
+        from pyopenvba.apps.excel._workbook_settings import set_session_value
+
+        set_session_value(self, "IsAddin", value)
+        books = self.application.workbooks_
+        if to_bool(value) and self in books.books:
+            books.remove(self)
+        elif not to_bool(value) and self not in books.books:
+            books.books.append(self)
     IsInplace, _set_is_inplace = _session_property("IsInplace")
     KeepChangeHistory, _set_keep_change_history = _session_property("KeepChangeHistory")
     ListChangesOnNewSheet, _set_list_changes_on_new_sheet = _session_property("ListChangesOnNewSheet")
@@ -2334,10 +2373,17 @@ class Workbook(ExcelObject):
         if saving and Filename is MISSING:
             if not self._save():
                 return EMPTY
+        self.closed_now()
+        return True
+
+    def closed_now(self, *, one_of_all: bool = False) -> None:
+        """The close itself, its question of saving settled and BeforeClose past. Workbooks.Close raises no window events
+        for each book, as it does the front one's itself."""
         from pyopenvba.apps.excel._windows import front_to_back
 
-        behind = next((book for book in front_to_back(self.application) if book is not self), None)
-        _events.book_left(self)
+        behind = None if one_of_all else next((book for book in front_to_back(self.application) if book is not self), None)
+        if not one_of_all:
+            _events.book_left(self)
         from pyopenvba.apps.excel._link_edits import closing
 
         closing(self)
@@ -2347,7 +2393,6 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._held_ranges import closed
 
         closed(self)
-        return True
 
     @method
     def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803

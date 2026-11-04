@@ -125,7 +125,7 @@ class ChartSheet(Chart):
         book.next_sheet_id = numbered + 1
         state.part = ""
         state.dirty = True
-        shape.shape_id, shape.source = _SHAPE_ID, None
+        shape.shape_id, shape.source = _SHAPE_ID, ""
         carrier.chart_states[_SHAPE_ID] = state
         carrier.shapes_.append(shape)
         sheet = cls.__new__(cls)

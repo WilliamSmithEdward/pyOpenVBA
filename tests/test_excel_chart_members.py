@@ -9,7 +9,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_members.json').read_text(encoding='utf-8'))

@@ -128,7 +128,9 @@ def parts(path: Path) -> dict[str, str]:
         return {}
     keep = re.compile(r'\[Content_Types\]\.xml|xl/workbook\.xml|xl/_rels/workbook\.xml\.rels|xl/chartsheets/.*|xl/drawings/.*|xl/charts/chart\d+\.xml|xl/charts/_rels/.*|xl/worksheets/_rels/.*|docProps/app\.xml')
     with zipfile.ZipFile(path) as package:
-        return {name: package.read(name).decode('utf-8') for name in package.namelist() if keep.fullmatch(name)}
+        return {name: re.sub(r'<mc:AlternateContent[^>]*><mc:Choice Requires="x15"><x15ac:absPath.*?</mc:AlternateContent>', '',
+                             package.read(name).decode('utf-8'), flags=re.S)
+                for name in package.namelist() if keep.fullmatch(name)}
 
 
 def batch(source: str, folder: str, first: int, last: int) -> list[str]:

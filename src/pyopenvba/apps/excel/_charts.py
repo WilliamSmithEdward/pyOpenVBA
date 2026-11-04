@@ -2327,7 +2327,7 @@ class Chart(ElementProperties, HeldPart):
             source.active_chart = None
         state.part = ''
         shape.shape_id = max((one.shape_id for one in target.shapes_), default=1) + 1
-        shape.source = None
+        shape.source = ""
         target.shapes_.append(shape)
         target.chart_states[shape.shape_id] = state
         self.sheet = target

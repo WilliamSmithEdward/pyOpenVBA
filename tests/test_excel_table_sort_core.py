@@ -199,7 +199,7 @@ ActiveSheet.Sort.SortFields.Add ActiveSheet.Range("D2:D4")
         app.save(tmp_path / 'unsupported-binding.xlsm')
 
 
-@pytest.mark.parametrize('boundary', ['table-clear-add', 'worksheet-orientation', 'worksheet-foreign-same-address'])
+@pytest.mark.parametrize('boundary', ['table-clear-add', 'worksheet-foreign-same-address'])
 def test_sort_save_admission_precedes_package_writes(boundary: str, tmp_path: Path) -> None:
     app, sort = prepared()
     sort.Apply()

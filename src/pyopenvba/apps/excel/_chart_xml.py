@@ -55,6 +55,8 @@ class SeriesData:
     value_cache: Sequence[float | None] = ()
     #: The number format of the values' first cell, which the cache carries.
     value_format: str = "General"
+    #: Its kind where it differs from the chart's, in a combo chart.
+    kind: ChartKind | None = None
     name: str | None = None
     name_cache: str | None = None
     #: A name of several cells: each cell's text, which its cache holds point by point.
@@ -450,39 +452,20 @@ def chart_part(
     """
     first, second = axis_ids if axis_ids is not None else _axis_ids()
     tail = unique if unique is not None else "-" + str(uuid.uuid4()).upper().split("-", 1)[1]
-    written = "".join(_series(kind, index, data, tail) for index, data in enumerate(series))
-    axes_ids = f'<c:axId val="{first}"/><c:axId val="{second}"/>'
+    written = "".join(_series(data.kind or kind, index, data, tail) for index, data in enumerate(series))
     labelled = any(data.categories is not None for data in series)
+    plot = group_markup(kind, grouping, written, first, second)
     if kind in ("column", "bar"):
-        direction = "col" if kind == "column" else "bar"
-        plot = (
-            f'<c:barChart><c:barDir val="{direction}"/><c:grouping val="{grouping or "clustered"}"/>'
-            '<c:varyColors val="0"/>'
-            f'{written}{_LABELS.format(extra="")}<c:gapWidth val="150"/>{axes_ids}</c:barChart>'
-        )
         axes = _category_axis(first, second, position="b" if kind == "column" else "l", formatted=labelled)
         axes += _value_axis(second, first, position="l" if kind == "column" else "b", between="between",
                             formatted=bool(series), gridlines=True)
     elif kind in ("line", "lineMarkers"):
-        markers = '<c:marker val="1"/>' if kind == "lineMarkers" else ""
-        plot = (
-            f'<c:lineChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
-            f'{_LABELS.format(extra="")}{markers}<c:smooth val="0"/>{axes_ids}</c:lineChart>'
-        )
         axes = _category_axis(first, second, position="b", formatted=labelled)
         axes += _value_axis(second, first, position="l", between="between", formatted=bool(series), gridlines=True)
     elif kind == "area":
-        plot = (
-            f'<c:areaChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
-            f'{_LABELS.format(extra="")}{axes_ids}</c:areaChart>'
-        )
         axes = _category_axis(first, second, position="b", formatted=labelled)
         axes += _value_axis(second, first, position="l", between="midCat", formatted=bool(series), gridlines=True)
     elif kind == "scatter":
-        plot = (
-            f'<c:scatterChart><c:scatterStyle val="lineMarker"/><c:varyColors val="0"/>{written}'
-            f'{_LABELS.format(extra="")}{axes_ids}</c:scatterChart>'
-        )
         axes = _value_axis(first, second, position="b", between="midCat", formatted=labelled, gridlines=False)
         axes += _value_axis(second, first, position="l", between="midCat", formatted=bool(series), gridlines=True)
     else:
@@ -533,6 +516,47 @@ def chart_frame(
         f' r:id="{relationship}"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/>'
         "</xdr:twoCellAnchor>"
     )
+
+
+def group_markup(kind: str, grouping: str, written: str, first: int, second: int) -> str:
+    """One chart group: a column, bar, line, area or scatter chart's element around its series."""
+    axes_ids = f'<c:axId val="{first}"/><c:axId val="{second}"/>'
+    if kind in ("column", "bar"):
+        direction = "col" if kind == "column" else "bar"
+        return (
+            f'<c:barChart><c:barDir val="{direction}"/><c:grouping val="{grouping or "clustered"}"/>'
+            '<c:varyColors val="0"/>'
+            f'{written}{_LABELS.format(extra="")}<c:gapWidth val="150"/>{axes_ids}</c:barChart>'
+        )
+    if kind in ("line", "lineMarkers"):
+        markers = '<c:marker val="1"/>' if kind == "lineMarkers" else ""
+        return (
+            f'<c:lineChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
+            f'{_LABELS.format(extra="")}{markers}<c:smooth val="0"/>{axes_ids}</c:lineChart>'
+        )
+    if kind == "area":
+        return (
+            f'<c:areaChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
+            f'{_LABELS.format(extra="")}{axes_ids}</c:areaChart>'
+        )
+    if kind == "scatter":
+        return (
+            f'<c:scatterChart><c:scatterStyle val="lineMarker"/><c:varyColors val="0"/>{written}'
+            f'{_LABELS.format(extra="")}{axes_ids}</c:scatterChart>'
+        )
+    return ""
+
+
+def secondary_axes_markup(value: int, category: int, *, at_top: bool, between: str) -> str:
+    """The axes of a chart's secondary group, value first; the far side is what ``generated`` makes of them, as for any axis
+    crossed at its maximum, and a category axis sits at the top only while it shows and the value axis has been left to cross
+    at the far side (tests/fixtures/combo_charts.json)."""
+    return (_value_axis(value, category, position="l", between=between, formatted=True, gridlines=False)
+            + _category_axis(category, value, position="t" if at_top else "b", formatted=True))
+
+
+def axis_ids() -> tuple[int, int]:
+    return _axis_ids()
 
 
 def _axis_ids() -> tuple[int, int]:

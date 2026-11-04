@@ -12,7 +12,7 @@ from pyopenvba.interpreter._flow import Program
 from pyopenvba.interpreter._financial import SIGNATURES as FINANCIAL_SIGNATURES
 from pyopenvba.interpreter._intrinsics import INTRINSICS
 from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
-from pyopenvba.interpreter._type_library import CallShape, LibraryClass, LibraryType, find_class, refusal
+from pyopenvba.interpreter._type_library import CallShape, LibraryClass, LibraryType, find_class, let_refusal, refusal
 from pyopenvba.interpreter._values import type_name
 
 if TYPE_CHECKING:
@@ -393,6 +393,12 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             visit(value.value, context)
             if value.kind == 'let':
                 check_library_call(target, arguments, 'assign')
+                if isinstance(target, A.Name) and not arguments:
+                    declared = local.get(strip_suffix(target.name).lower())
+                    held = library_class(declared[0], declared[2]) if declared is not None and not declared[1] else None
+                    said = let_refusal(held) if held is not None else None
+                    if said is not None:
+                        fail(said, target.line)
             kind = 'set' if value.kind == 'set' else 'let'
             called = signature(target, context, setter=kind)
             if called is None:

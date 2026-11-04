@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Iterator
+import math
 from decimal import ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING, Any, Final
 
@@ -119,6 +120,8 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         raise error(1004, "There is no workbook open")
     values = _laid_out(list(args), named or {})
     entry = registry.FUNCTIONS[function]
+    given = list(values)
+    lifted_year_frac = raising and name.lower() == "yearfrac" and len(values) == 3 and any(isinstance(value, VBAArray) for value in values)
     if raising and any(_is_text_cell(values[place]) for place in _SWITCHES.get(name.lower(), ()) if place < len(values)):
         # A cell of text where a switch goes fails item by item, so the answer is an array holding the error.
         return answer(Array([[CellError("#VALUE!")]]))
@@ -132,17 +135,19 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
                 raise error(13, "Type mismatch")
             shape = _given_array(lifted)
             return answer(Array([[CellError("#VALUE!")] * shape.width for _ in range(shape.height)]))
-    if raising:
+    if raising and not lifted_year_frac:
         values = _as_excel_reads(name, values, entry.minimum, late=late)
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
         if name.lower() == "round" and len(values) == 2 and isinstance(values[1], float) and abs(values[1]) >= 2 ** 31:
             return 0.0
     calculator = sheet.book.calculator
     books = _OpenBooks(calculator)
-    nodes = tuple(_node(value, books) for value in values)
+    nodes = () if lifted_year_frac else tuple(_node(value, books) for value in values)
     single = not any(isinstance(value, (Range, VBAArray)) for value in values)
     now = calculator.now()
     context = Context(books, sheet.name, 1, 1, array=True, today=now.date(), now=now)
+    if lifted_year_frac:
+        return _year_frac_lifted(given, entry, context, books, late=late)
     if not entry.minimum <= len(nodes) <= entry.maximum:
         # Too few or too many arguments is error 1004 through Application as well: Application.Xnpv(values, dates)
         # (tests/fixtures/worksheet_functions_more.json).
@@ -185,6 +190,68 @@ def _base_conversion_items(values: list[object]) -> list[object]:
         items = [VBAErrorValue(2036) if one is EMPTY else VBAErrorValue(2015) if isinstance(one, bool) else one for one in places.elements()]
         return [values[0], VBAArray(places.bounds, items=items), *values[2:]]
     return values
+
+
+def _year_frac_item(values: list[Scalar | object], context: Context) -> str | None:
+    """What one call of YearFrac with an array among its arguments fails with before it is worked out, looking at the basis, then
+    each date: a logical or several cells #VALUE!, Null among the dates #N/A, a number out of range #NUM!."""
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.formula._calc.values import ExcelError as EngineError
+
+    start, stop, kind = values
+    if isinstance(kind, bool) or (isinstance(kind, Range) and not kind.single):
+        return "#VALUE!"
+    if isinstance(kind, Range):
+        kind = kind.vba_value()
+    if isinstance(kind, str):
+        # A text is read as a number or a date.
+        try:
+            kind = context.number(kind)
+        except EngineError:
+            return "#VALUE!"
+    if isinstance(kind, (int, float, VBAInt)) and not 0 <= math.trunc(float(kind)) <= 4:
+        return "#NUM!"
+    for date in (start, stop):
+        if date is NULL:
+            return "#N/A"
+        if isinstance(date, bool) or (isinstance(date, Range) and not date.single):
+            return "#VALUE!"
+        if isinstance(date, str):
+            try:
+                date = context.number(date)
+            except EngineError:
+                return "#VALUE!"
+        if isinstance(date, (int, float, VBAInt)) and not 0 <= float(date) < 2958466:
+            return "#NUM!"
+    return None
+
+
+def _year_frac_lifted(values: list[object], entry: Any, context: Context, books: _OpenBooks, *, late: bool) -> object:
+    """YearFrac with an array among its arguments, call by call."""
+    from pyopenvba.formula._calc import registry
+    from pyopenvba.formula._calc.values import ExcelError as EngineError
+
+    if not late:
+        raise error(13, "Type mismatch")
+    arrays = {place: _given_array(value) for place, value in enumerate(values) if isinstance(value, VBAArray)}
+    height, width = max(one.height for one in arrays.values()), max(one.width for one in arrays.values())
+    rows: list[list[Scalar]] = []
+    for row in range(height):
+        line: list[Scalar] = []
+        for column in range(width):
+            items = [arrays[place].at(row, column) if place in arrays else value for place, value in enumerate(values)]
+            failed = _year_frac_item(items, context)
+            if failed is not None:
+                line.append(CellError(failed))
+                continue
+            nodes = tuple(Given(item) if place in arrays else Missing() if item is NULL else _node(item, books) for place, item in enumerate(items))
+            try:
+                found = registry.call(entry, context, nodes)
+            except EngineError as failure:
+                found = failure.error
+            line.append(context.first(found))
+        rows.append(line)
+    return answer(Array(rows))
 
 
 def _is_text_cell(value: object) -> bool:

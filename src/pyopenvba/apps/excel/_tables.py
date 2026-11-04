@@ -47,6 +47,7 @@ from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MI
                                            to_bool, to_integer, to_text)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._pivots import PivotTable
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.apps.excel._sort import SortState
@@ -1252,11 +1253,11 @@ class ListObject(ExcelObject):
 
 
 class TableSlicers(VBACollection, ExcelObject):
-    """ListObject.Slicers: the model's tables have none."""
+    """ListObject.Slicers and PivotTable.Slicers: the model's tables have none."""
 
     vba_type_name = "Slicers"
 
-    def __init__(self, owner: ListObject) -> None:
+    def __init__(self, owner: ListObject | PivotTable) -> None:
         self.owner = owner
 
     def vba_items(self) -> list[object]:

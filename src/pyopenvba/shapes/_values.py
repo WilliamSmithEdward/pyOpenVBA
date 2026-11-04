@@ -236,6 +236,73 @@ class ShapeEffects:
     reflection_blur: int | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class GradientPoint:
+    """One stop of a gradient fill: its position and alpha in thousandths of a percent, and its colour."""
+
+    position: int
+    rgb: str | None = None
+    scheme: str | None = None
+    mods: tuple[tuple[str, int], ...] = ()
+    alpha: int | None = None
+
+    def colour(self) -> tuple[str | None, str | None, tuple[tuple[str, int], ...]]:
+        return self.rgb, self.scheme, self.mods
+
+
+#: FillFormat.GradientStyle by angle in sixty-thousandths of a degree, with its opposite.
+_STYLE_ANGLES = {5400000: 1, 16200000: 1, 0: 2, 10800000: 2, 2700000: 3, 13500000: 3, 8100000: 4, 18900000: 4}
+
+
+@dataclass(frozen=True, slots=True)
+class FillGradient:
+    """Excel: a gradient fill (tests/fixtures/shape_fill_gradients.json). What FillFormat reads of it follows from its
+    stops and angle, whatever made it."""
+
+    stops: tuple[GradientPoint, ...]
+    #: In sixty-thousandths of a degree, or None for a path, whose style 5 or 7 is then kept, and a corner's variant.
+    angle: int | None = None
+    path: int | None = None
+    corner: int | None = None
+    rotate: bool = True
+    #: How it was made, until its stops change: OneColorGradient's degree, PresetGradient's number, and variant 3 or 4
+    #: when those folded more stops than the variants can be read from.
+    degree: float | None = None
+    preset: int | None = None
+    mirror: int | None = None
+
+    def colour_type(self) -> int:
+        """msoGradientOneColor, TwoColors, PresetColors or MultiColor."""
+        if self.preset is not None:
+            return 3
+        if self.degree is not None:
+            return 1
+        stops = self.stops
+        if len(stops) == 2 or (len(stops) == 3 and stops[2].colour() in (stops[0].colour(), stops[1].colour())):
+            return 2
+        return 4
+
+    def shown_style(self) -> int:
+        if self.path is not None:
+            return self.path
+        return -2 if self.angle is None else _STYLE_ANGLES.get(self.angle, -2)
+
+    def shown_variant(self) -> int:
+        """What GradientVariant reads: a corner's own, else a folding if the stops show one, else which way it runs."""
+        if self.corner is not None:
+            return self.corner
+        if self.shown_style() == -2:
+            return 0
+        folded = self.mirror
+        if folded is None and len(self.stops) == 3 and self.colour_type() == 2:
+            folded = 3 if self.stops[2].colour() == self.stops[0].colour() else 4
+        if self.path is not None:
+            return 1 if folded is None else 3
+        if folded is not None:
+            return folded
+        return 2 if self.angle is not None and self.angle >= 10800000 else 1
+
+
 @dataclass(slots=True)
 class FillLine:
     """Excel: what Shape.Fill and Shape.Line set on a new shape, each None while the shape's style gives it
@@ -292,6 +359,13 @@ class FillLine:
     line_pattern: str | None = None
     line_back_rgb: str | None = None
     line_back_scheme: str | None = None
+    #: A patterned fill's prst and back colour, white until set; its fore colour is the fill's own
+    #: (tests/fixtures/shape_fill_patterns.json).
+    fill_pattern: str | None = None
+    fill_back_rgb: str | None = None
+    fill_back_scheme: str | None = None
+    fill_back_mods: tuple[tuple[str, int], ...] = ()
+    fill_gradient: FillGradient | None = None
     #: InsetPen's algn.
     line_align: str | None = None
     #: Each end's type, w and len as set, and those a hidden line had when it was hidden.
@@ -353,6 +427,8 @@ class Shape:
     #: Excel: LockAspectRatio once set, None until then; Locked.
     lock_aspect: bool | None = None
     locked: bool = True
+    #: Excel: Adjustments, as the file's values in the order of ADJUSTMENTS; None while the geometry's defaults stand.
+    adjustments: tuple[int, ...] | None = None
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
     flip_h: bool = False
     flip_v: bool = False
@@ -379,7 +455,12 @@ class Shape:
 
     @property
     def mso_type(self) -> int:
-        """What Shape.Type answers for this kind."""
+        """What Shape.Type answers for this kind: a connector is an AutoShape where a plain line is not, and types 109 to
+        124 are callouts (tests/fixtures/shape_adjustment_table.json)."""
+        if self.kind == "line" and self.geometry != "line":
+            return 1
+        if self.kind == "shape" and 109 <= getattr(self, "auto_shape_type", 1) <= 124:
+            return 2
         return MSO_TYPE.get(self.kind, 1)
 
     def __repr__(self) -> str:

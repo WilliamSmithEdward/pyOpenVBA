@@ -25,7 +25,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-first-native-samples\\axes-baseline.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\axes-baseline.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -82,7 +82,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-first-native-samples\\series-delete.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\series-delete.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -92,7 +92,7 @@
       },
       "save_result": "saved",
       "file": "series-delete.xlsx",
-      "file_sha256": "6079c9ecc89c43c9c44509b40b65dc07b625b39ebbf6b657b459e1679ad07f64",
+      "file_sha256": "1e4dcca4c59d1d75cfe7385fc3755e8439244a6cee38d0810b6fb927a4a8ce3c",
       "xml_parts": {
         "xl/drawings/drawing1.xml": {
           "sha256": "996d64f465e10cf37806e76bdce6a67ebf5bbae746dfb26477d144f0463a7a7f",
@@ -139,7 +139,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-first-native-samples\\series-order.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\series-order.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -149,7 +149,7 @@
       },
       "save_result": "saved",
       "file": "series-order.xlsx",
-      "file_sha256": "5f4a417859ba5108574321a6e25be8ea2cf2688fa7c966eb147f3a23b6512df2",
+      "file_sha256": "c01745ba839aa34eef1927a4a5e368c073cb40845d5448fba4284c88aea0ca21",
       "xml_parts": {
         "xl/drawings/drawing1.xml": {
           "sha256": "c1425379346be50bf8db30e85c2cb031cc23307893d42a5a8e724b90730bcfd7",
@@ -196,7 +196,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-first-native-samples\\manual-scale.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\manual-scale.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -206,7 +206,7 @@
       },
       "save_result": "saved",
       "file": "manual-scale.xlsx",
-      "file_sha256": "cff69bacf402039ad4718a0edb610d999b22d51e5f8d40b9a2c56e9ee29b193f",
+      "file_sha256": "b3e6f504fd0daa07fe990365bcd82cef0abf1fb08f51f239e740a74bd3453b11",
       "xml_parts": {
         "xl/drawings/drawing1.xml": {
           "sha256": "68c07f06bbd4066e6192b7e38d8ab12802a575cd47181aa10ecc31e34d272127",
@@ -253,7 +253,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-first-native-samples\\axis-titles.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\axis-titles.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -263,7 +263,7 @@
       },
       "save_result": "saved",
       "file": "axis-titles.xlsx",
-      "file_sha256": "a24491a0b1c0c03ffb3ba7d138e09bf294c364468b51c9daeec429b74a59e01c",
+      "file_sha256": "52f7f297cc3f78310684d8fd1ff61a34ce79cd119057ca75d04be4e58b468ec4",
       "xml_parts": {
         "xl/drawings/drawing1.xml": {
           "sha256": "ecc9ff3bfc518116c1df93ec3027f871f28db5baa481581447d6ecbe5cc68a8b",
@@ -334,7 +334,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-first-native-samples\\bar-scatter.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\bar-scatter.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -344,7 +344,7 @@
       },
       "save_result": "saved",
       "file": "bar-scatter.xlsx",
-      "file_sha256": "41557a1d8d91ebb8e749cc74862cf769091d64aadd1c2f7fe526006bc686bd44",
+      "file_sha256": "2b8a3cca7e553593bfdb86dc1ad9753510a4bcf602cefd0d117c2ce661367a07",
       "xml_parts": {
         "xl/drawings/drawing1.xml": {
           "sha256": "bb44e323d1a81a9eb68bd94f3769f3dc3ede67eda47f1ac46604ff5d2e597cb6",

@@ -1,0 +1,361 @@
+{
+ "measured_at": "2026-11-03T19:46:28.154521+00:00",
+ "version_build": "16.0|20527",
+ "log": "Public Log As String\nPublic WantCancel As Boolean\n",
+ "sink": "Public WithEvents Sheet As Worksheet\nPublic WithEvents Book As Workbook\nPublic WithEvents App As Application\nPrivate Sub Sheet_BeforeDelete()\nLog = Log & \"sheet-sink-BeforeDelete:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Sheet_Activate()\nLog = Log & \"sheet-sink-Activate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Sheet_Deactivate()\nLog = Log & \"sheet-sink-Deactivate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Sheet_SelectionChange(ByVal Target As Range)\nLog = Log & \"sheet-sink-SelectionChange:\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Sheet_FollowHyperlink(ByVal Target As Hyperlink)\nLog = Log & \"sheet-sink-FollowHyperlink:\" & Target.SubAddress & \"|\"\nEnd Sub\nPrivate Sub Book_Activate()\nLog = Log & \"book-sink-Activate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookActivate(ByVal Wb As Workbook)\nLog = Log & \"app-sink-WorkbookActivate:\" & Wb.Name & \"/\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Book_Deactivate()\nLog = Log & \"book-sink-Deactivate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookDeactivate(ByVal Wb As Workbook)\nLog = Log & \"app-sink-WorkbookDeactivate:\" & Wb.Name & \"/\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Book_WindowActivate(ByVal Wn As Window)\nLog = Log & \"book-sink-WindowActivate:\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub App_WindowActivate(ByVal Wb As Workbook, ByVal Wn As Window)\nLog = Log & \"app-sink-WindowActivate:\" & Wb.Name & \"/\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub Book_WindowDeactivate(ByVal Wn As Window)\nLog = Log & \"book-sink-WindowDeactivate:\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub App_WindowDeactivate(ByVal Wb As Workbook, ByVal Wn As Window)\nLog = Log & \"app-sink-WindowDeactivate:\" & Wb.Name & \"/\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub Book_WindowResize(ByVal Wn As Window)\nLog = Log & \"book-sink-WindowResize:\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub App_WindowResize(ByVal Wb As Workbook, ByVal Wn As Window)\nLog = Log & \"app-sink-WindowResize:\" & Wb.Name & \"/\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub Book_NewChart(ByVal Ch As Chart)\nLog = Log & \"book-sink-NewChart:\" & Ch.Name & \"/\" & TypeName(Ch.Parent) & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookNewChart(ByVal Wb As Workbook, ByVal Ch As Chart)\nLog = Log & \"app-sink-WorkbookNewChart:\" & Wb.Name & \"/\" & Ch.Name & \"/\" & TypeName(Ch.Parent) & \"|\"\nEnd Sub\nPrivate Sub Book_NewSheet(ByVal Sh As Object)\nLog = Log & \"book-sink-NewSheet:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookNewSheet(ByVal Wb As Workbook, ByVal Sh As Object)\nLog = Log & \"app-sink-WorkbookNewSheet:\" & Wb.Name & \"/\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Book_SheetBeforeDelete(ByVal Sh As Object)\nLog = Log & \"book-sink-SheetBeforeDelete:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_SheetBeforeDelete(ByVal Sh As Object)\nLog = Log & \"app-sink-SheetBeforeDelete:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Book_SheetActivate(ByVal Sh As Object)\nLog = Log & \"book-sink-SheetActivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_SheetActivate(ByVal Sh As Object)\nLog = Log & \"app-sink-SheetActivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Book_SheetDeactivate(ByVal Sh As Object)\nLog = Log & \"book-sink-SheetDeactivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_SheetDeactivate(ByVal Sh As Object)\nLog = Log & \"app-sink-SheetDeactivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Book_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"book-sink-SheetSelectionChange:\" & Sh.Name & \"/\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub App_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"app-sink-SheetSelectionChange:\" & Sh.Name & \"/\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Book_SheetFollowHyperlink(ByVal Sh As Object, ByVal Target As Hyperlink)\nLog = Log & \"book-sink-SheetFollowHyperlink:\" & Sh.Name & \"/\" & Target.SubAddress & \"/\" & ActiveCell.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub App_SheetFollowHyperlink(ByVal Sh As Object, ByVal Target As Hyperlink)\nLog = Log & \"app-sink-SheetFollowHyperlink:\" & Sh.Name & \"/\" & Target.SubAddress & \"/\" & ActiveCell.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Book_BeforePrint(Cancel As Boolean)\nLog = Log & \"book-sink-BeforePrint:\" & ActiveSheet.Name & \"|\"\nCancel = WantCancel\nEnd Sub\nPrivate Sub App_WorkbookBeforePrint(ByVal Wb As Workbook, Cancel As Boolean)\nLog = Log & \"app-sink-WorkbookBeforePrint:\" & Wb.Name & \"/\" & ActiveSheet.Name & \"|\"\nCancel = WantCancel\nEnd Sub\nPrivate Sub Book_BeforeClose(Cancel As Boolean)\nLog = Log & \"book-sink-BeforeClose:\" & \"\" & \"|\"\nCancel = WantCancel\nEnd Sub\nPrivate Sub App_WorkbookBeforeClose(ByVal Wb As Workbook, Cancel As Boolean)\nLog = Log & \"app-sink-WorkbookBeforeClose:\" & Wb.Name & \"/\" & \"\" & \"|\"\nCancel = WantCancel\nEnd Sub\nPrivate Sub App_NewWorkbook(ByVal Wb As Workbook)\nLog = Log & \"app-sink-NewWorkbook:\" & Wb.Name & \"|\"\nEnd Sub\n",
+ "sheet": "Private Sub Worksheet_BeforeDelete()\nLog = Log & \"sheet-own-BeforeDelete:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Worksheet_Activate()\nLog = Log & \"sheet-own-Activate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Worksheet_Deactivate()\nLog = Log & \"sheet-own-Deactivate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Worksheet_SelectionChange(ByVal Target As Range)\nLog = Log & \"sheet-own-SelectionChange:\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Worksheet_FollowHyperlink(ByVal Target As Hyperlink)\nLog = Log & \"sheet-own-FollowHyperlink:\" & Target.SubAddress & \"|\"\nEnd Sub\n",
+ "book": "Private Sub Workbook_Activate()\nLog = Log & \"book-own-Activate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Workbook_Deactivate()\nLog = Log & \"book-own-Deactivate:\" & \"\" & \"|\"\nEnd Sub\nPrivate Sub Workbook_WindowActivate(ByVal Wn As Window)\nLog = Log & \"book-own-WindowActivate:\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub Workbook_WindowDeactivate(ByVal Wn As Window)\nLog = Log & \"book-own-WindowDeactivate:\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub Workbook_WindowResize(ByVal Wn As Window)\nLog = Log & \"book-own-WindowResize:\" & Wn.Caption & \"|\"\nEnd Sub\nPrivate Sub Workbook_NewChart(ByVal Ch As Chart)\nLog = Log & \"book-own-NewChart:\" & Ch.Name & \"/\" & TypeName(Ch.Parent) & \"|\"\nEnd Sub\nPrivate Sub Workbook_NewSheet(ByVal Sh As Object)\nLog = Log & \"book-own-NewSheet:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetBeforeDelete(ByVal Sh As Object)\nLog = Log & \"book-own-SheetBeforeDelete:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetActivate(ByVal Sh As Object)\nLog = Log & \"book-own-SheetActivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetDeactivate(ByVal Sh As Object)\nLog = Log & \"book-own-SheetDeactivate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"book-own-SheetSelectionChange:\" & Sh.Name & \"/\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Workbook_SheetFollowHyperlink(ByVal Sh As Object, ByVal Target As Hyperlink)\nLog = Log & \"book-own-SheetFollowHyperlink:\" & Sh.Name & \"/\" & Target.SubAddress & \"/\" & ActiveCell.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub Workbook_BeforePrint(Cancel As Boolean)\nLog = Log & \"book-own-BeforePrint:\" & ActiveSheet.Name & \"|\"\nCancel = WantCancel\nEnd Sub\nPrivate Sub Workbook_BeforeClose(Cancel As Boolean)\nLog = Log & \"book-own-BeforeClose:\" & \"\" & \"|\"\nCancel = WantCancel\nEnd Sub\n",
+ "probe": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.DisplayAlerts = False\nDim sink As New ExcelSink, home As Workbook, other As Workbook, book As Workbook, failure As String\nDim wide As Double, high As Double, across As Double, down As Double\nSet home = ActiveWorkbook\nApplication.WindowState = xlNormal\nwide = ActiveWindow.Width\nhigh = ActiveWindow.Height\nacross = ActiveWindow.Left\ndown = ActiveWindow.Top\nSet sink.Sheet = ActiveSheet\nSet sink.Book = ActiveWorkbook\nSet sink.App = Application\nApplication.EnableEvents = True\nLog = \"\"\nOn Error GoTo Failed\n{action}\nGoTo Done\nFailed:\nfailure = \"!E\" & Err.Number\nDone:\nOn Error Resume Next\nProbe = Log & failure & \"#\" & ActiveWorkbook.Name & \"/\" & ActiveSheet.Name & \"/\" & ActiveWindow.Caption & \"/\" & Windows.Count\nApplication.EnableEvents = False\nFor Each book In Workbooks\nIf book.Name <> home.Name Then book.Close False\nNext\nhome.Activate\nApplication.WindowState = xlNormal\nActiveWindow.Width = wide\nActiveWindow.Height = high\nActiveWindow.Left = across\nActiveWindow.Top = down\nIf Dir(Environ(\"TEMP\") & \"\\pyopenvba_open_probe.xlsx\") <> \"\" Then Kill Environ(\"TEMP\") & \"\\pyopenvba_open_probe.xlsx\"\nEnd Function\n",
+ "rows": [
+  {
+   "name": "delete_active",
+   "action": "Worksheets.Add After:=Sheets(1)\nSheets(\"Sheet1\").Activate\nLog = \"\"\nSheets(\"Sheet1\").Delete",
+   "result": "sheet-sink-BeforeDelete:|sheet-own-BeforeDelete:|book-sink-SheetBeforeDelete:Sheet1|book-own-SheetBeforeDelete:Sheet1|app-sink-SheetBeforeDelete:Sheet1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|book-sink-SheetActivate:Sheet2|book-own-SheetActivate:Sheet2|app-sink-SheetActivate:Sheet2|#Book2/Sheet2/Book2/1"
+  },
+  {
+   "name": "delete_inactive",
+   "action": "Worksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(\"Sheet1\").Delete",
+   "result": "sheet-sink-BeforeDelete:|sheet-own-BeforeDelete:|book-sink-SheetBeforeDelete:Sheet1|book-own-SheetBeforeDelete:Sheet1|app-sink-SheetBeforeDelete:Sheet1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|#Book3/Sheet2/Book3/1"
+  },
+  {
+   "name": "delete_active_no_module",
+   "action": "Worksheets.Add After:=Sheets(1)\nLog = \"\"\nActiveSheet.Delete",
+   "result": "book-sink-SheetBeforeDelete:Sheet2|book-own-SheetBeforeDelete:Sheet2|app-sink-SheetBeforeDelete:Sheet2|book-sink-SheetDeactivate:Sheet2|book-own-SheetDeactivate:Sheet2|app-sink-SheetDeactivate:Sheet2|sheet-sink-Activate:|sheet-own-Activate:|book-sink-SheetActivate:Sheet1|book-own-SheetActivate:Sheet1|app-sink-SheetActivate:Sheet1|#Book4/Sheet1/Book4/1"
+  },
+  {
+   "name": "delete_group",
+   "action": "Worksheets.Add After:=Sheets(1)\nWorksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(Array(\"Sheet1\", \"Sheet2\")).Delete",
+   "result": "book-sink-SheetBeforeDelete:Sheet2|book-own-SheetBeforeDelete:Sheet2|app-sink-SheetBeforeDelete:Sheet2|sheet-sink-BeforeDelete:|sheet-own-BeforeDelete:|book-sink-SheetBeforeDelete:Sheet1|book-own-SheetBeforeDelete:Sheet1|app-sink-SheetBeforeDelete:Sheet1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|#Book5/Sheet3/Book5/1"
+  },
+  {
+   "name": "delete_group_reversed",
+   "action": "Worksheets.Add After:=Sheets(1)\nWorksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(Array(\"Sheet2\", \"Sheet1\")).Delete",
+   "result": "book-sink-SheetBeforeDelete:Sheet2|book-own-SheetBeforeDelete:Sheet2|app-sink-SheetBeforeDelete:Sheet2|sheet-sink-BeforeDelete:|sheet-own-BeforeDelete:|book-sink-SheetBeforeDelete:Sheet1|book-own-SheetBeforeDelete:Sheet1|app-sink-SheetBeforeDelete:Sheet1|book-sink-SheetDeactivate:Sheet2|book-own-SheetDeactivate:Sheet2|app-sink-SheetDeactivate:Sheet2|#Book6/Sheet3/Book6/1"
+  },
+  {
+   "name": "delete_group_with_active",
+   "action": "Worksheets.Add After:=Sheets(1)\nWorksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(Array(\"Sheet1\", \"Sheet3\")).Delete",
+   "result": "book-sink-SheetBeforeDelete:Sheet3|book-own-SheetBeforeDelete:Sheet3|app-sink-SheetBeforeDelete:Sheet3|sheet-sink-BeforeDelete:|sheet-own-BeforeDelete:|book-sink-SheetBeforeDelete:Sheet1|book-own-SheetBeforeDelete:Sheet1|app-sink-SheetBeforeDelete:Sheet1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|book-sink-SheetActivate:Sheet2|book-own-SheetActivate:Sheet2|app-sink-SheetActivate:Sheet2|#Book7/Sheet2/Book7/1"
+  },
+  {
+   "name": "delete_selected_group",
+   "action": "Worksheets.Add After:=Sheets(1)\nWorksheets.Add After:=Sheets(1)\nSheets(Array(\"Sheet1\", \"Sheet2\")).Select\nLog = \"\"\nActiveWindow.SelectedSheets.Delete",
+   "result": "book-sink-SheetBeforeDelete:Sheet2|book-own-SheetBeforeDelete:Sheet2|app-sink-SheetBeforeDelete:Sheet2|sheet-sink-BeforeDelete:|sheet-own-BeforeDelete:|book-sink-SheetBeforeDelete:Sheet1|book-own-SheetBeforeDelete:Sheet1|app-sink-SheetBeforeDelete:Sheet1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|book-sink-SheetActivate:Sheet3|book-own-SheetActivate:Sheet3|app-sink-SheetActivate:Sheet3|#Book8/Sheet3/Book8/1"
+  },
+  {
+   "name": "delete_only_sheet",
+   "action": "Log = \"\"\nSheets(1).Delete",
+   "result": "!E1004#Book9/Sheet1/Book9/1"
+  },
+  {
+   "name": "delete_every_sheet",
+   "action": "Worksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets.Delete",
+   "result": "!E1004#Book10/Sheet2/Book10/1"
+  },
+  {
+   "name": "delete_protected_structure",
+   "action": "Worksheets.Add After:=Sheets(1)\nActiveWorkbook.Protect Structure:=True\nLog = \"\"\nSheets(1).Delete",
+   "result": "!E1004#Book11/Sheet2/Book11/1"
+  },
+  {
+   "name": "delete_events_off",
+   "action": "Worksheets.Add After:=Sheets(1)\nLog = \"\"\nApplication.EnableEvents = False\nSheets(\"Sheet1\").Delete",
+   "result": "#Book12/Sheet2/Book12/1"
+  },
+  {
+   "name": "delete_chart_sheet",
+   "action": "Charts.Add\nLog = \"\"\nActiveChart.Delete",
+   "result": "book-sink-SheetDeactivate:Chart1|book-own-SheetDeactivate:Chart1|app-sink-SheetDeactivate:Chart1|sheet-sink-Activate:|sheet-own-Activate:|book-sink-SheetActivate:Sheet1|book-own-SheetActivate:Sheet1|app-sink-SheetActivate:Sheet1|#Book13/Sheet1/Book13/1"
+  },
+  {
+   "name": "chart_sheet",
+   "action": "Log = \"\"\nCharts.Add",
+   "result": "book-sink-NewChart:Chart1/Workbook|book-own-NewChart:Chart1/Workbook|app-sink-WorkbookNewChart:Book14/Chart1/Workbook|book-sink-NewSheet:Chart1|book-own-NewSheet:Chart1|app-sink-WorkbookNewSheet:Book14/Chart1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|book-sink-SheetActivate:Chart1|book-own-SheetActivate:Chart1|app-sink-SheetActivate:Chart1|#Book14/Chart1/Book14/1"
+  },
+  {
+   "name": "chart_sheet_2",
+   "action": "Log = \"\"\nCharts.Add2",
+   "result": "book-sink-NewChart:Chart1/Workbook|book-own-NewChart:Chart1/Workbook|app-sink-WorkbookNewChart:Book15/Chart1/Workbook|book-sink-NewSheet:Chart1|book-own-NewSheet:Chart1|app-sink-WorkbookNewSheet:Book15/Chart1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|book-sink-SheetActivate:Chart1|book-own-SheetActivate:Chart1|app-sink-SheetActivate:Chart1|#Book15/Chart1/Book15/1"
+  },
+  {
+   "name": "chart_sheets_add",
+   "action": "Log = \"\"\nSheets.Add Type:=xlChart",
+   "result": "book-sink-NewChart:Chart1/Workbook|book-own-NewChart:Chart1/Workbook|app-sink-WorkbookNewChart:Book16/Chart1/Workbook|book-sink-NewSheet:Chart1|book-own-NewSheet:Chart1|app-sink-WorkbookNewSheet:Book16/Chart1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|book-sink-SheetActivate:Chart1|book-own-SheetActivate:Chart1|app-sink-SheetActivate:Chart1|#Book16/Chart1/Book16/1"
+  },
+  {
+   "name": "chart_shape",
+   "action": "Log = \"\"\nActiveSheet.Shapes.AddChart",
+   "result": "book-sink-NewChart:Sheet1 Chart 1/ChartObject|book-own-NewChart:Sheet1 Chart 1/ChartObject|app-sink-WorkbookNewChart:Book17/Sheet1 Chart 1/ChartObject|#Book17/Sheet1/Book17/1"
+  },
+  {
+   "name": "chart_shape_2",
+   "action": "Log = \"\"\nActiveSheet.Shapes.AddChart2",
+   "result": "book-sink-NewChart:Sheet1 Chart 1/ChartObject|book-own-NewChart:Sheet1 Chart 1/ChartObject|app-sink-WorkbookNewChart:Book18/Sheet1 Chart 1/ChartObject|#Book18/Sheet1/Book18/1"
+  },
+  {
+   "name": "chart_object",
+   "action": "Log = \"\"\nActiveSheet.ChartObjects.Add 10, 10, 200, 100",
+   "result": "book-sink-NewChart:Sheet1 Chart 1/ChartObject|book-own-NewChart:Sheet1 Chart 1/ChartObject|app-sink-WorkbookNewChart:Book19/Sheet1 Chart 1/ChartObject|#Book19/Sheet1/Book19/1"
+  },
+  {
+   "name": "chart_duplicate",
+   "action": "ActiveSheet.ChartObjects.Add 10, 10, 200, 100\nLog = \"\"\nActiveSheet.ChartObjects(1).Duplicate",
+   "result": "book-sink-NewChart:Sheet1 Chart 2/ChartObject|book-own-NewChart:Sheet1 Chart 2/ChartObject|app-sink-WorkbookNewChart:Book20/Sheet1 Chart 2/ChartObject|#Book20/Sheet1/Book20/1"
+  },
+  {
+   "name": "chart_to_sheet",
+   "action": "ActiveSheet.ChartObjects.Add 10, 10, 200, 100\nLog = \"\"\nActiveSheet.ChartObjects(1).Chart.Location xlLocationAsNewSheet",
+   "result": "book-sink-NewChart:Chart1/Workbook|book-own-NewChart:Chart1/Workbook|app-sink-WorkbookNewChart:Book21/Chart1/Workbook|book-sink-NewSheet:Chart1|book-own-NewSheet:Chart1|app-sink-WorkbookNewSheet:Book21/Chart1|sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|book-sink-SheetActivate:Chart1|book-own-SheetActivate:Chart1|app-sink-SheetActivate:Chart1|#Book21/Chart1/Book21/1"
+  },
+  {
+   "name": "chart_sheet_copy",
+   "action": "ActiveSheet.ChartObjects.Add 10, 10, 200, 100\nLog = \"\"\nSheets(1).Copy After:=Sheets(1)",
+   "result": "sheet-sink-Deactivate:|sheet-own-Deactivate:|book-sink-SheetDeactivate:Sheet1|book-own-SheetDeactivate:Sheet1|app-sink-SheetDeactivate:Sheet1|sheet-own-Activate:|book-sink-SheetActivate:Sheet1 (2)|book-own-SheetActivate:Sheet1 (2)|app-sink-SheetActivate:Sheet1 (2)|#Book22/Sheet1 (2)/Book22/1"
+  },
+  {
+   "name": "chart_events_off",
+   "action": "Log = \"\"\nApplication.EnableEvents = False\nCharts.Add",
+   "result": "#Book23/Chart1/Book23/1"
+  },
+  {
+   "name": "window_new_book",
+   "action": "Log = \"\"\nWorkbooks.Add",
+   "result": "app-sink-NewWorkbook:Book25|book-sink-WindowDeactivate:Book24|book-own-WindowDeactivate:Book24|app-sink-WindowDeactivate:Book24/Book24|book-sink-Deactivate:|book-own-Deactivate:|app-sink-WorkbookDeactivate:Book24/|app-sink-WorkbookActivate:Book25/|app-sink-WindowActivate:Book25/Book25|#Book25/Sheet1/Book25/2"
+  },
+  {
+   "name": "window_back",
+   "action": "Set other = Workbooks.Add\nLog = \"\"\nhome.Activate",
+   "result": "app-sink-WindowDeactivate:Book27/Book27|app-sink-WorkbookDeactivate:Book27/|book-sink-Activate:|book-own-Activate:|app-sink-WorkbookActivate:Book26/|book-sink-WindowActivate:Book26|book-own-WindowActivate:Book26|app-sink-WindowActivate:Book26/Book26|#Book26/Sheet1/Book26/2"
+  },
+  {
+   "name": "window_by_windows",
+   "action": "Set other = Workbooks.Add\nLog = \"\"\nWindows(home.Name).Activate",
+   "result": "app-sink-WindowDeactivate:Book29/Book29|app-sink-WorkbookDeactivate:Book29/|book-sink-Activate:|book-own-Activate:|app-sink-WorkbookActivate:Book28/|book-sink-WindowActivate:Book28|book-own-WindowActivate:Book28|app-sink-WindowActivate:Book28/Book28|#Book28/Sheet1/Book28/2"
+  },
+  {
+   "name": "window_next",
+   "action": "Set other = Workbooks.Add\nLog = \"\"\nActiveWindow.ActivateNext",
+   "result": "app-sink-WindowDeactivate:Book31/Book31|app-sink-WorkbookDeactivate:Book31/|book-sink-Activate:|book-own-Activate:|app-sink-WorkbookActivate:Book30/|book-sink-WindowActivate:Book30|book-own-WindowActivate:Book30|app-sink-WindowActivate:Book30/Book30|#Book30/Sheet1/Book30/2"
+  },
+  {
+   "name": "window_close_active",
+   "action": "Set other = Workbooks.Add\nLog = \"\"\nother.Close False",
+   "result": "app-sink-WorkbookBeforeClose:Book33/|app-sink-WindowDeactivate:Book33/Book33|app-sink-WorkbookDeactivate:Book33/|book-sink-Activate:|book-own-Activate:|app-sink-WorkbookActivate:Book32/|book-sink-WindowActivate:Book32|book-own-WindowActivate:Book32|app-sink-WindowActivate:Book32/Book32|#Book32/Sheet1/Book32/1"
+  },
+  {
+   "name": "window_close_behind",
+   "action": "Set other = Workbooks.Add\nhome.Activate\nLog = \"\"\nother.Close False",
+   "result": "app-sink-WorkbookBeforeClose:Book35/|app-sink-WindowDeactivate:Book35/Book35|app-sink-WorkbookDeactivate:Book35/|book-sink-Activate:|book-own-Activate:|app-sink-WorkbookActivate:Book34/|book-sink-WindowActivate:Book34|book-own-WindowActivate:Book34|app-sink-WindowActivate:Book34/Book34|#Book34/Sheet1/Book34/1"
+  },
+  {
+   "name": "window_cancel_close",
+   "action": "Set other = Workbooks.Add\nWantCancel = True\nLog = \"\"\nother.Close False",
+   "result": "app-sink-WorkbookBeforeClose:Book37/|#Book37/Sheet1/Book37/2"
+  },
+  {
+   "name": "window_close_by_window",
+   "action": "Set other = Workbooks.Add\nLog = \"\"\nActiveWindow.Close False",
+   "result": "app-sink-WorkbookBeforeClose:Book39/|app-sink-WindowDeactivate:Book39/Book39|app-sink-WorkbookDeactivate:Book39/|book-sink-Activate:|book-own-Activate:|app-sink-WorkbookActivate:Book38/|book-sink-WindowActivate:Book38|book-own-WindowActivate:Book38|app-sink-WindowActivate:Book38/Book38|#Book38/Sheet1/Book38/1"
+  },
+  {
+   "name": "window_open_saved",
+   "action": "Set other = Workbooks.Add\nother.SaveAs Environ(\"TEMP\") & \"\\pyopenvba_open_probe.xlsx\", 51\nother.Close\nLog = \"\"\nWorkbooks.Open Environ(\"TEMP\") & \"\\pyopenvba_open_probe.xlsx\"",
+   "result": "book-sink-WindowDeactivate:Book40|book-own-WindowDeactivate:Book40|app-sink-WindowDeactivate:Book40/Book40|book-sink-Deactivate:|book-own-Deactivate:|app-sink-WorkbookDeactivate:Book40/|app-sink-WorkbookActivate:pyopenvba_open_probe.xlsx/|app-sink-WindowActivate:pyopenvba_open_probe.xlsx/pyopenvba_open_probe.xlsx|#pyopenvba_open_probe.xlsx/Sheet1/pyopenvba_open_probe.xlsx/2"
+  },
+  {
+   "name": "window_sheet_copy_new_book",
+   "action": "Worksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(\"Sheet2\").Copy",
+   "result": "app-sink-NewWorkbook:Book43|book-sink-WindowDeactivate:Book42|book-own-WindowDeactivate:Book42|app-sink-WindowDeactivate:Book42/Book42|book-sink-Deactivate:|book-own-Deactivate:|app-sink-WorkbookDeactivate:Book42/|app-sink-WorkbookActivate:Book43/|app-sink-WindowActivate:Book43/Book43|app-sink-SheetActivate:Sheet2|#Book43/Sheet2/Book43/2"
+  },
+  {
+   "name": "window_sheet_move_new_book",
+   "action": "Worksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(\"Sheet2\").Move",
+   "result": "app-sink-NewWorkbook:Book45|book-sink-WindowDeactivate:Book44|book-own-WindowDeactivate:Book44|app-sink-WindowDeactivate:Book44/Book44|book-sink-Deactivate:|book-own-Deactivate:|app-sink-WorkbookDeactivate:Book44/|app-sink-WorkbookActivate:Book45/|app-sink-WindowActivate:Book45/Book45|app-sink-SheetActivate:Sheet2|#Book45/Sheet2/Book45/2"
+  },
+  {
+   "name": "window_same",
+   "action": "Log = \"\"\nActiveWindow.Activate\nhome.Activate\nSheets(1).Activate",
+   "result": "#Book46/Sheet1/Book46/1"
+  },
+  {
+   "name": "window_sheet_only",
+   "action": "Worksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(1).Activate",
+   "result": "book-sink-SheetDeactivate:Sheet2|book-own-SheetDeactivate:Sheet2|app-sink-SheetDeactivate:Sheet2|sheet-sink-Activate:|sheet-own-Activate:|book-sink-SheetActivate:Sheet1|book-own-SheetActivate:Sheet1|app-sink-SheetActivate:Sheet1|#Book47/Sheet1/Book47/1"
+  },
+  {
+   "name": "window_new",
+   "action": "Log = \"\"\nActiveWindow.NewWindow",
+   "result": "book-sink-WindowDeactivate:Book48  -  1|book-own-WindowDeactivate:Book48  -  1|app-sink-WindowDeactivate:Book48/Book48  -  1|book-sink-WindowActivate:Book48  -  2|book-own-WindowActivate:Book48  -  2|app-sink-WindowActivate:Book48/Book48  -  2|#Book48/Sheet1/Book48  -  2/2"
+  },
+  {
+   "name": "window_new_then_first",
+   "action": "ActiveWindow.NewWindow\nLog = \"\"\nhome.Windows(1).Close",
+   "result": "book-sink-WindowDeactivate:Book49  -  2|book-own-WindowDeactivate:Book49  -  2|app-sink-WindowDeactivate:Book49/Book49  -  2|book-sink-WindowActivate:Book49|book-own-WindowActivate:Book49|app-sink-WindowActivate:Book49/Book49|#Book49/Sheet1/Book49/0"
+  },
+  {
+   "name": "window_events_off",
+   "action": "Log = \"\"\nApplication.EnableEvents = False\nWorkbooks.Add",
+   "result": "#Book51/Sheet1/Book51/2"
+  },
+  {
+   "name": "resize_width",
+   "action": "ActiveWindow.WindowState = xlNormal\nLog = \"\"\nActiveWindow.Width = 300",
+   "result": "book-sink-WindowResize:Book52|book-own-WindowResize:Book52|app-sink-WindowResize:Book52/Book52|book-sink-WindowResize:Book52|book-own-WindowResize:Book52|app-sink-WindowResize:Book52/Book52|#Book52/Sheet1/Book52/1"
+  },
+  {
+   "name": "resize_width_same",
+   "action": "ActiveWindow.WindowState = xlNormal\nActiveWindow.Width = 300\nLog = \"\"\nActiveWindow.Width = 300",
+   "result": "book-sink-WindowResize:Book53|book-own-WindowResize:Book53|app-sink-WindowResize:Book53/Book53|#Book53/Sheet1/Book53/1"
+  },
+  {
+   "name": "resize_height",
+   "action": "ActiveWindow.WindowState = xlNormal\nLog = \"\"\nActiveWindow.Height = 200",
+   "result": "book-sink-WindowResize:Book54|book-own-WindowResize:Book54|app-sink-WindowResize:Book54/Book54|book-sink-WindowResize:Book54|book-own-WindowResize:Book54|app-sink-WindowResize:Book54/Book54|#Book54/Sheet1/Book54/1"
+  },
+  {
+   "name": "resize_width_read_back",
+   "action": "ActiveWindow.WindowState = xlNormal\nActiveWindow.Width = 300\nLog = \"\"\nActiveWindow.Width = ActiveWindow.Width",
+   "result": "book-sink-WindowResize:Book55|book-own-WindowResize:Book55|app-sink-WindowResize:Book55/Book55|#Book55/Sheet1/Book55/1"
+  },
+  {
+   "name": "resize_width_again",
+   "action": "ActiveWindow.WindowState = xlNormal\nActiveWindow.Width = 300\nLog = \"\"\nActiveWindow.Width = 320",
+   "result": "book-sink-WindowResize:Book56|book-own-WindowResize:Book56|app-sink-WindowResize:Book56/Book56|book-sink-WindowResize:Book56|book-own-WindowResize:Book56|app-sink-WindowResize:Book56/Book56|#Book56/Sheet1/Book56/1"
+  },
+  {
+   "name": "resize_other_book",
+   "action": "Set other = Workbooks.Add\nhome.Activate\nother.Windows(1).WindowState = xlNormal\nLog = \"\"\nother.Windows(1).Width = 300",
+   "result": "app-sink-WindowResize:Book58/Book58|app-sink-WindowResize:Book58/Book58|#Book57/Sheet1/Book57/2"
+  },
+  {
+   "name": "state_same",
+   "action": "ActiveWindow.WindowState = xlNormal\nLog = \"\"\nActiveWindow.WindowState = xlNormal",
+   "result": "#Book59/Sheet1/Book59/1"
+  },
+  {
+   "name": "move_left",
+   "action": "ActiveWindow.WindowState = xlNormal\nLog = \"\"\nActiveWindow.Left = 40",
+   "result": "#Book60/Sheet1/Book60/1"
+  },
+  {
+   "name": "state_maximized",
+   "action": "ActiveWindow.WindowState = xlNormal\nLog = \"\"\nActiveWindow.WindowState = xlMaximized",
+   "result": "book-sink-WindowResize:Book61|book-own-WindowResize:Book61|app-sink-WindowResize:Book61/Book61|#Book61/Sheet1/Book61/1"
+  },
+  {
+   "name": "state_minimized",
+   "action": "ActiveWindow.WindowState = xlNormal\nLog = \"\"\nActiveWindow.WindowState = xlMinimized",
+   "result": "book-sink-WindowResize:Book62|book-own-WindowResize:Book62|app-sink-WindowResize:Book62/Book62|#Book62/Sheet1/Book62/1"
+  },
+  {
+   "name": "print_sheet",
+   "action": "WantCancel = True\nRange(\"A1\").Value = 1\nLog = \"\"\nActiveSheet.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book63/Sheet1|#Book63/Sheet1/Book63/1"
+  },
+  {
+   "name": "print_book",
+   "action": "WantCancel = True\nRange(\"A1\").Value = 1\nLog = \"\"\nActiveWorkbook.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book64/Sheet1|#Book64/Sheet1/Book64/1"
+  },
+  {
+   "name": "print_range",
+   "action": "WantCancel = True\nRange(\"A1\").Value = 1\nLog = \"\"\nRange(\"A1\").PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book65/Sheet1|#Book65/Sheet1/Book65/1"
+  },
+  {
+   "name": "print_other_sheet",
+   "action": "WantCancel = True\nRange(\"A1\").Value = 1\nWorksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(\"Sheet1\").PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-SheetDeactivate:Sheet2|book-own-SheetDeactivate:Sheet2|app-sink-SheetDeactivate:Sheet2|sheet-sink-Activate:|sheet-own-Activate:|book-sink-SheetActivate:Sheet1|book-own-SheetActivate:Sheet1|app-sink-SheetActivate:Sheet1|book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book66/Sheet1|#Book66/Sheet2/Book66/1"
+  },
+  {
+   "name": "print_chart",
+   "action": "WantCancel = True\nCharts.Add\nLog = \"\"\nActiveChart.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Chart1|book-own-BeforePrint:Chart1|app-sink-WorkbookBeforePrint:Book67/Chart1|#Book67/Chart1/Book67/1"
+  },
+  {
+   "name": "print_through",
+   "action": "Range(\"A1\").Value = 1\nLog = \"\"\nActiveSheet.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book68/Sheet1|#Book68/Sheet1/Book68/1"
+  },
+  {
+   "name": "print_through_other_sheet",
+   "action": "Range(\"A1\").Value = 1\nWorksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(\"Sheet1\").PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-SheetDeactivate:Sheet2|book-own-SheetDeactivate:Sheet2|app-sink-SheetDeactivate:Sheet2|sheet-sink-Activate:|sheet-own-Activate:|book-sink-SheetActivate:Sheet1|book-own-SheetActivate:Sheet1|app-sink-SheetActivate:Sheet1|book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book69/Sheet1|#Book69/Sheet2/Book69/1"
+  },
+  {
+   "name": "print_through_book",
+   "action": "Range(\"A1\").Value = 1\nWorksheets.Add After:=Sheets(1)\nRange(\"A1\").Value = 1\nLog = \"\"\nActiveWorkbook.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet2|book-own-BeforePrint:Sheet2|app-sink-WorkbookBeforePrint:Book70/Sheet2|#Book70/Sheet2/Book70/1"
+  },
+  {
+   "name": "print_window",
+   "action": "WantCancel = True\nRange(\"A1\").Value = 1\nLog = \"\"\nActiveWindow.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "!E1004#Book71/Sheet1/Book71/1"
+  },
+  {
+   "name": "print_empty",
+   "action": "WantCancel = True\nLog = \"\"\nActiveSheet.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book72/Sheet1|#Book72/Sheet1/Book72/1"
+  },
+  {
+   "name": "print_empty_through",
+   "action": "Log = \"\"\nActiveSheet.PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book73/Sheet1|#Book73/Sheet1/Book73/1"
+  },
+  {
+   "name": "print_hidden",
+   "action": "WantCancel = True\nRange(\"A1\").Value = 1\nWorksheets.Add After:=Sheets(1)\nSheets(\"Sheet1\").Visible = False\nLog = \"\"\nSheets(\"Sheet1\").PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "!E1004#Book74/Sheet2/Book74/1"
+  },
+  {
+   "name": "print_other_book",
+   "action": "WantCancel = True\nRange(\"A1\").Value = 1\nSet other = Workbooks.Add\nLog = \"\"\nhome.Sheets(1).PrintOut PrintToFile:=True, PrToFileName:=Environ(\"TEMP\") & \"\\pyopenvba_print_probe.prn\"",
+   "result": "book-sink-BeforePrint:Sheet1|book-own-BeforePrint:Sheet1|app-sink-WorkbookBeforePrint:Book75/Sheet1|#Book76/Sheet1/Book76/2"
+  },
+  {
+   "name": "follow_inside",
+   "action": "ActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"Sheet1!C3\"\nLog = \"\"\nActiveSheet.Hyperlinks(1).Follow",
+   "result": "sheet-sink-SelectionChange:C3|sheet-own-SelectionChange:C3|book-sink-SheetSelectionChange:Sheet1/C3|book-own-SheetSelectionChange:Sheet1/C3|app-sink-SheetSelectionChange:Sheet1/C3|sheet-sink-FollowHyperlink:Sheet1!C3|sheet-own-FollowHyperlink:Sheet1!C3|book-sink-SheetFollowHyperlink:Sheet1/Sheet1!C3/C3|book-own-SheetFollowHyperlink:Sheet1/Sheet1!C3/C3|app-sink-SheetFollowHyperlink:Sheet1/Sheet1!C3/C3|#Book77/Sheet1/Book77/1"
+  },
+  {
+   "name": "follow_range",
+   "action": "ActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"Sheet1!C3\"\nLog = \"\"\nRange(\"A1\").Hyperlinks(1).Follow NewWindow:=False",
+   "result": "sheet-sink-SelectionChange:C3|sheet-own-SelectionChange:C3|book-sink-SheetSelectionChange:Sheet1/C3|book-own-SheetSelectionChange:Sheet1/C3|app-sink-SheetSelectionChange:Sheet1/C3|sheet-sink-FollowHyperlink:Sheet1!C3|sheet-own-FollowHyperlink:Sheet1!C3|book-sink-SheetFollowHyperlink:Sheet1/Sheet1!C3/C3|book-own-SheetFollowHyperlink:Sheet1/Sheet1!C3/C3|app-sink-SheetFollowHyperlink:Sheet1/Sheet1!C3/C3|#Book78/Sheet1/Book78/1"
+  },
+  {
+   "name": "follow_other_sheet",
+   "action": "Worksheets.Add After:=Sheets(1)\nActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"Sheet1!C3\"\nLog = \"\"\nActiveSheet.Hyperlinks(1).Follow",
+   "result": "sheet-sink-SelectionChange:C3|sheet-own-SelectionChange:C3|book-sink-SheetSelectionChange:Sheet1/C3|book-own-SheetSelectionChange:Sheet1/C3|app-sink-SheetSelectionChange:Sheet1/C3|book-sink-SheetDeactivate:Sheet2|book-own-SheetDeactivate:Sheet2|app-sink-SheetDeactivate:Sheet2|sheet-sink-Activate:|sheet-own-Activate:|book-sink-SheetActivate:Sheet1|book-own-SheetActivate:Sheet1|app-sink-SheetActivate:Sheet1|book-sink-SheetFollowHyperlink:Sheet2/Sheet1!C3/C3|book-own-SheetFollowHyperlink:Sheet2/Sheet1!C3/C3|app-sink-SheetFollowHyperlink:Sheet2/Sheet1!C3/C3|#Book79/Sheet1/Book79/1"
+  },
+  {
+   "name": "follow_nowhere",
+   "action": "ActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"Nowhere!C3\"\nLog = \"\"\nActiveSheet.Hyperlinks(1).Follow",
+   "result": "sheet-sink-FollowHyperlink:Nowhere!C3|sheet-own-FollowHyperlink:Nowhere!C3|book-sink-SheetFollowHyperlink:Sheet1/Nowhere!C3/A1|book-own-SheetFollowHyperlink:Sheet1/Nowhere!C3/A1|app-sink-SheetFollowHyperlink:Sheet1/Nowhere!C3/A1|#Book80/Sheet1/Book80/1"
+  },
+  {
+   "name": "follow_unqualified",
+   "action": "ActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"C3\"\nLog = \"\"\nActiveSheet.Hyperlinks(1).Follow",
+   "result": "sheet-sink-SelectionChange:C3|sheet-own-SelectionChange:C3|book-sink-SheetSelectionChange:Sheet1/C3|book-own-SheetSelectionChange:Sheet1/C3|app-sink-SheetSelectionChange:Sheet1/C3|sheet-sink-FollowHyperlink:C3|sheet-own-FollowHyperlink:C3|book-sink-SheetFollowHyperlink:Sheet1/C3/C3|book-own-SheetFollowHyperlink:Sheet1/C3/C3|app-sink-SheetFollowHyperlink:Sheet1/C3/C3|#Book81/Sheet1/Book81/1"
+  },
+  {
+   "name": "follow_name",
+   "action": "ActiveWorkbook.Names.Add \"Spot\", \"=Sheet1!$D$4\"\nActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"Spot\"\nLog = \"\"\nActiveSheet.Hyperlinks(1).Follow",
+   "result": "sheet-sink-SelectionChange:D4|sheet-own-SelectionChange:D4|book-sink-SheetSelectionChange:Sheet1/D4|book-own-SheetSelectionChange:Sheet1/D4|app-sink-SheetSelectionChange:Sheet1/D4|sheet-sink-FollowHyperlink:Spot|sheet-own-FollowHyperlink:Spot|book-sink-SheetFollowHyperlink:Sheet1/Spot/D4|book-own-SheetFollowHyperlink:Sheet1/Spot/D4|app-sink-SheetFollowHyperlink:Sheet1/Spot/D4|#Book82/Sheet1/Book82/1"
+  },
+  {
+   "name": "follow_behind",
+   "action": "Sheets(1).Hyperlinks.Add Sheets(1).Range(\"A1\"), \"\", \"C3\"\nWorksheets.Add After:=Sheets(1)\nLog = \"\"\nSheets(\"Sheet1\").Hyperlinks(1).Follow",
+   "result": "sheet-sink-SelectionChange:C3|sheet-own-SelectionChange:C3|book-sink-SheetSelectionChange:Sheet1/C3|book-own-SheetSelectionChange:Sheet1/C3|app-sink-SheetSelectionChange:Sheet1/C3|sheet-sink-FollowHyperlink:C3|sheet-own-FollowHyperlink:C3|book-sink-SheetFollowHyperlink:Sheet1/C3/C3|book-own-SheetFollowHyperlink:Sheet1/C3/C3|app-sink-SheetFollowHyperlink:Sheet1/C3/C3|#Book83/Sheet1/Book83/1"
+  },
+  {
+   "name": "follow_same_cell",
+   "action": "ActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"Sheet1!A1\"\nLog = \"\"\nActiveSheet.Hyperlinks(1).Follow",
+   "result": "sheet-sink-FollowHyperlink:Sheet1!A1|sheet-own-FollowHyperlink:Sheet1!A1|book-sink-SheetFollowHyperlink:Sheet1/Sheet1!A1/A1|book-own-SheetFollowHyperlink:Sheet1/Sheet1!A1/A1|app-sink-SheetFollowHyperlink:Sheet1/Sheet1!A1/A1|#Book84/Sheet1/Book84/1"
+  },
+  {
+   "name": "follow_events_off",
+   "action": "ActiveSheet.Hyperlinks.Add Range(\"A1\"), \"\", \"Sheet1!C3\"\nLog = \"\"\nApplication.EnableEvents = False\nActiveSheet.Hyperlinks(1).Follow",
+   "result": "#Book85/Sheet1/Book85/1"
+  }
+ ]
+}

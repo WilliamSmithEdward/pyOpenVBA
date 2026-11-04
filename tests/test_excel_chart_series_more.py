@@ -50,5 +50,5 @@ def test_each_saved_chart_reads_back(run: tuple[ExcelApplication, list[str], Pat
     assert first is not None
     explosion = re.search(r'<c:explosion val="(\d+)"/>', first.group(0))
     inverted = '<c:invertIfNegative val="1"/>' in first.group(0)
-    expected = f'{inverted},{explosion.group(1) if explosion else 0},{"<c:dTable>" in part}'
+    expected = f'{inverted},{explosion.group(1) if explosion else 0},{"<c:dTable>" in part and not RECORD["cases"][index][0].startswith(("xlPie", "xlDoughnut", "xlXY"))}'
     assert run[0].run('SeriesProbe.Reopen', str(run[2] / f'c{index}.xlsx')) == expected

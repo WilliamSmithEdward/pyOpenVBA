@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba._a1 import Area, quote_sheet
+from pyopenvba.apps.excel import _events
 from pyopenvba.apps.excel._charts_file import xml_tree
 from pyopenvba.apps.excel._xstring import decode, encode_text
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -213,6 +214,8 @@ def copy_sheets(sources: list[Worksheet], before: object, after: object) -> obje
     destination.names_.changed = True
     for copied in copies:
         copied.shape_changed()
+    if anchor is MISSING:
+        _events.new_workbook(destination)
     copies[0].Activate()
     from pyopenvba.apps.excel._model import Range
 
@@ -222,6 +225,9 @@ def copy_sheets(sources: list[Worksheet], before: object, after: object) -> obje
         if chosen is not None:
             corner = chosen.first
             copied.active_cell_range = Range(copied, [Area(corner.top, corner.left, corner.top, corner.left, copied.name)])
+    if anchor is MISSING:
+        # The new workbook's window is in front by now, and its sheet activates after it.
+        _events.sheet_entered(copies[0])
     return EMPTY
 
 

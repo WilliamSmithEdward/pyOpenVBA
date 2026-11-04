@@ -1,21 +1,21 @@
 {
-  "raw_sha256": "c9b4462f8e2da4e5b8b7fcf5815e4b8c2e7e5408e7e41da37748592314d2c92e",
+  "raw_sha256": "c193707cb78f15fb5ce7bd5acf9fe415eb5b6bc9ee9e6afc7f0bdf0e412051df",
   "samples": {
     "inplace": {
       "file": "inplace.xlsx",
-      "sha256": "76c5b2964196f8148323b76695a77809e14a03f42711723db09042ce7a55b917"
+      "sha256": "aeadd09640edfc6eec1c5b7e13cf1655c12c7e885558e4ab32ad412fc4016d6c"
     },
     "extract": {
       "file": "extract.xlsx",
-      "sha256": "5968ad689d2c66bf7cc16f2186d17d7e989affdd7baceb445606b9db83ec730f"
+      "sha256": "73da489e4a49bb43874d3a733b92236be482c33ae13f51c89eebb23fcd69a56e"
     },
     "showall": {
       "file": "showall.xlsx",
-      "sha256": "94d95c301ad5acb09d8be095c88603a2b157c49feaac5793155c06c906c175b9"
+      "sha256": "43cd2652b26576b2e61652437320416f2b1dc7cb651237d03245537345d2c671"
     },
     "unique-showall": {
       "file": "unique-showall.xlsx",
-      "sha256": "1d44440973752e3a1760cdbc2ae6dd0d19ebe824449e18dad1f89dbe1b9582f5"
+      "sha256": "77adf40c5023d408300951573d5c3970dddbb66c286251e4120464100966872e"
     }
   }
 }

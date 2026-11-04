@@ -35,7 +35,7 @@ from pyopenvba.apps.excel._charts import (
     select_element,
     shown_type,
 )
-from pyopenvba.apps.excel._chart_borders import ElementProperties
+from pyopenvba.apps.excel._chart_borders import ElementProperties, PictureMembers
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._number_format import to_file
 from pyopenvba.apps.excel._styles import bgr
@@ -211,7 +211,7 @@ class Points(VBACollection, ItemDefault, Created):
         return items[place - 1]
 
 
-class Point(ElementProperties, Created):
+class Point(ElementProperties, PictureMembers, Created):
     vba_type_name = "Point"
 
     def __init__(self, series: Series, index: int) -> None:
@@ -558,8 +558,19 @@ class Point(ElementProperties, Created):
 
     @member
     def Shadow(self) -> object:
+        """Its series' (tests/fixtures/chart_members_more.json)."""
         self.kind()
-        return False
+        return bool(self.series.entry.shadow)
+
+    @method
+    def PieSliceLocation(self, loc: object = MISSING, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Where a slice lies, which needs the chart's layout; what Excel refuses it refuses here
+        (tests/fixtures/chart_members_more.json)."""
+        if self.kind() not in ("pie", "doughnut"):
+            raise error(1004, "Unable to get the PieSliceLocation property of the Point class")
+        if Index is not MISSING or int(to_integer(loc, "Long")) not in (-4152, -4160, 1, 2):
+            raise error(5, "Invalid procedure call or argument")
+        raise VBAUnsupportedError("Point.PieSliceLocation needs the chart's layout and is not implemented")
 
     @member
     def Has3DEffect(self) -> object:

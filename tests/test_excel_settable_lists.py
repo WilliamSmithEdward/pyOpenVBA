@@ -13,8 +13,6 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 ROWS: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/settable_lists.json').read_text(encoding='utf-8'))['rows']
-#: The name is gone when Excel opens the file again, where the model keeps it: a macro name, or one that refers to nothing.
-GONE = {('Name.MacroType', value) for value in ('1', '2', '1.5', '"1"')} | {(f'Name.{name}', '""') for name in ('RefersTo', 'RefersToLocal', 'RefersToR1C1', 'RefersToR1C1Local', 'Value')} | {('Name.Value', 'Empty')}
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='the macros name files by Windows paths')
@@ -31,8 +29,6 @@ def test_typed_sets_as_excel_answered(tmp_path: Path, name: str) -> None:
             got = str(app.run('T', index, str(tmp_path)))
         except VBAUnsupportedError:
             continue  # it says it cannot, which the compare script counts
-        if (name, value) in GONE:
-            got, answer = got.rsplit('|', 1)[0], answer.rsplit('|', 1)[0]
         if got != answer:
             wrong.append((value, answer, got))
     assert not wrong

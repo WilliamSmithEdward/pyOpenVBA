@@ -429,6 +429,7 @@ class ExcelApplication(NamedRangeAPI):
             raise ValueError("Workbook is not open in this application")
         project = attach_project(workbook)
         assert project is not None
+        workbook.code_is_its_own = True
         return project.add_module(source, name=name, kind=kind)
 
     # --- running --------------------------------------------------------------------

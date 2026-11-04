@@ -2574,6 +2574,8 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     # Excel leaves Excel 4 macro names out of a workbook saved without macros (tests/fixtures/name_macro.json).
     macros = workbook_format(book) in (52, 53, 55)
     for entry in book.names_.entries:
+        if entry.macro_links_itself and macros:
+            raise VBAUnsupportedError("Saving a macro name whose RefersTo was set to a sheet's cells is not implemented")
         if entry.macro_type and not macros:
             continue
         # A name that came from the file keeps the attributes it came
@@ -2607,7 +2609,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         attributes = attributes.strip()
         refers_to = saved_name(prefixes.in_file(in_file(entry.refers_to, tables)).lstrip("="))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
-                        f"<definedName {attributes}>{_escape(refers_to)}</definedName>"))
+                        f"<definedName {attributes}>{_escape_text(refers_to)}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and
     # a name on a sheet before the workbook's of the same name, sheets in the order of their names.
     written.sort(key=lambda pair: pair[0])

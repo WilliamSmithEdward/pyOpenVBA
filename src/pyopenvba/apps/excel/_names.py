@@ -41,7 +41,7 @@ _R1C1_START = re.compile(r"(R([0-9]*))?(C([0-9]*))?", re.I)
 
 def refers_text(value: object, empty: str = "=") -> str:
     """What setting a name's RefersTo to ``value`` holds: a formula as it is if it parses, and error 1004 if not; TRUE for
-    True, and other text quoted, which reads as text (tests/fixtures/settable_lists.json). Null names the active cell, in
+    True, other text quoted, which reads as text, and "=" for "", which is nothing at all (tests/fixtures/settable_lists.json). Null names the active cell, in
     the table's own words if it is in one, which reports itself."""
     from pyopenvba.exceptions import VBAUnsupportedError
     from pyopenvba.formula._parse import FormulaError, parse
@@ -56,8 +56,10 @@ def refers_text(value: object, empty: str = "=") -> str:
     text = to_text(value)
     if not isinstance(value, str):
         return "=" + text
-    if not text or text == "=":
+    if not text:
         return "="
+    if text == "=":
+        return '="="'
     if not text.startswith("="):
         return '="' + text.replace('"', '""') + '"'
     try:

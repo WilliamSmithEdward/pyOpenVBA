@@ -30,10 +30,13 @@ def macro_type(entry: NameEntry) -> int:
 
 
 def set_macro_type(entry: NameEntry, value: object) -> None:
-    """xlFunction and xlCommand, and xlNone on a name that is neither; anything else is refused with 1004
-    (tests/fixtures/settable_lists.json)."""
+    """xlFunction and xlCommand, and xlNone to make it an ordinary name; anything else is refused with 1004
+    (tests/fixtures/settable_lists.json, name_saves.json)."""
     wanted = int(to_integer(value))
-    if wanted == -4142 and not entry.macro_type:
+    if wanted == -4142:
+        if entry.macro_type:
+            entry.macro_type = 0
+            entry.macro_changed = True
         return
     if wanted not in (1, 2):
         raise error(1004)

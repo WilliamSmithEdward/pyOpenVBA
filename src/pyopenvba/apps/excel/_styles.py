@@ -664,8 +664,11 @@ def fill_xml(fill: Fill) -> str:
         return fill.gradient
     if fill.pattern == "none":
         return '<fill><patternFill patternType="none"/></fill>'
-    # An automatic colour's shade lasts only until the save (tests/fixtures/format_properties.json).
-    fill = dataclasses.replace(fill, foreground=_without_automatic_tint(fill.foreground), background=_without_automatic_tint(fill.background))
+    # An automatic cell colour's shade lasts only until the save, though a pattern colour's stays (tests/fixtures/format_properties.json).
+    if fill.pattern == "solid":
+        fill = dataclasses.replace(fill, foreground=_without_automatic_tint(fill.foreground))
+    else:
+        fill = dataclasses.replace(fill, background=_without_automatic_tint(fill.background))
     foreground = fill.foreground != FOREGROUND
     background = fill.background != BACKGROUND
     if fill.bare:

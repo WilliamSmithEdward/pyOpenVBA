@@ -1372,7 +1372,7 @@ Gridlines,Select,method,Select() As Variant,,UNASSESSED,,
 Gridlines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 GroupShapes,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 GroupShapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-GroupShapes,Application,"property, read-only",As Application,,MISSING,,
+GroupShapes,Application,"property, read-only",As Application,,UNASSESSED,,
 GroupShapes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 GroupShapes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 GroupShapes,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,A member by number or by name.
@@ -1397,8 +1397,10 @@ HPageBreaks,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pag
 HeaderFooter,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 HeaderFooter,Picture,"property, read-only",As Graphic,,MISSING,,
 HeaderFooter,Text,property,As String,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,"Reads and sets its page's section as PageSetup's sections do, written whether or not its page's flag is on; past 255 characters error 1004 with Excel's message for it, Application-defined or object-defined error"
+HeldByChart,Application,not in the type library,,,UNASSESSED,,
 HeldByChart,Count,not in the type library,,,UNASSESSED,,
 HeldByChart,Creator,not in the type library,,,UNASSESSED,,
+HeldByChart,Parent,not in the type library,,,UNASSESSED,,
 HiLoLines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,Read.
 HiLoLines,Border,"property, read-only",As Border,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 HiLoLines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,Read.

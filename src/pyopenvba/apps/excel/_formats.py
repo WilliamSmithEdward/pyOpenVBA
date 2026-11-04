@@ -677,7 +677,8 @@ class ColorStop(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.stops
+        """The gradient, not the collection that handed it out (tests/fixtures/object_trio.json)."""
+        return self.stops.gradient
 
     @member
     def Application(self) -> object:

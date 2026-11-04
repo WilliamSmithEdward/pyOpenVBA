@@ -87,9 +87,9 @@ def palette(value: object) -> styles.Color:
 
 class _Patch(ExcelObject):
     def __init__(self, root: XmlElement, changed: Callable[[], None], sheet: Worksheet,
-                 *, color_source: Callable[[], XmlElement] | None = None) -> None:
+                 *, color_source: Callable[[], XmlElement] | None = None, parent: object = None) -> None:
         self.root, self.changed, self.sheet = root, changed, sheet
-        self.color_source = color_source
+        self.color_source, self.parent = color_source, parent
 
     def guard_set(self, member: str) -> None:
         protection = self.sheet.protection
@@ -103,6 +103,11 @@ class _Patch(ExcelObject):
     @member
     def Application(self) -> object:
         return self.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        """The format condition this is the format of (tests/fixtures/object_trio.json)."""
+        return self.parent
 
 
 class ConditionalFont(_Patch):
@@ -293,8 +298,8 @@ class ConditionalBorder(_Patch):
     vba_type_name = 'Border'
 
     def __init__(self, root: XmlElement, changed: Callable[[], None], sheet: Worksheet, index: int,
-                 *, color_source: Callable[[], XmlElement] | None = None) -> None:
-        super().__init__(root, changed, sheet, color_source=color_source)
+                 *, color_source: Callable[[], XmlElement] | None = None, parent: object = None) -> None:
+        super().__init__(root, changed, sheet, color_source=color_source, parent=parent)
         self.index = index
 
     def side(self, create: bool = False, *, root: XmlElement | None = None) -> XmlElement | None:
@@ -406,14 +411,15 @@ class ConditionalBorders(VBACollection, _Patch):
     vba_type_name = 'Borders'
 
     def vba_items(self) -> list[object]:
-        return [ConditionalBorder(self.root, self.changed, self.sheet, index, color_source=self.color_source)
-                for index in (1, 2, 3, 4)]
+        return [ConditionalBorder(self.root, self.changed, self.sheet, index, color_source=self.color_source,
+                                  parent=self.parent) for index in (1, 2, 3, 4)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         selected = int(to_integer(index, 'Long'))
         if selected not in (*LEGACY_SIDES, *SIDES, 5, 6, 11, 12):
             raise error(1004)
-        return ConditionalBorder(self.root, self.changed, self.sheet, selected, color_source=self.color_source)
+        return ConditionalBorder(self.root, self.changed, self.sheet, selected, color_source=self.color_source,
+                                 parent=self.parent)
 
     def read(self, what: str) -> object:
         return uniform(ConditionalBorder(self.root, self.changed, self.sheet, index,

@@ -624,7 +624,7 @@ class Windows(VBACollection, ItemDefault, ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.application
+        return self.application if self.book is None else self.book
 
     # -- side by side, which one window at a time never is (tests/fixtures/window_members.json)
 

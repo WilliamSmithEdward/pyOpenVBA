@@ -146,9 +146,13 @@ def given(target: VBAObject, name: str, value: object) -> object:
     if lower == 'tintandshade' and target.vba_type_name == 'Font' and _is_number(value):
         amount = float(to_number(value))
         return math.trunc(amount * 32767) / 32767 if -1 <= amount <= 1 else value
-    if lower in LONG_LIMITED and target.vba_type_name in ('Font', 'Border', 'Borders') and _is_number(value) and float(to_number(value)) == 2147483647:
-        # The largest Long stands for no value, as a colour; a number past it overflows.
-        raise error(1004, f'Unable to set the {name} property of the {target.vba_type_name} class')
+    if lower in LONG_LIMITED and target.vba_type_name in ('Font', 'Border', 'Borders'):
+        # The largest Long stands for no value, as a colour, once it is rounded; a number past it overflows.
+        number = value
+        if isinstance(value, Range) and value.areas[0].rows * value.areas[0].columns == 1:
+            number = Range(value.sheet, [value.areas[0]]).vba_value()
+        if _is_number(number) and round(float(to_number(number))) == 2147483647:
+            raise error(1004, f'Unable to set the {name} property of the {target.vba_type_name} class')
     if lower in CONVERTING or lower in HOLDING:
         return value
     refusal = error(1004, f'Unable to set the {name} property of the {target.vba_type_name} class')

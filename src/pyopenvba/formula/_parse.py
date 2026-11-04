@@ -155,6 +155,12 @@ _LINKED = rf"\[[0-9]+\](?:{BARE_SHEET}(?::{BARE_SHEET})?)?!"
 #: Another workbook's sheet as a macro may write it, by its file's name: [Source.xlsx]Sheet1!.
 _BOOK_SHEET = rf"\[[^\[\]'!]+\]{BARE_SHEET}(?::{BARE_SHEET})?!"
 
+#: What a reference to a deleted sheet leaves after its #REF!, #REF!A1 for Gone!A1: Excel reads it as the error, and
+#: writes only the error in a file (tests/fixtures/sheet_delete_refs.json).
+_DANGLING: Final = (rf"(?i:\#REF!)(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})"
+                    r"(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff])")
+_DANGLING_OR_QUOTED: Final = re.compile(rf"""\"(?:[^\"]|\"\")*\"|'(?:[^']|'')*'|(?P<dangling>{_DANGLING})""")
+
 _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
@@ -162,7 +168,7 @@ _TOKEN: Final = re.compile(
   | (?P<linked_ref>(?:{_LINKED}|{_BOOK_SHEET})(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff]))
   | (?P<linked_name>{_LINKED}[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*)
   | (?P<structured>{STRUCTURED})
-  | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
+  | (?P<error>{_DANGLING}|(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff]))
   | (?P<name>(?:{_SHEET})?(?:[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*|'(?:[^']|'')+'(?!!)))
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
@@ -215,6 +221,18 @@ def tokenize(source: str, *, spaces: bool = False) -> list[Token]:
         out.extend(_three_d(Token(kind, match.group(0), match.start()), bracketed=calls[-1:] == [False]))
     out.append(Token("eof", "", len(source)))
     return _bind_cells(out)
+
+
+def has_dangling_reference(formula: str) -> bool:
+    """Whether a formula holds what a deleted sheet leaves, which Excel shows but will not take as typed."""
+    return "#REF!" in formula.upper() and any(found.group("dangling") for found in _DANGLING_OR_QUOTED.finditer(formula))
+
+
+def without_dangling_references(formula: str) -> str:
+    """A formula as a file holds it, with what a deleted sheet left after each #REF! gone."""
+    if "#REF!" not in formula.upper():
+        return formula
+    return _DANGLING_OR_QUOTED.sub(lambda found: "#REF!" if found.group("dangling") else found.group(0), formula)
 
 
 def _three_d(token: Token, *, bracketed: bool) -> list[Token]:
@@ -602,6 +620,8 @@ class Parser:
         if token.kind == "error":
             self.advance()
             text = ("#" + token.text.rpartition("!#")[2] if "!#" in token.text else token.text).upper()
+            if text.startswith("#REF!"):
+                text = "#REF!"
             return Literal(value=ERRORS.get(text, ExcelError(text)))
         if token.kind == "ref":
             self.advance()

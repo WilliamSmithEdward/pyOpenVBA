@@ -25,9 +25,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
-from pyopenvba.formula._parse import shift_text
+from pyopenvba.formula._parse import has_dangling_reference, shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._clipboard_ends import ENDING
@@ -4606,6 +4606,9 @@ class Range(ExcelObject):
         """
         value = _not_null(value)
         _within_length(value)
+        if isinstance(value, str) and has_dangling_reference(value):
+            # #REF!A1 is what Excel shows for a deleted sheet's cell, and not a formula it takes (tests/fixtures/sheet_delete_refs.json).
+            raise error(1004, "Application-defined or object-defined error")
         self._formula_written(value)
 
     def _formula_written(self, value: object, *, dynamic: bool = False) -> None:
@@ -8130,6 +8133,10 @@ def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
         return formula
     from pyopenvba.apps.excel._external_links import shown as linked_shown
 
+    if "[0]!" in formula:
+        # A name of a deleted sheet, as this workbook's: a file holds [0]!Name, and Excel shows the workbook's name as
+        # it is now (tests/fixtures/sheet_delete_refs.json).
+        formula = formula.replace("[0]!", quote_sheet(sheet.book.name) + "!")
     formula = linked_shown(sheet.book, formula)
     if not sheet.tables:
         return formula

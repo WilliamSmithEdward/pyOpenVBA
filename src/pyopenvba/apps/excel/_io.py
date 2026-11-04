@@ -32,6 +32,7 @@ from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _e
 from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
+from pyopenvba.formula._parse import without_dangling_references
 from pyopenvba.formula._prefixes import calculated_always
 from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
@@ -2573,7 +2574,7 @@ def _formula_xml(text: str, tables: Collection[str]) -> str:
     (pyopenvba.formula._structured.in_file), a newer function and a name a LET binds with their prefixes
     (pyopenvba.formula._prefixes), a line break as Excel writes one there, CR LF, and a carriage return on its own
     as _x000D_ (tests/fixtures/structured_references/)."""
-    spelled = prefixes.in_file(in_file("=" + text, tables))
+    spelled = without_dangling_references(prefixes.in_file(in_file("=" + text, tables)))
     return _escape_text(_encode_string(spelled[1:])).replace("\n", "\r\n")
 
 
@@ -2766,7 +2767,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
             for key, value in macro_saved(entry).items():
                 attributes = patch_attribute(attributes, key, value)
         attributes = attributes.strip()
-        refers_to = saved_name(prefixes.in_file(in_file(entry.refers_to, tables)).lstrip("="))
+        refers_to = saved_name(without_dangling_references(prefixes.in_file(in_file(entry.refers_to, tables))).lstrip("="))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
                         f"<definedName {attributes}>{_escape(refers_to)}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and

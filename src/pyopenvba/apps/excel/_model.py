@@ -6303,7 +6303,13 @@ class Range(ExcelObject):
         elif all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas):
             self._delete_lines()
         elif len(self.areas) != 1:
-            raise VBAUnsupportedError("deleting cells in several areas is not implemented")
+            # Each area alone, the last on the sheet first; areas that overlap are 1004 (tests/fixtures/range_areas.json).
+            if _merges.overlap(self.areas):
+                raise error(1004, "Delete method of Range class failed")
+            if any(area.whole_rows or area.whole_columns for area in self.areas):
+                raise VBAUnsupportedError("deleting cells and whole lines together is not implemented")
+            for one in sorted(self.areas, key=lambda area: (area.top, area.left) if up else (area.left, area.top), reverse=True):
+                self._delete_cells(one, up)
         else:
             self._delete_cells(self.first, up)
         _events.after_edit(where, calculate_first=True)
@@ -6341,6 +6347,31 @@ class Range(ExcelObject):
 
         self.shifting_cells()
         shift_cells(self, area, delete=True, vertical=up)
+
+    def _insert_areas(self, shift: object, below: bool, refusal: str) -> None:
+        """Insert in each of several areas alone, the last on the sheet first; areas that overlap are 1004, and which
+        way they go follows the first (tests/fixtures/range_areas.json)."""
+        from pyopenvba.apps.excel._editing import edit, shift_cells
+        from pyopenvba.apps.excel._method_arguments import variant_number
+
+        if _merges.overlap(self.areas):
+            raise error(1004, refusal)
+        rows, columns = all(one.whole_rows for one in self.areas), all(one.whole_columns for one in self.areas)
+        if rows or columns:
+            for one in sorted(self.areas, key=lambda area: (area.top, area.left), reverse=True):
+                edit(Range(self.sheet, [one], whole="rows" if rows else "columns"), delete=False, below=below)
+            return
+        if any(one.whole_rows or one.whole_columns for one in self.areas):
+            raise VBAUnsupportedError("inserting cells and whole lines together is not implemented")
+        which = -4121 if self.first.rows <= self.first.columns else -4161
+        if shift is not MISSING:
+            which = variant_number(shift, refusal)
+        if which not in (-4121, -4161, 1, 2):
+            raise error(1004, refusal)
+        down = which in (-4121, 2)
+        self.shifting_cells()
+        for one in sorted(self.areas, key=lambda area: (area.top, area.left) if down else (area.left, area.top), reverse=True):
+            shift_cells(Range(self.sheet, [one]), one, delete=False, vertical=down, below=below)
 
     @method
     def Insert(self, Shift: object = MISSING, CopyOrigin: object = MISSING) -> object:
@@ -6380,6 +6411,10 @@ class Range(ExcelObject):
                                               "is not implemented")
                 _events.after_edit(insert(self, clip, Shift, below), calculate_first=False)
                 return True
+        if len(self.areas) != 1 and not filtered:
+            self._insert_areas(Shift, below, refusal)
+            _events.after_edit(where, calculate_first=False)
+            return True
         if area.whole_rows or area.whole_columns:
             from pyopenvba.apps.excel._editing import edit
 

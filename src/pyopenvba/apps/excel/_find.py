@@ -95,9 +95,9 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
     from pyopenvba.apps.excel._model import Range
     from pyopenvba.apps.excel._typing import edit_text
 
-    if len(target.areas) != 1:
-        raise VBAUnsupportedError("Range.Find on multiple areas is not implemented")
-    if match_byte is not MISSING and to_bool(match_byte):
+    # MatchByte tells full-width letters from others, which text of ASCII alone has none of
+    # (tests/fixtures/range_areas.json).
+    if match_byte is not MISSING and to_bool(match_byte) and not (what is not MISSING and _sought(what).isascii()):
         raise VBAUnsupportedError("Range.Find MatchByte=True is not implemented")
     state = target.sheet.book.application.find_state
     # FindNext and FindPrevious leave the format out (tests/fixtures/find_format.json).
@@ -105,15 +105,15 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
     source = state.look_in if look_in is MISSING else search_number(look_in)
     whole = state.look_at if look_at is MISSING else look_at_number(look_at)
     traversal = state.order if order is MISSING else search_number(order)
-    if source in {-4144, -4184}:
-        if not target.sheet.notes:
-            # Nothing to look in finds nothing (tests/fixtures/range_methods_search.json).
-            return NOTHING
-        raise VBAUnsupportedError("Range.Find in comments is not implemented")
-    if source not in {-4123, -4163} or whole not in {1, 2} or traversal not in {1, 2}:
+    if source in {-4144, -4184} and not target.sheet.notes:
+        # Nothing to look in finds nothing (tests/fixtures/range_methods_search.json).
+        return NOTHING
+    if source == -4184:
+        raise VBAUnsupportedError("Range.Find in threaded comments is not implemented")
+    if source not in {-4123, -4163, -4144} or whole not in {1, 2} or traversal not in {1, 2}:
         raise error(9)
-    area = target.first
-    anchor = (area.top, area.left)
+    areas = target.areas
+    anchor = (areas[0].top, areas[0].left)
     if again and after is NULL:
         after = MISSING
     if after is not MISSING:
@@ -122,7 +122,7 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
         if not isinstance(after, Range) or not after.single or after.sheet is not target.sheet:
             raise refused
         anchor = (after.first.top, after.first.left)
-        if not area.contains(*anchor):
+        if not any(area.contains(*anchor) for area in areas):
             raise refused
     if again:
         what, case = state.what, state.match_case
@@ -142,20 +142,31 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
         return Range(target.sheet, [Area(row, column, row, column, target.sheet.name)])
     backwards = direction is not MISSING and int(to_integer(direction, "Long")) == 2
     step = -1 if backwards else 1
-    total = area.rows * area.columns
+    # The areas in the order they were given, whichever way the search goes (tests/fixtures/range_areas.json).
+    sizes = [area.rows * area.columns for area in areas]
+    total = sum(sizes)
 
     def ordinal(position: tuple[int, int]) -> int:
         row, column = position
-        if traversal == 1:
-            return (row - area.top) * area.columns + column - area.left
-        return (column - area.left) * area.rows + row - area.top
+        before = 0
+        for area, size in zip(areas, sizes):
+            if area.contains(row, column):
+                if traversal == 1:
+                    return before + (row - area.top) * area.columns + column - area.left
+                return before + (column - area.left) * area.rows + row - area.top
+            before += size
+        raise AssertionError(position)
 
     def position(index: int) -> tuple[int, int]:
-        if traversal == 1:
-            row, column = divmod(index, area.columns)
-        else:
-            column, row = divmod(index, area.rows)
-        return area.top + row, area.left + column
+        for area, size in zip(areas, sizes):
+            if index < size:
+                if traversal == 1:
+                    row, column = divmod(index, area.columns)
+                else:
+                    column, row = divmod(index, area.rows)
+                return area.top + row, area.left + column
+            index -= size
+        raise AssertionError(index)
 
     start = ordinal(anchor)
     from pyopenvba.apps.excel._cell_format import MOST_CELLS, holds
@@ -167,7 +178,8 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
             raise VBAUnsupportedError("searching more than a million cells for a format is not implemented")
         positions = (position((start + step * distance) % total) for distance in range(1, total + 1))
     else:
-        candidates = [pos for pos in target.sheet.cells_ if area.contains(*pos)]
+        held = target.sheet.notes if source == -4144 else target.sheet.cells_
+        candidates = [pos for pos in held if any(area.contains(*pos) for area in areas)]
         candidates.sort(key=lambda pos: (step * (ordinal(pos) - start) - 1) % total)
         positions = iter(candidates)
     for row, column in positions:
@@ -177,7 +189,10 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
             continue
         if wanted and text == "":
             return found
-        if cell is not None and source == -4123:
+        if source == -4144:
+            note = target.sheet.notes.get((row, column))
+            value = note.text if note is not None else ""
+        elif cell is not None and source == -4123:
             # Among formulas a constant reads as the formula bar shows it: 1234 in #,##0 is 1234, not 1,234.
             value = cell.formula or edit_text(cell.value, cell.number_format, epoch_1904=target.sheet.book.epoch_1904)
         else:
@@ -198,7 +213,7 @@ def replace(target: Range, what: object, replacement: object, look_at: object = 
 
     if what is MISSING or replacement is MISSING:
         raise error(450)
-    if match_byte is not MISSING and to_bool(match_byte):
+    if match_byte is not MISSING and to_bool(match_byte) and not _sought(what).isascii():
         raise VBAUnsupportedError("Range.Replace MatchByte=True is not implemented")
     if formula_version is not MISSING and int(to_integer(formula_version, "Long")) != 0:
         raise VBAUnsupportedError("Range.Replace with Formula2 semantics is not implemented")

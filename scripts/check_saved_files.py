@@ -28,6 +28,7 @@ FIXTURES = Path(__file__).resolve().parents[1] / 'tests/fixtures'
 AUDITS = {'format_properties': ('formats.xlsx', 5, 2), 'member_audit': ('audit.xlsx', 5, 2),
           'method_audit': ('methods.xlsx', 4, 1), 'range_values': ('values.xlsx', 5, 0), 'range_more': ('more.xlsx', 5, 0),
           'range_more_blocks': ('more.xlsx', 5, 0),
+          'range_areas': ('methods.xlsx', 4, 1),
           **{f'range_methods_{group}': ('methods.xlsx', 4, 1) for group in ('moves', 'clipboard', 'search', 'order')}}
 
 

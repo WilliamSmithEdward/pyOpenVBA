@@ -759,6 +759,8 @@ def sort_state_markup(sheet: Worksheet, state: SortState) -> bytes:
         root.set('caseSensitive', '1')
     if state.orientation == LEFT_TO_RIGHT:
         root.set('columnSort', '1')
+    # Excel writes the ref after these (tests/test_excel_fits.py).
+    root.set('ref', root.attrib.pop('ref'))
     for field in state.fields:
         root.append(XmlElement(ns + 'sortCondition', condition_attributes(sheet.book, field)))
     return xml_bytes(root).split(b'?>', 1)[1].lstrip()

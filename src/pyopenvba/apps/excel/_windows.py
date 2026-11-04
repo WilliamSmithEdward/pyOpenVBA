@@ -39,7 +39,7 @@ from __future__ import annotations
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, cast
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba._xml import attributes, tag_attributes
@@ -943,6 +943,9 @@ class Window(ExcelObject):
         """The selected sheets, in tab order (tests/fixtures/sheet_groups.json)."""
         from pyopenvba.apps.excel._sheet_groups import SheetGroup
 
+        if self.book.active_chart_sheet is not None:
+            # A group of one chart sheet, which answers what a macro asks a selection of sheets.
+            return SheetGroup(self.book, cast("list[Worksheet]", [self.book.active_chart_sheet]))
         return SheetGroup(self.book, self.book.selected())
 
     @member

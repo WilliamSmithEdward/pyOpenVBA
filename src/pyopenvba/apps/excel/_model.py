@@ -4561,7 +4561,21 @@ class Range(ExcelObject):
 
     @setter("Name")
     def _set_range_name(self, value: object) -> None:
-        self.sheet.book.names_.Add(Name=value, RefersTo=self)
+        """A name for the range; Null and True are 1004, and a name that will not do is 450 where the range has one already
+        (tests/fixtures/range_more.json)."""
+        try:
+            self.vba_get("Name")
+            refused = 450
+        except VBARuntimeError:
+            refused = 1004
+        if value is NULL or value is True:
+            raise error(refused, "Unable to set the Name property of the Range class")
+        try:
+            self.sheet.book.names_.Add(Name=value, RefersTo=self)
+        except VBARuntimeError as failed:
+            if failed.number != 1004:
+                raise
+            raise error(refused, "Unable to set the Name property of the Range class") from failed
 
     @setter("Formula")
     def _set_formula(self, value: object) -> None:
@@ -4648,6 +4662,7 @@ class Range(ExcelObject):
 
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
+        value = _not_null(value)
         _within_length(value)
         written, dynamic = self._legacy(value, r1c1=False)
         self._formula_written(written, dynamic=dynamic)
@@ -4907,9 +4922,12 @@ class Range(ExcelObject):
     def _set_formula_array(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import whole
 
+        value = _not_null(value)
         text = to_text(value.vba_value() if isinstance(value, VBAObject) else value)
         if not _is_formula(text):
-            raise VBAUnsupportedError("FormulaArray set to a value rather than a formula is not implemented")
+            # What is no formula goes in as Formula would take it, and makes no array (tests/fixtures/range_more.json).
+            self._set_formula(value)
+            return
         if len(text) > LONGEST_ARRAY_FORMULA:
             raise error(1004, "Unable to set the FormulaArray property of the Range class")
         if self.sheet.data_tables:
@@ -5090,6 +5108,7 @@ class Range(ExcelObject):
     def _set_formula_r1c1(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        value = _not_null(value)
         _within_length(value)
         if not _arrays.write_admitted(self):
             return
@@ -5229,6 +5248,9 @@ class Range(ExcelObject):
     def _set_number_format_local(self, value: object) -> None:
         from pyopenvba.apps.excel._number_format import from_local
 
+        if value is NULL or isinstance(value, (bool, VBAObject)):
+            self._set_number_format(value)
+            return
         self._set_number_format(from_local(to_text(value), self.sheet.book.application.locale))
 
     @member
@@ -5910,7 +5932,8 @@ class Range(ExcelObject):
     @setter("Hidden")
     def _set_hidden(self, value: object) -> None:
         before = _dimensions.visibility_state(self)
-        _dimensions.write_hidden(self, value)
+        # Null shows them, as False does (tests/fixtures/range_more.json).
+        _dimensions.write_hidden(self, False if value is NULL else value)
         _dimensions.recalculate_visibility(self, before)
 
     @member
@@ -5920,7 +5943,8 @@ class Range(ExcelObject):
     @setter("UseStandardHeight")
     def _set_use_standard_height(self, value: object) -> None:
         before = _dimensions.visibility_state(self)
-        _dimensions.write_use_standard_height(self, value)
+        # Null is False here, and changes nothing for the width (tests/fixtures/range_more.json).
+        _dimensions.write_use_standard_height(self, False if value is NULL else value)
         _dimensions.recalculate_visibility(self, before)
 
     @member
@@ -5929,7 +5953,8 @@ class Range(ExcelObject):
 
     @setter("UseStandardWidth")
     def _set_use_standard_width(self, value: object) -> None:
-        _dimensions.write_use_standard_width(self, value)
+        if value is not NULL:
+            _dimensions.write_use_standard_width(self, value)
 
     # -- methods
 
@@ -6995,7 +7020,14 @@ class Range(ExcelObject):
 
     @setter("MergeCells")
     def _set_merge_cells(self, value: object) -> None:
-        if to_bool(value):
+        # Null changes nothing, and text that is neither is 1004 (tests/fixtures/range_more.json).
+        if value is NULL:
+            return
+        try:
+            merging = to_bool(value)
+        except VBARuntimeError as failed:
+            raise error(1004, "Unable to set the MergeCells property of the Range class") from failed
+        if merging:
             _merges.merge(self, False)
         else:
             _merges.unmerge(self)

@@ -18,14 +18,15 @@ import sys
 import tempfile
 from pathlib import Path
 
+from pyvbaharness import ExcelSession, HarnessConfig
+
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyvbaharness import ExcelSession, HarnessConfig
 
 FIXTURES = Path(__file__).resolve().parents[1] / 'tests/fixtures'
 #: Each fixture: the file its probe saves, where a case holds what Excel read after its own save, and its member's place.
 AUDITS = {'format_properties': ('formats.xlsx', 5, 2), 'member_audit': ('audit.xlsx', 5, 2),
-          'method_audit': ('methods.xlsx', 4, 1), 'range_values': ('values.xlsx', 5, 0)}
+          'method_audit': ('methods.xlsx', 4, 1), 'range_values': ('values.xlsx', 5, 0), 'range_more': ('more.xlsx', 5, 0)}
 
 
 def _probe(source: str, count: int) -> str:
@@ -67,7 +68,7 @@ def check(name: str, excel: ExcelSession) -> None:
         if not result.ok:
             print(name, 'REFUSED OR FAILED:', result.outcome, result.error, result.message[:120])
             return
-        answers = str(result.value).split('@@')
+        answers = re.split(r'@@(?=\|)', str(result.value))
         differ: collections.Counter[str] = collections.Counter()
         for number, case in enumerate(record['cases']):
             if number not in gaps and str(number) not in record.get('early', {}) and answers[number] != case[after]:

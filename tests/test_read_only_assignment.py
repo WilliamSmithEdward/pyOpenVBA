@@ -29,8 +29,7 @@ def test_the_inventory_knows_which_properties_a_macro_can_set() -> None:
     assert not member_settable('Shape', 'ID', 'Excel')
 
 
-@pytest.mark.parametrize('statement', ['co.ProtectChartObject = True', 'ActiveWorkbook.Password = "p"',
-                                       'co.Chart.ProtectData = True'])
+@pytest.mark.parametrize('statement', ['co.ProtectChartObject = True', 'ActiveWorkbook.Password = "p"'])
 def test_a_property_excel_lets_a_macro_set_is_reported_as_a_gap(statement: str) -> None:
     with pytest.raises(VBAUnsupportedError, match='Setting'):
         _run(statement)

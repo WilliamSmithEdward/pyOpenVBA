@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from pyopenvba.apps.excel._chart_borders import Line
-from pyopenvba.apps.excel._chart_format import ElementColor, ElementFill, ElementFormat, plain_line
+from pyopenvba.apps.excel._chart_format import EffectMembers, ElementColor, ElementFill, ElementFormat, plain_line, with_effect
 from pyopenvba.apps.excel._chart_format import solid_fill
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -47,7 +47,7 @@ def shape_properties(look: FillLine, cap: str, painted: bool) -> str:
                 '<a:prstDash val="solid"/><a:round/>'
                 '</a14:hiddenLine></a:ext></a:extLst></c:spPr>')
     written = plain_line(look)
-    return f'<c:spPr>{written}</c:spPr>' if written else ''
+    return with_effect(f'<c:spPr>{written}</c:spPr>' if written else '', look)
 
 
 #: What up and down bars are painted with until told otherwise: the window text colour, tinted, and how that reads.
@@ -73,7 +73,7 @@ def group_line_markup(key: str, look: FillLine | None) -> str:
     if look.line_hidden:
         return shape_properties(look, 'flat', False).replace('<c:spPr>', f'<c:spPr>{fill or painted}', 1)
     body = fill + plain_line(look) + extension
-    return f'<c:spPr>{body}</c:spPr>' if body else ''
+    return with_effect(f'<c:spPr>{body}</c:spPr>' if body else '', look)
 
 
 class LineColor(Created):
@@ -222,11 +222,17 @@ class LineLineFormat(Created):
         return VBAInt(1, 'Long')
 
 
-class LineChartFormat(Created):
+class LineChartFormat(EffectMembers, Created):
     vba_type_name = 'ChartFormat'
 
     def __init__(self, parent: object, line: Line) -> None:
         self.parent, self.line = parent, line
+
+    def effect_look(self) -> FillLine:
+        return self.line.look()
+
+    def effect_change(self) -> FillLine:
+        return self.line.change()
 
     @member
     def Parent(self) -> object:

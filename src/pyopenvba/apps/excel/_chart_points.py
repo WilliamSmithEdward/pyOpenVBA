@@ -36,6 +36,7 @@ from pyopenvba.apps.excel._charts import (
     shown_type,
 )
 from pyopenvba.apps.excel._chart_borders import ElementProperties, PictureMembers
+from pyopenvba.apps.excel._chart_format import EffectMembers
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._number_format import to_file
 from pyopenvba.apps.excel._styles import bgr
@@ -624,12 +625,18 @@ class Point(ElementProperties, PictureMembers, Created):
         return self.series.vba_get("Delete", [])
 
 
-class PointFormat(Created):
+class PointFormat(EffectMembers, Created):
     vba_type_name = "ChartFormat"
 
     def __init__(self, point: Point) -> None:
         self.point = point
         self.series = point.series
+
+    def effect_look(self) -> FillLine:
+        return PointFill(self).own_look()  # pyright: ignore[reportArgumentType]
+
+    def effect_change(self) -> FillLine:
+        return PointFill(self).change()  # pyright: ignore[reportArgumentType]
 
     @member
     def Parent(self) -> object:

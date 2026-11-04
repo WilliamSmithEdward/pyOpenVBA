@@ -5,8 +5,8 @@ The type library declares these properties Variant, so what a property is shows 
 
 - A colour or a shade converts as VBA does, so a Currency rounds and separate areas read as the first: it is left alone.
 - A property that holds a formula or a value reads separate areas as the first, too: it is left alone.
-- Any other property refuses separate areas with 1004, and is given a block of cells one cell at a time, row by row, so what the
-  cells before a refusal did stays done.
+- Any other property refuses separate areas with 1004, and is given a block of cells one cell at a time, row by row. It tries
+  every cell, so what the others did stays done, and a refusal is reported at the end.
 - A border's Weight and LineStyle read a block as its first cell.
 - One that answers a Boolean also refuses a Currency and a Date with 1004.
 - One that answers text takes a Currency's text, $1.50 with a space after it. NumberFormat refuses a Date.
@@ -130,10 +130,20 @@ def given(target: VBAObject, name: str, value: object) -> object:
             cells = [Range(value.sheet, [Area(row, column, row, column, value.sheet.name)]) for row in range(area.top, area.bottom + 1)
                      for column in range(area.left, area.right + 1)]
             spec = target.vba_member(name)
-            for cell in cells[:-1]:
-                if spec is not None and spec.setter is not None:
-                    spec.setter(target, given(target, name, cell.vba_value()))
-            return given(target, name, cells[-1].vba_value())
+            failed: VBARuntimeError | None = None
+            last: object = EMPTY
+            for cell in cells:
+                if spec is None or spec.setter is None:
+                    break
+                try:
+                    last = given(target, name, cell.vba_value())
+                    spec.setter(target, last)
+                except VBARuntimeError as failure:
+                    failed = failure
+            if failed is not None:
+                raise failed
+            # The assignment that called this sets it once more, to the same.
+            return last
     if lower == 'size' and target.vba_type_name == 'Font' and _is_number(value):
         twentieths = Decimal(repr(float(to_number(value)))) * 20
         return float(twentieths.quantize(Decimal(1), ROUND_HALF_UP) / 20) if twentieths >= Decimal('19.5') else value
@@ -145,6 +155,8 @@ def given(target: VBAObject, name: str, value: object) -> object:
         if lower in ACCEPTED and whole not in ACCEPTED[lower]:
             raise refusal
         return whole
+    if lower == 'indentlevel' and _is_number(value):
+        return math.floor(float(to_number(value)))
     if lower == 'orientation' and _is_number(value):
         return math.floor(float(to_number(value)))
     if lower == 'background' and _is_number(value):

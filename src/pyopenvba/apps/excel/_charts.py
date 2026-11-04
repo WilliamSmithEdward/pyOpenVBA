@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Any, cast
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel import _events
 from pyopenvba.apps.excel._chart_axes import AxisState
+from pyopenvba.apps.excel._chart_combos import (FAMILIES, KNOWN_TYPES, SERIES_ALONGSIDE, carried_over, flatten, group_value, groups, is_combo,
+                                                joined_type, plot_order, series_type, set_axis_group, set_group_value, set_series_type, settle)
 from pyopenvba.apps.excel._chart_error_bars import ErrorBars, ErrorBarState, error_bar, has_error_bars, set_has_error_bars
 from pyopenvba.apps.excel._chart_trendlines import Trendlines, TrendlineState
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
@@ -153,10 +155,17 @@ class SeriesState:
     error_bars: list[ErrorBarState] = field(default_factory=lambda: [])
     #: Its trendlines, in the order they were added (tests/fixtures/chart_trendlines.json).
     trendlines: list[TrendlineState] = field(default_factory=lambda: [])
+    #: Its own type in a combo chart, and the axes it is on (see _chart_combos).
+    own_type: int | None = None
+    axis_group: int = 1
 
 @dataclass
 class ChartState:
     chart_type: int = 51
+    #: A combo chart's secondary axes, its groups' own settings, and the order ChartType left its series in (see _chart_combos).
+    secondary_axes: dict[int, Any] = field(default_factory=lambda: {})
+    group_settings: dict[tuple[int, str], dict[str, object]] = field(default_factory=lambda: {})
+    plot_sequence: list[Any] | None = None
     title: str | None = None
     #: False for Excel's automatic title, which the file holds with no text.
     title_typed: bool = False
@@ -2370,6 +2379,8 @@ class Chart(ElementProperties, HeldPart):
     def ChartType(self) -> object:
         if self.state.chart_type == 0:
             raise VBAUnsupportedError('Reading this imported chart type is not implemented')
+        if is_combo(self.state):
+            return VBAInt(-4111, 'Long')
         if self.state.made_scatter and not self.state.series and self.state.chart_type == -4169:
             # One of AddChart2's scatter charts reads as with lines until it has a series
             # (tests/fixtures/add_chart2.json).
@@ -2388,6 +2399,7 @@ class Chart(ElementProperties, HeldPart):
         from pyopenvba.apps.excel._chart_axes import transition
 
         self.admit_change()
+        flatten(self.state)
         transition(self, wanted)
         self.changed()
         if CHART_TYPES[wanted] in ('column', 'bar') and (wanted in STACKED) != (self.state.chart_type in STACKED):
@@ -2440,8 +2452,39 @@ class Chart(ElementProperties, HeldPart):
 
     @method
     def ChartGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
-        groups = ChartGroups(self)
-        return groups if Index is MISSING else groups.vba_lookup(Index, groups.vba_items())
+        return self._groups(Index)
+
+    def _groups(self, index: object, *kinds: str) -> object:
+        found = ChartGroups(self, kinds)
+        return found if index is MISSING else found.vba_lookup(index, found.vba_items())
+
+    @method
+    def ColumnGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._groups(Index, 'column')
+
+    @method
+    def BarGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._groups(Index, 'bar')
+
+    @method
+    def LineGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._groups(Index, 'line', 'lineMarkers')
+
+    @method
+    def AreaGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._groups(Index, 'area')
+
+    @method
+    def PieGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._groups(Index, 'pie')
+
+    @method
+    def DoughnutGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._groups(Index, 'doughnut')
+
+    @method
+    def XYGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self._groups(Index, 'scatter')
 
     @member
     def DataTable(self) -> object:
@@ -2622,6 +2665,13 @@ class Chart(ElementProperties, HeldPart):
 
         if Index1 is MISSING:
             raise VBAUnsupportedError('Unindexed chart axis presence is not implemented')
+        if Index2 is not MISSING and int(to_integer(Index2, 'Long')) == 2 and not self.state.secondary_axes:
+            # With nothing on the secondary axes it has none, of any type (tests/fixtures/combo_charts.json).
+            self.admit_read()
+            return False
+        if Index2 is not MISSING and int(to_integer(Index2, 'Long')) == 2 and int(to_integer(Index1, 'Long')) == 3:
+            self.admit_read()
+            return False
         found = axis(self, Index1, Index2)
         return found.entry.present
 
@@ -2629,13 +2679,17 @@ class Chart(ElementProperties, HeldPart):
     def _axis_presence(self, Index1: object, Index2: object, value: object) -> None:  # noqa: N803 - native named arguments
         from pyopenvba.apps.excel._chart_axes import NO_AXES, axis
 
+        if Index2 is not MISSING and int(to_integer(Index2, 'Long')) == 2 and not self.state.secondary_axes:
+            # Asking for one with nothing to go on it does nothing (tests/fixtures/combo_charts.json).
+            self.admit_change()
+            return
         found = axis(self, Index1, Index2)
         self.admit_change()
         wanted = to_bool(value)
         self.admit_change()
-        found = axis(self, found.entry.kind, 1)
-        self.keeps_look(f'axis{found.entry.kind}', wanted)
-        self.keeps_look(f'tick{found.entry.kind}', wanted)
+        found = axis(self, found.entry.kind, found.entry.group)
+        self.keeps_look(f'axis{found.entry.tag}', wanted)
+        self.keeps_look(f'tick{found.entry.tag}', wanted)
         self.changed()
         found.entry.present = wanted and self.state.chart_type not in NO_AXES
 
@@ -2665,6 +2719,9 @@ class Chart(ElementProperties, HeldPart):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.admit_change()
         series_plan = plan_series(Source.sheet, area, orientation, at)
+        kept = [(entry.own_type, entry.axis_group, entry.marker) for entry in self.state.series]
+        if is_combo(self.state) and len(series_plan) > len(kept):
+            raise VBAUnsupportedError('SetSourceData giving a combo chart more series is not implemented')
         self.changed()
         self.state.plot_by = orientation
         for index, series in enumerate(series_plan):
@@ -2675,6 +2732,8 @@ class Chart(ElementProperties, HeldPart):
         place = -1 if selected is None else selected.position() - 1
         self.state.series[:] = series_plan
         self.state.full_series, self.state.out_of_sight = [], []
+        self.state.plot_sequence = None
+        carried_over(self.state, kept, series_plan)
         _labelled(self.state)
         if selected is not None and place < len(series_plan):
             # What is selected stays selected, in the same place among the new series.
@@ -3120,12 +3179,14 @@ class LegendEntry(Created):
 
 
 class ChartGroups(VBACollection, Created):
-    """A chart's groups: the one group a chart of a single kind has (tests/fixtures/chart_groups.json)."""
+    """A chart's groups, the one group a chart of a single kind has (tests/fixtures/chart_groups.json) or a combo chart's
+    each (see _chart_combos), and with a kind given only that kind's, as Chart.ColumnGroups and the like take them."""
 
     vba_type_name = 'ChartGroups'
 
-    def __init__(self, chart: Chart) -> None:
+    def __init__(self, chart: Chart, kinds: tuple[str, ...] = ()) -> None:
         self.chart = chart
+        self.kinds = kinds
 
     @member
     def Parent(self) -> object:
@@ -3137,12 +3198,39 @@ class ChartGroups(VBACollection, Created):
 
     def vba_items(self) -> list[object]:
         self.chart.admit_read()
-        return [ChartGroup(self.chart)]
+        state = self.chart.state
+        if not is_combo(state):
+            found = [ChartGroup(self.chart)]
+        else:
+            found = [ChartGroup(self.chart, group.key) for group in groups(state)]
+        if self.kinds:
+            found = [one for one in found if one._kind() in self.kinds]  # pyright: ignore[reportPrivateUsage]
+        return list(found)
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
-        if int(to_integer(index, 'Long')) != 1:
+        place = int(to_integer(index, 'Long'))
+        if not 1 <= place <= len(items):
             raise error(1004, 'Unable to get the ChartGroups property of the Chart class')
-        return items[0]
+        return items[place - 1]
+
+
+class GroupSeries(VBACollection, ItemDefault, Created):
+    """The series of one group of a combo chart."""
+
+    vba_type_name = 'Series'
+
+    def __init__(self, chart: Chart, members: tuple[SeriesState, ...]) -> None:
+        self.chart = chart
+        self.members = members
+
+    def vba_items(self) -> list[object]:
+        return [Series(self.chart, entry) for entry in self.members]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        place = int(to_integer(index, 'Long'))
+        if not 1 <= place <= len(items):
+            raise error(1004, 'Unable to get the SeriesCollection property of the ChartGroup class')
+        return items[place - 1]
 
 
 class ChartGroup(Created):
@@ -3151,12 +3239,23 @@ class ChartGroup(Created):
 
     vba_type_name = 'ChartGroup'
 
-    def __init__(self, chart: Chart) -> None:
+    def __init__(self, chart: Chart, key: tuple[int, str] | None = None) -> None:
         self.chart = chart
+        self.key = key
 
     def _kind(self) -> str:
         self.chart.admit_read()
-        return CHART_TYPES.get(shown_type(self.chart.state), '')
+        return self.key[1] if self.key is not None else CHART_TYPES.get(shown_type(self.chart.state), '')
+
+    def value(self, field_name: str) -> Any:
+        """One of the group's settings: a combo chart's groups each keep their own."""
+        return getattr(self.chart.state, field_name) if self.key is None else group_value(self.chart.state, self.key, field_name)
+
+    def keep(self, field_name: str, wanted: object) -> None:
+        if self.key is None:
+            setattr(self.chart.state, field_name, wanted)
+        else:
+            set_group_value(self.chart.state, self.key, field_name, wanted)
 
     def _set(self, field_name: str, value: object, lowest: int, highest: int) -> None:
         wanted = int(to_integer(value, 'Long'))
@@ -3164,7 +3263,7 @@ class ChartGroup(Created):
         if not lowest <= wanted <= highest:
             raise error(1004, 'Unable to set the property of the ChartGroup class')
         self.chart.changed()
-        setattr(self.chart.state, field_name, wanted)
+        self.keep(field_name, wanted)
 
     @member
     def Parent(self) -> object:
@@ -3176,25 +3275,30 @@ class ChartGroup(Created):
 
     @member
     def AxisGroup(self) -> object:
-        # The one group the model draws is on the primary axes (tests/fixtures/chart_object_reads.json).
+        # A chart of one kind's one group is on the primary axes (tests/fixtures/chart_object_reads.json).
         self._kind()
-        return VBAInt(1, 'Long')
+        return VBAInt(1 if self.key is None else self.key[0], 'Long')
 
     @member
     def Index(self) -> object:
         self._kind()
-        return VBAInt(1, 'Long')
+        if self.key is None:
+            return VBAInt(1, 'Long')
+        return VBAInt([group.key for group in groups(self.chart.state)].index(self.key) + 1, 'Long')
 
     @method
     def SeriesCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
-        """The chart's series, every one of them in the group (tests/fixtures/chart_object_reads.json)."""
+        """The chart's series in the group: every one of them with one kind (tests/fixtures/chart_object_reads.json)."""
         self._kind()
-        return self.chart.SeriesCollection(Index)
+        if self.key is None:
+            return self.chart.SeriesCollection(Index)
+        found = GroupSeries(self.chart, next(group.members for group in groups(self.chart.state) if group.key == self.key))
+        return found if Index is MISSING else found.vba_lookup(Index, found.vba_items())
 
     @member
     def GapWidth(self) -> object:
         self._kind()
-        return VBAInt(self.chart.state.gap_width, 'Long')
+        return VBAInt(self.value('gap_width'), 'Long')
 
     @setter('GapWidth')
     def _gap_width(self, value: object) -> None:
@@ -3205,7 +3309,7 @@ class ChartGroup(Created):
         # Lines, areas and scatter charts answer 100, the series drawn over each other.
         kept = self.chart.state.layout_overlap
         drawn = 100 if kept is None else kept
-        return VBAInt(drawn if self._kind() in ('line', 'lineMarkers', 'area', 'scatter') else self.chart.state.overlap,
+        return VBAInt(drawn if self._kind() in ('line', 'lineMarkers', 'area', 'scatter') else self.value('overlap'),
                       'Long')
 
     @setter('Overlap')
@@ -3216,7 +3320,7 @@ class ChartGroup(Created):
 
     @member
     def VaryByCategories(self) -> object:
-        vary = self.chart.state.vary
+        vary = self.value('vary')
         return self._kind() in ('pie', 'doughnut') if vary is None else vary
 
     @setter('VaryByCategories')
@@ -3224,7 +3328,7 @@ class ChartGroup(Created):
         wanted = to_bool(value)
         self.chart.admit_change()
         self.chart.changed()
-        self.chart.state.vary = wanted
+        self.keep('vary', wanted)
 
     def _flag(self, field_name: str, value: object) -> None:
         """One of the group's lines or bars on or off; a kind that does not draw it keeps it and writes nothing
@@ -3232,7 +3336,7 @@ class ChartGroup(Created):
         wanted = to_bool(value)
         self.chart.admit_change()
         self.chart.changed()
-        setattr(self.chart.state, field_name, wanted)
+        self.keep(field_name, wanted)
         if not wanted:
             for key in _GROUP_LOOKS[field_name]:
                 self.chart.state.element_looks.pop(key, None)
@@ -3432,7 +3536,7 @@ class ChartGroup(Created):
     @member
     def HasDropLines(self) -> object:
         self._kind()
-        return self.chart.state.drop_lines
+        return self.value('drop_lines')
 
     @setter('HasDropLines')
     def _has_drop_lines(self, value: object) -> None:
@@ -3441,7 +3545,7 @@ class ChartGroup(Created):
     @member
     def HasHiLoLines(self) -> object:
         self._kind()
-        return self.chart.state.hi_lo_lines
+        return self.value('hi_lo_lines')
 
     @setter('HasHiLoLines')
     def _has_hi_lo_lines(self, value: object) -> None:
@@ -3450,7 +3554,7 @@ class ChartGroup(Created):
     @member
     def HasUpDownBars(self) -> object:
         self._kind()
-        return self.chart.state.up_down_bars
+        return self.value('up_down_bars')
 
     @setter('HasUpDownBars')
     def _has_up_down_bars(self, value: object) -> None:
@@ -3459,7 +3563,7 @@ class ChartGroup(Created):
     @member
     def HasSeriesLines(self) -> object:
         self._kind()
-        return self.chart.state.series_lines
+        return self.value('series_lines')
 
     @setter('HasSeriesLines')
     def _has_series_lines(self, value: object) -> None:
@@ -3840,6 +3944,11 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
             series_id += 1
         entry = SeriesState(series_id=series_id, unique=self.chart.state.next_unique,
                             marker=default_marker(self.chart.state))
+        # In a combo chart it joins the first primary group (tests/fixtures/combo_charts.json).
+        joined, family = joined_type(self.chart.state)
+        if joined is not None:
+            entry.own_type = joined
+            entry.marker = MARKER_NONE if family == 'line' else entry.marker
         self.chart.changed()
         self.chart.state.next_unique += 1
         self.chart.state.series.append(entry)
@@ -3960,21 +4069,50 @@ class Series(PictureMembers, Created):
     def AxisGroup(self) -> object:
         # Every series the model plots is on the primary axes (tests/fixtures/chart_series_reads.json).
         self.position()
-        return VBAInt(1, 'Long')
+        return VBAInt(self.entry.axis_group, 'Long')
+
+    @setter('AxisGroup')
+    def _axis_group(self, value: object) -> None:
+        """Onto the other axes, or back (see _chart_combos)."""
+        wanted = int(to_integer(value, 'Long'))
+        self.position()
+        self.chart.admit_change()
+        before = (self.entry.axis_group, len(self.chart.state.secondary_axes))
+        set_axis_group(self.chart.state, self.entry, wanted)
+        if before != (self.entry.axis_group, len(self.chart.state.secondary_axes)):
+            self.chart.changed()
 
     @member
     def ChartType(self) -> object:
-        """The chart's own type, which every series of a chart of one kind shares
-        (tests/fixtures/chart_series_reads.json)."""
+        """The chart's own type, which every series of a chart of one kind shares (tests/fixtures/chart_series_reads.json), or
+        its own in a combo chart (see _chart_combos)."""
         self.position()
-        return VBAInt(shown_type(self.chart.state), 'Long')
+        return VBAInt(series_type(self.chart.state, self.entry), 'Long')
+
+    @setter('ChartType')
+    def _own_chart_type(self, value: object) -> None:
+        """A type that sits beside the others is the series' own; one that cannot, as a 3-D type, is the whole chart's."""
+        wanted = int(to_integer(value, 'Long'))
+        self.position()
+        self.chart.admit_change()
+        if wanted in (0, -1) or wanted not in KNOWN_TYPES:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        if self.entry.format_look is not None or self.entry.points or self.entry.label_look.font is not None:
+            raise VBAUnsupportedError('Changing the type of a series with a look of its own is not implemented')
+        if wanted in FAMILIES:
+            set_series_type(self.chart.state, self.entry, wanted)
+            self.chart.changed()
+            return
+        if wanted in SERIES_ALONGSIDE or is_combo(self.chart.state):
+            raise VBAUnsupportedError('A series of this type beside others is not implemented')
+        self.chart.vba_set('ChartType', VBAInt(wanted, 'Long'))
 
     @member
     def Type(self) -> object:
         """The series' kind as the old gallery constants number it: xlColumn 3 for any column chart, xlLine 4 with
         markers or without (tests/fixtures/chart_series_reads.json)."""
         self.position()
-        return VBAInt(SERIES_KINDS[CHART_TYPES[shown_type(self.chart.state)]], 'Long')
+        return VBAInt(SERIES_KINDS[CHART_TYPES[series_type(self.chart.state, self.entry)]], 'Long')
 
     @member
     def PlotColorIndex(self) -> object:
@@ -4162,6 +4300,8 @@ class Series(PictureMembers, Created):
     @member
     def PlotOrder(self) -> object:
         place = self.position()
+        if is_combo(self.chart.state) or self.chart.state.plot_sequence is not None:
+            return VBAInt(plot_order(self.chart.state, self.entry), 'Long')
         return VBAInt(0 if self.filtered() else place, 'Long')
 
     @setter('PlotOrder')
@@ -4169,6 +4309,8 @@ class Series(PictureMembers, Created):
         self.position()
         self.chart.admit_change()
         self.chart.nothing_filtered('Setting PlotOrder')
+        if is_combo(self.chart.state) or self.chart.state.plot_sequence is not None:
+            raise VBAUnsupportedError('Setting PlotOrder on a combo chart is not implemented')
         if value is NULL:
             raise error(13, 'Type mismatch')
         wanted = int(to_integer(value, 'Long'))
@@ -4193,6 +4335,9 @@ class Series(PictureMembers, Created):
         state.full_series = [entry for entry in state.full_series if entry is not self.entry]
         if len(state.full_series) == len(state.series):
             state.full_series = []
+        if state.plot_sequence is not None:
+            state.plot_sequence = [entry for entry in state.plot_sequence if entry is not self.entry]
+        settle(state)
         return True
 
     @member
@@ -4254,7 +4399,7 @@ class Series(PictureMembers, Created):
             # Categories with text among them read every cell as it shows, a blank as ""; numbers with a blank among
             # them cannot be read at all (tests/fixtures/chart_multilevel_categories.json).
             if any(isinstance(value, str) for value in values):
-                if CHART_TYPES.get(shown_type(self.chart.state)) == 'scatter' and not self.chart.state.out_of_sight:
+                if CHART_TYPES.get(series_type(self.chart.state, self.entry)) == 'scatter' and not self.chart.state.out_of_sight:
                     # A scatter chart has no use for text: it reads their places
                     # (tests/fixtures/chart_hidden_cells.json).
                     values = [float(index + 1) for index in range(len(values))]
@@ -4363,7 +4508,7 @@ class Series(PictureMembers, Created):
     def lines(self) -> SeriesState:
         """The series, where its chart draws lines or markers; Excel raises 1004 for the other kinds."""
         self.position()
-        if CHART_TYPES.get(shown_type(self.chart.state)) not in _DRAWS_MARKERS:
+        if CHART_TYPES.get(series_type(self.chart.state, self.entry)) not in _DRAWS_MARKERS:
             raise error(1004, 'Unable to get the property of the Series class')
         if self.entry.marker == MARKER_UNREAD:
             raise VBAUnsupportedError("Reading this imported series' marker is not implemented")
@@ -4381,7 +4526,7 @@ class Series(PictureMembers, Created):
         self.position()
         wanted = to_bool(value)
         # A chart of another kind takes the setting without a word and writes nothing.
-        if CHART_TYPES.get(shown_type(self.chart.state)) in ('column', 'bar'):
+        if CHART_TYPES.get(series_type(self.chart.state, self.entry)) in ('column', 'bar'):
             self.chart.changed()
             self.entry.invert_if_negative = wanted
             # It reaches the points set apart (tests/fixtures/series_points.json).
@@ -4449,7 +4594,7 @@ class Series(PictureMembers, Created):
         from pyopenvba.apps.excel._chart_data_labels import applied_look, apply_to_series
 
         del ShowBubbleSize
-        look = applied_look(self.chart.state.chart_type, Type, LegendKey, AutoText, ShowSeriesName,
+        look = applied_look(series_type(self.chart.state, self.entry) if is_combo(self.chart.state) else self.chart.state.chart_type, Type, LegendKey, AutoText, ShowSeriesName,
                             ShowCategoryName, ShowValue, ShowPercentage, Separator)
         apply_to_series(self, look, HasLeaderLines)
         return True
@@ -4464,7 +4609,7 @@ class Series(PictureMembers, Created):
         place = self.position()
         if self.filtered():
             return False
-        return place == 1 or CHART_TYPES.get(shown_type(self.chart.state)) != 'pie'
+        return place == 1 or CHART_TYPES.get(series_type(self.chart.state, self.entry)) != 'pie'
 
     @method
     def DataLabels(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
@@ -4498,7 +4643,7 @@ class Series(PictureMembers, Created):
         self.position()
         wanted = int(to_integer(value, 'Long'))
         # Only a pie takes it, a doughnut no more than a column chart.
-        if CHART_TYPES.get(shown_type(self.chart.state)) != 'pie' or wanted < 0:
+        if CHART_TYPES.get(series_type(self.chart.state, self.entry)) != 'pie' or wanted < 0:
             raise error(1004, 'Unable to set the Explosion property of the Series class')
         self.chart.changed()
         self.entry.explosion = wanted
@@ -4523,7 +4668,7 @@ class Series(PictureMembers, Created):
         """Takes away the look set on the series and its points; their labels, its trendlines and what else it has
         stay (tests/fixtures/chart_borders.json)."""
         self.position()
-        kind = CHART_TYPES.get(shown_type(self.chart.state), '')
+        kind = CHART_TYPES.get(series_type(self.chart.state, self.entry), '')
         if kind == 'line' and self.entry.format_look is not None:
             raise VBAUnsupportedError('ClearFormats on a line series with a look is not implemented')
         if kind == 'area' and self.entry.points:
@@ -4556,7 +4701,7 @@ class Series(PictureMembers, Created):
     @member
     def MarkerStyle(self) -> object:
         self.position()
-        if CHART_TYPES.get(shown_type(self.chart.state)) in _DRAWS_MARKERS:
+        if CHART_TYPES.get(series_type(self.chart.state, self.entry)) in _DRAWS_MARKERS:
             return VBAInt(self.lines().marker, 'Long')
         return VBAInt(self.entry.marker, 'Long')
 
@@ -4680,7 +4825,7 @@ class Series(PictureMembers, Created):
     def MarkerSize(self) -> object:
         self.position()
         entry = self.entry
-        drawn = CHART_TYPES.get(shown_type(self.chart.state)) in _DRAWS_MARKERS
+        drawn = CHART_TYPES.get(series_type(self.chart.state, self.entry)) in _DRAWS_MARKERS
         style = self.chart.state.chart_style
         from pyopenvba.apps.excel._chart_styled import is_styled, marker_size
 

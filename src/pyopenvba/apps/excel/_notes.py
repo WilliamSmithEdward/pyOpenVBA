@@ -24,6 +24,7 @@ _notes_file).
 
 from __future__ import annotations
 
+import re
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
@@ -525,6 +526,75 @@ class Comments(VBACollection, ItemDefault, ExcelObject):
         return VBAInt(_CREATOR, "Long")
 
 
+#: The colour names VML writes (tests/fixtures/object_roundtrip.json has yellow; the rest are its other 15).
+_VML_COLOURS = {"black": "#000000", "silver": "#c0c0c0", "gray": "#808080", "white": "#ffffff", "maroon": "#800000", "red": "#ff0000",
+                "purple": "#800080", "fuchsia": "#ff00ff", "green": "#008000", "lime": "#00ff00", "olive": "#808000", "yellow": "#ffff00",
+                "navy": "#000080", "blue": "#0000ff", "teal": "#008080", "aqua": "#00ffff"}
+
+
+class NoteColor(HeldPart, ExcelObject):
+    """A note box's fill colour, as Windows' info colour until set (tests/fixtures/note_shapes.json)."""
+
+    vba_type_name = "ColorFormat"
+    #: With the note gone these still answer, and its colour is 424 (tests/fixtures/gone_note_fill.json).
+    held_free = frozenset({"parent", "application", "creator"})
+
+    def __init__(self, owner: NoteShape) -> None:
+        self.owner = owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return NoteFill(self.owner)
+
+    @member
+    def RGB(self) -> object:
+        found = re.search(r'\bfillcolor="([^"]*)"', self.owner.markup())
+        text = found.group(1) if found else ""
+        if text.startswith("infoBackground"):
+            return VBAInt(14811135, "Long")
+        text = _VML_COLOURS.get(text.casefold(), text)
+        colour = re.fullmatch(r"#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})", text)
+        if colour is None:
+            raise VBAUnsupportedError(f"A note's fill colour written as {text!r} is not implemented")
+        return VBAInt(int(colour.group(3) + colour.group(2) + colour.group(1), 16), "Long")
+
+    @setter("RGB")
+    def _set_rgb(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long")) & 0xFFFFFF
+        colour = f'#{wanted & 255:02x}{wanted >> 8 & 255:02x}{wanted >> 16:02x}'
+        markup, found = re.subn(r'\bfillcolor="[^"]*"', f'fillcolor="{colour}"', self.owner.markup(), count=1)
+        if not found:
+            raise VBAUnsupportedError("A note's box with no fill colour of its own is not implemented")
+        self.owner.remade(markup)
+
+
+class NoteFill(HeldPart, ExcelObject):
+    """A note box's fill: only its colour is modelled."""
+
+    vba_type_name = "FillFormat"
+    #: With the note gone these still answer, and its colour is 424 (tests/fixtures/gone_note_fill.json).
+    held_free = frozenset({"parent", "application", "creator"})
+
+    def __init__(self, owner: NoteShape) -> None:
+        self.owner = owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def ForeColor(self) -> object:
+        return NoteColor(self.owner)
+
+
 class NoteShape(HeldPart, ExcelObject):
     """A note's box, as Shapes and Comment.Shape answer it."""
 
@@ -592,6 +662,54 @@ class NoteShape(HeldPart, ExcelObject):
     @member
     def TextFrame(self) -> object:
         return NoteTextFrame(self.sheet, self.row, self.column)
+
+    def markup(self) -> str:
+        """The box as a save would draw it, what the model does not hold included."""
+        from pyopenvba.apps.excel._notes_file import shape_xml
+
+        note = self.note
+        return note.shape_xml or note.box_source or shape_xml(self.sheet, self.row, self.column, note, 1)
+
+    def remade(self, markup: str) -> None:
+        """A change only the box holds: a save draws it where it now is, from this (tests/fixtures/note_shapes.json)."""
+        self.sheet.notes[(self.row, self.column)] = replace(self.note, shape_xml="", box_source=markup)
+        self.sheet.notes_changed = True
+        self.sheet.book.saved = False
+
+    @member
+    def Locked(self) -> object:
+        return "<x:Locked>False</x:Locked>" not in self.markup()
+
+    @setter("Locked")
+    def _set_locked(self, value: object) -> None:
+        markup = re.sub(r"\s*<x:Locked>[^<]*</x:Locked>", "", self.markup())
+        if not to_bool(value):
+            markup = markup.replace("<x:AutoFill>", "<x:Locked>False</x:Locked>\r\n   <x:AutoFill>", 1)
+        self.remade(markup)
+
+    @member
+    def Placement(self) -> object:
+        """MoveWithCells and SizeWithCells each say the box does not follow its cells: xlFreeFloating is both, xlMove
+        only SizeWithCells and xlMoveAndSize neither (tests/fixtures/note_shapes.json)."""
+        markup = self.markup()
+        if "<x:MoveWithCells" in markup:
+            return VBAInt(3, "Long")
+        return VBAInt(2 if "<x:SizeWithCells" in markup else 1, "Long")
+
+    @setter("Placement")
+    def _set_placement(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (1, 2, 3):
+            raise error(1004, "Unable to set the Placement property of the Shape class")
+        markup = re.sub(r"\s*<x:(?:Move|Size)WithCells\s*/>", "", self.markup())
+        tags = {1: "", 2: "<x:SizeWithCells/>", 3: "<x:MoveWithCells/>\r\n   <x:SizeWithCells/>"}[wanted]
+        if tags:
+            markup = markup.replace('<x:ClientData ObjectType="Note">', f'<x:ClientData ObjectType="Note">\r\n   {tags}', 1)
+        self.remade(markup)
+
+    @member
+    def Fill(self) -> object:
+        return NoteFill(self)
 
     @method
     def Delete(self) -> object:

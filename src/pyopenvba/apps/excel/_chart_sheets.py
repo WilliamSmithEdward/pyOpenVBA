@@ -1,0 +1,405 @@
+"""A chart sheet read from a file: a tab of its own holding one chart, which a macro reaches through Sheets and Charts and
+Worksheets passes over (tests/fixtures/chart_sheets/chart_sheets.json). The chart is the file's, read as an embedded
+chart's is; the part stays as it came, so a save keeps everything the model does not read. Tabs are added, moved, copied,
+hidden and deleted among chart sheets as tests/fixtures/chart_sheets/tabs.json has them, and what a chart sheet's chart
+reads follows its cells and its sheet's name as an embedded chart's does; a new chart sheet and a copy of one are not made
+yet, and a worksheet a chart sheet's chart reads is not deleted."""
+from __future__ import annotations
+
+from collections.abc import Sequence
+import posixpath
+import re
+from typing import TYPE_CHECKING, Union
+
+from pyopenvba.apps.excel._charts import CHART_TYPES, SERIES_KINDS, Chart, shown_type
+from pyopenvba._a1 import split_sheet
+from pyopenvba.apps.excel._charts_file import REL_CHART, remove_style_parts, read_chart, rels_part, xml_tree
+from pyopenvba.apps.excel._names import same_sheet_name
+from pyopenvba.apps.excel._creator import ItemDefault
+from pyopenvba.apps.excel._model import ExcelObject, Worksheet
+from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.powerquery._sheets import drop_content_type
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
+from pyopenvba.interpreter._values import EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBAInt, error, to_text
+from pyopenvba.shapes._values import Shape
+
+if TYPE_CHECKING:
+    from pyopenvba.apps.excel._model import Workbook
+    from pyopenvba.powerquery._opc import OpcFile
+
+Tab = Union[Worksheet, "ChartSheet"]
+_REL_DRAWING = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing"
+_SHAPE_ID = 1
+
+
+def _related(package: OpcFile, part: str, kind: str) -> str:
+    """The part ``part`` relates to by ``kind``."""
+    rels = rels_part(part)
+    if package.has(rels):
+        for entry in xml_tree(package.read(rels)):
+            target = entry.attrib.get("Target", "")
+            if entry.attrib.get("Type") == kind and target:
+                return target[1:] if target.startswith("/") else posixpath.normpath(posixpath.join(posixpath.dirname(part), target))
+    return ""
+
+
+class ChartSheet(Chart):
+    """One chart sheet. Chart's members read its chart, through a worksheet no tab shows that carries the chart's state."""
+
+    vba_type_name = "Chart"
+
+    def __init__(self, book: Workbook, name: str, part: str, package: OpcFile, sheet_id: int, visible: int) -> None:
+        numbered = book.next_sheet_id
+        carrier = Worksheet(book, name)
+        book.next_sheet_id = numbered
+        drawing = _related(package, part, _REL_DRAWING)
+        self.drawing_part = drawing
+        chart = _related(package, drawing, REL_CHART) if drawing else ""
+        if not chart or not package.has(chart):
+            raise VBAUnsupportedError("opening a workbook with a chart sheet that holds no chart is not implemented")
+        carrier.chart_states[_SHAPE_ID] = read_chart(package.read(chart).decode("utf-8"), chart)
+        super().__init__(carrier, Shape(name=name, kind="chart", shape_id=_SHAPE_ID))
+        self.book, self.name, self.part_name, self.sheet_id, self.visible = book, name, part, sheet_id, visible
+        self.xml = package.read(part).decode("utf-8", errors="replace")
+        found = re.search(r'\bcodeName="([^"]*)"', self._element("sheetPr"))
+        self.code_name = found.group(1) if found else ""
+        #: What _io's save asks of a tab.
+        self.page_print_names_owned: set[str] = set()
+
+    def held_gone(self) -> bool:
+        return not any(sheet is self for sheet in self.book.chart_sheets)
+
+    def admit_read(self) -> None:
+        if not any(sheet is self for sheet in self.book.chart_sheets) or not any(book is self.book for book in self.book.application.workbooks_.books):
+            raise VBAUnsupportedError("Accessing a detached chart sheet is not implemented")
+
+    def _tab(self, step: int) -> object:
+        tabs = self.book.tabs()
+        index = tabs.index(self) + step
+        return tabs[index] if 0 <= index < len(tabs) else NOTHING
+
+    def _element(self, element: str) -> str:
+        found = re.search(rf"<{element}\b[^>]*>", self.xml)
+        return found.group(0) if found else ""
+
+    @member
+    def Name(self) -> object:
+        self.admit_read()
+        return self.name
+
+    @setter("Name")
+    def _set_name(self, value: object) -> None:
+        from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
+
+        self.admit_read()
+        refuse_structure(self.book, APPLICATION_DEFINED)
+        wanted = to_text(value)
+        if wanted == self.name:
+            return
+        if (not wanted or len(wanted) > 31 or any(char in wanted for char in "\\/?*[]:") or wanted[0] == "'" or wanted[-1] == "'"
+                or wanted.lower() == "history" or any(tab is not self and same_sheet_name(tab.name, wanted) for tab in self.book.tabs())):
+            raise error(1004, "Name method of Chart class failed")
+        self.name = wanted
+        self.book.saved = False
+
+    @member
+    def Parent(self) -> object:
+        return self.book
+
+    @member
+    def Index(self) -> object:
+        self.admit_read()
+        return VBAInt(self.book.tabs().index(self) + 1, "Long")
+
+    @member
+    def CodeName(self) -> object:
+        self.admit_read()
+        return self.code_name
+
+    @member
+    def Type(self) -> object:
+        """The chart's kind as the old gallery constants number it, as a series' Type is."""
+        self.admit_read()
+        return VBAInt(SERIES_KINDS[CHART_TYPES[shown_type(self.state)]], "Long")
+
+    @member
+    def Visible(self) -> object:
+        self.admit_read()
+        return VBAInt(self.visible, "Long")
+
+    @setter("Visible")
+    def _set_visible(self, value: object) -> None:
+        from pyopenvba.apps.excel._sheet_groups import set_visible
+
+        self.admit_read()
+        set_visible(self.book, [self], value, "Unable to set the Visible property of the Chart class")
+        self.book.saved = False
+
+    @member
+    def Next(self) -> object:
+        self.admit_read()
+        return self._tab(1)
+
+    @member
+    def Previous(self) -> object:
+        self.admit_read()
+        return self._tab(-1)
+
+    @member
+    def Tab(self) -> object:
+        self.admit_read()
+        return _ChartSheetTab(self)
+
+    @member
+    def ProtectContents(self) -> object:
+        self.admit_read()
+        return bool(re.search(r'\bcontent="1"', self._element("sheetProtection")))
+
+    @method
+    def Activate(self) -> object:
+        self.admit_read()
+        self.book.active_chart_sheet = self
+        self.book.view.first_sheet = min(self.book.view.first_sheet, self.book.tabs().index(self))
+        self.book.selected_sheets = []
+        self.book.application.activate_book(self.book)
+        return EMPTY
+
+    @method
+    def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """A hidden chart sheet cannot be selected, though it can be activated (tests/fixtures/chart_sheets/hidden.json)."""
+        if self.visible != -1:
+            raise error(1004, "Select method of Chart class failed")
+        if Replace is not MISSING:
+            raise VBAUnsupportedError("Selecting a chart sheet with Replace is not implemented")
+        return self.Activate()
+
+    @method
+    def Delete(self) -> object:
+        from pyopenvba.apps.excel._protection import DELETING, refuse_structure
+
+        self.admit_read()
+        refuse_structure(self.book, DELETING)
+        book = self.book
+        following = next_visible(book, [self])
+        if following is None:
+            raise error(1004, "A workbook must contain at least one visible worksheet.")
+        if any(name.casefold() == self.name.casefold() for name in (split_sheet(entry.name)[0] for entry in book.names_.entries)):
+            raise VBAUnsupportedError("Deleting a chart sheet with names of its own is not implemented")
+        book.chart_sheets.remove(self)
+        book.file_tabs.remove(self)
+        book.deleted_chart_sheets.append(self)
+        if book.active_chart_sheet is self:
+            book.active_chart_sheet = None
+            _activated(following)
+        if not book.chart_sheets:
+            # tabs() goes by sheets_ from here on, which holds the same worksheets in the same order.
+            book.file_tabs.clear()
+        book.names_.changed = True
+        book.saved = False
+        return EMPTY
+
+    @method
+    def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        raise VBAUnsupportedError("Copying a chart sheet is not implemented")
+
+    @method
+    def Move(self, Before: object = MISSING, After: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        self.admit_read()
+        return move_tab(self, Before, After)
+
+    @method
+    def Protect(self, Password: object = MISSING, DrawingObjects: object = MISSING, Contents: object = MISSING,  # noqa: N803 - native named arguments
+                Scenarios: object = MISSING, UserInterfaceOnly: object = MISSING) -> object:
+        raise VBAUnsupportedError("Protecting a chart sheet is not implemented")
+
+    @member
+    def PageSetup(self) -> object:
+        raise VBAUnsupportedError("PageSetup of a chart sheet is not implemented")
+
+    def saved_xml(self) -> str:
+        """The part, its view selected as the tab is: the one thing a macro can change in it."""
+        active = self.book.active_chart_sheet is self
+        view = re.search(r"<sheetView\b[^>]*>", self.xml)
+        if view is None or (' tabSelected="1"' in view.group(0)) == active:
+            return self.xml
+        tag = view.group(0).replace(' tabSelected="1"', "")
+        if active:
+            tag = tag.replace("<sheetView", '<sheetView tabSelected="1"', 1)
+        return self.xml[:view.start()] + tag + self.xml[view.end():]
+
+
+def tab_position(book: Workbook, before: object, after: object) -> int:
+    """Where a new tab goes: before Before, after After, or before the active tab."""
+    tabs = book.tabs()
+    if before is not MISSING and after is not MISSING:
+        raise error(1004, "Specify Before or After, not both")
+    anchor = before if before is not MISSING else after
+    if anchor is MISSING:
+        active = book.active_chart_sheet or book.active_sheet
+        return next((index for index, tab in enumerate(tabs) if tab is active), 0)
+    for index, tab in enumerate(tabs):
+        if tab is anchor:
+            return index + (0 if before is not MISSING else 1)
+    raise VBAUnsupportedError("Placing a tab by one of another workbook, beside a workbook with a chart sheet, is not implemented")
+
+
+def next_visible(book: Workbook, going: Sequence[Tab]) -> Tab | None:
+    """The tab that is active once ``going`` is deleted or hidden: the active one where it stays, else the next visible tab
+    after it, or the last visible one before it. None where no other tab is visible."""
+    tabs = book.tabs()
+    staying = [tab for tab in tabs if tab.visible == -1 and not any(tab is one for one in going)]
+    if not staying:
+        return None
+    active = book.active_chart_sheet or book.active_sheet
+    if not any(active is one for one in going):
+        return active
+    place = next(index for index, tab in enumerate(tabs) if tab is active)
+    later = [tab for index, tab in enumerate(tabs) if index > place and any(tab is one for one in staying)]
+    return later[0] if later else staying[-1]
+
+
+def _activated(tab: Tab) -> None:
+    tab.Activate()
+
+
+def hide(book: Workbook, tabs: Sequence[Tab], state: int, refusal: str) -> None:
+    """Hide ``tabs``; hiding every visible tab is error 1004, and hiding the active one makes another active."""
+    following = next_visible(book, tabs)
+    if following is None:
+        raise error(1004, refusal)
+    active = book.active_chart_sheet or book.active_sheet
+    for tab in tabs:
+        tab.visible = state
+    if following is not active:
+        _activated(following)
+
+
+def _chart_reads(book: Workbook, name: str) -> bool:
+    """Whether a chart sheet's chart reads the sheet ``name``, which a save would leave naming a sheet that is gone."""
+    wanted = re.compile(rf"(?:^|[>'(,=])'?{re.escape(name)}'?!", re.IGNORECASE)
+    return any(wanted.search(chart.state.original) for chart in book.chart_sheets)
+
+
+def admit_rename(sheet: Worksheet, wanted: str) -> None:
+    """A worksheet's new name: not one a chart sheet has."""
+    if any(same_sheet_name(chart.name, wanted) for chart in sheet.book.chart_sheets):
+        raise error(1004, "Method 'Name' of object '_Worksheet' failed")
+
+
+def admit_delete(sheet: Worksheet) -> None:
+    if len(sheet.book.sheets_) == 1:
+        raise VBAUnsupportedError("Deleting the last worksheet of a workbook with a chart sheet is not implemented")
+    if _chart_reads(sheet.book, sheet.name):
+        raise VBAUnsupportedError("Deleting a worksheet a chart sheet's chart reads is not implemented")
+
+
+def move_tab(tab: Tab, before: object, after: object) -> object:
+    """Move a tab beside another of the workbook; it is then active (tests/fixtures/chart_sheets/tabs.json)."""
+    from pyopenvba.apps.excel._protection import MOVING, refuse_structure
+
+    book = tab.book
+    refuse_structure(book, MOVING)
+    if before is MISSING and after is MISSING:
+        raise VBAUnsupportedError("Moving a tab of a workbook with a chart sheet to a new workbook is not implemented")
+    position = tab_position(book, before, after)
+    if not (before is tab or after is tab):
+        at = book.file_tabs.index(tab)
+        book.file_tabs.remove(tab)
+        book.file_tabs.insert(position - 1 if at < position else position, tab)
+        book.sheets_[:] = [one for one in book.file_tabs if isinstance(one, Worksheet)]
+        book.names_.changed = True
+        book.saved = False
+        book.calculator.rebuild()
+    _activated(tab)
+    return EMPTY
+
+
+def copy_among_tabs(sheet: Worksheet, before: object, after: object) -> object:
+    """Worksheet.Copy beside a tab of the workbook: the copy is made beside the nearest worksheet and placed among the tabs."""
+    from pyopenvba.apps.excel._protection import COPYING
+    from pyopenvba.apps.excel._sheet_copy import copy_sheet
+
+    book = sheet.book
+    sheet.guard_structure(before if isinstance(before, Worksheet) else MISSING, after if isinstance(after, Worksheet) else MISSING, COPYING, "Copying")
+    if before is MISSING and after is MISSING:
+        return copy_sheet(sheet, before, after)
+    position = tab_position(book, before, after)
+    tabs = book.tabs()
+    worksheets_before = [tab for tab in tabs[:position] if isinstance(tab, Worksheet)]
+    known = list(book.sheets_)
+    answer = copy_sheet(sheet, MISSING, worksheets_before[-1]) if worksheets_before else copy_sheet(sheet, book.sheets_[0], MISSING)
+    for added in [one for one in book.sheets_ if not any(one is other for other in known)]:
+        book.file_tabs.insert(position, added)
+    book.view.first_sheet = min(book.view.first_sheet, position)
+    return answer
+
+
+def remove_deleted(book: Workbook, package: OpcFile) -> None:
+    """Take the parts of the chart sheets a macro deleted out of the package."""
+    book_rels = "xl/_rels/workbook.xml.rels"
+    for sheet in book.deleted_chart_sheets:
+        drawing = _related(package, sheet.part_name, _REL_DRAWING)
+        chart = sheet.state.part
+        remove_style_parts(package, chart)
+        for part in (chart, drawing, sheet.part_name):
+            if part and package.has(part):
+                package.remove(part)
+                drop_content_type(package, part)
+            if part and package.has(rels_part(part)):
+                package.remove(rels_part(part))
+        target = sheet.part_name.removeprefix("xl/")
+        text = package.read(book_rels).decode("utf-8")
+        package.write(book_rels, re.sub(rf'<Relationship\b[^>]*Target="/?(?:xl/)?{re.escape(target)}"[^>]*/>', "", text).encode("utf-8"))
+    book.deleted_chart_sheets.clear()
+
+
+class _ChartSheetTab(ExcelObject):
+    """A chart sheet's tab as the file has it; False is what Excel reads for a tab with no colour."""
+
+    vba_type_name = "Tab"
+
+    def __init__(self, sheet: ChartSheet) -> None:
+        self.sheet = sheet
+
+    def _colour(self) -> int | None:
+        found = re.search(r'<tabColor\b[^>]*\brgb="[0-9A-Fa-f]{2}([0-9A-Fa-f]{6})"', self.sheet.xml)
+        if found is None:
+            if "<tabColor" in self.sheet.xml:
+                raise VBAUnsupportedError("A chart sheet's tab colour other than an RGB one is not implemented")
+            return None
+        red, green, blue = (int(found.group(1)[at:at + 2], 16) for at in (0, 2, 4))
+        return red + green * 256 + blue * 65536
+
+    @member
+    def Color(self) -> object:
+        colour = self._colour()
+        return False if colour is None else VBAInt(colour, "Long")
+
+    @setter("Color")
+    def _set_color(self, value: object) -> None:
+        raise VBAUnsupportedError("Colouring a chart sheet's tab is not implemented")
+
+
+class ChartSheets(VBACollection, ItemDefault, ExcelObject):
+    """Workbook.Charts where the workbook has chart sheets."""
+
+    vba_type_name = "Sheets"
+
+    def __init__(self, book: Workbook) -> None:
+        self.book = book
+
+    def vba_items(self) -> list[object]:
+        return list(self.book.chart_sheets)
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        if isinstance(index, str):
+            for sheet in self.book.chart_sheets:
+                if sheet.name.casefold() == index.casefold():
+                    return sheet
+            raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, "Subscript out of range")
+        return super().vba_lookup(index, items)
+
+    @method
+    def Add(self, Before: object = MISSING, After: object = MISSING, Count: object = MISSING,  # noqa: N803 - native named arguments
+            Type: object = MISSING) -> object:
+        raise VBAUnsupportedError("Charts.Add is not implemented")

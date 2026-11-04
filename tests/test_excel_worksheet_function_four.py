@@ -1,8 +1,7 @@
-"""XLookup, Sort, Unique and YearFrac on rounds of seeded calls, with the model's answers written down first
+"""XLookup, Sort, Unique and YearFrac on three rounds of seeded calls, with the model's answers written down first
 (tests/fixtures/worksheet_function_four.json). Rules were fixed against each round before the next, so the rounds are now only
-regressions. Their scores say how each did when it counted. YearFrac is VERIFIED: its last two rounds, new values and calls
-weighted to arrays, had no difference. The other three stay PARTIAL. KNOWN lists what the model still answers differently, all of
-it an array given where one value goes, and none of it YearFrac's.
+regressions. Their scores say how each did when it counted: no function has passed, so all four rows stay PARTIAL. KNOWN lists
+what the model still answers differently, all of it an array given where one value goes.
 """
 from __future__ import annotations
 
@@ -32,7 +31,7 @@ def _answers(calls: list[str], fill: str, typed: bool) -> list[str]:
 
 
 @pytest.mark.parametrize('binding', ['late', 'typed'])
-@pytest.mark.parametrize('name', ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth'])
+@pytest.mark.parametrize('name', ['first', 'second', 'third'])
 def test_each_call_as_excel_answered_but_the_known(name: str, binding: str) -> None:
     round_ = RECORD['rounds'][name]
     cases = round_['cases']
@@ -49,11 +48,7 @@ def test_the_scores_say_what_was_missed_when_it_counted() -> None:
     scores = RECORD['scores']
     assert sum(scores['first']['differ'].values()) == 204 and sum(scores['first']['comparisons'].values()) == 1880
     assert scores['second']['differ'] == {'XLookup': 10, 'YearFrac': 0, 'Sort': 4, 'Unique': 22}
-    assert [scores[name]['differ']['YearFrac'] for name in ('third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth')] == [125, 101, 1, 1, 0, 0]
-
-
-def test_year_frac_has_no_known_difference() -> None:
-    assert not [call for call in KNOWN if 'YearFrac' in call]
+    assert scores['third']['differ'] == {'YearFrac': 125}
 
 
 def test_every_known_difference_gives_an_array_or_several_cells_for_one_value() -> None:

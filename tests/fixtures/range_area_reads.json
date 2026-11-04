@@ -1,0 +1,1716 @@
+{
+"late_source": "Private Function Note(e As Long, v As Variant) As String\n    If e <> 0 Then\n        Note = \"e\" & e\n    ElseIf IsNull(v) Then\n        Note = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Note = \"Empty\"\n    ElseIf IsObject(v) Then\n        Note = \"Object \" & TypeName(v)\n    ElseIf IsArray(v) Then\n        Note = TypeName(v) & \" \" & UBound(v, 1) & \"x\" & UBound(v, 2)\n    Else\n        Note = TypeName(v) & \" \" & CStr(v)\n    End If\nEnd Function\n\nPublic Function Probe() As String\n    Dim wb As Object, ws As Object, o As Object, v As Variant, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"E1\").Value = 1.5: ws.Range(\"E2\").Value = 2: ws.Range(\"F1\").Value = 3: ws.Range(\"F2\").Value = 4: ws.Range(\"G1\").Value = \"abc\": ws.Range(\"G2\").Value = 6\n    ws.Range(\"J1\").Value = 1.5: ws.Range(\"J2\").Value = 2\n    On Error Resume Next\n    Set o = ws.Range(\"E1,G1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:E2,G1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"G1,E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"H1,E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:F2,G1:G2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,J1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,H1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,E2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,J1:J2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"H1,I1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"H1:I1,E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"J1:J2,E1:E2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:E2,J1:J2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:E2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    wb.Close False\n    Probe = Mid(s, 3)\nEnd Function\n",
+"typed_source": "Private Function Note(e As Long, v As Variant) As String\n    If e <> 0 Then\n        Note = \"e\" & e\n    ElseIf IsNull(v) Then\n        Note = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Note = \"Empty\"\n    ElseIf IsObject(v) Then\n        Note = \"Object \" & TypeName(v)\n    ElseIf IsArray(v) Then\n        Note = TypeName(v) & \" \" & UBound(v, 1) & \"x\" & UBound(v, 2)\n    Else\n        Note = TypeName(v) & \" \" & CStr(v)\n    End If\nEnd Function\n\nPublic Function Probe() As String\n    Dim wb As Object, ws As Object, o As Range, v As Variant, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"E1\").Value = 1.5: ws.Range(\"E2\").Value = 2: ws.Range(\"F1\").Value = 3: ws.Range(\"F2\").Value = 4: ws.Range(\"G1\").Value = \"abc\": ws.Range(\"G2\").Value = 6\n    ws.Range(\"J1\").Value = 1.5: ws.Range(\"J2\").Value = 2\n    On Error Resume Next\n    Set o = ws.Range(\"E1,G1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:E2,G1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"G1,E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"H1,E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:F2,G1:G2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,J1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,H1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,E2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1,J1:J2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"H1,I1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"H1:I1,E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"J1:J2,E1:E2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:E2,J1:J2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1:E2\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    Set o = ws.Range(\"E1\")\n    v = Empty: Err.Clear: v = o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Value2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaLocal: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.FormulaR1C1Local: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Formula2: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o.Text: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CStr(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = CDbl(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o + 1: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = 1 + o: s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = o & \"x\": s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = (o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = TypeName(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsArray(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsObject(o): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    v = Empty: Err.Clear: v = IsNull(o.Text): s = s & \"@@\" & Note(Err.Number, v): Err.Clear\n    wb.Close False\n    Probe = Mid(s, 3)\nEnd Function\n",
+"cases": [
+[
+"E1,G1",
+"v = o",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,G1",
+"v = o.Value",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,G1",
+"v = o.Value2",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,G1",
+"v = o.Formula",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,G1",
+"v = o.FormulaR1C1",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,G1",
+"v = o.FormulaLocal",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,G1",
+"v = o.FormulaR1C1Local",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,G1",
+"v = o.Formula2",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,G1",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1,G1",
+"v = CStr(o)",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,G1",
+"v = CDbl(o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,G1",
+"v = o + 1",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,G1",
+"v = 1 + o",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,G1",
+"v = o & \"x\"",
+"String 1.5x",
+"String 1.5x"
+],
+[
+"E1,G1",
+"v = (o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,G1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1,G1",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"E1,G1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,G1",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2,G1",
+"v = o",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.Value",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.Value2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.Formula",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.FormulaR1C1",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.FormulaLocal",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.FormulaR1C1Local",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.Formula2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1:E2,G1",
+"v = CStr(o)",
+"e13",
+"e13"
+],
+[
+"E1:E2,G1",
+"v = CDbl(o)",
+"e13",
+"e13"
+],
+[
+"E1:E2,G1",
+"v = o + 1",
+"e13",
+"e13"
+],
+[
+"E1:E2,G1",
+"v = 1 + o",
+"e13",
+"e13"
+],
+[
+"E1:E2,G1",
+"v = o & \"x\"",
+"e13",
+"e13"
+],
+[
+"E1:E2,G1",
+"v = (o)",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,G1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1:E2,G1",
+"v = IsArray(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2,G1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2,G1",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"G1,E1",
+"v = o",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.Value",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.Value2",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.Formula",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.FormulaR1C1",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.FormulaLocal",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.FormulaR1C1Local",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.Formula2",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"G1,E1",
+"v = CStr(o)",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = CDbl(o)",
+"e13",
+"e13"
+],
+[
+"G1,E1",
+"v = o + 1",
+"e13",
+"e13"
+],
+[
+"G1,E1",
+"v = 1 + o",
+"e13",
+"e13"
+],
+[
+"G1,E1",
+"v = o & \"x\"",
+"String abcx",
+"String abcx"
+],
+[
+"G1,E1",
+"v = (o)",
+"String abc",
+"String abc"
+],
+[
+"G1,E1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"G1,E1",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"G1,E1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"G1,E1",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"H1,E1",
+"v = o",
+"Empty",
+"Empty"
+],
+[
+"H1,E1",
+"v = o.Value",
+"Empty",
+"Empty"
+],
+[
+"H1,E1",
+"v = o.Value2",
+"Empty",
+"Empty"
+],
+[
+"H1,E1",
+"v = o.Formula",
+"String ",
+"String "
+],
+[
+"H1,E1",
+"v = o.FormulaR1C1",
+"String ",
+"String "
+],
+[
+"H1,E1",
+"v = o.FormulaLocal",
+"String ",
+"String "
+],
+[
+"H1,E1",
+"v = o.FormulaR1C1Local",
+"String ",
+"String "
+],
+[
+"H1,E1",
+"v = o.Formula2",
+"String ",
+"String "
+],
+[
+"H1,E1",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"H1,E1",
+"v = CStr(o)",
+"String ",
+"String "
+],
+[
+"H1,E1",
+"v = CDbl(o)",
+"Double 0",
+"Double 0"
+],
+[
+"H1,E1",
+"v = o + 1",
+"Integer 1",
+"Integer 1"
+],
+[
+"H1,E1",
+"v = 1 + o",
+"Integer 1",
+"Integer 1"
+],
+[
+"H1,E1",
+"v = o & \"x\"",
+"String x",
+"String x"
+],
+[
+"H1,E1",
+"v = (o)",
+"Empty",
+"Empty"
+],
+[
+"H1,E1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"H1,E1",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"H1,E1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"H1,E1",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:F2,G1:G2",
+"v = o",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.Value",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.Value2",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.Formula",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.FormulaR1C1",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.FormulaLocal",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.FormulaR1C1Local",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.Formula2",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1:F2,G1:G2",
+"v = CStr(o)",
+"e13",
+"e13"
+],
+[
+"E1:F2,G1:G2",
+"v = CDbl(o)",
+"e13",
+"e13"
+],
+[
+"E1:F2,G1:G2",
+"v = o + 1",
+"e13",
+"e13"
+],
+[
+"E1:F2,G1:G2",
+"v = 1 + o",
+"e13",
+"e13"
+],
+[
+"E1:F2,G1:G2",
+"v = o & \"x\"",
+"e13",
+"e13"
+],
+[
+"E1:F2,G1:G2",
+"v = (o)",
+"Variant() 2x2",
+"Variant() 2x2"
+],
+[
+"E1:F2,G1:G2",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1:F2,G1:G2",
+"v = IsArray(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:F2,G1:G2",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:F2,G1:G2",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,J1",
+"v = o",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1",
+"v = o.Value",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1",
+"v = o.Value2",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1",
+"v = o.Formula",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1",
+"v = o.FormulaR1C1",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1",
+"v = o.FormulaLocal",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1",
+"v = o.FormulaR1C1Local",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1",
+"v = o.Formula2",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1",
+"v = o.Text",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1",
+"v = CStr(o)",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1",
+"v = CDbl(o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1",
+"v = o + 1",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,J1",
+"v = 1 + o",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,J1",
+"v = o & \"x\"",
+"String 1.5x",
+"String 1.5x"
+],
+[
+"E1,J1",
+"v = (o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1,J1",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"E1,J1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,J1",
+"v = IsNull(o.Text)",
+"Boolean False",
+"Boolean False"
+],
+[
+"E1,H1",
+"v = o",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,H1",
+"v = o.Value",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,H1",
+"v = o.Value2",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,H1",
+"v = o.Formula",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,H1",
+"v = o.FormulaR1C1",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,H1",
+"v = o.FormulaLocal",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,H1",
+"v = o.FormulaR1C1Local",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,H1",
+"v = o.Formula2",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,H1",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1,H1",
+"v = CStr(o)",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,H1",
+"v = CDbl(o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,H1",
+"v = o + 1",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,H1",
+"v = 1 + o",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,H1",
+"v = o & \"x\"",
+"String 1.5x",
+"String 1.5x"
+],
+[
+"E1,H1",
+"v = (o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,H1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1,H1",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"E1,H1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,H1",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,E2",
+"v = o",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,E2",
+"v = o.Value",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,E2",
+"v = o.Value2",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,E2",
+"v = o.Formula",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,E2",
+"v = o.FormulaR1C1",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,E2",
+"v = o.FormulaLocal",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,E2",
+"v = o.FormulaR1C1Local",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,E2",
+"v = o.Formula2",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,E2",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1,E2",
+"v = CStr(o)",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,E2",
+"v = CDbl(o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,E2",
+"v = o + 1",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,E2",
+"v = 1 + o",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,E2",
+"v = o & \"x\"",
+"String 1.5x",
+"String 1.5x"
+],
+[
+"E1,E2",
+"v = (o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,E2",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1,E2",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"E1,E2",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,E2",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,J1:J2",
+"v = o",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.Value",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.Value2",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.Formula",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.FormulaR1C1",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.FormulaLocal",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.FormulaR1C1Local",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.Formula2",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1:J2",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1,J1:J2",
+"v = CStr(o)",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1,J1:J2",
+"v = CDbl(o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1:J2",
+"v = o + 1",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,J1:J2",
+"v = 1 + o",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1,J1:J2",
+"v = o & \"x\"",
+"String 1.5x",
+"String 1.5x"
+],
+[
+"E1,J1:J2",
+"v = (o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1,J1:J2",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1,J1:J2",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"E1,J1:J2",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1,J1:J2",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"H1,I1",
+"v = o",
+"Empty",
+"Empty"
+],
+[
+"H1,I1",
+"v = o.Value",
+"Empty",
+"Empty"
+],
+[
+"H1,I1",
+"v = o.Value2",
+"Empty",
+"Empty"
+],
+[
+"H1,I1",
+"v = o.Formula",
+"String ",
+"String "
+],
+[
+"H1,I1",
+"v = o.FormulaR1C1",
+"String ",
+"String "
+],
+[
+"H1,I1",
+"v = o.FormulaLocal",
+"String ",
+"String "
+],
+[
+"H1,I1",
+"v = o.FormulaR1C1Local",
+"String ",
+"String "
+],
+[
+"H1,I1",
+"v = o.Formula2",
+"String ",
+"String "
+],
+[
+"H1,I1",
+"v = o.Text",
+"String ",
+"String "
+],
+[
+"H1,I1",
+"v = CStr(o)",
+"String ",
+"String "
+],
+[
+"H1,I1",
+"v = CDbl(o)",
+"Double 0",
+"Double 0"
+],
+[
+"H1,I1",
+"v = o + 1",
+"Integer 1",
+"Integer 1"
+],
+[
+"H1,I1",
+"v = 1 + o",
+"Integer 1",
+"Integer 1"
+],
+[
+"H1,I1",
+"v = o & \"x\"",
+"String x",
+"String x"
+],
+[
+"H1,I1",
+"v = (o)",
+"Empty",
+"Empty"
+],
+[
+"H1,I1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"H1,I1",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"H1,I1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"H1,I1",
+"v = IsNull(o.Text)",
+"Boolean False",
+"Boolean False"
+],
+[
+"H1:I1,E1",
+"v = o",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.Value",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.Value2",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.Formula",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.FormulaR1C1",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.FormulaLocal",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.FormulaR1C1Local",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.Formula2",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"H1:I1,E1",
+"v = CStr(o)",
+"e13",
+"e13"
+],
+[
+"H1:I1,E1",
+"v = CDbl(o)",
+"e13",
+"e13"
+],
+[
+"H1:I1,E1",
+"v = o + 1",
+"e13",
+"e13"
+],
+[
+"H1:I1,E1",
+"v = 1 + o",
+"e13",
+"e13"
+],
+[
+"H1:I1,E1",
+"v = o & \"x\"",
+"e13",
+"e13"
+],
+[
+"H1:I1,E1",
+"v = (o)",
+"Variant() 1x2",
+"Variant() 1x2"
+],
+[
+"H1:I1,E1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"H1:I1,E1",
+"v = IsArray(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"H1:I1,E1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"H1:I1,E1",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"J1:J2,E1:E2",
+"v = o",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.Value",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.Value2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.Formula",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.FormulaR1C1",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.FormulaLocal",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.FormulaR1C1Local",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.Formula2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"J1:J2,E1:E2",
+"v = CStr(o)",
+"e13",
+"e13"
+],
+[
+"J1:J2,E1:E2",
+"v = CDbl(o)",
+"e13",
+"e13"
+],
+[
+"J1:J2,E1:E2",
+"v = o + 1",
+"e13",
+"e13"
+],
+[
+"J1:J2,E1:E2",
+"v = 1 + o",
+"e13",
+"e13"
+],
+[
+"J1:J2,E1:E2",
+"v = o & \"x\"",
+"e13",
+"e13"
+],
+[
+"J1:J2,E1:E2",
+"v = (o)",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"J1:J2,E1:E2",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"J1:J2,E1:E2",
+"v = IsArray(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"J1:J2,E1:E2",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"J1:J2,E1:E2",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2,J1:J2",
+"v = o",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.Value",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.Value2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.Formula",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.FormulaR1C1",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.FormulaLocal",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.FormulaR1C1Local",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.Formula2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1:E2,J1:J2",
+"v = CStr(o)",
+"e13",
+"e13"
+],
+[
+"E1:E2,J1:J2",
+"v = CDbl(o)",
+"e13",
+"e13"
+],
+[
+"E1:E2,J1:J2",
+"v = o + 1",
+"e13",
+"e13"
+],
+[
+"E1:E2,J1:J2",
+"v = 1 + o",
+"e13",
+"e13"
+],
+[
+"E1:E2,J1:J2",
+"v = o & \"x\"",
+"e13",
+"e13"
+],
+[
+"E1:E2,J1:J2",
+"v = (o)",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2,J1:J2",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1:E2,J1:J2",
+"v = IsArray(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2,J1:J2",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2,J1:J2",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2",
+"v = o",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.Value",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.Value2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.Formula",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.FormulaR1C1",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.FormulaLocal",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.FormulaR1C1Local",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.Formula2",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = o.Text",
+"Null",
+"Null"
+],
+[
+"E1:E2",
+"v = CStr(o)",
+"e13",
+"e13"
+],
+[
+"E1:E2",
+"v = CDbl(o)",
+"e13",
+"e13"
+],
+[
+"E1:E2",
+"v = o + 1",
+"e13",
+"e13"
+],
+[
+"E1:E2",
+"v = 1 + o",
+"e13",
+"e13"
+],
+[
+"E1:E2",
+"v = o & \"x\"",
+"e13",
+"e13"
+],
+[
+"E1:E2",
+"v = (o)",
+"Variant() 2x1",
+"Variant() 2x1"
+],
+[
+"E1:E2",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1:E2",
+"v = IsArray(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1:E2",
+"v = IsNull(o.Text)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1",
+"v = o",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1",
+"v = o.Value",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1",
+"v = o.Value2",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1",
+"v = o.Formula",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1",
+"v = o.FormulaR1C1",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1",
+"v = o.FormulaLocal",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1",
+"v = o.FormulaR1C1Local",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1",
+"v = o.Formula2",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1",
+"v = o.Text",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1",
+"v = CStr(o)",
+"String 1.5",
+"String 1.5"
+],
+[
+"E1",
+"v = CDbl(o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1",
+"v = o + 1",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1",
+"v = 1 + o",
+"Double 2.5",
+"Double 2.5"
+],
+[
+"E1",
+"v = o & \"x\"",
+"String 1.5x",
+"String 1.5x"
+],
+[
+"E1",
+"v = (o)",
+"Double 1.5",
+"Double 1.5"
+],
+[
+"E1",
+"v = TypeName(o)",
+"String Range",
+"String Range"
+],
+[
+"E1",
+"v = IsArray(o)",
+"Boolean False",
+"Boolean False"
+],
+[
+"E1",
+"v = IsObject(o)",
+"Boolean True",
+"Boolean True"
+],
+[
+"E1",
+"v = IsNull(o.Text)",
+"Boolean False",
+"Boolean False"
+]
+]
+}

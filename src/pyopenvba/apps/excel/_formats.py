@@ -927,7 +927,7 @@ class Interior(ExcelObject):
         if wanted == XL_AUTOMATIC:
             wanted = 1  # xlPatternAutomatic is a solid fill
         if wanted not in _PATTERN_OF:
-            raise VBAUnsupportedError(f"Interior.Pattern = {wanted} is not implemented")
+            raise error(9)
         pattern = _PATTERN_OF[wanted]
         self._write(lambda fill: self._patterned(fill, pattern))
 
@@ -1416,9 +1416,6 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
 
     @setter("Value")
     def _set_value(self, value: object) -> None:
-        # Value takes LineStyle's codes but for the negative ones (tests/fixtures/format_properties.json).
-        if isinstance(value, (int, float)) and not isinstance(value, bool) and value < 0:
-            raise error(1004, "Unable to set the Value property of the Borders class")
         self._set_all("LineStyle", value)
 
     @member

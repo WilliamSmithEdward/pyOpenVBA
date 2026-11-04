@@ -14,7 +14,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 MEASURED = json.loads((Path(__file__).parent / "fixtures/unassessed_charts.json").read_text(encoding="utf-8"))
 #: Measured, and left reporting themselves: filtering a category, 3-D chart types and a secondary axis, which the model
 #: does not have, and InvertIfNegative through a legend key on a chart that is no column or bar.
-REPORTED = {"category_filtered", "walls", "axis_secondary", "key_invert_set", "key_invert_series"}
+REPORTED = {"category_filtered", "walls", "key_invert_set", "key_invert_series"}
 
 
 def _run(row: dict[str, str]) -> object:

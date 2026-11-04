@@ -115,7 +115,7 @@ name looking like a cell is not read as the cell.
    `regular_expression`). YEARFRAC's basis 1 does not count 1900 as a leap
    year, and its basis 0 takes 28 February 1900 as that month's end
    (`functions/dates.py`). SORT's order is rounded down
-   (`functions/arrays.py`). YEARFRAC reads its basis first. Those in
+   (`functions/arrays.py`). Those in
    `tests/fixtures/worksheet_function_four.json`; CHOOSE with an array of positions picks
    item by item, lined up as an operator lines arrays up; INDEX's first
    argument, ROWS and COLUMNS are worked out whole; INDIRECT reads an R1C1

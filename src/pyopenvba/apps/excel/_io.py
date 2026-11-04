@@ -40,6 +40,7 @@ from pyopenvba.powerquery._opc import OpcFile
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type, sheet_entries
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
     from pyopenvba.apps.excel._refresh import LoadTarget
@@ -121,6 +122,8 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     application.outside("Opening a workbook")
     if not path.exists():
         raise WorkbookFileError(f"there is no file at {path}")
+    if path.suffix.lower() in (".xls", ".xla", ".xlt"):
+        raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
     if path.suffix.lower() == ".xlsb":
         raise WorkbookFileError(
             "an xlsb workbook keeps its cells in a binary part that pyOpenVBA does not read; "
@@ -133,6 +136,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     respell(package)
     book = Workbook(application, path.name, str(path.parent))
     book.package = package
+    book.session_properties["IsAddin"] = workbook_format(book) == 55
     book.links_folder = str(path.resolve().parent)
     workbook_part = package.read("xl/workbook.xml")
     workbook_xml = workbook_part.decode("utf-8", errors="replace")
@@ -169,9 +173,18 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     for name, relationship_id in sheet_entries(workbook_xml):
         part = relationships.get(relationship_id, "")
         other = _OTHER_SHEETS.get(linked.get(relationship_id, ("", ""))[1])
+        if other == "a chart sheet":
+            from pyopenvba.apps.excel._chart_sheets import ChartSheet
+
+            chart_sheet = ChartSheet(book, name, part, package, numbers.get(relationship_id, 0),
+                                     _SHEET_VISIBILITY.get(states.get(relationship_id, ""), -1))
+            book.chart_sheets.append(chart_sheet)
+            book.file_tabs.append(chart_sheet)
+            continue
         if other is not None:
             raise VBAUnsupportedError(f"opening a workbook with {other} is not implemented")
         sheet = book.add_sheet(name)
+        book.file_tabs.append(sheet)
         sheet.sheet_id = numbers.get(relationship_id, sheet.sheet_id)
         sheet.visible = _SHEET_VISIBILITY.get(states.get(relationship_id, ""), -1)
         sheet.part_name = part
@@ -213,7 +226,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             from pyopenvba.apps.excel._sheet_tabs import read as read_tab
 
             read_tab(sheet, sheet_xml)
-    book.next_sheet_id = max((sheet.sheet_id for sheet in book.sheets_), default=0) + 1
+    book.next_sheet_id = max((sheet.sheet_id for sheet in book.tabs()), default=0) + 1
     _read_threads(book, package)
     book.held_kinds = {kind.rsplit("/", 1)[-1] for _, kind in _relationships(package).values()} | {
         marker for marker in ("customWorkbookViews", "webPublishObjects") if f"<{marker}" in workbook_xml}
@@ -539,7 +552,7 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
         name = attributes.get("name", "")
         if name in ("_xlnm.Print_Area", "_xlnm.Print_Titles"):
             scope = attributes.get("localSheetId", "")
-            if not re.fullmatch(r"[0-9]{1,10}", scope) or int(scope) >= len(book.sheets_):
+            if not re.fullmatch(r"[0-9]{1,10}", scope) or int(scope) >= len(book.tabs()):
                 # Unowned/global reserved print metadata must survive unchanged.
                 continue
         if name in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract", "_xlnm.Print_Area", "_xlnm.Print_Titles"):
@@ -548,10 +561,10 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
         elif not name or name.startswith("_xlnm"):
             continue
         local_id = attributes.get("localSheetId", "")
-        if local_id.isdigit() and int(local_id) < len(book.sheets_):
+        if local_id.isdigit() and int(local_id) < len(book.tabs()):
             from pyopenvba._a1 import quote_sheet
 
-            owner = book.sheets_[int(local_id)]
+            owner = book.tabs()[int(local_id)]
             if name in ("Print_Area", "Print_Titles") and attributes.get("name") == "_xlnm." + name:
                 owner.page_print_names_owned.add(name)
             name = quote_sheet(owner.name) + "!" + name
@@ -641,7 +654,7 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     are in that part, and a form control's own settings are in the
     ``ctrlProps`` part the sheet points at separately.
     """
-    from pyopenvba.shapes._xlsx import control_text, read_controls, read_drawing
+    from pyopenvba.shapes._xlsx import control_text, read_control_settings, read_controls, read_drawing
 
     part = _sheet_relationship(package, sheet.part_name, "drawing")
     if not part or not package.has(part):
@@ -672,6 +685,8 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
             # Excel reports a control's macro workbook-qualified, and
             # writes it as [0]!Name; the model carries the plain name.
             shape.macro = found.macro_text.rpartition("!")[2]
+            if vml:
+                read_control_settings(vml, shape, found)
             if vml and "<xdr:txBody" not in shape.source:
                 shape.text = control_text(vml, shape.shape_id)
     from pyopenvba.apps.excel._radios import initialize
@@ -1102,6 +1117,10 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
     from pyopenvba.shapes._xlsx import EMPTY_DRAWING, read_drawing, written
     from pyopenvba.apps.excel import _charts_file
 
+    for chart_sheet in book.chart_sheets:
+        _charts_file.refresh(chart_sheet.sheet, package)
+        if package.read(chart_sheet.part_name).decode("utf-8", errors="replace") != chart_sheet.saved_xml():
+            package.write(chart_sheet.part_name, chart_sheet.saved_xml().encode("utf-8"))
     for sheet in book.sheets_:
         # Rows grown by their fonts move the shapes over them before they are written.
         sheet.dims.settle_shapes()
@@ -1182,7 +1201,7 @@ def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
 def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState]) -> None:
     """Follow control edits and deletions into the sheet, VML and part relationships."""
     from pyopenvba.shapes._xlsx import (
-        control_text, read_controls, with_control_shape, with_vml_control,
+        control_text, read_controls, with_control_shape, with_control_state, with_vml_control,
         without_control, without_vml_control, with_control_bindings, with_vml_bindings,
     )
 
@@ -1212,6 +1231,7 @@ def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState])
             old.name, old.left, old.top, old.width, old.height,
         ):
             xml = with_control_shape(xml, item, sheet.drawing_grid())
+        xml = with_control_state(xml, item)
         vml = with_vml_control(vml, item, old, sheet.drawing_grid())
         if any(getattr(item.control, key) != getattr(info, key) for key in (
             "linked_cell", "list_range", "value", "selection_mode", "items", "selected_indices",
@@ -1606,6 +1626,10 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     else:
         _sync_sheets(book, package)
         removed_sheets = _remove_deleted_sheets(book, package)
+        if book.deleted_chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import remove_deleted
+
+            remove_deleted(book, package)
     from pyopenvba.apps.excel._cell_styles import prepare_save
     from pyopenvba.apps.excel._windows import saved, tabs_moved, with_book_view, with_view
 
@@ -2117,7 +2141,7 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
     from pyopenvba.apps.excel._advanced_filter import attribute_values, patch_attribute
 
     old_parts = list(existing)
-    new_positions = {sheet.part_name: index for index, sheet in enumerate(book.sheets_) if sheet.part_name}
+    new_positions = {sheet.part_name: index for index, sheet in enumerate(book.tabs()) if sheet.part_name}
     reserved: dict[str, str] = {}
     for match in _DEFINED_NAME.finditer(text):
         fragment, body = match.group(1), match.group(2)
@@ -2132,7 +2156,7 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
                                   "<definedName" + patch_attribute(fragment, "localSheetId", str(position))
                                   + ">" + body + "</definedName>")
     tags: list[str] = []
-    for sheet in book.sheets_:
+    for sheet in book.tabs():
         attrs = dict(existing.get(sheet.part_name, {}))
         if not attrs:
             number = 1
@@ -2271,7 +2295,7 @@ def _follow_defined_name(book: Workbook, package: OpcFile, name: str, target: Lo
 _SHEET_VISIBILITY = {"hidden": 0, "veryHidden": 2}
 
 
-def _sheet_state(sheet: Worksheet) -> str:
+def _sheet_state(sheet: Worksheet | ChartSheet) -> str:
     """A sheet's state attribute, as Excel writes it between sheetId and its relationship; none for one that shows."""
     state = next((name for name, value in _SHEET_VISIBILITY.items() if value == sheet.visible), "")
     return f' state="{state}"' if state else ""
@@ -2917,8 +2941,8 @@ def _with_dimension(xml: str, sheet: Worksheet) -> str:
 def _name_order(book: Workbook, name: str, local: str | None) -> tuple[object, ...]:
     """Where Excel puts a defined name in the file: measured by scripts/measure_autofilter_file.py."""
     sheet = ""
-    if local is not None and local.isdigit() and int(local) < len(book.sheets_):
-        sheet = book.sheets_[int(local)].name
+    if local is not None and local.isdigit() and int(local) < len(book.tabs()):
+        sheet = book.tabs()[int(local)].name
     return (_collation(name.removeprefix("_xlnm.")), 0 if local is not None else 1, _collation(sheet))
 
 
@@ -2944,8 +2968,8 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         name = found.get("name", "")
         unowned_print = name in ("_xlnm.Print_Area", "_xlnm.Print_Titles")
         scope = found.get("localSheetId", "")
-        if unowned_print and re.fullmatch(r"[0-9]{1,10}", scope) and int(scope) < len(book.sheets_):
-            unowned_print = name.removeprefix("_xlnm.") not in book.sheets_[int(scope)].page_print_names_owned
+        if unowned_print and re.fullmatch(r"[0-9]{1,10}", scope) and int(scope) < len(book.tabs()):
+            unowned_print = name.removeprefix("_xlnm.") not in book.tabs()[int(scope)].page_print_names_owned
         if name.startswith("_xlnm") and (name not in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract", "_xlnm.Print_Area", "_xlnm.Print_Titles") or unowned_print):
             written.append((_name_order(book, name, found.get("localSheetId")),
                             f"<definedName {attributes}>{body}</definedName>"))
@@ -2969,7 +2993,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
                          and owned.get("name") == "_xlnm." + bare else bare)
         owned.pop("localSheetId", None)
         if scope:
-            index = next((i for i, sheet in enumerate(book.sheets_) if sheet.name.lower() == scope.lower()), None)
+            index = next((i for i, sheet in enumerate(book.tabs()) if sheet.name.lower() == scope.lower()), None)
             if index is not None:
                 owned["localSheetId"] = str(index)
         owned.pop("hidden", None)

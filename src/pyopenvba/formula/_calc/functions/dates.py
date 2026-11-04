@@ -402,10 +402,9 @@ def year_fraction(first: int, last: int, kind: int, *, epoch_1904: bool = False)
 
 @function("YEARFRAC", V, V, V, minimum=2)
 def YEARFRAC(context: Context, start: Scalar, end: Scalar, basis_: Scalar | None = None) -> Value:
-    kind = basis(context, basis_)
     first = serial_of(context, start)
     last = serial_of(context, end)
-    return checked(year_fraction(first, last, kind, epoch_1904=context.epoch_1904))
+    return checked(year_fraction(first, last, basis(context, basis_), epoch_1904=context.epoch_1904))
 
 
 @function("WEEKNUM", V, V, minimum=1)

@@ -2280,7 +2280,8 @@ class Workbook(ExcelObject):
     def PivotCaches(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._pivots import PivotCaches
 
-        caches = PivotCaches(self, list(self.pivot_caches))
+        # A cache goes with the last table that used it (tests/fixtures/deleted_data.json).
+        caches = PivotCaches(self, [cache for cache in self.pivot_caches if not cache.held_gone()])
         return caches if Index is MISSING else caches.Item(Index)
 
     @member

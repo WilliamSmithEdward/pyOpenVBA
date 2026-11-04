@@ -68,6 +68,14 @@ def test_no_part_holds_what_excels_file_does_not(name: str, tmp_path: Path) -> N
             assert marker in left, marker
 
 
+@pytest.mark.parametrize("clear", ["Clear", "ClearContents"])
+def test_clearing_all_of_a_pivot_table_takes_it_and_its_cache(clear: str) -> None:
+    """As Excel reads it in the session and from its save: no table and no cache."""
+    app = ExcelApplication.open(BOOK, with_vba=False)
+    app.add_module(f'Public Function Go() As String\n    With ActiveWorkbook\n        .Worksheets("Other").PivotTables("MKPIVOT").TableRange2.{clear}\n        Go = .Worksheets("Other").PivotTables.Count & "|" & .PivotCaches.Count\n    End With\nEnd Function\n', name="E")
+    assert app.run("E.Go") == "0|0"
+
+
 def test_the_markers_were_there_to_find() -> None:
     wanted = {marker for row in EDITS.values() for marker in row["should_go"]}
     start = {**MEASURED["start_macro"], **MEASURED["start"]}

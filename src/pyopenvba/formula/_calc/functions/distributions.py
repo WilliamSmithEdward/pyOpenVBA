@@ -1068,7 +1068,8 @@ def _binomial_inverse(context: Context, trials: Scalar, chance: Scalar, alpha: S
     target = context.number(alpha)
     # A chance or an alpha of 0 or 1 is #NUM!, BINOM.INV(1,1,0.5) and BINOM.INV(1,0.5,1) (tests/fixtures/formula/).
     # pyOpenVBA's own (docs/formula_engine.md).
-    if n < 0 or not 0 < p < 1 or not 0 < target < 1:
+    # 1E+300 trials is #NUM! (tests/fixtures/worksheet_function_kinds.json); where it starts was not measured.
+    if n < 0 or n >= 2**31 or not 0 < p < 1 or not 0 < target < 1:
         return NUM
     with localcontext(special.CONTEXT):
         total = D(0)
@@ -1109,7 +1110,11 @@ def _poisson(context: Context, x: Scalar, mean: Scalar, cumulative: Scalar) -> V
         return checked(_poisson_term(k, lam))
     total = 0.0
     for i in range(k + 1):
-        total += _poisson_term(i, lam)
+        term = _poisson_term(i, lam)
+        total += term
+        # Past the mean the terms only shrink, so from nothing there is nothing more to add: POISSON(1E+300,5,TRUE) is 1.
+        if term == 0 and i > lam:
+            break
     return checked(total)
 
 

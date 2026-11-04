@@ -99,9 +99,15 @@ name looking like a cell is not read as the cell.
    two digits, three or more letters in four (`functions/text.py`,
    `formula/_display.py`). NUMBERVALUE of a Boolean is #VALUE!
    (`functions/text.py`). DECIMAL in base 16 takes 0x or x before the digits
-   (`functions/engineering.py`). All in
-   `tests/fixtures/worksheet_function_edges.json` and
-   `tests/fixtures/worksheet_function_types.json`; CHOOSE with an array of positions picks
+   (`functions/engineering.py`). FACTDOUBLE past 1000 and BINOM.INV past 2^31
+   trials are #NUM!, and POISSON stops adding once its terms are nothing
+   (`functions/arithmetic.py`, `functions/distributions.py`). COUNTBLANK and
+   ISFORMULA of no range are #VALUE! (`functions/aggregate.py`,
+   `functions/information.py`). Any function whose arithmetic overflows is
+   #NUM! (`registry.py`). All in
+   `tests/fixtures/worksheet_function_edges.json`,
+   `tests/fixtures/worksheet_function_types.json` and
+   `tests/fixtures/worksheet_function_kinds.json`; CHOOSE with an array of positions picks
    item by item, lined up as an operator lines arrays up; INDEX's first
    argument, ROWS and COLUMNS are worked out whole; INDIRECT reads an R1C1
    range; AND, OR and XOR pass over a text argument that says neither

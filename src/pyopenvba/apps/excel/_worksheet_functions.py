@@ -29,6 +29,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.apps.excel._engine_book import EngineBook
+from pyopenvba.apps.excel._worksheet_function_refusals import REFUSALS
+from pyopenvba.exceptions import VBARuntimeError
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.nodes import Given, Missing, Node
@@ -187,6 +189,33 @@ def _typed(value: object, declared: str) -> object:
     return to_text(value) if declared == "String" else bool(to_bool(value))
 
 
+def _kind_of(value: object) -> str:
+    """The kind of value, as _worksheet_function_refusals has them."""
+    from pyopenvba.apps.excel._model import Range
+
+    if isinstance(value, Range):
+        if not value.single:
+            return "cells"
+        return "empty cell" if value.vba_value() is EMPTY else "cell"
+    if isinstance(value, VBAArray):
+        return "array"
+    if value is NULL:
+        return "null"
+    if value is EMPTY:
+        return "empty"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, str):
+        if not value:
+            return "no text"
+        try:
+            to_number(value)
+        except VBARuntimeError:
+            return "text"
+        return "number text"
+    return "number"
+
+
 def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool) -> list[object]:
     """What WorksheetFunction gives the engine (tests/fixtures/worksheet_function_args.json). Typed, VBA converts first
     for what the library declares. Then Nothing is 5 and an object that is no range 1004; Null counts as left out, but
@@ -205,6 +234,8 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         if value is NOTHING:
             raise error(5)
         if isinstance(value, VBAObject) and not isinstance(value, Range):
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
         if value is NULL:

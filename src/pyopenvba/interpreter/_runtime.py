@@ -3247,7 +3247,7 @@ def _call_value(value: object, args: list[object], named: dict[str, object]) -> 
         # An object variable set to Nothing has no default member to call (tests/fixtures/data_labels_object.json).
         raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     if args:
-        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
+        raise error(ERR_TYPE_MISMATCH)
     return value
 
 

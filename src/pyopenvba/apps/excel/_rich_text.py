@@ -213,6 +213,15 @@ class Characters(ExcelObject):
         self.start = start
         self.length = length
 
+    @member
+    def PhoneticCharacters(self) -> object:
+        """No phonetic text in any cell written from here, and setting it leaves none (tests/fixtures/small_rows.json)."""
+        return ""
+
+    @setter("PhoneticCharacters")
+    def _phonetic_characters(self, value: object) -> None:
+        to_text(value)
+
     def _first(self) -> int:
         return max(1, self.start or 1) - 1
 

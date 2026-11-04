@@ -525,7 +525,7 @@ CellFormat,Interior,property,As Interior,no setter,PARTIAL,tests/fixtures/find_f
 CellFormat,Locked,property,As Variant,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Null until set; Find with SearchFormat matches it against the cell's own, and Replace with ReplaceFormat puts it in."
 CellFormat,MergeCells,property,As Variant,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Reads Null; a set, whose finding is not measured, is unsupported."
 CellFormat,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Null until set; Find with SearchFormat matches it against the cell's own, and Replace with ReplaceFormat puts it in."
-CellFormat,NumberFormatLocal,property,As Variant,,MISSING,,
+CellFormat,NumberFormatLocal,property,As Variant,,PARTIAL,tests/test_excel_small_rows.py,"As live Excel, with no phonetic text, picture or mapping present."
 CellFormat,Orientation,property,As Variant,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Reads Null; a set, whose finding is not measured, is unsupported."
 CellFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,The application.
 CellFormat,ShrinkToFit,property,As Variant,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Reads Null; a set, whose finding is not measured, is unsupported."
@@ -539,7 +539,7 @@ Characters,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/characters.
 Characters,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/characters.json; tests/fixtures/rich_text_fit.json,"Read over one cell and set over any; the runs it makes save, count in the row's height and AutoFit's width. Superscript and subscript runs are not measured for heights and widths."
 Characters,Insert,method,Insert(String As String) As Variant,,PARTIAL,tests/fixtures/characters.json,One cell; several cells are not implemented.
 Characters,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/characters.json,The range.
-Characters,PhoneticCharacters,property,As String,,MISSING,,
+Characters,PhoneticCharacters,property,As String,,PARTIAL,tests/test_excel_small_rows.py,"As live Excel, with no phonetic text, picture or mapping present."
 Characters,Text,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/characters.json,"Read and set over one cell, the replaced characters' font kept; an edit leaving more than 255 characters changes nothing. Set over several cells is not implemented."
 Chart,_CodeName,property,As String,no setter,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,An embedded chart raises -2147467259.
 Chart,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"An embedded chart raises 450 given a name; read without one is refused, not measured."
@@ -689,13 +689,13 @@ ChartFormat,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/test_e
 ChartFormat,ThreeD,"property, read-only",As ThreeDFormat,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartGroup,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
-ChartGroup,BinsCountValue,property,As Long,,MISSING,,
-ChartGroup,BinsOverflowEnabled,property,As Boolean,,MISSING,,
-ChartGroup,BinsOverflowValue,property,As Double,,MISSING,,
-ChartGroup,BinsType,property,As XlBinsType,,MISSING,,
-ChartGroup,BinsUnderflowEnabled,property,As Boolean,,MISSING,,
-ChartGroup,BinsUnderflowValue,property,As Double,,MISSING,,
-ChartGroup,BinWidthValue,property,As Double,,MISSING,,
+ChartGroup,BinsCountValue,property,As Long,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsOverflowEnabled,property,As Boolean,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsOverflowValue,property,As Double,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsType,property,As XlBinsType,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsUnderflowEnabled,property,As Boolean,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinsUnderflowValue,property,As Double,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
+ChartGroup,BinWidthValue,property,As Double,,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,BubbleScale,property,As Long,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,CategoryCollection,method,CategoryCollection([Index As Variant]) As Object,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 ChartGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
@@ -1122,7 +1122,7 @@ Databar,Type,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_ico
 DisplayFormat,AddIndent,"property, read-only",As Variant,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
-DisplayFormat,Characters,"property, read-only",As Characters,,MISSING,,
+DisplayFormat,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_small_rows.py,"As live Excel, with no phonetic text, picture or mapping present."
 DisplayFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 DisplayFormat,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,FormulaHidden,"property, read-only",As Variant,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
@@ -1401,11 +1401,6 @@ Graphic,CropBottom,property,As Single,,MISSING,,
 Graphic,CropLeft,property,As Single,,MISSING,,
 Graphic,CropRight,property,As Single,,MISSING,,
 Graphic,CropTop,property,As Single,,MISSING,,
-Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Width,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 GradientStop,Application,"property, read-only",As Object,,MISSING,,
 GradientStop,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
 GradientStop,Creator,"property, read-only",As Long,,UNASSESSED,,
@@ -1420,16 +1415,21 @@ GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Tran
 GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,MISSING,,
 GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Width,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Gridlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_borders.json; tests/test_excel_chart_borders.py,"Color, ColorIndex, Weight and LineStyle, with the markup Excel writes."
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,As HasMajorGridlines or HasMinorGridlines set False.
 Gridlines,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Line only, a fill raises -2147467259; major gridlines; minor are refused."
-Gridlines,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Gridlines,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 Gridlines,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"Gridline 1 to 4: the value axis major and minor, then the category axis."
 Gridlines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,The axis.
 Gridlines,Select,method,Select() As Variant,,UNASSESSED,,
-Gridlines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Gridlines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 GroupShapes,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 GroupShapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 GroupShapes,Application,"property, read-only",As Application,,UNASSESSED,,
@@ -1455,7 +1455,7 @@ HPageBreaks,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel
 HPageBreaks,Item,"property, read-only",As HPageBreak,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted. Beyond the count is error 9."
 HPageBreaks,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The worksheet.
 HeaderFooter,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-HeaderFooter,Picture,"property, read-only",As Graphic,,MISSING,,
+HeaderFooter,Picture,"property, read-only",As Graphic,,PARTIAL,tests/test_excel_small_rows.py,"As live Excel, with no phonetic text, picture or mapping present."
 HeaderFooter,Text,property,As String,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,"Reads and sets its page's section as PageSetup's sections do, written whether or not its page's flag is on; past 255 characters error 1004 with Excel's message for it, Application-defined or object-defined error"
 HeldByChart,Application,not in the type library,,,UNASSESSED,,
 HeldByChart,Count,not in the type library,,,UNASSESSED,,
@@ -1660,7 +1660,7 @@ ListColumn,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables
 ListColumn,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumn,Total,"property, read-only",As Range,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The column's cell in the totals row; Nothing while the table shows none.
 ListColumn,TotalsCalculation,property,As XlTotalsCalculation,,VERIFIED,tests/fixtures/tables/totals_row/totals_row.json,"Read and set, the totals row shown or hidden: each function its SUBTOTAL, None an empty cell, Custom an empty cell until a formula is written there; read back from a SUBTOTAL, a formula or a label written into the row."
-ListColumn,XPath,"property, read-only",As XPath,,MISSING,,
+ListColumn,XPath,"property, read-only",As XPath,,PARTIAL,tests/test_excel_small_rows.py,"As live Excel, with no phonetic text, picture or mapping present."
 ListColumns,_Default,"property, read-only",As ListColumn,,PARTIAL,tests/fixtures/hidden_defaults_more.json; tests/test_excel_hidden_defaults_more.py,"Item by number or name, bound early."
 ListColumns,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListColumns,Add,method,Add([Position As Variant]) As ListColumn,,VERIFIED,tests/fixtures/tables/edits/edits.json,"At the end or at a position, named the first free ColumnN, the cells right of it in the table's rows moving across."
@@ -3383,7 +3383,7 @@ Trendline,DisplayRSquared,property,As Boolean,,PARTIAL,tests/fixtures/chart_tren
 Trendline,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_line_format.json; tests/test_excel_chart_line_format.py,"Its Line. Theme colours, arrowheads, and effects are refused; Fill raises as in Excel."
 Trendline,Forward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Forward2,property,As Double,,PARTIAL,tests/fixtures/trendline_members.json; tests/test_excel_trendline_members.py,
-Trendline,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Trendline,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 Trendline,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Intercept,property,As Double,no setter,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,InterceptIsAuto,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
@@ -3393,7 +3393,7 @@ Trendline,Order,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; 
 Trendline,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Period,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendline,Select,method,Select() As Variant,,UNASSESSED,,
-Trendline,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Trendline,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_bins.py,"As live Excel, for the kinds of chart the model draws."
 Trendline,Type,property,As XlTrendlineType,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 Trendlines,_Default,method,_Default([Index As Variant]) As Trendline,,MISSING,,
 Trendlines,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
@@ -4349,7 +4349,7 @@ WorksheetFunction,Z_Test,method,"Z_Test(Arg1 As Variant, Arg2 As Double, [Arg3 A
 WorksheetFunction,ZTest,method,"ZTest(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetView,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,Read.
 WorksheetView,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,Read.
-WorksheetView,DisplayDataTypeIcons,property,As Boolean,,MISSING,,
+WorksheetView,DisplayDataTypeIcons,property,As Boolean,,PARTIAL,tests/test_excel_small_rows.py,"As live Excel, with no phonetic text, picture or mapping present."
 WorksheetView,DisplayFormulas,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
 WorksheetView,DisplayGridlines,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
 WorksheetView,DisplayHeadings,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
@@ -4362,6 +4362,15 @@ _Counted,Count,not in the type library,,,PARTIAL,tests/fixtures/workbook_members
 _Counted,Creator,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 _Counted,Item,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 _Counted,Parent,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+XPath,_Default,"property, read-only",As String,,MISSING,,
+XPath,Application,"property, read-only",As Application,,MISSING,,
+XPath,Clear,method,Clear(),,UNASSESSED,,
+XPath,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+XPath,Map,"property, read-only",As XmlMap,,UNASSESSED,,
+XPath,Parent,"property, read-only",As Object,,MISSING,,
+XPath,Repeating,"property, read-only",As Boolean,,UNASSESSED,,
+XPath,SetValue,method,"SetValue(Map As XmlMap, XPath As String, [SelectionNamespace As Variant], [Repeating As Variant])",,MISSING,,
+XPath,Value,"property, read-only",As String,,UNASSESSED,,
 _Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 _Owned,Application,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 _Owned,Creator,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."

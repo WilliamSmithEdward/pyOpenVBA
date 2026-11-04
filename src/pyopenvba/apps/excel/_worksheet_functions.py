@@ -189,6 +189,8 @@ class _OpenBooks(EngineBook):
     def __init__(self, calculator: Calculator) -> None:
         super().__init__(calculator)
         self._others: dict[str, tuple[EngineBook, str]] = {}
+        #: The sheet behind each key, for an answer that is a range.
+        self.other_sheets: dict[str, Any] = {}
 
     def key(self, sheet: Worksheet) -> str:
         """The name the engine reads a sheet by: its own in the active workbook, a key in another."""
@@ -196,6 +198,7 @@ class _OpenBooks(EngineBook):
             return sheet.name
         key = f"\0{id(sheet.book)}\0{sheet.name}"
         self._others[key] = (sheet.book.calculator.engine_book, sheet.name)
+        self.other_sheets[key] = sheet
         return key
 
     def _routed(self, sheet: str) -> tuple[EngineBook, str]:
@@ -251,7 +254,7 @@ def _returned(context: Context, found: Value, name: str, *, raising: bool, books
     whole = False
     if raising and isinstance(found, Reference) and found.area is not None and name.lower() in ("index", "choose"):
         # WorksheetFunction.Index and Choose answer the range itself: f.Index(r, 0, 1).Address (tests/fixtures/excel_everyday_15.json).
-        return _range_of(books_of, found)
+        return _range_of(books_of, found, getattr(context.book, 'other_sheets', {}))
     if isinstance(found, Reference):
         if found.area is None:
             found = CellError("#VALUE!")
@@ -271,12 +274,15 @@ def _returned(context: Context, found: Value, name: str, *, raising: bool, books
     return answer(found, whole=whole)
 
 
-def _range_of(application: Application, found: Reference) -> object:
+def _range_of(application: Application, found: Reference, other_sheets: dict[str, Any]) -> object:
     from pyopenvba._a1 import Area
     from pyopenvba.apps.excel._model import Range
 
     area = found.area
     assert area is not None
+    held = other_sheets.get(area.sheet)
+    if held is not None:
+        return Range(held, [Area(area.top, area.left, area.bottom, area.right, held.name)])
     book = application.active_book
     assert book is not None
     for sheet in book.sheets_:

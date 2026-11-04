@@ -35,6 +35,10 @@ WRITES_OR_READS = [
     'ActiveWorkbook.UpdateLink folder & "/there.xlsx"',
     'ActiveWorkbook.ChangeLink "there.xlsx", folder & "/there.xlsx"',
     'ActiveWorkbook.OpenLinks folder & "/there.xlsx"',
+    'ActiveWorkbook.Connections.AddFromFile folder & "/there.png"',
+    'Workbooks.CheckOut folder & "/there.xlsx"',
+    'Workbooks.OpenXML folder & "/there.xlsx"',
+    'Workbooks.OpenDatabase folder & "/there.xlsx"',
 ]
 NOT_YET = [
     'x = Shell("cmd")',

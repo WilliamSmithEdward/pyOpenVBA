@@ -3071,7 +3071,7 @@ class ChartGroups(VBACollection, Created):
         return [ChartGroup(self.chart)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
-        if int(to_number(index)) != 1:
+        if int(to_integer(index, 'Long')) != 1:
             raise error(1004, 'Unable to get the ChartGroups property of the Chart class')
         return items[0]
 
@@ -3201,6 +3201,86 @@ class ChartGroup(Created):
     @method
     def FullCategoryCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
         return self._categories(Index)
+
+    # A histogram's, which raise on the kinds the model draws (tests/fixtures/chart_bins.json).
+
+    @member
+    def BinWidthValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinWidthValue')
+    def _binwidthvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsCountValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsCountValue')
+    def _binscountvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsOverflowEnabled(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsOverflowEnabled')
+    def _binsoverflowenabled(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsOverflowValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsOverflowValue')
+    def _binsoverflowvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsUnderflowEnabled(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsUnderflowEnabled')
+    def _binsunderflowenabled(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsUnderflowValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsUnderflowValue')
+    def _binsunderflowvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsType(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsType')
+    def _binstype(self, value: object) -> None:
+        self._kind()
+        if not 0 <= int(to_integer(value, 'Long')) <= 3:
+            raise error(5, 'Invalid procedure call or argument')
+        raise error(INVALID_CALL, 'Automation error')
 
     @member
     def BubbleScale(self) -> object:

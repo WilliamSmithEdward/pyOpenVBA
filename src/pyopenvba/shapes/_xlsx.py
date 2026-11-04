@@ -936,6 +936,30 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     )
 
 
+def shape_default_markup(shape: Shape) -> str:
+    """The theme's spDef for SetShapesDefaultProperties on a new AutoShape (tests/fixtures/shape_columns.json)."""
+    look = _fill_line(shape)
+    return (f"<a:spDef><a:spPr>{look}</a:spPr>" if look else "<a:spDef><a:spPr/>") + (
+        '<a:bodyPr vertOverflow="clip" horzOverflow="clip" rtlCol="0" anchor="t"/><a:lstStyle><a:defPPr algn="l">'
+        '<a:defRPr sz="1100"/></a:defPPr></a:lstStyle><a:style><a:lnRef idx="2"><a:schemeClr val="accent1">'
+        '<a:shade val="15000"/></a:schemeClr></a:lnRef><a:fillRef idx="1"><a:schemeClr val="accent1"/></a:fillRef>'
+        '<a:effectRef idx="0"><a:schemeClr val="accent1"/></a:effectRef><a:fontRef idx="minor"><a:schemeClr val="lt1"/>'
+        "</a:fontRef></a:style></a:spDef>")
+
+
+def _new_picture(shape: Shape) -> str:
+    """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
+    locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"
+    return (
+        f"<xdr:pic><xdr:nvPicPr>{_identity(shape)}<xdr:cNvPicPr>{locks}</xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill>"
+        '<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+        f'r:embed="{shape.image_relationship}"><a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
+        f'<a14:useLocalDpi {_A14} val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
+        f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
+        f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+        "</xdr:spPr></xdr:pic>")
+
+
 def _new_element(shape: Shape) -> str:
     """A new shape's own element, which an anchor or a group holds."""
     if shape.kind == "group":
@@ -952,6 +976,8 @@ def _new_element(shape: Shape) -> str:
             f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/><a:chOff x="{emu(across)}" y="{emu(down)}"/>'
             f'<a:chExt cx="{emu(wide)}" cy="{emu(tall)}"/></a:xfrm></xdr:grpSpPr>{members}</xdr:grpSp>'
         )
+    if shape.kind == "picture":
+        return _new_picture(shape)
     line = shape.kind == "line"
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
@@ -968,6 +994,11 @@ def _new_element(shape: Shape) -> str:
                             '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
     if shape.text_look is not None and body:
         body = _laid_out(body, shape.text_look)
+    if shape.painted:
+        body = body.replace(
+            '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
+            '<a:pPr marL="0" indent="0" algn="l"/><a:endParaRPr lang="en-US" sz="1100"><a:solidFill><a:schemeClr val="lt1"/>'
+            '</a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:endParaRPr>')
     box = ' txBox="1"' if shape.kind == "textBox" else ""
     textlink = "" if line else ' textlink=""'
     identity = _identity(shape)
@@ -1218,6 +1249,40 @@ def _free_geometry(shape: Shape) -> str:
             f'<a:path w="{emu(shape.width)}" h="{emu(shape.height)}">{steps}</a:path></a:pathLst></a:custGeom>')
 
 
+def _font_markup(look: TextLook) -> tuple[str, str]:
+    """What Characters.Font writes on a run or a paragraph's end: its attributes and its children."""
+    attributes = f' sz="{round(look.font_size * 100)}"'
+    if look.font_bold is not None:
+        attributes += f' b="{1 if look.font_bold else 0}"'
+    if look.font_italic is not None:
+        attributes += f' i="{1 if look.font_italic else 0}"'
+    if look.font_underline is not None:
+        attributes += f' u="{look.font_underline}"'
+    if look.font_strike is not None:
+        attributes += f' strike="{look.font_strike}"'
+    if look.font_kern is not None:
+        attributes += f' kern="{look.font_kern}"'
+    if look.font_cap is not None:
+        attributes += f' cap="{look.font_cap}"'
+    if look.font_spacing is not None:
+        attributes += f' spc="{look.font_spacing}"'
+    if look.font_normalize:
+        attributes += ' normalizeH="1"'
+    if look.font_baseline is not None:
+        attributes += f' baseline="{look.font_baseline}"'
+    children = ""
+    if look.font_rgb is not None:
+        children += f'<a:solidFill>{_colour(look.font_rgb, "", 0, None, (), look.font_index)}</a:solidFill>'
+    elif look.font_tint is not None:
+        children += f'<a:solidFill><a:schemeClr val="lt1"><a:tint val="{look.font_tint}"/></a:schemeClr></a:solidFill>'
+    if look.font_shadow:
+        children += ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0">'
+                     '<a:scrgbClr r="0" g="0" b="0"/></a:outerShdw></a:effectLst>')
+    if look.font_latin is not None:
+        children += look.font_latin
+    return attributes, children
+
+
 def _laid_out(body: str, look: TextLook) -> str:
     """A new shape's txBody with the layout TextFrame gave it: bodyPr's attributes in the schema's order, and each
     paragraph's algn and rtl (tests/fixtures/text_frame.json)."""
@@ -1229,7 +1294,7 @@ def _laid_out(body: str, look: TextLook) -> str:
         insets = "".join(f' {name}="{emu(value if value is not None else default)}"' for name, value, default in zip(
             ("lIns", "tIns", "rIns", "bIns"), look.margins, (7.2, 3.6, 7.2, 3.6)))
         head = (f'<a:bodyPr rot="0" spcFirstLastPara="0" {overflow} vert="{look.vert or "horz"}" wrap="square"'
-                f'{insets} numCol="1" spcCol="0" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="0"'
+                f'{insets} numCol="{look.columns}" spcCol="{emu(look.column_spacing)}" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="0"'
                 ' forceAA="0" compatLnSpc="1"><a:prstTxWarp prst="textNoShape"><a:avLst/></a:prstTxWarp>'
                 "<a:noAutofit/></a:bodyPr>")
     else:
@@ -1237,13 +1302,20 @@ def _laid_out(body: str, look: TextLook) -> str:
         wrap = f' wrap="{look.wrap}"' if look.wrap else ""
         centred = "" if look.anchor_center is None else f' anchorCtr="{1 if look.anchor_center else 0}"'
         upright = ' upright="1"' if look.upright else ""
-        attributes = f'{overflow}{vert}{wrap}{insets} rtlCol="0" anchor="{look.anchor}"{centred}{upright}'
+        columns = ("" if look.columns == 1 else f' numCol="{look.columns}"') + (
+            f' spcCol="{emu(look.column_spacing)}"' if look.column_spacing else "")
+        attributes = f'{overflow}{vert}{wrap}{insets}{columns} rtlCol="0" anchor="{look.anchor}"{centred}{upright}'
         # TextFrame2's AutoSize is bodyPr's one child (tests/fixtures/text_frame2.json).
         head = (f"<a:bodyPr {attributes}><a:{look.autofit}Autofit/></a:bodyPr>" if look.autofit
                 else f"<a:bodyPr {attributes}/>")
     body = re.sub(r"<a:bodyPr\b[^>]*/>", lambda _: head, body, count=1)
     if look.deleted:
         body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US"/>')
+    attributes, children = _font_markup(look)
+    if attributes != ' sz="1100"' or children:
+        for tag in ("a:rPr", "a:endParaRPr"):
+            body = body.replace(f'<{tag} lang="en-US" sz="1100"/>', f'<{tag} lang="en-US"{attributes}>{children}</{tag}>'
+                                if children else f'<{tag} lang="en-US"{attributes}/>')
     settings = (f' algn="{look.align}"' if look.align else "") + (
         "" if look.rtl is None else f' rtl="{1 if look.rtl else 0}"')
     paragraph = f"<a:p><a:pPr{settings}/>" if settings else "<a:p>"

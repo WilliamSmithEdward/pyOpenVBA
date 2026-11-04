@@ -1055,6 +1055,7 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         original = sheet.drawing_xml or EMPTY_DRAWING
         before = read_drawing(original, sheet.drawing_grid())
         _charts_file.write(sheet, package, part)
+        _write_pictures(package, sheet, part)
         package.write(part, written(sheet.shapes_, original, sheet.drawing_grid()).encode("utf-8"))
         sheet.drawing_part = part
         sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
@@ -1062,6 +1063,45 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         _write_new_controls(package, sheet)
         _write_control_macros(package, sheet)
         sheet.drawing_dirty = False
+
+
+def _write_shape_default(book: Workbook, package: OpcFile) -> None:
+    """SetShapesDefaultProperties' spDef in the theme part (tests/fixtures/shape_columns.json)."""
+    if not book.shape_default_markup:
+        return
+    for part in package.names():
+        if re.fullmatch(r"xl/theme/theme\d+\.xml", part):
+            text = re.sub(r"<a:spDef>.*?</a:spDef>", "", package.read(part).decode("utf-8"), flags=re.DOTALL)
+            markup = book.shape_default_markup
+            package.write(part, re.sub(r"<a:objectDefaults>", lambda _: f"<a:objectDefaults>{markup}", text, count=1).encode("utf-8"))
+            return
+
+
+def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
+    """Each new picture's image in xl/media, sharing a part and a relationship with any that holds the same bytes
+    (tests/fixtures/shape_add_picture.json)."""
+    from pyopenvba._relationships import in_office_order
+    from pyopenvba.apps.excel._charts_file import rels_part
+
+    related: dict[bytes, str] = {shape.image: shape.image_relationship for shape in sheet.shapes_
+                                 if shape.image is not None and shape.image_relationship}
+    rels = rels_part(drawing)
+    for shape in sheet.shapes_:
+        if shape.image is None or shape.image_relationship:
+            continue
+        if shape.image not in related:
+            held = sorted(name for name in package.names() if name.startswith("xl/media/"))
+            part = next((name for name in held if package.read(name) == shape.image), None)
+            if part is None:
+                number = 1
+                while f"xl/media/image{number}.png" in held:
+                    number += 1
+                part = f"xl/media/image{number}.png"
+                package.write(part, shape.image)
+            _add_default_content_type(package, "png", "image/png")
+            related[shape.image] = add_relationship(package, rels, _IMAGE_RELATIONSHIP, "../" + part[len("xl/"):])
+            package.write(rels, in_office_order(package.read(rels).decode("utf-8")).encode("utf-8"))
+        shape.image_relationship = related[shape.image]
 
 
 def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState]) -> None:
@@ -1573,6 +1613,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         from pyopenvba.apps.excel._scenarios import written as with_scenarios
 
         patched = with_scenarios(sheet, patched)
+        from pyopenvba.apps.excel._allow_edit_ranges import written as with_allow_edit_ranges
+
+        patched = with_allow_edit_ranges(sheet, patched)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
             if outline_changes and sheet.outline_state is not None:
@@ -1606,6 +1649,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     _new_vml_parts(book, package)
     _write_shapes(book, package)
     _write_backgrounds(book, package)
+    _write_shape_default(book, package)
     noted = {sheet.part_name for sheet in book.sheets_ if sheet.notes_changed and sheet.part_name}
     _write_notes(book, package)
     _write_threads(book, package, noted)
@@ -1613,6 +1657,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._workbook_links import write as write_workbook_links
 
     write_workbook_links(book, package)
+    from pyopenvba.apps.excel._connections import refuse_changed
+
+    refuse_changed(book)
     from pyopenvba.apps.excel._workbook_more import refuse_added_parts, write_theme
 
     write_theme(book, package)

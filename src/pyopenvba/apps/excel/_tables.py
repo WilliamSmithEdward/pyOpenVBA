@@ -919,6 +919,14 @@ class ListObject(ExcelObject):
         self.table = table
         self.sheet = table.sheet
 
+    @method
+    def ExportToVisio(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def Publish(self, Target: object = MISSING, LinkSource: object = MISSING) -> object:
+        raise error(5, "Cannot connect to the server at this time. Your table cannot be published.")
+
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A table cut to another sheet leaves this object behind, which answers nothing more
         (tests/fixtures/table_cut.json)."""
@@ -1298,8 +1306,34 @@ class ListColumns(VBACollection, ItemDefault, ExcelObject):
         return ListColumn(self.table, add_column(self.table, where))
 
 
+class XPathOfCells(ExcelObject):
+    """The XML mapping of cells with none (tests/fixtures/small_rows.json)."""
+
+    vba_type_name = "XPath"
+
+    @member(default=True)
+    def Value(self) -> object:
+        return ""
+
+    @member
+    def Repeating(self) -> object:
+        raise error(1004, "Unable to get the Repeating property of the XPath class")
+
+    @member
+    def Map(self) -> object:
+        raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @method
+    def Clear(self) -> object:
+        return EMPTY
+
+
 class ListColumn(ExcelObject):
     vba_type_name = "ListColumn"
+
+    @member
+    def XPath(self) -> object:
+        return XPathOfCells()
 
     def __init__(self, table: Table, index: int) -> None:
         self.table = table
@@ -1422,6 +1456,10 @@ class ListRow(ExcelObject):
         self.table = table
         self.sheet = table.sheet
         self.index = index
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
 
     @member
     def Index(self) -> object:

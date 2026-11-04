@@ -174,6 +174,10 @@ class CustomProperty(ExcelObject):
         self.sheet = sheet
         self.kept = kept
 
+    @method(name="_Default")
+    def hidden_default(self) -> object:
+        return self.kept.value
+
     @member
     def Name(self) -> object:
         return self.kept.name

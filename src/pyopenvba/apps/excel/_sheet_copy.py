@@ -318,6 +318,9 @@ def _published(stage: _Staged, destination: Workbook, at: int | None, external: 
 
     # And its scenarios (tests/fixtures/scenarios.json).
     copied_scenarios(source, copied)
+    from pyopenvba.apps.excel._allow_edit_ranges import copied as copied_edit_ranges
+
+    copied_edit_ranges(source, copied)
     from pyopenvba.apps.excel._page_setup import copied as copied_headers
 
     # And its headers and footers (tests/fixtures/page_headers.json, copied).

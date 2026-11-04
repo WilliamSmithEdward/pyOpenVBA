@@ -14,11 +14,13 @@ models of the same thing.
 
 from __future__ import annotations
 
+import math
 import re
-from collections.abc import Sequence
+from pathlib import Path
+from collections.abc import Iterator, Sequence
 from copy import deepcopy
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
@@ -35,7 +37,7 @@ from pyopenvba.interpreter._values import (
     to_number,
     to_text,
 )
-from pyopenvba.shapes._adjustments import ADJUSTMENTS, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
+from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT, EXCEL_ALIASES, EXCEL_GEOMETRY, EXCEL_SHAPE_NAMES
 from pyopenvba.shapes._values import (
     Box,
     EMU_PER_POINT,
@@ -51,6 +53,7 @@ from pyopenvba.shapes._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.shapes._values import FillLine
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._model import Worksheet
 
@@ -221,7 +224,12 @@ class Shapes(VBACollection, ItemDefault, Created):
             stem=AUTO_SHAPE_NAMES[wanted],
             box=(Left, Top, Width, Height),
         )
-        shape.auto_shape_type = wanted
+        shape.auto_shape_type = EXCEL_ALIASES.get(wanted, wanted)
+        book = self.sheet.book
+        if book.shape_default_markup:
+            # After SetShapesDefaultProperties a new AutoShape takes its look, and writes its text layout out.
+            shape.fill_line = deepcopy(cast("FillLine | None", book.shape_default_look))
+            shape.text_look = TextLook(align="l", full=True)
         return ShapeObject(self.sheet, shape)
 
     @method
@@ -267,6 +275,63 @@ class Shapes(VBACollection, ItemDefault, Created):
             ),
         )
         return ShapeObject(self.sheet, shape)
+
+    @method
+    def AddPicture(
+        self,
+        Filename: object = MISSING,
+        LinkToFile: object = MISSING,
+        SaveWithDocument: object = MISSING,
+        Left: object = MISSING,
+        Top: object = MISSING,
+        Width: object = MISSING,
+        Height: object = MISSING,
+    ) -> object:
+        """A picture from a PNG file, kept in the workbook. A linked picture and other kinds of image report themselves
+        (tests/fixtures/shape_add_picture.json)."""
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        self.sheet.book.application.outside("Shapes.AddPicture")
+        guard_drawing(self.sheet, "Shapes.AddPicture")
+        linked, saved = int(to_number(LinkToFile)), int(to_number(SaveWithDocument))
+        if not linked and not saved:
+            raise error(1004, "AddPicture method of Shapes class failed")
+        if linked:
+            raise _unsupported("a linked picture")
+        try:
+            data = Path(to_text(Filename)).read_bytes()
+        except OSError:
+            raise error(1004, "AddPicture method of Shapes class failed") from None
+        wide, tall = _png_points(data)
+        width, height = _number(Width), _number(Height)
+        if (width < 0 and width != -1) or (height < 0 and height != -1):
+            raise _unsupported("a picture with a negative size")
+        natural = width == -1 and height == -1
+        # A size of 0 comes out as the smallest there is (1588 EMU), and -1 as the image's own.
+        across = wide if width == -1 else max(width, 1588 / EMU_PER_POINT)
+        down = tall if height == -1 else max(height, 1588 / EMU_PER_POINT)
+        # A picture takes two of the sheet's numbers and two of its ids.
+        self.sheet.shape_count += 1
+        shape = Shape(name=self._free_name("Picture"), kind="picture", left=_number(Left), top=_number(Top), width=across,
+                      height=down, shape_id=self._free_id() + 1, edit_as="oneCell", lock_aspect=natural, image=data)
+        self.sheet.shapes_.append(shape)
+        self.sheet.drawing_changed()
+        return ShapeObject(self.sheet, shape)
+
+    @method
+    def AddPicture2(
+        self,
+        Filename: object = MISSING,
+        LinkToFile: object = MISSING,
+        SaveWithDocument: object = MISSING,
+        Left: object = MISSING,
+        Top: object = MISSING,
+        Width: object = MISSING,
+        Height: object = MISSING,
+        Compress: object = MISSING,
+    ) -> object:
+        """AddPicture; Compress changed nothing in a small image (tests/fixtures/shape_add_picture.json)."""
+        return self.AddPicture(Filename, LinkToFile, SaveWithDocument, Left, Top, Width, Height)
 
     @method
     def AddCallout(
@@ -466,6 +531,43 @@ class ShapeRange(VBACollection, Created):
     @member
     def ConnectorFormat(self) -> object:
         return RangeConnector(self)
+
+    @member
+    def Shadow(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeShadow
+
+        return RangeShadow(self)
+
+    @member
+    def Glow(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeGlow
+
+        return RangeGlow(self)
+
+    @member
+    def SoftEdge(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeSoftEdge
+
+        return RangeSoftEdge(self)
+
+    @member
+    def Reflection(self) -> object:
+        from pyopenvba.apps.excel._shape_effects import RangeReflection
+
+        return RangeReflection(self)
+
+    @method
+    def PickUp(self) -> object:
+        """One shape's look; a range of more is out of range (tests/fixtures/shape_painter.json)."""
+        if len(self.shapes) != 1:
+            raise error(-2147024809, "The specified value is out of range.")
+        return self.shapes[0].PickUp()
+
+    @method
+    def Apply(self) -> object:
+        for one in self.shapes:
+            one.Apply()
+        return EMPTY
 
     @member
     def Type(self) -> object:
@@ -971,6 +1073,59 @@ class ShapeObject(_Drawn):
         found = re.fullmatch(rf"{re.escape(before or '')} (\d+)", self.shape.name)
         if found:
             self.shape.name = f"{AUTO_SHAPE_NAMES[wanted]} {found.group(1)}"
+
+    @method
+    def PickUp(self) -> object:
+        """Keep this shape's look for Apply, in the application, so another workbook can take it too
+        (tests/fixtures/shape_painter.json)."""
+        if self.shape.source or self.shape.kind != "shape" or self.shape.text_look is not None:
+            raise _unsupported("PickUp from this shape")
+        self.sheet.book.application.picked_up_shape = deepcopy(self.shape.fill_line)
+        self.sheet.book.application.shape_picked_up = True
+        return EMPTY
+
+    @method
+    def Apply(self) -> object:
+        """Give this shape the look PickUp kept, in place of its own. Its empty text's format is written out."""
+        application = self.sheet.book.application
+        shape = self.shape
+        if (not application.shape_picked_up or shape.source or shape.kind != "shape"
+                or shape.text or shape.text_look is not None or shape.geometry in DARK_TEXT):
+            raise _unsupported("Apply with nothing picked up, or to this shape")
+        shape.fill_line, shape.painted = cast("FillLine | None", deepcopy(application.picked_up_shape)), True
+        self.restyled()
+        return EMPTY
+
+    @method
+    def SetShapesDefaultProperties(self) -> object:
+        """This AutoShape's fill, line and effects for later AutoShapes in the workbook, in the theme when it is saved.
+        Text boxes and lines keep their own. Text settings carry over too, which is not built, and report themselves
+        (tests/fixtures/shape_columns.json)."""
+        from pyopenvba.shapes._xlsx import shape_default_markup
+
+        shape = self.shape
+        if shape.source or shape.kind != "shape" or shape.text_look is not None or shape.text:
+            raise _unsupported("SetShapesDefaultProperties from this shape")
+        book = self.sheet.book
+        book.shape_default_look = deepcopy(shape.fill_line)
+        book.shape_default_markup = shape_default_markup(shape)
+        return EMPTY
+
+    @member
+    def PictureFormat(self) -> object:
+        return PictureFormat(self)
+
+    @member
+    def Callout(self) -> object:
+        return CalloutFormat(self)
+
+    @member
+    def Nodes(self) -> object:
+        return ShapeNodes(self)
+
+    @member
+    def Vertices(self) -> object:
+        return _vba_points(_freeform_points(self))
 
     @member
     def Adjustments(self, Index: object = MISSING) -> object:
@@ -1667,6 +1822,341 @@ class Adjustments(Created):
         self.owner.shape.adjustments = None if values == [default for _, default, _ in table] else tuple(values)
 
 
+def _png_points(data: bytes) -> tuple[float, float]:
+    """A PNG's own size in points: its pixels at its pHYs density, or at 96 a inch with none. Other images are not read."""
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        raise _unsupported("a picture that is not a PNG")
+    wide, tall = int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    at = data.find(b"pHYs", 33, 200)
+    if at >= 0 and data[at + 12] == 1:
+        across, down = int.from_bytes(data[at + 4:at + 8], "big"), int.from_bytes(data[at + 8:at + 12], "big")
+        # In whole EMU, rounded down.
+        return (int(wide / across * 36000000) / EMU_PER_POINT, int(tall / down * 36000000) / EMU_PER_POINT)
+    return wide * 0.75, tall * 0.75
+
+
+#: Each callout AutoShape as (lines, border, accent).
+_CALLOUT_TYPES = {109: (1, True, False), 111: (2, True, False), 112: (3, True, False), 113: (1, False, False),
+                  114: (1, False, True), 115: (2, False, True), 116: (3, False, True), 119: (2, False, False),
+                  120: (3, False, False), 122: (1, True, True), 123: (2, True, True), 124: (3, True, True)}
+_NOT_A_CALLOUT = (-2147024809, "The specified value is out of range.")
+#: CalloutFormat.Angle's named angles from the vertical, in degrees.
+_CALLOUT_ANGLES = {2: 30.0, 3: 45.0, 4: 60.0, 5: 90.0}
+
+
+class CalloutFormat(Created):
+    """A callout's look (tests/fixtures/shape_columns.json), read from and written to its adjustments: pairs of y and x
+    as fractions of the shape, one more pair than it has lines. Gap and Drop move the whole leader; Length and Angle
+    its second point, a one-line callout's only where measured. Other shapes have this object, and using it is out of
+    range, but for AutoAttach and AutoLength, which read false."""
+
+    vba_type_name = "CalloutFormat"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    def lines(self) -> tuple[int, bool, bool]:
+        found = _CALLOUT_TYPES.get(getattr(self.owner.shape, "auto_shape_type", 1)) if self.owner.shape.kind == "shape" else None
+        if found is None:
+            raise error(*_NOT_A_CALLOUT)
+        return found
+
+    def values(self) -> list[int]:
+        return list(Adjustments(self.owner).values())
+
+    def put(self, values: list[int]) -> None:
+        self.owner.restyled()
+        self.owner.shape.adjustments = tuple(values)
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    def retype(self, lines: int, border: bool, accent: bool) -> None:
+        wanted = next(key for key, one in _CALLOUT_TYPES.items() if one == (lines, border, accent))
+        shape = self.owner.shape
+        if lines != self.lines()[0] and shape.adjustments is not None:
+            raise _unsupported("a callout's Type with its adjustments changed")
+        self.owner.restyled()
+        shape.auto_shape_type, shape.geometry = wanted, EXCEL_GEOMETRY[wanted]
+
+    @member
+    def Type(self) -> object:
+        return VBAInt({1: 1, 2: 3, 3: 4}[self.lines()[0]], "Long")
+
+    @setter("Type")
+    def _type(self, value: object) -> None:
+        lines = {1: 1, 2: 1, 3: 2, 4: 3}.get(int(to_number(value)))
+        _, border, accent = self.lines()
+        if lines is None:
+            raise error(*_NOT_A_CALLOUT)
+        self.retype(lines, border, accent)
+
+    @member
+    def Border(self) -> object:
+        return VBAInt(-1 if self.lines()[1] else 0, "Long")
+
+    @setter("Border")
+    def _border(self, value: object) -> None:
+        lines, _, accent = self.lines()
+        self.retype(lines, int(to_number(value)) != 0, accent)
+
+    @member
+    def Accent(self) -> object:
+        return VBAInt(-1 if self.lines()[2] else 0, "Long")
+
+    @setter("Accent")
+    def _accent(self, value: object) -> None:
+        lines, border, _ = self.lines()
+        self.retype(lines, border, int(to_number(value)) != 0)
+
+    @member
+    def AutoAttach(self) -> object:
+        return VBAInt(0, "Long")
+
+    @setter("AutoAttach")
+    def _auto_attach(self, value: object) -> None:
+        raise error(445, "Object doesn't support this action")
+
+    @member
+    def AutoLength(self) -> object:
+        return VBAInt(0, "Long")
+
+    @setter("AutoLength")
+    def _auto_length(self, value: object) -> None:
+        raise error(450, "Wrong number of arguments or invalid property assignment")
+
+    @method
+    def AutomaticLength(self) -> object:
+        raise error(445, "Object doesn't support this action")
+
+    @member
+    def Gap(self) -> object:
+        self.lines()
+        return VBASingle(max(0.0, -self.values()[1] / 100000 * self.owner.shape.width))
+
+    @setter("Gap")
+    def _gap(self, value: object) -> None:
+        self.lines()
+        values = self.values()
+        shift = round(-_number(value) / self.owner.shape.width * 100000) - values[1]
+        self.put([one + shift if index % 2 else one for index, one in enumerate(values)])
+
+    @member
+    def Drop(self) -> object:
+        self.lines()
+        return VBASingle(self.values()[0] / 100000 * self.owner.shape.height)
+
+    @setter("Drop")
+    def _drop(self, value: object) -> None:
+        raise error(450, "Wrong number of arguments or invalid property assignment")
+
+    @member
+    def DropType(self) -> object:
+        self.lines()
+        values = self.values()
+        if values[1] >= 0:
+            return VBAInt(-2, "Long")
+        at = values[0]
+        return VBAInt({0: 2, 50000: 3, 100000: 4}.get(at, 1 if 0 < at < 100000 else -2), "Long")
+
+    def dropped(self, wanted: float) -> None:
+        values = self.values()
+        shift = round(wanted / self.owner.shape.height * 100000) - values[0]
+        self.put([one if index % 2 else one + shift for index, one in enumerate(values)])
+
+    @method
+    def CustomDrop(self, Drop: object = MISSING) -> object:
+        self.lines()
+        self.dropped(_number(Drop))
+        return EMPTY
+
+    @method
+    def PresetDrop(self, DropType: object = MISSING) -> object:
+        self.lines()
+        height = self.owner.shape.height
+        wanted = {1: 3.6, 2: 0.0, 3: height / 2, 4: height}.get(int(to_number(DropType)))
+        if wanted is not None:
+            self.dropped(wanted)
+        return EMPTY
+
+    def span(self, segment: int) -> tuple[float, float]:
+        """A leader's segment across and down in points."""
+        values = self.values()
+        shape = self.owner.shape
+        return ((values[segment * 2 + 3] - values[segment * 2 + 1]) / 100000 * shape.width,
+                (values[segment * 2 + 2] - values[segment * 2]) / 100000 * shape.height)
+
+    @member
+    def Length(self) -> object:
+        self.lines()
+        return VBASingle(math.hypot(*self.span(0)))
+
+    @method
+    def CustomLength(self, Length: object = MISSING) -> object:
+        """The new length along the old leader's fractions taken as points, so its direction changes, and a negative one
+        turns it back through its start."""
+        lines = self.lines()[0]
+        values = self.values()
+        shape = self.owner.shape
+        wanted = _number(Length)
+        if lines == 1:
+            across, down = values[3] - values[1], values[2] - values[0]
+            size = math.hypot(across, down)
+            values[3] = values[1] + round(wanted * across / size / shape.width * 100000)
+            values[2] = values[0] + round(wanted * down / size / shape.height * 100000)
+        elif lines == 2:
+            # The first segment's end moves; the leader's far end stays.
+            values[3] = values[1] + round(-wanted / shape.width * 100000)
+        else:
+            raise _unsupported("CustomLength on a three-line callout")
+        self.put(values)
+        return EMPTY
+
+    @member
+    def Angle(self) -> object:
+        lines = self.lines()[0]
+        across, down = self.span(min(lines, 2) - 1)
+        if not across and not down:
+            return VBAInt(5, "Long")
+        degrees = math.degrees(math.atan2(abs(across), abs(down)))
+        return VBAInt(min(_CALLOUT_ANGLES, key=lambda key: abs(_CALLOUT_ANGLES[key] - degrees)), "Long")
+
+    @setter("Angle")
+    def _angle(self, value: object) -> None:
+        lines = self.lines()[0]
+        degrees = _CALLOUT_ANGLES.get(int(to_number(value)))
+        if degrees is None:
+            raise error(5, "Invalid procedure call or argument")
+        if lines != 1:
+            raise _unsupported("the Angle of a callout of several lines")
+        values = self.values()
+        shape = self.owner.shape
+        across, down = self.span(0)
+        length = math.hypot(across, down)
+        turned = math.radians(degrees)
+        values[3] = values[1] + round(math.copysign(length * math.sin(turned), across) / shape.width * 100000)
+        values[2] = values[0] + round(length * math.cos(turned) / shape.height * 100000)
+        self.put(values)
+
+
+class PictureFormat(Created):
+    """What a new picture reads (tests/fixtures/shape_add_picture.json); other shapes give this object, and reading it
+    is out of range. Changing a picture's look is not implemented."""
+
+    vba_type_name = "PictureFormat"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    def picture(self) -> None:
+        if self.owner.shape.kind != "picture":
+            raise error(-2147024809, "The specified value is out of range.")
+        if self.owner.shape.source:
+            raise _unsupported("the PictureFormat of a loaded picture")
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Brightness(self) -> object:
+        self.picture()
+        return VBASingle(0.5)
+
+    @member
+    def Contrast(self) -> object:
+        self.picture()
+        return VBASingle(0.5)
+
+    @member
+    def CropLeft(self) -> object:
+        self.picture()
+        return VBASingle(0.0)
+
+
+def _freeform_points(owner: ShapeObject) -> list[tuple[int, tuple[float, float]]]:
+    """A freeform's points in order, each with the segment type of the step that holds it, on the sheet in points; a
+    close adds none. A first point takes the type of the step after it."""
+    shape = owner.shape
+    if shape.source or shape.kind != "freeform":
+        raise _unsupported("the Nodes and Vertices of this shape")
+    found: list[tuple[int, tuple[float, float]]] = []
+    for command, points in shape.path:
+        for x, y in points:
+            found.append((1 if command == "cubicBezTo" else 0,
+                          (shape.left + x / EMU_PER_POINT, shape.top + y / EMU_PER_POINT)))
+    if len(found) > 1:
+        found[0] = (found[1][0], found[0][1])
+    return found
+
+
+def _vba_points(points: list[tuple[int, tuple[float, float]]]) -> VBAArray:
+    """Points as Excel gives them: Singles, n rows of x and y from 1."""
+    made = VBAArray([(1, len(points)), (1, 2)], element_type="Single")
+    for row, (_, (x, y)) in enumerate(points, start=1):
+        made.set([row, 1], VBASingle(x))
+        made.set([row, 2], VBASingle(y))
+    return made
+
+
+class ShapeNodes(Created):
+    """A freeform's nodes (tests/fixtures/shape_painter.json). Other shapes have nodes of their preset's that are not
+    modelled, and report themselves."""
+
+    vba_type_name = "ShapeNodes"
+
+    def __init__(self, owner: ShapeObject) -> None:
+        self.owner = owner
+
+    def vba_iterate(self) -> Iterator[object]:
+        return iter([ShapeNode(self.owner, index) for index in range(len(_freeform_points(self.owner)))])
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(len(_freeform_points(self.owner)), "Long")
+
+    @member(default=True, kind="method")
+    def Item(self, Index: object = MISSING) -> object:
+        chosen = int(to_number(Index))
+        if not 1 <= chosen <= len(_freeform_points(self.owner)):
+            raise error(-2147024809, "The specified value is out of range.")
+        return ShapeNode(self.owner, chosen - 1)
+
+
+class ShapeNode(Created):
+    vba_type_name = "ShapeNode"
+
+    def __init__(self, owner: ShapeObject, index: int) -> None:
+        self.owner, self.index = owner, index
+
+    def point(self) -> tuple[int, tuple[float, float]]:
+        return _freeform_points(self.owner)[self.index]
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def SegmentType(self) -> object:
+        return VBAInt(self.point()[0], "Long")
+
+    @member
+    def EditingType(self) -> object:
+        # A line's later nodes have none to read, which Excel reports as a failure.
+        if self.point()[0] == 0 and self.index > 0:
+            raise error(-2147467259, "Method 'EditingType' of object 'ShapeNode' failed")
+        return VBAInt(0, "Long")
+
+    @member
+    def Points(self) -> object:
+        return _vba_points([self.point()])
+
+
 class RangeAdjustments(Created):
     """A ShapeRange's Adjustments (tests/fixtures/shape_range_more_format.json): what its shapes share, or the mixed
     value. Past any shape's end is error 5, and a set stops there, the shapes before it having taken it."""
@@ -1918,8 +2408,16 @@ class TextFrame(_TextLayout):
     vba_type_name = "TextFrame"
 
     @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
-        return Characters(self.owner)
+        return Characters(self.owner, Start is not MISSING or Length is not MISSING)
 
     @member
     def AutoSize(self) -> object:
@@ -2016,12 +2514,59 @@ _ALIGN_SET = {-4131: "l", -4108: "ctr", -4152: "r", -4130: "just", -4117: "justL
 _ORIENTATIONS = ("horz", "vert270", "vert", "eaVert", "mongolianVert", "wordArtVert")
 
 
+class TextColumn2(Created):
+    """TextFrame2.Column: 1 to 16 columns and the gap between them. A shape with no text has this object, and using it is
+    out of range. It has no Parent (tests/fixtures/shape_columns.json)."""
+
+    vba_type_name = "TextColumn2"
+
+    def __init__(self, frame: TextFrame2) -> None:
+        self.frame = frame
+
+    def look(self) -> TextLook:
+        if self.frame.owner.shape.kind == "line":
+            raise error(-2147024809, "The specified value is out of range.")
+        return self.frame._look()  # pyright: ignore[reportPrivateUsage]
+
+    @member
+    def Parent(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def Number(self) -> object:
+        return VBAInt(self.look().columns, "Long")
+
+    @setter("Number")
+    def _number(self, value: object) -> None:
+        wanted = int(to_number(value))
+        self.look()
+        if not 1 <= wanted <= 16:
+            raise error(-2147024809, "The specified value is out of range.")
+        self.frame._changed().columns = wanted  # pyright: ignore[reportPrivateUsage]
+
+    @member
+    def Spacing(self) -> object:
+        return VBASingle(self.look().column_spacing)
+
+    @setter("Spacing")
+    def _spacing(self, value: object) -> None:
+        wanted = float(VBASingle(_number(value)))
+        self.look()
+        if wanted < 0:
+            raise error(-2147024809, "The specified value is out of range.")
+        self.frame._changed().column_spacing = wanted  # pyright: ignore[reportPrivateUsage]
+
+
 class TextFrame2(_TextLayout):
     """The newer way to the same text (tests/fixtures/text_frame2.json).
 
     A text box writes each of these settings as given; a rectangle leaves out one set back to its default."""
 
     vba_type_name = "TextFrame2"
+
+    @member
+    def Column(self) -> object:
+        return TextColumn2(self)
 
     @member
     def Parent(self) -> object:
@@ -2033,7 +2578,7 @@ class TextFrame2(_TextLayout):
 
     @member
     def TextRange(self) -> object:
-        return Characters(self.owner)
+        return TextRange2(self.owner)
 
     @member
     def HasText(self) -> object:
@@ -2113,9 +2658,16 @@ class Characters(_Drawn):
 
     vba_type_name = "Characters"
 
-    def __init__(self, shape: ShapeObject) -> None:
+    def __init__(self, shape: ShapeObject, partial: bool = False) -> None:
         self.owner = shape
         self.sheet = shape.sheet
+        self.partial = partial
+
+    @member
+    def Font(self) -> object:
+        if self.partial:
+            raise _unsupported("the Font of some of a shape's characters")
+        return ShapeFont(self)
 
     @member(default=True)
     def Text(self) -> object:
@@ -2129,6 +2681,421 @@ class Characters(_Drawn):
     @member
     def Count(self) -> object:
         return VBAInt(len(self.owner.shape.text), "Long")
+
+
+#: What Characters.Font writes for each Underline it takes.
+_FONT_UNDERLINES = {2: "words", -4119: "dbl", -4142: "none"}
+#: A font name's attributes in the file, for those measured. Others would need the font's own data, and report themselves.
+_FONT_LATIN = {"Arial": '<a:latin typeface="Arial" panose="020B0604020202020204" pitchFamily="34" charset="0"/>',
+               "": '<a:latin typeface=""/>'}
+
+
+class _ShapeFontBase(Created):
+    """What Characters.Font and TextRange2.Font share (tests/fixtures/shape_font.json)."""
+
+    vba_type_name = ""
+
+    def __init__(self, characters: Characters) -> None:
+        self.characters = characters
+        self.frame = TextFrame(characters.owner)
+
+    def look(self) -> TextLook:
+        return self.frame._look()  # pyright: ignore[reportPrivateUsage]
+
+    def changed(self) -> TextLook:
+        return self.frame._changed()  # pyright: ignore[reportPrivateUsage]
+
+    def text_box(self) -> bool:
+        return self.characters.owner.shape.kind == "textBox"
+
+    @member
+    def Parent(self) -> object:
+        return self.characters
+
+    @member
+    def Size(self) -> object:
+        size = self.look().font_size
+        return VBAInt(int(size), "Long") if size == int(size) else size
+
+    @member
+    def Name(self) -> object:
+        latin = self.look().font_latin
+        return "Aptos Narrow" if latin is None else next(name for name, markup in _FONT_LATIN.items() if markup == latin)
+
+    @setter("Name")
+    def _name(self, value: object) -> None:
+        wanted = to_text(value)
+        if wanted not in _FONT_LATIN:
+            raise _unsupported(f"the font {wanted!r} in a shape")
+        self.changed().font_latin = _FONT_LATIN[wanted]
+
+
+class ShapeFont(_ShapeFontBase):
+    """All of a shape's text's font (tests/fixtures/shape_font.json)."""
+
+    vba_type_name = "Font"
+
+    @member
+    def Bold(self) -> object:
+        return bool(self.look().font_bold)
+
+    @setter("Bold")
+    def _bold(self, value: object) -> None:
+        self.changed().font_bold = bool(to_number(value))
+
+    @member
+    def Italic(self) -> object:
+        return bool(self.look().font_italic)
+
+    @setter("Italic")
+    def _italic(self, value: object) -> None:
+        self.changed().font_italic = bool(to_number(value))
+
+    @setter("Size")
+    def _size(self, value: object) -> None:
+        wanted = float(to_number(value))
+        # A size of 0 is left alone; others below the measured 10.5 go through as given.
+        if wanted > 0:
+            self.changed().font_size = wanted
+
+    @member
+    def Color(self) -> object:
+        look = self.look()
+        if look.font_rgb is not None:
+            red, green, blue = (int(look.font_rgb[at:at + 2], 16) for at in (0, 2, 4))
+            return VBAInt(red | green << 8 | blue << 16, "Long")
+        return VBAInt(0 if self.text_box() else 16777215, "Long")
+
+    @setter("Color")
+    def _color(self, value: object) -> None:
+        colour = int(to_number(value)) & 0xFFFFFF
+        look = self.changed()
+        look.font_rgb, look.font_index, look.font_tint = f"{colour & 255:02X}{colour >> 8 & 255:02X}{colour >> 16 & 255:02X}", None, None
+
+    @member
+    def ColorIndex(self) -> object:
+        look = self.look()
+        if look.font_index is not None:
+            return VBAInt(look.font_index - 7, "Long")
+        if look.font_rgb is None:
+            return VBAInt(-4105 if self.text_box() else 2, "Long")
+        if look.font_rgb == "000000":
+            return VBAInt(-4105, "Long")
+        palette = self.characters.owner.sheet.book.stylesheet.colors.indexed[8:64]
+        if look.font_rgb not in palette:
+            raise _unsupported("the ColorIndex of a font colour not in the palette")
+        return VBAInt(palette.index(look.font_rgb) + 1, "Long")
+
+    @setter("ColorIndex")
+    def _color_index(self, value: object) -> None:
+        wanted = int(to_number(value))
+        look = self.changed()
+        if wanted == -4105:
+            look.font_rgb, look.font_index, look.font_tint = "000000", None, None
+            return
+        palette = self.characters.owner.sheet.book.stylesheet.colors.indexed[8:64]
+        if not 1 <= wanted <= len(palette):
+            raise _unsupported("this ColorIndex of a shape's font")
+        look.font_rgb, look.font_index, look.font_tint = palette[wanted - 1], wanted + 7, None
+
+    @member
+    def Underline(self) -> object:
+        chosen = self.look().font_underline
+        if chosen is None:
+            return VBAInt(-4142, "Long")
+        found = next((key for key, name in _FONT_UNDERLINES.items() if name == chosen), None)
+        if found is None:
+            raise _unsupported("this Underline of a shape's font")
+        return VBAInt(found, "Long")
+
+    @setter("Underline")
+    def _underline(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in _FONT_UNDERLINES:
+            raise _unsupported("this Underline of a shape's font")
+        self.changed().font_underline = _FONT_UNDERLINES[wanted]
+
+    @member
+    def Strikethrough(self) -> object:
+        return self.look().font_strike is not None and self.look().font_strike != "noStrike"
+
+    @setter("Strikethrough")
+    def _strikethrough(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Strikethrough off a shape's font")
+        self.changed().font_strike = "sngStrike"
+
+    @member
+    def Superscript(self) -> object:
+        return self.look().font_baseline == 30000
+
+    @setter("Superscript")
+    def _superscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Superscript off a shape's font")
+        self.changed().font_baseline = 30000
+
+    @member
+    def Subscript(self) -> object:
+        return self.look().font_baseline == -25000
+
+    @setter("Subscript")
+    def _subscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Subscript off a shape's font")
+        self.changed().font_baseline = -25000
+
+    @member
+    def FontStyle(self) -> object:
+        look = self.look()
+        return {(False, False): "Regular", (True, False): "Bold", (False, True): "Italic", (True, True): "Bold Italic"}[
+            (bool(look.font_bold), bool(look.font_italic))]
+
+    @setter("FontStyle")
+    def _font_style(self, value: object) -> None:
+        styles = {"Regular": (False, False), "Bold": (True, False), "Italic": (False, True), "Bold Italic": (True, True)}
+        wanted = to_text(value)
+        if wanted not in styles:
+            raise _unsupported(f"the FontStyle {wanted!r} of a shape's font")
+        look = self.changed()
+        look.font_bold, look.font_italic = styles[wanted]
+
+    @member
+    def ThemeColor(self) -> object:
+        raise error(1004, "Unable to get the ThemeColor property of the Font class")
+
+    @setter("ThemeColor")
+    def _theme_color(self, value: object) -> None:
+        raise error(1004, "Unable to set the ThemeColor property of the Font class")
+
+    @member
+    def TintAndShade(self) -> object:
+        tint = self.look().font_tint
+        return VBASingle(0.0 if tint is None else 1 - tint / 100000)
+
+    @setter("TintAndShade")
+    def _tint_and_shade(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        if self.text_box() or wanted <= 0:
+            raise _unsupported("this TintAndShade of a shape's font")
+        look = self.changed()
+        look.font_tint, look.font_rgb, look.font_index = round((1 - wanted) * 100000), None, None
+
+    @member
+    def ThemeFont(self) -> object:
+        return VBAInt(0, "Long")
+
+    @setter("ThemeFont")
+    def _theme_font(self, value: object) -> None:
+        raise error(1004, "Unable to set the ThemeFont property of the Font class")
+
+    @member
+    def OutlineFont(self) -> object:
+        return VBAInt(19, "Long")
+
+    @setter("OutlineFont")
+    def _outline_font(self, value: object) -> None:
+        # It changes nothing.
+        self.look()
+
+    @member
+    def Shadow(self) -> object:
+        return self.look().font_shadow
+
+    @setter("Shadow")
+    def _shadow(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Shadow off a shape's font")
+        self.changed().font_shadow = True
+
+    @member
+    def Background(self) -> object:
+        raise error(1004, "Unable to get the Background property of the Font class")
+
+
+def _tri(value: object) -> object:
+    return VBAInt(-1 if value else 0, "Long")
+
+
+class ShapeFont2(_ShapeFontBase):
+    """TextRange2.Font (tests/fixtures/shape_font2.json), the same settings as Characters.Font, read as MsoTriState, with a
+    few more. Its Fill, Line and effects, far-east and other font names are not built."""
+
+    vba_type_name = "Font2"
+
+    @member
+    def Bold(self) -> object:
+        return _tri(self.look().font_bold)
+
+    @setter("Bold")
+    def _bold(self, value: object) -> None:
+        self.changed().font_bold = bool(to_number(value))
+
+    @member
+    def Italic(self) -> object:
+        return _tri(self.look().font_italic)
+
+    @setter("Italic")
+    def _italic(self, value: object) -> None:
+        self.changed().font_italic = bool(to_number(value))
+
+    @setter("Size")
+    def _size(self, value: object) -> None:
+        wanted = float(to_number(value))
+        if not 0 < wanted <= 4000:
+            raise error(-2147024809, "The specified value is out of range.")
+        self.changed().font_size = wanted
+
+    @member
+    def NameAscii(self) -> object:
+        return self.vba_get("Name")
+
+    @setter("NameAscii")
+    def _name_ascii(self, value: object) -> None:
+        self.vba_set("Name", value)
+
+    @member
+    def UnderlineStyle(self) -> object:
+        chosen = self.look().font_underline
+        if chosen in (None, "none"):
+            return VBAInt(0, "Long")
+        found = {"sng": 2, "dbl": 3}.get(chosen or "")
+        if found is None:
+            raise _unsupported("this UnderlineStyle of a shape's font")
+        return VBAInt(found, "Long")
+
+    @setter("UnderlineStyle")
+    def _underline_style(self, value: object) -> None:
+        wanted = {0: "none", 2: "sng", 3: "dbl"}.get(int(to_number(value)))
+        if wanted is None:
+            raise _unsupported("this UnderlineStyle of a shape's font")
+        self.changed().font_underline = wanted
+
+    @member
+    def Strike(self) -> object:
+        return VBAInt({"sngStrike": 1, "dblStrike": 2}.get(self.look().font_strike or "", 0), "Long")
+
+    @setter("Strike")
+    def _strike(self, value: object) -> None:
+        wanted = {0: "noStrike", 1: "sngStrike", 2: "dblStrike"}.get(int(to_number(value)))
+        if wanted is None:
+            raise _unsupported("this Strike of a shape's font")
+        self.changed().font_strike = wanted
+
+    @member
+    def StrikeThrough(self) -> object:
+        return _tri(self.look().font_strike == "sngStrike")
+
+    @setter("StrikeThrough")
+    def _strike_through(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking StrikeThrough off a shape's font")
+        self.changed().font_strike = "sngStrike"
+
+    @member
+    def DoubleStrikeThrough(self) -> object:
+        return _tri(self.look().font_strike == "dblStrike")
+
+    @setter("DoubleStrikeThrough")
+    def _double_strike_through(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking DoubleStrikeThrough off a shape's font")
+        self.changed().font_strike = "dblStrike"
+
+    @member
+    def Superscript(self) -> object:
+        return _tri((self.look().font_baseline or 0) > 0)
+
+    @member
+    def Subscript(self) -> object:
+        return _tri((self.look().font_baseline or 0) < 0)
+
+    @setter("Superscript")
+    def _superscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Superscript off a shape's font")
+        self.changed().font_baseline = 30000
+
+    @setter("Subscript")
+    def _subscript(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Subscript off a shape's font")
+        self.changed().font_baseline = -25000
+
+    @member
+    def BaselineOffset(self) -> object:
+        return VBASingle((self.look().font_baseline or 0) / 100000)
+
+    @setter("BaselineOffset")
+    def _baseline_offset(self, value: object) -> None:
+        self.changed().font_baseline = round(float(VBASingle(float(to_number(value)))) * 100000)
+
+    @member
+    def Caps(self) -> object:
+        return VBAInt({"small": 1, "all": 2}.get(self.look().font_cap or "", 0), "Long")
+
+    @setter("Caps")
+    def _caps(self, value: object) -> None:
+        wanted = {1: "small", 2: "all"}.get(int(to_number(value)))
+        if wanted is None:
+            raise _unsupported("this Caps of a shape's font")
+        self.changed().font_cap = wanted
+
+    @member
+    def Allcaps(self) -> object:
+        return _tri(self.look().font_cap == "all")
+
+    @setter("Allcaps")
+    def _allcaps(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Allcaps off a shape's font")
+        self.changed().font_cap = "all"
+
+    @member
+    def Smallcaps(self) -> object:
+        return _tri(self.look().font_cap == "small")
+
+    @setter("Smallcaps")
+    def _smallcaps(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Smallcaps off a shape's font")
+        self.changed().font_cap = "small"
+
+    @member
+    def Spacing(self) -> object:
+        return VBASingle((self.look().font_spacing or 0) / 100)
+
+    @setter("Spacing")
+    def _spacing(self, value: object) -> None:
+        self.changed().font_spacing = round(float(to_number(value)) * 100)
+
+    @member
+    def Kerning(self) -> object:
+        return VBASingle((self.look().font_kern or 0) / 100)
+
+    @setter("Kerning")
+    def _kerning(self, value: object) -> None:
+        self.changed().font_kern = round(float(to_number(value)) * 100)
+
+    @member
+    def Equalize(self) -> object:
+        return _tri(self.look().font_normalize)
+
+    @setter("Equalize")
+    def _equalize(self, value: object) -> None:
+        if not to_number(value):
+            raise _unsupported("taking Equalize off a shape's font")
+        self.changed().font_normalize = True
+
+
+class TextRange2(Characters):
+    """TextFrame2.TextRange, the same text as Characters."""
+
+    vba_type_name = "TextRange2"
+
+    @member
+    def Font(self) -> object:
+        return ShapeFont2(self)
 
 
 class ControlFormat(_Drawn):
@@ -2467,7 +3434,7 @@ class ListDrawingObject(_Drawn):
 
 
 #: Every stem a shape the model makes is named from, so a copy can tell a default name from one given.
-_STEMS = frozenset({*EXCEL_SHAPE_NAMES.values(), "TextBox", "Straight Connector", "Straight Arrow Connector",
+_STEMS = frozenset({*EXCEL_SHAPE_NAMES.values(), "Picture", "TextBox", "Straight Connector", "Straight Arrow Connector",
                     "Elbow Connector", "Curved Connector"})
 
 
@@ -2478,7 +3445,7 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
     chart = sheet.chart_states.get(shape.shape_id) if shape.kind == "chart" else None
     if chart is not None and chart.original:
         raise VBAUnsupportedError("Duplicating a chart read from a file is not implemented")
-    if chart is None and (shape.source or shape.kind not in ("shape", "textBox")):
+    if chart is None and (shape.source or shape.kind not in ("shape", "textBox", "picture")):
         raise VBAUnsupportedError("Duplicating this shape is not implemented")
     found = re.fullmatch(r"(.+) \d+", shape.name)
     shapes = Shapes(sheet)

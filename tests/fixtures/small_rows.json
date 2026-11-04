@@ -1,0 +1,150 @@
+{
+ "measured_at": "2026-11-03T21:43:20.087612+00:00",
+ "source": "Private Sub Act(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object\n    Select Case which\n    Case 0\n        Application.FindFormat.Clear: r = Application.FindFormat.NumberFormatLocal\n    Case 1\n        Application.FindFormat.Clear: Application.FindFormat.NumberFormatLocal = \"0.00\": r = Application.FindFormat.NumberFormatLocal & \"|\" & Application.FindFormat.NumberFormat\n    Case 2\n        Application.FindFormat.Clear: Application.FindFormat.NumberFormat = \"0.00\": r = Application.FindFormat.NumberFormatLocal\n    Case 3\n        Application.ReplaceFormat.Clear: Application.ReplaceFormat.NumberFormatLocal = \"0%\": r = Application.ReplaceFormat.NumberFormat\n    Case 4\n        Application.FindFormat.Clear: Application.FindFormat.NumberFormatLocal = \"nonsense[\": r = Application.FindFormat.NumberFormatLocal\n    Case 5\n        ws.Range(\"A1\").Value = 1.5: ws.Range(\"A1\").NumberFormat = \"0.00\": Application.FindFormat.Clear: Application.FindFormat.NumberFormatLocal = \"0.00\": r = ws.Cells.Find(\"*\", SearchFormat:=True).Address\n    Case 6\n        ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").Characters.PhoneticCharacters\n    Case 7\n        ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").Characters(1, 2).PhoneticCharacters\n    Case 8\n        ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").Characters.PhoneticCharacters = \"x\": r = ws.Range(\"A1\").Characters.PhoneticCharacters & \"|\" & ws.Range(\"A1\").Value\n    Case 9\n        ws.Range(\"A1\").Value = 5: r = ws.Range(\"A1\").Characters.PhoneticCharacters\n    Case 10\n        r = ws.Range(\"A1\").Characters.PhoneticCharacters\n    Case 11\n        ws.Range(\"A1\").Value = \"abc\": r = TypeName(ws.Range(\"A1\").DisplayFormat.Characters)\n    Case 12\n        ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters.Text\n    Case 13\n        ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters(2, 1).Text\n    Case 14\n        ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters.Count\n    Case 15\n        ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters.Font.Bold\n    Case 16\n        ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").Font.Bold = True: r = ws.Range(\"A1\").DisplayFormat.Characters.Font.Bold\n    Case 17\n        ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").Characters(1, 1).Font.Bold = True: r = ws.Range(\"A1\").DisplayFormat.Characters(1, 1).Font.Bold & \"|\" & ws.Range(\"A1\").DisplayFormat.Characters(2, 1).Font.Bold\n    Case 18\n        ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").DisplayFormat.Characters.Text = \"x\": r = ws.Range(\"A1\").Value\n    Case 19\n        ws.Range(\"A1\").Value = 5: r = ws.Range(\"A1\").DisplayFormat.Characters.Text\n    Case 20\n        ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").NumberFormat = \"0.00\": r = ws.Range(\"A1\").DisplayFormat.Characters.Text\n    Case 21\n        r = TypeName(ws.PageSetup.CenterHeaderPicture)\n    Case 22\n        r = TypeName(ws.PageSetup.Pages(1).CenterHeader.Picture)\n    Case 23\n        r = ws.PageSetup.Pages(1).CenterHeader.Picture.Filename\n    Case 24\n        r = TypeName(ws.PageSetup.EvenPage.LeftFooter.Picture)\n    Case 25\n        r = TypeName(ws.PageSetup.FirstPage.RightHeader.Picture)\n    Case 26\n        r = ws.PageSetup.EvenPage.CenterHeader.Picture.Height\n    Case 27\n        ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = TypeName(o.ListColumns(1).XPath)\n    Case 28\n        ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = o.ListColumns(1).XPath.Value\n    Case 29\n        ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = o.ListColumns(1).XPath.Repeating\n    Case 30\n        ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = TypeName(o.ListColumns(1).XPath.Map)\n    Case 31\n        ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): o.ListColumns(1).XPath.Clear: r = \"cleared\"\n    Case 32\n        r = TypeName(ws.Range(\"A1\").XPath) & \"|\" & ws.Range(\"A1\").XPath.Value\n    Case 33\n        r = ActiveWindow.SheetViews(1).DisplayDataTypeIcons\n    Case 34\n        ActiveWindow.SheetViews(1).DisplayDataTypeIcons = False: r = ActiveWindow.SheetViews(1).DisplayDataTypeIcons\n    Case 35\n        ActiveWindow.SheetViews(1).DisplayDataTypeIcons = True: r = ActiveWindow.SheetViews(1).DisplayDataTypeIcons\n    End Select\nEnd Sub\n\nPublic Function Probe(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, r As Variant, s As String, v As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Act which, ws, r\n    s = \"ok \"\nAnswered:\n    On Error Resume Next\n    v = \"\": v = CStr(r)\n    If Err.Number Then v = \"E\" & Err.Number\n    Err.Clear\n    Application.FindFormat.Clear\n    Application.ReplaceFormat.Clear\n    wb.Close False\n    Probe = s & \"|\" & v\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \"\n    Resume Answered\nEnd Function\n",
+ "cases": [
+  [
+   "Application.FindFormat.Clear: r = Application.FindFormat.NumberFormatLocal",
+   "ok |E94"
+  ],
+  [
+   "Application.FindFormat.Clear: Application.FindFormat.NumberFormatLocal = \"0.00\": r = Application.FindFormat.NumberFormatLocal & \"|\" & Application.FindFormat.NumberFormat",
+   "ok |0.00|0.00"
+  ],
+  [
+   "Application.FindFormat.Clear: Application.FindFormat.NumberFormat = \"0.00\": r = Application.FindFormat.NumberFormatLocal",
+   "ok |0.00"
+  ],
+  [
+   "Application.ReplaceFormat.Clear: Application.ReplaceFormat.NumberFormatLocal = \"0%\": r = Application.ReplaceFormat.NumberFormat",
+   "ok |0%"
+  ],
+  [
+   "Application.FindFormat.Clear: Application.FindFormat.NumberFormatLocal = \"nonsense[\": r = Application.FindFormat.NumberFormatLocal",
+   "Err 1004 |"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1.5: ws.Range(\"A1\").NumberFormat = \"0.00\": Application.FindFormat.Clear: Application.FindFormat.NumberFormatLocal = \"0.00\": r = ws.Cells.Find(\"*\", SearchFormat:=True).Address",
+   "ok |$A$1"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").Characters.PhoneticCharacters",
+   "ok |"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").Characters(1, 2).PhoneticCharacters",
+   "ok |"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").Characters.PhoneticCharacters = \"x\": r = ws.Range(\"A1\").Characters.PhoneticCharacters & \"|\" & ws.Range(\"A1\").Value",
+   "ok ||abc"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5: r = ws.Range(\"A1\").Characters.PhoneticCharacters",
+   "ok |"
+  ],
+  [
+   "r = ws.Range(\"A1\").Characters.PhoneticCharacters",
+   "ok |"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": r = TypeName(ws.Range(\"A1\").DisplayFormat.Characters)",
+   "ok |Characters"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters.Text",
+   "ok |abc"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters(2, 1).Text",
+   "ok |b"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters.Count",
+   "ok |3"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": r = ws.Range(\"A1\").DisplayFormat.Characters.Font.Bold",
+   "ok |False"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").Font.Bold = True: r = ws.Range(\"A1\").DisplayFormat.Characters.Font.Bold",
+   "ok |True"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").Characters(1, 1).Font.Bold = True: r = ws.Range(\"A1\").DisplayFormat.Characters(1, 1).Font.Bold & \"|\" & ws.Range(\"A1\").DisplayFormat.Characters(2, 1).Font.Bold",
+   "ok |True|False"
+  ],
+  [
+   "ws.Range(\"A1\").Value = \"abc\": ws.Range(\"A1\").DisplayFormat.Characters.Text = \"x\": r = ws.Range(\"A1\").Value",
+   "ok |x"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5: r = ws.Range(\"A1\").DisplayFormat.Characters.Text",
+   "Err 1004 |"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").NumberFormat = \"0.00\": r = ws.Range(\"A1\").DisplayFormat.Characters.Text",
+   "Err 1004 |"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.CenterHeaderPicture)",
+   "ok |Graphic"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.Pages(1).CenterHeader.Picture)",
+   "Err 9 |"
+  ],
+  [
+   "r = ws.PageSetup.Pages(1).CenterHeader.Picture.Filename",
+   "Err 9 |"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.EvenPage.LeftFooter.Picture)",
+   "ok |Graphic"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.FirstPage.RightHeader.Picture)",
+   "ok |Graphic"
+  ],
+  [
+   "r = ws.PageSetup.EvenPage.CenterHeader.Picture.Height",
+   "Err 1004 |"
+  ],
+  [
+   "ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = TypeName(o.ListColumns(1).XPath)",
+   "ok |XPath"
+  ],
+  [
+   "ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = o.ListColumns(1).XPath.Value",
+   "ok |"
+  ],
+  [
+   "ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = o.ListColumns(1).XPath.Repeating",
+   "Err 1004 |"
+  ],
+  [
+   "ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): r = TypeName(o.ListColumns(1).XPath.Map)",
+   "Err -2147467259 |"
+  ],
+  [
+   "ws.Range(\"A1:B3\").Value = 1: Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes): o.ListColumns(1).XPath.Clear: r = \"cleared\"",
+   "ok |cleared"
+  ],
+  [
+   "r = TypeName(ws.Range(\"A1\").XPath) & \"|\" & ws.Range(\"A1\").XPath.Value",
+   "ok |XPath|"
+  ],
+  [
+   "r = ActiveWindow.SheetViews(1).DisplayDataTypeIcons",
+   "ok |True"
+  ],
+  [
+   "ActiveWindow.SheetViews(1).DisplayDataTypeIcons = False: r = ActiveWindow.SheetViews(1).DisplayDataTypeIcons",
+   "ok |False"
+  ],
+  [
+   "ActiveWindow.SheetViews(1).DisplayDataTypeIcons = True: r = ActiveWindow.SheetViews(1).DisplayDataTypeIcons",
+   "ok |True"
+  ]
+ ]
+}

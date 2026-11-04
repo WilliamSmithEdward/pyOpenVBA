@@ -9,17 +9,21 @@ The type library declares these properties Variant, so what a property is shows 
 - A border's Weight and LineStyle, and a font's Background, read a number cut to a whole one, a block as its first cell.
 - One that answers a Boolean also refuses a Currency and a Date with 1004.
 - One that answers text takes a Currency's text, $1.50 with a space after it. NumberFormat refuses a Date.
+- A number given to a pattern, a line, an underline, an alignment or a reading order goes through Excel's own numbering for it,
+  so 3 is xlDot to a LineStyle and xlCenter to a HorizontalAlignment (tests/fixtures/given_value_codes.json).
+- A font's Size keeps twentieths of a point and its TintAndShade thirty-two thousand and sixty-sevenths, cutting what is past them.
 """
 
 from __future__ import annotations
 
+import math
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Final
 
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError
 from pyopenvba.interpreter._objects import VBAObject
-from pyopenvba.interpreter._values import EMPTY, NULL, VBACurrency, VBADate, VBASingle, error, to_number
+from pyopenvba.interpreter._values import EMPTY, NULL, VBACurrency, VBADate, VBAInt, VBASingle, error, to_number
 
 #: The classes the rule was measured on.
 MEASURED: Final = frozenset({'Range', 'Font', 'Interior', 'Border', 'Borders', 'Style', 'Characters'})
@@ -28,10 +32,27 @@ CONVERTING: Final = frozenset({'color', 'colorindex', 'themecolor', 'tintandshad
 #: Hold what they are given.
 HOLDING: Final = frozenset({'value', 'value2', 'formula', 'formular1c1', 'formulalocal', 'formular1c1local', 'formula2', 'formula2r1c1', 'formula2local', 'formula2r1c1local', 'formulaarray'})
 NUMBER_FORMATS: Final = frozenset({'numberformat', 'numberformatlocal'})
-#: Read a number cut to a whole one, and a block as its first cell.
-CUTTING: Final = frozenset({'weight', 'linestyle', 'background', 'underline'})
-#: Excel's own numbers for its alignments.
-ALIGNMENT: Final = {'horizontalalignment': -4131, 'verticalalignment': -4108}
+#: Read a block as its first cell.
+CUTTING: Final = frozenset({'weight', 'linestyle', 'background'})
+#: Excel's own numbering, member by member, measured from -3 to 20 and over its named values.
+CODES: Final = {
+    'pattern': {-1: 1, 2: -4125, 3: -4126, 4: -4124, 5: -4128, 6: -4166, 7: -4121, 8: -4162, -4105: 1},
+    'linestyle': {0: -4142, 2: -4115, 3: -4118, 6: 13, 7: 1, 8: -4115, 9: -4119, 10: 4, 11: 5, 12: -4119, -4125: 13, -4126: 1, -4124: -4115},
+    'weight': {3: -4138},
+    'underline': {1: -4142, 3: -4119},
+    'horizontalalignment': {2: -4131, 3: -4108, 4: -4152, 6: -4130, 8: -4117},
+    'verticalalignment': {1: -4160, 2: -4108, 3: -4107, 4: -4130, 5: -4117},
+    'readingorder': {1: -5002, 2: -5003, 3: -5004},
+}
+#: What each takes after that numbering; anything else is refused. Pattern's refusal is the setter's own, 9.
+ACCEPTED: Final = {
+    'linestyle': frozenset({-4142, 1, -4115, -4118, 4, 5, 13, -4119}),
+    'weight': frozenset({1, 2, -4138, 4}),
+    'underline': frozenset({-4142, 2, -4119, 4, 5}),
+    'horizontalalignment': frozenset({1, -4131, -4108, -4152, 5, -4130, 7, -4117}),
+    'verticalalignment': frozenset({-4160, -4108, -4107, -4130, -4117}),
+    'readingorder': frozenset({-5002, -5003, -5004}),
+}
 BACKGROUNDS: Final = frozenset({1, 2, 3, -4105})
 
 
@@ -42,6 +63,25 @@ def currency_text(value: VBACurrency) -> str:
     return f'(${cents:,.2f})' if value < 0 else f'${cents:,.2f} '
 
 
+def _is_number(value: object) -> bool:
+    return isinstance(value, (int, float, VBAInt, VBACurrency, VBADate, VBASingle, Decimal)) and not isinstance(value, bool)
+
+
+def _pattern(value: object) -> object:
+    """A pattern converts as VBA does: separate areas read as the first, a block is an array, and a number rounds to even."""
+    from pyopenvba.apps.excel._model import Range
+
+    if isinstance(value, Range):
+        first = value.areas[0]
+        if first.rows * first.columns > 1:
+            raise error(13)
+        value = Range(value.sheet, [first]).vba_value()
+    if not _is_number(value):
+        return value
+    whole = round(float(to_number(value)))
+    return CODES['pattern'].get(whole, whole)
+
+
 def given(target: VBAObject, name: str, value: object) -> object:
     """``value`` as the property ``name`` of ``target`` is to be given it."""
     from pyopenvba.apps.excel._model import Range
@@ -50,14 +90,21 @@ def given(target: VBAObject, name: str, value: object) -> object:
     if target.vba_type_name not in MEASURED:
         return value
     if lower == 'value' and target.vba_type_name in ('Border', 'Borders'):
-        # A border's Value is its LineStyle.
+        # A border's Value is its LineStyle, but for the negative numbers on Borders (tests/fixtures/format_properties.json).
+        if target.vba_type_name == 'Borders' and _is_number(value) and float(to_number(value)) <= -1:
+            raise error(1004, 'Unable to set the Value property of the Borders class')
         lower = 'linestyle'
+    if lower == 'pattern':
+        return _pattern(value)
     if isinstance(value, Range) and value.areas[0].rows * value.areas[0].columns > 1:
         # A first area of several cells is nothing to hold, and no shade.
         if lower in HOLDING:
             return EMPTY
         if lower == 'tintandshade':
             raise error(5)
+    if lower == 'tintandshade' and target.vba_type_name == 'Font' and _is_number(value):
+        amount = float(to_number(value))
+        return math.trunc(amount * 32767) / 32767 if -1 <= amount <= 1 else value
     if lower in CONVERTING or lower in HOLDING:
         return value
     refusal = error(1004, f'Unable to set the {name} property of the {target.vba_type_name} class')
@@ -72,18 +119,30 @@ def given(target: VBAObject, name: str, value: object) -> object:
             raise refusal
         if value.single:
             value = value.vba_value()
+            if lower == 'style' and value is EMPTY:
+                return 'Normal'
         else:
             area = value.first
             row, column = (area.top, area.left) if lower in CUTTING else (area.bottom, area.right)
             value = Range(value.sheet, [Area(row, column, row, column, value.sheet.name)]).vba_value()
-    if lower in CUTTING and isinstance(value, (float, VBACurrency, VBADate, VBASingle, Decimal)) and not isinstance(value, bool):
-        # A date's number, as it stands in a cell.
-        whole = int(float(to_number(value)))
-        if lower == 'background' and whole not in BACKGROUNDS:
+    if lower == 'size' and target.vba_type_name == 'Font' and _is_number(value):
+        twentieths = Decimal(repr(float(to_number(value)))) * 20
+        return float(twentieths.quantize(Decimal(1), ROUND_HALF_UP) / 20) if twentieths >= Decimal('19.5') else value
+    if lower in CODES and _is_number(value):
+        # A date's number, as it stands in a cell. A line's rounds down, so -0.5 is no line; the rest are cut.
+        number = float(to_number(value))
+        whole = math.floor(number) if lower == 'linestyle' else math.trunc(number)
+        whole = CODES[lower].get(whole, whole)
+        if lower in ACCEPTED and whole not in ACCEPTED[lower]:
             raise refusal
         return whole
-    if lower in ALIGNMENT and not isinstance(value, bool) and value == 2:
-        return ALIGNMENT[lower]
+    if lower == 'orientation' and _is_number(value):
+        return math.floor(float(to_number(value)))
+    if lower == 'background' and _is_number(value):
+        whole = math.trunc(float(to_number(value)))
+        if whole not in BACKGROUNDS:
+            raise refusal
+        return whole
     if not isinstance(value, (VBACurrency, VBADate)):
         return value
     try:
@@ -99,4 +158,9 @@ def given(target: VBAObject, name: str, value: object) -> object:
             return currency_text(value)
         if lower in NUMBER_FORMATS:
             raise refusal
+        serial = float(to_number(value))
+        if 1 <= serial < 61:
+            # Before March 1900 its text is of the day the sheet's serials call it.
+            day = int(serial)
+            return f'2/29/1900' if day == 60 else f'{"1" if day <= 31 else "2"}/{day if day <= 31 else day - 31}/1900'
     return value

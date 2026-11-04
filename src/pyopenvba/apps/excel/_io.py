@@ -1644,7 +1644,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         package.write("xl/workbook.xml", with_book_protection(book, text).encode("utf-8"))
     if (tabs or book.view.changed) and package.has("xl/workbook.xml"):
         text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
-        viewed = with_book_view(book, text)
+        viewed = with_book_view(book, text, tabs=tabs)
         if viewed != text:
             package.write("xl/workbook.xml", viewed.encode("utf-8"))
     _resize_loaded_tables(book, package)

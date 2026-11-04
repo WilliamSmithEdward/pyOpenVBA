@@ -21,20 +21,6 @@ GAPS: dict[str, str] = {
 }
 
 
-#: These measured through an Object, where Null is 13. Declared As Long it is 94 bound early (tests/fixtures/collection_items.json),
-#: which the model follows until a call answers by its own binding.
-EARLY_NULL = {'item_points', 'item_comments', 'item_areas', 'item_horizontal_breaks'}
-
-
-def _as_bound_early(probe: dict[str, Any]) -> str:
-    asked = [line for line in probe['macro'].splitlines() if line.startswith('v = ') and line != 'v = Empty']
-    answers = probe['result'].split(';')
-    for place, line in enumerate(asked):
-        if '(Null)' in line and answers[place] == '13=':
-            answers[place] = '94='
-    return ';'.join(answers)
-
-
 def _answer(macro: str) -> object:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
@@ -52,8 +38,6 @@ def _answer(macro: str) -> object:
     if probe['name'] in GAPS else probe for probe in PROBES], ids=lambda probe: probe['name'])
 def test_an_everyday_macro(probe: dict[str, Any]) -> None:
     expected = 'does not compile' if 'compile' in probe else {'error': probe['error']} if 'error' in probe else probe['result']
-    if probe['name'] in EARLY_NULL:
-        expected = _as_bound_early(probe)
     assert _answer(probe['macro']) == expected
 
 

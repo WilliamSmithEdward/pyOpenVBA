@@ -6,7 +6,7 @@ Points and series and PivotFilters are left out: o.Item(x) on an Object answers 
 pf.PivotFilters(x), which their own fixtures hold."""
 from __future__ import annotations
 
-from pyopenvba.interpreter._objects import VBAObject
+from pyopenvba.interpreter._objects import BINDING, VBAObject
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate
 
 ITEM_ERRORS: dict[str, dict[str, int]] = {
@@ -143,8 +143,14 @@ def index_kind(index: object, count: int) -> str:
     return ''
 
 
+#: These declare their index As Long. Bound early Null cannot become one, which is the lookups' 94. Through an Object it is 13.
+_NULL_IS_13_LATE = frozenset({'Areas', 'Comments', 'CommentsThreaded', 'Filters', 'HPageBreaks', 'Panes', 'Points', 'VPageBreaks'})
+
+
 def item_error(owner: str, index: object, count: int) -> int | None:
     """Excel's error for an index the collection could not use, or None to leave the class's own error standing."""
+    if index is NULL and BINDING.late and owner in _NULL_IS_13_LATE:
+        return 13
     if owner == 'PivotTables' and index is NOTHING:
         return 5
     kind = index_kind(index, count)

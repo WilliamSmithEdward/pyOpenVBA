@@ -73,7 +73,7 @@ def test_every_answer_is_of_excels_type(record: dict[str, Any], book: str) -> No
     """The answers above are text, which do not tell a Long 11 from a Double 11."""
     app = ExcelApplication.open(FIXTURES / book, with_vba=False)
     app.add_module(''.join(_one_type(number, read) for number, read in enumerate(record['reads'])), name='Reader')
-    wrong = []
+    wrong: list[tuple[str, str, str]] = []
     for number, (read, truth) in enumerate(zip(record['reads'], record['types'], strict=True)):
         try:
             got = str(app.run(f'Reader.T{number}'))

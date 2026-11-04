@@ -159,6 +159,10 @@ class BookViewState:
     height: float | None = None
     #: The sheet whose tab the file has selected, so a save moves that only when another sheet is active.
     saved_active: Worksheet | None = None
+    #: The active tab's place in the file, which moving or deleting a tab changes though the same sheet stays active, and
+    #: the file's firstSheet, which Excel will not open past the last tab (tests/fixtures/active_tab/active_tab.json).
+    saved_tab: int = 0
+    saved_first: int = 0
     #: The sheets the file has selected, so a save rewrites their tabs only when another group is.
     saved_selected: list[Worksheet] = field(default_factory=lambda: [])
     changed: bool = False
@@ -260,11 +264,24 @@ def _spelled(area: Area) -> str:
     return first if (area.top, area.left) == (bottom, right) else f"{first}:{_spelled_cell(bottom, right)}"
 
 
+def _active_place(book: Workbook) -> int:
+    return book.sheets_.index(book.active_sheet) if book.active_sheet is not None else 0
+
+
+def _first_place(book: Workbook) -> int:
+    """The first tab the bar shows: not past the active one, and not a hidden one, which it passes over."""
+    first = min(book.view.first_sheet, _active_place(book))
+    while first < len(book.sheets_) - 1 and book.sheets_[first].visible != -1:
+        first += 1
+    return first
+
+
 def tabs_moved(book: Workbook) -> bool:
     """Whether another sheet is active than the one whose tab the file has selected, or other sheets selected."""
     selected = book.selected()
     saved = book.view.saved_selected
     return (book.active_sheet is not book.view.saved_active or len(selected) != len(saved)
+            or _active_place(book) != book.view.saved_tab or _first_place(book) != book.view.saved_first
             or any(one is not other for one, other in zip(selected, saved)))
 
 
@@ -397,10 +414,13 @@ def read_book_view(book: Workbook, xml: str) -> None:
     book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
+    # Excel opens a file whose first tab is past its active one with the first brought back to it.
+    book.view.saved_first, book.view.first_sheet = book.view.first_sheet, min(book.view.first_sheet, _active_place(book))
+    book.view.saved_tab = _active_place(book)
 
 
 def with_book_view(book: Workbook, xml: str) -> str:
-    """A workbook part whose first workbookView has the model's tabs, scroll bars, tab ratio and active tab."""
+    """A workbook part whose first workbookView has the model's tabs, scroll bars, tab ratio and active and first tabs."""
     found = _WORKBOOK_VIEW.search(xml)
     if found is None:
         return xml
@@ -409,12 +429,12 @@ def with_book_view(book: Workbook, xml: str) -> str:
     opening = tag[:-len(closing)].rstrip()
     view = book.view
     ratio = round(view.tab_ratio * 1000)
-    active = book.sheets_.index(book.active_sheet) if book.active_sheet is not None else 0
+    active = _active_place(book)
     for name, value in (("showHorizontalScroll", "" if view.horizontal_scroll else "0"),
                         ("showVerticalScroll", "" if view.vertical_scroll else "0"),
                         ("showSheetTabs", "" if view.tabs else "0"),
                         ("tabRatio", "" if ratio == 600 else str(ratio)),
-                        ("firstSheet", str(view.first_sheet) if view.first_sheet else ""),
+                        ("firstSheet", str(_first_place(book)) if _first_place(book) else ""),
                         ("activeTab", str(active) if active else ""),
                         ("autoFilterDateGrouping", "" if view.date_grouping else "0")):
         opening = with_attribute(opening, name, value, _BOOK_VIEW_ORDER)
@@ -428,6 +448,8 @@ def saved(book: Workbook) -> None:
     book.view.changed = False
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
+    book.view.saved_tab = _active_place(book)
+    book.view.saved_first = book.view.first_sheet = _first_place(book)
 
 
 def copied(source: Worksheet, copy: Worksheet) -> None:

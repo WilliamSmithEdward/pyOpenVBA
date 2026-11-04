@@ -3156,6 +3156,7 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._table_filters import refocus
 
         self.active_sheet_index = self.sheets_.index(sheet)
+        self.view.first_sheet = min(self.view.first_sheet, self.active_sheet_index)
         # A sheet of the group stays in it as it becomes active; any other stands alone
         # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
         if not any(one is sheet for one in self.selected_sheets):

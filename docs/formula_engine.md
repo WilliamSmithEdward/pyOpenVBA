@@ -113,7 +113,9 @@ name looking like a cell is not read as the cell.
    expression, and binary searches as written, in order or not
    (`functions/lookup.py`, with `_pattern` in `functions/text.py` now
    `regular_expression`). YEARFRAC's basis 1 does not count 1900 as a leap
-   year (`functions/dates.py`). Those in
+   year, and its basis 0 takes 28 February 1900 as that month's end
+   (`functions/dates.py`). SORT's order is rounded down
+   (`functions/arrays.py`). Those in
    `tests/fixtures/worksheet_function_four.json`; CHOOSE with an array of positions picks
    item by item, lined up as an operator lines arrays up; INDEX's first
    argument, ROWS and COLUMNS are worked out whole; INDIRECT reads an R1C1

@@ -4,8 +4,9 @@ written down and their digest recorded before anything was measured, and only th
 
 The fixture keeps the cases of the functions with no difference at all, last digits included. Its `scores` say how each round
 went over every function it sampled, those that missed included: they stay PARTIAL, and fixing one against these cases would
-use them up, so it needs new cases. Its `array_cases` are the last round: an array in one place, and often a logical, Null, Empty,
-several cells or another array in a second, showing the whole of each answer.
+use them up, so it needs new cases. Its `array_cases` are the later rounds: an array in one place, and often a logical, Null, Empty,
+several cells or another array in a second, showing the whole of each answer. Excel calls a function once per item of such an
+array, and the `arrays` score is how the model did before it did the same; `lifted` is the round after, on new values.
 """
 from __future__ import annotations
 
@@ -21,8 +22,6 @@ from pyopenvba.apps.excel import ExcelApplication
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'worksheet_function_heldout.json').read_text(encoding='utf-8'))
 HELPER: str = json.loads((FIXTURES / 'worksheet_function_kinds.json').read_text(encoding='utf-8'))['helper']
-#: Kept from the second round: VERIFIED before this test. They were sampled with arrays apart (standing_arrays in the scores).
-STANDING = {'Average', 'Count', 'CountA', 'Max', 'Min', 'Round', 'Sum'}
 BY_FUNCTION: dict[str, list[dict[str, str]]] = defaultdict(list)
 for _case in RECORD['cases']:
     BY_FUNCTION[_case['function']].append(_case)
@@ -82,5 +81,4 @@ def test_the_scores_count_the_misses() -> None:
 
 
 def test_every_function_kept_has_its_array_cases() -> None:
-    held = {name for name in BY_FUNCTION if name not in STANDING}
-    assert held == set(ARRAY_CASES)
+    assert set(BY_FUNCTION) == set(ARRAY_CASES)

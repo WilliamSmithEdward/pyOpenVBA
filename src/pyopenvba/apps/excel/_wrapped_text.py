@@ -1,5 +1,6 @@
 """How many lines wrapped text takes in a column, on a 96-DPI display, as held out against live Excel (scripts/measure_wrapped_heldout.py, scripts/measure_wrapped_curves.py,
-scripts/measure_wrapped_round3.py): 7,811 of 7,860 predictions across fonts and sizes, each written before Excel was asked.
+scripts/measure_wrapped_round3.py, scripts/measure_wrapped_round4.py): 16,276 of 16,380 predictions across fonts and sizes, each written before Excel was asked. The last round ran on this
+code, and its 55 misses, 8,465 of 8,520 right, all end in a hyphen and a line feed, which the model refuses.
 
 The 7 and the steps of 28 are measured, and not explained. They held across 20 fonts and sizes with nothing per font but the width of the digit 0, in `font_pad`. The steps are the scale `_column_fit.column_pixels`
 widens a column by, 29/28, and a line fits one pixel sooner than that column at a whole multiple of 28; why Excel has that scale is not known.

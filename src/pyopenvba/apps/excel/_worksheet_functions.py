@@ -62,12 +62,13 @@ if TYPE_CHECKING:
 #: places of the texts each joins, and TextJoin's delimiter.
 _NOT_CONVERTED: Final = {"textjoin": (0, 2), "concat": (0,)}
 #: Functions that refuse a range of separate areas, measured (tests/fixtures/worksheet_function_heldout.json has the areas kind).
-_ONE_AREA: Final = frozenset({"ftest", "f_test", "arraytotext"})
+_ONE_AREA: Final = frozenset({"ftest", "f_test", "arraytotext", "sort", "unique", "xlookup"})
 #: A Null where a function needs a value: a blank cell's value.
 BLANK: Final = object()
 #: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
 _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
 _ARRAY_OF_ONE: Final = frozenset({"sort", "sortby", "unique", "filter"})
+_SWITCHES: Final = {"sort": (3,), "unique": (1, 2)}
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
 _VARIANT: Final = frozenset({
     "choose", "dget", "encodeurl", "fieldvalue", "filter", "filterxml", "frequency", "growth", "hlookup",
@@ -115,6 +116,10 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         raise error(1004, "There is no workbook open")
     values = _laid_out(list(args), named or {})
     entry = registry.FUNCTIONS[function]
+    if raising and any(isinstance(values[place], Range) and values[place].single and isinstance(values[place].vba_value(), str)
+                       for place in _SWITCHES.get(name.lower(), ()) if place < len(values)):
+        # A cell of text where a switch goes fails item by item, so the answer is an array holding the error.
+        return answer(Array([[CellError("#VALUE!")]]))
     if raising:
         values = _as_excel_reads(name, values, entry.minimum, late=late)
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
@@ -145,6 +150,9 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
             and isinstance(found, float):
         # A whole number indexed answers as a Long (tests/fixtures/worksheet_function_args.json).
         return VBAInt(int(found), "Long")
+    if raising and name.lower() == "xlookup" and isinstance(found, Reference) and found.area is not None and found.area.is_cell:
+        # An error in the cell it answers is its answer, not a failure.
+        return answer(context.book.cell(found.area.sheet, found.area.top, found.area.left))
     if raising and name.lower() in _ARRAY_OF_ONE:
         return _array_of_one(context, found, values[0], name, books_of=application, late=late)
     return _returned(context, found, name, raising=raising, books_of=application, late=late)
@@ -245,7 +253,7 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
             raise error(5)
         if isinstance(value, VBAObject) and not isinstance(value, Range):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
-        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()) and not (value is NULL and name.lower() == "unique" and len(values) > 1):
+        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
         if lower in _ONE_AREA and isinstance(value, Range) and len(value.areas) > 1:
@@ -264,6 +272,9 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
             # A fallback given as Empty is one: nothing found answers Empty, where one left out is an error. A search
             # mode given as Empty is 0, which is no mode.
             value = BLANK if index == 3 else 0.0 if index == 5 else value
+        if lower == "yearfrac" and isinstance(value, VBADate):
+            # Its number, which before March 1900 is a day from what its text would read as.
+            value = float(to_number(value))
         if lower in _ONE_VALUE and index == 2:
             if lower != "match" or isinstance(value, Range):
                 value = _first_item(value)

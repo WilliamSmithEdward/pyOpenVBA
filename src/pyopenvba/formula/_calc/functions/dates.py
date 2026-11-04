@@ -367,9 +367,9 @@ def days_between(first: int, last: int, kind: int, *, epoch_1904: bool = False) 
         d1 = 30
     elif d1 == 30 and d2 == 31:
         d2 = 30
-    elif m1 == 2 and m2 == 2 and d1 == dates.days_in_month(y1, 2) and d2 == dates.days_in_month(y2, 2):
+    elif m1 == 2 and m2 == 2 and d1 == calendar.monthrange(y1, 2)[1] and d2 == calendar.monthrange(y2, 2)[1]:
         d1 = d2 = 30
-    elif m1 == 2 and d1 == dates.days_in_month(y1, 2):
+    elif m1 == 2 and d1 == calendar.monthrange(y1, 2)[1]:
         d1 = 30
     return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
 

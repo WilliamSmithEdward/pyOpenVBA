@@ -56,6 +56,10 @@ def main() -> None:
                 continue
             arguments = split_arguments(rest[rest.index('(') + 1:-1])
             place = arguments.index('x')
+            # XLookup's result is refused by its size, its fallback Null only by finding nothing with no fallback, and a
+            # lone Null by the rule for any last argument: none of them by its kind.
+            if (name == 'XLookup' and ((place == 2 and kind not in ('null', 'empty')) or (place == 3 and kind == 'null'))) or (name == 'Unique' and kind == 'null'):
+                continue
             # Several ranges or arrays together can refuse by their sizes alone.
             if kind in ('cells', 'array') and any(_kind_given(one) in ('cells', 'array') for one in answered):
                 continue

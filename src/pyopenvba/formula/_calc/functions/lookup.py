@@ -215,10 +215,18 @@ def _x_search(
     if mode not in (-1, 0, 1, 2, 3) or search not in (-2, -1, 1, 2):
         raise ExcelError(VALUE)
     if mode == 3:
-        # A regular expression, searched for in each value's text, case and all.
+        # A regular expression, searched for in each value's text, case and all: no binary search, and no error matches.
+        if search in (2, -2):
+            raise ExcelError(VALUE)
         expression = regular_expression(context, target, None)
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
-        return next((index for index in order if expression.search(context.text(values[index]))), None)
+        return next((index for index in order if not isinstance(values[index], CellError) and expression.search(context.text(values[index]))), None)
+    if isinstance(target, Empty):
+        # Nothing to look for: only a blank is the same, and nothing is near it.
+        if mode != 0:
+            return None
+        order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
+        return next((index for index in order if isinstance(values[index], Empty)), None)
     if search in (2, -2) and mode != 2:
         return _x_binary(values, target, mode, descending=search == -2)
     exact = _exact(values, target, wildcards=mode == 2, last=search == -1)
@@ -228,27 +236,34 @@ def _x_search(
     order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
     for index in order:
         candidate = values[index]
-        if not _same_kind(target, candidate):
+        if isinstance(candidate, Empty):
             continue
-        direction = _order(candidate, target)
+        direction = _x_order(candidate, target)
         if (mode == -1 and direction < 0) or (mode == 1 and direction > 0):
             if best is None:
                 best = index
                 continue
-            closer = _order(candidate, values[best])
+            closer = _x_order(candidate, values[best])
             if (mode == -1 and closer > 0) or (mode == 1 and closer < 0):
                 best = index
     return best
 
 
+def _x_order(value: Scalar, target: Scalar) -> int:
+    """How XLOOKUP's nearest match orders any two values: numbers, then text, then logicals, then errors."""
+    if isinstance(value, CellError) or isinstance(target, CellError):
+        return isinstance(value, CellError) - isinstance(target, CellError)
+    return _order(value, target)
+
+
 def _x_binary(values: list[Scalar], target: Scalar, mode: int, *, descending: bool) -> int | None:
-    """A plain binary search, in order or not, among values of ``target``'s type: where it stops, the next one
+    """A plain binary search, in order or not, past blanks: where it stops, the next one
     down or up is whichever its bounds left on that side."""
-    positions = [index for index, value in enumerate(values) if _same_kind(target, value)]
+    positions = [index for index, value in enumerate(values) if not isinstance(value, Empty)]
     low, high = 0, len(positions) - 1
     while low <= high:
         middle = (low + high) // 2
-        order = _order(values[positions[middle]], target)
+        order = _x_order(values[positions[middle]], target)
         if order == 0:
             return positions[middle]
         if (order > 0) != descending:

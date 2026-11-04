@@ -29,9 +29,7 @@ def _run(index: int) -> str:
     return str(app.run('HiddenProbe.Tried', index))
 
 
-#: A macro's Object answers 438 for both hidden members, its typed variable as the model does; the model follows the typed.
-LATE_BOUND = ('.[_NewEnum]', 'o.[_Default]', '.[_Default]')
-KEPT = [index for index, name in enumerate(NAMES) if not any(text in name for text in LEFT_OUT + LATE_BOUND)]
+KEPT = [index for index, name in enumerate(NAMES) if not any(text in name for text in LEFT_OUT)]
 
 
 @pytest.mark.parametrize('index', KEPT, ids=[NAMES[index] for index in KEPT])

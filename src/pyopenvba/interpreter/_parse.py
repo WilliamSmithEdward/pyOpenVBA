@@ -1417,6 +1417,8 @@ class Parser:
             return inner
         if token.kind == "op" and token.text == ".":
             self.advance()
+            if self.token.kind == "bracket":
+                return A.Member(line=line, target=None, name=self.advance().text, bracketed=True)
             return A.Member(line=line, target=None, name=self.expect_name())
         if token.kind == "op" and token.text == "!":
             self.advance()
@@ -1455,7 +1457,11 @@ class Parser:
                 # A name in brackets is a member VBA could not spell otherwise, such as ws.[_CodeName].
                 if self.token.kind not in ("ident", "bracket"):
                     self.fail(f"expected a member name after '.' but found {self.token.text!r}")
-                target = A.Member(line=self.token.line, target=target, name=self.advance().text)
+                bracketed = self.token.kind == "bracket"
+                if not bracketed and self.token.text.startswith("_"):
+                    # VBA spells a hidden member only in brackets, ws.[_Default] (tests/fixtures/vba_brackets.json).
+                    self.fail("Syntax error")
+                target = A.Member(line=self.token.line, target=target, name=self.advance().text, bracketed=bracketed)
                 continue
             if self.at_op("!"):
                 self.advance()

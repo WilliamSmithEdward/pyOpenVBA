@@ -13,7 +13,6 @@ import datetime as dt
 import json
 import os
 import re
-import sys
 import zipfile
 from pathlib import Path
 
@@ -130,8 +129,7 @@ def test_a_copy_elsewhere_of_a_workbook_linking_to_files_is_refused(tmp_path: Pa
     app.run("Copied", str(tmp_path / "beside.xlsx"))
     with zipfile.ZipFile(tmp_path / "beside.xlsx") as package:
         rels = package.read("xl/worksheets/_rels/sheet1.xml.rels").decode("utf-8")
-    if sys.platform == "win32":
-        assert f'Target="{RECORD["files"]["copy1.xlsx"]["link"]}"' in rels
+    assert f'Target="{RECORD["files"]["copy1.xlsx"]["link"]}"' in rels
     with pytest.raises(VBAUnsupportedError, match="links to files"):
         app.run("Copied", str(tmp_path / "sub" / "elsewhere.xlsx"))
     assert sorted(path.name for path in tmp_path.rglob("*.xlsx")) == ["beside.xlsx", "named.xlsx"]

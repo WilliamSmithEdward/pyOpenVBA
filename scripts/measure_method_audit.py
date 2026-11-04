@@ -58,10 +58,12 @@ METHODS = [
      [('o.SetRange ws.Range("B2:B4")', []), ('o.SetRange ARG', ['Null', 'Empty', '"B2:B4"', '1', 'True', 'Application']), ('o.SetRange', [])]),
     ('SortFields', 'Clear', 'SortFields', 'ws.Sort.SortFields', _SORT, ['ws.Sort.SortFields.Count'], [('o.Clear', [])]),
     ('Validation', 'Delete', 'Validation', 'ws.Range("B2").Validation', _RULE, ['ws.Range("B2").Validation.Type'], [('o.Delete', [])]),
+    ('Window', 'Activate', 'Window', 'wb.Windows(1)', 'ThisWorkbook.Activate', ['ActiveWorkbook Is wb'],
+     [('o.Activate', []), ('o.Activate 1', [])]),
 ]
 
 
-WRONG_COUNT = (r'^r = o\.(CentimetersToPoints|InchesToPoints)$|^o\.Delete 1$|o\.(Next|Previous)\(1\)|^o\.SetRange( (Null|Empty|"B2:B4"|1|True|Application))?$')
+WRONG_COUNT = (r'^r = o\.(CentimetersToPoints|InchesToPoints)$|^o\.Delete 1$|^o\.Activate 1$|o\.(Next|Previous)\(1\)|^o\.SetRange( (Null|Empty|"B2:B4"|1|True|Application))?$')
 
 
 def cases() -> list[tuple[str, str, str, str, str, list[str], str]]:

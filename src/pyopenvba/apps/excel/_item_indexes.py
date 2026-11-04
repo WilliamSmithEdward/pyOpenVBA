@@ -1,7 +1,8 @@
 """The error a collection's Item raises for each kind of index, late bound (tests/fixtures/collection_items.json). No rule
 gives these: Sheets answers 13 for Null and Names 1004, and an out-of-range index is 9, 1004 or something else by class.
 A kind is listed where every way in that fails agrees on the error; otherwise the class's own lookup answers. A chart's
-Points and series are left out: o.Item(x) on an Object answers otherwise than sr.Points(x), which their own fixtures hold."""
+Points and series and PivotFilters are left out: o.Item(x) on an Object answers otherwise than sr.Points(x) and
+pf.PivotFilters(x), which their own fixtures hold."""
 from __future__ import annotations
 
 from pyopenvba.interpreter._objects import VBAObject
@@ -67,8 +68,6 @@ ITEM_ERRORS: dict[str, dict[str, int]] = {
         'blank': 13, 'empty': 1004, 'null': 13, 'true': 1004, 'object': 13},
     'PivotFields': {'missing': 449, 'past': 1004, 'negative': 1004, 'text': 1004, 'lacking': 1004, 'blank': 1004,
         'object': 1004},
-    'PivotFilters': {'missing': 450, 'past': 9, 'zero': 5, 'negative': 5, 'fraction': 9, 'text': 9, 'lacking': 5,
-        'blank': 5, 'empty': 5, 'null': 5, 'true': 5, 'object': 5},
     'PivotItemList': {'missing': 450, 'past': 1004, 'zero': 1004, 'negative': 1004, 'fraction': 1004, 'text': 438,
         'lacking': 438, 'blank': 438, 'empty': 1004, 'null': 13, 'true': 1004, 'object': 13},
     'PivotItems': {'missing': 449, 'past': 1004, 'zero': 1004, 'negative': 1004, 'text': 1004, 'lacking': 1004,

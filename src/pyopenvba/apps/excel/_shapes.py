@@ -3607,8 +3607,11 @@ class ShapeFont2(_ShapeFontBase):
 
     @member
     def Creator(self) -> object:
-        # Live Excel raises this on it (tests/fixtures/shape_connectors.json).
-        raise error(-2147024809, "The parameter is incorrect.")
+        # On a connector, which holds no text, live Excel raises this (tests/fixtures/shape_connectors.json); on what holds it, it answers
+        # (tests/fixtures/typed_answers/late_types_FillFormat.json).
+        if self.characters.owner.shape.kind == "line":
+            raise error(-2147024809, "The parameter is incorrect.")
+        return VBAInt(1480803660, "Long")
 
     @member
     def Application(self) -> object:
@@ -4011,8 +4014,11 @@ class TextRange2(_ShapeText):
 
     @member
     def Creator(self) -> object:
-        # Live Excel raises this on it (tests/fixtures/shape_connectors.json).
-        raise error(-2147024809, "The parameter is incorrect.")
+        # On a connector, which holds no text, live Excel raises this (tests/fixtures/shape_connectors.json); on what holds it, it answers
+        # (tests/fixtures/typed_answers/late_types_FillFormat.json).
+        if self.owner.shape.kind == "line":
+            raise error(-2147024809, "The parameter is incorrect.")
+        return VBAInt(1480803660, "Long")
 
     @member
     def Application(self) -> object:

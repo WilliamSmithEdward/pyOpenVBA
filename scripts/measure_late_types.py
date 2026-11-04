@@ -5,7 +5,7 @@ Excel, then in the model. Mail members and printing are not on these classes. Ge
 
     python scripts/measure_late_types.py Font Shape ControlFormat TextFrame
 
-writes tests/fixtures/typed_answers/late_types_<first class>.json, which tests/test_excel_late_types.py replays.
+writes tests/fixtures/typed_answers/late_types_<first class>.json, which tests/test_excel_late_types.py replays. Run a batch whole, or it overwrites that fixture with less.
 """
 from __future__ import annotations
 

@@ -21,7 +21,7 @@ probes_of: Any = getattr(_module, 'probes_of')
 
 CASES: list[tuple[str, str, str]] = []
 for _path in sorted((FIXTURES / 'typed_answers').glob('*.json')):
-    if _path.stem == 'control_value_types':
+    if _path.stem == 'control_value_types' or _path.stem.startswith('late_types_'):
         continue
     _record: dict[str, Any] = json.loads(_path.read_text(encoding='utf-8'))
     CASES.extend((_path.stem, _one['name'], _one['typed']) for _one in _record['cases'] if not _one['drifted'])

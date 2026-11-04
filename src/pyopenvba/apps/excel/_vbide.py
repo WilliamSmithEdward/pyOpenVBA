@@ -124,7 +124,7 @@ class VBProject(VBAObject):
                 self.code_page = project.code_page
                 self.protected = bool(project.protection and project.protection.has_password)
                 kinds = host.component_kinds()
-                documents = {book.code_name.casefold(), *(sheet.code_name.casefold() for sheet in book.sheets_)}
+                documents = {book.code_name.casefold(), *(sheet.code_name.casefold() for sheet in book.tabs())}
                 for module in project.modules:
                     kind = kinds.get(module.name.casefold(), 'document' if module.name.casefold() in documents else 'standard' if module.kind.value == 0x21 else 'class')
                     self.components.entries.append(VBComponent(self, module.name, kind, module.source))
@@ -205,7 +205,7 @@ class VBComponents(VBACollection):
         names = {entry.name.casefold(): entry for entry in self.entries}
         runtime = book.project_runtime
         if not self.entries:
-            for name in [book.code_name, *(sheet.code_name for sheet in book.sheets_)]:
+            for name in [book.code_name, *(sheet.code_name for sheet in book.tabs())]:
                 if name:
                     entry = VBComponent(self.project, name, 'document', '')
                     self.entries.append(entry)
@@ -221,7 +221,7 @@ class VBComponents(VBACollection):
                     if entry.source != module.parsed.source:
                         entry.code_module.editor_lines = None
                     entry.source = module.parsed.source
-        for name in [book.code_name, *(sheet.code_name for sheet in book.sheets_)]:
+        for name in [book.code_name, *(sheet.code_name for sheet in book.tabs())]:
             if name and name.casefold() not in names:
                 entry = VBComponent(self.project, name, 'document', '')
                 self.entries.append(entry)
@@ -357,7 +357,7 @@ class VBComponent(VBAObject):
         if self.kind == 'document':
             if book.code_name.casefold() == old.casefold():
                 book.code_name = name
-            for sheet in book.sheets_:
+            for sheet in book.tabs():
                 if sheet.code_name.casefold() == old.casefold():
                     sheet.code_name = name
             book.used_code_names.add(old.casefold())

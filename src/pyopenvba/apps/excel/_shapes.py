@@ -3367,8 +3367,8 @@ class _ShapeFontBase(HeldPart):
     @member
     def Size(self) -> object:
         look = self.look()
-        size = look.font_size if look.font_scale is None else look.font_size * look.font_scale / 100000
-        return VBAInt(int(size), "Long") if size == int(size) else size
+        # A Double (tests/fixtures/loaded_shape_text.json).
+        return look.font_size if look.font_scale is None else look.font_size * look.font_scale / 100000
 
     @member
     def Name(self) -> object:
@@ -3443,7 +3443,9 @@ class ShapeFont(_ShapeFontBase):
         if look.font_index is not None:
             return VBAInt(look.font_index - 7, "Long")
         if look.font_rgb is None and look.font_theme is None:
-            return VBAInt(-4105 if self.text_box() else 2, "Long")
+            # In a file it goes by the style's colour, whatever the shape (tests/fixtures/loaded_shape_text.json).
+            dark = look.font_scheme in ("dk1", "tx1") if self.characters.owner.shape.source else self.text_box()
+            return VBAInt(-4105 if dark else 2, "Long")
         if look.font_rgb == "000000":
             return VBAInt(-4105, "Long")
         from pyopenvba.apps.excel._text_paint import font_ink
@@ -3730,6 +3732,12 @@ class ShapeFont2(_ShapeFontBase):
     @setter("Italic")
     def _italic(self, value: object) -> None:
         self.changed().font_italic = bool(to_number(value))
+
+    @member
+    def Size(self) -> object:
+        # A Single here, where Characters.Font's is a Double (tests/fixtures/loaded_shape_text.json).
+        look = self.look()
+        return VBASingle(look.font_size if look.font_scale is None else look.font_size * look.font_scale / 100000)
 
     @setter("Size")
     def _size(self, value: object) -> None:

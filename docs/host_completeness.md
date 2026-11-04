@@ -417,6 +417,12 @@ own code can reach a reported gap, unless
 can check. A row covers the member wherever a macro reaches it: a Font
 row covers a chart's font as well as a cell's.
 
+A property given a number goes through Excel's own numbering for it, and a
+block of cells is tried one cell at a time, what the others did staying done
+and a refusal reported at the end (`apps/excel/_given_values.py`). Rows resting
+on that rule went VERIFIED only with no difference in two rounds of new values
+running on the same code, and no reported gap in reach.
+
 Regenerate it after adding or removing a member:
 
 ```console

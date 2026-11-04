@@ -111,6 +111,11 @@ class ExcelObject(Created):
     vba_library = _LIBRARY
     invalidated = False
 
+    def vba_given(self, name: str, value: object) -> object:
+        from pyopenvba.apps.excel._given_values import given
+
+        return given(self, name, value)
+
     def _check_alive(self) -> None:
         if any(getattr(owner, "invalidated", False) for owner in
                (self, getattr(self, "sheet", None), getattr(self, "entry", None), getattr(self, "target", None))):
@@ -4812,7 +4817,13 @@ class Range(ExcelObject):
         self._links_emptied(value)
         _events.after_edit(self)
 
+    def _first_area(self) -> Range:
+        return Range(self.sheet, list(self.areas[:1]))
+
     def _values(self, *, raw: bool) -> object:
+        # A range of separate areas reads as its first (tests/fixtures/range_area_reads.json).
+        if len(self.areas) > 1:
+            return self._first_area()._values(raw=raw)
         if self.single:
             return self._read(self.first.top, self.first.left, raw=raw)
         # The array has the range's own shape, empty cells and all: Range("A1:B2").Value
@@ -4840,7 +4851,13 @@ class Range(ExcelObject):
 
     @member
     def Text(self) -> object:
-        """What the cell shows, at most 8221 characters of it (tests/fixtures/range_values.json)."""
+        """What the cell shows, at most 8221 characters of it (tests/fixtures/range_values.json). Over several cells,
+        what they all show, or Null where they differ (tests/fixtures/range_area_reads.json); past 100,000 cells, the
+        first's, which was not measured."""
+        if not self.single and sum(area.rows * area.columns for area in self.areas) <= 100_000:
+            shown_by = {str(Range(self.sheet, [Area(row, column, row, column, self.sheet.name)]).Text())
+                        for area in self.areas for row in range(area.top, area.bottom + 1) for column in range(area.left, area.right + 1)}
+            return shown_by.pop() if len(shown_by) == 1 else NULL
         shown = self._shown_text()
         return shown[:8221] if isinstance(shown, str) else shown
 
@@ -5212,6 +5229,10 @@ class Range(ExcelObject):
 
     def _read_formulas(self, *, r1c1: bool, at: bool = False) -> object:
         from pyopenvba.apps.excel._data_tables import table_at
+
+        # Separate areas read as the first (tests/fixtures/range_area_reads.json).
+        if len(self.areas) > 1:
+            return self._first_area()._read_formulas(r1c1=r1c1, at=at)
 
         def read(row: int, column: int) -> object:
             table = table_at(self.sheet, row, column) if self.sheet.data_tables else None

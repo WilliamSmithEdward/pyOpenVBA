@@ -395,10 +395,19 @@ def _group_labels(xml: str, state: ChartState) -> str:
     )
 
 
+def written_order(state: ChartState) -> list[SeriesState]:
+    """A combo chart's series as the file has them, empty for a chart that has them in order."""
+    from pyopenvba.apps.excel._chart_combos import groups, is_combo
+
+    if is_combo(state):
+        return [item for group in groups(state) for item in group.members]
+    return list(state.plot_sequence or [])
+
+
 def _dressed_series(xml: str, state: ChartState, theme: tuple[str, ...]) -> str:
     """Each series with its look, what was set of it first."""
     style = state.chart_style
-    every: list[SeriesState] = state.full_series or state.series
+    every: list[SeriesState] = written_order(state) or state.full_series or state.series
     found = list(re.finditer(r'<c:ser>.*?</c:ser>', xml, re.S))
     for match, entry in reversed(list(zip(found, every, strict=False))):
         series = match.group(0)
@@ -459,11 +468,12 @@ def _dressed_title(title: str, style: int, name: str, font: TextLook | None, rot
 
 def _dressed_axes(xml: str, state: ChartState) -> str:
     style = state.chart_style
-    kinds = iter((1, 2))
+    kinds = iter(((1, False), (2, False), (2, True), (1, True)))
 
     def dressed_one(found: re.Match[str]) -> str:
         axis = found.group(0)
-        kind = next(kinds)
+        # A secondary axis's font is its own (see _chart_axes.AxisState.tag).
+        kind, secondary = next(kinds)
         name = 'categoryAxis' if kind == 1 else 'valueAxis'
         if state.made_scatter and kind == 1 and '<c:xVal><c:numRef>' not in xml:
             # A new scatter chart's horizontal axis has no number format to follow until its values are numbers.
@@ -480,7 +490,7 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
                 hit.group(0),
                 style,
                 'axisTitle',
-                state.element_fonts.get(f'title{kind}'),
+                state.element_fonts.get(f'title{kind}s' if secondary else f'title{kind}'),
                 _UPRIGHT if (kind == 2) != ('<c:barDir val="bar"/>' in xml) else _LEVEL,
             ),
             axis,
@@ -494,7 +504,7 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
         if mine == _LAYOUT_NO_LINE:
             mine = ''
         axis = re.sub(r'<c:txPr>(?:(?!<c:txPr>).)*?</c:txPr>(?=<c:crossAx)', '', axis, count=1, flags=re.S)
-        font = state.element_fonts.get(f'tick{kind}')
+        font = state.element_fonts.get(f'tick{kind}s' if secondary else f'tick{kind}')
         if '<c:delete val="1"/>' in axis:
             return axis
         look = _box(style, name, mine) + _text(style, name, _body(_TURNED), font)

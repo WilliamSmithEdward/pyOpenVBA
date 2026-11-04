@@ -1548,6 +1548,13 @@ def _as_kind(value: int | float | Decimal, kind: str) -> object:
 
 
 def _both_numbers(left: object, right: object, op: str) -> tuple[Any, Any, str]:
+    from pyopenvba.interpreter._objects import VBAObject
+
+    # An object answers for its default member, and an array is no number (tests/fixtures/range_area_reads.json).
+    left = left.vba_value() if isinstance(left, VBAObject) else left
+    right = right.vba_value() if isinstance(right, VBAObject) else right
+    if isinstance(left, VBAArray) or isinstance(right, VBAArray):
+        raise error(ERR_TYPE_MISMATCH)
     kind = _result_kind(left, right, op)
     first = to_number(left)
     second = to_number(right)

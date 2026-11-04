@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -70,3 +71,15 @@ def test_a_save_writes_the_links_as_excel_does(tmp_path: Path, index: int) -> No
                  for name in saved.namelist() if 'externalLink' in name}
     wanted = {name: text for name, text in RECORD['saved'][str(index)].items() if 'externalLink' in name}
     assert parts == wanted
+
+
+@pytest.mark.parametrize('separator', ['\\', '/', 'native'])
+def test_a_formula_names_a_linked_workbook_by_its_folder_in_either_separator(tmp_path: Path, separator: str) -> None:
+    """Off Windows the folder is written with /, and a macro may join its file on with either."""
+    _opened(tmp_path).run('LinkProbe.Tried', 0, str(tmp_path))
+    app = ExcelApplication.open(tmp_path / 'Dest.xlsx', with_vba=False)
+    mark = os.sep if separator == 'native' else separator
+    app.add_module('Public Sub Put(ByVal formula As String)\n    ActiveSheet.Range("H9").Formula = formula\nEnd Sub\n', name='Writer')
+    app.run('Writer.Put', f"='{tmp_path}{mark}[Beta.xlsx]Sheet1'!A1")
+    assert app.workbook.sheets_[0].cells_[(9, 8)].formula == '=[2]Sheet1!A1'
+

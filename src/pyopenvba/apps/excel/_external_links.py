@@ -174,12 +174,13 @@ def linked_sheet(book: Workbook, name: str) -> str:
     if bracket:
         file, _, sheet = rest.partition("]")
     else:
-        folder, _, file = name.rpartition("\\")
+        folder, file = ntpath.split(name)
         sheet = ""
-    folder = folder.rstrip("\\")
+    # Off Windows the folder a macro names has / in it, and so does the one a link's relative target comes to.
+    folder = folder.replace("/", "\\").rstrip("\\").casefold()
     for linked in book.linked_books.values():
         if linked.file.casefold() == file.casefold() \
-                and (not folder or linked.folder(book.path).casefold() == folder.casefold()):
+                and (not folder or linked.folder(book.path).replace("/", "\\").casefold() == folder):
             return f"[{linked.number}]{sheet}"
     raise VBAUnsupportedError("a formula reading a workbook the file has no link to is not implemented")
 

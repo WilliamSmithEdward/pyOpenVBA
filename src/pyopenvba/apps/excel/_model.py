@@ -6775,10 +6775,10 @@ class Range(ExcelObject):
         if len(self.areas) != 1 or len(Destination.areas) != 1:
             raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
         area, target = self.first, Destination.first
-        # Each way on its own: A1:B1 copied to H1:H3 fills H1:I3 (tests/fixtures/excel_fits.json).
-        rows = target.rows if target.rows % area.rows == 0 else area.rows
-        columns = target.columns if target.columns % area.columns == 0 else area.columns
-        repeat = (rows, columns) == (target.rows, target.columns)
+        from pyopenvba.apps.excel._clipboard import tiled_size
+
+        rows, columns = tiled_size(target.rows, target.columns, area.rows, area.columns)
+        repeat = rows > area.rows or columns > area.columns or (rows, columns) == (target.rows, target.columns)
         bottom, right = target.top + rows - 1, target.left + columns - 1
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")

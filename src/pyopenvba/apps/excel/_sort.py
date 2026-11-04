@@ -739,7 +739,7 @@ def sort_state_markup(sheet: Worksheet, state: SortState) -> bytes:
         raise VBAUnsupportedError('Persisting cross-sheet worksheet sort settings is not implemented')
     if state.header not in (GUESS, YES, NO) or any(field.order not in (ASCENDING, DESCENDING) for field in state.fields):
         raise VBAUnsupportedError('Persisting unmeasured worksheet sort enums is not implemented')
-    if state.orientation != TOP_TO_BOTTOM or state.method != 1:
+    if state.orientation not in (TOP_TO_BOTTOM, LEFT_TO_RIGHT) or state.method != 1:
         raise VBAUnsupportedError('Persisting non-default worksheet sort methods/orientations is not implemented')
     if any(field.subfield is not EMPTY for field in state.fields):
         raise VBAUnsupportedError("Persisting a sort field's SubField is not implemented")
@@ -757,6 +757,8 @@ def sort_state_markup(sheet: Worksheet, state: SortState) -> bytes:
     root = XmlElement(ns + 'sortState', {'xmlns': namespace, 'ref': block.address(absolute=False)})
     if state.match_case:
         root.set('caseSensitive', '1')
+    if state.orientation == LEFT_TO_RIGHT:
+        root.set('columnSort', '1')
     for field in state.fields:
         root.append(XmlElement(ns + 'sortCondition', condition_attributes(sheet.book, field)))
     return xml_bytes(root).split(b'?>', 1)[1].lstrip()
@@ -905,7 +907,7 @@ def _loaded_state(sheet: Worksheet) -> SortState:
     allowed = {'ref', 'caseSensitive', 'columnSort', 'sortMethod'}
     if (any(key not in allowed and key != 'xmlns' and not key.startswith('xmlns:') for key in group.attributes)
             or group.get('caseSensitive', '0') not in ('0', '1', 'false', 'true')
-            or group.get('columnSort', '0') not in ('0', 'false')
+            or group.get('columnSort', '0') not in ('0', 'false', '1', 'true')
             or group.get('sortMethod', 'pinYin') != 'pinYin'
             or len(group.children) > 64 or group.has_text or group.has_opaque):
         raise VBAUnsupportedError('Custom worksheet sort settings are not implemented')
@@ -916,6 +918,7 @@ def _loaded_state(sheet: Worksheet) -> SortState:
         state.area = Range(sheet, [area])
         state.header = GUESS
         state.match_case = group.get('caseSensitive') in ('1', 'true')
+        state.orientation = LEFT_TO_RIGHT if group.get('columnSort') in ('1', 'true') else TOP_TO_BOTTOM
         for condition in group.children:
             sort_by = condition.get('sortBy', 'value')
             if (condition.name != ns + 'sortCondition' or condition.children or condition.has_text or condition.has_opaque

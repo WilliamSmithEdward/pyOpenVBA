@@ -213,12 +213,18 @@ def copy_range(target: Range, destination: object) -> object:
     return True
 
 
+def tiled_size(rows: int, columns: int, copied_rows: int, copied_columns: int) -> tuple[int, int]:
+    """The size a copy fills in a destination. Whole copies tile it where each way holds them, and a destination one row or one column
+    across counts as holding them that way, so that A1:B1 copied to H1:H3 fills H1:I3. Otherwise it is one copy (tests/fixtures/excel_fits.json)."""
+    if not all(given % copied == 0 or given == 1 for given, copied in ((rows, copied_rows), (columns, copied_columns))):
+        return copied_rows, copied_columns
+    return (rows if rows % copied_rows == 0 else copied_rows), (columns if columns % copied_columns == 0 else copied_columns)
+
+
 def landing_of(made: Block, destination: Range) -> Area:
     """The cells a paste lands on: whole copies tiled over the destination when it holds them, else one at its corner."""
     corner = destination.first
-    # Each way on its own: A1:B1 copied to H1:H3 fills H1:I3 (tests/fixtures/excel_fits.json).
-    height = corner.rows if corner.rows % made.rows == 0 else made.rows
-    width = corner.columns if corner.columns % made.columns == 0 else made.columns
+    height, width = tiled_size(corner.rows, corner.columns, made.rows, made.columns)
     return Area(corner.top, corner.left, min(corner.top + height - 1, MAX_ROWS),
                 min(corner.left + width - 1, MAX_COLUMNS), destination.sheet.name)
 
@@ -398,8 +404,7 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         return True
     rows, columns = (made.columns, made.rows) if turned else (made.rows, made.columns)
     corner = target.first
-    height = corner.rows if corner.rows % rows == 0 else rows
-    width = corner.columns if corner.columns % columns == 0 else columns
+    height, width = tiled_size(corner.rows, corner.columns, rows, columns)
     if corner.top + height - 1 > MAX_ROWS or corner.left + width - 1 > MAX_COLUMNS:
         raise error(1004, "The paste would run past the edge of the worksheet")
     sheet = target.sheet

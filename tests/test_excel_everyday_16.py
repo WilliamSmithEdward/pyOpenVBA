@@ -28,7 +28,7 @@ def test_an_everyday_macro(probe: dict[str, Any], binding: str) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     # Each run has its own temporary files, as tests run side by side.
-    app.add_module(probe[f'{binding}_macro'].replace('sweep16', f'sweep16{binding}'), name='H')
+    app.add_module(probe[f'{binding}_macro'].replace('sweep16', f'sweep16{binding}').replace('SWEEP16', f'SWEEP16{binding.upper()}'), name='H')
     found = str(app.run('H.Probe')).replace(f'sweep16{binding}', 'sweep16').split(SEPARATOR)
     wanted = str(probe[binding]).split(SEPARATOR)
     assert len(found) == len(wanted)

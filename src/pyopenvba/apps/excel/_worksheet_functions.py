@@ -61,7 +61,7 @@ if TYPE_CHECKING:
 #: Declared String, yet they take a range of several cells, typed too (tests/fixtures/worksheet_function_types.json): the
 #: places of the texts each joins, and TextJoin's delimiter.
 _NOT_CONVERTED: Final = {"textjoin": (0, 2), "concat": (0,)}
-#: Functions that refuse a range of separate areas, measured (the held-out cases of tests/fixtures/worksheet_function_types.json).
+#: Functions that refuse a range of separate areas, measured (tests/fixtures/worksheet_function_heldout.json has the areas kind).
 _ONE_AREA: Final = frozenset({"ftest", "f_test", "arraytotext"})
 #: A Null where a function needs a value: a blank cell's value.
 BLANK: Final = object()
@@ -177,7 +177,7 @@ def _typed(value: object, declared: str) -> object:
         raise error(91)
     if isinstance(value, Range):
         # Its value, as VBA reads it: several cells of one area are an array, and of several areas the first area's
-        # (the held-out cases of tests/fixtures/worksheet_function_types.json).
+        # (tests/fixtures/worksheet_function_heldout.json).
         first = value.areas[0]
         if first.rows * first.columns > 1:
             raise error(13)
@@ -312,7 +312,7 @@ def _given_item(value: object) -> Scalar:
         return scalar(value)
     if isinstance(value, VBACurrency):
         # A Currency reaches Excel as its text, in the currency format: $4.00 with a space after it, ($4.00) below nothing,
-        # to the nearest cent, half away from nothing (the held-out cases of tests/fixtures/worksheet_function_types.json).
+        # to the nearest cent, half away from nothing (tests/fixtures/worksheet_function_heldout.json).
         cents = abs(Decimal(value)).quantize(Decimal("0.01"), ROUND_HALF_UP)
         return f"(${cents:,.2f})" if value < 0 else f"${cents:,.2f} "
     if isinstance(value, VBADate):

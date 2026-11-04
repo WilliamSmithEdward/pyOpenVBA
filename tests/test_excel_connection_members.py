@@ -37,7 +37,7 @@ def _run(index: int, folder: Path) -> str:
 def _masked(text: str) -> str:
     """Who made a scenario, and when, and where this machine's documents are."""
     text = re.sub(r'Created by .*? on \d+/\d+/\d{4}', 'Created', text)
-    return re.sub(r"find [^ ]*\\Documents\\", 'find <documents>\\\\', text)
+    return re.sub(r"find [^ ]*[\\/]Documents[\\/]", 'find <documents>\\\\', text)
 
 
 @pytest.mark.parametrize('index', KEPT, ids=[NAMES[index] for index in KEPT])

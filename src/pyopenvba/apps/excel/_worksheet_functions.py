@@ -120,6 +120,14 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
                        for place in _SWITCHES.get(name.lower(), ()) if place < len(values)):
         # A cell of text where a switch goes fails item by item, so the answer is an array holding the error.
         return answer(Array([[CellError("#VALUE!")]]))
+    if raising and name.lower() == "yearfrac":
+        lifted = next((value for value in values if isinstance(value, VBAArray)), None)
+        if lifted is not None:
+            # With an array among them a refusal is each item's error: Null is #N/A, cells #VALUE!, and a logical is read.
+            failed = "#N/A" if any(value is NULL for value in values) else "#VALUE!" if any(isinstance(value, Range) and not value.single for value in values) else None
+            if failed is not None:
+                return answer(Array([[CellError(failed) for _ in lifted.items]]))
+            values = [float(value) if isinstance(value, bool) else value for value in values]
     if raising:
         values = _as_excel_reads(name, values, entry.minimum, late=late)
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
@@ -160,8 +168,12 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
 
 def _array_of_one(context: Context, found: Value, given: object, name: str, *, books_of: Application, late: bool) -> object:
     """Sort and its kin answer an array even for one item, and hand back a whole number that fits an Integer as a Long."""
+    from pyopenvba.apps.excel._model import Range
+
     if isinstance(found, Reference) and found.area is not None and found.area.is_cell:
         found = context.book.cell(found.area.sheet, found.area.top, found.area.left)
+    if isinstance(found, Array) and found.height == found.width == 1 and not isinstance(given, (Range, VBAArray)):
+        found = found.rows[0][0]
     if isinstance(found, (Array, Reference, CellError)):
         return _returned(context, found, name, raising=True, books_of=books_of, late=late)
     if isinstance(given, VBAInt) and -32768 <= int(given) <= 32767:
@@ -286,6 +298,8 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
     # Left out at the end, it is no argument at all: Count(1, Null) is 1.
     while found and found[-1] is MISSING:
         found.pop()
+    if name.lower() == "unique" and len(found) == 1 and values[0] is NULL:
+        raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     return found
 
 

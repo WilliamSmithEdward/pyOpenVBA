@@ -492,8 +492,8 @@ def _numeric(section: _Section, value: float, signed: bool, *, epoch_1904: bool 
         shown = _GENERAL + general_text(value if signed else abs(value)) + _GENERAL
         return "".join(shown if item.kind == "general" else _literal(item) for item in section.items)
     if not section.has("digit", "point"):
-        # Text alone, 2 or 1-5, keeps its sign (tests/fixtures/digit_formats.json).
-        return ("-" if signed and value < 0 else "") + "".join(item.text if item.kind == "exponent" else _literal(item)
+        # Text alone, 2 or 1-5, keeps its sign, unless a condition chose it (tests/fixtures/digit_formats.json).
+        return ("-" if signed and value < 0 and section.condition is None else "") + "".join(item.text if item.kind == "exponent" else _literal(item)
                                                                for item in section.items)
     if section.has("exponent"):
         exponent = next(index for index, item in enumerate(section.items) if item.kind == "exponent")

@@ -1265,7 +1265,8 @@ def _free_geometry(shape: Shape) -> str:
 
 def _connections(shape: Shape) -> str:
     """A connector's cNvCxnSpPr, naming the shape and site each connected end holds (tests/fixtures/shape_connectors.json)."""
-    inside = "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
+    inside = "<a:cxnSpLocks/>" if shape.link_lost else ""
+    inside += "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
     inside += "" if shape.end_link is None else f'<a:endCxn id="{shape.end_link.target}" idx="{shape.end_link.site - 1}"/>'
     return f"<xdr:cNvCxnSpPr>{inside}</xdr:cNvCxnSpPr>" if inside else "<xdr:cNvCxnSpPr/>"
 

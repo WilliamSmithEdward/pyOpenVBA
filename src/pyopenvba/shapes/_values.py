@@ -510,6 +510,8 @@ class Shape:
     begin_link: ConnectorLink | None = None
     end_link: ConnectorLink | None = None
     link_place: tuple[float, float, bool, bool, float] | None = None
+    #: Excel: a connector that lost a shape to its deletion writes an empty cxnSpLocks.
+    link_lost: bool = False
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
     flip_h: bool = False
     flip_v: bool = False

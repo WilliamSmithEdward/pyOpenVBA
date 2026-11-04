@@ -128,6 +128,7 @@ def follow(sheet: Worksheet) -> None:
         for link in (line.begin_link, line.end_link):
             target = None if link is None else _target(sheet, link)
             if link is None or target is None or target.geometry != link.geometry:
+                line.link_lost = line.link_lost or (link is not None and target is None)
                 current.append(None)
                 continue
             fresh = _link(target, link.site)

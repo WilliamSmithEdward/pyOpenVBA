@@ -1220,10 +1220,10 @@ def _fill_line(shape: Shape) -> str:
     if look.fill_gradient is not None:
         fill_paint = _gradient(look.fill_gradient)
     fill = ""
-    if look.fill_bare and not look.fill_hidden and shape.kind == "picture":
-        fill = ""
-    elif look.fill_hidden or look.fill_bare:
+    if look.fill_hidden or (look.fill_bare and shape.kind != "picture"):
         fill = "<a:noFill/>"
+    elif look.fill_bare:
+        pass  # A picture with no fill of its own stays without one (tests/fixtures/shape_settings_kept.json).
     elif look.fill_pattern is not None or look.fill_gradient is not None:
         fill = fill_paint
     elif (look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box

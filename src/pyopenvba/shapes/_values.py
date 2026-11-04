@@ -436,6 +436,8 @@ class Shape:
     #: Where the shape's markup was, so an untouched one is written
     #: back exactly as it came in.
     source: str = ""
+    #: Where a load placed it, to tell whether it has moved since.
+    loaded_box: tuple[float, float, float, float] | None = None
     #: The hlinkClick its name carries in a file: its relationship, tip and place; a load makes the first the address.
     link: tuple[str, str, str] | None = None
     #: Where in the part that markup started.

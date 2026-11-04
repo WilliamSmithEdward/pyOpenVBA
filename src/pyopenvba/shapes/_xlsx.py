@@ -238,6 +238,7 @@ def _shape_of(
         source=anchor,
         auto_shape_type=next((number for number, preset in PRESET_GEOMETRY.items() if preset == geometry), 1),
     )
+    shape.loaded_box = (left, top, width, height)
     if kind == "group":
         shape.children = _members(markup, grid)
         _placed_in_group(shape.children, _CHILD_SPACE.search(markup), (left, top, width, height))
@@ -1486,7 +1487,12 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
 def _shape_of_source(shape: Shape) -> Shape | None:
     """What the markup this shape came from says about it."""
     read = read_drawing(f"<xdr:wsDr>{shape.source}</xdr:wsDr>")
-    return read[0] if read else None
+    if not read:
+        return None
+    if shape.loaded_box is not None:
+        # Where the load put it, by its anchor; the markup alone, with no grid, has only its transform.
+        read[0].left, read[0].top, read[0].width, read[0].height = shape.loaded_box
+    return read[0]
 
 
 def _moved(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None = None) -> str:

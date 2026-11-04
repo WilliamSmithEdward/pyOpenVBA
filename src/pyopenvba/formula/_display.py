@@ -49,6 +49,7 @@ from decimal import ROUND_HALF_UP, Decimal, localcontext
 from fractions import Fraction
 from functools import lru_cache
 
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._locale import EN_US, JA_JP, Locale, era_of
 
 
@@ -490,9 +491,14 @@ def _numeric(section: _Section, value: float, signed: bool, *, epoch_1904: bool 
     if section.has("general"):
         shown = _GENERAL + general_text(value if signed else abs(value)) + _GENERAL
         return "".join(shown if item.kind == "general" else _literal(item) for item in section.items)
-    if not section.has("digit"):
-        return "".join(_literal(item) for item in section.items)
+    if not section.has("digit", "point"):
+        # Text alone, 2 or 1-5, keeps its sign (tests/fixtures/digit_formats.json).
+        return ("-" if signed and value < 0 else "") + "".join(item.text if item.kind == "exponent" else _literal(item)
+                                                               for item in section.items)
     if section.has("exponent"):
+        exponent = next(index for index, item in enumerate(section.items) if item.kind == "exponent")
+        if not any(item.kind == "digit" for item in section.items[:exponent]) and section.has("digit"):
+            raise VBAUnsupportedError("a number format with only text before its exponent, as 1E+0, is not implemented")
         text, zero = _scientific(section.items, abs(value))
     elif _slash(section.items) is not None:
         text, zero = _fraction(section.items, abs(value))
@@ -553,8 +559,10 @@ def _places(items: list[_Item], places: list[int], fraction: str) -> dict[int, s
 
 
 def _decimal(items: list[_Item], value: float) -> tuple[str, bool]:
-    """A number through digit placeholders: the text, and whether it rounded to nothing."""
-    digits = [index for index, item in enumerate(items) if item.kind == "digit"]
+    """A number through digit placeholders: the text, and whether it rounded to nothing. A digit from 1 to 9 is text,
+    and a point with no placeholder has the number straight before it, as 7 under 1.5 shows 17.5
+    (tests/fixtures/digit_formats.json)."""
+    digits = [index for index, item in enumerate(items) if item.kind == "digit"] or [len(items)]
     point = next((index for index, item in enumerate(items) if item.kind == "point"), len(items))
     grouped, scale, percent = False, 0, 0
     kept: list[_Item] = []

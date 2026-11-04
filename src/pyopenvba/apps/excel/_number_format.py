@@ -235,12 +235,14 @@ def _section_refused(kind: str, pieces: list[tuple[str, str]]) -> bool:
         return True
     if any(part == "bracket" and not _known_bracket(text) for part, text in pieces):
         return True
-    digits = [at for at, (part, text) in enumerate(pieces) if part == "syntax" and text in "0#?"]
+    # A digit from 1 to 9 is text, but counts as a digit here (tests/fixtures/digit_formats.json).
+    digits = [at for at, (part, text) in enumerate(pieces) if (part == "syntax" and text in "0#?") or (part in ("syntax", "literal") and text in tuple("123456789"))]
+    placeholders = [at for at, (part, text) in enumerate(pieces) if part == "syntax" and text in "0#?"]
     exponents = [at for at, (part, _) in enumerate(pieces) if part == "exponent"]
     if exponents and (kind != "number" or len(exponents) > 1 or pieces[exponents[0]][1][0] == "e"
                       or not digits or digits[0] > exponents[0] or digits[-1] < exponents[0]):
         return True
-    if any(part == "general" for part, _ in pieces) and (kind == "text" or digits):
+    if any(part == "general" for part, _ in pieces) and (kind == "text" or placeholders):
         return True
     if kind == "text":
         # Nor a condition: [>5]@ is refused (tests/fixtures/text_cells.json).
@@ -329,7 +331,7 @@ def normalized(code: str, *, strict: bool = True) -> str:
 def _spelled(pieces: list[tuple[str, str]]) -> str:
     """A section's pieces as NumberFormat spells them."""
     # Whether the section has a digit placeholder, which an escaped dot needs to stay escaped.
-    digits = any(kind == "syntax" and text in "0#?" for kind, text in pieces)
+    digits = any((kind == "syntax" and text in "0#?") or (kind in ("syntax", "literal") and text in tuple("123456789")) for kind, text in pieces)
     out: list[str] = []
     previous = ""
     index = 0
@@ -346,6 +348,10 @@ def _spelled(pieces: list[tuple[str, str]]) -> str:
             previous = letter
         elif kind == "syntax":
             out.append(text)
+        elif kind == "literal" and text == "," and after in tuple("123456789"):
+            # A comma after a digit is a thousands separator: 1,000 reads 1#,000, and 1,5 with no placeholder 15
+            # (tests/fixtures/digit_formats.json).
+            out.append("#," if any(part == "syntax" and one in "0#?" for part, one in pieces[index:]) else "")
         elif kind == "literal":
             out.append("\\" + text if _folded(text) in _KEPT_ESCAPED else text)
         elif kind == "currency":

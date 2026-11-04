@@ -2795,11 +2795,6 @@ class Workbook(ExcelObject):
                                                                               re.I) for line in source.splitlines())
                    for kind, source in sources)
 
-    @method
-    def Calculate(self) -> object:
-        _events.calculated_all(self, self.calculator.calculate_all(asked=True))
-        return EMPTY
-
     @member
     def CalculationVersion(self) -> object:
         """The version of the calculation engine that last worked the workbook out in full: Excel's own, or the

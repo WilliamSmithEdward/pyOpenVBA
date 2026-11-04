@@ -14,6 +14,7 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._hidden_names import names_in
 from pyopenvba.apps.excel._io import WorkbookFileError
+from pyopenvba.integrity import xml_problem
 
 HERE = Path(__file__).parent / "fixtures"
 NAMES: dict[str, Any] = json.loads((HERE / "xlfn_names.json").read_text(encoding="utf-8"))
@@ -76,6 +77,30 @@ def test_a_part_that_is_not_xml_is_what_excel_makes_of_it(row: dict[str, str], t
     assert answer.split("|")[0] == number
     if number != "0":
         assert answer.split("|")[1].replace(file.name, "") == re.sub(r"'[^']*\.xlsx'", "''", text) or answer.split("|")[1].startswith(text[:30])
+
+
+DOCTYPES: dict[str, str] = json.loads((HERE / "bad_xml/doctype.json").read_text(encoding="utf-8"))
+_LAUGHS = b'<!DOCTYPE root [<!ENTITY a "x">' + b"".join(b'<!ENTITY a%d "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">' % n for n in range(20)) + b"]>"
+
+
+@pytest.mark.parametrize("case", sorted(DOCTYPES))
+def test_a_part_with_a_doctype_is_refused_as_excel_refuses_it(case: str, tmp_path: Path) -> None:
+    part, _, how = case.partition("|")
+    file = tmp_path / "doctype.xlsx"
+    doctype = b"<!DOCTYPE root>" if how == "plain" else b'<!DOCTYPE root [<!ENTITY e "x">]>'
+    with zipfile.ZipFile(HERE / "bad_xml/base.xlsx") as given, zipfile.ZipFile(file, "w", zipfile.ZIP_DEFLATED) as made:
+        for name in given.namelist():
+            data = given.read(name)
+            if name == part:
+                at = data.find(b"?>") + 2 if data.lstrip().startswith(b"<?xml") else 0
+                data = data[:at] + doctype + data[at:]
+            made.writestr(name, data)
+    assert str(_run(OPEN, "Tried", file.as_posix())).split("|")[0] == DOCTYPES[case]
+
+
+def test_entities_are_never_expanded_at_open() -> None:
+    assert xml_problem(_LAUGHS + b"<root>&a19;</root>") is not None
+    assert xml_problem(b"<root/>") is None
 
 
 def test_python_is_told_a_part_is_not_xml(tmp_path: Path) -> None:

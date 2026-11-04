@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import posixpath
 import re
-from xml.parsers import expat
 from collections.abc import Callable, Collection
 from functools import lru_cache
 from pathlib import Path
@@ -30,6 +29,7 @@ from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
 from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _encode_string
+from pyopenvba.integrity import xml_problem
 from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
@@ -130,11 +130,9 @@ def _refuse_malformed(package: OpcFile) -> None:
     for part in package.names():
         if not part.endswith((".xml", ".rels")) or re.fullmatch(r"xl/theme/theme\d+\.xml", part):
             continue
-        parser = expat.ParserCreate()
-        try:
-            parser.Parse(package.read(part), True)
-        except expat.ExpatError as failure:
-            raise MalformedPartError(part, str(failure)) from None
+        problem = xml_problem(package.read(part))
+        if problem is not None:
+            raise MalformedPartError(part, problem)
 
 
 def load_workbook(application: Application, path: Path) -> Workbook:

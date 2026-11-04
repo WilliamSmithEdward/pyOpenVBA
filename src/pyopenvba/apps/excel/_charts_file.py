@@ -271,7 +271,8 @@ def read_chart(xml: str, part: str) -> ChartState:
         result.title, result.title_typed = typed if rich else 'Chart Title', rich
         result.title_look = read_look(title, NS)
     deleted = root.find('c:chart/c:autoTitleDeleted', NS)
-    result.title_deleted = title is None and deleted is not None and deleted.get('val', '1') in ('1', 'true')
+    # A chart without the flag has had its title deleted, as Excel takes it (tests/fixtures/chart_loaded_title.json).
+    result.title_deleted = title is None and (deleted is None or deleted.get('val', '1') in ('1', 'true'))
     legend = root.find('c:chart/c:legend', NS)
     result.legend = legend is not None
     if legend is not None:

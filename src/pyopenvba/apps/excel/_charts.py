@@ -266,13 +266,18 @@ class ChartState:
         return len(self.series) == 1 or CHART_TYPES.get(shown_type(self)) == 'pie'
 
     def holds_automatic_title(self, sheet: Worksheet) -> None:
-        """The automatic title made real, which a chart has only once it is read, activated or moved
-        (tests/fixtures/chart_location.json)."""
+        """The automatic title made real, which a chart has only once it is read, activated or moved. A loaded chart's part gains
+        the title and nothing else, as Excel's save has it (tests/fixtures/chart_location.json, chart_loaded_title.json)."""
         if self.title is not None or self.title_deleted or not self.has_automatic_title():
             return
         if self.original:
-            raise VBAUnsupportedError('Activating an imported chart that is due its automatic title is not implemented')
-        self.title, self.dirty = 'Chart Title', True
+            self.original, count = re.subn(r'<((?:\w+:)?)autoTitleDeleted\b', r'<\1title><\1overlay val="0"/></\1title>\g<0>', self.original, count=1)
+            if not count:
+                raise VBAUnsupportedError('Adding the automatic title to this imported chart is not implemented')
+            self.title = ''
+        else:
+            self.title = 'Chart Title'
+        self.dirty = True
         sheet.drawing_changed()
 
     def names_lost(self) -> bool:
@@ -1723,7 +1728,10 @@ class ChartObject(HeldPart):
         if not any(shape is self.shape for shape in self.sheet.shapes_):
             raise VBAUnsupportedError('Activating a deleted chart is not implemented')
         self.sheet.active_chart, self.sheet.chart_part = self.shape, part
-        self.sheet.chart_states[self.shape.shape_id].holds_automatic_title(self.sheet)
+        state = self.sheet.chart_states[self.shape.shape_id]
+        # Selecting part of a loaded chart does not earn its title (tests/fixtures/chart_loaded_title.json).
+        if not part or not state.original:
+            state.holds_automatic_title(self.sheet)
 
     @member
     def ZOrder(self) -> object:
@@ -2655,8 +2663,9 @@ class Chart(ElementProperties, HeldPart):
             if self.state.title_deleted or not self.state.has_automatic_title():
                 raise error(-2147024809, 'The parameter is incorrect.')
             # Excel gives the chart its automatic title on the way to the object.
-            self.changed()
-            self.state.title = 'Chart Title'
+            if not self.state.original:
+                self.changed()
+            self.state.holds_automatic_title(self.sheet)
         return ChartTitle(self)
 
     @member

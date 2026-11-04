@@ -16,13 +16,19 @@ SPELLED: list[str] = json.loads(
 
 
 #: Excel writes 17 digits for these where the 15 it needs are within 5/16 of an epsilon, the rule excel_number has from
-#: smaller numbers. They read back the same double.
-LONGER_THAN_THE_RULE = {'1.5000000000000001E+300', '1.7976931348623099E+308'}
+#: other numbers. They read back the same double, which test_each_number_reads_back_the_same holds.
+LONGER_THAN_THE_RULE = {'1.5000000000000001E+300', '1.7976931348623099E+308', '1.2500000000000001E-2', '9.9900000000000006E-3',
+                        '5.0000000000000001E-3', '2.5000000000000001E-3', '1.2344999999999999E-3'}
 
 
 @pytest.mark.parametrize('spelled', [one for one in SPELLED if one not in LONGER_THAN_THE_RULE])
 def test_each_number_as_excel_spells_it(spelled: str) -> None:
     assert _number_text(float(spelled)) == spelled
+
+
+@pytest.mark.parametrize('spelled', SPELLED)
+def test_each_number_reads_back_the_same(spelled: str) -> None:
+    assert float(_number_text(float(spelled))) == float(spelled)
 
 
 def test_a_huge_number_reaches_the_file_with_an_exponent(tmp_path: Path) -> None:

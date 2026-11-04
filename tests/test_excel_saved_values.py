@@ -44,17 +44,6 @@ def _sheet_parts(package: zipfile.ZipFile) -> dict[str, str]:
     return out
 
 
-def _same(excel: str, model: str) -> bool:
-    """Two values as a file holds them: the same t, f attributes and value, a number by what it is worth, since the
-    model spells some numbers with fewer digits than Excel does, 0.3333333333333333 for 0.33333333333333331."""
-    one, two = excel.split("|"), model.split("|")
-    if one[0] != two[0] or one[2] != two[2]:
-        return False
-    if one[0]:
-        return one[1] == two[1]
-    return (one[1] == two[1]) or (bool(one[1]) and bool(two[1]) and float(one[1]) == float(two[1]))
-
-
 @pytest.mark.parametrize("name", [name for name in SAVED if "excel_reads" in SAVED[name]])
 def test_excel_reads_the_models_save_as_its_own(name: str) -> None:
     """On opening, and after a value changes."""
@@ -80,7 +69,7 @@ def test_the_file_holds_what_excels_file_holds(name: str) -> None:
             if sheet == "Vol" and reference == "F1" and name == "insert a row":
                 # A formula reading a volatile one: Excel marks it ca="1", and a sheet the model rewrites does not.
                 continue
-            assert _same(held, model[sheet][reference]), (sheet, reference, held, model[sheet][reference])
+            assert held == model[sheet][reference], (sheet, reference)
 
 
 @pytest.mark.parametrize("name", list(SAVED))
@@ -203,7 +192,7 @@ def test_saves_one_after_another_write_what_excel_writes(name: str, tmp_path: Pa
         assert set(cells) == set(model[sheet]), sheet
         for reference, held in cells.items():
             if not (sheet == "Vol" and reference in VOLATILE):
-                assert _same(held, model[sheet][reference]), (sheet, reference, held, model[sheet][reference])
+                assert held == model[sheet][reference], (sheet, reference)
 
 
 def test_a_save_that_fails_midway_loses_no_value(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

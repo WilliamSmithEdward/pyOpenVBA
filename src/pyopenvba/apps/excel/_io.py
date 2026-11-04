@@ -2627,9 +2627,25 @@ def _value_body(value: object) -> tuple[str, str]:
 
 
 def _number_text(value: float) -> str:
-    if isinstance(value, int) or float(value).is_integer():
+    """A number as Excel saves it (tests/fixtures/saved_numbers.json): a whole number in digits below 1E+16; else 15 or 17
+    significant digits, with an E and no padding from 1E+16 up and below 0.1, unless plain digits are no longer. Excel
+    refuses a file with a huge number in plain digits."""
+    from pyopenvba.apps.excel._styles import excel_number
+
+    if (isinstance(value, int) or float(value).is_integer()) and abs(value) < 1e16:
         return str(int(value))
-    return repr(float(value))
+    number = float(value)
+    spelled = excel_number(number)
+    digits = len(spelled.partition("e")[0].lstrip("-0.").replace(".", ""))
+    mantissa, _, power = f"{number:.{digits - 1}e}".partition("e")
+    with_power = f"{mantissa}E{int(power):+d}"
+    size = abs(number)
+    if size >= 1e16:
+        return with_power
+    plain = spelled if "e" not in spelled else f"{number:.{max(0, digits - 1 - int(power))}f}"
+    if size < 0.1 and (digits > 15 or len(with_power) < len(plain)):
+        return with_power
+    return plain
 
 
 def _write_styles(book: Workbook, package: OpcFile) -> None:

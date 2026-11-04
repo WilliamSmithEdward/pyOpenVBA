@@ -2297,7 +2297,7 @@ ListObjects,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/
 ListObjects,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListObjects,Item,"property, read-only",As ListObject,,VERIFIED,tests/fixtures/tables/tables.json,"By position or by name, error 9 for neither."
 ListObjects,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
-ListRow,Application,"property, read-only",As Application,,MISSING,,
+ListRow,Application,"property, read-only",As Application,,UNASSESSED,,
 ListRow,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListRow,Delete,method,Delete(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"The row's cells deleted, those under them moving up; deleting the only row of data reports itself."
 ListRow,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,

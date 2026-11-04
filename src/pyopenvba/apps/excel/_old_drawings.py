@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
-from pyopenvba.apps.excel._held_shapes import ShapePart
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._old_controls import OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, TextFrame, _image_points  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -45,7 +45,7 @@ def _colour_index(drawing: OldDrawing, colour: int) -> VBAInt:
     return VBAInt(palette.index(wanted) + 1, 'Long')
 
 
-class _Paint(ShapePart):
+class _Paint(HeldPart):
     """A drawing's Interior or Border, in terms of its shape's Fill or Line."""
 
     vba_type_name = ''
@@ -321,7 +321,7 @@ class _Texted(_Filled):
         raise VBAUnsupportedError("Linking a drawing's text to a cell is not implemented")
 
 
-class _Shadowed(ShapePart):
+class _Shadowed(HeldPart):
     """Shadow as a Boolean, on those that have it."""
 
     vba_type_name = ''
@@ -337,7 +337,7 @@ class _Shadowed(ShapePart):
         _object(getattr(self, 'drawn').vba_get('Shadow', [])).vba_set('Visible', VBAInt(-1, 'Long'))
 
 
-class _Cornered(ShapePart):
+class _Cornered(HeldPart):
     """RoundedCorners, which only reads here: setting it renames a rectangle, by a rule measured once."""
 
     vba_type_name = ''

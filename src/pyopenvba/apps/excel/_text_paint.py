@@ -7,7 +7,7 @@ from collections.abc import Callable
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
-from pyopenvba.apps.excel._held_shapes import ShapePart
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._shape_format import _THEME_SLOT, SCHEMES, _lum, _scheme_number, _tint, painted  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, method, setter
@@ -59,7 +59,7 @@ def _opacity(value: object) -> int | None:
     return None if wanted == 0 else round((1 - wanted) * 100000)
 
 
-class _Paint(ShapePart):
+class _Paint(HeldPart):
     """Of a Font2's letters."""
 
     vba_type_name = ""

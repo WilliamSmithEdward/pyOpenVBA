@@ -33,6 +33,7 @@ from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._clipboard_ends import ENDING
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
@@ -111,8 +112,11 @@ class ExcelObject(Created):
             raise error(424, "Object required")
 
     def vba_member(self, name: str) -> MemberSpec | None:
-        self._check_alive()
-        return super().vba_member(name)
+        # A member it never had raises 438 even once it has gone (tests/fixtures/held_objects.json).
+        spec = super().vba_member(name)
+        if spec is not None:
+            self._check_alive()
+        return spec
 
     def vba_default_member(self) -> MemberSpec | None:
         self._check_alive()
@@ -3229,7 +3233,7 @@ class Worksheet(ExcelObject):
         self.drawing_part = ""
         self.drawing_xml = ""
         self.drawing_dirty = False
-        #: The ids of the shapes on the sheet, within groups too, until the drawing next changes (see _held_shapes).
+        #: The ids of the shapes on the sheet, within groups too, until the drawing next changes (see _held).
         self.live_shapes: set[int] | None = None
         #: The notes on the sheet's cells, which VBA calls comments, by cell in the order they were made (see
         #: _notes); True once one is added, changed, moved or removed, so a save writes them again.
@@ -5867,6 +5871,7 @@ class Range(ExcelObject):
             # On a protected sheet Clear clears the contents alone, as ClearContents would.
             return self.ClearContents()
         _arrays.clear_admitted(target)
+        self._taking_whole_objects()
         clear_formats(target)
         target._clear_contents()
         header_cleared(target)
@@ -6090,6 +6095,22 @@ class Range(ExcelObject):
         print_out(self.sheet.book, self.sheet, Preview, ActivePrinter, PrintToFile)
         return EMPTY
 
+    def _within(self, area: Area) -> bool:
+        return any(one.top <= area.top and one.left <= area.left and one.bottom >= area.bottom and one.right >= area.right for one in self.areas)
+
+    def _taking_whole_objects(self) -> None:
+        """Clearing or deleting all of a table's or a pivot table's cells takes the table too, however a macro holds it
+        (tests/fixtures/held_objects.json)."""
+        from pyopenvba.apps.excel._table_edits import delete_table
+
+        for table in list(self.sheet.tables):
+            if self._within(table.area):
+                delete_table(table)
+        for pivot in list(self.sheet.pivot_tables):
+            cells = pivot.vba_get('TableRange2')
+            if isinstance(cells, Range) and self._within(cells.first):
+                self.sheet.pivot_tables.remove(pivot)
+
     @method
     def Delete(self, Shift: object = MISSING) -> object:
         """Delete, which pulls the cells below or to the right up or left.
@@ -6105,6 +6126,7 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._visible import filtering
 
         check_delete(self)
+        self._taking_whole_objects()
         where = self.place_now()
         # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
         self.sheet.book.application.clipboard = None
@@ -7354,13 +7376,16 @@ class Names(VBACollection, ItemDefault, ExcelObject):
         return DefinedName(entry)
 
 
-class DefinedName(ExcelObject):
+class DefinedName(HeldPart, ExcelObject):
     """One defined name."""
 
     vba_type_name = "Name"
 
     def __init__(self, entry: NameEntry) -> None:
         self.entry = entry
+
+    def held_gone(self) -> bool:
+        return not any(one is self.entry for one in self.entry.book.names_.entries)
 
     @member
     def Name(self) -> object:
@@ -7593,7 +7618,10 @@ class DefinedName(ExcelObject):
             if area is None:
                 raise error(1004, f"{self.entry.name} does not refer to a range") from None
             areas = [area]
-        sheet = book.sheet_named(areas[0].sheet) if areas[0].sheet else book.active_sheet
+        try:
+            sheet = book.sheet_named(areas[0].sheet) if areas[0].sheet else book.active_sheet
+        except VBARuntimeError:
+            sheet = None
         if sheet is None:
             raise error(1004, f"{self.entry.name} refers to a sheet that is not there")
         return Range(sheet, areas)
@@ -7981,20 +8009,25 @@ def stored_value(value: object) -> object:
 
 
 class GoneRange(Range):
-    """A Range whose cells have gone: it still knows what it is and answers nothing else
-    (tests/fixtures/range_tracking.json)."""
+    """A Range whose cells have gone: it still knows what it is and answers nothing else, though a member it never had still raises 438
+    (tests/fixtures/range_tracking.json, tests/fixtures/held_objects.json)."""
 
     vba_type_name = "Range"
 
     def vba_value(self) -> object:
         raise error(1004, "Application-defined or object-defined error")
 
+    def _gone(self, name: str) -> VBARuntimeError:
+        if type(self).vba_member(self, name) is None:
+            return error(438, "Object doesn't support this property or method")
+        return error(424, "Object required")
+
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        raise error(424, "Object required")
+        raise self._gone(name)
 
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
                 *, by_ref: object = None) -> None:
-        raise error(424, "Object required")
+        raise self._gone(name)
 
     def vba_call(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        raise error(424, "Object required")
+        raise self._gone(name)

@@ -29,7 +29,7 @@ from pyopenvba.apps.excel._conditional_predicates import (
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._xstring import decode, encode_text
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.interpreter._objects import VBACollection, member, method, setter
+from pyopenvba.interpreter._objects import MemberSpec, VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
@@ -58,6 +58,8 @@ class Rule:
     container: XmlElement | None = field(default=None, repr=False)
     dxf: XmlElement | None = field(default=None, repr=False)
     deleted: bool = False
+    #: Deleting its cells took it, which leaves a held rule nothing to answer, where Clear or Delete leave it (tests/fixtures/held_objects.json).
+    cells_went: bool = False
     imported: bool = False
     color_slot: int | None = None
     loaded: bool = False
@@ -699,6 +701,13 @@ class RuleObject(ExcelObject):
     def __init__(self, sheet: Worksheet, rule: Rule) -> None:
         self.sheet, self.rule = sheet, rule
 
+    def vba_member(self, name: str) -> MemberSpec | None:
+        """Taken off the sheet, a rule still answers for what it was; with its cells gone too, nothing (tests/fixtures/held_objects.json)."""
+        spec = super().vba_member(name)
+        if spec is not None and self.rule.cells_went:
+            raise error(424, 'Object required')
+        return spec
+
     @member
     def Application(self) -> object:
         return self.sheet.book.application
@@ -774,7 +783,8 @@ class RuleObject(ExcelObject):
     def Delete(self) -> object:
         guard(self.sheet)
         if self.rule not in self.sheet.conditional_formats:
-            raise error(1004)
+            # tests/fixtures/held_objects.json
+            raise error(-2147417848, 'Automation error')
         if self.through is not None and subtracted(self.rule.areas, self.through):
             # Reached through a range holding part of the rule, Delete takes that part out of it, as the
             # collection's Delete does, the rule keeping its priority and its dxf
@@ -879,6 +889,9 @@ class _ConditionalRule(RuleObject):
         return self.rule.dxf
 
     def _style_changed(self) -> None:
+        if self.rule not in self.sheet.conditional_formats:
+            # tests/fixtures/held_objects.json
+            raise error(-2147417848, 'Automation error')
         # Each format given a rule is a dxf of its own, as Excel makes one (tests/fixtures/dxf_table/).
         self.rule.root.set('dxfId', str(self.sheet.book.stylesheet.add_dxf(self._dxf())))
         changed(self.sheet)
@@ -1047,6 +1060,9 @@ class FormatCondition(_ConditionalRule):
     def Modify(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
                Formula2: object = MISSING, String: object = MISSING, Operator2: object = MISSING) -> object:
         guard(self.sheet)
+        if self.rule not in self.sheet.conditional_formats:
+            # tests/fixtures/held_objects.json
+            raise error(-2147417848, 'Automation error')
         if Type is MISSING:
             raise error(450)
         kind = int(to_integer(Type, 'Long'))

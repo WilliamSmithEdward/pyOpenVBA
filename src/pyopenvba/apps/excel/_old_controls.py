@@ -12,7 +12,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from pyopenvba.apps.excel._creator import Created
-from pyopenvba.apps.excel._held_shapes import ShapePart, shape_here
+from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.apps.excel._shapes import ShapeObject
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -32,7 +32,7 @@ def _object(value: object) -> VBAObject:
     return cast(VBAObject, value)
 
 
-class OldObject(ShapePart):
+class OldObject(HeldPart):
     """A shape under its old name, a form control's or a drawing's (see _old_drawings). Held after the shape has gone, it answers
     only what needs no shape (tests/fixtures/shape_held_deleted.json, tests/fixtures/old_drawings.json)."""
 

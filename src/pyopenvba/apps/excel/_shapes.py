@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, ClassVar, cast
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
-from pyopenvba.apps.excel._held_shapes import ShapePart, shape_here
+from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -105,7 +105,7 @@ ERR_NO_SUCH_SHAPE = -2147024809
 PLACEMENTS = ("", "oneCell", "absolute")
 
 
-class _Drawn(ShapePart):
+class _Drawn(HeldPart):
     """A shape or a part of one, which a sheet protecting its drawing objects keeps a macro from changing."""
 
     sheet: Worksheet
@@ -118,7 +118,7 @@ class _Drawn(ShapePart):
         super().vba_set(name, value, args, named, by_ref=by_ref)
 
 
-class Shapes(VBACollection, ItemDefault, Created):
+class Shapes(VBACollection, ItemDefault, HeldPart):
     """The shapes on one worksheet."""
 
     vba_type_name = "Shapes"
@@ -521,7 +521,7 @@ class Shapes(VBACollection, ItemDefault, Created):
         return max((one.shape_id for one in drawn if one.kind != "formControl"), default=1) + 1
 
 
-class ShapeRange(VBACollection, ShapePart):
+class ShapeRange(VBACollection, HeldPart):
     """Several shapes answered as one, which is what Range gives back."""
 
     vba_type_name = "ShapeRange"
@@ -1864,7 +1864,7 @@ def _adjustable(owner: ShapeObject) -> tuple[tuple[str, int, bool], ...]:
     return ADJUSTMENTS.get(shape.geometry, ())
 
 
-class Adjustments(ShapePart):
+class Adjustments(HeldPart):
     """A shape's adjustment values (tests/fixtures/shape_adjustments.json): each read as a fraction, or as an angle
     from -180 to 180. Past the end is error 5, and an index below 1 is out of range. Setting one writes them all, unless
     every one is back at its default."""
@@ -1972,7 +1972,7 @@ _NOT_A_CALLOUT = (-2147024809, "The specified value is out of range.")
 _CALLOUT_ANGLES = {2: 30.0, 3: 45.0, 4: 60.0, 5: 90.0}
 
 
-class CalloutFormat(ShapePart):
+class CalloutFormat(HeldPart):
     """A callout's look (tests/fixtures/shape_columns.json), read from and written to its adjustments: pairs of y and x
     as fractions of the shape, one more pair than it has lines. Gap and Drop move the whole leader; Length and Angle
     its second point, a one-line callout's only where measured. Other shapes have this object, and using it is out of
@@ -2168,7 +2168,7 @@ class CalloutFormat(ShapePart):
         self.put(values)
 
 
-class PictureCrop(ShapePart):
+class PictureCrop(HeldPart):
     """A new picture's Crop, uncropped (tests/fixtures/shape_picture_formats.json). Setting a crop moves and sizes the shape
     by rules not worked out, including a bottom crop of the shape's fifth on the first, and reports itself."""
 
@@ -2220,7 +2220,7 @@ class PictureCrop(ShapePart):
         return VBASingle(0.0)
 
 
-class PictureFormat(ShapePart):
+class PictureFormat(HeldPart):
     """What a new picture reads and sets (tests/fixtures/shape_add_picture.json, tests/fixtures/shape_picture_formats.json);
     other shapes give this object, and using it is out of range. Brightness and contrast run 0 to 1, with 0.5 as the
     file's 0. ColorType's 4, a watermark, sets them both, and any ColorType clears them first."""
@@ -2410,7 +2410,7 @@ def _vba_points(points: list[tuple[int, tuple[float, float]]]) -> VBAArray:
     return made
 
 
-class ShapeNodes(ShapePart):
+class ShapeNodes(HeldPart):
     """A freeform's nodes (tests/fixtures/shape_painter.json). Other shapes have nodes of their preset's that are not
     modelled, and report themselves."""
 
@@ -2438,7 +2438,7 @@ class ShapeNodes(ShapePart):
         return ShapeNode(self.owner, chosen - 1)
 
 
-class ShapeNode(ShapePart):
+class ShapeNode(HeldPart):
     vba_type_name = "ShapeNode"
 
     def __init__(self, owner: ShapeObject, index: int) -> None:
@@ -2535,7 +2535,7 @@ class RangeConnector(Created):
         return self.first().vba_get("EndConnected")
 
 
-class ConnectorFormat(ShapePart):
+class ConnectorFormat(HeldPart):
     """A line or connector's connections (tests/fixtures/shape_adjustments.json, tests/fixtures/shape_connectors.json). Every
     other shape gives this object, but reading or setting anything on it is out of range."""
 
@@ -2671,7 +2671,7 @@ class ConnectorFormat(ShapePart):
         return self._disconnect(False)
 
 
-class GroupItems(VBACollection, ShapePart):
+class GroupItems(VBACollection, HeldPart):
     """The shapes inside a group."""
 
     vba_type_name = "GroupShapes"
@@ -2709,7 +2709,7 @@ class GroupItems(VBACollection, ShapePart):
         return super().vba_lookup(index, items)
 
 
-class _TextLayout(ShapePart):
+class _TextLayout(HeldPart):
     """What TextFrame and TextFrame2 share of a shape's text layout: its margins and orientation, as
     tests/fixtures/text_frame.json and tests/fixtures/text_frame2.json measured them on a new rectangle and text
     box."""
@@ -2904,7 +2904,7 @@ _ALIGN_SET = {-4131: "l", -4108: "ctr", -4152: "r", -4130: "just", -4117: "justL
 _ORIENTATIONS = ("horz", "vert270", "vert", "eaVert", "mongolianVert", "wordArtVert")
 
 
-class TextColumn2(ShapePart):
+class TextColumn2(HeldPart):
     """TextFrame2.Column: 1 to 16 columns and the gap between them. A shape with no text has this object, and using it is
     out of range. It has no Parent (tests/fixtures/shape_columns.json)."""
 
@@ -3208,7 +3208,7 @@ class _RunLook(TextLook):
                 mark[name] = value
 
 
-class _ShapeFontBase(ShapePart):
+class _ShapeFontBase(HeldPart):
     """What Characters.Font and TextRange2.Font share (tests/fixtures/shape_font.json), over all of a shape's text or part
     of it (tests/fixtures/shape_runs.json): a range with more than one setting reads as its first character does, but for
     the members in `mixed`."""

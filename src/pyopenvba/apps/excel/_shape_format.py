@@ -17,7 +17,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._creator import Created
-from pyopenvba.apps.excel._held_shapes import ShapePart
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._styles import DEFAULT_THEME
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import MISSING, member, method, setter
@@ -167,7 +167,7 @@ def _unmeasured(what: str) -> VBAUnsupportedError:
     return VBAUnsupportedError(f"{what} is not implemented")
 
 
-class _Format(ShapePart):
+class _Format(HeldPart):
     """What Fill and Line share: the shape, its kind's style, and the look a change writes."""
 
     vba_type_name = ""
@@ -760,7 +760,7 @@ class LineFormat(_Format):
         look.line_alpha = None if wanted == 0 else round((1 - wanted) * 100000)
 
 
-class ColorFormat(ShapePart):
+class ColorFormat(HeldPart):
     """A fill's or line's colour: its own once RGB, ObjectThemeColor or SchemeColor is set, else its style's theme
     colour, either under what Brightness and TintAndShade add. A back colour shows only on a pattern; elsewhere setting
     it just writes the fill or line out (tests/fixtures/shape_line_ends.json)."""
@@ -1129,7 +1129,7 @@ class ColorFormat(ShapePart):
         self.set_own(_SCHEME_EXTRAS.get(wanted) or palette[wanted], None, wanted)
 
 
-class GradientStops(ShapePart):
+class GradientStops(HeldPart):
     """A gradient's stops, in the order the file lists them, which their positions need not follow. A fill with no
     gradient gives this object, but every use of it fails. It has no Parent."""
 
@@ -1210,7 +1210,7 @@ class GradientStops(ShapePart):
         return EMPTY
 
 
-class GradientStop(ShapePart):
+class GradientStop(HeldPart):
     vba_type_name = "GradientStop"
 
     @member
@@ -1255,7 +1255,7 @@ class GradientStop(ShapePart):
         self.put(replace(self.stop(), alpha=None if wanted == 0 else round((1 - wanted) * 100000)))
 
 
-class StopColor(ShapePart):
+class StopColor(HeldPart):
     """A gradient stop's colour, with what a fill's ForeColor has."""
 
     vba_type_name = "ColorFormat"

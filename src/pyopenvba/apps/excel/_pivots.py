@@ -14,6 +14,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, cast
 
 from pyopenvba._a1 import Area, parse_area
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
@@ -130,10 +131,15 @@ def read(book: Workbook) -> None:
                 sheet.pivot_tables.append(table)
 
 
-class _Collection(VBACollection, ExcelObject):
+class _Collection(VBACollection, HeldPart, ExcelObject):
     def __init__(self, parent: ExcelObject, items: list[object]) -> None:
         self.parent = parent
         self.items = items
+
+    def held_gone(self) -> bool:
+        """Gone with the table it hangs from (tests/fixtures/held_objects.json)."""
+        parent = self.parent
+        return getattr(parent, 'deleted', False) or (isinstance(parent, HeldPart) and parent.held_gone())
 
     @member
     def Application(self) -> object:
@@ -245,8 +251,12 @@ class PivotAxis(ExcelObject):
         return self.table.sheet.book.application
 
 
-class PivotCache(ExcelObject):
+class PivotCache(HeldPart, ExcelObject):
     vba_type_name = 'PivotCache'
+
+    def held_gone(self) -> bool:
+        """Gone with the last table that uses it (tests/fixtures/held_objects.json)."""
+        return self.had_table and not any(table.cache is self for sheet in self.book.sheets_ for table in getattr(sheet, 'pivot_tables', []))
 
     # -- tests/fixtures/pivot_reads.json
 
@@ -281,6 +291,7 @@ class PivotCache(ExcelObject):
 
     def __init__(self, book: Workbook, part: str, root: XmlElement, index: int) -> None:
         self.book, self.part, self.root, self.index = book, part, root, index
+        self.had_table = False
         self.pending_source: object = None
         self.source_text: str | None = None
         self.cache_id = 0
@@ -369,8 +380,11 @@ class PivotCache(ExcelObject):
         return VBAInt(int(self.root.get('createdVersion', '0')), 'Long')
 
 
-class PivotTable(ExcelObject):
+class PivotTable(HeldPart, ExcelObject):
     vba_type_name = 'PivotTable'
+
+    def held_gone(self) -> bool:
+        return self.sheet.deleted or not any(one.root is self.root for one in self.sheet.pivot_tables)
 
     # -- tests/fixtures/pivot_reads.json
 
@@ -472,6 +486,7 @@ class PivotTable(ExcelObject):
 
     def __init__(self, sheet: Worksheet, cache: PivotCache, root: XmlElement,
                  report_owner: PivotTable | None = None) -> None:
+        cache.had_table = True
         self.sheet, self.cache, self.root = sheet, cache, root
         self.entry = report_owner if report_owner is not None else self
         self.part = ''
@@ -1148,7 +1163,7 @@ class PivotTable(ExcelObject):
         return fields if Index is MISSING else fields.Item(Index)
 
 
-class PivotField(ExcelObject):
+class PivotField(HeldPart, ExcelObject):
     vba_type_name = 'PivotField'
 
     @method
@@ -1159,6 +1174,9 @@ class PivotField(ExcelObject):
 
     def __init__(self, table: PivotTable, index: int, root: XmlElement, data: bool = False) -> None:
         self.table, self.index, self.root, self.data = table, index, root, data
+
+    def held_gone(self) -> bool:
+        return self.table.held_gone()
 
     @member
     def Application(self) -> object:
@@ -1178,8 +1196,10 @@ class PivotField(ExcelObject):
             raise error(424)
 
     def vba_member(self, name: str) -> MemberSpec | None:
-        self.check_alive()
-        return super().vba_member(name)
+        spec = super().vba_member(name)
+        if spec is not None:
+            self.check_alive()
+        return spec
 
     @member
     def SourceName(self) -> object:
@@ -1729,7 +1749,7 @@ class PivotItems(_Collection):
         return EMPTY
 
 
-class PivotItem(ExcelObject):
+class PivotItem(HeldPart, ExcelObject):
     """An item of a pivot field: its value in the cache, or None for the (All) a page field showing every item
     returns as its CurrentPage, its place in the field's list from 1, and the value's place in the cache."""
 
@@ -1739,6 +1759,9 @@ class PivotItem(ExcelObject):
     def DrillTo(self, Field: object = MISSING) -> object:  # noqa: N803 - native named argument
         # As PivotField.DrillTo (tests/fixtures/pivot_olap_members.json).
         raise error(-2147319765, 'Element not found.')
+
+    def held_gone(self) -> bool:
+        return self.field.held_gone()
 
     def __init__(self, field: PivotField, root: XmlElement | None, position: int, x: int = -1) -> None:
         self.field, self.root, self.position, self.x = field, root, position, x

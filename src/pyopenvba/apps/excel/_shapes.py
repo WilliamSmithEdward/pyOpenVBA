@@ -2411,6 +2411,14 @@ class TextFrame(_TextLayout):
     vba_type_name = "TextFrame"
 
     @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
         return Characters(self.owner, Start is not MISSING or Length is not MISSING)
 

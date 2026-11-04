@@ -1,0 +1,344 @@
+{
+ "measured_at": "2026-11-03T20:49:11.980650+00:00",
+ "file": "power_query/loaded_to_sheet.xlsx",
+ "source": "Option Explicit\n\nPrivate Function Shown(ByVal v As Variant) As String\n    On Error Resume Next\n    If IsError(v) Then\n        Shown = CStr(v)\n    ElseIf IsArray(v) Then\n        Shown = \"array\"\n    Else\n        Shown = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Dumped(ByVal n As Object) As String\n    Dim s As String, sheet As Object, cell As Object\n    For Each sheet In n.Sheets\n        s = s & \"{\" & sheet.Name & \" \" & sheet.UsedRange.Address & \" out=\" & sheet.Outline.SummaryRow & \"/\" & sheet.Outline.SummaryColumn\n        For Each cell In sheet.UsedRange.Cells\n            If cell.Formula <> \"\" Or cell.Interior.ColorIndex <> xlNone Then\n                s = s & \"~\" & cell.Address(False, False) & \"=\" & cell.Formula & \";\" & cell.NumberFormat & \";\" & cell.Font.Bold & \";\" & cell.Font.Color & \";\" & cell.Interior.Color & \";\" & cell.Interior.ColorIndex & \";\" & cell.HorizontalAlignment & \";\" & cell.Rows.OutlineLevel & \";\" & cell.Borders(xlEdgeBottom).LineStyle & \";\" & cell.Borders(xlEdgeTop).LineStyle\n            End If\n        Next\n        s = s & \"}\"\n    Next\n    Dumped = s & \"active \" & ActiveSheet.Name & \"!\" & ActiveCell.Address(False, False)\nEnd Function\n\nPublic Function Tried(ByVal which As Long, ByVal path As String) As String\n    Dim wb As Object, c As Object, n As Object, ws As Object, r As Variant, s As String\n    Application.DisplayAlerts = False\n    Set n = Workbooks.Add(xlWBATWorksheet)\n    Set ws = n.Worksheets(1)\n    Set wb = Workbooks.Open(path, UpdateLinks:=0, ReadOnly:=True)\n    Set c = wb.Connections(1)\n    n.Activate\n    On Error GoTo Failed\n    Run which, wb, c, n, ws, path, r\n    s = \"ok \" & Shown(r)\nAnswered:\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    Tried = s\n    wb.Close False\n    n.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Answered\nEnd Function\n\nPublic Function CloseAll(ByVal log As String, ByVal folder As String) As String\n    Dim file As Integer, a As Workbook, b As Workbook\n    Application.DisplayAlerts = False\n    Set a = Workbooks.Add(xlWBATWorksheet)\n    Set b = Workbooks.Add(xlWBATWorksheet)\n    a.Worksheets(1).Range(\"A1\").Value = 1\n    file = FreeFile\n    Open log For Append As #file\n    Print #file, \"before \" & Workbooks.Count\n    Close #file\n    Workbooks.Close\n    file = FreeFile\n    Open log For Append As #file\n    Print #file, \"after \" & Workbooks.Count\n    Close #file\n    CloseAll = \"returned\"\nEnd Function\n\nPrivate Sub Run(ByVal which As Long, wb As Object, c As Object, n As Object, ws As Object, ByVal path As String, r As Variant)\n    Dim x As Object, a As Object, w As Object\n    Set w = Application.Workbooks\n    Select Case which\n    Case 0\n        r = c.OLEDBConnection.LocaleID\n    Case 1\n        r = c.OLEDBConnection.MaxDrillthroughRecords\n    Case 2\n        r = c.OLEDBConnection.OLAP\n    Case 3\n        r = c.OLEDBConnection.RetrieveInOfficeUILang\n    Case 4\n        r = c.OLEDBConnection.Refreshing\n    Case 5\n        r = c.OLEDBConnection.RobustConnect\n    Case 6\n        r = c.OLEDBConnection.ServerFillColor\n    Case 7\n        r = c.OLEDBConnection.ServerFontStyle\n    Case 8\n        r = c.OLEDBConnection.ServerNumberFormat\n    Case 9\n        r = c.OLEDBConnection.ServerTextColor\n    Case 10\n        r = c.OLEDBConnection.ServerSSOApplicationID\n    Case 11\n        r = c.OLEDBConnection.SourceDataFile\n    Case 12\n        r = c.OLEDBConnection.RefreshDate\n    Case 13\n        r = TypeName(c.OLEDBConnection.ADOConnection)\n    Case 14\n        r = TypeName(c.OLEDBConnection.CalculatedMembers)\n    Case 15\n        c.OLEDBConnection.CancelRefresh\n    Case 16\n        r = c.OLEDBConnection.CancelRefresh\n    Case 17\n        c.OLEDBConnection.Reconnect\n    Case 18\n        c.OLEDBConnection.SaveAsODC \"nope\"\n    Case 19\n        c.OLEDBConnection.MakeConnection\n    Case 20\n        r = TypeName(c.DataFeedConnection)\n    Case 21\n        r = TypeName(c.Ranges)\n    Case 22\n        r = c.Ranges.Count\n    Case 23\n        r = c.Ranges(1).Address\n    Case 24\n        r = c.Ranges(1).Parent.Name\n    Case 25\n        r = TypeName(c.ModelTables)\n    Case 26\n        r = c.ModelTables.Count\n    Case 27\n        r = c\n    Case 28\n        r = c.[_Default]\n    Case 29\n        c.Delete: r = wb.Connections.Count\n    Case 30\n        c.Delete: r = wb.Queries.Count\n    Case 31\n        r = c.Delete\n    Case 32\n        c.Delete: r = wb.Worksheets(1).ListObjects.Count & \"/\" & wb.Worksheets(1).ListObjects(1).SourceType\n    Case 33\n        c.Delete: r = wb.Worksheets(1).Range(\"A1\").Value\n    Case 34\n        r = wb.Queries.FastCombine\n    Case 35\n        wb.Queries.FastCombine = True: r = wb.Queries.FastCombine\n    Case 36\n        r = wb.Queries.Count\n    Case 37\n        For Each x In wb.Queries: r = TypeName(x): Next\n    Case 38\n        r = wb.Queries.[_Default](1).Name\n    Case 39\n        r = TypeName(wb.Queries.Item(1))\n    Case 40\n        For Each x In wb.Connections: r = TypeName(x): Next\n    Case 41\n        r = wb.Connections.[_Default](1).Name\n    Case 42\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = TypeName(a) & \"/\" & n.Connections.Count & \"/\" & a.Name & \"/\" & a.Description & \"/\" & a.Type\n    Case 43\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = TypeName(a.OLEDBConnection) & \"/\" & a.OLEDBConnection.Connection & \"/\" & a.OLEDBConnection.CommandText & \"/\" & a.OLEDBConnection.CommandType\n    Case 44\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Delete: r = n.Connections.Count\n    Case 45\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = a.Ranges.Count\n    Case 46\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = a.OLEDBConnection.BackgroundQuery & \"/\" & a.OLEDBConnection.RefreshOnFileOpen & \"/\" & a.OLEDBConnection.EnableRefresh & \"/\" & a.RefreshWithRefreshAll\n    Case 47\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql)\n    Case 48\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): Set a = n.Connections.Add2(\"mine\", \"\", \"OLEDB;Provider=None\", \"\", xlCmdSql): r = a.Name\n    Case 49\n        Set a = n.Connections.Add2(\"\", \"\", \"OLEDB;Provider=None\", \"\", xlCmdSql): r = a.Name\n    Case 50\n        Set a = n.Connections.Add2(\"Mine\", \"\", \"nonsense\", \"\", xlCmdSql): r = a.Type\n    Case 51\n        Set a = n.Connections.Add2(\"Mine\", \"\", \"\", \"\", xlCmdSql): r = a.Type\n    Case 52\n        Set a = n.Connections.Add2(\"Mine\", \"\", \"OLEDB;Provider=None\", \"\", 99): r = a.OLEDBConnection.CommandType\n    Case 53\n        Set a = n.Connections.Add2(\"Mine\"): r = a.Name\n    Case 54\n        Set a = n.Connections.Add2(\"Mine\", \"\", \"OLEDB;Provider=None\"): r = a.OLEDBConnection.CommandType\n    Case 55\n        Set a = n.Connections.Add2(): r = a.Name\n    Case 56\n        Set a = n.Connections.Add2(\"Mine\", \"\", \"TEXT;nowhere.csv\", \"\", xlCmdSql): r = a.Type\n    Case 57\n        Set a = n.Connections.Add2(\"Mine\", \"\", \"ODBC;DSN=nowhere\", \"\", xlCmdSql): r = a.Type\n    Case 58\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Refresh\n    Case 59\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = a.OLEDBConnection.IsConnected\n    Case 60\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Name = \"Other\": r = a.Name & \"/\" & n.Connections(\"Other\").Name\n    Case 61\n        Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Description = \"Why\": r = a.Description\n    Case 62\n        r = TypeName(n.Connections.AddFromFile(\"nope.odc\"))\n    Case 63\n        n.Connections.AddFromFile\n    Case 64\n        r = TypeName(n.Connections.AddFromFile(\"nope.odc\", True, False))\n    Case 65\n        r = w.CanCheckOut(path)\n    Case 66\n        w.CheckOut \"nope.xlsx\"\n    Case 67\n        w.CheckOut path\n    Case 68\n        w.OpenXML \"nope.xml\"\n    Case 69\n        w.OpenDatabase \"nope.accdb\"\n    Case 70\n        w.OpenXML\n    Case 71\n        w.OpenDatabase\n    Case 72\n        ws.Scenarios.CreateSummary\n    Case 73\n        r = ws.Scenarios.CreateSummary(xlStandardSummary)\n    Case 74\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"A2\"): r = Dumped(n)\n    Case 75\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary: r = Dumped(n)\n    Case 76\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary ResultCells:=ws.Range(\"A2\"): r = Dumped(n)\n    Case 77\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary 99\n    Case 78\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): r = TypeName(ws.Scenarios.CreateSummary(xlStandardSummary, ws.Range(\"A2\")))\n    Case 79\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlStandardSummary, \"x\"\n    Case 80\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"A2\"): ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"A2\"): r = n.Sheets(1).Name & \"/\" & n.Sheets(2).Name & \"/\" & n.Sheets(3).Name & \"/\" & ActiveSheet.Name\n    Case 81\n        ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlPivotTable, ws.Range(\"A2\"): r = Dumped(n)\n    Case 82\n        ws.Name = \"My Data\": ws.Range(\"B2\").Value = 1: ws.Range(\"B3\").Formula = \"=B2\": ws.Names.Add \"Input\", ws.Range(\"B2\"): n.Names.Add \"Result\", ws.Range(\"B3\"): ws.Scenarios.Add \"One\", ws.Range(\"B2\"), Array(5), , , True: ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"B3\"): r = Dumped(n)\n    End Select\nEnd Sub\n",
+ "workbooks_close": {
+  "outcome": "runner-error",
+  "value": "None",
+  "log": "before 3\n"
+ },
+ "cases": [
+  [
+   "r = c.OLEDBConnection.LocaleID",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = c.OLEDBConnection.MaxDrillthroughRecords",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = c.OLEDBConnection.OLAP",
+   "ok Boolean:False"
+  ],
+  [
+   "r = c.OLEDBConnection.RetrieveInOfficeUILang",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = c.OLEDBConnection.Refreshing",
+   "ok Boolean:False"
+  ],
+  [
+   "r = c.OLEDBConnection.RobustConnect",
+   "ok Long:0"
+  ],
+  [
+   "r = c.OLEDBConnection.ServerFillColor",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "r = c.OLEDBConnection.ServerFontStyle",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "r = c.OLEDBConnection.ServerNumberFormat",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "r = c.OLEDBConnection.ServerTextColor",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "r = c.OLEDBConnection.ServerSSOApplicationID",
+   "ok String:"
+  ],
+  [
+   "r = c.OLEDBConnection.SourceDataFile",
+   "ok String:"
+  ],
+  [
+   "r = c.OLEDBConnection.RefreshDate",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(c.OLEDBConnection.ADOConnection)",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(c.OLEDBConnection.CalculatedMembers)",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "c.OLEDBConnection.CancelRefresh",
+   "Err 1004 Not currently refreshing."
+  ],
+  [
+   "r = c.OLEDBConnection.CancelRefresh",
+   "Err 1004 Not currently refreshing."
+  ],
+  [
+   "c.OLEDBConnection.Reconnect",
+   "ok Empty:"
+  ],
+  [
+   "c.OLEDBConnection.SaveAsODC \"nope\"",
+   "ok Empty:"
+  ],
+  [
+   "c.OLEDBConnection.MakeConnection",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(c.DataFeedConnection)",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(c.Ranges)",
+   "ok String:Ranges"
+  ],
+  [
+   "r = c.Ranges.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = c.Ranges(1).Address",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = c.Ranges(1).Parent.Name",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = TypeName(c.ModelTables)",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = c.ModelTables.Count",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = c",
+   "ok String:Connection"
+  ],
+  [
+   "r = c.[_Default]",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "c.Delete: r = wb.Connections.Count",
+   "ok Long:0"
+  ],
+  [
+   "c.Delete: r = wb.Queries.Count",
+   "ok Long:1"
+  ],
+  [
+   "r = c.Delete",
+   "ok Empty:"
+  ],
+  [
+   "c.Delete: r = wb.Worksheets(1).ListObjects.Count & \"/\" & wb.Worksheets(1).ListObjects(1).SourceType",
+   "ok String:1/3"
+  ],
+  [
+   "c.Delete: r = wb.Worksheets(1).Range(\"A1\").Value",
+   "ok String:A"
+  ],
+  [
+   "r = wb.Queries.FastCombine",
+   "ok Boolean:False"
+  ],
+  [
+   "wb.Queries.FastCombine = True: r = wb.Queries.FastCombine",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.Queries.Count",
+   "ok Long:1"
+  ],
+  [
+   "For Each x In wb.Queries: r = TypeName(x): Next",
+   "ok String:WorkbookQuery"
+  ],
+  [
+   "r = wb.Queries.[_Default](1).Name",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = TypeName(wb.Queries.Item(1))",
+   "ok String:WorkbookQuery"
+  ],
+  [
+   "For Each x In wb.Connections: r = TypeName(x): Next",
+   "ok String:WorkbookConnection"
+  ],
+  [
+   "r = wb.Connections.[_Default](1).Name",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = TypeName(a) & \"/\" & n.Connections.Count & \"/\" & a.Name & \"/\" & a.Description & \"/\" & a.Type",
+   "ok String:WorkbookConnection/1/Mine/About/1"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = TypeName(a.OLEDBConnection) & \"/\" & a.OLEDBConnection.Connection & \"/\" & a.OLEDBConnection.CommandText & \"/\" & a.OLEDBConnection.CommandType",
+   "ok String:OLEDBConnection/OLEDB;Provider=None;Data Source=nowhere/Select 1/2"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Delete: r = n.Connections.Count",
+   "ok Long:0"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = a.Ranges.Count",
+   "ok Long:0"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = a.OLEDBConnection.BackgroundQuery & \"/\" & a.OLEDBConnection.RefreshOnFileOpen & \"/\" & a.OLEDBConnection.EnableRefresh & \"/\" & a.RefreshWithRefreshAll",
+   "ok String:True/False/False/True"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql)",
+   "ok Empty:"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): Set a = n.Connections.Add2(\"mine\", \"\", \"OLEDB;Provider=None\", \"\", xlCmdSql): r = a.Name",
+   "ok String:mine1"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"\", \"\", \"OLEDB;Provider=None\", \"\", xlCmdSql): r = a.Name",
+   "ok String:Connection"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"\", \"nonsense\", \"\", xlCmdSql): r = a.Type",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"\", \"\", \"\", xlCmdSql): r = a.Type",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"\", \"OLEDB;Provider=None\", \"\", 99): r = a.OLEDBConnection.CommandType",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\"): r = a.Name",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"\", \"OLEDB;Provider=None\"): r = a.OLEDBConnection.CommandType",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "Set a = n.Connections.Add2(): r = a.Name",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"\", \"TEXT;nowhere.csv\", \"\", xlCmdSql): r = a.Type",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"\", \"ODBC;DSN=nowhere\", \"\", xlCmdSql): r = a.Type",
+   "ok Long:2"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Refresh",
+   "ok Empty:"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): r = a.OLEDBConnection.IsConnected",
+   "ok Boolean:False"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Name = \"Other\": r = a.Name & \"/\" & n.Connections(\"Other\").Name",
+   "ok String:Other/Other"
+  ],
+  [
+   "Set a = n.Connections.Add2(\"Mine\", \"About\", \"OLEDB;Provider=None;Data Source=nowhere\", \"Select 1\", xlCmdSql): a.Description = \"Why\": r = a.Description",
+   "ok String:Why"
+  ],
+  [
+   "r = TypeName(n.Connections.AddFromFile(\"nope.odc\"))",
+   "Err -2147417848 Method 'AddFromFile' of object 'Connections' failed"
+  ],
+  [
+   "n.Connections.AddFromFile",
+   "breaks: runner-error "
+  ],
+  [
+   "r = TypeName(n.Connections.AddFromFile(\"nope.odc\", True, False))",
+   "Err -2147417848 Method 'AddFromFile' of object 'Connections' failed"
+  ],
+  [
+   "r = w.CanCheckOut(path)",
+   "breaks: vba-error "
+  ],
+  [
+   "w.CheckOut \"nope.xlsx\"",
+   "Err 1004 Sorry, we couldn't find nope.xlsx. Is it possible it was moved, renamed or deleted?"
+  ],
+  [
+   "w.CheckOut path",
+   "Err 1004 This document cannot be checked out."
+  ],
+  [
+   "w.OpenXML \"nope.xml\"",
+   "Err 1004 Sorry, we couldn't find <documents>\\nope.xml. Is it possible it was moved, renamed or deleted?"
+  ],
+  [
+   "w.OpenDatabase \"nope.accdb\"",
+   "Err 1004 Sorry, we couldn't find nope.accdb. Is it possible it was moved, renamed or deleted?"
+  ],
+  [
+   "w.OpenXML",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "w.OpenDatabase",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "ws.Scenarios.CreateSummary",
+   "Err 1004 CreateSummary method of Scenarios class failed"
+  ],
+  [
+   "r = ws.Scenarios.CreateSummary(xlStandardSummary)",
+   "Err 1004 Unable to get the CreateSummary property of the Scenarios class"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"A2\"): r = Dumped(n)",
+   "ok String:{Scenario Summary $B$1:$F$11 out=0/-4152~B2=Scenario Summary;General;True;16777215;8388736;13;-4131;1;-4142;1~C2=;General;True;16777215;8388736;13;-4131;1;-4142;1~D2=;General;False;16777215;8388736;13;-4152;1;-4142;1~E2=;General;False;16777215;8388736;13;-4152;1;-4142;1~F2=;General;False;16777215;8388736;13;-4152;1;-4142;1~B3=;General;True;16777215;8388736;13;-4131;1;1;-4142~C3=;General;True;16777215;8388736;13;-4131;1;1;-4142~D3=Current Values:;General;False;16777215;8388736;13;-4152;1;1;-4142~E3=One;General;False;16777215;8388736;13;-4152;1;1;-4142~F3=Two;General;False;16777215;8388736;13;-4152;1;1;-4142~B4=;General;True;0;12632256;15;-4131;2;1;1~C4=;General;True;0;12632256;15;-4131;2;1;1~E4=Created by <user> on 11/3/2026;General;False;0;16777215;-4142;1;2;1;1~F4=Created by <user> on 11/3/2026;General;False;0;16777215;-4142;1;2;1;1~B5=Changing Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C5=;General;True;8388608;12632256;15;-4131;1;1;1~B6=;General;True;0;12632256;15;-4131;2;1;1~C6=$A$1;General;True;0;12632256;15;-4131;2;1;1~D6=1;General;False;0;16777215;-4142;1;2;1;1~E6=5;General;False;0;12632256;15;1;2;1;1~F6=9;General;False;0;12632256;15;1;2;1;1~B7=Result Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C7=;General;True;8388608;12632256;15;-4131;1;1;1~B8=;General;True;0;12632256;15;-4131;2;1;1~C8=$A$2;General;True;0;12632256;15;-4131;2;1;1~D8=2;General;False;0;16777215;-4142;1;2;1;1~E8=10;General;False;0;16777215;-4142;1;2;1;1~F8=18;General;False;0;16777215;-4142;1;2;1;1~B9=Notes:  Current Values column represents values of changing cells at;General;False;0;16777215;-4142;1;1;-4142;1~B10=time Scenario Summary Report was created.  Changing cells for each;General;False;0;16777215;-4142;1;1;-4142;-4142~B11=scenario are highlighted in gray.;General;False;0;16777215;-4142;1;1;-4142;-4142}{Sheet1 $A$1:$A$2 out=1/-4152~A1=1;General;False;0;16777215;-4142;1;1;-4142;-4142~A2==A1*2;General;False;0;16777215;-4142;1;1;-4142;-4142}active Scenario Summary!A1"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary: r = Dumped(n)",
+   "ok String:{Scenario Summary $B$1:$F$11 out=0/-4152~B2=Scenario Summary;General;True;16777215;8388736;13;-4131;1;-4142;1~C2=;General;True;16777215;8388736;13;-4131;1;-4142;1~D2=;General;False;16777215;8388736;13;-4152;1;-4142;1~E2=;General;False;16777215;8388736;13;-4152;1;-4142;1~F2=;General;False;16777215;8388736;13;-4152;1;-4142;1~B3=;General;True;16777215;8388736;13;-4131;1;1;-4142~C3=;General;True;16777215;8388736;13;-4131;1;1;-4142~D3=Current Values:;General;False;16777215;8388736;13;-4152;1;1;-4142~E3=One;General;False;16777215;8388736;13;-4152;1;1;-4142~F3=Two;General;False;16777215;8388736;13;-4152;1;1;-4142~B4=;General;True;0;12632256;15;-4131;2;1;1~C4=;General;True;0;12632256;15;-4131;2;1;1~E4=Created by <user> on 11/3/2026;General;False;0;16777215;-4142;1;2;1;1~F4=Created by <user> on 11/3/2026;General;False;0;16777215;-4142;1;2;1;1~B5=Changing Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C5=;General;True;8388608;12632256;15;-4131;1;1;1~B6=;General;True;0;12632256;15;-4131;2;1;1~C6=$A$1;General;True;0;12632256;15;-4131;2;1;1~D6=1;General;False;0;16777215;-4142;1;2;1;1~E6=5;General;False;0;12632256;15;1;2;1;1~F6=9;General;False;0;12632256;15;1;2;1;1~B7=Result Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C7=;General;True;8388608;12632256;15;-4131;1;1;1~B8=;General;True;0;12632256;15;-4131;2;1;1~C8=$A$2;General;True;0;12632256;15;-4131;2;1;1~D8=2;General;False;0;16777215;-4142;1;2;1;1~E8=10;General;False;0;16777215;-4142;1;2;1;1~F8=18;General;False;0;16777215;-4142;1;2;1;1~B9=Notes:  Current Values column represents values of changing cells at;General;False;0;16777215;-4142;1;1;-4142;1~B10=time Scenario Summary Report was created.  Changing cells for each;General;False;0;16777215;-4142;1;1;-4142;-4142~B11=scenario are highlighted in gray.;General;False;0;16777215;-4142;1;1;-4142;-4142}{Sheet1 $A$1:$A$2 out=1/-4152~A1=1;General;False;0;16777215;-4142;1;1;-4142;-4142~A2==A1*2;General;False;0;16777215;-4142;1;1;-4142;-4142}active Scenario Summary!A1"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary ResultCells:=ws.Range(\"A2\"): r = Dumped(n)",
+   "ok String:{Scenario Summary $B$1:$F$11 out=0/-4152~B2=Scenario Summary;General;True;16777215;8388736;13;-4131;1;-4142;1~C2=;General;True;16777215;8388736;13;-4131;1;-4142;1~D2=;General;False;16777215;8388736;13;-4152;1;-4142;1~E2=;General;False;16777215;8388736;13;-4152;1;-4142;1~F2=;General;False;16777215;8388736;13;-4152;1;-4142;1~B3=;General;True;16777215;8388736;13;-4131;1;1;-4142~C3=;General;True;16777215;8388736;13;-4131;1;1;-4142~D3=Current Values:;General;False;16777215;8388736;13;-4152;1;1;-4142~E3=One;General;False;16777215;8388736;13;-4152;1;1;-4142~F3=Two;General;False;16777215;8388736;13;-4152;1;1;-4142~B4=;General;True;0;12632256;15;-4131;2;1;1~C4=;General;True;0;12632256;15;-4131;2;1;1~E4=Created by <user> on 11/3/2026;General;False;0;16777215;-4142;1;2;1;1~F4=Created by <user> on 11/3/2026;General;False;0;16777215;-4142;1;2;1;1~B5=Changing Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C5=;General;True;8388608;12632256;15;-4131;1;1;1~B6=;General;True;0;12632256;15;-4131;2;1;1~C6=$A$1;General;True;0;12632256;15;-4131;2;1;1~D6=1;General;False;0;16777215;-4142;1;2;1;1~E6=5;General;False;0;12632256;15;1;2;1;1~F6=9;General;False;0;12632256;15;1;2;1;1~B7=Result Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C7=;General;True;8388608;12632256;15;-4131;1;1;1~B8=;General;True;0;12632256;15;-4131;2;1;1~C8=$A$2;General;True;0;12632256;15;-4131;2;1;1~D8=2;General;False;0;16777215;-4142;1;2;1;1~E8=10;General;False;0;16777215;-4142;1;2;1;1~F8=18;General;False;0;16777215;-4142;1;2;1;1~B9=Notes:  Current Values column represents values of changing cells at;General;False;0;16777215;-4142;1;1;-4142;1~B10=time Scenario Summary Report was created.  Changing cells for each;General;False;0;16777215;-4142;1;1;-4142;-4142~B11=scenario are highlighted in gray.;General;False;0;16777215;-4142;1;1;-4142;-4142}{Sheet1 $A$1:$A$2 out=1/-4152~A1=1;General;False;0;16777215;-4142;1;1;-4142;-4142~A2==A1*2;General;False;0;16777215;-4142;1;1;-4142;-4142}active Scenario Summary!A1"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary 99",
+   "Err 1004 CreateSummary method of Scenarios class failed"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): r = TypeName(ws.Scenarios.CreateSummary(xlStandardSummary, ws.Range(\"A2\")))",
+   "ok String:Worksheet"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlStandardSummary, \"x\"",
+   "Err 1004 This formula is missing a range reference or a defined name. "
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"A2\"): ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"A2\"): r = n.Sheets(1).Name & \"/\" & n.Sheets(2).Name & \"/\" & n.Sheets(3).Name & \"/\" & ActiveSheet.Name",
+   "ok String:Scenario Summary/Scenario Summary 2/Sheet1/Scenario Summary 2"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Formula = \"=A1*2\": ws.Scenarios.Add \"One\", ws.Range(\"A1\"), Array(5): ws.Scenarios.Add \"Two\", ws.Range(\"A1\"), Array(9): ws.Scenarios.CreateSummary xlPivotTable, ws.Range(\"A2\"): r = Dumped(n)",
+   "ok String:{Scenario PivotTable $A$1:$B$5 out=1/-4152~A1=$A$1 by;General;False;0;16777215;-4142;1;1;-4142;-4142~B1=(All);General;False;0;16777215;-4142;1;1;-4142;-4142~A3=Row Labels;General;False;0;16777215;-4142;1;1;-4142;-4142~B3=$A$2;General;False;0;16777215;-4142;1;1;-4142;-4142~A4=One;General;False;0;16777215;-4142;-4131;1;-4142;-4142~B4=10;General;False;0;16777215;-4142;1;1;-4142;-4142~A5=Two;General;False;0;16777215;-4142;-4131;1;-4142;-4142~B5=18;General;False;0;16777215;-4142;1;1;-4142;-4142}{Sheet1 $A$1:$A$2 out=1/-4152~A1=5;General;False;0;16777215;-4142;1;1;-4142;-4142~A2==A1*2;General;False;0;16777215;-4142;1;1;-4142;-4142}active Scenario PivotTable!A1"
+  ],
+  [
+   "ws.Name = \"My Data\": ws.Range(\"B2\").Value = 1: ws.Range(\"B3\").Formula = \"=B2\": ws.Names.Add \"Input\", ws.Range(\"B2\"): n.Names.Add \"Result\", ws.Range(\"B3\"): ws.Scenarios.Add \"One\", ws.Range(\"B2\"), Array(5), , , True: ws.Scenarios.CreateSummary xlStandardSummary, ws.Range(\"B3\"): r = Dumped(n)",
+   "ok String:{Scenario Summary $B$1:$E$11 out=0/-4152~B2=Scenario Summary;General;True;16777215;8388736;13;-4131;1;-4142;1~C2=;General;True;16777215;8388736;13;-4131;1;-4142;1~D2=;General;False;16777215;8388736;13;-4152;1;-4142;1~E2=;General;False;16777215;8388736;13;-4152;1;-4142;1~B3=;General;True;16777215;8388736;13;-4131;1;1;-4142~C3=;General;True;16777215;8388736;13;-4131;1;1;-4142~D3=Current Values:;General;False;16777215;8388736;13;-4152;1;1;-4142~E3=One;General;False;16777215;8388736;13;-4152;1;1;-4142~B4=;General;True;0;12632256;15;-4131;2;1;1~C4=;General;True;0;12632256;15;-4131;2;1;1~E4=Created by <user> on 11/3/2026;General;False;0;16777215;-4142;1;2;1;1~B5=Changing Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C5=;General;True;8388608;12632256;15;-4131;1;1;1~B6=;General;True;0;12632256;15;-4131;2;1;1~C6=Input;General;True;0;12632256;15;-4131;2;1;1~D6=1;General;False;0;16777215;-4142;1;2;1;1~E6=5;General;False;0;12632256;15;1;2;1;1~B7=Result Cells:;General;True;8388608;12632256;15;-4131;1;1;1~C7=;General;True;8388608;12632256;15;-4131;1;1;1~B8=;General;True;0;12632256;15;-4131;2;1;1~C8=Result;General;True;0;12632256;15;-4131;2;1;1~D8=1;General;False;0;16777215;-4142;1;2;1;1~E8=5;General;False;0;16777215;-4142;1;2;1;1~B9=Notes:  Current Values column represents values of changing cells at;General;False;0;16777215;-4142;1;1;-4142;1~B10=time Scenario Summary Report was created.  Changing cells for each;General;False;0;16777215;-4142;1;1;-4142;-4142~B11=scenario are highlighted in gray.;General;False;0;16777215;-4142;1;1;-4142;-4142}{My Data $B$2:$B$3 out=1/-4152~B2=1;General;False;0;16777215;-4142;1;1;-4142;-4142~B3==B2;General;False;0;16777215;-4142;1;1;-4142;-4142}active Scenario Summary!A1"
+  ]
+ ]
+}

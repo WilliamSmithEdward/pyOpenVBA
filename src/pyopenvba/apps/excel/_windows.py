@@ -93,6 +93,7 @@ class SheetViewState:
     """A sheet's view in its workbook's window, as the sheet's first sheetView keeps it."""
 
     view: int = 1
+    data_type_icons: bool = True
     #: zoomScale, the zoom of the view the sheet is in.
     zoom: int = 100
     #: The normal view's zoom, the page break preview's and the page layout view's once each is kept apart; 0 before.
@@ -677,7 +678,7 @@ class Pane(ExcelObject):
         return self.window.book.application
 
 
-class Panes(VBACollection, ExcelObject):
+class Panes(VBACollection, ItemDefault, ExcelObject):
     """A window's panes: one, two when it is split one way, four when both."""
 
     vba_type_name = "Panes"
@@ -761,6 +762,16 @@ class WorksheetView(ExcelObject):
     def Sheet(self) -> object:
         self.view()
         return self.sheet
+
+    @member
+    def DisplayDataTypeIcons(self) -> object:
+        """Kept for the session; whether it reaches the file was not measured (tests/fixtures/small_rows.json)."""
+        return self.view().data_type_icons
+
+    @setter("DisplayDataTypeIcons")
+    def _display_data_type_icons(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.view().data_type_icons = wanted
 
     @member
     def DisplayGridlines(self) -> object:

@@ -9,7 +9,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape_text
-from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._chart_borders import NOT_A_PROPERTY
+from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.shapes._values import FillLine
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -112,7 +113,7 @@ def _number_text(value: float) -> str:
     return format_number(value)
 
 
-class Trendlines(VBACollection, Created):
+class Trendlines(VBACollection, ItemDefault, Created):
     """A series' trendlines, in the order they were added."""
 
     vba_type_name = 'Trendlines'
@@ -214,6 +215,18 @@ class TrendlineLabel(Created):
 
 
 class Trendline(Created):
+    @method
+    def GetProperty(self, Name: object) -> object:  # noqa: N803 - native named argument
+        """Its Name by that name; any other name it does not know raises (tests/fixtures/chart_bins.json)."""
+        if to_text(Name).lower() != 'name':
+            raise error(NOT_A_PROPERTY, "Method 'GetProperty' of object 'Trendline' failed")
+        return self.vba_get('Name', [])
+
+    @method
+    def SetProperty(self, Name: object, Value: object) -> object:  # noqa: N803 - native named argument
+        del Name, Value
+        raise error(NOT_A_PROPERTY, "Method 'SetProperty' of object 'Trendline' failed")
+
     vba_type_name = 'Trendline'
 
     def __init__(self, series: Series, line: TrendlineState) -> None:

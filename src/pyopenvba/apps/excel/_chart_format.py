@@ -522,8 +522,8 @@ class SeriesColor(Created):
 
 #: The elements whose Format has a 3-D look and a picture, and those with a text frame, by their type
 #: (tests/fixtures/chart_protection.json).
-_SOLID = ("Series", "Point", "ChartArea", "PlotArea", "Legend", "ChartTitle", "AxisTitle")
-_TEXTUAL = ("ChartArea", "Legend", "ChartTitle", "AxisTitle")
+_SOLID = ("Series", "Point", "ChartArea", "PlotArea", "Legend", "ChartTitle", "AxisTitle", "DataLabels")
+_TEXTUAL = ("ChartArea", "Legend", "ChartTitle", "AxisTitle", "DataLabels")
 _NO_MEMBER = (-2147467259, "Automation error\nUnspecified error")
 
 

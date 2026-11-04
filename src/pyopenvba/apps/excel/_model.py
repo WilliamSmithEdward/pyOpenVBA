@@ -25,7 +25,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import has_dangling_reference, shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
@@ -8238,10 +8238,6 @@ def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
         return formula
     from pyopenvba.apps.excel._external_links import shown as linked_shown
 
-    if "[0]!" in formula:
-        # A name of a deleted sheet, as this workbook's: a file holds [0]!Name, and Excel shows the workbook's name as
-        # it is now (tests/fixtures/sheet_delete_refs.json).
-        formula = formula.replace("[0]!", quote_sheet(sheet.book.name) + "!")
     formula = linked_shown(sheet.book, formula)
     if not sheet.tables:
         return formula

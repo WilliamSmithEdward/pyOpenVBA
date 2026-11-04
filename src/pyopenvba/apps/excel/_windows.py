@@ -140,6 +140,8 @@ class BookViewState:
     """The workbook's window, as its workbookView keeps it."""
 
     tabs: bool = True
+    #: The first tab showing, which goes with the tabs when a sheet before it is deleted.
+    first_sheet: int = 0
     tab_ratio: float = 0.6
     horizontal_scroll: bool = True
     vertical_scroll: bool = True
@@ -403,6 +405,7 @@ def read_book_view(book: Workbook, xml: str) -> None:
         head = attributes(found.group(0))
         view = book.view
         view.tabs = _flag(head.get("showSheetTabs"), True)
+        view.first_sheet = _number(head.get("firstSheet"), 0)
         view.horizontal_scroll = _flag(head.get("showHorizontalScroll"), True)
         view.vertical_scroll = _flag(head.get("showVerticalScroll"), True)
         view.tab_ratio = _number(head.get("tabRatio"), 600) / 1000
@@ -434,6 +437,7 @@ def with_book_view(book: Workbook, xml: str) -> str:
                         ("showVerticalScroll", "" if view.vertical_scroll else "0"),
                         ("showSheetTabs", "" if view.tabs else "0"),
                         ("tabRatio", "" if ratio == 600 else str(ratio)),
+                        ("firstSheet", str(view.first_sheet) if view.first_sheet else ""),
                         ("activeTab", str(active) if active else ""),
                         ("autoFilterDateGrouping", "" if view.date_grouping else "0")):
         opening = with_attribute(opening, name, value, _BOOK_VIEW_ORDER)

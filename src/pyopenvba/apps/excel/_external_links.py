@@ -189,8 +189,13 @@ def shown(book: Workbook, formula: str) -> str:
     workbook the link points at, 'C:\\dir\\[Source.xlsx]Sheet1'!, and each [1]! of a name as 'C:\\dir\\Source.xlsx'!.
     A link the workbook does not list is left as it is."""
     from pyopenvba.apps.excel._link_edits import source_is_open
+    from pyopenvba._a1 import quote_sheet
     from pyopenvba.formula import _parse as P
 
+    if "[0]!" in formula:
+        # This workbook, by what a deleted sheet leaves of its name: a file holds [0]!Name, and Excel shows the workbook's
+        # name as it is now (tests/fixtures/deleted_local_names.json).
+        formula = formula.replace("[0]!", quote_sheet(book.name) + "!")
     if "[" not in formula or not getattr(book, "linked_books", None):
         return formula
     try:

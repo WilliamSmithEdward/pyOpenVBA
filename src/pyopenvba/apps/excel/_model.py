@@ -37,6 +37,7 @@ from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
+from pyopenvba.interpreter._files import native_path, on_disk, respell_file
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -1573,7 +1574,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise VBAUnsupportedError("Workbooks.Open with a Converter is not implemented")
         self.application.outside("Workbooks.Open")
         given = to_text(Filename)
-        path = Path(given)
+        path = Path(on_disk(given))
         if not path.is_file():
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         if path.suffix.lower() in (".xls", ".xla", ".xlt"):
@@ -1677,9 +1678,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                 decimal=DecimalSeparator, thousands=ThousandsSeparator, trailing_minus=TrailingMinusNumbers,
                 given=any(argument is not MISSING for argument in arguments))
 
-        if not Path(given).is_file():
+        if not Path(on_disk(given)).is_file():
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
-        self.open_file(Path(given), reader=read)
+        self.open_file(Path(on_disk(given)), reader=read)
         return EMPTY
 
     def open_file(self, path: Path, *, with_vba: bool = True, read_only: bool = False,
@@ -2581,7 +2582,13 @@ class Workbook(ExcelObject):
         if self.format_code is not None:
             # A text format the model does not write reports itself before any event.
             text_writer(self.format_code)
-        return self.save_to(Path(self.path) / self.name)
+        # Save leaves the file spelled as the workbook is named, where SaveAs left the old spelling (tests/fixtures/case_saves.json).
+        named = Path(self.path) / self.name
+        saved = self.save_to(Path(on_disk(str(named))))
+        if saved:
+            self.name = named.name
+            respell_file(str(named))
+        return saved
 
     @method
     def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING, Password: object = MISSING,
@@ -2610,7 +2617,7 @@ class Workbook(ExcelObject):
                 _events.after_save(self, False)
                 return False
             raise VBAUnsupportedError("SaveAs without a filename is not implemented; supply Filename")
-        target = Path(to_text(Filename))
+        target = Path(native_path(to_text(Filename)))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
         writer = text_writer(chosen)
         expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm", 53: ".xltm", 54: ".xltx"}.get(chosen)
@@ -2627,7 +2634,12 @@ class Workbook(ExcelObject):
         if writer is None and target.suffix.lower() != expected:
             _events.after_save(self, False)
             raise error(1004, "SaveAs filename does not match FileFormat")
-        return self.save_to(target, before=False, file_format=chosen, sheet=sheet)
+        # Over a file in another case it writes that file, whose name stays, and is named as given (tests/fixtures/case_saves.json).
+        typed = target.name
+        saved = self.save_to(Path(on_disk(str(target))), before=False, file_format=chosen, sheet=sheet)
+        if saved:
+            self.name = typed
+        return saved
 
     @method
     def SaveCopyAs(self, Filename: object = MISSING) -> object:

@@ -38,10 +38,6 @@ WRITTEN = [(index, case) for index, case in enumerate(CASES) if not case["name"]
 UNMEASURED = [record for record in RECORDS if record["name"].startswith("unmeasured_")]
 
 
-#: The probe's sheet is late bound, where text is 1004; typed it is 13 (tests/fixtures/settable_audit.json), and the model
-#: follows typed until it tells the two bindings apart.
-TYPED_ANSWER = {"standard_width_bad": "1004:8.43,1004:8.43,0:255,13:255,1004:255,S1004;"}
-
 
 @pytest.mark.parametrize("record", [record for record in RECORDS if record not in UNMEASURED],
                          ids=[record["name"] for record in RECORDS if record not in UNMEASURED])
@@ -49,7 +45,7 @@ def test_measured_dimension(record: dict[str, str]) -> None:
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(record["code"], name="Probe")
-    assert app.run("Report") == TYPED_ANSWER.get(record["name"], record["reported"])
+    assert app.run("Report") == record["reported"]
 
 
 def test_the_baked_font_table_is_the_measurement() -> None:

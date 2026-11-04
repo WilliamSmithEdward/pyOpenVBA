@@ -16,6 +16,7 @@ Font, Interior, Borders, alignment -- lives in
 from __future__ import annotations
 
 import datetime as _dt
+import os
 import re
 import weakref
 from itertools import islice
@@ -110,6 +111,11 @@ class ExcelObject(Created):
 
     vba_library = _LIBRARY
     invalidated = False
+
+    def vba_given(self, name: str, value: object) -> object:
+        from pyopenvba.apps.excel._given_values import given
+
+        return given(self, name, value)
 
     def _check_alive(self) -> None:
         if any(getattr(owner, "invalidated", False) for owner in
@@ -1700,8 +1706,11 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project, load_project
         from pyopenvba.apps.excel._text_files import is_text, open_text
 
-        path = path.resolve()
-        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == path), None)
+        # A workbook keeps the folder as it was given, an 8.3 name included (tests/test_excel_short_paths.py), with its own name
+        # as the disk spells it (tests/fixtures/case_saves.json). Whether it is already open goes by the file it really is.
+        really = path.resolve()
+        path = Path(os.path.abspath(path)).parent / really.name
+        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == really), None)
         if existing is not None:
             self.application.activate_book(existing)
             return existing
@@ -1800,6 +1809,12 @@ def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., N
 
 
 class Workbook(ExcelObject):
+    def _check_alive(self) -> None:
+        # A closed book is 424 through an Object and an automation error through a Workbook (tests/fixtures/excel_fits.json).
+        if self.closed:
+            raise error(424 if BINDING.late else -2147221080, "Object required" if BINDING.late else "Automation error")
+        super()._check_alive()
+
     """One workbook: its sheets, its names, and where it came from."""
 
     vba_type_name = "Workbook"
@@ -1836,6 +1851,8 @@ class Workbook(ExcelObject):
         self.chart_sheets: list[ChartSheet] = []
         self.file_tabs: list[Worksheet | ChartSheet] = []
         self.active_chart_sheet: ChartSheet | None = None
+        #: Chart sheets a macro deleted, whose parts the next save removes.
+        self.deleted_chart_sheets: list[ChartSheet] = []
         #: Whether a macro has fetched a Name: LinkSources then leaves out links no cell refers to (see _workbook_links).
         self.names_fetched = False
         self.project_runtime: Interpreter | None = None
@@ -2730,7 +2747,7 @@ class Workbook(ExcelObject):
                 save_workbook(self, target)
         except OSError as failure:
             raise error(1004, str(failure)) from failure
-        self.path = str(target.resolve().parent)
+        self.path = str(Path(os.path.abspath(target)).parent)
         self.name = target.name
         if text and file_format is not None:
             saved_as_text(self, file_format, sheet)
@@ -3229,7 +3246,9 @@ class Workbook(ExcelObject):
 
         self.active_chart_sheet = None
         self.active_sheet_index = self.sheets_.index(sheet)
-        self.view.first_sheet = min(self.view.first_sheet, self.tabs().index(sheet))
+        # A copy is made active before it has its place among chart sheets, which then bring this back (see _chart_sheets).
+        self.view.first_sheet = min(self.view.first_sheet, next((at for at, tab in enumerate(self.tabs()) if tab is sheet),
+                                                                self.view.first_sheet))
         # A sheet of the group stays in it as it becomes active; any other stands alone
         # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
         if not any(one is sheet for one in self.selected_sheets):
@@ -3249,7 +3268,7 @@ class Workbook(ExcelObject):
     def add_sheet(self, name: str = "", *, at: int | None = None, numbered: bool = False) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
         chosen = name or self._next_sheet_name()
-        if any(_names.same_sheet_name(sheet.name, chosen) for sheet in self.sheets_):
+        if any(_names.same_sheet_name(sheet.name, chosen) for sheet in self.tabs()):
             raise error(1004, f"a sheet called {chosen} is already there")
         sheet = Worksheet(self, chosen)
         if at is None:
@@ -3265,7 +3284,7 @@ class Workbook(ExcelObject):
         """The number after the last the workbook gave, past any name taken in any case. Deleting or renaming a sheet gives
         none back; a sheet given a name, as a copy is, raises it to the count of sheets; and opening a file starts it from
         nothing, whatever its sheets are called (tests/fixtures/new_sheet_names.json)."""
-        taken = {sheet.name.lower() for sheet in self.sheets_}
+        taken = {sheet.name.lower() for sheet in self.tabs()}
         number = self.sheet_name_counter + 1
         while f"sheet{number}" in taken:
             number += 1
@@ -3365,7 +3384,6 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
     ) -> object:
         from pyopenvba.apps.excel._protection import ADDING, refuse_structure
 
-        self.book.refuse_chart_sheets("Adding a sheet")
         refuse_structure(self.book, ADDING)
         if len(self.book.selected()) > 1:
             # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
@@ -3386,10 +3404,20 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
             left = After
         elif self.book.active_sheet is not None:
             at = self.book.sheets_.index(self.book.active_sheet)
+        position: int | None = None
+        if self.book.chart_sheets:
+            # Before and After count every tab, and with neither the new sheet goes before the active one, chart or not
+            # (tests/fixtures/chart_sheets/tabs.json).
+            from pyopenvba.apps.excel._chart_sheets import tab_position
+
+            position = tab_position(self.book, Before, After)
+            at = sum(isinstance(tab, Worksheet) for tab in self.book.tabs()[:position])
         names = self.book.allocate_sheet_names(count)
         added: list[Worksheet] = []
         for offset, name in enumerate(reversed(names)):
             sheet = self.book.add_sheet(name, at=None if at is None else at + offset, numbered=True)
+            if position is not None:
+                self.book.file_tabs.insert(position + offset, sheet)
             added.append(sheet)
             self.book.activate_sheet(sheet)
             _events.new_sheet(self.book, sheet, left)
@@ -3731,11 +3759,14 @@ class Worksheet(ExcelObject):
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
-        self.book.refuse_chart_sheets("Renaming a sheet")
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
 
         refuse_structure(self.book, APPLICATION_DEFINED)
         wanted = to_text(value)
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import admit_rename
+
+            admit_rename(self, wanted)
         from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
         refuse_sparklines(self, "Renaming")
@@ -4214,7 +4245,8 @@ class Worksheet(ExcelObject):
 
         refuse(self, "ShowAllData method of Worksheet class failed")
         show_all_data(self)
-        return EMPTY
+        # Through an Object it answers True (tests/fixtures/excel_everyday_16.json); typed it is a Sub and has no answer to read.
+        return True
 
     # -- methods
 
@@ -4273,7 +4305,10 @@ class Worksheet(ExcelObject):
     def Delete(self) -> object:
         """Take the sheet out: the formulas and names that read it read #REF! instead, and where it was active the
         next visible sheet after it is, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
-        self.book.refuse_chart_sheets("Deleting a sheet")
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import admit_delete
+
+            admit_delete(self)
         from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
         from pyopenvba.apps.excel._sheet_groups import delete
 
@@ -4293,10 +4328,13 @@ class Worksheet(ExcelObject):
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
-        self.book.refuse_chart_sheets("Copying a sheet")
         from pyopenvba.apps.excel._protection import COPYING
         from pyopenvba.apps.excel._sheet_copy import copy_sheet
 
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import copy_among_tabs
+
+            return copy_among_tabs(self, Before, After)
         self.guard_structure(Before, After, COPYING, "Copying")
         return copy_sheet(self, Before, After)
 
@@ -4313,10 +4351,13 @@ class Worksheet(ExcelObject):
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
-        self.book.refuse_chart_sheets("Moving a sheet")
         from pyopenvba.apps.excel._protection import MOVING
         from pyopenvba.apps.excel._sheet_move import move_sheet
 
+        if self.book.chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import move_tab
+
+            return move_tab(self, Before, After)
         self.guard_structure(Before, After, MOVING, "Moving")
         return move_sheet(self, Before, After)
 
@@ -4812,7 +4853,13 @@ class Range(ExcelObject):
         self._links_emptied(value)
         _events.after_edit(self)
 
+    def _first_area(self) -> Range:
+        return Range(self.sheet, list(self.areas[:1]))
+
     def _values(self, *, raw: bool) -> object:
+        # A range of separate areas reads as its first (tests/fixtures/range_area_reads.json).
+        if len(self.areas) > 1:
+            return self._first_area()._values(raw=raw)
         if self.single:
             return self._read(self.first.top, self.first.left, raw=raw)
         # The array has the range's own shape, empty cells and all: Range("A1:B2").Value
@@ -4840,7 +4887,13 @@ class Range(ExcelObject):
 
     @member
     def Text(self) -> object:
-        """What the cell shows, at most 8221 characters of it (tests/fixtures/range_values.json)."""
+        """What the cell shows, at most 8221 characters of it (tests/fixtures/range_values.json). Over several cells,
+        what they all show, or Null where they differ (tests/fixtures/range_area_reads.json); past 100,000 cells, the
+        first's, which was not measured."""
+        if not self.single and sum(area.rows * area.columns for area in self.areas) <= 100_000:
+            shown_by = {str(Range(self.sheet, [Area(row, column, row, column, self.sheet.name)]).Text())
+                        for area in self.areas for row in range(area.top, area.bottom + 1) for column in range(area.left, area.right + 1)}
+            return shown_by.pop() if len(shown_by) == 1 else NULL
         shown = self._shown_text()
         return shown[:8221] if isinstance(shown, str) else shown
 
@@ -5212,6 +5265,10 @@ class Range(ExcelObject):
 
     def _read_formulas(self, *, r1c1: bool, at: bool = False) -> object:
         from pyopenvba.apps.excel._data_tables import table_at
+
+        # Separate areas read as the first (tests/fixtures/range_area_reads.json).
+        if len(self.areas) > 1:
+            return self._first_area()._read_formulas(r1c1=r1c1, at=at)
 
         def read(row: int, column: int) -> object:
             table = table_at(self.sheet, row, column) if self.sheet.data_tables else None
@@ -6845,9 +6902,9 @@ class Range(ExcelObject):
         if len(self.areas) != 1 or len(Destination.areas) != 1:
             raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
         area, target = self.first, Destination.first
-        repeat = target.rows % area.rows == 0 and target.columns % area.columns == 0
-        rows = target.rows if repeat else area.rows
-        columns = target.columns if repeat else area.columns
+        from pyopenvba.apps.excel._clipboard import tiled_size
+
+        rows, columns = tiled_size(target.rows, target.columns, area.rows, area.columns)
         bottom, right = target.top + rows - 1, target.left + columns - 1
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
@@ -7572,25 +7629,26 @@ class Range(ExcelObject):
         """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item."""
         areas = self._array_areas(array)
         for area in areas:
-            if array.dimensions == 1:
-                # A flat array is one row, laid across and repeated down
-                # every row of the range, which is what Excel does with it.
-                items = array.elements()
-                for offset, item in enumerate(items):
-                    column = area.left + offset
-                    if column > area.right:
-                        break
-                    for row in range(area.top, area.bottom + 1):
-                        self._put(row, column, item, raw=raw)
+            # A flat array is one row. One row or one column repeats that way over the range; past the end of any other is #N/A
+            # (tests/fixtures/excel_fits.json).
+            flat: list[object] = list(array.elements()) if array.dimensions == 1 else []
+            rows, columns = (1, 1), (0, len(flat) - 1)
+            if array.dimensions != 1:
+                rows, columns = array.bounds[0], array.bounds[1]
+            height, width = rows[1] - rows[0] + 1, columns[1] - columns[0] + 1
+            if height < 1 or width < 1:
                 continue
-            rows, columns = array.bounds[0], array.bounds[1]
-            for row_index in range(rows[0], rows[1] + 1):
-                for column_index in range(columns[0], columns[1] + 1):
-                    row = area.top + row_index - rows[0]
-                    column = area.left + column_index - columns[0]
-                    if row > area.bottom or column > area.right:
-                        continue
-                    self._put(row, column, array.get([row_index, column_index]), raw=raw)
+            for row in range(area.rows):
+                for column in range(area.columns):
+                    down, across = 0 if height == 1 else row, 0 if width == 1 else column
+                    item: object
+                    if down >= height or across >= width:
+                        item = VBAErrorValue(2042)
+                    elif array.dimensions == 1:
+                        item = flat[across]
+                    else:
+                        item = array.get([rows[0] + down, columns[0] + across])
+                    self._put(area.top + row, area.left + column, item, raw=raw)
         self.sheet.touched()
 
     def _array_areas(self, array: VBAArray) -> list[Area]:

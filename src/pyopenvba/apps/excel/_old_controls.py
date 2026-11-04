@@ -16,7 +16,7 @@ from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.apps.excel._shapes import ShapeObject
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAArray, VBAInt, error, to_bool, to_number, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBAErrorValue, VBAInt, error, to_bool, to_number, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -240,7 +240,7 @@ class ControlCharacters(Created):
         length = self.length if writing or isinstance(self.item, Button) else None
         return self.start, len(text) if length is None else min(len(text), self.start + length)
 
-    @member(default=True)
+    @member
     def Text(self) -> object:
         begin, end = self._span()
         return self.item._caption()[begin:end]  # pyright: ignore[reportPrivateUsage]
@@ -292,8 +292,19 @@ class _Valued(OldControl):
 
     vba_type_name = ''
 
+    @member
+    def Value(self) -> object:
+        """On or mixed is a Double, and off xlOff, a Long (tests/fixtures/old_collection_members.json)."""
+        found = self.control.vba_get('Value', [])
+        number = to_number(found)
+        return found if number == -4146 else float(number)
 
-for _spec in (_through('control', 'Value'), _through('control', 'LinkedCell'), _new_control('Display3DShading', False)):
+    @setter('Value')
+    def _value(self, value: object) -> None:
+        self.control.vba_set('Value', value)
+
+
+for _spec in (_through('control', 'LinkedCell'), _new_control('Display3DShading', False)):
     _Valued.vba_add_member(_spec)
 
 
@@ -305,6 +316,12 @@ class CheckBox(_Valued, _Captioned):
 class OptionButton(_Valued, _Captioned):
     vba_type_name = 'OptionButton'
     kind = 'Radio'
+
+    @member
+    def GroupBox(self) -> object:
+        if any(one.kind == 'formControl' and one.control is not None and one.control.kind == 'GBox' for one in self.sheet.shapes_):
+            raise VBAUnsupportedError('OptionButton.GroupBox on a sheet with group boxes is not implemented')
+        return NOTHING
 
 
 class _Listed(_Valued):
@@ -339,15 +356,19 @@ class _Listed(_Valued):
 
     @setter('Value')
     def _value(self, value: object) -> None:
-        if not int(to_number(self.control.vba_get('ListCount', []))) or isinstance(self, DropDown):
+        if not int(to_number(self.control.vba_get('ListCount', []))):
             raise error(1004, 'Unable to set the Value property')
         self.control.vba_set('Value', value)
 
     @member
     def Selected(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        chosen = int(to_number(self.control.vba_get('ListIndex', [])))
         if Index is MISSING:
-            raise error(*_NOT_THERE)
-        return int(to_number(self.control.vba_get('ListIndex', []))) == int(to_number(Index))
+            count = int(to_number(self.control.vba_get('ListCount', [])))
+            if not count or isinstance(self, DropDown):
+                raise error(*_NOT_THERE)
+            return VBAArray([(1, count)], items=[chosen == one for one in range(1, count + 1)])
+        return chosen == int(to_number(Index))
 
     @setter('Selected')
     def _selected(self, value: object, Index: object = MISSING) -> None:  # noqa: N803 - native named argument
@@ -357,7 +378,8 @@ class _Listed(_Valued):
             self.control.vba_set('ListIndex', Index)
 
 
-for _spec in (_through('control', 'ListFillRange'), _through('control', 'ListCount', writes=False), _through('control', 'ListIndex')):
+for _spec in (_through('control', 'ListFillRange'), _through('control', 'ListCount', writes=False), _through('control', 'ListIndex'),
+              _new_control('LinkedObject', '')):
     _Listed.vba_add_member(_spec)
 
 
@@ -397,8 +419,12 @@ class DropCharacters(Created):
     vba_type_name = 'Characters'
 
     @member
+    def Count(self) -> object:
+        raise error(*_NOT_THERE)
+
+    @member
     def Text(self) -> object:
-        raise error(13, 'Type mismatch')
+        return VBAErrorValue(2042)
 
     @setter('Text')
     def _text(self, value: object) -> None:
@@ -454,11 +480,42 @@ class OLEFormat(Created):
         return ShapeObject(self.sheet, self.shape)
 
 
+class SpreadPart(Created):
+    """A collection's own Font, Interior, Border or Characters, answering for all its items. Changing one is refused until what it writes is measured."""
+
+    vba_type_name = ''
+
+    def __init__(self, owner: OldControls, part: str) -> None:
+        self.owner, self.part = owner, part
+        self.vba_type_name = part
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        if name.lower() == 'creator':
+            return super().vba_get(name, args, named)
+        if name.lower() == 'parent':
+            return self.owner
+        if name.lower() == 'application':
+            return self.owner.sheet.book.application
+        return self.owner.read_part(self.part, name)
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
+        raise VBAUnsupportedError(f'Setting {self.part}.{name} on {self.owner.vba_type_name} is not implemented')
+
+
 class OldControls(VBACollection, Created):
-    """One kind of a sheet's form controls, or some of them picked by an Array."""
+    """One kind of a sheet's form controls, or some of them picked by an Array. Asked for a member of its items, a collection of one
+    answers for the item, and of several fails, but for what these say (tests/fixtures/old_collection_members.json)."""
 
     vba_type_name = ''
     kind: ClassVar[str] = ''
+    #: What it gives as an object of its own.
+    parts: ClassVar[frozenset[str]] = frozenset()
+    #: Whether one item alone still answers through that object rather than its own.
+    spread_alone: ClassVar[bool] = True
+    #: What several items answer.
+    several: ClassVar[dict[str, object]] = {'visible': True}
+    #: What the collection of one gives as a Double, where its item gives a Long.
+    doubled: ClassVar[frozenset[str]] = frozenset({'zorder', 'value', 'listindex', 'dropdownlines', 'listcount'})
 
     def __init__(self, sheet: Worksheet, picked: list[Shape] | None = None) -> None:
         self.sheet, self.picked = sheet, picked
@@ -534,42 +591,82 @@ class OldControls(VBACollection, Created):
             raise error(*_NOT_THERE)
         raise VBAUnsupportedError(f'Grouping {self.vba_type_name} is not implemented')
 
+    def read_part(self, part: str, name: str) -> object:
+        """A member read through what ``part`` gives."""
+        if part == 'Interior' and name.lower() in ('colorindex', 'pattern'):
+            return VBAInt(-4142, 'Long')
+        raise error(*_NOT_THERE)
+
+    def nothing_held(self, name: str) -> object:
+        raise VBAUnsupportedError(f'{self.vba_type_name}.{name} with nothing in the collection is not implemented')
+
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        """A member of the collection, or else of its first item."""
-        if name.lower() in self._vba_members or name.lower() in {key.lower() for key in self._vba_members}:
+        """A member of the collection, or else what its items answer."""
+        lower = name.lower()
+        if lower in {key.lower() for key in self._vba_members}:
             return super().vba_get(name, args, named)
         items = self.vba_items()
         if not items:
-            raise VBAUnsupportedError(f'{self.vba_type_name}.{name} with nothing in the collection is not implemented')
-        return getattr(items[0], 'vba_get')(name, args, named)
+            return self.nothing_held(name)
+        if lower == 'shaperange':
+            names = [getattr(one, 'shape').name for one in items]
+            found = _object(_object(self.sheet.vba_get('Shapes', [])).vba_get('Range', [VBAArray([(1, len(names))], items=names)]))
+            return found.vba_get('Item', args) if args else found
+        part = next((one for one in self.parts if one.lower() == lower), None)
+        if part is not None and (self.spread_alone or len(items) > 1):
+            return SpreadPart(self, part)
+        if lower == 'list' and not args:
+            raise error(*_NOT_THERE)
+        if len(items) == 1:
+            if lower == 'zorder' and self.doubled:
+                # Among the sheet's form controls only.
+                return float(1 + [one for one in self.sheet.shapes_ if one.kind == 'formControl'].index(getattr(items[0], 'shape')))
+            found = getattr(items[0], 'vba_get')(name, args, named)
+            return float(found) if lower in self.doubled and isinstance(found, int) and found > 0 else found
+        if getattr(items[0], 'vba_member')(name) is None:
+            return getattr(items[0], 'vba_get')(name, args, named)
+        if lower not in self.several:
+            raise error(*_NOT_THERE)
+        if lower == 'visible' and any(getattr(one, 'shape').hidden for one in items):
+            raise VBAUnsupportedError(f'{self.vba_type_name}.Visible with some of its items hidden is not implemented')
+        return self.several[lower]
 
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
-        """A member set on every item."""
+        """A member set on every item, though not a name, which they cannot share. A list with nothing in it takes no Value, and the others still do."""
+        if name.lower() == 'name':
+            raise error(438, "Object doesn't support this property or method")
         items = self.vba_items()
         if not items:
             raise VBAUnsupportedError(f'{self.vba_type_name}.{name} with nothing in the collection is not implemented')
         for item in items:
-            getattr(item, 'vba_set')(name, value, args, named, by_ref=by_ref)
+            if not (name.lower() == 'value' and isinstance(item, _Listed) and not int(to_number(item.control.vba_get('ListCount', [])))):
+                getattr(item, 'vba_set')(name, value, args, named, by_ref=by_ref)
 
 
 class Buttons(OldControls):
     vba_type_name = 'Buttons'
     kind = 'Button'
+    parts = frozenset({'Characters', 'Font'})
+    several = {'visible': True, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
 
 
 class CheckBoxes(OldControls):
     vba_type_name = 'CheckBoxes'
     kind = 'CheckBox'
+    parts = frozenset({'Border', 'Characters', 'Interior'})
 
 
 class OptionButtons(OldControls):
     vba_type_name = 'OptionButtons'
     kind = 'Radio'
+    parts = frozenset({'Border', 'Characters', 'Interior'})
+    several = {'visible': True, 'groupbox': NOTHING}
 
 
 class DropDowns(OldControls):
     vba_type_name = 'DropDowns'
     kind = 'Drop'
+    parts = frozenset({'Characters'})
 
 
 class ListBoxes(OldControls):

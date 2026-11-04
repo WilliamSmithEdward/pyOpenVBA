@@ -244,6 +244,15 @@ class TextLook:
     font_tint: int | None = None
     font_shadow: bool = False
     font_latin: str | None = None
+    #: What only a file sets: the other fonts' elements, and any effects, highlight or underline paint, as the file has them.
+    font_fill_type: int | None = None
+    font_ea: str | None = None
+    font_cs: str | None = None
+    font_sym: str | None = None
+    font_effects: str | None = None
+    font_highlight: str | None = None
+    font_underline_line: str | None = None
+    font_underline_fill: str | None = None
     #: What TextRange2.Font.Fill adds: no fill, a theme colour, its Brightness, its transparency, and a colour written out.
     font_no_fill: bool = False
     font_theme: str | None = None
@@ -258,6 +267,9 @@ class TextLook:
     column_spacing: float = 0.0
     #: DeleteText leaves the empty paragraph's end without a size.
     deleted: bool = False
+    #: A file's normAutofit fontScale, which sizes read through, and its text warp, if any.
+    font_scale: int | None = None
+    warp: str | None = None
 
 
 @dataclass(slots=True)
@@ -505,6 +517,8 @@ class Shape:
     picture_colour_type: int = 1
     picture_clear: str | None = None
     picture_transparent: bool = True
+    #: A loaded picture's srcRect, left, top, right and bottom in thousandths of a percent.
+    picture_crop: tuple[int, int, int, int] = (0, 0, 0, 0)
     #: Setting TransparentBackground writes a fill behind the picture: clear when on, the style's when off.
     picture_fill: str | None = None
     image_relationship: str = ""
@@ -518,6 +532,8 @@ class Shape:
     begin_link: ConnectorLink | None = None
     end_link: ConnectorLink | None = None
     link_place: tuple[float, float, bool, bool, float] | None = None
+    #: A loaded connector: whether its connections have been read from its markup.
+    links_read: bool = False
     #: Excel: a connector that lost a shape to its deletion writes an empty cxnSpLocks.
     link_lost: bool = False
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
@@ -541,6 +557,11 @@ class Shape:
     text_marks: list[dict[str, object]] = field(default_factory=list[dict[str, object]])
     #: The settings the last paragraph's end holds, once replacing the text has left it any.
     text_end: dict[str, object] | None = None
+    #: A loaded shape: whether text_look and the marks have been read from its markup, whether writing them gives that markup
+    #: back, so that a change can be saved, and each paragraph's pPr where they are not all the look's.
+    text_read: bool = False
+    text_rewritable: bool = False
+    text_paragraphs: list[str] | None = None
     #: Each edit of the text as (where, how much went, how much came, whether all of it went), for a TextRange2 held across it.
     text_edits: list[tuple[int, int, int, bool]] = field(default_factory=list[tuple[int, int, int, bool]])
     #: Excel: a new freeform's path, each step its command (moveTo, lnTo, cubicBezTo or close) and its points in EMU

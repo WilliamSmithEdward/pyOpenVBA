@@ -27,9 +27,11 @@ from dataclasses import dataclass, field, replace
 from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
-from pyopenvba.shapes._read_look import with_fill_line
+from pyopenvba.shapes._read_look import read_picture, with_fill_line
+from pyopenvba.shapes._read_text import loaded_text, read_text
 from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects, TextLine,
                                       TextLook, child_space, emu, points, to_child)
 
@@ -240,6 +242,8 @@ def _shape_of(
         auto_shape_type=next((number for number, preset in PRESET_GEOMETRY.items() if preset == geometry), 1),
     )
     shape.loaded_box = (left, top, width, height)
+    if kind == "picture":
+        read_picture(markup, shape)
     if kind == "group":
         shape.children = _members(markup, grid)
         _placed_in_group(shape.children, _CHILD_SPACE.search(markup), (left, top, width, height))
@@ -271,7 +275,7 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
     transform = re.search(r"<a:xfrm\b([^>]*)>", markup)
     shape.flip_h = transform is not None and re.search(r'\bflipH="(?:1|true)"', transform.group(1)) is not None
     shape.flip_v = transform is not None and re.search(r'\bflipV="(?:1|true)"', transform.group(1)) is not None
-    locks = re.search(r"<a:spLocks\b([^>]*)/?>", markup)
+    locks = re.search(r"<a:(?:sp|cxnSp|pic)Locks\b([^>]*)/?>", markup)
     if locks is not None:
         shape.lock_aspect = re.search(r'\bnoChangeAspect="(?:1|true)"', locks.group(1)) is not None
     client = re.search(r"<xdr:clientData\b([^>]*)/?>", anchor)
@@ -398,6 +402,7 @@ def read_controls(sheet_xml: str, parts: dict[str, str]) -> dict[int, ControlInf
                 values = {key: unescape(value) for key, value in _ATTRIBUTE.findall(settings.group(1))}
                 control.kind = values.get("objectType", "control")
                 control.first_button = values.get("firstButton", "0") == "1"
+                control.lock_text = values.get("lockText", "0") == "1"
                 control.linked_cell = values.get("fmlaLink", "")
                 control.list_range = values.get("fmlaRange", "")
                 control.value = int(_number(values.get("val"), 0))
@@ -755,7 +760,8 @@ def _vml_shape_span(vml: str, spid: str) -> tuple[int, int] | None:
         if span is None:
             return None
         at = span[1]
-        if f'o:spid="{spid}"' in vml[span[0] : span[1]]:
+        # Excel's own file names a control by its id, and the model's by its spid.
+        if f'"{spid}"' in vml[span[0] : vml.index(">", span[0])]:
             return span
 
 
@@ -790,6 +796,20 @@ def control_text(vml: str, shape_id: int) -> str:
     reader.feed(markup[box[0]:box[1]])
     reader.close()
     return "\n".join(line.strip() for line in "".join(reader.pieces).splitlines()).strip()
+
+
+def read_control_settings(vml: str, shape: Shape, control: ControlInfo) -> None:
+    """A control's Visible, Locked, Enabled, PrintObject and DropDownLines, which only its VML holds (tests/fixtures/old_collection_members.json)."""
+    span = _vml_shape_span(vml, f"_x0000_s{shape.shape_id}")
+    if span is None:
+        return
+    markup = vml[span[0] : span[1]]
+    shape.hidden = "visibility:hidden" in markup
+    shape.locked = re.search(r"<x:Locked>\s*False", markup) is None
+    control.disabled = "<x:Disabled" in markup
+    control.print_object = re.search(r"<x:PrintObject>\s*False", markup) is None
+    lines = re.search(r"<x:DropLines>\s*(\d+)", markup)
+    control.drop_lines = int(lines.group(1)) if lines else None
 
 
 def without_control(sheet_xml: str, shape_id: int) -> str:
@@ -836,6 +856,44 @@ def with_control_shape(sheet_xml: str, shape: Shape, grid: SheetGrid) -> str:
     return _CONTROL.sub(change, sheet_xml)
 
 
+def with_control_state(sheet_xml: str, shape: Shape) -> str:
+    """Patch what the sheet says of a control's Locked and Placement (tests/fixtures/old_collection_edits.json)."""
+    def change(found: re.Match[str]) -> str:
+        markup = found.group(0)
+        head = _CONTROL_HEAD.search(markup)
+        if head is None or dict(_ATTRIBUTE.findall(head.group(1))).get("shapeId") != str(shape.shape_id):
+            return markup
+        markup = _attribute_on_tag(markup, "controlPr", "locked", None if shape.locked else "0")
+        markup = _attribute_on_tag(markup, "anchor", "moveWithCells", None if shape.edit_as == "absolute" else "1")
+        return _attribute_on_tag(markup, "anchor", "sizeWithCells", "1" if shape.edit_as in ("", "twoCell") else None)
+
+    return _CONTROL.sub(change, sheet_xml)
+
+
+def _vml_flag(markup: str, tag: str, wanted: str) -> str:
+    """One setting among a VML client's, as ``wanted`` spells it, none where that is empty."""
+    found = re.search(rf"\s*<x:{tag}\b[^>]*?(?:/>|>.*?</x:{tag}>)", markup, re.DOTALL)
+    if found is not None and wanted:
+        return markup
+    if found is not None:
+        return markup[:found.start()] + markup[found.end():]
+    return markup.replace("</x:ClientData>", f"{wanted}</x:ClientData>") if wanted else markup
+
+
+def _vml_state(markup: str, shape: Shape) -> str:
+    """A control's Visible, Locked and Placement in its VML, changed only where they differ."""
+    if shape.hidden != ("visibility:hidden" in markup):
+        if not shape.hidden:
+            markup = re.sub(r";?visibility:hidden", "", markup, count=1)
+        elif "mso-wrap-style" in markup:
+            markup = markup.replace("mso-wrap-style", "visibility:hidden;mso-wrap-style", 1)
+        else:
+            markup = re.sub(r"(\bstyle=['\"][^'\"]*)", r"\1;visibility:hidden", markup, count=1)
+    markup = _vml_flag(markup, "Locked", "" if shape.locked else "<x:Locked>False</x:Locked>")
+    markup = _vml_flag(markup, "MoveWithCells", "<x:MoveWithCells/>" if shape.edit_as == "absolute" else "")
+    return _vml_flag(markup, "SizeWithCells", "" if shape.edit_as in ("", "twoCell") else "<x:SizeWithCells/>")
+
+
 def _attribute_on_tag(markup: str, tag: str, name: str, value: str | None) -> str:
     found = re.search(rf"<{re.escape(tag)}(?=[\s/>])[^>]*>", markup)
     if found is None:
@@ -860,7 +918,10 @@ def with_vml_control(vml: str, shape: Shape, before: Shape, grid: SheetGrid) -> 
         return vml
     markup = vml[span[0]:span[1]]
     if shape.name != before.name:
+        # What it was found by goes on, as Excel's does (tests/fixtures/old_collection_edits.json).
+        markup = _attribute_on_tag(markup, "v:shape", "o:spid", f"_x0000_s{shape.shape_id}")
         markup = _attribute_on_tag(markup, "v:shape", "id", _vml_id(shape.name))
+    markup = _vml_state(markup, shape)
     if (shape.left, shape.top, shape.width, shape.height) != (before.left, before.top, before.width, before.height):
         style = re.search(r"\bstyle=([\"'])(.*?)\1", markup, re.DOTALL)
         if style:
@@ -1000,16 +1061,129 @@ _PICTURE_FILLS = {"clear": '<a:solidFill><a:schemeClr val="accent1"><a:alpha val
                   "solid": '<a:solidFill><a:schemeClr val="accent1"/></a:solidFill>'}
 
 
-def _new_picture(shape: Shape) -> str:
-    """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
-    locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"
-    effects = {2: "<a:grayscl/>", 3: '<a:biLevel thresh="50000"/>'}.get(shape.picture_colour_type, "")
+def _picture_effects(shape: Shape) -> str:
+    """What a picture's blip holds of PictureFormat's settings, in Excel's order (tests/fixtures/loaded_shape_sets.json)."""
+    effects = ""
     if shape.picture_clear is not None:
         effects += (f'<a:clrChange><a:clrFrom><a:srgbClr val="{shape.picture_clear}"/></a:clrFrom><a:clrTo>'
                     f'<a:srgbClr val="{shape.picture_clear}"><a:alpha val="0"/></a:srgbClr></a:clrTo></a:clrChange>')
+    effects += {2: "<a:grayscl/>", 3: '<a:biLevel thresh="50000"/>'}.get(shape.picture_colour_type, "")
     if shape.picture_lum is not None:
         bright, contrast = shape.picture_lum
         effects += "<a:lum" + (f' bright="{bright}"' if bright else "") + (f' contrast="{contrast}"' if contrast else "") + "/>"
+    return effects
+
+
+def _with_loaded_picture(markup: str, shape: Shape, was: Shape) -> str:
+    """A loaded picture's markup with what PictureFormat changed. Effects the model does not read stop it being changed."""
+    if (shape.picture_lum, shape.picture_colour_type, shape.picture_clear) != (was.picture_lum, was.picture_colour_type, was.picture_clear):
+        found = re.search(r"(<a:blip\b[^>]*?)(/>|>(.*?)</a:blip>)", markup, re.DOTALL)
+        if found is not None:
+            inside = found.group(3) or ""
+            at = inside.find("<a:extLst")
+            rest = "" if at < 0 else inside[at:]
+            kept = _picture_effects(was)
+            if (inside if at < 0 else inside[:at]) != kept:
+                raise VBAUnsupportedError("Saving PictureFormat over effects the model does not read is not implemented")
+            effects = _picture_effects(shape) + rest
+            blip = f"{found.group(1)}>{effects}</a:blip>" if effects else f"{found.group(1)}/>"
+            markup = markup[:found.start()] + blip + markup[found.end():]
+    if shape.picture_fill is not None:
+        markup = with_fill_line(markup, _PICTURE_FILLS[shape.picture_fill])
+    return markup
+
+
+def _with_loaded_links(markup: str, shape: Shape) -> str:
+    """A loaded connector's markup with the connections it holds now, and any flips a connection gave it."""
+    span = re.search(r"<xdr:cNvCxnSpPr(?:/>|>(.*?)</xdr:cNvCxnSpPr>)", markup, re.DOTALL)
+    if span is None:
+        return markup
+    kept = re.sub(r"<a:(?:stCxn|endCxn)\b[^>]*/>", "", span.group(1) or "")
+    kept += "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
+    kept += "" if shape.end_link is None else f'<a:endCxn id="{shape.end_link.target}" idx="{shape.end_link.site - 1}"/>'
+    written = f"<xdr:cNvCxnSpPr>{kept}</xdr:cNvCxnSpPr>" if kept else "<xdr:cNvCxnSpPr/>"
+    return markup[:span.start()] + written + markup[span.end():]
+
+
+def _new_text_body(shape: Shape) -> str:
+    """A shape's txBody as the model writes it."""
+    body = dml.text_body(shape.text, "xdr:txBody")
+    if shape.kind in ("shape", "freeform"):
+        # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
+        # (tests/fixtures/text_frame.json).
+        body = body.replace("<a:p>", '<a:p><a:pPr algn="l"/>', 1)
+    if shape.kind == "textBox":
+        # A text box's text runs across, as Excel writes it.
+        body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
+    if shape.kind == "shape" and shape.geometry in DARK_TEXT:
+        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
+                            '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
+    if shape.text_look is not None:
+        body = _laid_out(body, shape.text_look, _marked_paragraphs(shape, shape.text_look))
+    if shape.painted:
+        body = body.replace(
+            '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
+            '<a:pPr marL="0" indent="0" algn="l"/><a:endParaRPr lang="en-US" sz="1100"><a:solidFill><a:schemeClr val="lt1"/>'
+            '</a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:endParaRPr>')
+    if shape.text_paragraphs is not None:
+        own = iter(shape.text_paragraphs)
+        body = re.sub(r"<a:p>(?:<a:pPr\b[^>]*/>)?", lambda _: f"<a:p>{next(own, '')}", body)
+    return body
+
+
+def read_shape_text(shape: Shape) -> None:
+    """Fill in a loaded shape's text settings from its markup, the first time a macro reaches them."""
+    if shape.text_read or not shape.source:
+        return
+    found = read_text(shape.source)
+    if shape.text == dml.text_of(shape.source):
+        # What VBA reaches tells a line break from a paragraph's end, where the shape's plain text does not.
+        shape.text = loaded_text(shape.source)
+    shape.text_look, shape.text_marks, shape.text_end, shape.text_paragraphs = found.look, found.marks, found.end, found.paragraphs
+    shape.text_read = True
+    span = dml.element_span(shape.source, "xdr:txBody")
+    shape.text_rewritable = span is not None and _new_text_body(shape) == shape.source[span[0]:span[1]]
+
+
+def _with_loaded_text(markup: str, shape: Shape, was: Shape) -> str:
+    """A loaded shape's markup with what a macro changed of its text: written out if the model writes this text just as the file
+    does; otherwise only new words, in the first run's settings, with the frame and the first paragraph's kept."""
+    span = dml.element_span(markup, "xdr:txBody")
+    if span is None or shape.kind not in ("shape", "textBox"):
+        return dml.replace_text(markup, shape.text, "xdr:txBody") if shape.text != was.text else markup
+    if shape.text_read:
+        before = read_text(shape.source)
+        same = (before.look, before.marks, before.end, before.paragraphs) == (
+            shape.text_look, shape.text_marks, shape.text_end, shape.text_paragraphs)
+        if same and shape.text == loaded_text(shape.source):
+            return markup
+        if shape.text_rewritable:
+            return markup[:span[0]] + _new_text_body(shape) + markup[span[1]:]
+    elif shape.text == was.text:
+        return markup
+    return markup[:span[0]] + _new_words(markup[span[0]:span[1]], shape.text) + markup[span[1]:]
+
+
+def _new_words(body: str, text: str) -> str:
+    start = body.find("<a:p>") if "<a:p>" in body else body.find("<a:p ")
+    head = body if start < 0 else body[:start]
+    run = re.search(r"<a:rPr\b[^>]*?(?:/>|>.*?</a:rPr>)", body, re.DOTALL)
+    end = re.search(r"<a:endParaRPr\b[^>]*?(?:/>|>.*?</a:endParaRPr>)", body, re.DOTALL)
+    settings = re.search(r"<a:pPr\b[^>]*?(?:/>|>.*?</a:pPr>)", body, re.DOTALL)
+    paragraph = "" if settings is None else settings.group(0)
+    props = run.group(0) if run is not None else "" if end is None else end.group(0).replace("endParaRPr", "rPr")
+    lines: list[str] = []
+    for line in text.split("\n"):
+        inner = f"<a:r>{props}<a:t>{dml.escaped_text(line)}</a:t></a:r>" if line else (
+            "" if end is None and not props else (end.group(0) if end is not None else props.replace("rPr", "endParaRPr")))
+        lines.append(f"<a:p>{paragraph}{inner}</a:p>")
+    return head + "".join(lines) + "</xdr:txBody>"
+
+
+def _new_picture(shape: Shape) -> str:
+    """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
+    locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"
+    effects = _picture_effects(shape)
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ""
     blip = (f'r:link="{shape.image_relationship}"/>' if shape.image_link else
             f'r:embed="{shape.image_relationship}">{effects}<a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
@@ -1041,26 +1215,9 @@ def _new_element(shape: Shape) -> str:
     if shape.kind == "picture":
         return _new_picture(shape)
     line = shape.kind == "line"
-    body = "" if line else dml.text_body(shape.text, "xdr:txBody")
+    body = "" if line else _new_text_body(shape)
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
-    if shape.kind in ("shape", "freeform"):
-        # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
-        # (tests/fixtures/text_frame.json).
-        body = body.replace("<a:p>", '<a:p><a:pPr algn="l"/>', 1)
-    if shape.kind == "textBox":
-        # A text box's text runs across, as Excel writes it.
-        body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
-    if shape.kind == "shape" and shape.geometry in DARK_TEXT:
-        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
-                            '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
-    if shape.text_look is not None and body:
-        body = _laid_out(body, shape.text_look, _marked_paragraphs(shape, shape.text_look))
-    if shape.painted:
-        body = body.replace(
-            '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
-            '<a:pPr marL="0" indent="0" algn="l"/><a:endParaRPr lang="en-US" sz="1100"><a:solidFill><a:schemeClr val="lt1"/>'
-            '</a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:endParaRPr>')
     box = ' txBox="1"' if shape.kind == "textBox" else ""
     textlink = "" if line else ' textlink=""'
     identity = _identity(shape)
@@ -1120,8 +1277,10 @@ def _fill_line(shape: Shape) -> str:
     if look.fill_gradient is not None:
         fill_paint = _gradient(look.fill_gradient)
     fill = ""
-    if look.fill_hidden or look.fill_bare:
+    if look.fill_hidden or (look.fill_bare and shape.kind != "picture"):
         fill = "<a:noFill/>"
+    elif look.fill_bare:
+        pass  # A picture with no fill of its own stays without one (tests/fixtures/shape_settings_kept.json).
     elif look.fill_pattern is not None or look.fill_gradient is not None:
         fill = fill_paint
     elif (look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box
@@ -1292,11 +1451,12 @@ def _arrow_ends(head: tuple[str | None, str | None, str | None], tail: tuple[str
 
 def _stroke(tag: str, namespace: str, width: int, paint: str, dash: str, text_box: bool, full: bool, ends: str,
             align: str | None) -> str:
-    """A line written out in full: as a text box has it, with no dash or join until its ends are written, or as the
-    style gives any other shape's."""
+    """A line written out in full: as a text box has it, with no join until its ends are written and a dash only if one is set
+    (tests/fixtures/shape_settings_kept.json), or as the style gives any other shape's."""
     if text_box and not full:
         aligned = "" if align is None else f' algn="{align}"'
-        return f'<{tag}{namespace} w="{width}" cmpd="sng"{aligned}>{paint}</{tag}>'
+        dashed = "" if dash == "solid" else f'<a:prstDash val="{dash}"/>'
+        return f'<{tag}{namespace} w="{width}" cmpd="sng"{aligned}>{paint}{dashed}</{tag}>'
     join = "<a:round/>" if text_box else '<a:miter lim="800000"/>'
     return (f'<{tag}{namespace} w="{width}" cap="flat" cmpd="sng" algn="ctr">{paint}<a:prstDash val="{dash}"/>{join}'
             f"{ends}</{tag}>")
@@ -1314,7 +1474,7 @@ def _free_geometry(shape: Shape) -> str:
 
 def _connections(shape: Shape) -> str:
     """A connector's cNvCxnSpPr, naming the shape and site each connected end holds (tests/fixtures/shape_connectors.json)."""
-    inside = "<a:cxnSpLocks/>" if shape.link_lost else ""
+    inside = '<a:cxnSpLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:cxnSpLocks/>" if shape.link_lost or shape.lock_aspect is False else ""
     inside += "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
     inside += "" if shape.end_link is None else f'<a:endCxn id="{shape.end_link.target}" idx="{shape.end_link.site - 1}"/>'
     return f"<xdr:cNvCxnSpPr>{inside}</xdr:cNvCxnSpPr>" if inside else "<xdr:cNvCxnSpPr/>"
@@ -1371,8 +1531,10 @@ def _font_markup(look: TextLook) -> tuple[str, str]:
     if look.font_shadow:
         children += ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0">'
                      '<a:scrgbClr r="0" g="0" b="0"/></a:outerShdw></a:effectLst>')
-    if look.font_latin is not None:
-        children += look.font_latin
+    if look.font_effects is not None:
+        children += look.font_effects
+    children += (look.font_highlight or "") + (look.font_underline_line or "") + (look.font_underline_fill or "")
+    children += (look.font_latin or "") + (look.font_ea or "") + (look.font_cs or "") + (look.font_sym or "")
     return attributes, children
 
 
@@ -1431,6 +1593,10 @@ def _marked_paragraphs(shape: Shape, look: TextLook) -> str | None:
     return "".join(paragraphs)
 
 
+def _autofit(which: str) -> str:
+    return "<a:spAutoFit/>" if which == "sp" else f"<a:{which}Autofit/>"
+
+
 def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
     """A new shape's txBody with the layout TextFrame gave it: bodyPr's attributes in the schema's order, and each
     paragraph's algn and rtl (tests/fixtures/text_frame.json)."""
@@ -1441,10 +1607,11 @@ def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
         # Every attribute, each margin spelled out, as Excel writes an AutoShape whose overflow has changed.
         insets = "".join(f' {name}="{emu(value if value is not None else default)}"' for name, value, default in zip(
             ("lIns", "tIns", "rIns", "bIns"), look.margins, (7.2, 3.6, 7.2, 3.6)))
-        head = (f'<a:bodyPr rot="0" spcFirstLastPara="0" {overflow} vert="{look.vert or "horz"}" wrap="square"'
-                f'{insets} numCol="{look.columns}" spcCol="{emu(look.column_spacing)}" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="0"'
-                ' forceAA="0" compatLnSpc="1"><a:prstTxWarp prst="textNoShape"><a:avLst/></a:prstTxWarp>'
-                "<a:noAutofit/></a:bodyPr>")
+        upright = ' upright="1"' if look.upright else ""
+        head = (f'<a:bodyPr rot="0" spcFirstLastPara="0" {overflow} vert="{look.vert or "horz"}" wrap="{look.wrap or "square"}"'
+                f'{insets} numCol="{look.columns}" spcCol="{emu(look.column_spacing)}" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="{1 if look.anchor_center else 0}"'
+                f' forceAA="0"{upright} compatLnSpc="1"><a:prstTxWarp prst="textNoShape"><a:avLst/></a:prstTxWarp>'
+                f"{_autofit(look.autofit or 'no')}</a:bodyPr>")
     else:
         vert = f' vert="{look.vert}"' if look.vert else ""
         wrap = f' wrap="{look.wrap}"' if look.wrap else ""
@@ -1454,7 +1621,7 @@ def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
             f' spcCol="{emu(look.column_spacing)}"' if look.column_spacing else "")
         attributes = f'{overflow}{vert}{wrap}{insets}{columns} rtlCol="0" anchor="{look.anchor}"{centred}{upright}'
         # TextFrame2's AutoSize is bodyPr's one child (tests/fixtures/text_frame2.json).
-        head = (f"<a:bodyPr {attributes}><a:{look.autofit}Autofit/></a:bodyPr>" if look.autofit
+        head = (f"<a:bodyPr {attributes}>{_autofit(look.autofit)}</a:bodyPr>" if look.autofit
                 else f"<a:bodyPr {attributes}/>")
     body = re.sub(r"<a:bodyPr\b[^>]*/>", lambda _: head, body, count=1)
     if look.deleted:
@@ -1586,11 +1753,19 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
             element = re.search(r"<(xdr:(?:sp|cxnSp|pic|graphicFrame|grpSp))(?=[\s/>])", markup)
             if element:
                 markup = _attribute_on_tag(markup, element.group(1), "macro", shape.macro)
-    if shape.text != was.text:
-        # Excel-authored controls can also carry a hidden DrawingML
-        # caption. Excel prefers it to VML when both exist.
-        markup = dml.replace_text(markup, shape.text, "xdr:txBody")
+    # Excel-authored controls can also carry a hidden DrawingML
+    # caption. Excel prefers it to VML when both exist.
+    markup = _with_loaded_text(markup, shape, was)
+    if shape.kind == "picture":
+        markup = _with_loaded_picture(markup, shape, was)
+    if shape.kind == "line" and shape.links_read:
+        markup = _with_loaded_links(markup, shape)
     return _restyled(markup, shape, was, grid)
+
+
+def shape_as_loaded(shape: Shape) -> Shape | None:
+    """What a shape was when the file was opened, if it came from one."""
+    return _shape_of_source(shape) if shape.source else None
 
 
 def _shape_of_source(shape: Shape) -> Shape | None:
@@ -1639,6 +1814,23 @@ _ADEC = ('<a:ext uri="' + _ADEC_URI + '"><adec:decorative '
          'xmlns:adec="http://schemas.microsoft.com/office/drawing/2017/decorative" val="{value}"/></a:ext>')
 
 
+def _with_lock(markup: str, shape: Shape) -> str:
+    """A loaded shape's markup with its aspect locked or not, in the locks element of its kind, first in its properties
+    (tests/fixtures/shape_settings_kept.json). What else the element locks stays."""
+    tag, holder = {"line": ("a:cxnSpLocks", "xdr:cNvCxnSpPr"), "picture": ("a:picLocks", "xdr:cNvPicPr")}.get(shape.kind, ("a:spLocks", "xdr:cNvSpPr"))
+    found = re.search(rf"<{tag}\b([^>]*?)/>", markup)
+    kept = "" if found is None else re.sub(r'\s*noChangeAspect="[^"]*"', "", found.group(1)).rstrip()
+    locks = f'<{tag} noChangeAspect="1"{kept}/>' if shape.lock_aspect else f"<{tag}{kept}/>"
+    if found is not None:
+        return markup[:found.start()] + locks + markup[found.end():]
+    opened = re.search(rf"<{holder}([^>]*?)(/?)>", markup)
+    if opened is None:
+        return markup
+    if opened.group(2):
+        return markup[:opened.start()] + f"<{holder}{opened.group(1)}>{locks}</{holder}>" + markup[opened.end():]
+    return markup[:opened.end()] + locks + markup[opened.end():]
+
+
 def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> str:
     """A loaded shape's markup with the settings a macro changed patched in, as Excel patches them
     (tests/fixtures/loaded_shape/cases.json): descr and title on cNvPr, the decorative extension (val 0 once
@@ -1663,11 +1855,7 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
     if shape.fill_line is not None:
         markup = with_fill_line(markup, _fill_line(shape))
     if shape.lock_aspect != was.lock_aspect:
-        locks = '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>"
-        if re.search(r"<a:spLocks\b", markup):
-            markup = re.sub(r"<a:spLocks\b[^>]*/>", locks, markup, count=1)
-        else:
-            markup = re.sub(r"<xdr:cNvSpPr([^>]*)/>", rf"<xdr:cNvSpPr\1>{locks}</xdr:cNvSpPr>", markup, count=1)
+        markup = _with_lock(markup, shape)
     if (shape.locked, shape.prints) != (was.locked, was.prints):
         markup = re.sub(r"<xdr:clientData\b[^>]*/>", lambda _: _client_data(shape), markup, count=1)
     if shape.edit_as != was.edit_as:

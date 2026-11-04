@@ -28,17 +28,6 @@ from pyopenvba.apps.excel import ExcelApplication
 FIXTURES = Path(__file__).parent / "fixtures" / "sort_colour"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "sort_colour.json").read_text(encoding="utf-8"))
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
-#: Excel makes a Range.Sort the sheet's sort settings, its key the one field, and saves them with refs not yet
-#: understood (A3:C9 for A1:C9 under a header); the model leaves the sheet's settings as they were.
-RANGE_SORT = "range_sort_after"
-
-
-def _gaps(layouts: list[dict[str, Any]]) -> list[Any]:
-    return [pytest.param(one, marks=pytest.mark.xfail(strict=True, raises=AssertionError,
-                                                      reason="Range.Sort as the sheet's sort settings"))
-            if one["name"] == RANGE_SORT else one for one in layouts]
-
-
 def _run(layout: dict[str, Any]) -> object:
     code = ["Public Function Report() As String", "Dim ws As Object, failed As String, v As Variant, i As Long",
             "Set ws = ActiveWorkbook.Worksheets(1)", f'ws.Name = "{layout["name"]}"', "On Error Resume Next",
@@ -51,7 +40,7 @@ def _run(layout: dict[str, Any]) -> object:
     return app.run("Report")
 
 
-@pytest.mark.parametrize("layout", _gaps(LAYOUTS), ids=lambda layout: layout["name"])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_a_colour_sort_orders_rows_as_excel_does(layout: dict[str, Any]) -> None:
     assert _run(layout) == layout["answers"]
 
@@ -163,6 +152,6 @@ def model_file(tmp_path_factory: pytest.TempPathFactory) -> dict[str, list[str]]
     return _saved(path)
 
 
-@pytest.mark.parametrize("layout", _gaps(LAYOUTS), ids=lambda layout: layout["name"])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_file_keeps_the_sort_as_excels_does(model_file: dict[str, list[str]], layout: dict[str, Any]) -> None:
     assert model_file[layout["name"]] == _excels(layout)

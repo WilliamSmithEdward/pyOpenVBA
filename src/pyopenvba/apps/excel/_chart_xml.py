@@ -55,6 +55,8 @@ class SeriesData:
     value_cache: Sequence[float | None] = ()
     #: The number format of the values' first cell, which the cache carries.
     value_format: str = "General"
+    #: Its kind where it differs from the chart's, in a combo chart.
+    kind: ChartKind | None = None
     name: str | None = None
     name_cache: str | None = None
     #: A name of several cells: each cell's text, which its cache holds point by point.
@@ -249,9 +251,18 @@ class TextLook:
     size: float | None = None
     bold: bool | None = None
     italic: bool | None = None
-    underline: bool = False
-    strike: bool = False
+    #: As the file spells them: sng, dbl or none, sngStrike or noStrike, each None while nothing was set.
+    underline: str | None = None
+    strike: str | None = None
+    #: The baseline the file holds, and Subscript and Superscript as they were set, which read back beside it.
+    baseline: int | None = None
+    subscript: bool | None = None
+    superscript: bool | None = None
+    #: ColorIndex xlColorIndexNone: fully transparent black.
+    hidden: bool | None = None
     rgb: str | None = None
+    #: A theme colour read from a file, as the file spells it.
+    scheme: str | None = None
     name: str | None = None
 
 
@@ -262,9 +273,12 @@ def default_run(look: TextLook | None) -> str:
     attributes = "" if look.size is None else f' sz="{round(look.size * 100)}"'
     attributes += "" if look.bold is None else f' b="{int(look.bold)}"'
     attributes += "" if look.italic is None else f' i="{int(look.italic)}"'
-    attributes += ' u="sng"' if look.underline else ""
-    attributes += ' strike="sngStrike"' if look.strike else ""
+    attributes += "" if look.underline is None else f' u="{look.underline}"'
+    attributes += "" if look.strike is None else f' strike="{look.strike}"'
+    attributes += "" if look.baseline is None else f' baseline="{look.baseline}"'
     inside = "" if look.rgb is None else f'<a:solidFill><a:srgbClr val="{look.rgb}"/></a:solidFill>'
+    if look.hidden:
+        inside = '<a:solidFill><a:srgbClr val="000000"><a:alpha val="0"/></a:srgbClr></a:solidFill>'
     if look.name is not None:
         face = escape_attribute(look.name)
         inside += f'<a:latin typeface="{face}"/><a:ea typeface="{face}"/><a:cs typeface="{face}"/>'
@@ -273,7 +287,7 @@ def default_run(look: TextLook | None) -> str:
 
 def text_properties(look: TextLook | None, body: str = "<a:bodyPr/>") -> str:
     """The txPr of an element whose text has a look, none without one."""
-    if look is None:
+    if look is None or default_run(look) == "<a:defRPr/>":
         return ""
     return (f"<c:txPr>{body}<a:lstStyle/><a:p><a:pPr>{default_run(look)}</a:pPr>"
             '<a:endParaRPr lang="en-US"/></a:p></c:txPr>')
@@ -450,39 +464,20 @@ def chart_part(
     """
     first, second = axis_ids if axis_ids is not None else _axis_ids()
     tail = unique if unique is not None else "-" + str(uuid.uuid4()).upper().split("-", 1)[1]
-    written = "".join(_series(kind, index, data, tail) for index, data in enumerate(series))
-    axes_ids = f'<c:axId val="{first}"/><c:axId val="{second}"/>'
+    written = "".join(_series(data.kind or kind, index, data, tail) for index, data in enumerate(series))
     labelled = any(data.categories is not None for data in series)
+    plot = group_markup(kind, grouping, written, first, second)
     if kind in ("column", "bar"):
-        direction = "col" if kind == "column" else "bar"
-        plot = (
-            f'<c:barChart><c:barDir val="{direction}"/><c:grouping val="{grouping or "clustered"}"/>'
-            '<c:varyColors val="0"/>'
-            f'{written}{_LABELS.format(extra="")}<c:gapWidth val="150"/>{axes_ids}</c:barChart>'
-        )
         axes = _category_axis(first, second, position="b" if kind == "column" else "l", formatted=labelled)
         axes += _value_axis(second, first, position="l" if kind == "column" else "b", between="between",
                             formatted=bool(series), gridlines=True)
     elif kind in ("line", "lineMarkers"):
-        markers = '<c:marker val="1"/>' if kind == "lineMarkers" else ""
-        plot = (
-            f'<c:lineChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
-            f'{_LABELS.format(extra="")}{markers}<c:smooth val="0"/>{axes_ids}</c:lineChart>'
-        )
         axes = _category_axis(first, second, position="b", formatted=labelled)
         axes += _value_axis(second, first, position="l", between="between", formatted=bool(series), gridlines=True)
     elif kind == "area":
-        plot = (
-            f'<c:areaChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
-            f'{_LABELS.format(extra="")}{axes_ids}</c:areaChart>'
-        )
         axes = _category_axis(first, second, position="b", formatted=labelled)
         axes += _value_axis(second, first, position="l", between="midCat", formatted=bool(series), gridlines=True)
     elif kind == "scatter":
-        plot = (
-            f'<c:scatterChart><c:scatterStyle val="lineMarker"/><c:varyColors val="0"/>{written}'
-            f'{_LABELS.format(extra="")}{axes_ids}</c:scatterChart>'
-        )
         axes = _value_axis(first, second, position="b", between="midCat", formatted=labelled, gridlines=False)
         axes += _value_axis(second, first, position="l", between="midCat", formatted=bool(series), gridlines=True)
     else:
@@ -535,6 +530,47 @@ def chart_frame(
     )
 
 
+def group_markup(kind: str, grouping: str, written: str, first: int, second: int) -> str:
+    """One chart group: a column, bar, line, area or scatter chart's element around its series."""
+    axes_ids = f'<c:axId val="{first}"/><c:axId val="{second}"/>'
+    if kind in ("column", "bar"):
+        direction = "col" if kind == "column" else "bar"
+        return (
+            f'<c:barChart><c:barDir val="{direction}"/><c:grouping val="{grouping or "clustered"}"/>'
+            '<c:varyColors val="0"/>'
+            f'{written}{_LABELS.format(extra="")}<c:gapWidth val="150"/>{axes_ids}</c:barChart>'
+        )
+    if kind in ("line", "lineMarkers"):
+        markers = '<c:marker val="1"/>' if kind == "lineMarkers" else ""
+        return (
+            f'<c:lineChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
+            f'{_LABELS.format(extra="")}{markers}<c:smooth val="0"/>{axes_ids}</c:lineChart>'
+        )
+    if kind == "area":
+        return (
+            f'<c:areaChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
+            f'{_LABELS.format(extra="")}{axes_ids}</c:areaChart>'
+        )
+    if kind == "scatter":
+        return (
+            f'<c:scatterChart><c:scatterStyle val="lineMarker"/><c:varyColors val="0"/>{written}'
+            f'{_LABELS.format(extra="")}{axes_ids}</c:scatterChart>'
+        )
+    return ""
+
+
+def secondary_axes_markup(value: int, category: int, *, at_top: bool, between: str) -> str:
+    """The axes of a chart's secondary group, value first; the far side is what ``generated`` makes of them, as for any axis
+    crossed at its maximum, and a category axis sits at the top only while it shows and the value axis has been left to cross
+    at the far side (tests/fixtures/combo_charts.json)."""
+    return (_value_axis(value, category, position="l", between=between, formatted=True, gridlines=False)
+            + _category_axis(category, value, position="t" if at_top else "b", formatted=True))
+
+
+def axis_ids() -> tuple[int, int]:
+    return _axis_ids()
+
+
 def _axis_ids() -> tuple[int, int]:
     """Two ids for a chart's axes, random as Excel's are."""
     first = random.randint(10**8, 2**31 - 1)
@@ -542,6 +578,11 @@ def _axis_ids() -> tuple[int, int]:
     while second == first:
         second = random.randint(10**8, 2**31 - 1)
     return first, second
+
+
+def plain_label_text(xml: str) -> str:
+    """Data labels' text once the chart area has a font: their body is the plain one (tests/fixtures/chart_font_gaps.json)."""
+    return xml.replace(_LABEL_BODY, "<a:bodyPr/>")
 
 
 __all__ = ["CHART_KINDS", "CT_CHART", "ChartKind", "SeriesData", "chart_frame", "chart_part"]

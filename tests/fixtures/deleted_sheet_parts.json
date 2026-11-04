@@ -1,0 +1,155 @@
+{
+"measured_at": "2026-11-04T08:35:27.639092+00:00",
+"make": "Public Function Make(ByVal folder As String) As String\n    Dim wb As Workbook, g As Worksheet, k As Worksheet, d As Worksheet, c As ChartObject\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add\n    Set k = wb.Worksheets(1): k.Name = \"Keep\"\n    Set g = wb.Worksheets.Add(After:=k): g.Name = \"GONESHEET\"\n    Set d = wb.Worksheets.Add(After:=g): d.Name = \"Data\"\n    k.Range(\"A1\").Value = 1: k.Range(\"A2\").Value = 2: k.Range(\"A3\").Value = 3: k.Range(\"B1\").Value = \"kept text\"\n    Set c = k.ChartObjects.Add(10, 100, 200, 120)\n    c.Chart.SetSourceData k.Range(\"A1:A3\")\n    g.Range(\"A1\").Value = 271828: g.Range(\"A2\").Value = 2: g.Range(\"A3\").Value = 3: g.Range(\"B1\").Value = \"GONETEXT\"\n    g.Range(\"B2\").Formula = \"=\"\"GONEFORMULA\"\"\"\n    Set c = g.ChartObjects.Add(10, 100, 200, 120)\n    c.Chart.SetSourceData g.Range(\"A1:A3\")\n    g.Shapes.AddPicture folder & \"\\p.png\", False, True, 300, 10, 20, 20\n    g.Shapes.AddShape(1, 300, 50, 40, 40).Name = \"GONESHAPE\"\n    g.Range(\"C1\").AddComment \"GONENOTE\"\n    g.Range(\"E1\").Value = \"x\": g.Range(\"E2\").Value = 1\n    g.ListObjects.Add(xlSrcRange, g.Range(\"E1:E2\"), , xlYes).Name = \"GONETABLE\"\n    g.Hyperlinks.Add g.Range(\"F1\"), \"http://example.com/GONELINK\"\n    g.Buttons.Add 400, 10, 40, 20\n    d.Range(\"A1\").Value = \"h\": d.Range(\"A2\").Value = \"GONERECORD\": d.Range(\"B1\").Value = \"i\": d.Range(\"B2\").Value = 2\n    wb.PivotCaches.Create(xlDatabase, d.Range(\"A1:B2\")).CreatePivotTable g.Range(\"H3\"), \"GONEPIVOT\"\n    wb.SaveAs folder & \"\\book.xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Application.DisplayAlerts = True\n    Make = \"ok\"\nEnd Function\nPublic Function Edited(ByVal path As String, ByVal out As String) As String\n    Dim wb As Workbook\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path)\n    wb.Worksheets(\"GONESHEET\").Delete\n    wb.Worksheets(\"Data\").Range(\"A2\").Value = 7\n    wb.SaveAs out, xlOpenXMLWorkbook\n    wb.Close False\n    Application.DisplayAlerts = True\n    Edited = \"ok\"\nEnd Function\nPublic Function Reads(ByVal path As String) As String\n    Dim wb As Workbook\n    Application.DisplayAlerts = False\n    On Error Resume Next\n    Set wb = Workbooks.Open(path)\n    Reads = Err.Number & \" \" & TypeName(wb)\n    If Not wb Is Nothing Then\n        Reads = Reads & \" sheets \" & wb.Worksheets.Count & \" charts \" & wb.Worksheets(\"Keep\").ChartObjects.Count & \" caches \" & wb.PivotCaches.Count & \" b1 \" & wb.Worksheets(\"Keep\").Range(\"B1\").Value\n        wb.Close False\n    End If\n    Application.DisplayAlerts = True\nEnd Function\n",
+"edit": "Public Sub Edit()\n    Application.DisplayAlerts = False\n    ActiveWorkbook.Worksheets(\"GONESHEET\").Delete\n    ActiveWorkbook.Worksheets(\"Data\").Range(\"A2\").Value = 7\nEnd Sub\n",
+"markers": [
+"GONETEXT",
+"GONENOTE",
+"GONESHAPE",
+"GONETABLE",
+"GONELINK",
+"GONEFORMULA",
+"GONEPIVOT",
+"GONERECORD",
+"GONESHEET",
+"271828"
+],
+"start": {
+"parts": [
+"[Content_Types].xml",
+"_rels/.rels",
+"docProps/app.xml",
+"docProps/core.xml",
+"xl/_rels/workbook.xml.rels",
+"xl/calcChain.xml",
+"xl/charts/chart1.xml",
+"xl/charts/chart2.xml",
+"xl/comments1.xml",
+"xl/ctrlProps/ctrlProp1.xml",
+"xl/drawings/_rels/drawing1.xml.rels",
+"xl/drawings/_rels/drawing2.xml.rels",
+"xl/drawings/drawing1.xml",
+"xl/drawings/drawing2.xml",
+"xl/drawings/vmlDrawing1.vml",
+"xl/media/image1.png",
+"xl/pivotCache/_rels/pivotCacheDefinition1.xml.rels",
+"xl/pivotCache/pivotCacheDefinition1.xml",
+"xl/pivotCache/pivotCacheRecords1.xml",
+"xl/pivotTables/_rels/pivotTable1.xml.rels",
+"xl/pivotTables/pivotTable1.xml",
+"xl/sharedStrings.xml",
+"xl/styles.xml",
+"xl/tables/table1.xml",
+"xl/theme/theme1.xml",
+"xl/workbook.xml",
+"xl/worksheets/_rels/sheet1.xml.rels",
+"xl/worksheets/_rels/sheet2.xml.rels",
+"xl/worksheets/sheet1.xml",
+"xl/worksheets/sheet2.xml",
+"xl/worksheets/sheet3.xml"
+],
+"markers": {
+"GONESHEET": [
+"xl/workbook.xml",
+"xl/charts/chart2.xml",
+"docProps/app.xml"
+],
+"GONEFORMULA": [
+"xl/worksheets/sheet2.xml"
+],
+"271828": [
+"xl/worksheets/sheet2.xml",
+"xl/charts/chart2.xml"
+],
+"GONETEXT": [
+"xl/sharedStrings.xml"
+],
+"GONELINK": [
+"xl/sharedStrings.xml",
+"xl/worksheets/_rels/sheet2.xml.rels"
+],
+"GONERECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"GONEPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"GONESHAPE": [
+"xl/drawings/drawing2.xml"
+],
+"GONETABLE": [
+"xl/tables/table1.xml"
+],
+"GONENOTE": [
+"xl/comments1.xml"
+]
+}
+},
+"excel": {
+"parts": [
+"[Content_Types].xml",
+"_rels/.rels",
+"docProps/app.xml",
+"docProps/core.xml",
+"xl/_rels/workbook.xml.rels",
+"xl/charts/chart1.xml",
+"xl/drawings/_rels/drawing1.xml.rels",
+"xl/drawings/drawing1.xml",
+"xl/sharedStrings.xml",
+"xl/styles.xml",
+"xl/theme/theme1.xml",
+"xl/workbook.xml",
+"xl/worksheets/_rels/sheet1.xml.rels",
+"xl/worksheets/sheet1.xml",
+"xl/worksheets/sheet2.xml"
+],
+"markers": {},
+"workbook": {
+"relationships": [
+"sharedStrings.xml",
+"styles.xml",
+"theme/theme1.xml",
+"worksheets/sheet1.xml",
+"worksheets/sheet2.xml"
+],
+"pivot_caches": []
+},
+"reads": "0 Workbook sheets 2 charts 1 caches 0 b1 kept text"
+},
+"model": {
+"parts": [
+"[Content_Types].xml",
+"_rels/.rels",
+"docProps/app.xml",
+"docProps/core.xml",
+"xl/_rels/workbook.xml.rels",
+"xl/charts/chart1.xml",
+"xl/drawings/_rels/drawing1.xml.rels",
+"xl/drawings/drawing1.xml",
+"xl/sharedStrings.xml",
+"xl/styles.xml",
+"xl/theme/theme1.xml",
+"xl/workbook.xml",
+"xl/worksheets/_rels/sheet1.xml.rels",
+"xl/worksheets/sheet1.xml",
+"xl/worksheets/sheet3.xml"
+],
+"markers": {
+"GONERECORD": [
+"xl/sharedStrings.xml"
+]
+},
+"workbook": {
+"relationships": [
+"sharedStrings.xml",
+"styles.xml",
+"theme/theme1.xml",
+"worksheets/sheet1.xml",
+"worksheets/sheet3.xml"
+],
+"pivot_caches": []
+},
+"reads": "0 Workbook sheets 2 charts 1 caches 0 b1 kept text"
+}
+}

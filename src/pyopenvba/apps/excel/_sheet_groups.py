@@ -30,6 +30,8 @@ tests/fixtures/sheet_group_moves.json):
 
 from __future__ import annotations
 
+import re
+
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel import _events
@@ -306,8 +308,13 @@ def _refused_carriers(book: Workbook, names: set[str], staying: list[Worksheet])
                 if any(text and _reads(text, names) for series in chart.full_series or chart.series
                        for text in (series.name_reference, series.category_reference, series.value_reference)):
                     refuse("that a chart")
-            elif shape.source:
+            elif shape.kind == "chart" and shape.source:
                 refuse("beside a chart the model has not read, which may read it,")
+            else:
+                # A picture or a shape reads no sheet but through text linked to a cell.
+                linked = re.search(r'\btextlink="([^"]+)"', shape.source)
+                if linked is not None and _reads(linked.group(1), names):
+                    refuse("that a shape's text")
     # A pivot cache keeps the source its file or Create gave it, as before; Excel lets the sheet go, the cache
     # holding its records (tests/fixtures/pivot_column_fit/, whose macro deletes a table's source sheet).
 

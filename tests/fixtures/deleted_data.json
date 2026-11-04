@@ -1,0 +1,4783 @@
+{
+"measured_at": "2026-11-04T08:46:44.025182+00:00",
+"make": "Public Function Make(ByVal folder As String) As String\n    Dim wb As Workbook, m As Worksheet, o As Worksheet, d As Worksheet, g As Worksheet, ext As Workbook, c As ChartObject\n    Application.DisplayAlerts = False\n    Set ext = Workbooks.Add\n    ext.Worksheets(1).Name = \"Sheet1\": ext.Worksheets(1).Range(\"A1\").Value = \"MKEXT\"\n    ext.SaveAs folder & \"\\ext.xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Add\n    Do While wb.Worksheets.Count < 4: wb.Worksheets.Add After:=wb.Worksheets(wb.Worksheets.Count): Loop\n    Set m = wb.Worksheets(1): m.Name = \"Main\"\n    Set o = wb.Worksheets(2): o.Name = \"Other\"\n    Set d = wb.Worksheets(3): d.Name = \"Src\"\n    Set g = wb.Worksheets(4): g.Name = \"MKSHEET\"\n    m.Range(\"A1\").Value = \"MKCLEAR\"\n    m.Range(\"A2\").Value = \"MKOVER\"\n    m.Range(\"A3\").Value = \"MKCELLCLEAR\"\n    m.Range(\"A5\").Value = \"MKROW\"\n    m.Range(\"A6\").Value = 314159\n    m.Range(\"A7\").Formula = \"=\"\"MKFORMULA\"\"\"\n    m.Range(\"A8\").Value = \"MKKEPT\"\n    m.Range(\"A9\").Value = \"MKTWICE\"\n    m.Range(\"B9\").Value = \"MKTWICE\"\n    m.Range(\"Z1\").Value = \"MKCOLUMN\"\n    m.Shapes.AddShape(1, 300, 10, 40, 40).Name = \"MKSHAPE\"\n    m.Shapes(\"MKSHAPE\").TextFrame.Characters.Text = \"MKSHAPETEXT\"\n    m.Range(\"C1\").AddComment \"MKNOTE\"\n    m.Hyperlinks.Add m.Range(\"C2\"), \"http://example.com/MKLINK\", , , \"shown\"\n    m.Range(\"E1\").Value = \"MKTABLEHEAD\": m.Range(\"E2\").Value = 1\n    m.ListObjects.Add(xlSrcRange, m.Range(\"E1:E2\"), , xlYes).Name = \"MKTABLE\"\n    m.Range(\"G1\").Value = 1: m.Range(\"G2\").Value = 2\n    Set c = m.ChartObjects.Add(300, 100, 200, 120)\n    c.Name = \"MKCHART\"\n    c.Chart.SetSourceData m.Range(\"G1:G2\")\n    c.Chart.HasTitle = True: c.Chart.ChartTitle.Text = \"MKCHARTTITLE\"\n    m.Shapes.AddPicture(folder & \"\\p.png\", False, True, 300, 250, 20, 20).Name = \"MKPIC\"\n    wb.Names.Add \"MKNAME\", \"=\"\"MKNAMEVALUE\"\"\"\n    m.Range(\"K1\").Formula = \"=[ext.xlsx]Sheet1!$A$1\"\n    d.Range(\"A1\").Value = \"h\": d.Range(\"B1\").Value = \"i\": d.Range(\"A2\").Value = \"MKRECORD\": d.Range(\"B2\").Value = 2\n    wb.PivotCaches.Create(xlDatabase, d.Range(\"A1:B2\")).CreatePivotTable o.Range(\"B3\"), \"MKPIVOT\"\n    g.Range(\"A1\").Value = \"MKSHEETCELL\"\n    wb.BuiltinDocumentProperties(\"Title\").Value = \"MKTITLE\"\n    ext.Close False\n    wb.SaveAs folder & \"\\book.xlsx\", xlOpenXMLWorkbook\n    wb.SaveAs folder & \"\\macro.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Dim one As Object\n    For Each one In wb.VBProject.VBComponents\n        If one.Type = 100 Then\n            If one.Properties(\"Name\").Value = \"MKSHEET\" Then one.CodeModule.AddFromString \"Public Sub MKVBASUB()\" & vbCrLf & \"    Debug.Print \"\"MKVBATEXT\"\"\" & vbCrLf & \"End Sub\"\n        End If\n    Next\n    wb.VBProject.VBComponents.Add(1).Name = \"MKMODULE\"\n    wb.VBProject.VBComponents(\"MKMODULE\").CodeModule.AddFromString \"Public Sub MKMODSUB()\" & vbCrLf & \"End Sub\"\n    wb.Save\n    wb.Close False\n    Application.DisplayAlerts = True\n    Make = \"ok\"\nEnd Function\n",
+"markers": [
+"314159",
+"MKCELLCLEAR",
+"MKCHART",
+"MKCHARTTITLE",
+"MKCLEAR",
+"MKCOLUMN",
+"MKEXT",
+"MKFORMULA",
+"MKIMAGE",
+"MKLINK",
+"MKMODSUB",
+"MKNAME",
+"MKNAMEVALUE",
+"MKNOTE",
+"MKOVER",
+"MKPIC",
+"MKPIVOT",
+"MKRECORD",
+"MKROW",
+"MKSHAPE",
+"MKSHAPETEXT",
+"MKSHEET",
+"MKSHEETCELL",
+"MKTABLE",
+"MKTABLEHEAD",
+"MKTITLE",
+"MKTWICE",
+"MKVBASUB",
+"MKVBATEXT"
+],
+"start": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"start_macro": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKMODSUB": [
+"xl/vbaProject.bin",
+"vba:MKMODULE"
+],
+"MKVBASUB": [
+"xl/vbaProject.bin",
+"vba:sheet"
+],
+"MKVBATEXT": [
+"xl/vbaProject.bin",
+"vba:sheet"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"edits": {
+"nothing, an unrelated value": {
+"edit": "ws.Range(\"AA1\").Value = 1",
+"macro": false,
+"should_go": [],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"ClearContents": {
+"edit": "ws.Range(\"A1\").ClearContents",
+"macro": false,
+"should_go": [
+"MKCLEAR"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Clear": {
+"edit": "ws.Range(\"A3\").Clear",
+"macro": false,
+"should_go": [
+"MKCELLCLEAR"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"text overwritten": {
+"edit": "ws.Range(\"A2\").Value = \"x\"",
+"macro": false,
+"should_go": [
+"MKOVER"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"text used twice, one cleared": {
+"edit": "ws.Range(\"A9\").ClearContents",
+"macro": false,
+"should_go": [],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"text used twice, both cleared": {
+"edit": "ws.Range(\"A9:B9\").ClearContents",
+"macro": false,
+"should_go": [
+"MKTWICE"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"a number cleared": {
+"edit": "ws.Range(\"A6\").ClearContents",
+"macro": false,
+"should_go": [
+"314159"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"a formula cleared": {
+"edit": "ws.Range(\"A7\").ClearContents",
+"macro": false,
+"should_go": [
+"MKFORMULA"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Rows.Delete": {
+"edit": "ws.Rows(5).Delete",
+"macro": false,
+"should_go": [
+"MKROW"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Columns.Delete": {
+"edit": "ws.Columns(26).Delete",
+"macro": false,
+"should_go": [
+"MKCOLUMN"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Shape.Delete": {
+"edit": "ws.Shapes(\"MKSHAPE\").Delete",
+"macro": false,
+"should_go": [
+"MKSHAPE",
+"MKSHAPETEXT"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Comment.Delete": {
+"edit": "ws.Range(\"C1\").Comment.Delete",
+"macro": false,
+"should_go": [
+"MKNOTE"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Hyperlink.Delete": {
+"edit": "ws.Range(\"C2\").Hyperlinks(1).Delete",
+"macro": false,
+"should_go": [
+"MKLINK"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"ListObject.Delete": {
+"edit": "ws.ListObjects(\"MKTABLE\").Delete",
+"macro": false,
+"should_go": [
+"MKTABLE",
+"MKTABLEHEAD"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"ListObject.Unlist": {
+"edit": "ws.ListObjects(\"MKTABLE\").Unlist",
+"macro": false,
+"should_go": [
+"MKTABLE"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"ChartObject.Delete": {
+"edit": "ws.ChartObjects(\"MKCHART\").Delete",
+"macro": false,
+"should_go": [
+"MKCHART",
+"MKCHARTTITLE"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Picture Delete": {
+"edit": "ws.Shapes(\"MKPIC\").Delete",
+"macro": false,
+"should_go": [
+"MKPIC",
+"MKIMAGE"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"PivotTable contents cleared": {
+"edit": "wb.Worksheets(\"Other\").PivotTables(\"MKPIVOT\").TableRange2.ClearContents",
+"macro": false,
+"should_go": [
+"MKPIVOT"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"Name.Delete": {
+"edit": "wb.Names(\"MKNAME\").Delete",
+"macro": false,
+"should_go": [
+"MKNAME",
+"MKNAMEVALUE"
+],
+"excel": {
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"PivotTable cleared": {
+"edit": "wb.Worksheets(\"Other\").PivotTables(\"MKPIVOT\").TableRange2.Clear",
+"macro": false,
+"should_go": [
+"MKPIVOT",
+"MKRECORD"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"BreakLink": {
+"edit": "wb.BreakLink wb.LinkSources(1)(1), xlLinkTypeExcelLinks",
+"macro": false,
+"should_go": [
+"MKEXT"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKEXT": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"linked formula cleared": {
+"edit": "ws.Range(\"K1\").ClearContents",
+"macro": false,
+"should_go": [],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKEXT": [
+"xl/externalLinks/externalLink1.xml"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"a sheet deleted": {
+"edit": "wb.Worksheets(\"MKSHEET\").Delete",
+"macro": false,
+"should_go": [
+"MKSHEET",
+"MKSHEETCELL"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+}
+},
+"title emptied": {
+"edit": "wb.BuiltinDocumentProperties(\"Title\").Value = \"\"",
+"macro": false,
+"should_go": [
+"MKTITLE"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+]
+}
+},
+"a sheet with VBA deleted": {
+"edit": "wb.Worksheets(\"MKSHEET\").Delete",
+"macro": true,
+"should_go": [
+"MKSHEET",
+"MKSHEETCELL",
+"MKVBASUB",
+"MKVBATEXT"
+],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKMODSUB": [
+"xl/vbaProject.bin",
+"vba:MKMODULE"
+],
+"MKVBASUB": [
+"xl/vbaProject.bin"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+],
+"MKMODSUB": [
+"vba:MKMODULE"
+],
+"MKSHEET": [
+"vba:sheet"
+]
+}
+},
+"nothing, a macro book": {
+"edit": "ws.Range(\"AA1\").Value = 1",
+"macro": true,
+"should_go": [],
+"excel": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCLEAR": [
+"xl/sharedStrings.xml"
+],
+"MKCOLUMN": [
+"xl/sharedStrings.xml"
+],
+"MKOVER": [
+"xl/sharedStrings.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKROW": [
+"xl/sharedStrings.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKTABLE": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/sharedStrings.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKMODSUB": [
+"xl/vbaProject.bin",
+"vba:MKMODULE"
+],
+"MKVBASUB": [
+"xl/vbaProject.bin",
+"vba:sheet"
+],
+"MKVBATEXT": [
+"xl/vbaProject.bin",
+"vba:sheet"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+]
+},
+"model": {
+"MKNAME": [
+"xl/workbook.xml"
+],
+"MKNAMEVALUE": [
+"xl/workbook.xml"
+],
+"MKSHEET": [
+"xl/workbook.xml",
+"xl/sharedStrings.xml",
+"docProps/app.xml"
+],
+"314159": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCELLCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCLEAR": [
+"xl/worksheets/sheet1.xml"
+],
+"MKCOLUMN": [
+"xl/worksheets/sheet1.xml"
+],
+"MKEXT": [
+"xl/worksheets/sheet1.xml",
+"xl/externalLinks/externalLink1.xml"
+],
+"MKFORMULA": [
+"xl/worksheets/sheet1.xml"
+],
+"MKOVER": [
+"xl/worksheets/sheet1.xml"
+],
+"MKROW": [
+"xl/worksheets/sheet1.xml"
+],
+"MKTABLE": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTABLEHEAD": [
+"xl/worksheets/sheet1.xml",
+"xl/tables/table1.xml"
+],
+"MKTWICE": [
+"xl/worksheets/sheet1.xml"
+],
+"MKRECORD": [
+"xl/sharedStrings.xml",
+"xl/pivotCache/pivotCacheRecords1.xml"
+],
+"MKSHEETCELL": [
+"xl/sharedStrings.xml"
+],
+"MKCHART": [
+"xl/drawings/drawing1.xml",
+"xl/charts/chart1.xml"
+],
+"MKPIC": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPE": [
+"xl/drawings/drawing1.xml"
+],
+"MKSHAPETEXT": [
+"xl/drawings/drawing1.xml"
+],
+"MKCHARTTITLE": [
+"xl/charts/chart1.xml"
+],
+"MKIMAGE": [
+"xl/media/image1.png"
+],
+"MKPIVOT": [
+"xl/pivotTables/pivotTable1.xml"
+],
+"MKVBATEXT": [
+"xl/vbaProject.bin",
+"vba:sheet"
+],
+"MKLINK": [
+"xl/worksheets/_rels/sheet1.xml.rels"
+],
+"MKNOTE": [
+"xl/comments1.xml"
+],
+"MKTITLE": [
+"docProps/core.xml"
+],
+"MKVBASUB": [
+"vba:sheet"
+],
+"MKMODSUB": [
+"vba:MKMODULE"
+]
+}
+}
+}
+}

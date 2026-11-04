@@ -52,13 +52,11 @@ def test_excel_reads_the_models_save_as_its_own(name: str) -> None:
 
 @pytest.mark.parametrize("name", [name for name in SAVED if "excel_cells" in SAVED[name]])
 def test_the_file_holds_what_excels_file_holds(name: str) -> None:
-    """Every sheet's formulas, but the random and clock values, and the one mark a rewritten sheet does not make yet."""
+    """Every sheet's formulas, but the random and clock values."""
     excel, model = SAVED[name]["excel_cells"], SAVED[name]["model_cells"]
     assert set(excel) == set(model)
-    if name != "delete the sheet of the sum":
-        # The chart of a deleted sheet: Excel's file no longer holds its part, and the model's still does, which nothing reads.
-        assert model["#charts"] == excel["#charts"]
-    # Attribute by attribute: in manual calculation the model writes calcOnSave and calcCompleted the other way round.
+    assert model["#charts"] == excel["#charts"]
+    # Attribute by attribute, as this record's model tags predate their order: test_excel_calc_pr_order holds the whole tag.
     assert attributes(model["#calcPr"]["tag"]) == attributes(excel["#calcPr"]["tag"])
     assert "fullCalcOnLoad" not in model["#calcPr"]["tag"]
     for sheet, cells in excel.items():
@@ -67,9 +65,6 @@ def test_the_file_holds_what_excels_file_holds(name: str) -> None:
         assert set(cells) == set(model[sheet]), sheet
         for reference, held in cells.items():
             if sheet == "Vol" and reference in VOLATILE:
-                continue
-            if sheet == "Vol" and reference == "F1" and name == "insert a row":
-                # A formula reading a volatile one: Excel marks it ca="1", and a sheet the model rewrites does not.
                 continue
             assert held == model[sheet][reference], (sheet, reference)
 

@@ -165,9 +165,10 @@ class EngineBook:
 
     def external_name(self, book: str, name: str) -> Node | None:
         """A linked workbook's own name, as a formula reading that workbook, or None where its link has no such name."""
-        if book == "0" and not any(entry.name.casefold() == name.casefold() for entry in self.book.names_.entries):
-            # This workbook, by what a deleted sheet leaves of its own name, [0]!Name: no name now (tests/fixtures/sheet_delete_refs.json).
-            return None
+        if book == "0":
+            # This workbook, by what a deleted sheet leaves of its own name, [0]!Name: the workbook's of that name, if it
+            # has one (tests/fixtures/deleted_local_names.json).
+            return self.defined_name(name, None)
         linked = self._linked(book)
         if linked is None:
             raise UnsupportedFormulaError("a name defined in another workbook the file keeps no copy of")

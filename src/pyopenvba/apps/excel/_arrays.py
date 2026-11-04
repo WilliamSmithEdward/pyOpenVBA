@@ -37,7 +37,7 @@ Null. CurrentArray is the array of the range's first cell.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -281,8 +281,8 @@ def moved(sheet: Worksheet, rewrite: Callable[[str], str]) -> None:
     sheet.array_formulas = carried
 
 
-def elements(sheet: Worksheet, escape: Callable[[str], str],
-             always: Callable[[str], bool]) -> dict[tuple[int, int], str]:
+def elements(sheet: Worksheet, escape: Callable[[str], str], always: Callable[[str], bool],
+             marked: Collection[tuple[int, int]] = ()) -> dict[tuple[int, int], str]:
     """The ``<f>`` element of each array's first cell, as a save writes it.
 
     An array whose formula ``always`` works out whenever anything changes is ca="1", and each of its other cells
@@ -296,7 +296,7 @@ def elements(sheet: Worksheet, escape: Callable[[str], str],
         cell = sheet.cells_.get((row, column))
         if cell is None or not cell.formula:
             continue
-        volatile = always(cell.formula)
+        volatile = always(cell.formula) or (row, column) in marked
         dirty = not sheet.book.calculator.automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)
         whole = dirty or volatile and (block.rows * block.columns == 1 or not calls(cell.formula, "RAND"))
         flags = (' aca="1"' if whole else "", ' ca="1"' if volatile or dirty else "")

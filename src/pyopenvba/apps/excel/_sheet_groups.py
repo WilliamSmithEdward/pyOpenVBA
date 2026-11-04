@@ -45,7 +45,7 @@ from pyopenvba.interpreter._values import (ERR_SUBSCRIPT_OUT_OF_RANGE, EMPTY, MI
 
 if TYPE_CHECKING:
     from pyopenvba._a1 import Area
-    from pyopenvba.apps.excel._model import Workbook
+    from pyopenvba.apps.excel._model import NameEntry, Workbook
 
 VISIBLE = -1
 
@@ -342,6 +342,45 @@ def gone_references(text: str, names: set[str], order: list[str], tables: frozen
     return text
 
 
+def _keep_names_still_read(book: Workbook, leaving: list[NameEntry], names: set[str]) -> None:
+    """A name of a deleted sheet that what is left reads by the sheet's name, =Gone!Mine, stays as the workbook's, unless
+    the workbook has one of that name, or a formula left reads the workbook's by the bare name, =Mine, which then has
+    none: Excel keeps it reading #REF!, or a constant its value. A formula on the deleted sheet does not count, and a name
+    going with it does (tests/fixtures/deleted_local_names.json)."""
+    from pyopenvba._a1 import split_sheet as split
+    from pyopenvba.apps.excel._tables import rewrite_formulas
+
+    qualified: set[str] = set()
+    bare: set[str] = set()
+
+    def noted(text: str) -> str:
+        try:
+            tokens = tokenize(text)
+        except FormulaError:
+            return text
+        for token in tokens:
+            if token.kind == "name":
+                sheet, name = split_sheet(token.text)
+                if not sheet:
+                    bare.add(name.casefold())
+                elif sheet.casefold() in names:
+                    qualified.add(name.casefold())
+        return text
+
+    rewrite_formulas(book, noted)
+    for entry in leaving:
+        noted(entry.refers_to)
+    held = {split(entry.name)[1].casefold() for entry in book.names_.entries if not split(entry.name)[0]}
+    for entry in leaving:
+        name = split(entry.name)[1]
+        if name.casefold() in qualified and name.casefold() not in bare and name.casefold() not in held:
+            entry.name = name
+            entry.sheet = None
+            entry.attributes = re.sub(r'\slocalSheetId="[^"]*"', "", entry.attributes)
+            book.names_.entries.append(entry)
+            held.add(name.casefold())
+
+
 def _span_left(span: str, names: set[str], order: list[str]) -> str | None:
     """What stands before a reference's ! for a span of sheets with ``names`` gone, or None if the span stays as it is."""
     first, _, last = span.partition(":")
@@ -386,6 +425,11 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
     for sheet in reversed(going):
         _events.before_delete(sheet)
     _events.sheet_left(sheets[0])
+    # The tabs after a deleted sheet move up, and the file's active tab and first tab with them, which left as they were
+    # open the file on another sheet or, past the last, have Excel refuse it (tests/fixtures/deleted_local_names.json).
+    before_first = sum(1 for sheet in going if book.sheets_.index(sheet) < book.view.first_sheet)
+    book.view.first_sheet = max(0, min(book.view.first_sheet - before_first, len(staying) - 1))
+    book.view.changed = True
     for sheet in going:
         remove_document(sheet)
         book.sheets_.remove(sheet)
@@ -393,7 +437,9 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
     # silently globalize their scope.
     retained = [entry for entry in book.names_.entries if split(entry.name)[0].casefold() not in names]
     if len(retained) != len(book.names_.entries):
+        leaving = [entry for entry in book.names_.entries if split(entry.name)[0].casefold() in names]
         book.names_.entries[:] = retained
+        _keep_names_still_read(book, leaving, names)
         changed(book)
     rewrite_formulas(book, lambda text: gone_references(text, names, order, tables))
     if after is not None:

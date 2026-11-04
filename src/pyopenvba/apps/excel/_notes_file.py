@@ -178,6 +178,26 @@ def shape_xml(sheet: Worksheet, row: int, column: int, note: Note, z_index: int)
             " </v:shape>")
 
 
+def _moved_box(source: str, fresh: str) -> str:
+    """A note's box as the file had it, ``source``, with where it now is taken from ``fresh``, so what the model does not
+    hold stays: a fill or a lock is not lost to a row inserted above it (tests/fixtures/object_roundtrip.json)."""
+    if not source:
+        return fresh
+    box = re.sub(r'\bid="_x0000_s\d+"', lambda _: f'id="_x0000_s{_shape_id(fresh)}"', source, count=1)
+    for part in ("margin-left", "margin-top", "width", "height", "z-index", "visibility"):
+        now = re.search(rf"(?<![-\w]){part}:([^;']*)", fresh)
+        if now is not None:
+            box = re.sub(rf"(?<![-\w]){part}:[^;']*", lambda _, value=now.group(1), name=part: f"{name}:{value}", box, count=1)
+    for tag in ("Anchor", "Row", "Column"):
+        now = re.search(rf"<x:{tag}>.*?</x:{tag}>", fresh, re.DOTALL)
+        if now is not None:
+            box = re.sub(rf"<x:{tag}>.*?</x:{tag}>", lambda _, value=now.group(0): value, box, count=1, flags=re.DOTALL)
+    shown = "<x:Visible/>" in fresh
+    if shown != ("<x:Visible" in box):
+        box = re.sub(r"\s*<x:Visible\s*/>", "", box) if not shown else box.replace("</x:ClientData>", "   <x:Visible/>\r\n  </x:ClientData>")
+    return box
+
+
 def _shape_id(shape: str) -> int:
     found = re.search(r'\bid="_x0000_s(\d+)"', shape) or re.search(r'\bo:spid="_x0000_s(\d+)"', shape)
     return int(found.group(1)) if found else 0
@@ -220,7 +240,7 @@ def with_notes(sheet: Worksheet, vml: str) -> str:
         shape_id, shape = piece
         if shape is None:
             key, note = notes[shape_id]
-            shape = note.shape_xml or shape_xml(sheet, *key, note, z_index)
+            shape = note.shape_xml or _moved_box(note.box_source, shape_xml(sheet, *key, note, z_index))
         out.append(shape)
     from pyopenvba.shapes._xlsx import CONTROL_SHAPE_TYPE
 
@@ -299,7 +319,7 @@ def read(sheet: Worksheet, comments: str, vml: str) -> None:
         # Excel names a note after its shape's place in the sheet's block of ids.
         sheet.notes[key] = Note(text=text, author=author, visible=visible, name=f"Comment {shape_id - start}",
                                 shape_id=shape_id, anchor=corners, width=width, height=height, uid=uid,
-                                comment_xml=markup, shape_xml=shape)
+                                comment_xml=markup, shape_xml=shape, box_source=shape)
 
 
 __all__ = ["COMMENTS_RELATIONSHIP", "COMMENTS_TYPE", "NOTE_SHAPE_TYPE", "comments_part", "decoded", "empty_vml",

@@ -105,7 +105,12 @@ def section(text: str, code: str) -> str:
     """The section ``code`` (L, C or R) of a header or footer string, as Excel reads it."""
     codes = _codes(text)
     parts = [text[:codes[0][0] if codes else len(text)]] if code == 'C' and _leads(codes, text) else []
-    parts += [text[at + 2:_end(text, at + 2)] for at, name in codes if name == code]
+    reached = 0
+    for at, name in codes:
+        # A code just after this one is text of it, so it reads once (tests/fixtures/settable_lists.json).
+        if name == code and at >= reached:
+            reached = _end(text, at + 2)
+            parts.append(text[at + 2:reached])
     return ''.join(parts)
 
 

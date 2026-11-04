@@ -805,10 +805,10 @@ class Interior(ExcelObject):
         fills = {style.fill for style in styles_of(self.target)}
         return len(fills) > 1 and any(fill.gradient for fill in fills)
 
-    def _write(self, change: Callable[[S.Fill], S.Fill]) -> None:
+    def _write(self, change: Callable[[S.Fill], S.Fill], *, gradient: S.Fill | None = None) -> None:
         def apply(style: S.Style) -> S.Style:
             # A colour or pattern given to a gradient takes the place of it, as one given to no fill would.
-            return S.applying(style, "fill", fill=change(S.Fill() if style.fill.gradient else style.fill))
+            return S.applying(style, "fill", fill=change((gradient or S.Fill()) if style.fill.gradient else style.fill))
 
         restyle(self.target, apply)
 
@@ -908,7 +908,8 @@ class Interior(ExcelObject):
             # An automatic colour keeps its shade and shows no change (tests/fixtures/mixed_fills.json).
             return self._colored(fill, replace(cell_color(fill), tint=tint))
 
-        self._write(change)
+        # A shade given to a gradient leaves a solid fill of the automatic colour.
+        self._write(change, gradient=S.Fill(pattern="solid"))
 
     @member
     def Pattern(self) -> object:
@@ -1001,7 +1002,7 @@ class Interior(ExcelObject):
                 return fill
             return self._with_pattern_color(fill, replace(pattern_color(fill), tint=tint))
 
-        self._write(change)
+        self._write(change, gradient=S.Fill(pattern="solid"))
 
     @member
     def Parent(self) -> object:

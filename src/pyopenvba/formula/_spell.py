@@ -223,9 +223,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
         if whole:
             return _spelled(formula, names, whole=whole, at=True, r1c1=r1c1)
         kept = _without_at(body, tokens)
-        # An @ on a table's column keeps the whole column in this session; a file loaded later reads it as this row's.
-        on_column = any(token.kind == "op" and token.text == "@" and _next(tokens, index).kind == "structured" for index, token in enumerate(tokens))
-        return _spelled("=" + kept, names, whole=on_column, at="@" in _QUOTED.sub('""', kept), r1c1=r1c1)
+        return _spelled("=" + kept, names, whole=whole, at="@" in _QUOTED.sub('""', kept), r1c1=r1c1)
     _within_limits(tokens)
     bound_at = bound(body)
     if not r1c1 and any(token.kind == "name" and token.at in bound_at and is_cell(token.text) for token in tokens):
@@ -282,7 +280,9 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
             if following.kind in ("ref", "name", "structured") and following.at == token.at + len(token.text):
                 # [Book2]Sheet1!A1: another workbook's cells.
                 raise UnmodelledFormulaError("a reference to another workbook is not implemented")
-            text = _structured(token, token.at in one_value, names)
+            # An @ on a table's column keeps the whole column in this session; a file loaded later reads it as this row's.
+            on_at = previous is not None and previous.kind == "op" and previous.text == "@"
+            text = _structured(token, token.at in one_value and not on_at, names)
         elif token.kind == "error":
             head, _, error = text.rpartition("#")
             text = _prefix(head[:-1], names, pair=pair) + "!#" + error.upper() if head else text.upper()

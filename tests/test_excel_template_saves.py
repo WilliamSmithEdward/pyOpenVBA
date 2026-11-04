@@ -161,7 +161,7 @@ End Function
 
 @pytest.mark.skipif(not LIVE, reason="needs live Excel: RUN_LIVE_EXCEL=1")
 def test_excel_opens_every_template_the_model_saves(tmp_path: Path) -> None:
-    from pyvbaharness import ExcelSession, HarnessConfig
+    harness: Any = pytest.importorskip("pyvbaharness")
 
     made: dict[Path, int] = {}
     # Excel opens a template as a new workbook of its kind (fixtures/template_opens.json).
@@ -171,7 +171,7 @@ def test_excel_opens_every_template_the_model_saves(tmp_path: Path) -> None:
     for target, wanted in (("e.xltx", 51), ("f.xlsx", 51), ("g.xltm", 52)):
         _resaved(tmp_path / "a.xltx", tmp_path / target, code=True)
         made[tmp_path / target] = wanted
-    with ExcelSession(HarnessConfig(lock_wait_s=600.0)) as excel:
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=600.0)) as excel:
         excel.new_document()
         for path, wanted in made.items():
             answer = str(excel.run_vba(OPENER, "Tryit", (str(path),), timeout=90.0, line_numbers=False).value)

@@ -294,7 +294,8 @@ not measured, and why.
 
 - **A property a macro can set.** Every kind of value: valid codes and
   their bounds, past either bound, a fraction, text of a number, text that
-  is no number, empty text, Null, Empty and True. Each on a fresh object
+  is no number, empty text, Null, Empty, True, a Currency, a Date and a range
+  of separate areas. Each on a fresh object
   and on one already formatted, reading the object's other properties
   afterwards, then again after a save and reopen. A Range's property is also
   read over cells that differ. Live Office opens a file the model saved and
@@ -337,6 +338,15 @@ for the audits' fixtures. Read-only rows do not need it.
 
 A row whose evidence predates this standard is audited against it. A row
 that fails goes back to PARTIAL until it is fixed.
+
+A rule fitted to a fixture cannot fail when it is replayed against that
+fixture. So a row resting on one, or on any correction made from its own
+measurements, also needs a held-out test: values and calls the rule was not made
+from, with the model's answers written down before Excel is measured. Report the
+miss rate, and keep the cases as a fixture of their own. A row that misses stays
+PARTIAL, and a sample that misses says the same of the rows it stands for, so
+each row is then tested itself. Fixing against held-out cases uses them up: the
+next test needs new ones.
 
 An area becomes VERIFIED only when its operations and evidence are
 complete. Do not advance the completion milestone to Word while Excel

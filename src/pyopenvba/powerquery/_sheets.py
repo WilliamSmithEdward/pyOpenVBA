@@ -123,7 +123,7 @@ def _relationship_for(rels: str, target: str) -> str | None:
     return None
 
 
-def add_relationship(package: OpcFile, part: str, kind: str, target: str) -> str:
+def add_relationship(package: OpcFile, part: str, kind: str, target: str, *, external: bool = False) -> str:
     raw = _relationships(package, part)
     metadata = opc_part(raw.encode("utf-8"), RELS_NS, "Relationships")
     used = {attrs.get("Id", "") for name, attrs, _, _ in metadata.children
@@ -132,7 +132,8 @@ def add_relationship(package: OpcFile, part: str, kind: str, target: str) -> str
     while f"rId{index}" in used:
         index += 1
     identifier = f"rId{index}"
-    markup = metadata.child("Relationship", f'Id="{identifier}" Type="{escape(kind)}" Target="{escape(target)}"')
+    mode = ' TargetMode="External"' if external else ""
+    markup = metadata.child("Relationship", f'Id="{identifier}" Type="{escape(kind)}" Target="{escape(target)}"{mode}')
     package.write(part, metadata.insert(metadata.closing_start, markup))
     return identifier
 

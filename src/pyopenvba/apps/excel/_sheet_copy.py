@@ -257,7 +257,8 @@ def _charts_copied(source: Worksheet, copied: Worksheet, renamed: dict[str, str]
 
     copied.shape_count = source.shape_count
     for shape in source.shapes_:
-        copied.shapes_.append(replace(shape, source="", source_at=0, text_look=deepcopy(shape.text_look),
+        copied.shapes_.append(replace(shape, source="", source_at=0, text_look=deepcopy(shape.text_look), text_marks=deepcopy(shape.text_marks),
+                                         text_end=deepcopy(shape.text_end), text_edits=[],
                                          fill_line=deepcopy(shape.fill_line)))
         state = deepcopy(source.chart_states[shape.shape_id])
         state.part, state.dirty = "", True

@@ -932,17 +932,17 @@ Connections,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/
 Connections,Item,method,Item(Index As Variant) As WorkbookConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py; tests/test_excel_query_table_connections.py,"By number from 1 or by name, any case; anything else error 9."
 Connections,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/connections.json; tests/test_excel_connections.py,"Workbook, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 ConnectorFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
-ConnectorFormat,BeginConnect,method,"BeginConnect(ConnectedShape As Shape, ConnectionSite As Long)",,MISSING,,
-ConnectorFormat,BeginConnected,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
-ConnectorFormat,BeginConnectedShape,"property, read-only",As Shape,,MISSING,,
-ConnectorFormat,BeginConnectionSite,"property, read-only",As Long,,MISSING,,
-ConnectorFormat,BeginDisconnect,method,BeginDisconnect(),,MISSING,,
-ConnectorFormat,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
-ConnectorFormat,EndConnect,method,"EndConnect(ConnectedShape As Shape, ConnectionSite As Long)",,MISSING,,
-ConnectorFormat,EndConnected,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
-ConnectorFormat,EndConnectedShape,"property, read-only",As Shape,,MISSING,,
-ConnectorFormat,EndConnectionSite,"property, read-only",As Long,,MISSING,,
-ConnectorFormat,EndDisconnect,method,EndDisconnect(),,MISSING,,
+ConnectorFormat,BeginConnect,method,"BeginConnect(ConnectedShape As Shape, ConnectionSite As Long)",,PARTIAL,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,"To a rectangle, rounded rectangle, oval, triangle or text box. Any other shape, a line, a group member and an elbow or curve routed other than plainly report themselves."
+ConnectorFormat,BeginConnected,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,"Moving, flipping or turning the connector lets go of both ends; deleting the shape or changing its type lets go of that end."
+ConnectorFormat,BeginConnectedShape,"property, read-only",As Shape,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,1004 when not connected.
+ConnectorFormat,BeginConnectionSite,"property, read-only",As Long,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,-1 when not connected.
+ConnectorFormat,BeginDisconnect,method,BeginDisconnect(),,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,The connector stays where it is.
+ConnectorFormat,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,
+ConnectorFormat,EndConnect,method,"EndConnect(ConnectedShape As Shape, ConnectionSite As Long)",,PARTIAL,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,As BeginConnect.
+ConnectorFormat,EndConnected,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,As BeginConnected.
+ConnectorFormat,EndConnectedShape,"property, read-only",As Shape,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,1004 when not connected.
+ConnectorFormat,EndConnectionSite,"property, read-only",As Long,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,-1 when not connected.
+ConnectorFormat,EndDisconnect,method,EndDisconnect(),,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,The connector stays where it is.
 ConnectorFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
 ConnectorFormat,Type,property,As MsoConnectorType,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
 ControlFormat,_Default,property,As Long,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,"Value, read and set."
@@ -1344,13 +1344,13 @@ Filters,Item,"property, read-only",As Filter,,PARTIAL,tests/fixtures/collection_
 Filters,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,"AutoFilter, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 Font,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Application itself on each way measured; assigning to it is error 450.
 Font,Background,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/object_members.json; tests/test_excel_object_members.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
-Font,Bold,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
-Font,Color,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
+Font,Bold,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike. Back to PARTIAL: a held-out test found it wrong. A Currency or Date given as the value is converted by Excel at the property (text like $1.50 for a String, 1004 for a Boolean), which the model does not do."
+Font,Color,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Font,ColorIndex,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Font,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, a Long, on each way measured; assigning to it is error 450."
 Font,FontStyle,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Font,Italic,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
-Font,Name,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
+Font,Name,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike. Back to PARTIAL: a held-out test found it wrong. A Currency or Date given as the value is converted by Excel at the property (text like $1.50 for a String, 1004 for a Boolean), which the model does not do. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Font,OutlineFont,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,A chart's text reads False; not set.
 Font,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"CellFormat or Characters or ChartArea or ChartTitle or DataLabels or FormatCondition or Legend or Range or Style, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 Font,Shadow,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,A chart's text reads False; not set.
@@ -1368,17 +1368,17 @@ Font2,AutorotateNumbers,property,As MsoTriState,,MISSING,,
 Font2,BaselineOffset,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Bold,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Caps,property,As MsoTextCaps,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,Creator,"property, read-only",As Long,,UNASSESSED,,
+Font2,Creator,"property, read-only",As Long,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,"Raises -2147024809, as live Excel does."
 Font2,DoubleStrikeThrough,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Embeddable,"property, read-only",As MsoTriState,,MISSING,,
 Font2,Embedded,"property, read-only",As MsoTriState,,MISSING,,
 Font2,Equalize,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,Fill,"property, read-only",As FillFormat,,MISSING,,
+Font2,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_font2_paint.json; tests/test_excel_shape_font2_paint.py,"Visible, solid colours, theme colours, Brightness, TintAndShade and Transparency, over all of the text or part. Gradients, patterns, textures and SchemeColor report themselves."
 Font2,Glow,"property, read-only",As GlowFormat,,MISSING,,
 Font2,Highlight,"property, read-only",As ColorFormat,,MISSING,,
 Font2,Italic,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,Kerning,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
-Font2,Line,"property, read-only",As LineFormat,,MISSING,,
+Font2,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/shape_font2_paint.json; tests/test_excel_shape_font2_paint.py,"Visible, colours, Weight, DashStyle 1 and 4, Style 2 and Transparency, over all of the text or part. Patterns and other dashes report themselves."
 Font2,Name,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,NameAscii,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
 Font2,NameComplexScript,property,As String,,MISSING,,
@@ -1465,18 +1465,18 @@ GlowFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/unasses
 GlowFormat,Parent,not in the type library,,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,Error 438
 GlowFormat,Radius,property,As Single,no setter,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,"0 to 150, anything else refused; 0 ends the glow"
 GlowFormat,Transparency,property,As Single,no setter,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,"0 to 1, anything else refused; reads Excel's empty value with no glow"
-GradientStop,Application,"property, read-only",As Object,,MISSING,,
+GradientStop,Application,"property, read-only",As Object,,VERIFIED,tests/fixtures/shape_gradient_stops.json; tests/test_excel_shape_gradient_stops.py,
 GradientStop,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
-GradientStop,Creator,"property, read-only",As Long,,UNASSESSED,,
+GradientStop,Creator,"property, read-only",As Long,,VERIFIED,tests/fixtures/shape_gradient_stops.json; tests/test_excel_shape_gradient_stops.py,
 GradientStop,Position,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
 GradientStop,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
 GradientStops,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-GradientStops,Application,"property, read-only",As Object,,MISSING,,
+GradientStops,Application,"property, read-only",As Object,,VERIFIED,tests/fixtures/shape_gradient_stops.json; tests/test_excel_shape_gradient_stops.py,
 GradientStops,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
-GradientStops,Creator,"property, read-only",As Long,,UNASSESSED,,
+GradientStops,Creator,"property, read-only",As Long,,VERIFIED,tests/fixtures/shape_gradient_stops.json; tests/test_excel_shape_gradient_stops.py,
 GradientStops,Delete,method,Delete([Index As Long]),,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long])",,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
-GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,MISSING,,
+GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,PARTIAL,tests/fixtures/shape_gradient_stops.json; tests/test_excel_shape_gradient_stops.py,A stop with both a transparency and a brightness reports itself.
 GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 Graphic,Application,"property, read-only",As Application,,MISSING,,
@@ -1617,13 +1617,13 @@ IconSets,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/obj
 IconSets,Item,"property, read-only",As Object,,VERIFIED,tests/fixtures/collection_items.json; tests/test_excel_collection_items.py; tests/fixtures/data_bars_icons/data_bars_icons.json,"As o.Item(x) late bound across every kind of index, and Item(Null) bound early, which the model follows where it differs. The shorter o(x) and typed forms of other indexes are not recorded."
 IconSets,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/data_bars_icons/data_bars_icons.json,"Workbook, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 Interior,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Application itself on each way measured; assigning to it is error 450.
-Interior,Color,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
+Interior,Color,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Interior,ColorIndex,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Interior,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, a Long, on each way measured; assigning to it is error 450."
 Interior,Gradient,"property, read-only",As Object,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"The range's LinearGradient or RectangularGradient, Nothing for any other fill; Pattern xlPatternLinearGradient or xlPatternRectangularGradient makes one, Dark 1 to Accent 1, and a colour or pattern given to it takes its place. Its Interior reads black, automatic, no theme colour, except that Excel keeps a colour given before the gradient in ColorIndex, which the model does not. Saved as styles.xml's gradientFill as Excel writes it."
 Interior,InvertIfNegative,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/object_members.json; tests/test_excel_object_members.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Interior,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"CellFormat or FormatCondition or Range or Style, by the way it is reached; Set o.Parent is the error set_parent_error gives."
-Interior,Pattern,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
+Interior,Pattern,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Interior,PatternColor,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Interior,PatternColorIndex,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Interior,PatternThemeColor,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
@@ -2011,7 +2011,7 @@ PictureFormat,Application,"property, read-only",As Object,,MISSING,,
 PictureFormat,Brightness,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"0 to 1, written as lum bright; else out of range. A new picture only."
 PictureFormat,ColorType,property,As MsoPictureColorType,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"1 to 4, clearing brightness and contrast; 4 sets them as a watermark."
 PictureFormat,Contrast,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"0 to 1, written as lum contrast; else out of range. A new picture only."
-PictureFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+PictureFormat,Creator,"property, read-only",As Long,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,
 PictureFormat,Crop,"property, read-only",As Crop,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
 PictureFormat,CropBottom,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself.
 PictureFormat,CropLeft,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself: it moves the shape by rules not worked out.
@@ -2640,14 +2640,14 @@ Range,FindPrevious,method,FindPrevious([After As Variant]) As Range,,VERIFIED,te
 Range,FlashFill,method,FlashFill(),,MISSING,,
 Range,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,FormatConditions,"property, read-only",As FormatConditions,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
-Range,Formula,property,As Variant,,VERIFIED,tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/formula_a1_arrays.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/number_spelling.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_cell_strings.py; tests/fixtures/cell_strings/controls.json; scripts/measure_cell_strings.py; tests/fixtures/text_cells.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these."
+Range,Formula,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/formula_a1_arrays.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/number_spelling.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_cell_strings.py; tests/fixtures/cell_strings/controls.json; scripts/measure_cell_strings.py; tests/fixtures/text_cells.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Range,Formula2,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/implicit_intersection.json; tests/fixtures/full_calculation.json,"Reads a formula Range.Formula wrote with an @ where it cuts cells to one value, as 2100 live formulas show; writes a formula whose Formula2 is a legacy formula's as that, and any other as a dynamic-array formula, which spills (tests/fixtures/dynamic_arrays.json). Native full/ordinary calculation and initial manual formula entry are measured; broader combinations remain partial. Each kind of value on a cell measured, read over cells that differ, both bindings alike, after a save and reopen."
 Range,Formula2Local,property,As Variant,,VERIFIED,tests/fixtures/member_audit.json; tests/test_excel_member_audit.py; tests/fixtures/excel_model/probes.txt,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Range,Formula2R1C1,property,As Variant,,VERIFIED,tests/fixtures/member_audit.json; tests/test_excel_member_audit.py; tests/fixtures/dynamic_arrays.json,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Range,Formula2R1C1Local,property,As Variant,,VERIFIED,tests/fixtures/member_audit.json; tests/test_excel_member_audit.py; tests/fixtures/excel_model/probes.txt,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Range,FormulaArray,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/excel_model/probes.txt; tests/fixtures/formula_storage/formula_storage.json; tests/fixtures/cse_array_edits.json; tests/fixtures/cse_fill_replace.json,"One formula worked out as an array over the block; entry accepts A1 or R1C1 and at most 255 characters. Partial copies create arrays; whole cuts and shifts carry metadata; sorting refuses array cells. AutoFill, Replace and RemoveDuplicates have measured CSE behavior. Multi-area and mixed-feature combinations remain incomplete. Each kind of value on a cell and a block measured, read over cells that differ, both bindings alike, after a save and reopen."
 Range,FormulaHidden,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
-Range,FormulaLocal,property,As Variant,,VERIFIED,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/excel_model/probes.txt,"As Formula under en-US: each kind of value on a cell and a block, fresh and with a formula, read over cells that differ, both bindings alike, after a save and reopen, and live Excel reading the model's file."
+Range,FormulaLocal,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/excel_model/probes.txt,"As Formula under en-US: each kind of value on a cell and a block, fresh and with a formula, read over cells that differ, both bindings alike, after a save and reopen, and live Excel reading the model's file. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Range,FormulaR1C1,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/formula_r1c1.json; tests/fixtures/formula_arrays.json; tests/fixtures/autofilter_edits.json; tests/fixtures/text_cells.json,"Relative R1C1 inside INDIRECT names is not implemented. On a filtered sheet only the visible cells take it. A cell whose format has an @ and no section showing digits or a date is a Text cell, keeping a formula or a string written to it as text; a Currency written to one keeps the cell's format unless it is @. Each kind of value on a cell measured, read over cells that differ, both bindings alike, after a save and reopen."
 Range,FormulaR1C1Local,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/excel_model/probes.txt,"The same as FormulaR1C1, as an English Excel has it; the model keeps the English spelling. Each kind of value on a cell and a block measured, read over cells that differ, both bindings alike, after a save and reopen; what FormulaR1C1 lacks it lacks too."
 Range,FunctionWizard,method,FunctionWizard() As Variant,,MISSING,,
@@ -2676,16 +2676,16 @@ Range,ListObject,"property, read-only",As ListObject,,VERIFIED,tests/fixtures/re
 Range,LocationInTable,"property, read-only",As XlLocationInTable,,VERIFIED,tests/fixtures/read_audit.json; tests/test_excel_read_audit.py; tests/fixtures/location_in_table/; tests/test_excel_location_in_table.py,"Read in each state that changes it, and after a save and reopen where the file keeps it; assigning to it is measured too."
 Range,Locked,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Range,MDX,"property, read-only",As String,,PARTIAL,tests/fixtures/range_small_reads.json; tests/test_excel_range_small_reads.py,"Empty for one cell outside a pivot table, 1004 for several; in a pivot table unsupported."
-Range,Merge,method,Merge([Across As Variant]),,VERIFIED,tests/fixtures/range_areas.json; tests/test_excel_range_areas.py; tests/fixtures/range_methods_moves.json; tests/test_excel_range_methods.py; tests/fixtures/range_merge.json,"No argument and each kind of value for each argument, several areas, both bindings, a save and reopen, and live Excel reading the model's file. Each area alone, areas that overlap being 1004. Every cell takes the first cell's format, and of the borders only the ends of a single row or column stay."
+Range,Merge,method,Merge([Across As Variant]),,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_areas.json; tests/test_excel_range_areas.py; tests/fixtures/range_methods_moves.json; tests/test_excel_range_methods.py; tests/fixtures/range_merge.json,"No argument and each kind of value for each argument, several areas, both bindings, a save and reopen, and live Excel reading the model's file. Each area alone, areas that overlap being 1004. Every cell takes the first cell's format, and of the borders only the ends of a single row or column stay. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Range,MergeArea,"property, read-only",As Range,,PARTIAL,tests/fixtures/range_merge.json,Multi-area merges and across merges over multi-row regions report unsupported; merge formatting is not modeled.
 Range,MergeCells,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/range_merge.json,"Multi-area merges and across merges over multi-row regions report unsupported; merge formatting is not modeled. Each kind of value on a cell and a block measured, read over cells that differ, both bindings alike, after a save and reopen."
 Range,Name,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/names_crud.json,"Each kind of value measured and replayed, after a save and reopen. Answers differ late bound, where the model follows early, so this stays PARTIAL until it tracks both bindings."
 Range,NavigateArrow,method,"NavigateArrow([TowardPrecedent As Variant], [ArrowNumber As Variant], [LinkNumber As Variant]) As Variant",no TowardPrecedent,PARTIAL,tests/fixtures/range_members.json; tests/test_excel_range_members.py,Several dependents on one sheet are refused; their order was not worked out.
 Range,Next,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The cell right of the top-left one, error 1004 past the last column; on a protected sheet, where it moves between unlocked cells, it reports itself unsupported."
 Range,NoteText,method,"NoteText([Text As Variant], [Start As Variant], [Length As Variant]) As String",,PARTIAL,tests/fixtures/method_audit.json; tests/test_excel_method_audit.py; tests/fixtures/excel_model/probes.txt,"Bindings differ on some values, recorded in the fixture's early. The model follows early, so a macro holding the object As Object gets another answer until the model tracks both."
-Range,NumberFormat,property,As Variant,,VERIFIED,tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/narrow_text.json; tests/fixtures/text_cells.json; tests/fixtures/autofit_sizes.json; tests/fixtures/general_widening.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these."
-Range,NumberFormatLocal,property,As Variant,,VERIFIED,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/excel_model/probes.txt; tests/fixtures/narrow_text.json; tests/fixtures/excel_locale_live.json,"The same as NumberFormat under en-US. Under ja-JP, Japanese Excel's spelling, read and written: G/標準, a built-in format as its Japanese code, ¥ for the currency sign and ! to escape; the English General is error 1004, and a spelling NumberFormat would spell as a built-in format reports itself unsupported. Setting it widens a column wherever AutoFit would make it wider for a number a cell now shows, as Excel does, even where the number shows whole: not a column sized by hand or hidden, nor for a merged cell, General, text, logicals or errors, and never narrower. A number in a font or size other than Aptos Narrow and Calibri 11 leaves its column as it is."
-Range,Offset,"property, read-only",As Range,,VERIFIED,tests/fixtures/range_methods_moves.json; tests/test_excel_range_methods.py; tests/fixtures/excel_model/probes.txt,"No argument and each kind of value for each argument, both bindings, a save and reopen, and live Excel reading the model's file."
+Range,NumberFormat,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/narrow_text.json; tests/fixtures/text_cells.json; tests/fixtures/autofit_sizes.json; tests/fixtures/general_widening.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these. Back to PARTIAL: a held-out test found it wrong. A Currency or Date given as the value is converted by Excel at the property (text like $1.50 for a String, 1004 for a Boolean), which the model does not do. A range of separate areas given as the value reads as its first area's, which the model does not do."
+Range,NumberFormatLocal,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/excel_model/probes.txt; tests/fixtures/narrow_text.json; tests/fixtures/excel_locale_live.json,"The same as NumberFormat under en-US. Under ja-JP, Japanese Excel's spelling, read and written: G/標準, a built-in format as its Japanese code, ¥ for the currency sign and ! to escape; the English General is error 1004, and a spelling NumberFormat would spell as a built-in format reports itself unsupported. Setting it widens a column wherever AutoFit would make it wider for a number a cell now shows, as Excel does, even where the number shows whole: not a column sized by hand or hidden, nor for a merged cell, General, text, logicals or errors, and never narrower. A number in a font or size other than Aptos Narrow and Calibri 11 leaves its column as it is. Back to PARTIAL: a held-out test found it wrong. A Currency or Date given as the value is converted by Excel at the property (text like $1.50 for a String, 1004 for a Boolean), which the model does not do. A range of separate areas given as the value reads as its first area's, which the model does not do."
+Range,Offset,"property, read-only",As Range,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_methods_moves.json; tests/test_excel_range_methods.py; tests/fixtures/excel_model/probes.txt,"No argument and each kind of value for each argument, both bindings, a save and reopen, and live Excel reading the model's file. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Range,Orientation,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Range,OutlineLevel,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions. Each kind of value on a row and a column measured, read over rows and columns that differ (the first's answer), both bindings alike, after a save and reopen."
 Range,PageBreak,property,As Long,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Read on whole rows or columns as Rows and Columns make them, error 1004 elsewhere. Set xlPageBreakManual or xlPageBreakNone on a row's, a column's or a cell's row and column but the first; anything else is error 1004. Breaks move with rows and columns put in and go with the line after them. Each kind of value on a row, a column and a cell measured, read over rows and columns that differ, after a save and reopen. Answers differ late bound, where the model follows early, so this stays PARTIAL until it tracks both bindings."
@@ -2714,7 +2714,7 @@ Range,RemoveDuplicates,method,"RemoveDuplicates([Columns As Variant], [Header As
 Range,RemoveSubtotal,method,RemoveSubtotal() As Variant,,PARTIAL,tests/test_excel_subtotals.py; tests/fixtures/subtotals; scripts/measure_subtotals.py; tests/test_live_excel_model_gate.py,"Deletes the rows of the list holding one SUBTOTAL call alone and takes the list out of the outline, showing its grouped rows, as Excel does. Lists on sheets with manual page breaks report themselves unsupported."
 Range,Replace,method,"Replace(What As Variant, Replacement As Variant, [LookAt As Variant], [SearchOrder As Variant], [MatchCase As Variant], [MatchByte As Variant], [SearchFormat As Variant], [ReplaceFormat As Variant], [FormulaVersion As Variant]) As Boolean",,PARTIAL,tests/fixtures/range_areas.json; tests/test_excel_range_areas.py; tests/fixtures/range_methods_search.json; tests/test_excel_range_methods.py; tests/fixtures/replace.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_fill_replace.json; tests/fixtures/full_calculation.json; tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Edits the text the formula bar shows and types what is left as Excel does; MatchByte:=True on text of other than ASCII and Formula2 semantics report themselves unsupported. On a filtered sheet only the visible cells change. CSE anchors replace the whole array, formulas calculate immediately even in manual mode, literal results dissolve the array, and Change/Calculate order is measured. Replacement fragments are limited to 255 characters. Native full/ordinary calculation and initial manual formula entry are measured; broader combinations remain partial. SearchFormat and ReplaceFormat use Application.FindFormat and ReplaceFormat; with nothing sought the format-matching cells, or the blank ones, change. Each kind of value measured, both bindings, save and live reading."
 Range,ResetContents,method,ResetContents(),,PARTIAL,tests/fixtures/range_missing.json,As ClearContents; the model has no cell controls
-Range,Resize,"property, read-only",As Range,,VERIFIED,tests/fixtures/range_methods_moves.json; tests/test_excel_range_methods.py; tests/fixtures/excel_model/probes.txt,"No argument and each kind of value for each argument, both bindings, a save and reopen, and live Excel reading the model's file."
+Range,Resize,"property, read-only",As Range,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_methods_moves.json; tests/test_excel_range_methods.py; tests/fixtures/excel_model/probes.txt,"No argument and each kind of value for each argument, both bindings, a save and reopen, and live Excel reading the model's file. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Range,Row,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,RowDifferences,method,RowDifferences(Comparison As Variant) As Range,,PARTIAL,tests/fixtures/row_differences.json; tests/test_excel_row_differences.py,"The cells whose FormulaR1C1, read without regard to case, differs from the comparison cell's in their row: the comparison its first area's last cell, one row high and inside the range, else error 1004; a range of one cell compares only itself, a larger one up to the used range; areas as SpecialCells splits them; nothing found is error 1004, over 34 live cases. A comparison on another sheet reports itself unsupported."
 Range,RowHeight,property,As Variant,,PARTIAL,tests/fixtures/range_sizes.json; tests/test_excel_range_sizes.py; tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/font_rows.json; tests/fixtures/row_formats/row_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json,"Each kind of value measured, both bindings alike, sizes at 96 DPI in tests/fixtures/dimensions.json. RowHeight 0 over a whole column hides every row of the sheet, which reports itself as a gap."
@@ -2755,12 +2755,12 @@ Range,UpdatePictureInCellAlternativeText,method,UpdatePictureInCellAlternativeTe
 Range,UseStandardHeight,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/full_calculation.json,"A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts. Each kind of value on a row measured, read over rows that differ, both bindings alike, after a save and reopen."
 Range,UseStandardWidth,property,As Variant,,PARTIAL,tests/fixtures/range_more.json; tests/fixtures/range_more_blocks.json; tests/test_excel_range_more.py; tests/test_excel_range_more_blocks.py; tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,"A read across several rows or columns compares inside the sheet's current used block; Excel's can stay larger for the rest of a session after a column is hidden. Each kind of value on a column measured, read over columns that differ, both bindings alike, after a save and reopen."
 Range,Validation,"property, read-only",As Validation,,VERIFIED,tests/fixtures/read_audit.json; tests/test_excel_read_audit.py; tests/fixtures/validation/validation.json,"Read in each state that changes it, and after a save and reopen where the file keeps it; assigning to it is measured too."
-Range,Value,property,As Variant,,VERIFIED,tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/excel_model/probes.txt; tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_currency_writes.py; tests/fixtures/currency_writes.json; scripts/measure_currency_writes.py; tests/test_excel_cell_strings.py; tests/fixtures/cell_strings/controls.json; scripts/measure_cell_strings.py; tests/fixtures/text_cells.json; tests/fixtures/excel_everyday_2.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these."
-Range,Value2,property,As Variant,,VERIFIED,tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/test_excel_currency_writes.py; tests/fixtures/currency_writes.json; scripts/measure_currency_writes.py; tests/test_excel_cell_strings.py; tests/fixtures/cell_strings/controls.json; scripts/measure_cell_strings.py; tests/fixtures/text_cells.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these."
+Range,Value,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/excel_model/probes.txt; tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_currency_writes.py; tests/fixtures/currency_writes.json; scripts/measure_currency_writes.py; tests/test_excel_cell_strings.py; tests/fixtures/cell_strings/controls.json; scripts/measure_cell_strings.py; tests/fixtures/text_cells.json; tests/fixtures/excel_everyday_2.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
+Range,Value2,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/range_values.json; tests/test_excel_range_values.py; tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json; tests/fixtures/autofilter_edits.json; tests/test_excel_currency_writes.py; tests/fixtures/currency_writes.json; scripts/measure_currency_writes.py; tests/test_excel_cell_strings.py; tests/fixtures/cell_strings/controls.json; scripts/measure_cell_strings.py; tests/fixtures/text_cells.json,"Every kind of value on one cell and on two, fresh and formatted, both bindings alike, and a save and reopen. Live Excel reading the model's file is not repeated for these. Back to PARTIAL: a held-out test found it wrong. A range of separate areas given as the value reads as its first area's, which the model does not do."
 Range,VerticalAlignment,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
 Range,Width,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
 Range,Worksheet,"property, read-only",As Worksheet,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,WrapText,property,As Variant,,VERIFIED,tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike."
+Range,WrapText,property,As Variant,,PARTIAL,tests/fixtures/range_held_kinds.json; tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike. Back to PARTIAL: a held-out test found it wrong. A Currency or Date given as the value is converted by Excel at the property (text like $1.50 for a String, 1004 for a Boolean), which the model does not do."
 Range,XPath,"property, read-only",As XPath,,PARTIAL,tests/fixtures/range_missing.json,An empty path; the model has no XML maps
 RectangularGradient,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,Application itself on each way measured; assigning to it is error 450.
 RectangularGradient,ColorStops,"property, read-only",As ColorStops,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,Its colour stops.
@@ -2916,7 +2916,7 @@ Shape,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/object
 Shape,Cut,method,Cut(),,PARTIAL,tests/fixtures/chart_copies.json; tests/test_excel_chart_copies.py,Charts only.
 Shape,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,Written as the adec:decorative extension; turning it off leaves val 0. Turning it on clears AlternativeText and Title.
 Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
+Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"The old object of an AutoShape, text box, line, picture, list or chart."
 Shape,Duplicate,method,Duplicate() As Shape,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy 12 points right and down, on top, with the next id; a default name takes the sheet's next number, a given one is kept. Shapes loaded from a file, charts, controls and groups are refused."
 Shape,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"A new AutoShape, text box or line."
 Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/fixtures/shape_duplicate.json,"Turns flipH or flipV over, written after rot, and mirrors the rotation (30 becomes 330); twice turns it back. Other commands raise -2147024809."
@@ -2941,7 +2941,7 @@ Shape,Locked,property,As Boolean,,PARTIAL,tests/fixtures/shape_properties.json; 
 Shape,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 Shape,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Nodes,"property, read-only",As ShapeNodes,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,A freeform; other shapes report themselves.
-Shape,OLEFormat,"property, read-only",As OLEFormat,,MISSING,,
+Shape,OLEFormat,"property, read-only",As OLEFormat,,UNASSESSED,,
 Shape,OnAction,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/object_members.json; tests/test_excel_object_members.py,"Worksheet, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 Shape,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,The group a shape is in; a shape in none raises 1004.
@@ -2950,7 +2950,7 @@ Shape,PictureFormat,"property, read-only",As PictureFormat,,PARTIAL,tests/fixtur
 Shape,Placement,property,As XlPlacement,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json; tests/fixtures/shape_structure_moves.json,"Read and set as the anchor's editAs. xlMoveAndSize moves and sizes the shape with the columns and rows under it, rows grown by their fonts included, xlMove moves it, xlFreeFloating leaves it; values other than 1 to 3 are not implemented. Rows grown by wrapped text are not measured."
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
-Shape,RerouteConnections,method,RerouteConnections(),,MISSING,,
+Shape,RerouteConnections,method,RerouteConnections(),,PARTIAL,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,"The nearest pair of sites, on a connector held at both ends; else out of range. The ShapeRange form is not built."
 Shape,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,The file keeps the angle as given; reads wrap it into 0 to 360. Between 45 and 135 or 225 and 315 degrees the anchor holds the box turned on its centre.
 Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
@@ -3040,7 +3040,7 @@ ShapeRange,PickUp,method,PickUp(),,PARTIAL,tests/fixtures/shape_painter.json; te
 ShapeRange,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
 ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,"A set reaches every shape; types that differ read mixed, measurements the last shape's."
 ShapeRange,Regroup,method,Regroup() As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The ungrouped shapes made a group again, with the next name and id; shapes from no group raise 1004. Regrouping after a member moved, or part of the shapes, is refused."
-ShapeRange,RerouteConnections,method,RerouteConnections(),,MISSING,,
+ShapeRange,RerouteConnections,method,RerouteConnections(),,PARTIAL,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,One shape. Several report themselves.
 ShapeRange,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set turns every shape."
 ShapeRange,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
 ShapeRange,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
@@ -3409,46 +3409,46 @@ TextFrame2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 TextFrame2,WordWrap,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's wrap; any value but 0 wraps.
 TextRange2,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 TextRange2,AddPeriods,method,AddPeriods(),,MISSING,,
-TextRange2,Application,"property, read-only",As Object,,MISSING,,
+TextRange2,Application,"property, read-only",As Object,,UNASSESSED,,
 TextRange2,BoundHeight,"property, read-only",As Single,,MISSING,,
 TextRange2,BoundLeft,"property, read-only",As Single,,MISSING,,
 TextRange2,BoundTop,"property, read-only",As Single,,MISSING,,
 TextRange2,BoundWidth,"property, read-only",As Single,,MISSING,,
 TextRange2,ChangeCase,method,ChangeCase(Type As MsoTextChangeCase),,MISSING,,
-TextRange2,Characters,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Characters,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Start and length as Excel clamps them; 0 or -1 for either is its default, and a range past the text raises."
 TextRange2,Copy,method,Copy(),,MISSING,,
-TextRange2,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
-TextRange2,Creator,"property, read-only",As Long,,UNASSESSED,,
+TextRange2,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"What the range counts: 1 for TextRange itself, else its Characters, Runs, Words or Paragraphs."
+TextRange2,Creator,"property, read-only",As Long,,VERIFIED,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,"Raises -2147024809, as live Excel does."
 TextRange2,Cut,method,Cut(),,MISSING,,
-TextRange2,Delete,method,Delete(),,MISSING,,
+TextRange2,Delete,method,Delete(),,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,An empty range raises.
 TextRange2,Find,method,"Find(FindWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
-TextRange2,Font,"property, read-only",As Font2,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
-TextRange2,InsertAfter,method,InsertAfter([NewText As String]) As TextRange2,,MISSING,,
-TextRange2,InsertBefore,method,InsertBefore([NewText As String]) As TextRange2,,MISSING,,
+TextRange2,Font,"property, read-only",As Font2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,All of the text or part of it. A range with no characters reports itself; font members mixed across a range read as Excel does.
+TextRange2,InsertAfter,method,InsertAfter([NewText As String]) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Takes the settings of the character before.
+TextRange2,InsertBefore,method,InsertBefore([NewText As String]) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Takes the settings of the character before, or at the start after."
 TextRange2,InsertChartField,method,"InsertChartField(ChartFieldType As MsoChartFieldType, [Formula As String], [Position As Long]) As TextRange2",,MISSING,,
 TextRange2,InsertSymbol,method,"InsertSymbol(FontName As String, CharNumber As Long, [Unicode As MsoTriState]) As TextRange2",,MISSING,,
-TextRange2,Item,method,Item(Index As Variant) As TextRange2,,MISSING,,
+TextRange2,Item,method,Item(Index As Variant) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,By what the range counts.
 TextRange2,LanguageID,property,As MsoLanguageID,,MISSING,,
-TextRange2,Length,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_everyday_14.json,
+TextRange2,Length,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Measured.
 TextRange2,Lines,"property, read-only",As TextRange2,,MISSING,,
 TextRange2,LtrRun,method,LtrRun(),,MISSING,,
 TextRange2,MathZones,"property, read-only",As TextRange2,,MISSING,,
 TextRange2,ParagraphFormat,"property, read-only",As ParagraphFormat2,,MISSING,,
-TextRange2,Paragraphs,"property, read-only",As TextRange2,,MISSING,,
-TextRange2,Parent,"property, read-only",As Object,,MISSING,,
+TextRange2,Paragraphs,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Text cut to the range.
+TextRange2,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,The TextFrame2.
 TextRange2,Paste,method,Paste() As TextRange2,,MISSING,,
 TextRange2,PasteSpecial,method,PasteSpecial(Format As MsoClipboardFormat) As TextRange2,,MISSING,,
 TextRange2,RemovePeriods,method,RemovePeriods(),,MISSING,,
 TextRange2,Replace,method,"Replace(FindWhat As String, ReplaceWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
 TextRange2,RotatedBounds,method,"RotatedBounds(X1 As Single, Y1 As Single, X2 As Single, Y2 As Single, X3 As Single, Y3 As Single, x4 As Single, y4 As Single)",,MISSING,,
 TextRange2,RtlRun,method,RtlRun(),,MISSING,,
-TextRange2,Runs,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Runs,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Characters alike in what they write, across a paragraph end too."
 TextRange2,Select,method,Select(),,MISSING,,
 TextRange2,Sentences,"property, read-only",As TextRange2,,MISSING,,
-TextRange2,Start,"property, read-only",As Long,,MISSING,,
-TextRange2,Text,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,Start,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Measured.
+TextRange2,Text,property,As String,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Whole or part; a range kept across an edit at or inside it reports itself.
 TextRange2,TrimText,method,TrimText() As TextRange2,,MISSING,,
-TextRange2,Words,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Words,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,"Plain text only: text with a break, non-ASCII or a leading space reports itself."
 ThemeColor,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeColor,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeColor,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
@@ -4069,7 +4069,7 @@ Worksheet,Deactivate,event,Deactivate(),,PARTIAL,tests/fixtures/workbook_open.js
 Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Removes worksheet runtime document and saved VBA module; native persistence gate. The formulas and names that read the sheet read #REF! in its place; the active sheet stays, or where it is the one deleted the next visible sheet after it is active, or the last visible one before it. Deleting every visible sheet, event/object lifetime and dialog conformance remain incomplete."
 Worksheet,DisplayPageBreaks,property,As Boolean,,PARTIAL,tests/fixtures/settable_audit.json; tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, as Application's switches do, and is not saved, measured Typed, each kind of value answers as Excel does (settable_audit); late bound 1 differ, so this stays PARTIAL until the model tracks both bindings."
 Worksheet,DisplayRightToLeft,property,As Boolean,,PARTIAL,tests/fixtures/settable_audit.json; tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"The sheet view's rightToLeft, the window's DisplayRightToLeft too, saved and kept by a copy; cells keep their Left Typed, each kind of value answers as Excel does (settable_audit); late bound 3 differ, so this stays PARTIAL until the model tracks both bindings."
-Worksheet,DrawingObjects,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"The sheet's Shapes; Excel's DrawingObjects leaves notes' boxes out, so its Count differs where a sheet has notes."
+Worksheet,DrawingObjects,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Each as its old object; a group answers as its shape.
 Worksheet,EnableAutoFilter,property,As Boolean,,PARTIAL,tests/fixtures/settable_audit.json; tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null being 94 and text that is none 13 typed, over 23 live settings; kept by a copy, not saved; it changes nothing the model does Typed, each kind of value answers as Excel does (settable_audit); late bound 3 differ, so this stays PARTIAL until the model tracks both bindings."
 Worksheet,EnableCalculation,property,As Boolean,,PARTIAL,tests/fixtures/settable_audit.json; tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"False keeps the sheet's formulas through every calculation, a formula written there reading 0; True again works the sheet out under automatic calculation; not copied or saved; over 10 live cases Typed, each kind of value answers as Excel does (settable_audit); late bound 1 differ, so this stays PARTIAL until the model tracks both bindings."
 Worksheet,EnableFormatConditionsCalculation,property,As Boolean,,PARTIAL,tests/fixtures/format_conditions_calculation.json; tests/test_excel_format_conditions_calculation.py,"Null is 94 typed and 13 late, text that is no Boolean 13. Reads True after a setting on a new workbook in one measurement and False in another, by no rule found; nothing is saved."
@@ -4316,7 +4316,7 @@ WorksheetFunction,HarMean,method,"HarMean(Arg1 As Variant, [Arg2 As Variant], [A
 WorksheetFunction,Hex2Bin,method,"Hex2Bin(Arg1 As Variant, [Arg2 As Variant]) As String",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,Hex2Dec,method,Hex2Dec(Arg1 As Variant) As String,,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,Hex2Oct,method,"Hex2Oct(Arg1 As Variant, [Arg2 As Variant]) As String",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
-WorksheetFunction,HLookup,method,"HLookup(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, [Arg4 As Variant]) As Variant",,VERIFIED,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved."
+WorksheetFunction,HLookup,method,"HLookup(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, [Arg4 As Variant]) As Variant",,PARTIAL,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved. Back to PARTIAL: a held-out test found it wrong. A range of separate areas for the row is 1004, and one text cell for the last argument answers an array; the model answers otherwise."
 WorksheetFunction,HypGeom_Dist,method,"HypGeom_Dist(Arg1 As Double, Arg2 As Double, Arg3 As Double, Arg4 As Double, Arg5 As Boolean) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,HypGeomDist,method,"HypGeomDist(Arg1 As Double, Arg2 As Double, Arg3 As Double, Arg4 As Double) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,IfError,method,"IfError(Arg1 As Variant, Arg2 As Variant) As Variant",,PARTIAL,tests/fixtures/worksheet_functions.json,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
@@ -4346,7 +4346,7 @@ WorksheetFunction,ImSqrt,method,ImSqrt(Arg1 As Variant) As String,,PARTIAL,tests
 WorksheetFunction,ImSub,method,"ImSub(Arg1 As Variant, Arg2 As Variant) As String",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,ImSum,method,"ImSum(Arg1 As Variant, [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As String",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,ImTan,method,ImTan(Arg1 As Variant) As String,,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
-WorksheetFunction,Index,method,"Index(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant], [Arg4 As Variant]) As Variant",,VERIFIED,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved."
+WorksheetFunction,Index,method,"Index(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant], [Arg4 As Variant]) As Variant",,PARTIAL,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved. Back to PARTIAL: a held-out test found it wrong. A single value indexed at row 0 answers an array; the model answers the value."
 WorksheetFunction,Intercept,method,"Intercept(Arg1 As Variant, Arg2 As Variant) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,IntRate,method,"IntRate(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, [Arg5 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,Ipmt,method,"Ipmt(Arg1 As Double, Arg2 As Double, Arg3 As Double, Arg4 As Double, [Arg5 As Variant], [Arg6 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
@@ -4377,7 +4377,7 @@ WorksheetFunction,LogNorm_Dist,method,"LogNorm_Dist(Arg1 As Double, Arg2 As Doub
 WorksheetFunction,LogNorm_Inv,method,"LogNorm_Inv(Arg1 As Double, Arg2 As Double, Arg3 As Double) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,LogNormDist,method,"LogNormDist(Arg1 As Double, Arg2 As Double, Arg3 As Double) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,Lookup,method,"Lookup(Arg1 As Variant, Arg2 As Variant, [Arg3 As Variant]) As Variant",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
-WorksheetFunction,Match,method,"Match(Arg1 As Variant, Arg2 As Variant, [Arg3 As Variant]) As Double",,VERIFIED,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved."
+WorksheetFunction,Match,method,"Match(Arg1 As Variant, Arg2 As Variant, [Arg3 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved. Back to PARTIAL: a held-out test found it wrong. A range of separate areas for the type is 1004; the model answers otherwise."
 WorksheetFunction,Max,method,"Max(Arg1 As Variant, [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Double",,VERIFIED,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved."
 WorksheetFunction,MaxIfs,method,"MaxIfs(Arg1 As Range, Arg2 As Range, Arg3 As Variant, [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,MDeterm,method,MDeterm(Arg1 As Variant) As Double,,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
@@ -4530,7 +4530,7 @@ WorksheetFunction,Var_P,method,"Var_P(Arg1 As Variant, [Arg2 As Variant], [Arg3 
 WorksheetFunction,Var_S,method,"Var_S(Arg1 As Variant, [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions.json,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,VarP,method,"VarP(Arg1 As Variant, [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions.json,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,Vdb,method,"Vdb(Arg1 As Double, Arg2 As Double, Arg3 As Double, Arg4 As Double, Arg5 As Double, [Arg6 As Variant], [Arg7 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
-WorksheetFunction,VLookup,method,"VLookup(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, [Arg4 As Variant]) As Variant",,VERIFIED,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved."
+WorksheetFunction,VLookup,method,"VLookup(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, [Arg4 As Variant]) As Variant",,PARTIAL,tests/fixtures/worksheet_function_args.json; tests/test_excel_worksheet_function_args.py; tests/fixtures/worksheet_functions.json,"With no argument, and each kind of value for each argument held in a Variant, typed and late bound, both replayed. Typed, VBA converts first for what the library declares. Then Null counts as left out, but for the last argument the function cannot do without, Nothing is 5, and an object that is no range is 1004. Nothing here is saved. Back to PARTIAL: a held-out test found it wrong. A range of separate areas for the column is 1004, and one text cell for the last argument answers an array; the model answers otherwise."
 WorksheetFunction,WebService,method,WebService(Arg1 As String) As Variant,,MISSING,,
 WorksheetFunction,Weekday,method,"Weekday(Arg1 As Variant, [Arg2 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions.json,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,WeekNum,method,"WeekNum(Arg1 As Variant, [Arg2 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
@@ -4580,3 +4580,1001 @@ _ElementPart,Parent,not in the type library,,,PARTIAL,tests/fixtures/table_style
 _Owned,Application,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 _Owned,Creator,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 _Owned,Parent,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Arc,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,AutoScaleFont,property,As Variant,,MISSING,,
+Arc,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
+Arc,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
+Arc,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Arc,Copy,method,Copy() As Variant,,MISSING,,
+Arc,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Arc,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Cut,method,Cut() As Variant,,MISSING,,
+Arc,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
+Arc,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
+Arc,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
+Arc,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
+Arc,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+Arcs,Add,method,"Add(X1 As Double, Y1 As Double, X2 As Double, Y2 As Double) As Arc",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,AddIndent,property,As Boolean,,MISSING,,
+Arcs,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,AutoScaleFont,property,As Variant,,MISSING,,
+Arcs,AutoSize,property,As Boolean,,MISSING,,
+Arcs,Border,"property, read-only",As Border,,MISSING,,
+Arcs,BringToFront,method,BringToFront() As Variant,,MISSING,,
+Arcs,Caption,property,As String,,MISSING,,
+Arcs,Characters,"property, read-only",As Characters,,MISSING,,
+Arcs,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Arcs,Copy,method,Copy() As Variant,,MISSING,,
+Arcs,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Arcs,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,Cut,method,Cut() As Variant,,MISSING,,
+Arcs,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,Duplicate,method,Duplicate() As Object,,MISSING,,
+Arcs,Enabled,property,As Boolean,,MISSING,,
+Arcs,Font,"property, read-only",As Font,,MISSING,,
+Arcs,Formula,property,As String,,MISSING,,
+Arcs,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,Height,property,As Double,,MISSING,,
+Arcs,HorizontalAlignment,property,As Variant,,MISSING,,
+Arcs,Interior,"property, read-only",As Interior,,MISSING,,
+Arcs,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,Left,property,As Double,,MISSING,,
+Arcs,Locked,property,As Boolean,,MISSING,,
+Arcs,LockedText,property,As Boolean,,MISSING,,
+Arcs,Orientation,property,As Variant,,MISSING,,
+Arcs,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,Placement,property,As Variant,,MISSING,,
+Arcs,PrintObject,property,As Boolean,,MISSING,,
+Arcs,ReadingOrder,property,As Long,,MISSING,,
+Arcs,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arcs,SendToBack,method,SendToBack() As Variant,,MISSING,,
+Arcs,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+Arcs,Text,property,As String,,MISSING,,
+Arcs,Top,property,As Double,,MISSING,,
+Arcs,VerticalAlignment,property,As Variant,,MISSING,,
+Arcs,Visible,property,As Boolean,,MISSING,,
+Arcs,Width,property,As Double,,MISSING,,
+Arcs,ZOrder,"property, read-only",As Long,,MISSING,,
+Button,Accelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,AddIndent,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,AutoScaleFont,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,AutoSize,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,CancelButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Button,Copy,method,Copy() As Variant,,MISSING,,
+Button,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Button,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Cut,method,Cut() As Variant,,MISSING,,
+Button,DefaultButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,DismissButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Formula,property,As String,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,HelpButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,HorizontalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Orientation,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,ReadingOrder,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,VerticalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+Buttons,Accelerator,property,As Variant,,MISSING,,
+Buttons,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Button",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,AddIndent,property,As Boolean,,MISSING,,
+Buttons,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,AutoScaleFont,property,As Variant,,MISSING,,
+Buttons,AutoSize,property,As Boolean,,MISSING,,
+Buttons,BringToFront,method,BringToFront() As Variant,,MISSING,,
+Buttons,CancelButton,property,As Boolean,,MISSING,,
+Buttons,Caption,property,As String,,MISSING,,
+Buttons,Characters,"property, read-only",As Characters,,MISSING,,
+Buttons,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Buttons,Copy,method,Copy() As Variant,,MISSING,,
+Buttons,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Buttons,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Cut,method,Cut() As Variant,,MISSING,,
+Buttons,DefaultButton,property,As Boolean,,MISSING,,
+Buttons,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,DismissButton,property,As Boolean,,MISSING,,
+Buttons,Duplicate,method,Duplicate() As Object,,MISSING,,
+Buttons,Enabled,property,As Boolean,,MISSING,,
+Buttons,Font,"property, read-only",As Font,,MISSING,,
+Buttons,Formula,property,As String,,MISSING,,
+Buttons,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Height,property,As Double,,MISSING,,
+Buttons,HelpButton,property,As Boolean,,MISSING,,
+Buttons,HorizontalAlignment,property,As Variant,,MISSING,,
+Buttons,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Left,property,As Double,,MISSING,,
+Buttons,Locked,property,As Boolean,,MISSING,,
+Buttons,LockedText,property,As Boolean,,MISSING,,
+Buttons,Orientation,property,As Variant,,MISSING,,
+Buttons,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,PhoneticAccelerator,property,As Variant,,MISSING,,
+Buttons,Placement,property,As Variant,,MISSING,,
+Buttons,PrintObject,property,As Boolean,,MISSING,,
+Buttons,ReadingOrder,property,As Long,,MISSING,,
+Buttons,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,SendToBack,method,SendToBack() As Variant,,MISSING,,
+Buttons,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+Buttons,Text,property,As String,,MISSING,,
+Buttons,Top,property,As Double,,MISSING,,
+Buttons,VerticalAlignment,property,As Variant,,MISSING,,
+Buttons,Visible,property,As Boolean,,MISSING,,
+Buttons,Width,property,As Double,,MISSING,,
+Buttons,ZOrder,"property, read-only",As Long,,MISSING,,
+CheckBox,_Default,property,As Long,,MISSING,,
+CheckBox,Accelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Border,"property, read-only",As Border,,MISSING,,
+CheckBox,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+CheckBox,Copy,method,Copy() As Variant,,MISSING,,
+CheckBox,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+CheckBox,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Cut,method,Cut() As Variant,,MISSING,,
+CheckBox,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+CheckBox,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Interior,"property, read-only",As Interior,,MISSING,,
+CheckBox,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+CheckBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Value,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,_Default,property,As Long,,MISSING,,
+CheckBoxes,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+CheckBoxes,Accelerator,property,As Variant,,MISSING,,
+CheckBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As CheckBox",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Border,"property, read-only",As Border,,MISSING,,
+CheckBoxes,BringToFront,method,BringToFront() As Variant,,MISSING,,
+CheckBoxes,Caption,property,As String,,MISSING,,
+CheckBoxes,Characters,"property, read-only",As Characters,,MISSING,,
+CheckBoxes,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+CheckBoxes,Copy,method,Copy() As Variant,,MISSING,,
+CheckBoxes,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+CheckBoxes,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Cut,method,Cut() As Variant,,MISSING,,
+CheckBoxes,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Display3DShading,property,As Boolean,,MISSING,,
+CheckBoxes,Duplicate,method,Duplicate() As Object,,MISSING,,
+CheckBoxes,Enabled,property,As Boolean,,MISSING,,
+CheckBoxes,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Height,property,As Double,,MISSING,,
+CheckBoxes,Interior,"property, read-only",As Interior,,MISSING,,
+CheckBoxes,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Left,property,As Double,,MISSING,,
+CheckBoxes,LinkedCell,property,As String,,MISSING,,
+CheckBoxes,Locked,property,As Boolean,,MISSING,,
+CheckBoxes,LockedText,property,As Boolean,,MISSING,,
+CheckBoxes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,PhoneticAccelerator,property,As Variant,,MISSING,,
+CheckBoxes,Placement,property,As Variant,,MISSING,,
+CheckBoxes,PrintObject,property,As Boolean,,MISSING,,
+CheckBoxes,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,SendToBack,method,SendToBack() As Variant,,MISSING,,
+CheckBoxes,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+CheckBoxes,Text,property,As String,,MISSING,,
+CheckBoxes,Top,property,As Double,,MISSING,,
+CheckBoxes,Value,property,As Variant,,MISSING,,
+CheckBoxes,Visible,property,As Boolean,,MISSING,,
+CheckBoxes,Width,property,As Double,,MISSING,,
+CheckBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
+DrawingObjects,_Default,property,As Long,,MISSING,,
+DrawingObjects,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+DrawingObjects,Accelerator,property,As Variant,,MISSING,,
+DrawingObjects,Add,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,AddIndent,property,As Boolean,,MISSING,,
+DrawingObjects,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,MISSING,,
+DrawingObjects,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,ArrowHeadLength,property,As Variant,,MISSING,,
+DrawingObjects,ArrowHeadStyle,property,As Variant,,MISSING,,
+DrawingObjects,ArrowHeadWidth,property,As Variant,,MISSING,,
+DrawingObjects,AutoSize,property,As Boolean,,MISSING,,
+DrawingObjects,Border,"property, read-only",As Border,,MISSING,,
+DrawingObjects,BringToFront,method,BringToFront() As Variant,,MISSING,,
+DrawingObjects,CancelButton,property,As Boolean,,MISSING,,
+DrawingObjects,Caption,property,As String,,MISSING,,
+DrawingObjects,Characters,"property, read-only",As Characters,,MISSING,,
+DrawingObjects,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+DrawingObjects,Copy,method,Copy() As Variant,,MISSING,,
+DrawingObjects,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+DrawingObjects,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,Cut,method,Cut() As Variant,,MISSING,,
+DrawingObjects,DefaultButton,property,As Boolean,,MISSING,,
+DrawingObjects,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,DismissButton,property,As Boolean,,MISSING,,
+DrawingObjects,Display3DShading,property,As Boolean,,MISSING,,
+DrawingObjects,DisplayVerticalScrollBar,property,As Boolean,,MISSING,,
+DrawingObjects,DropDownLines,property,As Long,,MISSING,,
+DrawingObjects,Duplicate,method,Duplicate() As Object,,MISSING,,
+DrawingObjects,Enabled,property,As Boolean,,MISSING,,
+DrawingObjects,Font,"property, read-only",As Font,,MISSING,,
+DrawingObjects,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,Height,property,As Double,,MISSING,,
+DrawingObjects,HelpButton,property,As Boolean,,MISSING,,
+DrawingObjects,HorizontalAlignment,property,As Variant,,MISSING,,
+DrawingObjects,InputType,property,As Long,,MISSING,,
+DrawingObjects,Interior,"property, read-only",As Interior,,MISSING,,
+DrawingObjects,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,LargeChange,property,As Long,,MISSING,,
+DrawingObjects,Left,property,As Double,,MISSING,,
+DrawingObjects,LinkCombo,method,LinkCombo([Link As Variant]) As Variant,,MISSING,,
+DrawingObjects,LinkedCell,property,As String,,MISSING,,
+DrawingObjects,List,method,List([Index As Variant]) As Variant,,MISSING,,
+DrawingObjects,ListFillRange,property,As String,,MISSING,,
+DrawingObjects,ListIndex,property,As Long,,MISSING,,
+DrawingObjects,Locked,property,As Boolean,,MISSING,,
+DrawingObjects,LockedText,property,As Boolean,,MISSING,,
+DrawingObjects,Max,property,As Long,,MISSING,,
+DrawingObjects,Min,property,As Long,,MISSING,,
+DrawingObjects,MultiLine,property,As Boolean,,MISSING,,
+DrawingObjects,MultiSelect,property,As Boolean,,MISSING,,
+DrawingObjects,Orientation,property,As Variant,,MISSING,,
+DrawingObjects,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,PhoneticAccelerator,property,As Variant,,MISSING,,
+DrawingObjects,Placement,property,As Variant,,MISSING,,
+DrawingObjects,PrintObject,property,As Boolean,,MISSING,,
+DrawingObjects,ReadingOrder,property,As Long,,MISSING,,
+DrawingObjects,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
+DrawingObjects,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
+DrawingObjects,Reshape,method,"Reshape(Vertex As Long, Insert As Variant, [Left As Variant], [Top As Variant]) As Variant",,MISSING,,
+DrawingObjects,RoundedCorners,property,As Boolean,,MISSING,,
+DrawingObjects,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+DrawingObjects,Selected,method,Selected([Index As Variant]) As Variant,,MISSING,,
+DrawingObjects,SendToBack,method,SendToBack() As Variant,,MISSING,,
+DrawingObjects,Shadow,property,As Boolean,,MISSING,,
+DrawingObjects,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+DrawingObjects,SmallChange,property,As Long,,MISSING,,
+DrawingObjects,Text,property,As String,,MISSING,,
+DrawingObjects,Top,property,As Double,,MISSING,,
+DrawingObjects,Ungroup,method,Ungroup() As Object,,MISSING,,
+DrawingObjects,Value,property,As Long,,MISSING,,
+DrawingObjects,VerticalAlignment,property,As Variant,,MISSING,,
+DrawingObjects,Vertices,method,"Vertices([Index1 As Variant], [Index2 As Variant]) As Variant",,MISSING,,
+DrawingObjects,Visible,property,As Boolean,,MISSING,,
+DrawingObjects,Width,property,As Double,,MISSING,,
+DrawingObjects,ZOrder,"property, read-only",As Long,,MISSING,,
+DropDown,_Default,property,As Long,,MISSING,,
+DropDown,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Copy,method,Copy() As Variant,,MISSING,,
+DropDown,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+DropDown,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Cut,method,Cut() As Variant,,MISSING,,
+DropDown,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+DropDown,DropDownLines,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,LinkedObject,"property, read-only",As Variant,,MISSING,,
+DropDown,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ListIndex,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,RemoveAllItems,method,RemoveAllItems() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Selected,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Value,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,_Default,property,As Long,,MISSING,,
+DropDowns,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+DropDowns,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double, [Editable As Variant]) As DropDown",no Editable,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,MISSING,,
+DropDowns,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,BringToFront,method,BringToFront() As Variant,,MISSING,,
+DropDowns,Caption,property,As String,,MISSING,,
+DropDowns,Characters,"property, read-only",As Characters,,MISSING,,
+DropDowns,Copy,method,Copy() As Variant,,MISSING,,
+DropDowns,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+DropDowns,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Cut,method,Cut() As Variant,,MISSING,,
+DropDowns,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Display3DShading,property,As Boolean,,MISSING,,
+DropDowns,DropDownLines,property,As Long,,MISSING,,
+DropDowns,Duplicate,method,Duplicate() As Object,,MISSING,,
+DropDowns,Enabled,property,As Boolean,,MISSING,,
+DropDowns,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Height,property,As Double,,MISSING,,
+DropDowns,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Left,property,As Double,,MISSING,,
+DropDowns,LinkedCell,property,As String,,MISSING,,
+DropDowns,List,property,As Variant,,MISSING,,
+DropDowns,ListFillRange,property,As String,,MISSING,,
+DropDowns,ListIndex,property,As Long,,MISSING,,
+DropDowns,Locked,property,As Boolean,,MISSING,,
+DropDowns,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Placement,property,As Variant,,MISSING,,
+DropDowns,PrintObject,property,As Boolean,,MISSING,,
+DropDowns,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
+DropDowns,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
+DropDowns,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Selected,property,As Variant,,MISSING,,
+DropDowns,SendToBack,method,SendToBack() As Variant,,MISSING,,
+DropDowns,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+DropDowns,Text,property,As String,,MISSING,,
+DropDowns,Top,property,As Double,,MISSING,,
+DropDowns,Value,property,As Long,,MISSING,,
+DropDowns,Visible,property,As Boolean,,MISSING,,
+DropDowns,Width,property,As Double,,MISSING,,
+DropDowns,ZOrder,"property, read-only",As Long,,MISSING,,
+Line,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,ArrowHeadLength,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads the default. Setting reports itself.
+Line,ArrowHeadStyle,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads the default. Setting reports itself.
+Line,ArrowHeadWidth,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads the default. Setting reports itself.
+Line,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
+Line,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Copy,method,Copy() As Variant,,MISSING,,
+Line,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Line,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Cut,method,Cut() As Variant,,MISSING,,
+Line,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
+Line,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Line,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+Lines,Add,method,"Add(X1 As Double, Y1 As Double, X2 As Double, Y2 As Double) As Line",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,ArrowHeadLength,property,As Variant,,MISSING,,
+Lines,ArrowHeadStyle,property,As Variant,,MISSING,,
+Lines,ArrowHeadWidth,property,As Variant,,MISSING,,
+Lines,Border,"property, read-only",As Border,,MISSING,,
+Lines,BringToFront,method,BringToFront() As Variant,,MISSING,,
+Lines,Copy,method,Copy() As Variant,,MISSING,,
+Lines,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Lines,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,Cut,method,Cut() As Variant,,MISSING,,
+Lines,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,Duplicate,method,Duplicate() As Object,,MISSING,,
+Lines,Enabled,property,As Boolean,,MISSING,,
+Lines,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,Height,property,As Double,,MISSING,,
+Lines,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,Left,property,As Double,,MISSING,,
+Lines,Locked,property,As Boolean,,MISSING,,
+Lines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,Placement,property,As Variant,,MISSING,,
+Lines,PrintObject,property,As Boolean,,MISSING,,
+Lines,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Lines,SendToBack,method,SendToBack() As Variant,,MISSING,,
+Lines,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+Lines,Top,property,As Double,,MISSING,,
+Lines,Visible,property,As Boolean,,MISSING,,
+Lines,Width,property,As Double,,MISSING,,
+Lines,ZOrder,"property, read-only",As Long,,MISSING,,
+ListBox,_Default,property,As Long,,MISSING,,
+ListBox,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Caption,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Copy,method,Copy() As Variant,,MISSING,,
+ListBox,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+ListBox,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Cut,method,Cut() As Variant,,MISSING,,
+ListBox,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+ListBox,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,LinkedObject,"property, read-only",As Variant,,MISSING,,
+ListBox,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ListIndex,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,MultiSelect,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,RemoveAllItems,method,RemoveAllItems() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Selected,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Text,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Value,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,_Default,property,As Long,,MISSING,,
+ListBoxes,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+ListBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As ListBox",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,MISSING,,
+ListBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,BringToFront,method,BringToFront() As Variant,,MISSING,,
+ListBoxes,Copy,method,Copy() As Variant,,MISSING,,
+ListBoxes,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+ListBoxes,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Cut,method,Cut() As Variant,,MISSING,,
+ListBoxes,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Display3DShading,property,As Boolean,,MISSING,,
+ListBoxes,Duplicate,method,Duplicate() As Object,,MISSING,,
+ListBoxes,Enabled,property,As Boolean,,MISSING,,
+ListBoxes,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Height,property,As Double,,MISSING,,
+ListBoxes,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Left,property,As Double,,MISSING,,
+ListBoxes,LinkedCell,property,As String,,MISSING,,
+ListBoxes,List,property,As Variant,,MISSING,,
+ListBoxes,ListFillRange,property,As String,,MISSING,,
+ListBoxes,ListIndex,property,As Long,,MISSING,,
+ListBoxes,Locked,property,As Boolean,,MISSING,,
+ListBoxes,MultiSelect,property,As Long,,MISSING,,
+ListBoxes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Placement,property,As Variant,,MISSING,,
+ListBoxes,PrintObject,property,As Boolean,,MISSING,,
+ListBoxes,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
+ListBoxes,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
+ListBoxes,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Selected,property,As Variant,,MISSING,,
+ListBoxes,SendToBack,method,SendToBack() As Variant,,MISSING,,
+ListBoxes,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+ListBoxes,Top,property,As Double,,MISSING,,
+ListBoxes,Value,property,As Long,,MISSING,,
+ListBoxes,Visible,property,As Boolean,,MISSING,,
+ListBoxes,Width,property,As Double,,MISSING,,
+ListBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
+OLEFormat,Activate,method,Activate(),,MISSING,,
+OLEFormat,Application,"property, read-only",As Application,,MISSING,,
+OLEFormat,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+OLEFormat,Object,"property, read-only",As Object,,UNASSESSED,,
+OLEFormat,Parent,"property, read-only",As Object,,UNASSESSED,,
+OLEFormat,progID,"property, read-only",As String,,MISSING,,
+OLEFormat,Verb,method,Verb([Verb As Variant]),,MISSING,,
+OptionButton,_Default,property,As Long,,MISSING,,
+OptionButton,Accelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Border,"property, read-only",As Border,,MISSING,,
+OptionButton,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+OptionButton,Copy,method,Copy() As Variant,,MISSING,,
+OptionButton,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+OptionButton,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Cut,method,Cut() As Variant,,MISSING,,
+OptionButton,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+OptionButton,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,GroupBox,"property, read-only",As GroupBox,,MISSING,,
+OptionButton,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Interior,"property, read-only",As Interior,,MISSING,,
+OptionButton,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+OptionButton,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Value,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,_Default,property,As Long,,MISSING,,
+OptionButtons,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+OptionButtons,Accelerator,property,As Variant,,MISSING,,
+OptionButtons,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As OptionButton",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Border,"property, read-only",As Border,,MISSING,,
+OptionButtons,BringToFront,method,BringToFront() As Variant,,MISSING,,
+OptionButtons,Caption,property,As String,,MISSING,,
+OptionButtons,Characters,"property, read-only",As Characters,,MISSING,,
+OptionButtons,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+OptionButtons,Copy,method,Copy() As Variant,,MISSING,,
+OptionButtons,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+OptionButtons,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Cut,method,Cut() As Variant,,MISSING,,
+OptionButtons,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Display3DShading,property,As Boolean,,MISSING,,
+OptionButtons,Duplicate,method,Duplicate() As Object,,MISSING,,
+OptionButtons,Enabled,property,As Boolean,,MISSING,,
+OptionButtons,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,GroupBox,"property, read-only",As GroupBox,,MISSING,,
+OptionButtons,Height,property,As Double,,MISSING,,
+OptionButtons,Interior,"property, read-only",As Interior,,MISSING,,
+OptionButtons,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Left,property,As Double,,MISSING,,
+OptionButtons,LinkedCell,property,As String,,MISSING,,
+OptionButtons,Locked,property,As Boolean,,MISSING,,
+OptionButtons,LockedText,property,As Boolean,,MISSING,,
+OptionButtons,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,PhoneticAccelerator,property,As Variant,,MISSING,,
+OptionButtons,Placement,property,As Variant,,MISSING,,
+OptionButtons,PrintObject,property,As Boolean,,MISSING,,
+OptionButtons,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,SendToBack,method,SendToBack() As Variant,,MISSING,,
+OptionButtons,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+OptionButtons,Text,property,As String,,MISSING,,
+OptionButtons,Top,property,As Double,,MISSING,,
+OptionButtons,Value,property,As Variant,,MISSING,,
+OptionButtons,Visible,property,As Boolean,,MISSING,,
+OptionButtons,Width,property,As Double,,MISSING,,
+OptionButtons,ZOrder,"property, read-only",As Long,,MISSING,,
+Oval,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,AutoScaleFont,property,As Variant,,MISSING,,
+Oval,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
+Oval,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
+Oval,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Oval,Copy,method,Copy() As Variant,,MISSING,,
+Oval,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Oval,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Cut,method,Cut() As Variant,,MISSING,,
+Oval,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
+Oval,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
+Oval,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
+Oval,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
+Oval,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A picture's only reads.
+Oval,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+Ovals,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Oval",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,AddIndent,property,As Boolean,,MISSING,,
+Ovals,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,AutoScaleFont,property,As Variant,,MISSING,,
+Ovals,AutoSize,property,As Boolean,,MISSING,,
+Ovals,Border,"property, read-only",As Border,,MISSING,,
+Ovals,BringToFront,method,BringToFront() As Variant,,MISSING,,
+Ovals,Caption,property,As String,,MISSING,,
+Ovals,Characters,"property, read-only",As Characters,,MISSING,,
+Ovals,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Ovals,Copy,method,Copy() As Variant,,MISSING,,
+Ovals,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Ovals,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,Cut,method,Cut() As Variant,,MISSING,,
+Ovals,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,Duplicate,method,Duplicate() As Object,,MISSING,,
+Ovals,Enabled,property,As Boolean,,MISSING,,
+Ovals,Font,"property, read-only",As Font,,MISSING,,
+Ovals,Formula,property,As String,,MISSING,,
+Ovals,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,Height,property,As Double,,MISSING,,
+Ovals,HorizontalAlignment,property,As Variant,,MISSING,,
+Ovals,Interior,"property, read-only",As Interior,,MISSING,,
+Ovals,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,Left,property,As Double,,MISSING,,
+Ovals,Locked,property,As Boolean,,MISSING,,
+Ovals,LockedText,property,As Boolean,,MISSING,,
+Ovals,Orientation,property,As Variant,,MISSING,,
+Ovals,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,Placement,property,As Variant,,MISSING,,
+Ovals,PrintObject,property,As Boolean,,MISSING,,
+Ovals,ReadingOrder,property,As Long,,MISSING,,
+Ovals,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Ovals,SendToBack,method,SendToBack() As Variant,,MISSING,,
+Ovals,Shadow,property,As Boolean,,MISSING,,
+Ovals,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+Ovals,Text,property,As String,,MISSING,,
+Ovals,Top,property,As Double,,MISSING,,
+Ovals,VerticalAlignment,property,As Variant,,MISSING,,
+Ovals,Visible,property,As Boolean,,MISSING,,
+Ovals,Width,property,As Double,,MISSING,,
+Ovals,ZOrder,"property, read-only",As Long,,MISSING,,
+Picture,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
+Picture,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Copy,method,Copy() As Variant,,MISSING,,
+Picture,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Picture,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Cut,method,Cut() As Variant,,MISSING,,
+Picture,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
+Picture,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
+Picture,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
+Picture,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A picture's only reads.
+Picture,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Picture,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+Pictures,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Picture",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Border,"property, read-only",As Border,,MISSING,,
+Pictures,BringToFront,method,BringToFront() As Variant,,MISSING,,
+Pictures,Copy,method,Copy() As Variant,,MISSING,,
+Pictures,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Pictures,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Cut,method,Cut() As Variant,,MISSING,,
+Pictures,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Duplicate,method,Duplicate() As Object,,MISSING,,
+Pictures,Enabled,property,As Boolean,,MISSING,,
+Pictures,Formula,property,As String,,MISSING,,
+Pictures,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Height,property,As Double,,MISSING,,
+Pictures,Insert,method,"Insert(Filename As String, [Converter As Variant]) As Picture",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Links the file, as Excel does, at the active cell of the active sheet."
+Pictures,Interior,"property, read-only",As Interior,,MISSING,,
+Pictures,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Left,property,As Double,,MISSING,,
+Pictures,Locked,property,As Boolean,,MISSING,,
+Pictures,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,Paste,method,Paste([Link As Variant]) As Picture,,MISSING,,
+Pictures,Placement,property,As Variant,,MISSING,,
+Pictures,PrintObject,property,As Boolean,,MISSING,,
+Pictures,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Pictures,SendToBack,method,SendToBack() As Variant,,MISSING,,
+Pictures,Shadow,property,As Boolean,,MISSING,,
+Pictures,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+Pictures,Top,property,As Double,,MISSING,,
+Pictures,Visible,property,As Boolean,,MISSING,,
+Pictures,Width,property,As Double,,MISSING,,
+Pictures,ZOrder,"property, read-only",As Long,,MISSING,,
+Rectangle,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,AutoScaleFont,property,As Variant,,MISSING,,
+Rectangle,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
+Rectangle,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
+Rectangle,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Rectangle,Copy,method,Copy() As Variant,,MISSING,,
+Rectangle,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Rectangle,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Cut,method,Cut() As Variant,,MISSING,,
+Rectangle,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
+Rectangle,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
+Rectangle,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
+Rectangle,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
+Rectangle,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,RoundedCorners,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads the shape. Setting reports itself.
+Rectangle,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A picture's only reads.
+Rectangle,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+Rectangles,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Rectangle",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,AddIndent,property,As Boolean,,MISSING,,
+Rectangles,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,AutoScaleFont,property,As Variant,,MISSING,,
+Rectangles,AutoSize,property,As Boolean,,MISSING,,
+Rectangles,Border,"property, read-only",As Border,,MISSING,,
+Rectangles,BringToFront,method,BringToFront() As Variant,,MISSING,,
+Rectangles,Caption,property,As String,,MISSING,,
+Rectangles,Characters,"property, read-only",As Characters,,MISSING,,
+Rectangles,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Rectangles,Copy,method,Copy() As Variant,,MISSING,,
+Rectangles,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Rectangles,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,Cut,method,Cut() As Variant,,MISSING,,
+Rectangles,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,Duplicate,method,Duplicate() As Object,,MISSING,,
+Rectangles,Enabled,property,As Boolean,,MISSING,,
+Rectangles,Font,"property, read-only",As Font,,MISSING,,
+Rectangles,Formula,property,As String,,MISSING,,
+Rectangles,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,Height,property,As Double,,MISSING,,
+Rectangles,HorizontalAlignment,property,As Variant,,MISSING,,
+Rectangles,Interior,"property, read-only",As Interior,,MISSING,,
+Rectangles,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,Left,property,As Double,,MISSING,,
+Rectangles,Locked,property,As Boolean,,MISSING,,
+Rectangles,LockedText,property,As Boolean,,MISSING,,
+Rectangles,Orientation,property,As Variant,,MISSING,,
+Rectangles,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,Placement,property,As Variant,,MISSING,,
+Rectangles,PrintObject,property,As Boolean,,MISSING,,
+Rectangles,ReadingOrder,property,As Long,,MISSING,,
+Rectangles,RoundedCorners,property,As Boolean,,MISSING,,
+Rectangles,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangles,SendToBack,method,SendToBack() As Variant,,MISSING,,
+Rectangles,Shadow,property,As Boolean,,MISSING,,
+Rectangles,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+Rectangles,Text,property,As String,,MISSING,,
+Rectangles,Top,property,As Double,,MISSING,,
+Rectangles,VerticalAlignment,property,As Variant,,MISSING,,
+Rectangles,Visible,property,As Boolean,,MISSING,,
+Rectangles,Width,property,As Double,,MISSING,,
+Rectangles,ZOrder,"property, read-only",As Long,,MISSING,,
+TextBox,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,AutoScaleFont,property,As Variant,,MISSING,,
+TextBox,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
+TextBox,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
+TextBox,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+TextBox,Copy,method,Copy() As Variant,,MISSING,,
+TextBox,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+TextBox,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Cut,method,Cut() As Variant,,MISSING,,
+TextBox,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
+TextBox,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
+TextBox,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
+TextBox,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
+TextBox,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,RoundedCorners,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads the shape. Setting reports itself.
+TextBox,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A picture's only reads.
+TextBox,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
+TextBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As TextBox",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,AddIndent,property,As Boolean,,MISSING,,
+TextBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,AutoScaleFont,property,As Variant,,MISSING,,
+TextBoxes,AutoSize,property,As Boolean,,MISSING,,
+TextBoxes,Border,"property, read-only",As Border,,MISSING,,
+TextBoxes,BringToFront,method,BringToFront() As Variant,,MISSING,,
+TextBoxes,Caption,property,As String,,MISSING,,
+TextBoxes,Characters,"property, read-only",As Characters,,MISSING,,
+TextBoxes,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+TextBoxes,Copy,method,Copy() As Variant,,MISSING,,
+TextBoxes,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+TextBoxes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,Cut,method,Cut() As Variant,,MISSING,,
+TextBoxes,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,Duplicate,method,Duplicate() As Object,,MISSING,,
+TextBoxes,Enabled,property,As Boolean,,MISSING,,
+TextBoxes,Font,"property, read-only",As Font,,MISSING,,
+TextBoxes,Formula,property,As String,,MISSING,,
+TextBoxes,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,Height,property,As Double,,MISSING,,
+TextBoxes,HorizontalAlignment,property,As Variant,,MISSING,,
+TextBoxes,Interior,"property, read-only",As Interior,,MISSING,,
+TextBoxes,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,Left,property,As Double,,MISSING,,
+TextBoxes,Locked,property,As Boolean,,MISSING,,
+TextBoxes,LockedText,property,As Boolean,,MISSING,,
+TextBoxes,Orientation,property,As Variant,,MISSING,,
+TextBoxes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,Placement,property,As Variant,,MISSING,,
+TextBoxes,PrintObject,property,As Boolean,,MISSING,,
+TextBoxes,ReadingOrder,property,As Long,,MISSING,,
+TextBoxes,RoundedCorners,property,As Boolean,,MISSING,,
+TextBoxes,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBoxes,SendToBack,method,SendToBack() As Variant,,MISSING,,
+TextBoxes,Shadow,property,As Boolean,,MISSING,,
+TextBoxes,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+TextBoxes,Text,property,As String,,MISSING,,
+TextBoxes,Top,property,As Double,,MISSING,,
+TextBoxes,VerticalAlignment,property,As Variant,,MISSING,,
+TextBoxes,Visible,property,As Boolean,,MISSING,,
+TextBoxes,Width,property,As Double,,MISSING,,
+TextBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
+Worksheet,Arcs,not in the type library,,,UNASSESSED,,
+Worksheet,Buttons,not in the type library,,,UNASSESSED,,
+Worksheet,CheckBoxes,not in the type library,,,UNASSESSED,,
+Worksheet,DropDowns,not in the type library,,,UNASSESSED,,
+Worksheet,Lines,not in the type library,,,UNASSESSED,,
+Worksheet,ListBoxes,not in the type library,,,UNASSESSED,,
+Worksheet,OptionButtons,not in the type library,,,UNASSESSED,,
+Worksheet,Ovals,not in the type library,,,UNASSESSED,,
+Worksheet,Pictures,not in the type library,,,UNASSESSED,,
+Worksheet,Rectangles,not in the type library,,,UNASSESSED,,
+Worksheet,TextBoxes,not in the type library,,,UNASSESSED,,

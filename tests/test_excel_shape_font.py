@@ -39,7 +39,7 @@ def test_each_case_as_excel_answered(case: list[Any], tmp_path: Path) -> None:
     assert re.findall(r'<xdr:txBody>.*?</xdr:txBody>', xml, re.DOTALL)[0] == case[2]
 
 
-@pytest.mark.parametrize('statements', ['sh.TextFrame.Characters(1, 1).Font.Bold = True', 'sh.TextFrame.Characters.Font.Name = "Calibri"'])
+@pytest.mark.parametrize('statements', ['sh.TextFrame.Characters.Font.Name = "Calibri"'])
 def test_what_was_not_measured_reports_itself(statements: str) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

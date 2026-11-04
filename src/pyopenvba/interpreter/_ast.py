@@ -41,6 +41,8 @@ class Member(Expr):
 
     target: Expr | None = None
     name: str = ""
+    #: Written ``target.[name]``.
+    bracketed: bool = False
 
 
 @dataclass(slots=True)

@@ -1,0 +1,2686 @@
+{
+ "measured_at": "2026-11-04T01:41:06.869529+00:00",
+ "source": "Private Sub Act0(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 0\n        r = ws.Buttons.Count\n    Case 1\n        r = TypeName(ws.Buttons) & \" \" & TypeName(ws.Buttons.Parent) & \" \" & TypeName(ws.Buttons.Application)\n    Case 2\n        r = TypeName(ws.Buttons(1))\n    Case 3\n        r = TypeName(ws.Buttons(\"nope\"))\n    Case 4\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.Buttons.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count\n    Case 5\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons(1).Name & \" \" & ws.Buttons(o.Name).Index & \" \" & ws.Buttons.Item(1).Name\n    Case 6\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.Buttons(2))\n    Case 7\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.Buttons(\"nope\"))\n    Case 8\n        Set o = ws.Buttons.Add(48, 96, 72, 24): Set o = ws.Buttons.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.Buttons.Count\n    Case 9\n        Set o = ws.Buttons.Add(48, 96, 72, 24): n = 0: For Each c In ws.Buttons: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t\n    Case 10\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled\n    Case 11\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)\n    Case 12\n        Set o = ws.Buttons.Add(48, 96, 72): r = o.Name\n    Case 13\n        Set o = ws.Buttons.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height\n    Case 14\n        Set o = ws.Buttons.Add(-48, 96, 72, 24): r = o.Left\n    Case 15\n        Set o = ws.Buttons.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height\n    Case 16\n        Set o = ws.Buttons.Add(\"a\", 96, 72, 24): r = o.Name\n    Case 17\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Name\n    Case 18\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Index\n    Case 19\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Left\n    Case 20\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Top\n    Case 21\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Width\n    Case 22\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Height\n    Case 23\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Enabled\n    Case 24\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Visible\n    Case 25\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Locked\n    Case 26\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Placement\n    Case 27\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.PrintObject\n    Case 28\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.OnAction\n    Case 29\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ZOrder\n    Case 30\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Caption\n    Case 31\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Text\n    Case 32\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.LockedText\n    Case 33\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Value\n    Case 34\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.LinkedCell\n    Case 35\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ListFillRange\n    Case 36\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ListCount\n    Case 37\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ListIndex\n    Case 38\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.DropDownLines\n    Case 39\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.MultiSelect\n    Case 40\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Display3DShading\n    Case 41\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Accelerator\n    Case 42\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.AutoSize\n    Case 43\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.AddIndent\n    Case 44\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.AutoScaleFont\n    Case 45\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.CancelButton\n    Case 46\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.DefaultButton\n    Case 47\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.DismissButton\n    Case 48\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.HelpButton\n    Case 49\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.HorizontalAlignment\n    Case 50\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.VerticalAlignment\n    Case 51\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Orientation\n    Case 52\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ReadingOrder\n    Case 53\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Formula\n    Case 54\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.PhoneticAccelerator\n    Case 55\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Parent)\n    Case 56\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Application)\n    Case 57\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)\n    Case 58\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)\n    Case 59\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)\n    Case 60\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Characters)\n    Case 61\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Font)\n    Case 62\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Border)\n    Case 63\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Interior)\n    Case 64\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.List)\n    Case 65\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Selected)\n    Case 66\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name\n    Case 67\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Left = 96: r = o.Left\n    Case 68\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Top = 144: r = o.Top\n    Case 69\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Width = 96: r = o.Width\n    Case 70\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Height = 48: r = o.Height\n    Case 71\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled\n    Case 72\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible\n    Case 73\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked\n    Case 74\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement\n    Case 75\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement\n    Case 76\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject\n    Case 77\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction\n    Case 78\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction\n    Case 79\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption\n    Case 80\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text\n    Case 81\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText\n    Case 82\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value\n    Case 83\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = 1: r = o.Value\n    Case 84\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = 0: r = o.Value\n    Case 85\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = 2: r = o.Value\n    Case 86\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell\n    Case 87\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange\n    Case 88\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex\n    Case 89\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines\n    End Select\nEnd Sub\n\nPrivate Sub Act1(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 90\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect\n    Case 91\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading\n    Case 92\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator\n    Case 93\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize\n    Case 94\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment\n    Case 95\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment\n    Case 96\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation\n    Case 97\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count\n    Case 98\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text\n    Case 99\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text\n    Case 100\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption\n    Case 101\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold\n    Case 102\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold\n    Case 103\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name\n    Case 104\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size\n    Case 105\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex\n    Case 106\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.Buttons.Count\n    Case 107\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Delete: r = ws.Buttons.Count & \" \" & ws.Shapes.Count\n    Case 108\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name\n    Case 109\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Select: r = TypeName(Selection)\n    Case 110\n        Set o = ws.Buttons.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.Buttons.Count\n    Case 111\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder\n    Case 112\n        Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.Buttons.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index\n    Case 113\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name\n    Case 114\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top\n    Case 115\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.Buttons(\"viaShape\").Name\n    Case 116\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.Buttons.Count\n    Case 117\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction\n    Case 118\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction\n    Case 119\n        Set o = ws.Buttons.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left\n    Case 120\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Left = 96: r = o.Left\n    Case 121\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Caption = \"All\": r = o.Caption\n    Case 122\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Enabled = False: r = o.Enabled\n    Case 123\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.OnAction = \"Macro4\": r = o.OnAction\n    Case 124\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Visible = False: r = o.Visible\n    Case 125\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons.Left\n    Case 126\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons.Caption\n    Case 127\n        Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons.Enabled\n    Case 128\n        Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.Buttons(Array(1)): r = TypeName(c) & \" \" & c.Count\n    Case 129\n        Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.Buttons.Group: r = TypeName(c)\n    Case 130\n        r = ws.CheckBoxes.Count\n    Case 131\n        r = TypeName(ws.CheckBoxes) & \" \" & TypeName(ws.CheckBoxes.Parent) & \" \" & TypeName(ws.CheckBoxes.Application)\n    Case 132\n        r = TypeName(ws.CheckBoxes(1))\n    Case 133\n        r = TypeName(ws.CheckBoxes(\"nope\"))\n    Case 134\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.CheckBoxes.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count\n    Case 135\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes(1).Name & \" \" & ws.CheckBoxes(o.Name).Index & \" \" & ws.CheckBoxes.Item(1).Name\n    Case 136\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.CheckBoxes(2))\n    Case 137\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.CheckBoxes(\"nope\"))\n    Case 138\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set o = ws.CheckBoxes.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.CheckBoxes.Count\n    Case 139\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): n = 0: For Each c In ws.CheckBoxes: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t\n    Case 140\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled\n    Case 141\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)\n    Case 142\n        Set o = ws.CheckBoxes.Add(48, 96, 72): r = o.Name\n    Case 143\n        Set o = ws.CheckBoxes.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height\n    Case 144\n        Set o = ws.CheckBoxes.Add(-48, 96, 72, 24): r = o.Left\n    Case 145\n        Set o = ws.CheckBoxes.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height\n    Case 146\n        Set o = ws.CheckBoxes.Add(\"a\", 96, 72, 24): r = o.Name\n    Case 147\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Name\n    Case 148\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Index\n    Case 149\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Left\n    Case 150\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Top\n    Case 151\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Width\n    Case 152\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Height\n    Case 153\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Enabled\n    Case 154\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Visible\n    Case 155\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Locked\n    Case 156\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Placement\n    Case 157\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.PrintObject\n    Case 158\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.OnAction\n    Case 159\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ZOrder\n    Case 160\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Caption\n    Case 161\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Text\n    Case 162\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.LockedText\n    Case 163\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Value\n    Case 164\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.LinkedCell\n    Case 165\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ListFillRange\n    Case 166\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ListCount\n    Case 167\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ListIndex\n    Case 168\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.DropDownLines\n    Case 169\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.MultiSelect\n    Case 170\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Display3DShading\n    Case 171\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Accelerator\n    Case 172\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.AutoSize\n    Case 173\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.AddIndent\n    Case 174\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.AutoScaleFont\n    Case 175\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.CancelButton\n    Case 176\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.DefaultButton\n    Case 177\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.DismissButton\n    Case 178\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.HelpButton\n    Case 179\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.HorizontalAlignment\n    End Select\nEnd Sub\n\nPrivate Sub Act2(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 180\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.VerticalAlignment\n    Case 181\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Orientation\n    Case 182\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ReadingOrder\n    Case 183\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Formula\n    Case 184\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.PhoneticAccelerator\n    Case 185\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Parent)\n    Case 186\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Application)\n    Case 187\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)\n    Case 188\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)\n    Case 189\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)\n    Case 190\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters)\n    Case 191\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Font)\n    Case 192\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Border)\n    Case 193\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Interior)\n    Case 194\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.List)\n    Case 195\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Selected)\n    Case 196\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name\n    Case 197\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Left = 96: r = o.Left\n    Case 198\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Top = 144: r = o.Top\n    Case 199\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Width = 96: r = o.Width\n    Case 200\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Height = 48: r = o.Height\n    Case 201\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled\n    Case 202\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible\n    Case 203\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked\n    Case 204\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement\n    Case 205\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement\n    Case 206\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject\n    Case 207\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction\n    Case 208\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction\n    Case 209\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption\n    Case 210\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text\n    Case 211\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText\n    Case 212\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value\n    Case 213\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = 1: r = o.Value\n    Case 214\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = 0: r = o.Value\n    Case 215\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = 2: r = o.Value\n    Case 216\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell\n    Case 217\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange\n    Case 218\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex\n    Case 219\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines\n    Case 220\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect\n    Case 221\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading\n    Case 222\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator\n    Case 223\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize\n    Case 224\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment\n    Case 225\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment\n    Case 226\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation\n    Case 227\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count\n    Case 228\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text\n    Case 229\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text\n    Case 230\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption\n    Case 231\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold\n    Case 232\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold\n    Case 233\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name\n    Case 234\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size\n    Case 235\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex\n    Case 236\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.CheckBoxes.Count\n    Case 237\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Delete: r = ws.CheckBoxes.Count & \" \" & ws.Shapes.Count\n    Case 238\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name\n    Case 239\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Select: r = TypeName(Selection)\n    Case 240\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.CheckBoxes.Count\n    Case 241\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder\n    Case 242\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set c = ws.CheckBoxes.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index\n    Case 243\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name\n    Case 244\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top\n    Case 245\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.CheckBoxes(\"viaShape\").Name\n    Case 246\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.CheckBoxes.Count\n    Case 247\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction\n    Case 248\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction\n    Case 249\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left\n    Case 250\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Left = 96: r = o.Left\n    Case 251\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Caption = \"All\": r = o.Caption\n    Case 252\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Enabled = False: r = o.Enabled\n    Case 253\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.OnAction = \"Macro4\": r = o.OnAction\n    Case 254\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Visible = False: r = o.Visible\n    Case 255\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes.Left\n    Case 256\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes.Caption\n    Case 257\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes.Enabled\n    Case 258\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set c = ws.CheckBoxes(Array(1)): r = TypeName(c) & \" \" & c.Count\n    Case 259\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set c = ws.CheckBoxes.Group: r = TypeName(c)\n    Case 260\n        r = ws.OptionButtons.Count\n    Case 261\n        r = TypeName(ws.OptionButtons) & \" \" & TypeName(ws.OptionButtons.Parent) & \" \" & TypeName(ws.OptionButtons.Application)\n    Case 262\n        r = TypeName(ws.OptionButtons(1))\n    Case 263\n        r = TypeName(ws.OptionButtons(\"nope\"))\n    Case 264\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.OptionButtons.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count\n    Case 265\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons(1).Name & \" \" & ws.OptionButtons(o.Name).Index & \" \" & ws.OptionButtons.Item(1).Name\n    Case 266\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.OptionButtons(2))\n    Case 267\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.OptionButtons(\"nope\"))\n    Case 268\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set o = ws.OptionButtons.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.OptionButtons.Count\n    Case 269\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): n = 0: For Each c In ws.OptionButtons: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t\n    End Select\nEnd Sub\n\nPrivate Sub Act3(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 270\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled\n    Case 271\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)\n    Case 272\n        Set o = ws.OptionButtons.Add(48, 96, 72): r = o.Name\n    Case 273\n        Set o = ws.OptionButtons.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height\n    Case 274\n        Set o = ws.OptionButtons.Add(-48, 96, 72, 24): r = o.Left\n    Case 275\n        Set o = ws.OptionButtons.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height\n    Case 276\n        Set o = ws.OptionButtons.Add(\"a\", 96, 72, 24): r = o.Name\n    Case 277\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Name\n    Case 278\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Index\n    Case 279\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Left\n    Case 280\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Top\n    Case 281\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Width\n    Case 282\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Height\n    Case 283\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Enabled\n    Case 284\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Visible\n    Case 285\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Locked\n    Case 286\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Placement\n    Case 287\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.PrintObject\n    Case 288\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.OnAction\n    Case 289\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ZOrder\n    Case 290\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Caption\n    Case 291\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Text\n    Case 292\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.LockedText\n    Case 293\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Value\n    Case 294\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.LinkedCell\n    Case 295\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ListFillRange\n    Case 296\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ListCount\n    Case 297\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ListIndex\n    Case 298\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.DropDownLines\n    Case 299\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.MultiSelect\n    Case 300\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Display3DShading\n    Case 301\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Accelerator\n    Case 302\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.AutoSize\n    Case 303\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.AddIndent\n    Case 304\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.AutoScaleFont\n    Case 305\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.CancelButton\n    Case 306\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.DefaultButton\n    Case 307\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.DismissButton\n    Case 308\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.HelpButton\n    Case 309\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.HorizontalAlignment\n    Case 310\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.VerticalAlignment\n    Case 311\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Orientation\n    Case 312\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ReadingOrder\n    Case 313\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Formula\n    Case 314\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.PhoneticAccelerator\n    Case 315\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Parent)\n    Case 316\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Application)\n    Case 317\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)\n    Case 318\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)\n    Case 319\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)\n    Case 320\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Characters)\n    Case 321\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Font)\n    Case 322\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Border)\n    Case 323\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Interior)\n    Case 324\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.List)\n    Case 325\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Selected)\n    Case 326\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name\n    Case 327\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Left = 96: r = o.Left\n    Case 328\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Top = 144: r = o.Top\n    Case 329\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Width = 96: r = o.Width\n    Case 330\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Height = 48: r = o.Height\n    Case 331\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled\n    Case 332\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible\n    Case 333\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked\n    Case 334\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement\n    Case 335\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement\n    Case 336\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject\n    Case 337\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction\n    Case 338\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction\n    Case 339\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption\n    Case 340\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text\n    Case 341\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText\n    Case 342\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value\n    Case 343\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = 1: r = o.Value\n    Case 344\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = 0: r = o.Value\n    Case 345\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = 2: r = o.Value\n    Case 346\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell\n    Case 347\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange\n    Case 348\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex\n    Case 349\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines\n    Case 350\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect\n    Case 351\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading\n    Case 352\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator\n    Case 353\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize\n    Case 354\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment\n    Case 355\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment\n    Case 356\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation\n    Case 357\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count\n    Case 358\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text\n    Case 359\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text\n    End Select\nEnd Sub\n\nPrivate Sub Act4(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 360\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption\n    Case 361\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold\n    Case 362\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold\n    Case 363\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name\n    Case 364\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size\n    Case 365\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex\n    Case 366\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.OptionButtons.Count\n    Case 367\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Delete: r = ws.OptionButtons.Count & \" \" & ws.Shapes.Count\n    Case 368\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name\n    Case 369\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Select: r = TypeName(Selection)\n    Case 370\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.OptionButtons.Count\n    Case 371\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder\n    Case 372\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index\n    Case 373\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name\n    Case 374\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top\n    Case 375\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.OptionButtons(\"viaShape\").Name\n    Case 376\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.OptionButtons.Count\n    Case 377\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction\n    Case 378\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction\n    Case 379\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left\n    Case 380\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Left = 96: r = o.Left\n    Case 381\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Caption = \"All\": r = o.Caption\n    Case 382\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Enabled = False: r = o.Enabled\n    Case 383\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.OnAction = \"Macro4\": r = o.OnAction\n    Case 384\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Visible = False: r = o.Visible\n    Case 385\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons.Left\n    Case 386\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons.Caption\n    Case 387\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons.Enabled\n    Case 388\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons(Array(1)): r = TypeName(c) & \" \" & c.Count\n    Case 389\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons.Group: r = TypeName(c)\n    Case 390\n        r = ws.DropDowns.Count\n    Case 391\n        r = TypeName(ws.DropDowns) & \" \" & TypeName(ws.DropDowns.Parent) & \" \" & TypeName(ws.DropDowns.Application)\n    Case 392\n        r = TypeName(ws.DropDowns(1))\n    Case 393\n        r = TypeName(ws.DropDowns(\"nope\"))\n    Case 394\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.DropDowns.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count\n    Case 395\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns(1).Name & \" \" & ws.DropDowns(o.Name).Index & \" \" & ws.DropDowns.Item(1).Name\n    Case 396\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.DropDowns(2))\n    Case 397\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.DropDowns(\"nope\"))\n    Case 398\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): Set o = ws.DropDowns.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.DropDowns.Count\n    Case 399\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): n = 0: For Each c In ws.DropDowns: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t\n    Case 400\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled\n    Case 401\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)\n    Case 402\n        Set o = ws.DropDowns.Add(48, 96, 72): r = o.Name\n    Case 403\n        Set o = ws.DropDowns.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height\n    Case 404\n        Set o = ws.DropDowns.Add(-48, 96, 72, 24): r = o.Left\n    Case 405\n        Set o = ws.DropDowns.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height\n    Case 406\n        Set o = ws.DropDowns.Add(\"a\", 96, 72, 24): r = o.Name\n    Case 407\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Name\n    Case 408\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Index\n    Case 409\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Left\n    Case 410\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Top\n    Case 411\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Width\n    Case 412\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Height\n    Case 413\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Enabled\n    Case 414\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Visible\n    Case 415\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Locked\n    Case 416\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Placement\n    Case 417\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.PrintObject\n    Case 418\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.OnAction\n    Case 419\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ZOrder\n    Case 420\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Caption\n    Case 421\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Text\n    Case 422\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.LockedText\n    Case 423\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Value\n    Case 424\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.LinkedCell\n    Case 425\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ListFillRange\n    Case 426\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ListCount\n    Case 427\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ListIndex\n    Case 428\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.DropDownLines\n    Case 429\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.MultiSelect\n    Case 430\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Display3DShading\n    Case 431\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Accelerator\n    Case 432\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.AutoSize\n    Case 433\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.AddIndent\n    Case 434\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.AutoScaleFont\n    Case 435\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.CancelButton\n    Case 436\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.DefaultButton\n    Case 437\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.DismissButton\n    Case 438\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.HelpButton\n    Case 439\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.HorizontalAlignment\n    Case 440\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.VerticalAlignment\n    Case 441\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Orientation\n    Case 442\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ReadingOrder\n    Case 443\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Formula\n    Case 444\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.PhoneticAccelerator\n    Case 445\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Parent)\n    Case 446\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Application)\n    Case 447\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)\n    Case 448\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)\n    Case 449\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)\n    End Select\nEnd Sub\n\nPrivate Sub Act5(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 450\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Characters)\n    Case 451\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Font)\n    Case 452\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Border)\n    Case 453\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Interior)\n    Case 454\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.List)\n    Case 455\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Selected)\n    Case 456\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name\n    Case 457\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Left = 96: r = o.Left\n    Case 458\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Top = 144: r = o.Top\n    Case 459\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Width = 96: r = o.Width\n    Case 460\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Height = 48: r = o.Height\n    Case 461\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled\n    Case 462\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible\n    Case 463\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked\n    Case 464\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement\n    Case 465\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement\n    Case 466\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject\n    Case 467\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction\n    Case 468\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction\n    Case 469\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption\n    Case 470\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text\n    Case 471\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText\n    Case 472\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value\n    Case 473\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = 1: r = o.Value\n    Case 474\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = 0: r = o.Value\n    Case 475\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = 2: r = o.Value\n    Case 476\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell\n    Case 477\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange\n    Case 478\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex\n    Case 479\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines\n    Case 480\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect\n    Case 481\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading\n    Case 482\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator\n    Case 483\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize\n    Case 484\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment\n    Case 485\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment\n    Case 486\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation\n    Case 487\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count\n    Case 488\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text\n    Case 489\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text\n    Case 490\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption\n    Case 491\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold\n    Case 492\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold\n    Case 493\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name\n    Case 494\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size\n    Case 495\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex\n    Case 496\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.DropDowns.Count\n    Case 497\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Delete: r = ws.DropDowns.Count & \" \" & ws.Shapes.Count\n    Case 498\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name\n    Case 499\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Select: r = TypeName(Selection)\n    Case 500\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.DropDowns.Count\n    Case 501\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder\n    Case 502\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): Set c = ws.DropDowns.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index\n    Case 503\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name\n    Case 504\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top\n    Case 505\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.DropDowns(\"viaShape\").Name\n    Case 506\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.DropDowns.Count\n    Case 507\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction\n    Case 508\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction\n    Case 509\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left\n    Case 510\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Left = 96: r = o.Left\n    Case 511\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Caption = \"All\": r = o.Caption\n    Case 512\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Enabled = False: r = o.Enabled\n    Case 513\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.OnAction = \"Macro4\": r = o.OnAction\n    Case 514\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Visible = False: r = o.Visible\n    Case 515\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns.Left\n    Case 516\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns.Caption\n    Case 517\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns.Enabled\n    Case 518\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): Set c = ws.DropDowns(Array(1)): r = TypeName(c) & \" \" & c.Count\n    Case 519\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): Set c = ws.DropDowns.Group: r = TypeName(c)\n    Case 520\n        r = ws.ListBoxes.Count\n    Case 521\n        r = TypeName(ws.ListBoxes) & \" \" & TypeName(ws.ListBoxes.Parent) & \" \" & TypeName(ws.ListBoxes.Application)\n    Case 522\n        r = TypeName(ws.ListBoxes(1))\n    Case 523\n        r = TypeName(ws.ListBoxes(\"nope\"))\n    Case 524\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.ListBoxes.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count\n    Case 525\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes(1).Name & \" \" & ws.ListBoxes(o.Name).Index & \" \" & ws.ListBoxes.Item(1).Name\n    Case 526\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.ListBoxes(2))\n    Case 527\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.ListBoxes(\"nope\"))\n    Case 528\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set o = ws.ListBoxes.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.ListBoxes.Count\n    Case 529\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): n = 0: For Each c In ws.ListBoxes: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t\n    Case 530\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled\n    Case 531\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)\n    Case 532\n        Set o = ws.ListBoxes.Add(48, 96, 72): r = o.Name\n    Case 533\n        Set o = ws.ListBoxes.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height\n    Case 534\n        Set o = ws.ListBoxes.Add(-48, 96, 72, 24): r = o.Left\n    Case 535\n        Set o = ws.ListBoxes.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height\n    Case 536\n        Set o = ws.ListBoxes.Add(\"a\", 96, 72, 24): r = o.Name\n    Case 537\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Name\n    Case 538\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Index\n    Case 539\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Left\n    End Select\nEnd Sub\n\nPrivate Sub Act6(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 540\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Top\n    Case 541\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Width\n    Case 542\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Height\n    Case 543\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Enabled\n    Case 544\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Visible\n    Case 545\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Locked\n    Case 546\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Placement\n    Case 547\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.PrintObject\n    Case 548\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.OnAction\n    Case 549\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ZOrder\n    Case 550\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Caption\n    Case 551\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Text\n    Case 552\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.LockedText\n    Case 553\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Value\n    Case 554\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.LinkedCell\n    Case 555\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ListFillRange\n    Case 556\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ListCount\n    Case 557\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ListIndex\n    Case 558\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.DropDownLines\n    Case 559\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.MultiSelect\n    Case 560\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Display3DShading\n    Case 561\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Accelerator\n    Case 562\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.AutoSize\n    Case 563\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.AddIndent\n    Case 564\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.AutoScaleFont\n    Case 565\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.CancelButton\n    Case 566\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.DefaultButton\n    Case 567\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.DismissButton\n    Case 568\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.HelpButton\n    Case 569\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.HorizontalAlignment\n    Case 570\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.VerticalAlignment\n    Case 571\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Orientation\n    Case 572\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ReadingOrder\n    Case 573\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Formula\n    Case 574\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.PhoneticAccelerator\n    Case 575\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Parent)\n    Case 576\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Application)\n    Case 577\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)\n    Case 578\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)\n    Case 579\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)\n    Case 580\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters)\n    Case 581\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Font)\n    Case 582\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Border)\n    Case 583\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Interior)\n    Case 584\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.List)\n    Case 585\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Selected)\n    Case 586\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name\n    Case 587\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Left = 96: r = o.Left\n    Case 588\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Top = 144: r = o.Top\n    Case 589\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Width = 96: r = o.Width\n    Case 590\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Height = 48: r = o.Height\n    Case 591\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled\n    Case 592\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible\n    Case 593\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked\n    Case 594\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement\n    Case 595\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement\n    Case 596\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject\n    Case 597\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction\n    Case 598\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction\n    Case 599\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption\n    Case 600\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text\n    Case 601\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText\n    Case 602\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value\n    Case 603\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = 1: r = o.Value\n    Case 604\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = 0: r = o.Value\n    Case 605\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = 2: r = o.Value\n    Case 606\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell\n    Case 607\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange\n    Case 608\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex\n    Case 609\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines\n    Case 610\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect\n    Case 611\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading\n    Case 612\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator\n    Case 613\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize\n    Case 614\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment\n    Case 615\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment\n    Case 616\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation\n    Case 617\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count\n    Case 618\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text\n    Case 619\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text\n    Case 620\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption\n    Case 621\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold\n    Case 622\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold\n    Case 623\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name\n    Case 624\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size\n    Case 625\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex\n    Case 626\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.ListBoxes.Count\n    Case 627\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Delete: r = ws.ListBoxes.Count & \" \" & ws.Shapes.Count\n    Case 628\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name\n    Case 629\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Select: r = TypeName(Selection)\n    End Select\nEnd Sub\n\nPrivate Sub Act7(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim o As Object, c As Object, n As Long, t As String\n    Select Case which\n    Case 630\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.ListBoxes.Count\n    Case 631\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder\n    Case 632\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set c = ws.ListBoxes.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index\n    Case 633\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name\n    Case 634\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top\n    Case 635\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.ListBoxes(\"viaShape\").Name\n    Case 636\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.ListBoxes.Count\n    Case 637\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction\n    Case 638\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction\n    Case 639\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left\n    Case 640\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Left = 96: r = o.Left\n    Case 641\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Caption = \"All\": r = o.Caption\n    Case 642\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Enabled = False: r = o.Enabled\n    Case 643\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.OnAction = \"Macro4\": r = o.OnAction\n    Case 644\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Visible = False: r = o.Visible\n    Case 645\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes.Left\n    Case 646\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes.Caption\n    Case 647\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes.Enabled\n    Case 648\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set c = ws.ListBoxes(Array(1)): r = TypeName(c) & \" \" & c.Count\n    Case 649\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set c = ws.ListBoxes.Group: r = TypeName(c)\n    Case 650\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": r = o.ListCount & \" \" & o.List(1) & \" \" & o.List(2)\n    Case 651\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\", 1: r = o.List(1)\n    Case 652\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.RemoveItem 1: r = o.ListCount\n    Case 653\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.RemoveAllItems: r = o.ListCount\n    Case 654\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": o.ListIndex = 2: r = o.Value & \" \" & o.ListIndex & \" \" & o.Selected(2)\n    Case 655\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": o.Selected(1) = True: r = o.ListIndex\n    Case 656\n        Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.List = Array(\"x\", \"y\"): r = o.ListCount & \" \" & o.List(2)\n    Case 657\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": o.Value = 2: r = o.ListIndex & \" \" & o.Text\n    Case 658\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Range(\"C1:C3\").Value = 5: o.ListFillRange = \"C1:C3\": r = o.ListCount & \" \" & o.List(1)\n    Case 659\n        Set o = ws.DropDowns.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": o.AddItem \"a\": o.ListIndex = 1: r = ws.Range(\"B2\").Value\n    Case 660\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": o.Value = xlOn: r = ws.Range(\"B2\").Value & \" \" & o.Value\n    Case 661\n        Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": ws.Range(\"B2\").Value = True: r = o.Value\n    Case 662\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons.Add(48, 144, 72, 24): o.Value = xlOn: c.Value = xlOn: r = o.Value & \" \" & c.Value\n    Case 663\n        Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": o.Value = xlOn: r = ws.Range(\"B2\").Value\n    Case 664\n        Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.CheckBoxes.Add(48, 144, 72, 24): r = ws.Buttons.Count & \" \" & ws.CheckBoxes.Count & \" \" & ws.Shapes.Count & \" \" & o.Index & \" \" & c.Index & \" \" & c.ZOrder\n    Case 665\n        Set c = ws.CheckBoxes.Add(48, 144, 72, 24): Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Index & \" \" & c.Name & \" \" & o.Name\n    Case 666\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Protect: r = o.Caption\n    Case 667\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Protect: o.Caption = \"x\": r = o.Caption\n    Case 668\n        Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Protect: o.Left = 96: r = o.Left\n    Case 669\n        ws.Protect: Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Name\n    End Select\nEnd Sub\n\nPublic Function Probe(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, s As String, v As String, r As Variant\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Activate\n    On Error GoTo Failed\n    Select Case which \\ 90\n    Case 0: Act0 which, ws, r\n    Case 1: Act1 which, ws, r\n    Case 2: Act2 which, ws, r\n    Case 3: Act3 which, ws, r\n    Case 4: Act4 which, ws, r\n    Case 5: Act5 which, ws, r\n    Case 6: Act6 which, ws, r\n    Case 7: Act7 which, ws, r\n    End Select\n    s = \"ok \"\nAnswered:\n    On Error Resume Next\n    Err.Clear\n    v = \"\": v = CStr(r)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"|\" & v\n    On Error GoTo 0\n    wb.Close False\n    Application.DisplayAlerts = True\n    Probe = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \"\n    Resume Answered\nEnd Function\n",
+ "cases": [
+  [
+   "r = ws.Buttons.Count",
+   "ok |0"
+  ],
+  [
+   "r = TypeName(ws.Buttons) & \" \" & TypeName(ws.Buttons.Parent) & \" \" & TypeName(ws.Buttons.Application)",
+   "ok |Buttons Worksheet Application"
+  ],
+  [
+   "r = TypeName(ws.Buttons(1))",
+   "Err 1004 |"
+  ],
+  [
+   "r = TypeName(ws.Buttons(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.Buttons.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count",
+   "ok |Button Button 1 1 1 Button 1 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons(1).Name & \" \" & ws.Buttons(o.Name).Index & \" \" & ws.Buttons.Item(1).Name",
+   "ok |Button 1 1 Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.Buttons(2))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.Buttons(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): Set o = ws.Buttons.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.Buttons.Count",
+   "ok |Button 2 2 2"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): n = 0: For Each c In ws.Buttons: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t",
+   "ok |1 Button"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled",
+   "ok |OLEFormat Button 8 0 True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)",
+   "ok |Button DrawingObjects"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72): r = o.Name",
+   "Err 449 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height",
+   "ok |48 96 72 24"
+  ],
+  [
+   "Set o = ws.Buttons.Add(-48, 96, 72, 24): r = o.Left",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height",
+   "ok |0 0"
+  ],
+  [
+   "Set o = ws.Buttons.Add(\"a\", 96, 72, 24): r = o.Name",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Name",
+   "ok |Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Index",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Top",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Width",
+   "ok |72"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Height",
+   "ok |24"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Visible",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Locked",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Placement",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.PrintObject",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ZOrder",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Caption",
+   "ok |Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Text",
+   "ok |Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.LockedText",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Value",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.LinkedCell",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ListFillRange",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ListCount",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ListIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Display3DShading",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Accelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.AutoSize",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.AddIndent",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.AutoScaleFont",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.CancelButton",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.DefaultButton",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.DismissButton",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.HelpButton",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.HorizontalAlignment",
+   "ok |-4108"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.VerticalAlignment",
+   "ok |-4108"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Orientation",
+   "ok |-4128"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.ReadingOrder",
+   "ok |27"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Formula",
+   "ok |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.PhoneticAccelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Parent)",
+   "ok |Worksheet"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Application)",
+   "ok |Application"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)",
+   "ok |ShapeRange"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Characters)",
+   "ok |Characters"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Font)",
+   "ok |Font"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Border)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Interior)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.List)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Selected)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name",
+   "ok |mine"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Top = 144: r = o.Top",
+   "ok |144"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Width = 96: r = o.Width",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Height = 48: r = o.Height",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement",
+   "ok |3"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction",
+   "ok |Book1!Macro1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption",
+   "ok |Hello"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text",
+   "ok |Hello"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = 1: r = o.Value",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = 0: r = o.Value",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Value = 2: r = o.Value",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment",
+   "ok |-4108"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment",
+   "ok |-4160"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation",
+   "ok |-4171"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count",
+   "ok |Button 1|8"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text",
+   "ok |Press me|Press me|Press me"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text",
+   "ok |He|ello"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption",
+   "ok |Jello"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold",
+   "ok |Font False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold",
+   "ok |True True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name",
+   "ok |Arial"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size",
+   "ok |14"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex",
+   "ok |3"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.Buttons.Count",
+   "ok | 0"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Delete: r = ws.Buttons.Count & \" \" & ws.Shapes.Count",
+   "ok |0 0"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name",
+   "ok | Button Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Select: r = TypeName(Selection)",
+   "ok |Button"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.Buttons.Count",
+   "ok |Button Button 2 2"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder",
+   "ok |True True 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.Buttons.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index",
+   "ok |2 1 2 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name",
+   "ok |Range ShapeRange 1 Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top",
+   "ok |110.5"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.Buttons(\"viaShape\").Name",
+   "ok |viaShape viaShape"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.Buttons.Count",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction",
+   "ok |Book1!Macro2"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction",
+   "ok |Book1!Macro3"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Caption = \"All\": r = o.Caption",
+   "ok |All"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.OnAction = \"Macro4\": r = o.OnAction",
+   "ok |Book1!Macro4"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Buttons.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons.Caption",
+   "ok |Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): r = ws.Buttons.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.Buttons(Array(1)): r = TypeName(c) & \" \" & c.Count",
+   "ok |Buttons 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.Buttons.Group: r = TypeName(c)",
+   "Err 1004 |"
+  ],
+  [
+   "r = ws.CheckBoxes.Count",
+   "ok |0"
+  ],
+  [
+   "r = TypeName(ws.CheckBoxes) & \" \" & TypeName(ws.CheckBoxes.Parent) & \" \" & TypeName(ws.CheckBoxes.Application)",
+   "ok |CheckBoxes Worksheet Application"
+  ],
+  [
+   "r = TypeName(ws.CheckBoxes(1))",
+   "Err 1004 |"
+  ],
+  [
+   "r = TypeName(ws.CheckBoxes(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.CheckBoxes.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count",
+   "ok |CheckBox Check Box 1 1 1 Check Box 1 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes(1).Name & \" \" & ws.CheckBoxes(o.Name).Index & \" \" & ws.CheckBoxes.Item(1).Name",
+   "ok |Check Box 1 1 Check Box 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.CheckBoxes(2))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.CheckBoxes(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set o = ws.CheckBoxes.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.CheckBoxes.Count",
+   "ok |Check Box 2 2 2"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): n = 0: For Each c In ws.CheckBoxes: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t",
+   "ok |1 CheckBox"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled",
+   "ok |OLEFormat CheckBox 8 1 True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)",
+   "ok |CheckBox DrawingObjects"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72): r = o.Name",
+   "Err 449 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height",
+   "ok |48 96 72 24"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(-48, 96, 72, 24): r = o.Left",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height",
+   "ok |15.5 17"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(\"a\", 96, 72, 24): r = o.Name",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Name",
+   "ok |Check Box 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Index",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Top",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Width",
+   "ok |72"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Height",
+   "ok |24"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Visible",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Locked",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.PrintObject",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ZOrder",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Caption",
+   "ok |Check Box 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Text",
+   "ok |Check Box 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.LockedText",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Value",
+   "ok |-4146"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.LinkedCell",
+   "ok |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ListFillRange",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ListCount",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ListIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Display3DShading",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Accelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.AddIndent",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.AutoScaleFont",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.CancelButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.DefaultButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.DismissButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.HelpButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.ReadingOrder",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Formula",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.PhoneticAccelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Parent)",
+   "ok |Worksheet"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Application)",
+   "ok |Application"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)",
+   "ok |ShapeRange"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters)",
+   "ok |Characters"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Font)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Border)",
+   "ok |Border"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Interior)",
+   "ok |Interior"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.List)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Selected)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name",
+   "ok |mine"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Top = 144: r = o.Top",
+   "ok |144"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Width = 96: r = o.Width",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Height = 48: r = o.Height",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement",
+   "ok |3"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction",
+   "ok |Book1!Macro1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption",
+   "ok |Hello"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text",
+   "ok |Hello"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = 1: r = o.Value",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = 0: r = o.Value",
+   "ok |-4146"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Value = 2: r = o.Value",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell",
+   "ok |B2"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count",
+   "ok |Check Box 1|11"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text",
+   "ok |Press me|Press me|Press me"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text",
+   "ok |Hello|ello"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption",
+   "ok |Jello"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold",
+   "ok |Font "
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.CheckBoxes.Count",
+   "ok | 0"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Delete: r = ws.CheckBoxes.Count & \" \" & ws.Shapes.Count",
+   "ok |0 0"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name",
+   "ok | CheckBox Check Box 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Select: r = TypeName(Selection)",
+   "ok |CheckBox"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.CheckBoxes.Count",
+   "ok |CheckBox Check Box 2 2"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder",
+   "ok |True True 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set c = ws.CheckBoxes.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index",
+   "ok |2 1 2 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name",
+   "ok |Range ShapeRange 1 Check Box 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top",
+   "ok |110.5"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.CheckBoxes(\"viaShape\").Name",
+   "ok |viaShape viaShape"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.CheckBoxes.Count",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction",
+   "ok |Book1!Macro2"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction",
+   "ok |Book1!Macro3"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Caption = \"All\": r = o.Caption",
+   "ok |All"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.OnAction = \"Macro4\": r = o.OnAction",
+   "ok |Book1!Macro4"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): ws.CheckBoxes.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes.Caption",
+   "ok |Check Box 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): r = ws.CheckBoxes.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set c = ws.CheckBoxes(Array(1)): r = TypeName(c) & \" \" & c.Count",
+   "ok |CheckBoxes 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): Set c = ws.CheckBoxes.Group: r = TypeName(c)",
+   "Err 1004 |"
+  ],
+  [
+   "r = ws.OptionButtons.Count",
+   "ok |0"
+  ],
+  [
+   "r = TypeName(ws.OptionButtons) & \" \" & TypeName(ws.OptionButtons.Parent) & \" \" & TypeName(ws.OptionButtons.Application)",
+   "ok |OptionButtons Worksheet Application"
+  ],
+  [
+   "r = TypeName(ws.OptionButtons(1))",
+   "Err 1004 |"
+  ],
+  [
+   "r = TypeName(ws.OptionButtons(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.OptionButtons.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count",
+   "ok |OptionButton Option Button 1 1 1 Option Button 1 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons(1).Name & \" \" & ws.OptionButtons(o.Name).Index & \" \" & ws.OptionButtons.Item(1).Name",
+   "ok |Option Button 1 1 Option Button 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.OptionButtons(2))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.OptionButtons(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set o = ws.OptionButtons.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.OptionButtons.Count",
+   "ok |Option Button 2 2 2"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): n = 0: For Each c In ws.OptionButtons: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t",
+   "ok |1 OptionButton"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled",
+   "ok |OLEFormat OptionButton 8 7 True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)",
+   "ok |OptionButton DrawingObjects"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72): r = o.Name",
+   "Err 449 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height",
+   "ok |48 96 72 24"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(-48, 96, 72, 24): r = o.Left",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height",
+   "ok |15.5 17"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(\"a\", 96, 72, 24): r = o.Name",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Name",
+   "ok |Option Button 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Index",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Top",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Width",
+   "ok |72"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Height",
+   "ok |24"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Visible",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Locked",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.PrintObject",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ZOrder",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Caption",
+   "ok |Option Button 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Text",
+   "ok |Option Button 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.LockedText",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Value",
+   "ok |-4146"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.LinkedCell",
+   "ok |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ListFillRange",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ListCount",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ListIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Display3DShading",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Accelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.AddIndent",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.AutoScaleFont",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.CancelButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.DefaultButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.DismissButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.HelpButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.ReadingOrder",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Formula",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.PhoneticAccelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Parent)",
+   "ok |Worksheet"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Application)",
+   "ok |Application"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)",
+   "ok |ShapeRange"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Characters)",
+   "ok |Characters"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Font)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Border)",
+   "ok |Border"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Interior)",
+   "ok |Interior"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.List)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Selected)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name",
+   "ok |mine"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Top = 144: r = o.Top",
+   "ok |144"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Width = 96: r = o.Width",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Height = 48: r = o.Height",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement",
+   "ok |3"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction",
+   "ok |Book1!Macro1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption",
+   "ok |Hello"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text",
+   "ok |Hello"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = 1: r = o.Value",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = 0: r = o.Value",
+   "ok |-4146"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Value = 2: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell",
+   "ok |B2"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator",
+   "ok |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count",
+   "ok |Option Button 1|15"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text",
+   "ok |Press me|Press me|Press me"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text",
+   "ok |Hello|ello"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption",
+   "ok |Jello"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold",
+   "ok |Font "
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.OptionButtons.Count",
+   "ok | 0"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Delete: r = ws.OptionButtons.Count & \" \" & ws.Shapes.Count",
+   "ok |0 0"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name",
+   "ok | OptionButton Option Button 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Select: r = TypeName(Selection)",
+   "ok |OptionButton"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.OptionButtons.Count",
+   "ok |OptionButton Option Button 2 2"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder",
+   "ok |True True 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index",
+   "ok |2 1 2 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name",
+   "ok |Range ShapeRange 1 Option Button 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top",
+   "ok |110.5"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.OptionButtons(\"viaShape\").Name",
+   "ok |viaShape viaShape"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.OptionButtons.Count",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction",
+   "ok |Book1!Macro2"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction",
+   "ok |Book1!Macro3"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Caption = \"All\": r = o.Caption",
+   "ok |All"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.OnAction = \"Macro4\": r = o.OnAction",
+   "ok |Book1!Macro4"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): ws.OptionButtons.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons.Caption",
+   "ok |Option Button 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): r = ws.OptionButtons.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons(Array(1)): r = TypeName(c) & \" \" & c.Count",
+   "ok |OptionButtons 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons.Group: r = TypeName(c)",
+   "Err 1004 |"
+  ],
+  [
+   "r = ws.DropDowns.Count",
+   "ok |0"
+  ],
+  [
+   "r = TypeName(ws.DropDowns) & \" \" & TypeName(ws.DropDowns.Parent) & \" \" & TypeName(ws.DropDowns.Application)",
+   "ok |DropDowns Worksheet Application"
+  ],
+  [
+   "r = TypeName(ws.DropDowns(1))",
+   "Err 1004 |"
+  ],
+  [
+   "r = TypeName(ws.DropDowns(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.DropDowns.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count",
+   "ok |DropDown Drop Down 1 1 1 Drop Down 1 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns(1).Name & \" \" & ws.DropDowns(o.Name).Index & \" \" & ws.DropDowns.Item(1).Name",
+   "ok |Drop Down 1 1 Drop Down 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.DropDowns(2))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.DropDowns(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): Set o = ws.DropDowns.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.DropDowns.Count",
+   "ok |Drop Down 2 2 2"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): n = 0: For Each c In ws.DropDowns: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t",
+   "ok |1 DropDown"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled",
+   "ok |OLEFormat DropDown 8 2 True"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)",
+   "ok |DropDown DrawingObjects"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72): r = o.Name",
+   "Err 449 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height",
+   "ok |48 96 72 24"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(-48, 96, 72, 24): r = o.Left",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height",
+   "ok |0 0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(\"a\", 96, 72, 24): r = o.Name",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Name",
+   "ok |Drop Down 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Index",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Top",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Width",
+   "ok |72"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Height",
+   "ok |24"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Visible",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Locked",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.PrintObject",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ZOrder",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Caption",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Text",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.LockedText",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Value",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.LinkedCell",
+   "ok |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ListFillRange",
+   "ok |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ListCount",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ListIndex",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.DropDownLines",
+   "ok |8"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Display3DShading",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Accelerator",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.AddIndent",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.AutoScaleFont",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.CancelButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.DefaultButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.DismissButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.HelpButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.ReadingOrder",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Formula",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.PhoneticAccelerator",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Parent)",
+   "ok |Worksheet"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Application)",
+   "ok |Application"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)",
+   "ok |ShapeRange"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Characters)",
+   "ok |Characters"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Font)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Border)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Interior)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.List)",
+   "ok |Null"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Selected)",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name",
+   "ok |mine"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Top = 144: r = o.Top",
+   "ok |144"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Width = 96: r = o.Width",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Height = 48: r = o.Height",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement",
+   "ok |3"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction",
+   "ok |Book1!Macro1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = 1: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = 0: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Value = 2: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell",
+   "ok |B2"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange",
+   "ok |C1:C3"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines",
+   "ok |3"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count",
+   "Err 13 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text",
+   "Err 13 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold",
+   "ok |Font "
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.DropDowns.Count",
+   "ok | 0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Delete: r = ws.DropDowns.Count & \" \" & ws.Shapes.Count",
+   "ok |0 0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name",
+   "ok | DropDown Drop Down 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Select: r = TypeName(Selection)",
+   "ok |DropDown"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.DropDowns.Count",
+   "ok |DropDown Drop Down 2 2"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder",
+   "ok |True True 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): Set c = ws.DropDowns.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index",
+   "ok |2 1 2 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name",
+   "ok |Range ShapeRange 1 Drop Down 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top",
+   "ok |110.5"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.DropDowns(\"viaShape\").Name",
+   "ok |viaShape viaShape"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.DropDowns.Count",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction",
+   "ok |Book1!Macro2"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction",
+   "ok |Book1!Macro3"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Caption = \"All\": r = o.Caption",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.OnAction = \"Macro4\": r = o.OnAction",
+   "ok |Book1!Macro4"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.DropDowns.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns.Caption",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): r = ws.DropDowns.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): Set c = ws.DropDowns(Array(1)): r = TypeName(c) & \" \" & c.Count",
+   "ok |DropDowns 1"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): Set c = ws.DropDowns.Group: r = TypeName(c)",
+   "Err 1004 |"
+  ],
+  [
+   "r = ws.ListBoxes.Count",
+   "ok |0"
+  ],
+  [
+   "r = TypeName(ws.ListBoxes) & \" \" & TypeName(ws.ListBoxes.Parent) & \" \" & TypeName(ws.ListBoxes.Application)",
+   "ok |ListBoxes Worksheet Application"
+  ],
+  [
+   "r = TypeName(ws.ListBoxes(1))",
+   "Err 1004 |"
+  ],
+  [
+   "r = TypeName(ws.ListBoxes(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o) & \" \" & o.Name & \" \" & ws.ListBoxes.Count & \" \" & ws.Shapes.Count & \" \" & ws.Shapes(1).Name & \" \" & ws.DrawingObjects.Count",
+   "ok |ListBox List Box 1 1 1 List Box 1 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes(1).Name & \" \" & ws.ListBoxes(o.Name).Index & \" \" & ws.ListBoxes.Item(1).Name",
+   "ok |List Box 1 1 List Box 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.ListBoxes(2))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.ListBoxes(\"nope\"))",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set o = ws.ListBoxes.Add(48, 144, 72, 24): r = o.Name & \" \" & o.Index & \" \" & ws.ListBoxes.Count",
+   "ok |List Box 2 2 2"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): n = 0: For Each c In ws.ListBoxes: n = n + 1: t = TypeName(c): Next: r = n & \" \" & t",
+   "ok |1 ListBox"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.Shapes(1).OLEFormat) & \" \" & TypeName(ws.Shapes(1).OLEFormat.Object) & \" \" & ws.Shapes(1).Type & \" \" & ws.Shapes(1).FormControlType & \" \" & ws.Shapes(1).ControlFormat.Enabled",
+   "ok |OLEFormat ListBox 8 6 True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(ws.DrawingObjects(1)) & \" \" & TypeName(ws.DrawingObjects)",
+   "ok |ListBox DrawingObjects"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72): r = o.Name",
+   "Err 449 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(Left:=48, Top:=96, Width:=72, Height:=24): r = o.Left & \" \" & o.Top & \" \" & o.Width & \" \" & o.Height",
+   "ok |48 96 72 23"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(-48, 96, 72, 24): r = o.Left",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 0, 0): r = o.Width & \" \" & o.Height",
+   "ok |25.5 23"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(\"a\", 96, 72, 24): r = o.Name",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Name",
+   "ok |List Box 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Index",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Top",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Width",
+   "ok |72"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Height",
+   "ok |23"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Visible",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Locked",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.PrintObject",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ZOrder",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Caption",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Text",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.LockedText",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Value",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.LinkedCell",
+   "ok |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ListFillRange",
+   "ok |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ListCount",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ListIndex",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.MultiSelect",
+   "ok |-4142"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Display3DShading",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Accelerator",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.AddIndent",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.AutoScaleFont",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.CancelButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.DefaultButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.DismissButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.HelpButton",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.ReadingOrder",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Formula",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.PhoneticAccelerator",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Parent)",
+   "ok |Worksheet"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Application)",
+   "ok |Application"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.ShapeRange)",
+   "ok |ShapeRange"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.BottomRightCell)",
+   "ok |Range"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Font)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Border)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Interior)",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.List)",
+   "ok |Null"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Selected)",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Name = \"mine\": r = o.Name",
+   "ok |mine"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Top = 144: r = o.Top",
+   "ok |144"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Width = 96: r = o.Width",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Height = 48: r = o.Height",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Locked = False: r = o.Locked",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Placement = xlMove: r = o.Placement",
+   "ok |2"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Placement = xlFreeFloating: r = o.Placement",
+   "ok |3"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.PrintObject = False: r = o.PrintObject",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro1\": r = o.OnAction",
+   "ok |Book1!Macro1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.OnAction = \"\": r = o.OnAction",
+   "ok |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Caption",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Text = \"Hello\": r = o.Text",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.LockedText = False: r = o.LockedText",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = xlOn: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = 1: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = 0: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Value = 2: r = o.Value",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": r = o.LinkedCell",
+   "ok |B2"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.ListFillRange = \"C1:C3\": r = o.ListFillRange",
+   "ok |C1:C3"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.ListIndex = 2: r = o.ListIndex",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.DropDownLines = 3: r = o.DropDownLines",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.MultiSelect = xlSimple: r = o.MultiSelect",
+   "ok |-4154"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Display3DShading = True: r = o.Display3DShading",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Accelerator = \"H\": r = o.Accelerator",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AutoSize = True: r = o.AutoSize",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.HorizontalAlignment = xlCenter: r = o.HorizontalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.VerticalAlignment = xlTop: r = o.VerticalAlignment",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Orientation = xlUpward: r = o.Orientation",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Characters.Text & \"|\" & o.Characters.Count",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Characters.Text = \"Press me\": r = o.Caption & \"|\" & o.Text & \"|\" & o.Characters.Text",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": r = o.Characters(1, 2).Text & \"|\" & o.Characters(2).Text",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Caption = \"Hello\": o.Characters(1, 1).Text = \"J\": r = o.Caption",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.Characters.Font) & \" \" & o.Characters.Font.Bold",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.Bold = True: r = o.Font.Bold & \" \" & o.Characters.Font.Bold",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.Name = \"Arial\": r = o.Font.Name",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.Size = 14: r = o.Font.Size",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Font.ColorIndex = 3: r = o.Font.ColorIndex",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Delete & \" \" & ws.ListBoxes.Count",
+   "ok | 0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Delete: r = ws.ListBoxes.Count & \" \" & ws.Shapes.Count",
+   "ok |0 0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.Select & \" \" & TypeName(Selection) & \" \" & Selection.Name",
+   "ok | ListBox List Box 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Select: r = TypeName(Selection)",
+   "ok |ListBox"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set o = o.Duplicate: r = TypeName(o) & \" \" & o.Name & \" \" & ws.ListBoxes.Count",
+   "ok |ListBox List Box 2 2"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = o.BringToFront & \" \" & o.SendToBack & \" \" & o.ZOrder",
+   "ok |True True 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set c = ws.ListBoxes.Add(48, 144, 72, 24): o.BringToFront: r = o.ZOrder & \" \" & c.ZOrder & \" \" & o.Index & \" \" & c.Index",
+   "ok |2 1 2 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = TypeName(o.TopLeftCell) & \" \" & TypeName(o.ShapeRange) & \" \" & o.ShapeRange.Count & \" \" & o.ShapeRange.Name",
+   "ok |Range ShapeRange 1 List Box 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Rows(1).Insert: r = o.Top",
+   "ok |110.5"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Name = \"viaShape\": r = o.Name & \" \" & ws.ListBoxes(\"viaShape\").Name",
+   "ok |viaShape viaShape"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Shapes(1).Delete: r = ws.ListBoxes.Count",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.Shapes(1).OnAction = \"Macro2\": r = o.OnAction",
+   "ok |Book1!Macro2"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.OnAction = \"Macro3\": r = ws.Shapes(1).OnAction",
+   "ok |Book1!Macro3"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.Left = 96: r = ws.Shapes(1).Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Caption = \"All\": r = o.Caption",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Enabled = False: r = o.Enabled",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.OnAction = \"Macro4\": r = o.OnAction",
+   "ok |Book1!Macro4"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): ws.ListBoxes.Visible = False: r = o.Visible",
+   "ok |False"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes.Left",
+   "ok |48"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes.Caption",
+   "Err 438 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): r = ws.ListBoxes.Enabled",
+   "ok |True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set c = ws.ListBoxes(Array(1)): r = TypeName(c) & \" \" & c.Count",
+   "ok |ListBoxes 1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): Set c = ws.ListBoxes.Group: r = TypeName(c)",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": r = o.ListCount & \" \" & o.List(1) & \" \" & o.List(2)",
+   "ok |2 a b"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\", 1: r = o.List(1)",
+   "ok |b"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.RemoveItem 1: r = o.ListCount",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.RemoveAllItems: r = o.ListCount",
+   "ok |0"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": o.ListIndex = 2: r = o.Value & \" \" & o.ListIndex & \" \" & o.Selected(2)",
+   "ok |2 2 True"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": o.Selected(1) = True: r = o.ListIndex",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.ListBoxes.Add(48, 96, 72, 24): o.List = Array(\"x\", \"y\"): r = o.ListCount & \" \" & o.List(2)",
+   "ok |2 y"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.AddItem \"a\": o.AddItem \"b\": o.Value = 2: r = o.ListIndex & \" \" & o.Text",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): ws.Range(\"C1:C3\").Value = 5: o.ListFillRange = \"C1:C3\": r = o.ListCount & \" \" & o.List(1)",
+   "ok |3 5"
+  ],
+  [
+   "Set o = ws.DropDowns.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": o.AddItem \"a\": o.ListIndex = 1: r = ws.Range(\"B2\").Value",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": o.Value = xlOn: r = ws.Range(\"B2\").Value & \" \" & o.Value",
+   "ok |True 1"
+  ],
+  [
+   "Set o = ws.CheckBoxes.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": ws.Range(\"B2\").Value = True: r = o.Value",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): Set c = ws.OptionButtons.Add(48, 144, 72, 24): o.Value = xlOn: c.Value = xlOn: r = o.Value & \" \" & c.Value",
+   "ok |-4146 1"
+  ],
+  [
+   "Set o = ws.OptionButtons.Add(48, 96, 72, 24): o.LinkedCell = \"B2\": o.Value = xlOn: r = ws.Range(\"B2\").Value",
+   "ok |1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): Set c = ws.CheckBoxes.Add(48, 144, 72, 24): r = ws.Buttons.Count & \" \" & ws.CheckBoxes.Count & \" \" & ws.Shapes.Count & \" \" & o.Index & \" \" & c.Index & \" \" & c.ZOrder",
+   "ok |1 1 2 1 1 2"
+  ],
+  [
+   "Set c = ws.CheckBoxes.Add(48, 144, 72, 24): Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Index & \" \" & c.Name & \" \" & o.Name",
+   "ok |1 Check Box 1 Button 2"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Protect: r = o.Caption",
+   "ok |Button 1"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Protect: o.Caption = \"x\": r = o.Caption",
+   "Err 1004 |"
+  ],
+  [
+   "Set o = ws.Buttons.Add(48, 96, 72, 24): ws.Protect: o.Left = 96: r = o.Left",
+   "ok |96"
+  ],
+  [
+   "ws.Protect: Set o = ws.Buttons.Add(48, 96, 72, 24): r = o.Name",
+   "Err 1004 |"
+  ]
+ ]
+}

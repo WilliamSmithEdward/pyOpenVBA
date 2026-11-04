@@ -405,10 +405,10 @@ class FormatColor(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        """The ColorScaleCriterion a colour scale's colour belongs to (tests/fixtures/core_reads.json); a data
-        bar's colours' parent is not measured."""
+        """The ColorScaleCriterion a colour scale's colour belongs to (tests/fixtures/core_reads.json), the Databar for
+        a bar's own colours (tests/fixtures/object_trio.json); its border's and negative bar's are not measured."""
         if self.parent is None:
-            raise VBAUnsupportedError("The Parent of a data bar's FormatColor is not implemented")
+            raise VBAUnsupportedError("The Parent of a data bar's border or negative bar colour is not implemented")
         return self.parent
 
     @member

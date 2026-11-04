@@ -335,6 +335,49 @@ class PageSetup(ExcelObject):
             raise unsupported('on a removed worksheet')
 
     @member
+    def LeftHeaderPicture(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Graphic
+
+        return Graphic(self)
+
+    @member
+    def CenterHeaderPicture(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Graphic
+
+        return Graphic(self)
+
+    @member
+    def RightHeaderPicture(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Graphic
+
+        return Graphic(self)
+
+    @member
+    def LeftFooterPicture(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Graphic
+
+        return Graphic(self)
+
+    @member
+    def CenterFooterPicture(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Graphic
+
+        return Graphic(self)
+
+    @member
+    def RightFooterPicture(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Graphic
+
+        return Graphic(self)
+
+    @member
+    def Pages(self) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        book = self.sheet.book
+        return EmptyCollection(book, book, "Pages", set())
+
+    @member
     def Parent(self) -> object:
         return self.sheet
 

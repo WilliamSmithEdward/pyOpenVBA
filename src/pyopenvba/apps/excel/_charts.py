@@ -1243,12 +1243,23 @@ class HeldByChart(Created):
     """What an embedded chart keeps of its own, which is nothing: its ChartObjects, Shapes and Hyperlinks, ChartObjects
     answering the same for an index (tests/fixtures/chart_members.json)."""
 
-    def __init__(self, type_name: str) -> None:
-        self.vba_type_name = type_name
+    def __init__(self, type_name: str, chart: Chart) -> None:
+        self.vba_type_name, self.chart = type_name, chart
 
     @member
     def Count(self) -> object:
         return VBAInt(0, 'Long')
+
+    @member
+    def Parent(self) -> object:
+        """The chart, though Excel fails on an embedded chart's ChartObjects (tests/fixtures/object_trio.json)."""
+        if self.vba_type_name == 'ChartObjects':
+            raise error(-2147417848, 'Automation error')
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
 
 
 class ChartSurface(Created):
@@ -1752,17 +1763,17 @@ class Chart(ElementProperties, Created):
     @member
     def ChartObjects(self, Index: object = MISSING) -> object:  # noqa: N803 - native named arg
         self.admit_read()
-        return HeldByChart('ChartObjects')
+        return HeldByChart('ChartObjects', self)
 
     @member
     def Shapes(self) -> object:
         self.admit_read()
-        return HeldByChart('Shapes')
+        return HeldByChart('Shapes', self)
 
     @member
     def Hyperlinks(self) -> object:
         self.admit_read()
-        return HeldByChart('Hyperlinks')
+        return HeldByChart('Hyperlinks', self)
 
     @member
     def OLEObjects(self, Index: object = MISSING) -> object:  # noqa: N803 - native named arg
@@ -2498,12 +2509,12 @@ class LegendKey(Created):
 
     vba_type_name = 'LegendKey'
 
-    def __init__(self, series: Series) -> None:
-        self.series = series
+    def __init__(self, series: Series, entry: LegendEntry) -> None:
+        self.series, self.entry = series, entry
 
     @member
     def Parent(self) -> object:
-        return self.series.chart.sheet.book.application
+        return self.entry
 
     @member
     def Application(self) -> object:
@@ -2640,7 +2651,7 @@ class LegendEntry(Created):
         state = self.legend.shown()
         if self.index >= len(state.series) or CHART_TYPES.get(shown_type(state)) in ('pie', 'doughnut'):
             raise VBAUnsupportedError('The legend key of a trendline or of a pie slice is not implemented')
-        return LegendKey(Series(self.legend.chart, state.series[self.index]))
+        return LegendKey(Series(self.legend.chart, state.series[self.index]), self)
 
     @member
     def Parent(self) -> object:

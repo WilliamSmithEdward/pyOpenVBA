@@ -1,0 +1,894 @@
+{
+ "measured_at": "2026-11-03T20:10:29.143260+00:00",
+ "source": "Option Explicit\n\nPrivate Function Shown(ByVal v As Variant) As String\n    On Error Resume Next\n    If IsError(v) Then\n        Shown = CStr(v)\n    ElseIf IsArray(v) Then\n        Shown = \"array\"\n    Else\n        Shown = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPublic Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Object, ws As Object, other As Object, saved As Object, r As Variant, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Name = \"Other\"\n    Set saved = Workbooks.Add(xlWBATWorksheet)\n    saved.SaveAs folder & \"\\Saved\" & which & \".xlsx\", xlOpenXMLWorkbook\n    ws.Activate\n    On Error GoTo Failed\n    Run which, wb, ws, other, saved, r\n    s = \"ok \" & Shown(r)\nAnswered:\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    Tried = s\n    saved.Close False\n    wb.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Answered\nEnd Function\n\nPrivate Sub Run(ByVal which As Long, wb As Object, ws As Object, other As Object, saved As Object, r As Variant)\n    Dim x As Object, i As Long, n As String, x2 As Variant\n    Select Case which\n    Case 0\n        r = TypeName(wb.PivotTables)\n    Case 1\n        r = wb.PivotTables.Count\n    Case 2\n        Set x = wb.PivotTables(1)\n    Case 3\n        r = TypeName(wb.PivotTables(\"x\"))\n    Case 4\n        r = TypeName(wb.Theme)\n    Case 5\n        r = TypeName(wb.Theme.ThemeColorScheme)\n    Case 6\n        r = wb.Theme.ThemeColorScheme.Count\n    Case 7\n        r = TypeName(wb.Theme.ThemeColorScheme.Colors(1))\n    Case 8\n        r = wb.Theme.ThemeColorScheme.Colors(1).RGB\n    Case 9\n        r = wb.Theme.ThemeColorScheme.Colors(2).RGB\n    Case 10\n        r = wb.Theme.ThemeColorScheme.Colors(3).RGB\n    Case 11\n        r = wb.Theme.ThemeColorScheme.Colors(4).RGB\n    Case 12\n        r = wb.Theme.ThemeColorScheme.Colors(5).RGB\n    Case 13\n        r = wb.Theme.ThemeColorScheme.Colors(6).RGB\n    Case 14\n        r = wb.Theme.ThemeColorScheme.Colors(7).RGB\n    Case 15\n        r = wb.Theme.ThemeColorScheme.Colors(8).RGB\n    Case 16\n        r = wb.Theme.ThemeColorScheme.Colors(9).RGB\n    Case 17\n        r = wb.Theme.ThemeColorScheme.Colors(10).RGB\n    Case 18\n        r = wb.Theme.ThemeColorScheme.Colors(11).RGB\n    Case 19\n        r = wb.Theme.ThemeColorScheme.Colors(12).RGB\n    Case 20\n        r = wb.Theme.ThemeColorScheme.Colors(0).RGB\n    Case 21\n        r = wb.Theme.ThemeColorScheme.Colors(13).RGB\n    Case 22\n        r = wb.Theme.ThemeColorScheme.Colors(\"x\").RGB\n    Case 23\n        wb.Theme.ThemeColorScheme.Colors(5).RGB = 255: r = wb.Theme.ThemeColorScheme.Colors(5).RGB\n    Case 24\n        wb.Theme.ThemeColorScheme.Colors(5).RGB = 255: ws.Range(\"A1\").Interior.ThemeColor = 5: r = ws.Range(\"A1\").Interior.Color\n    Case 25\n        r = TypeName(wb.Theme.ThemeFontScheme)\n    Case 26\n        r = TypeName(wb.Theme.ThemeFontScheme.MajorFont)\n    Case 27\n        r = wb.Theme.ThemeFontScheme.MajorFont.Count\n    Case 28\n        r = wb.Theme.ThemeFontScheme.MajorFont(1).Name\n    Case 29\n        r = wb.Theme.ThemeFontScheme.MinorFont(1).Name\n    Case 30\n        r = wb.Theme.ThemeFontScheme.MajorFont(2).Name\n    Case 31\n        r = wb.Theme.ThemeFontScheme.MajorFont(3).Name\n    Case 32\n        r = wb.Theme.ThemeFontScheme.MajorFont(4).Name\n    Case 33\n        r = TypeName(wb.Theme.ThemeFontScheme.MajorFont(1))\n    Case 34\n        wb.Theme.ThemeFontScheme.MinorFont(1).Name = \"Arial\": r = wb.Theme.ThemeFontScheme.MinorFont(1).Name & \"/\" & ws.Range(\"A1\").Font.Name\n    Case 35\n        r = TypeName(wb.Theme.ThemeEffectScheme)\n    Case 36\n        r = TypeName(wb.Theme.Parent)\n    Case 37\n        r = TypeName(wb.Theme.Application)\n    Case 38\n        wb.ApplyTheme \"\"\n    Case 39\n        wb.ApplyTheme \"nothing.thmx\"\n    Case 40\n        wb.ApplyTheme\n    Case 41\n        r = TypeName(wb.CustomXMLParts)\n    Case 42\n        r = wb.CustomXMLParts.Count\n    Case 43\n        r = wb.CustomXMLParts(1).BuiltIn\n    Case 44\n        r = wb.CustomXMLParts(1).NamespaceURI\n    Case 45\n        r = wb.CustomXMLParts(2).NamespaceURI\n    Case 46\n        r = wb.CustomXMLParts(3).NamespaceURI\n    Case 47\n        r = wb.CustomXMLParts(4).NamespaceURI\n    Case 48\n        r = TypeName(wb.CustomXMLParts(1))\n    Case 49\n        r = TypeName(wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\"))\n    Case 50\n        wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\": r = wb.CustomXMLParts.Count\n    Case 51\n        r = wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\").XML\n    Case 52\n        r = wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"/>\").NamespaceURI\n    Case 53\n        r = wb.CustomXMLParts.Add(\"<a/>\").NamespaceURI\n    Case 54\n        r = wb.CustomXMLParts.Add(\"<a/>\").BuiltIn\n    Case 55\n        r = wb.CustomXMLParts.Add().Count\n    Case 56\n        r = wb.CustomXMLParts.Add(\"not xml\").XML\n    Case 57\n        wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"/>\").Delete: r = wb.CustomXMLParts.Count\n    Case 58\n        wb.CustomXMLParts(1).Delete\n    Case 59\n        wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": r = wb.CustomXMLParts.SelectByNamespace(\"urn:x\").Count\n    Case 60\n        r = wb.CustomXMLParts.SelectByNamespace(\"urn:y\").Count\n    Case 61\n        wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": r = TypeName(wb.CustomXMLParts.SelectByID(wb.CustomXMLParts(4).ID))\n    Case 62\n        r = wb.CustomXMLParts(4).ID <> \"\"\n    Case 63\n        r = TypeName(wb.CustomXMLParts.SelectByID(\"nope\"))\n    Case 64\n        r = wb.CustomXMLParts.Add(\"<a><b>1</b></a>\").SelectSingleNode(\"/a/b\").Text\n    Case 65\n        r = wb.CustomXMLParts.Add(\"<a><b>1</b></a>\").DocumentElement.BaseName\n    Case 66\n        r = TypeName(wb.NewWindow)\n    Case 67\n        wb.NewWindow: r = wb.Windows.Count & \"/\" & wb.Windows(1).Caption & \"/\" & wb.Windows(2).Caption\n    Case 68\n        r = wb.NewWindow.WindowNumber\n    Case 69\n        r = TypeName(wb.WebOptions)\n    Case 70\n        r = wb.WebOptions.Encoding\n    Case 71\n        r = wb.WebOptions.PixelsPerInch\n    Case 72\n        r = wb.[_CodeName]\n    Case 73\n        wb.[_CodeName] = \"Mine\": r = wb.CodeName\n    Case 74\n        wb.ChangeFileAccess xlReadOnly\n    Case 75\n        saved.ChangeFileAccess xlReadOnly: r = saved.ReadOnly\n    Case 76\n        saved.ChangeFileAccess xlReadWrite: r = saved.ReadOnly\n    Case 77\n        saved.ChangeFileAccess 5\n    Case 78\n        saved.ChangeFileAccess Mode:=xlReadOnly, Notify:=False: r = saved.ReadOnly\n    Case 79\n        saved.ChangeFileAccess\n    Case 80\n        r = saved.ChangeFileAccess(xlReadOnly)\n    Case 81\n        r = wb.WriteReservedBy = \"\"\n    Case 82\n        r = saved.WriteReservedBy = \"\"\n    Case 83\n        r = IsEmpty(wb.UserStatus)\n    Case 84\n        r = TypeName(wb.UserStatus)\n    Case 85\n        r = UBound(wb.UserStatus, 1) & \"/\" & UBound(wb.UserStatus, 2)\n    Case 86\n        r = wb.UserStatus(1, 1) = Application.UserName\n    Case 87\n        r = wb.UserStatus(1, 3)\n    Case 88\n        r = TypeName(wb.Signatures)\n    Case 89\n        r = wb.Signatures.Count\n    Case 90\n        r = TypeName(wb.ServerViewableItems)\n    Case 91\n        r = wb.ServerViewableItems.Count\n    Case 92\n        r = TypeName(wb.DocumentInspectors)\n    Case 93\n        r = wb.DocumentInspectors.Count > 0\n    Case 94\n        r = TypeName(wb.Model)\n    Case 95\n        r = wb.Model.ModelTables.Count\n    Case 96\n        r = TypeName(wb.WorkIdentity)\n    Case 97\n        r = TypeName(wb.SensitivityLabel)\n    Case 98\n        r = TypeName(wb.SmartDocument)\n    Case 99\n        r = TypeName(wb.CommandBars)\n    Case 100\n        wb.AcceptAllChanges\n    Case 101\n        wb.RejectAllChanges\n    Case 102\n        wb.EndReview\n    Case 103\n        wb.Reply\n    Case 104\n        wb.ReplyAll\n    Case 105\n        wb.ReplyWithChanges\n    Case 106\n        wb.UnprotectSharing\n    Case 107\n        wb.RemoveUser 1\n    Case 108\n        wb.PurgeChangeHistoryNow 30\n    Case 109\n        wb.HighlightChangesOptions\n    Case 110\n        wb.Sync\n    Case 111\n        wb.ReloadAs\n    Case 112\n        wb.LockServerFile\n    Case 113\n        wb.CheckIn\n    Case 114\n        wb.CheckInWithVersion\n    Case 115\n        wb.ToggleFormsDesign\n    Case 116\n        r = TypeName(wb.GetWorkflowTasks)\n    Case 117\n        r = TypeName(wb.GetWorkflowTemplates)\n    Case 118\n        wb.AddToFavorites\n    Case 119\n        wb.Mailer\n    Case 120\n        wb.UpdateFromFile\n    Case 121\n        saved.UpdateFromFile\n    Case 122\n        wb.Post\n    Case 123\n        wb.Research\n    Case 124\n        r = TypeName(wb.Sheets.HPageBreaks)\n    Case 125\n        r = wb.Sheets.HPageBreaks.Count\n    Case 126\n        r = wb.Sheets.VPageBreaks.Count\n    Case 127\n        ws.Rows(5).PageBreak = xlPageBreakManual: r = wb.Sheets.HPageBreaks.Count\n    Case 128\n        r = TypeName(wb.Worksheets.HPageBreaks)\n    Case 129\n        wb.Worksheets.Add: wb.Sheets.Select: r = wb.Sheets.VPageBreaks.Count\n    Case 130\n        r = TypeName(ws.PageSetup.Pages)\n    Case 131\n        r = ws.PageSetup.Pages.Count\n    Case 132\n        r = TypeName(ws.PageSetup.Pages(1))\n    Case 133\n        r = ws.PageSetup.Pages(1).CenterHeader.Text\n    Case 134\n        r = TypeName(ws.PageSetup.Pages(1).CenterHeader)\n    Case 135\n        r = TypeName(ws.PageSetup.LeftHeaderPicture)\n    Case 136\n        r = ws.PageSetup.LeftHeaderPicture.Filename\n    Case 137\n        r = TypeName(ws.PageSetup.RightFooterPicture)\n    Case 138\n        r = ws.PrintedCommentPages\n    Case 139\n        r = TypeName(ws.PrintedCommentPages)\n    Case 140\n        r = TypeName(ws.XmlDataQuery(\"/a\"))\n    Case 141\n        r = TypeName(ws.XmlMapQuery(\"/a\"))\n    Case 142\n        r = TypeName(ws.MailEnvelope)\n    Case 143\n        For Each x In Workbooks: i = i + 1: Next: r = i > 0\n    Case 144\n        For Each x In wb.Sheets: i = i + 1: Next: r = i\n    Case 145\n        Set x = wb.Sheets.[_NewEnum]: r = TypeName(x)\n    Case 146\n        r = Workbooks.CanCheckOut(\"nope.xlsx\")\n    Case 147\n        For Each x In ws.Scenarios: i = i + 1: Next: r = i\n    Case 148\n        ws.Scenarios.Add \"A\", ws.Range(\"A1\"), Array(5): For Each x In ws.Scenarios: r = x.Name: Next\n    Case 149\n        ws.Scenarios.Merge ws\n    Case 150\n        ws.Scenarios.Merge \"Nope\"\n    Case 151\n        ws.Scenarios.Merge\n    Case 152\n        other.Range(\"A1\").Value = 3: other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7), \"Why\": ws.Scenarios.Merge other: r = ws.Scenarios.Count & \"/\" & ws.Scenarios(1).Name & \"/\" & ws.Scenarios(1).Values(1) & \"/\" & ws.Scenarios(1).ChangingCells.Address & \"/\" & ws.Scenarios(1).ChangingCells.Parent.Name & \"/\" & ws.Scenarios(1).Comment & \"/\" & other.Scenarios.Count\n    Case 153\n        other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): ws.Scenarios.Merge \"Other\": r = ws.Scenarios.Count & \"/\" & ws.Scenarios(1).Name\n    Case 154\n        other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): ws.Scenarios.Add \"B\", ws.Range(\"A2\"), Array(1): ws.Scenarios.Merge other: r = ws.Scenarios.Count & \"/\" & ws.Scenarios(1).Name & \"/\" & ws.Scenarios(2).Name & \"/\" & ws.Scenarios(2).Values(1)\n    Case 155\n        other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): r = ws.Scenarios.Merge(other)\n    Case 156\n        r = ws.Scenarios.Merge(other)\n    Case 157\n        other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): saved.Worksheets(1).Scenarios.Merge other: r = saved.Worksheets(1).Scenarios.Count & \"/\" & saved.Worksheets(1).Scenarios(1).ChangingCells.Address\n    Case 158\n        other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): other.Scenarios.Add \"C\", other.Range(\"A1:A2\"), Array(1, 2), , True, True: ws.Scenarios.Merge other: r = ws.Scenarios.Count & \"/\" & ws.Scenarios(2).Name & \"/\" & ws.Scenarios(2).Locked & \"/\" & ws.Scenarios(2).Hidden & \"/\" & ws.Scenarios(2).ChangingCells.Address\n    Case 159\n        ws.Scenarios.CreateSummary\n    Case 160\n        r = wb.Sheets.HPageBreaks(1).Location.Address\n    Case 161\n        r = TypeName(wb.Sheets.HPageBreaks.Item(1))\n    Case 162\n        r = wb.Sheets.HPageBreaks(\"x\").Type\n    Case 163\n        r = wb.Sheets.VPageBreaks(1).Type\n    Case 164\n        r = wb.Sheets.HPageBreaks.Add(ws.Range(\"A5\")).Type\n    Case 165\n        r = TypeName(ws.PageSetup.Pages(\"x\"))\n    Case 166\n        r = ws.PageSetup.Pages.Item(1).Type\n    Case 167\n        r = TypeName(ws.PageSetup.Pages.Parent)\n    Case 168\n        saved.ChangeFileAccess xlReadOnly: saved.ChangeFileAccess xlReadWrite: r = saved.ReadOnly\n    Case 169\n        saved.Worksheets(1).Range(\"A1\").Value = 1: saved.ChangeFileAccess xlReadOnly: r = saved.Worksheets(1).Range(\"A1\").Value & \"/\" & saved.ReadOnly & \"/\" & saved.Saved\n    Case 170\n        saved.Worksheets(1).Range(\"A1\").Value = 1: saved.ChangeFileAccess xlReadOnly: saved.ChangeFileAccess xlReadWrite: r = saved.Worksheets(1).Range(\"A1\").Value & \"/\" & saved.ReadOnly & \"/\" & saved.Saved\n    Case 171\n        saved.ChangeFileAccess \"x\"\n    Case 172\n        saved.ChangeFileAccess 3\n    Case 173\n        saved.ChangeFileAccess Mode:=xlReadOnly, WritePassword:=\"p\": r = saved.ReadOnly\n    Case 174\n        ws.Range(\"A1:B1\").Value = Array(\"K\", \"V\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): Set x = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B2\")): x.CreatePivotTable other.Range(\"A1\"), \"P1\": r = wb.PivotTables.Count & \"/\" & other.PivotTables.Count & \"/\" & wb.PivotTables(1).Name & \"/\" & TypeName(wb.PivotTables(\"P1\"))\n    Case 175\n        r = wb.Theme.ThemeColorScheme.Colors(msoThemeAccent1).RGB\n    Case 176\n        r = wb.Theme.ThemeColorScheme.Colors(1.6).RGB\n    Case 177\n        wb.Theme.ThemeColorScheme.Colors(5) = 255\n    Case 178\n        r = wb.Theme.ThemeColorScheme.Colors(5)\n    Case 179\n        wb.Theme.ThemeColorScheme.Colors(5).RGB = -1\n    Case 180\n        wb.Theme.ThemeColorScheme.Colors(5).RGB = \"x\"\n    Case 181\n        wb.Theme.ThemeColorScheme.Colors(5).RGB = 16777216\n    Case 182\n        r = wb.Theme.ThemeColorScheme.Colors(5).Parent Is Nothing\n    Case 183\n        r = TypeName(wb.Theme.ThemeColorScheme.Parent)\n    Case 184\n        wb.Theme.ThemeFontScheme.MinorFont(1).Name = \"\": r = wb.Theme.ThemeFontScheme.MinorFont(1).Name\n    Case 185\n        wb.Theme.ThemeFontScheme.MajorFont(2).Name = \"Arial\": r = wb.Theme.ThemeFontScheme.MajorFont(2).Name\n    Case 186\n        r = wb.Theme.ThemeFontScheme.MinorFont(0).Name\n    Case 187\n        r = TypeName(wb.Theme.ThemeFontScheme.MinorFont.Item(1))\n    Case 188\n        r = TypeName(wb.Theme.ThemeFontScheme.Parent)\n    Case 189\n        wb.Theme.ThemeFontScheme.MinorFont(1).Name = 5: r = wb.Theme.ThemeFontScheme.MinorFont(1).Name\n    Case 190\n        saved.Theme.ThemeColorScheme.Colors(5).RGB = 255: saved.Save: Set x = saved: n = saved.FullName: saved.Close False: Set saved = Workbooks.Open(n): r = saved.Theme.ThemeColorScheme.Colors(5).RGB\n    Case 191\n        saved.Theme.ThemeFontScheme.MinorFont(1).Name = \"Arial\": saved.Save: n = saved.FullName: saved.Close False: Set saved = Workbooks.Open(n): r = saved.Theme.ThemeFontScheme.MinorFont(1).Name & \"/\" & saved.Worksheets(1).Range(\"A1\").Font.Name\n    Case 192\n        r = wb.WorkIdentity = \"\"\n    Case 193\n        r = TypeName(wb.UserStatus(1))\n    Case 194\n        x2 = wb.UserStatus: r = TypeName(x2(1, 1)) & \"/\" & TypeName(x2(1, 2)) & \"/\" & TypeName(x2(1, 3)) & \"/\" & x2(1, 3) & \"/\" & LBound(x2, 1) & \"/\" & LBound(x2, 2) & \"/\" & (x2(1, 1) = Application.UserName)\n    Case 195\n        x2 = saved.UserStatus: r = x2(1, 3)\n    Case 196\n        r = TypeName(wb.WebOptions.Parent)\n    Case 197\n        r = wb.WebOptions.RelyOnCSS & \"/\" & wb.WebOptions.OrganizeInFolder & \"/\" & wb.WebOptions.UseLongFileNames & \"/\" & wb.WebOptions.DownloadComponents & \"/\" & wb.WebOptions.RelyOnVML & \"/\" & wb.WebOptions.AllowPNG & \"/\" & wb.WebOptions.ScreenSize & \"/\" & wb.WebOptions.TargetBrowser & \"/\" & wb.WebOptions.LocationOfComponents & \"/\" & wb.WebOptions.FolderSuffix\n    Case 198\n        r = TypeName(wb.Model.Parent)\n    Case 199\n        r = TypeName(wb.Model.ModelTables)\n    Case 200\n        r = wb.Model.ModelRelationships.Count\n    Case 201\n        r = TypeName(wb.Signatures.Parent)\n    Case 202\n        r = TypeName(wb.Signatures(1))\n    Case 203\n        r = wb.DocumentInspectors.Count\n    Case 204\n        r = wb.CustomXMLParts.Count & \"/\" & TypeName(wb.CustomXMLParts.Parent)\n    Case 205\n        Set x = wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\" />\"): r = x.XML\n    Case 206\n        Set x = wb.CustomXMLParts(1): r = Len(x.XML) > 0\n    Case 207\n        Set x = wb.CustomXMLParts.Add(\"<a/>\"): x.Delete: r = wb.CustomXMLParts.Count: r = r & \"/\" & x.BuiltIn\n    Case 208\n        Set x = wb.CustomXMLParts.Add(\"<a/>\"): wb.CustomXMLParts.Add \"<b/>\": r = wb.CustomXMLParts(4).XML & \"/\" & wb.CustomXMLParts(5).XML\n    Case 209\n        r = wb.CustomXMLParts.Item(1).BuiltIn\n    Case 210\n        For Each x In wb.CustomXMLParts: i = i + 1: Next: r = i\n    Case 211\n        r = wb.CustomXMLParts(\"x\").BuiltIn\n    Case 212\n        r = wb.CustomXMLParts(0).BuiltIn\n    Case 213\n        wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": r = wb.CustomXMLParts.SelectByNamespace(\"urn:X\").Count\n    Case 214\n        r = wb.CustomXMLParts.Add(\"\").BuiltIn\n    Case 215\n        r = TypeName(wb.CustomXMLParts.SelectByNamespace(\"urn:y\"))\n    Case 216\n        wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": wb.CustomXMLParts.Add \"<b xmlns=\"\"urn:x\"\"/>\": r = wb.CustomXMLParts.SelectByNamespace(\"urn:x\")(2).XML\n    Case 217\n        saved.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\": saved.Save: n = saved.FullName: saved.Close False: Set saved = Workbooks.Open(n): r = saved.CustomXMLParts.Count & \"/\" & saved.CustomXMLParts(4).XML\n    Case 218\n        r = TypeName(ws.PageSetup.CenterHeaderPicture.Parent)\n    Case 219\n        ws.PageSetup.LeftHeaderPicture.Filename = \"nope.png\"\n    Case 220\n        r = ws.PageSetup.LeftHeaderPicture.Height\n    Case 221\n        r = ws.PageSetup.LeftHeaderPicture.LockAspectRatio\n    End Select\nEnd Sub\n",
+ "cases": [
+  [
+   "r = TypeName(wb.PivotTables)",
+   "ok String:PivotTables"
+  ],
+  [
+   "r = wb.PivotTables.Count",
+   "ok Long:0"
+  ],
+  [
+   "Set x = wb.PivotTables(1)",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(wb.PivotTables(\"x\"))",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(wb.Theme)",
+   "ok String:OfficeTheme"
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeColorScheme)",
+   "ok String:ThemeColorScheme"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Count",
+   "ok Long:12"
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeColorScheme.Colors(1))",
+   "ok String:ThemeColor"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(1).RGB",
+   "ok Long:0"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(2).RGB",
+   "ok Long:16777215"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(3).RGB",
+   "ok Long:4270094"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(4).RGB",
+   "ok Long:15263976"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(5).RGB",
+   "ok Long:8544277"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(6).RGB",
+   "ok Long:3305961"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(7).RGB",
+   "ok Long:2386713"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(8).RGB",
+   "ok Long:13999631"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(9).RGB",
+   "ok Long:9644960"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(10).RGB",
+   "ok Long:3057486"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(11).RGB",
+   "ok Long:8812614"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(12).RGB",
+   "ok Long:8216726"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(0).RGB",
+   "Err 5 The specified value is out of range."
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(13).RGB",
+   "Err 5 The specified value is out of range."
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(\"x\").RGB",
+   "Err 13 Type mismatch"
+  ],
+  [
+   "wb.Theme.ThemeColorScheme.Colors(5).RGB = 255: r = wb.Theme.ThemeColorScheme.Colors(5).RGB",
+   "ok Long:255"
+  ],
+  [
+   "wb.Theme.ThemeColorScheme.Colors(5).RGB = 255: ws.Range(\"A1\").Interior.ThemeColor = 5: r = ws.Range(\"A1\").Interior.Color",
+   "ok Double:255"
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeFontScheme)",
+   "ok String:ThemeFontScheme"
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeFontScheme.MajorFont)",
+   "ok String:ThemeFonts"
+  ],
+  [
+   "r = wb.Theme.ThemeFontScheme.MajorFont.Count",
+   "ok Long:3"
+  ],
+  [
+   "r = wb.Theme.ThemeFontScheme.MajorFont(1).Name",
+   "ok String:Aptos Display"
+  ],
+  [
+   "r = wb.Theme.ThemeFontScheme.MinorFont(1).Name",
+   "ok String:Aptos Narrow"
+  ],
+  [
+   "r = wb.Theme.ThemeFontScheme.MajorFont(2).Name",
+   "ok String:"
+  ],
+  [
+   "r = wb.Theme.ThemeFontScheme.MajorFont(3).Name",
+   "ok String:"
+  ],
+  [
+   "r = wb.Theme.ThemeFontScheme.MajorFont(4).Name",
+   "Err 5 The specified value is out of range."
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeFontScheme.MajorFont(1))",
+   "ok String:ThemeFont"
+  ],
+  [
+   "wb.Theme.ThemeFontScheme.MinorFont(1).Name = \"Arial\": r = wb.Theme.ThemeFontScheme.MinorFont(1).Name & \"/\" & ws.Range(\"A1\").Font.Name",
+   "ok String:Arial/Arial"
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeEffectScheme)",
+   "ok String:ThemeEffectScheme"
+  ],
+  [
+   "r = TypeName(wb.Theme.Parent)",
+   "ok String:Workbook"
+  ],
+  [
+   "r = TypeName(wb.Theme.Application)",
+   "ok String:Application"
+  ],
+  [
+   "wb.ApplyTheme \"\"",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.ApplyTheme \"nothing.thmx\"",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.ApplyTheme",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "r = TypeName(wb.CustomXMLParts)",
+   "ok String:CustomXMLParts"
+  ],
+  [
+   "r = wb.CustomXMLParts.Count",
+   "ok Long:3"
+  ],
+  [
+   "r = wb.CustomXMLParts(1).BuiltIn",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.CustomXMLParts(1).NamespaceURI",
+   "ok String:http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+  ],
+  [
+   "r = wb.CustomXMLParts(2).NamespaceURI",
+   "ok String:http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
+  ],
+  [
+   "r = wb.CustomXMLParts(3).NamespaceURI",
+   "ok String:http://schemas.microsoft.com/office/2006/coverPageProps"
+  ],
+  [
+   "r = wb.CustomXMLParts(4).NamespaceURI",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = TypeName(wb.CustomXMLParts(1))",
+   "ok String:CustomXMLPart"
+  ],
+  [
+   "r = TypeName(wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\"))",
+   "ok String:CustomXMLPart"
+  ],
+  [
+   "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\": r = wb.CustomXMLParts.Count",
+   "ok Long:4"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\").XML",
+   "ok String:<a xmlns=\"urn:x\"><b>1</b></a>"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"/>\").NamespaceURI",
+   "ok String:urn:x"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"<a/>\").NamespaceURI",
+   "ok String:"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"<a/>\").BuiltIn",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add().Count",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"not xml\").XML",
+   "Err -2147467259 Invalid at the top level of the document.\n"
+  ],
+  [
+   "wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\"/>\").Delete: r = wb.CustomXMLParts.Count",
+   "ok Long:3"
+  ],
+  [
+   "wb.CustomXMLParts(1).Delete",
+   "Err -536602603 This custom XML part is required for Office to function properly and cannot be deleted."
+  ],
+  [
+   "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": r = wb.CustomXMLParts.SelectByNamespace(\"urn:x\").Count",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.CustomXMLParts.SelectByNamespace(\"urn:y\").Count",
+   "ok Long:0"
+  ],
+  [
+   "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": r = TypeName(wb.CustomXMLParts.SelectByID(wb.CustomXMLParts(4).ID))",
+   "ok String:CustomXMLPart"
+  ],
+  [
+   "r = wb.CustomXMLParts(4).ID <> \"\"",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = TypeName(wb.CustomXMLParts.SelectByID(\"nope\"))",
+   "ok String:Nothing"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"<a><b>1</b></a>\").SelectSingleNode(\"/a/b\").Text",
+   "ok String:1"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"<a><b>1</b></a>\").DocumentElement.BaseName",
+   "ok String:a"
+  ],
+  [
+   "r = TypeName(wb.NewWindow)",
+   "ok String:Window"
+  ],
+  [
+   "wb.NewWindow: r = wb.Windows.Count & \"/\" & wb.Windows(1).Caption & \"/\" & wb.Windows(2).Caption",
+   "ok String:2/Sheet135  -  2/Sheet135  -  1"
+  ],
+  [
+   "r = wb.NewWindow.WindowNumber",
+   "ok Double:2"
+  ],
+  [
+   "r = TypeName(wb.WebOptions)",
+   "ok String:WebOptions"
+  ],
+  [
+   "r = wb.WebOptions.Encoding",
+   "ok Long:1252"
+  ],
+  [
+   "r = wb.WebOptions.PixelsPerInch",
+   "ok Long:96"
+  ],
+  [
+   "r = wb.[_CodeName]",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "wb.[_CodeName] = \"Mine\": r = wb.CodeName",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "wb.ChangeFileAccess xlReadOnly",
+   "Err 1004 ChangeFileAccess method of Workbook class failed"
+  ],
+  [
+   "saved.ChangeFileAccess xlReadOnly: r = saved.ReadOnly",
+   "ok Boolean:True"
+  ],
+  [
+   "saved.ChangeFileAccess xlReadWrite: r = saved.ReadOnly",
+   "Err 1004 ChangeFileAccess method of Workbook class failed"
+  ],
+  [
+   "saved.ChangeFileAccess 5",
+   "Err 1004 ChangeFileAccess method of Workbook class failed"
+  ],
+  [
+   "saved.ChangeFileAccess Mode:=xlReadOnly, Notify:=False: r = saved.ReadOnly",
+   "ok Boolean:True"
+  ],
+  [
+   "saved.ChangeFileAccess",
+   "Err 449 Argument not optional"
+  ],
+  [
+   "r = saved.ChangeFileAccess(xlReadOnly)",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.WriteReservedBy = \"\"",
+   "ok Boolean:False"
+  ],
+  [
+   "r = saved.WriteReservedBy = \"\"",
+   "ok Boolean:False"
+  ],
+  [
+   "r = IsEmpty(wb.UserStatus)",
+   "ok Boolean:False"
+  ],
+  [
+   "r = TypeName(wb.UserStatus)",
+   "ok String:Variant()"
+  ],
+  [
+   "r = UBound(wb.UserStatus, 1) & \"/\" & UBound(wb.UserStatus, 2)",
+   "ok String:1/3"
+  ],
+  [
+   "r = wb.UserStatus(1, 1) = Application.UserName",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "r = wb.UserStatus(1, 3)",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "r = TypeName(wb.Signatures)",
+   "ok String:SignatureSet"
+  ],
+  [
+   "r = wb.Signatures.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(wb.ServerViewableItems)",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = wb.ServerViewableItems.Count",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(wb.DocumentInspectors)",
+   "ok String:DocumentInspectors"
+  ],
+  [
+   "r = wb.DocumentInspectors.Count > 0",
+   "ok Boolean:True"
+  ],
+  [
+   "r = TypeName(wb.Model)",
+   "ok String:Model"
+  ],
+  [
+   "r = wb.Model.ModelTables.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(wb.WorkIdentity)",
+   "ok String:String"
+  ],
+  [
+   "r = TypeName(wb.SensitivityLabel)",
+   "Err -2147220725 Method 'SensitivityLabel' of object '_Workbook' failed"
+  ],
+  [
+   "r = TypeName(wb.SmartDocument)",
+   "ok String:SmartDocument"
+  ],
+  [
+   "r = TypeName(wb.CommandBars)",
+   "ok String:Nothing"
+  ],
+  [
+   "wb.AcceptAllChanges",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.RejectAllChanges",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.EndReview",
+   "Err 1004 The current document hasn't been sent for review."
+  ],
+  [
+   "wb.Reply",
+   "Err 1004 Reply method of Workbook class failed"
+  ],
+  [
+   "wb.ReplyAll",
+   "Err 1004 ReplyAll method of Workbook class failed"
+  ],
+  [
+   "wb.ReplyWithChanges",
+   "Err 1004 This document is not currently in a review cycle."
+  ],
+  [
+   "wb.UnprotectSharing",
+   "ok Empty:"
+  ],
+  [
+   "wb.RemoveUser 1",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.PurgeChangeHistoryNow 30",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.HighlightChangesOptions",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.Sync",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "wb.ReloadAs",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "wb.LockServerFile",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.CheckIn",
+   "Err 1004 This document cannot be checked in."
+  ],
+  [
+   "wb.CheckInWithVersion",
+   "Err 1004 This document cannot be checked in."
+  ],
+  [
+   "wb.ToggleFormsDesign",
+   "breaks: runner-error "
+  ],
+  [
+   "r = TypeName(wb.GetWorkflowTasks)",
+   "Err -2147467259 Method 'GetWorkflowTasks' of object '_Workbook' failed"
+  ],
+  [
+   "r = TypeName(wb.GetWorkflowTemplates)",
+   "Err -2147467259 Method 'GetWorkflowTemplates' of object '_Workbook' failed"
+  ],
+  [
+   "wb.AddToFavorites",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "wb.Mailer",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "wb.UpdateFromFile",
+   "Err 1004 UpdateFromFile method of Workbook class failed"
+  ],
+  [
+   "saved.UpdateFromFile",
+   "Err 1004 UpdateFromFile method of Workbook class failed"
+  ],
+  [
+   "wb.Post",
+   "Err 1004 Post method of Workbook class failed"
+  ],
+  [
+   "wb.Research",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = TypeName(wb.Sheets.HPageBreaks)",
+   "ok String:HPageBreaks"
+  ],
+  [
+   "r = wb.Sheets.HPageBreaks.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = wb.Sheets.VPageBreaks.Count",
+   "ok Long:0"
+  ],
+  [
+   "ws.Rows(5).PageBreak = xlPageBreakManual: r = wb.Sheets.HPageBreaks.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(wb.Worksheets.HPageBreaks)",
+   "ok String:HPageBreaks"
+  ],
+  [
+   "wb.Worksheets.Add: wb.Sheets.Select: r = wb.Sheets.VPageBreaks.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.Pages)",
+   "ok String:Pages"
+  ],
+  [
+   "r = ws.PageSetup.Pages.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.Pages(1))",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = ws.PageSetup.Pages(1).CenterHeader.Text",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.Pages(1).CenterHeader)",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.LeftHeaderPicture)",
+   "ok String:Graphic"
+  ],
+  [
+   "r = ws.PageSetup.LeftHeaderPicture.Filename",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.RightFooterPicture)",
+   "ok String:Graphic"
+  ],
+  [
+   "r = ws.PrintedCommentPages",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(ws.PrintedCommentPages)",
+   "ok String:Long"
+  ],
+  [
+   "r = TypeName(ws.XmlDataQuery(\"/a\"))",
+   "ok String:Nothing"
+  ],
+  [
+   "r = TypeName(ws.XmlMapQuery(\"/a\"))",
+   "ok String:Nothing"
+  ],
+  [
+   "r = TypeName(ws.MailEnvelope)",
+   "Err -2147467259 Method 'MailEnvelope' of object '_Worksheet' failed"
+  ],
+  [
+   "For Each x In Workbooks: i = i + 1: Next: r = i > 0",
+   "ok Boolean:True"
+  ],
+  [
+   "For Each x In wb.Sheets: i = i + 1: Next: r = i",
+   "ok Long:2"
+  ],
+  [
+   "Set x = wb.Sheets.[_NewEnum]: r = TypeName(x)",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = Workbooks.CanCheckOut(\"nope.xlsx\")",
+   "Err 1004 Sorry, we couldn't find nope.xlsx. Is it possible it was moved, renamed or deleted?"
+  ],
+  [
+   "For Each x In ws.Scenarios: i = i + 1: Next: r = i",
+   "ok Long:0"
+  ],
+  [
+   "ws.Scenarios.Add \"A\", ws.Range(\"A1\"), Array(5): For Each x In ws.Scenarios: r = x.Name: Next",
+   "ok String:A"
+  ],
+  [
+   "ws.Scenarios.Merge ws",
+   "Err 1004 Merge method of Scenarios class failed"
+  ],
+  [
+   "ws.Scenarios.Merge \"Nope\"",
+   "Err 1004 Merge method of Scenarios class failed"
+  ],
+  [
+   "ws.Scenarios.Merge",
+   "Err 449 Argument not optional"
+  ],
+  [
+   "other.Range(\"A1\").Value = 3: other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7), \"Why\": ws.Scenarios.Merge other: r = ws.Scenarios.Count & \"/\" & ws.Scenarios(1).Name & \"/\" & ws.Scenarios(1).Values(1) & \"/\" & ws.Scenarios(1).ChangingCells.Address & \"/\" & ws.Scenarios(1).ChangingCells.Parent.Name & \"/\" & ws.Scenarios(1).Comment & \"/\" & other.Scenarios.Count",
+   "ok String:1/B/7/$A$1/Sheet1/Why/1"
+  ],
+  [
+   "other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): ws.Scenarios.Merge \"Other\": r = ws.Scenarios.Count & \"/\" & ws.Scenarios(1).Name",
+   "ok String:1/B"
+  ],
+  [
+   "other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): ws.Scenarios.Add \"B\", ws.Range(\"A2\"), Array(1): ws.Scenarios.Merge other: r = ws.Scenarios.Count & \"/\" & ws.Scenarios(1).Name & \"/\" & ws.Scenarios(2).Name & \"/\" & ws.Scenarios(2).Values(1)",
+   "ok String:2/B/B 11/3/2026/7"
+  ],
+  [
+   "other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): r = ws.Scenarios.Merge(other)",
+   "ok Boolean:True"
+  ],
+  [
+   "r = ws.Scenarios.Merge(other)",
+   "Err 1004 Unable to get the Merge property of the Scenarios class"
+  ],
+  [
+   "other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): saved.Worksheets(1).Scenarios.Merge other: r = saved.Worksheets(1).Scenarios.Count & \"/\" & saved.Worksheets(1).Scenarios(1).ChangingCells.Address",
+   "ok String:1/$A$1"
+  ],
+  [
+   "other.Scenarios.Add \"B\", other.Range(\"A1\"), Array(7): other.Scenarios.Add \"C\", other.Range(\"A1:A2\"), Array(1, 2), , True, True: ws.Scenarios.Merge other: r = ws.Scenarios.Count & \"/\" & ws.Scenarios(2).Name & \"/\" & ws.Scenarios(2).Locked & \"/\" & ws.Scenarios(2).Hidden & \"/\" & ws.Scenarios(2).ChangingCells.Address",
+   "ok String:2/C/True/True/$A$1:$A$2"
+  ],
+  [
+   "ws.Scenarios.CreateSummary",
+   "Err 1004 CreateSummary method of Scenarios class failed"
+  ],
+  [
+   "r = wb.Sheets.HPageBreaks(1).Location.Address",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = TypeName(wb.Sheets.HPageBreaks.Item(1))",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = wb.Sheets.HPageBreaks(\"x\").Type",
+   "Err 13 Type mismatch"
+  ],
+  [
+   "r = wb.Sheets.VPageBreaks(1).Type",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = wb.Sheets.HPageBreaks.Add(ws.Range(\"A5\")).Type",
+   "ok Long:-4135"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.Pages(\"x\"))",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = ws.PageSetup.Pages.Item(1).Type",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.Pages.Parent)",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "saved.ChangeFileAccess xlReadOnly: saved.ChangeFileAccess xlReadWrite: r = saved.ReadOnly",
+   "Err 424 Object required"
+  ],
+  [
+   "saved.Worksheets(1).Range(\"A1\").Value = 1: saved.ChangeFileAccess xlReadOnly: r = saved.Worksheets(1).Range(\"A1\").Value & \"/\" & saved.ReadOnly & \"/\" & saved.Saved",
+   "ok String:1/True/True"
+  ],
+  [
+   "saved.Worksheets(1).Range(\"A1\").Value = 1: saved.ChangeFileAccess xlReadOnly: saved.ChangeFileAccess xlReadWrite: r = saved.Worksheets(1).Range(\"A1\").Value & \"/\" & saved.ReadOnly & \"/\" & saved.Saved",
+   "Err 424 Object required"
+  ],
+  [
+   "saved.ChangeFileAccess \"x\"",
+   "Err 1004 ChangeFileAccess method of Workbook class failed"
+  ],
+  [
+   "saved.ChangeFileAccess 3",
+   "ok Empty:"
+  ],
+  [
+   "saved.ChangeFileAccess Mode:=xlReadOnly, WritePassword:=\"p\": r = saved.ReadOnly",
+   "ok Boolean:True"
+  ],
+  [
+   "ws.Range(\"A1:B1\").Value = Array(\"K\", \"V\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): Set x = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B2\")): x.CreatePivotTable other.Range(\"A1\"), \"P1\": r = wb.PivotTables.Count & \"/\" & other.PivotTables.Count & \"/\" & wb.PivotTables(1).Name & \"/\" & TypeName(wb.PivotTables(\"P1\"))",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(msoThemeAccent1).RGB",
+   "ok Long:8544277"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(1.6).RGB",
+   "ok Long:16777215"
+  ],
+  [
+   "wb.Theme.ThemeColorScheme.Colors(5) = 255",
+   "ok Empty:"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(5)",
+   "ok Long:8544277"
+  ],
+  [
+   "wb.Theme.ThemeColorScheme.Colors(5).RGB = -1",
+   "ok Empty:"
+  ],
+  [
+   "wb.Theme.ThemeColorScheme.Colors(5).RGB = \"x\"",
+   "Err 13 Type mismatch"
+  ],
+  [
+   "wb.Theme.ThemeColorScheme.Colors(5).RGB = 16777216",
+   "ok Empty:"
+  ],
+  [
+   "r = wb.Theme.ThemeColorScheme.Colors(5).Parent Is Nothing",
+   "ok Boolean:False"
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeColorScheme.Parent)",
+   "ok String:OfficeTheme"
+  ],
+  [
+   "wb.Theme.ThemeFontScheme.MinorFont(1).Name = \"\": r = wb.Theme.ThemeFontScheme.MinorFont(1).Name",
+   "ok String:"
+  ],
+  [
+   "wb.Theme.ThemeFontScheme.MajorFont(2).Name = \"Arial\": r = wb.Theme.ThemeFontScheme.MajorFont(2).Name",
+   "ok String:Arial"
+  ],
+  [
+   "r = wb.Theme.ThemeFontScheme.MinorFont(0).Name",
+   "Err 5 The specified value is out of range."
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeFontScheme.MinorFont.Item(1))",
+   "ok String:ThemeFont"
+  ],
+  [
+   "r = TypeName(wb.Theme.ThemeFontScheme.Parent)",
+   "ok String:OfficeTheme"
+  ],
+  [
+   "wb.Theme.ThemeFontScheme.MinorFont(1).Name = 5: r = wb.Theme.ThemeFontScheme.MinorFont(1).Name",
+   "ok String:5"
+  ],
+  [
+   "saved.Theme.ThemeColorScheme.Colors(5).RGB = 255: saved.Save: Set x = saved: n = saved.FullName: saved.Close False: Set saved = Workbooks.Open(n): r = saved.Theme.ThemeColorScheme.Colors(5).RGB",
+   "ok Long:255"
+  ],
+  [
+   "saved.Theme.ThemeFontScheme.MinorFont(1).Name = \"Arial\": saved.Save: n = saved.FullName: saved.Close False: Set saved = Workbooks.Open(n): r = saved.Theme.ThemeFontScheme.MinorFont(1).Name & \"/\" & saved.Worksheets(1).Range(\"A1\").Font.Name",
+   "ok String:Arial/Arial"
+  ],
+  [
+   "r = wb.WorkIdentity = \"\"",
+   "ok Boolean:True"
+  ],
+  [
+   "r = TypeName(wb.UserStatus(1))",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   "x2 = wb.UserStatus: r = TypeName(x2(1, 1)) & \"/\" & TypeName(x2(1, 2)) & \"/\" & TypeName(x2(1, 3)) & \"/\" & x2(1, 3) & \"/\" & LBound(x2, 1) & \"/\" & LBound(x2, 2) & \"/\" & (x2(1, 1) = Application.UserName)",
+   "ok String:String/String/Long/1/1/1/True"
+  ],
+  [
+   "x2 = saved.UserStatus: r = x2(1, 3)",
+   "ok Long:1"
+  ],
+  [
+   "r = TypeName(wb.WebOptions.Parent)",
+   "ok String:Workbook"
+  ],
+  [
+   "r = wb.WebOptions.RelyOnCSS & \"/\" & wb.WebOptions.OrganizeInFolder & \"/\" & wb.WebOptions.UseLongFileNames & \"/\" & wb.WebOptions.DownloadComponents & \"/\" & wb.WebOptions.RelyOnVML & \"/\" & wb.WebOptions.AllowPNG & \"/\" & wb.WebOptions.ScreenSize & \"/\" & wb.WebOptions.TargetBrowser & \"/\" & wb.WebOptions.LocationOfComponents & \"/\" & wb.WebOptions.FolderSuffix",
+   "ok String:True/True/True/False/False/True/4/4//_files"
+  ],
+  [
+   "r = TypeName(wb.Model.Parent)",
+   "ok String:Workbook"
+  ],
+  [
+   "r = TypeName(wb.Model.ModelTables)",
+   "ok String:ModelTables"
+  ],
+  [
+   "r = wb.Model.ModelRelationships.Count",
+   "ok Long:0"
+  ],
+  [
+   "r = TypeName(wb.Signatures.Parent)",
+   "ok String:Workbook"
+  ],
+  [
+   "r = TypeName(wb.Signatures(1))",
+   "Err 440 Automation error"
+  ],
+  [
+   "r = wb.DocumentInspectors.Count",
+   "ok Long:5"
+  ],
+  [
+   "r = wb.CustomXMLParts.Count & \"/\" & TypeName(wb.CustomXMLParts.Parent)",
+   "ok String:3/Workbook"
+  ],
+  [
+   "Set x = wb.CustomXMLParts.Add(\"<a xmlns=\"\"urn:x\"\" />\"): r = x.XML",
+   "ok String:<a xmlns=\"urn:x\"/>"
+  ],
+  [
+   "Set x = wb.CustomXMLParts(1): r = Len(x.XML) > 0",
+   "ok Boolean:True"
+  ],
+  [
+   "Set x = wb.CustomXMLParts.Add(\"<a/>\"): x.Delete: r = wb.CustomXMLParts.Count: r = r & \"/\" & x.BuiltIn",
+   "ok String:3/False"
+  ],
+  [
+   "Set x = wb.CustomXMLParts.Add(\"<a/>\"): wb.CustomXMLParts.Add \"<b/>\": r = wb.CustomXMLParts(4).XML & \"/\" & wb.CustomXMLParts(5).XML",
+   "ok String:<a/>/<b/>"
+  ],
+  [
+   "r = wb.CustomXMLParts.Item(1).BuiltIn",
+   "ok Boolean:True"
+  ],
+  [
+   "For Each x In wb.CustomXMLParts: i = i + 1: Next: r = i",
+   "ok Long:3"
+  ],
+  [
+   "r = wb.CustomXMLParts(\"x\").BuiltIn",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   "r = wb.CustomXMLParts(0).BuiltIn",
+   "Err 5 This operation failed because one or more changes made during events were invalid."
+  ],
+  [
+   "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": r = wb.CustomXMLParts.SelectByNamespace(\"urn:X\").Count",
+   "ok Long:0"
+  ],
+  [
+   "r = wb.CustomXMLParts.Add(\"\").BuiltIn",
+   "ok Boolean:False"
+  ],
+  [
+   "r = TypeName(wb.CustomXMLParts.SelectByNamespace(\"urn:y\"))",
+   "ok String:CustomXMLParts"
+  ],
+  [
+   "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"/>\": wb.CustomXMLParts.Add \"<b xmlns=\"\"urn:x\"\"/>\": r = wb.CustomXMLParts.SelectByNamespace(\"urn:x\")(2).XML",
+   "ok String:<b xmlns=\"urn:x\"/>"
+  ],
+  [
+   "saved.CustomXMLParts.Add \"<a xmlns=\"\"urn:x\"\"><b>1</b></a>\": saved.Save: n = saved.FullName: saved.Close False: Set saved = Workbooks.Open(n): r = saved.CustomXMLParts.Count & \"/\" & saved.CustomXMLParts(4).XML",
+   "ok String:4/<a xmlns=\"urn:x\"><b>1</b></a>"
+  ],
+  [
+   "r = TypeName(ws.PageSetup.CenterHeaderPicture.Parent)",
+   "ok String:PageSetup"
+  ],
+  [
+   "ws.PageSetup.LeftHeaderPicture.Filename = \"nope.png\"",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = ws.PageSetup.LeftHeaderPicture.Height",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "r = ws.PageSetup.LeftHeaderPicture.LockAspectRatio",
+   "Err 1004 Application-defined or object-defined error"
+  ]
+ ]
+}

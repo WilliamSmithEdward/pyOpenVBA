@@ -244,7 +244,10 @@ class DisplayFormat(ExcelObject):
         self.target, self.sheet = target, target.sheet
 
     def guard_set(self, member: str) -> None:
-        raise error(424)
+        # Bound early, as Range(...).DisplayFormat is, assigning is 424 (tests/fixtures/conditional/display.json); the
+        # three every object has can only be assigned late bound, which is 450 (tests/fixtures/object_trio.json).
+        if member not in ('Application', 'Creator', 'Parent'):
+            raise error(424)
 
     @member
     def Parent(self) -> object:

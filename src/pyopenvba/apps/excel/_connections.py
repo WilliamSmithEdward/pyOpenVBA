@@ -342,7 +342,12 @@ class TextConnection(ExcelObject):
 
     @member
     def TextFileHeaderRow(self) -> object:
-        raise VBAUnsupportedError('TextConnection.TextFileHeaderRow, which a query table does not have, is not implemented')
+        """The one text member a query table does not have."""
+        return self.table().setting('TextFileHeaderRow', False)
+
+    @setter('TextFileHeaderRow')
+    def _set_header_row(self, value: object) -> None:
+        self.table().settings['TextFileHeaderRow'] = to_bool(value)
 
     @member
     def Parent(self) -> object:

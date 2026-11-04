@@ -16,14 +16,17 @@ Each table has a connection from the moment it is added, named after its file wi
 least once takes the connection with it; one never refreshed leaves it behind, an object Excel can barely use. Deleting
 the connection leaves the table, which then has none and cannot refresh.
 
-Deleting a table with a same-named one on another sheet, as a copied sheet has, costs the file the first sheet's: that
-sheet's table, its connection and its name are not saved, though it goes on answering that it has them. Excel does this
-every time; the model does the same, and refuses to refresh what the file has lost.
+Deleting a table while any open workbook has another of its name, as a copied sheet has but as two tables made apart have
+too, costs a file the second newest of them: that table, its connection and its name are not saved, though it goes on
+answering that it has them. Excel does this every time, with two tables of a name and with three; the model does the same,
+and refuses to refresh what the file has lost. Refused as unmeasured: more than three, a second deletion among them, one
+never refreshed, and a newer one placed before an older.
 """
 from __future__ import annotations
 
 import re
 from collections.abc import Callable
+from itertools import count
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -54,6 +57,8 @@ _RECONNECTIONS = {1: 2, 2: 3}
 _MAIN = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 _NS = '{' + _MAIN + '}'
 _DECLARATION = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
+#: Numbers the tables in the order they were made, which same-named tables lose out by.
+_MADE = count()
 #: What RefreshWithRefreshAll = False writes on a connection.
 _EXCLUDED = ('<extLst><ext uri="{DE250136-89BD-433C-8126-D09CA5730AF9}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">'
              '<x15:connection id="" excludeFromRefreshAll="1"/></ext></extLst>')
@@ -179,15 +184,18 @@ def free_name(book: Workbook, base: str) -> str:
 
 
 def refresh_all(book: Workbook) -> None:
-    """Workbook.RefreshAll over the tables: each refreshed before, with its connection there and not left out."""
+    """Workbook.RefreshAll over the tables: each refreshed before, with its connection there, not left out, refreshing
+    allowed and its file still there, the rest passed over without a word."""
     tables = [table for sheet in book.sheets_ for table in sheet.query_tables
-              if table.refreshed and not table.link.deleted and not table.link.excluded]
-    if tables and (book.queries_.entries or any(sheet.pivot_tables for sheet in book.sheets_)):
+              if table.refreshed and not table.link.deleted and not table.link.excluded and table.setting('EnableRefresh', True)]
+    if not tables:
+        return
+    if book.queries_.entries or any(sheet.pivot_tables for sheet in book.sheets_):
         raise VBAUnsupportedError('Workbook.RefreshAll over query tables and queries or pivot tables together is not implemented')
+    book.application.outside('Workbook.RefreshAll over a query table')
     for table in tables:
-        if not table.setting('EnableRefresh', True):
-            raise VBAUnsupportedError('Workbook.RefreshAll over a query table with EnableRefresh off is not implemented')
-        table.refresh()
+        if Path(table.source).is_file():
+            table.refresh()
 
 
 class QueryTable(Created):
@@ -206,6 +214,7 @@ class QueryTable(Created):
         self.link = TextLink(self, connection if connection is not None else free_name(sheet.book, self.stem))
         #: Lost from the file by the deletion of a same-named table (see the module's note).
         self.lost = False
+        self.made = next(_MADE)
 
     def setting(self, name: str, default: object) -> object:
         return self.settings.get(name, default)
@@ -304,6 +313,8 @@ class QueryTable(Created):
             raise error(*_APP_ERROR)
         if self.lost:
             raise VBAUnsupportedError('Refreshing a query table the file lost when a same-named one was deleted is not implemented')
+        if self.setting('TextFileHeaderRow', False):
+            raise VBAUnsupportedError('Refreshing a query table with TextFileHeaderRow set through its TextConnection is not implemented')
         rows = self._rows()
         origin = self.destination.areas[0]
         if not rows and self.setting('TextFileStartRow', 1) == 1:
@@ -511,18 +522,29 @@ class QueryTable(Created):
     @method
     def Delete(self) -> object:
         """The table gone, its cells and its name left; with a same-named table, see the module's note."""
-        book = self.sheet.book
-        same = [table for sheet in book.sheets_ for table in sheet.query_tables if table.name.lower() == self.name.lower()]
-        if len(same) > 1:
-            if len(same) > 2 or not all(table.refreshed for table in same):
-                raise VBAUnsupportedError('Deleting a query table with more than one same-named table, or one never refreshed, is not implemented')
-            same[0].lost = True
-            name = same[0]._entry()  # pyright: ignore[reportPrivateUsage]
-            if name is not None:
-                book.query_names_lost.append(name)
+        _lose_second_newest(self)
         self.sheet.query_tables.remove(self)
         self.sheet.book.saved = False
         return EMPTY
+
+
+def _lose_second_newest(table: QueryTable) -> None:
+    """What deleting a table costs a file where an open workbook has another of its name (see the module's note)."""
+    wanted = table.name.lower()
+    same = [((book_at, sheet_at), one) for book_at, book in enumerate(table.sheet.book.application.workbooks_.books)
+            for sheet_at, sheet in enumerate(book.sheets_) for one in sheet.query_tables if one.name.lower() == wanted]
+    if len(same) < 2:
+        return
+    placed = [place for place, _ in sorted(same, key=lambda found: found[1].made)]
+    same = sorted(same, key=lambda found: found[1].made)
+    if len(same) > 3 or any(one.lost or not one.refreshed for _, one in same) or placed != sorted(placed):
+        raise VBAUnsupportedError('Deleting a query table with these same-named tables, which Excel loses in ways not measured, is not implemented')
+    loser = same[-2][1]
+    loser.lost = True
+    name = loser._entry()  # pyright: ignore[reportPrivateUsage]
+    if name is not None:
+        loser.sheet.book.query_names_lost.append(name)
+        loser.sheet.book.names_.changed = True
 
 
 def copied_to(source: Worksheet, copied: Worksheet) -> None:
@@ -664,6 +686,8 @@ for _spec in (_kept('AdjustColumnWidth', True, to_bool), _kept('BackgroundQuery'
 
 def _connection_markup(table: QueryTable, number: int, name: str) -> str:
     get = table.setting
+    if get('TextFileHeaderRow', False):
+        raise VBAUnsupportedError('Saving a query table with TextFileHeaderRow set through its TextConnection is not implemented')
     method_ = _RECONNECTIONS.get(int(str(get('RobustConnect', 0))))
     attributes = f' id="{number}"'
     if get('SourceConnectionFile', ''):
@@ -772,17 +796,24 @@ def _tables(book: Workbook) -> list[QueryTable]:
     return [table for sheet in book.sheets_ for table in reversed(sheet.query_tables) if table.refreshed and not table.emptied and not table.lost]
 
 
-def _connection_names(tables: list[QueryTable]) -> dict[int, tuple[int, str]]:
-    """Each table's connection id and name, the ids in the order of the names (tests/fixtures/query_tables_saved.json)."""
-    ordered = sorted({table.link.name for table in tables}, key=str.lower)
-    return {id(table): (ordered.index(table.link.name) + 1, table.link.name) for table in tables}
+def _connection_names(tables: list[QueryTable], behind: list[TextLink]) -> dict[int, tuple[int, str]]:
+    """Each saved table's and left-behind link's connection id and name, the ids in the order of the names
+    (tests/fixtures/query_tables_saved.json, query_table_connections.json)."""
+    ordered = sorted({table.link.name for table in tables} | {link.name for link in behind}, key=str.lower)
+    found = {id(table): (ordered.index(table.link.name) + 1, table.link.name) for table in tables}
+    return found | {id(link): (ordered.index(link.name) + 1, link.name) for link in behind}
+
+
+def _left_behind(book: Workbook) -> list[TextLink]:
+    return [link for link in links(book) if link.left_behind]
 
 
 def _signature(book: Workbook) -> list[str]:
     tables = _tables(book)
-    numbers = _connection_names(tables)
+    behind = _left_behind(book)
+    numbers = _connection_names(tables, behind)
     return sorted([f'{table.sheet.part_name}|{_table_markup(table, numbers[id(table)][0])}|{_connection_markup(table, *numbers[id(table)])}' for table in tables]
-                  + [_left_behind_markup(link, 0) for link in links(book) if link.left_behind])
+                  + [_left_behind_markup(link, numbers[id(link)][0]) for link in behind])
 
 
 def connections_stale(book: Workbook) -> bool:
@@ -944,13 +975,12 @@ def write(book: Workbook, package: OpcFile, add_relationship: Callable[..., str]
                 text = package.read(types).decode('utf-8')
                 package.write(types, re.sub(rf'<Override PartName="/{re.escape(part)}"[^>]*/>', '', text).encode('utf-8'))
     tables = _tables(book)
-    numbers = _connection_names(tables)
+    behind = _left_behind(book)
+    numbers = _connection_names(tables, behind)
     rels = 'xl/_rels/workbook.xml.rels'
-    behind = [link for link in links(book) if link.left_behind]
-    if behind and tables:
-        raise VBAUnsupportedError('Saving a connection a deleted query table left behind alongside other query tables is not implemented')
-    if any(table.link.deleted for table in tables) and len(links(book)) > 1:
-        raise VBAUnsupportedError('Saving a query table whose connection was deleted alongside another connection is not implemented')
+    deleted = {table.link.name.casefold() for table in tables if table.link.deleted}
+    if any(link.name.casefold() in deleted and not link.deleted for link in links(book)):
+        raise VBAUnsupportedError("Saving a query table whose deleted connection's name a newer table took is not implemented: Excel ties the two together")
     if not tables and not behind:
         if package.has(CONNECTIONS_PART):
             package.remove(CONNECTIONS_PART)
@@ -971,8 +1001,9 @@ def write(book: Workbook, package: OpcFile, add_relationship: Callable[..., str]
         used = {int(found) for found in re.findall(r'Id="rId(\d+)"', text)}
         relationship = f'<Relationship Id="rId{max(used, default=0) + 1}" Type="{CONNECTIONS_RELATIONSHIP}" Target="connections.xml"/>'
         package.write(rels, text.replace('</Relationships>', relationship + '</Relationships>').encode('utf-8'))
-    entries = [_connection_markup(table, *numbers[id(table)]) for table in sorted(tables, key=lambda one: numbers[id(one)][0])]
-    entries = list(dict.fromkeys(entries)) + [_left_behind_markup(link, number) for number, link in enumerate(sorted(behind, key=lambda one: one.name.lower()), start=1)]
+    written = {numbers[id(table)][0]: _connection_markup(table, *numbers[id(table)]) for table in tables}
+    written |= {numbers[id(link)][0]: _left_behind_markup(link, numbers[id(link)][0]) for link in behind}
+    entries = [written[number] for number in sorted(written)]
     package.write(CONNECTIONS_PART, (f'{_DECLARATION}<connections xmlns="{_MAIN}">{"".join(entries)}</connections>').encode('utf-8'))
     book.query_baseline = _signature(book)
 

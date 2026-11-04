@@ -21,8 +21,8 @@ NAMES = [case[0] for case in RECORD['cases']]
 STOPPED = [index for index, case in enumerate(RECORD['cases']) if case[1].startswith('STOPPED')]
 #: Refused at the save: Excel's file then ties the first table to the new table's connection.
 UNSAVED = [index for index, name in enumerate(NAMES) if 'q.WorkbookConnection: c.Delete: Set o = ' in name and 'Refresh False' in name]
-#: Not built: the one text member a query table lacks, and a left-behind connection read from a file.
-UNBUILT = [index for index, name in enumerate(NAMES) if 'TextFileHeaderRow' in name or 'book.Connections(1).TextConnection' in name]
+#: Not built: a left-behind connection read from a file.
+UNBUILT = [index for index, name in enumerate(NAMES) if 'book.Connections(1).TextConnection' in name]
 REFUSALS = STOPPED + UNSAVED + UNBUILT
 #: Answered as Excel does; saving a connection Connections.Add2 added reports itself, as it does without a query table.
 ADDED = [index for index, name in enumerate(NAMES) if 'Connections.Add2' in name]
@@ -130,9 +130,9 @@ def test_a_connection_added_sorts_and_names_with_the_tables(tmp_path: Path, inde
     assert _spelled(str(app.run('QueryProbe.Probe', str(tmp_path), index, index)), tmp_path) == RECORD['cases'][index][1]
 
 
-def test_excel_loses_the_first_sheets_table_every_time() -> None:
-    """The quirk the model copies, repeated in the fixture: three runs each way, with the same result."""
-    for repeat in (NAMES[-10:-7], NAMES[-7:-4], NAMES[-4:-1]):
-        assert len(set(repeat)) == 1
-    answers = [case[1].split('|')[1] for case in RECORD['cases'][-10:-4]]
-    assert answers == ['0 0 0'] * 3 + ['1 0 1'] * 3
+@pytest.mark.parametrize(('deleted', 'answer'), [('w', '0 0 0'), ('ws', '1 0 1')])
+def test_excel_loses_a_same_named_table_every_time(deleted: str, answer: str) -> None:
+    """The quirk the model copies, which the fixture repeats: three runs each way, with the same result."""
+    runs = [case[1] for case in RECORD['cases'] if f'{deleted}.QueryTables(1).Delete: ws.Parent.SaveCopyAs' in case[0] and 'Name = "Other"' not in case[0]]
+    assert len(runs) == 3
+    assert {run.split('|')[1] for run in runs} == {answer}

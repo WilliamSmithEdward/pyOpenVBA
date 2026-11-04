@@ -85,7 +85,13 @@ def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[int, str], Path]
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_source(set(KEPT)), name='QueryProbe')
-    return {index: _spelled(str(app.run('QueryProbe.Probe', str(folder), index, index)), folder) for index in KEPT}, folder
+    answers: dict[int, str] = {}
+    for index in KEPT:
+        answers[index] = _spelled(str(app.run('QueryProbe.Probe', str(folder), index, index)), folder)
+        # A sheet copied out of its workbook stays open, and an open workbook's tables count (see _query_tables).
+        for book in app.application.workbooks_.books[1:]:
+            book.vba_call('Close', [False])
+    return answers, folder
 
 
 @pytest.mark.parametrize('index', KEPT, ids=[NAMES[index] for index in KEPT])

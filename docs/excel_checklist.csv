@@ -929,7 +929,7 @@ Connections,AddFromFile,method,"AddFromFile(Filename As String, [CreateModelConn
 Connections,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
 Connections,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,How many the file keeps.
 Connections,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
-Connections,Item,method,Item(Index As Variant) As WorkbookConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"By number from 1 or by name, any case; anything else error 9."
+Connections,Item,method,Item(Index As Variant) As WorkbookConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py; tests/test_excel_query_table_connections.py,"By number from 1 or by name, any case; anything else error 9."
 Connections,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The workbook.
 ConnectorFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,"Type, and the connected flags as false. Connecting to shapes is not implemented."
 ConnectorFormat,BeginConnect,method,"BeginConnect(ConnectedShape As Shape, ConnectionSite As Long)",,MISSING,,
@@ -2502,7 +2502,7 @@ QueryTable,WebPreFormattedTextToColumns,property,As Boolean,,PARTIAL,tests/test_
 QueryTable,WebSelectionType,property,As XlWebSelectionType,,PARTIAL,tests/test_excel_query_tables.py; tests/test_excel_query_tables_saved.py,"As live Excel, over a local text file."
 QueryTable,WebSingleBlockTextImport,property,As Boolean,,PARTIAL,tests/test_excel_query_tables.py; tests/test_excel_query_tables_saved.py,"As live Excel, over a local text file."
 QueryTable,WebTables,property,As String,,PARTIAL,tests/test_excel_query_tables.py; tests/test_excel_query_tables_saved.py,"As live Excel, over a local text file."
-QueryTable,WorkbookConnection,"property, read-only",As WorkbookConnection,,MISSING,,
+QueryTable,WorkbookConnection,"property, read-only",As WorkbookConnection,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, over a local text file."
 QueryTables,_Default,"property, read-only",As QueryTable,,PARTIAL,tests/test_excel_query_tables.py; tests/test_excel_query_tables_saved.py,"As live Excel, over a local text file."
 QueryTables,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/test_excel_query_tables.py; tests/test_excel_query_tables_saved.py,"As live Excel, over a local text file."
 QueryTables,Add,method,"Add(Connection As Variant, Destination As Range, [Sql As Variant]) As QueryTable",,PARTIAL,tests/test_excel_query_tables.py; tests/test_excel_query_tables_saved.py,"As live Excel, over a local text file."
@@ -3296,6 +3296,28 @@ TextColumn2,Number,property,As Long,,PARTIAL,tests/fixtures/shape_columns.json; 
 TextColumn2,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"Not in the type library: 438, as in Excel."
 TextColumn2,Spacing,property,As Single,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"Not below 0, written as spcCol; 0 writes nothing."
 TextColumn2,TextDirection,property,As MsoTextDirection,,MISSING,,
+TextConnection,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,Connection,property,As Variant,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileColumnDataTypes,property,As Variant,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileCommaDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"Reading raises Excel's automation error, as measured; setting one stopped Excel, so it is refused."
+TextConnection,TextFileConsecutiveDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileDecimalSeparator,property,As String,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileFixedColumnWidths,property,As Variant,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileHeaderRow,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"Reads and sets; refreshing or saving a table with it set reports itself, as its effect is not measured."
+TextConnection,TextFileOtherDelimiter,property,As String,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileParseType,property,As XlTextParsingType,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFilePlatform,property,As XlPlatform,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFilePromptOnRefresh,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileSemicolonDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"Reading raises Excel's automation error, as measured; setting one stopped Excel, so it is refused."
+TextConnection,TextFileSpaceDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"Reading raises Excel's automation error, as measured; setting one stopped Excel, so it is refused."
+TextConnection,TextFileStartRow,property,As Long,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileTabDelimiter,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"Reading raises Excel's automation error, as measured; setting one stopped Excel, so it is refused."
+TextConnection,TextFileTextQualifier,property,As XlTextQualifier,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileThousandsSeparator,property,As String,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileTrailingMinusNumbers,property,As Boolean,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
+TextConnection,TextFileVisualLayout,property,As XlTextVisualLayoutType,,PARTIAL,tests/test_excel_query_table_connections.py,"As live Excel, the query table's own setting."
 TextFrame,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Answers as Excel does over the measured cases.
 TextFrame,AutoMargins,property,As Boolean,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"Excel raises 1004 reading or setting it, on a rectangle and a text box alike."
 TextFrame,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -3926,20 +3948,20 @@ WorkbookConnection,_Default,property,As String,,MISSING,,
 WorkbookConnection,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
 WorkbookConnection,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
 WorkbookConnection,DataFeedConnection,"property, read-only",As DataFeedConnection,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
-WorkbookConnection,Delete,method,Delete(),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
-WorkbookConnection,Description,property,As String,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"description, empty where none."
+WorkbookConnection,Delete,method,Delete(),,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py; tests/test_excel_query_table_connections.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
+WorkbookConnection,Description,property,As String,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py; tests/test_excel_query_table_connections.py,"description, empty where none."
 WorkbookConnection,InModel,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
 WorkbookConnection,ModelConnection,"property, read-only",As ModelConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
 WorkbookConnection,ModelTables,"property, read-only",As ModelTables,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
-WorkbookConnection,Name,property,As String,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,name.
+WorkbookConnection,Name,property,As String,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py; tests/test_excel_query_table_connections.py,name.
 WorkbookConnection,ODBCConnection,"property, read-only",As ODBCConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
 WorkbookConnection,OLEDBConnection,"property, read-only",As OLEDBConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Its OLEDBConnection.
 WorkbookConnection,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The workbook.
 WorkbookConnection,Ranges,"property, read-only",As Ranges,,PARTIAL,tests/fixtures/connection_members.json; tests/test_excel_connection_members.py,Answers as Excel does over the measured cases. Connections a macro adds or deletes are kept for the session; saving them reports itself.
-WorkbookConnection,Refresh,method,Refresh(),,MISSING,,
-WorkbookConnection,RefreshWithRefreshAll,property,As Boolean,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,True; a connection with an extension unsupported.
-WorkbookConnection,TextConnection,"property, read-only",As TextConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
-WorkbookConnection,Type,"property, read-only",As XlConnectionType,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlConnectionTypeOLEDB for the file's type 5; other types unsupported.
+WorkbookConnection,Refresh,method,Refresh(),,PARTIAL,tests/test_excel_query_table_connections.py,A query table's over a text file; any other connection reports itself.
+WorkbookConnection,RefreshWithRefreshAll,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py; tests/test_excel_query_table_connections.py,True; a connection with an extension unsupported.
+WorkbookConnection,TextConnection,"property, read-only",As TextConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py; tests/test_excel_query_table_connections.py,Error 1004 on an OLE DB connection.
+WorkbookConnection,Type,"property, read-only",As XlConnectionType,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py; tests/test_excel_query_table_connections.py,xlConnectionTypeOLEDB for the file's type 5; other types unsupported.
 WorkbookConnection,WorksheetDataConnection,"property, read-only",As WorksheetDataConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
 WorkbookQuery,_Default,property,As String,no setter,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,Its name.
 WorkbookQuery,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,The application.

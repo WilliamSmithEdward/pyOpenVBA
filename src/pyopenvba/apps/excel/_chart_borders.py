@@ -5,10 +5,10 @@ error bars have a black line and a family each."""
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, cast
 
 from pyopenvba.apps.excel._creator import Created
-from pyopenvba.interpreter._objects import member, method, setter
+from pyopenvba.interpreter._objects import VBAObject, member, method, setter
 from pyopenvba.interpreter._values import VBAInt, error, to_integer, to_number
 from pyopenvba.shapes._values import FillLine
 
@@ -176,6 +176,10 @@ class ChartBorder(Created):
     @member
     def Parent(self) -> object:
         return self.parent
+
+    @member
+    def Application(self) -> object:
+        return cast(VBAObject, self.parent).vba_get('Application')
 
     @member
     def Color(self) -> object:

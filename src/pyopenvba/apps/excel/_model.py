@@ -72,6 +72,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._allow_edit_ranges import SheetRanges
     from pyopenvba.apps.excel._external_links import LinkedBook
+    from pyopenvba.apps.excel._workbook_more import CustomXMLPart
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
@@ -1643,6 +1644,11 @@ class Workbook(ExcelObject):
         #: The data connections a macro added, and the names of those of the file it deleted (see _connections).
         self.connections_added: list[XmlElement] = []
         self.connections_deleted: set[str] = set()
+        #: Whether a macro changed a colour of the theme, and the workbook's custom XML parts once asked for, with how
+        #: many came from its file (see _workbook_more).
+        self.theme_colours_changed = False
+        self.custom_xml_parts_: list[CustomXMLPart] | None = None
+        self.custom_xml_read = 0
         self.auto_recover = True
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
@@ -2437,6 +2443,190 @@ class Workbook(ExcelObject):
         """Whether Workbooks.Open opened the workbook read-only, until a SaveAs gives it a file of its own."""
         return self.read_only
 
+    # -- what answers the same on a workbook that shares and reviews nothing (see _workbook_more)
+
+    @method
+    def AcceptAllChanges(self, When: object = MISSING, Who: object = MISSING, Where: object = MISSING) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def RejectAllChanges(self, When: object = MISSING, Who: object = MISSING, Where: object = MISSING) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def LockServerFile(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def AddToFavorites(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def HighlightChangesOptions(self, When: object = MISSING, Who: object = MISSING, Where: object = MISSING) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def Reply(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Reply method of Workbook class failed")
+
+    @method
+    def ReplyAll(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "ReplyAll method of Workbook class failed")
+
+    @method
+    def UpdateFromFile(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "UpdateFromFile method of Workbook class failed")
+
+    @method
+    def Post(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Post method of Workbook class failed")
+
+    @method
+    def EndReview(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "The current document hasn't been sent for review.")
+
+    @method
+    def ReplyWithChanges(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "This document is not currently in a review cycle.")
+
+    @method
+    def CheckIn(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "This document cannot be checked in.")
+
+    @method
+    def CheckInWithVersion(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "This document cannot be checked in.")
+
+    @method
+    def RemoveUser(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def PurgeChangeHistoryNow(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def Sync(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def Mailer(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def Research(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def GetWorkflowTasks(self) -> object:
+        raise error(-2147467259, "Method 'GetWorkflowTasks' of object '_Workbook' failed")
+
+    @method
+    def GetWorkflowTemplates(self) -> object:
+        raise error(-2147467259, "Method 'GetWorkflowTemplates' of object '_Workbook' failed")
+    @method
+    def UnprotectSharing(self, SharingPassword: object = MISSING) -> object:
+        return EMPTY
+
+    @method
+    def ReloadAs(self, Encoding: object = MISSING) -> object:
+        if Encoding is MISSING:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        raise VBAUnsupportedError("Workbook.ReloadAs is not implemented")
+
+    @member
+    def ServerViewableItems(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def SensitivityLabel(self) -> object:
+        raise error(-2147220725, "Method 'SensitivityLabel' of object '_Workbook' failed")
+
+    @member
+    def WorkIdentity(self) -> object:
+        return ""
+
+    @member
+    def WriteReservedBy(self) -> object:
+        return self.application.user_name
+
+    @member
+    def CommandBars(self) -> object:
+        return NOTHING
+
+    @method
+    def UserStatus(self, *arguments: object) -> object:
+        from pyopenvba.apps.excel._workbook_more import user_status
+
+        if arguments:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        return user_status(self)
+
+    @member
+    def Theme(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import OfficeTheme
+
+        return OfficeTheme(self)
+
+    @method
+    def ApplyTheme(self, Filename: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_more import apply_theme
+
+        apply_theme(self, Filename)
+        return EMPTY
+
+    @member
+    def CustomXMLParts(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import CustomXMLParts
+
+        return CustomXMLParts(self)
+
+    @method
+    def ChangeFileAccess(self, Mode: object = MISSING, WritePassword: object = MISSING,
+                         Notify: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_more import change_file_access
+
+        return change_file_access(self, Mode)
+
+    @member
+    def WebOptions(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import WebOptions
+
+        return WebOptions(self)
+
+    @member
+    def Model(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Model
+
+        return Model(self)
+
+    @member
+    def SmartDocument(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import SmartDocument
+
+        return SmartDocument(self)
+
+    @member
+    def DocumentInspectors(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import DocumentInspectors
+
+        return DocumentInspectors(self)
+
+    @member
+    def Signatures(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import SignatureSet
+
+        return SignatureSet(self)
+
+    @method
+    def PivotTables(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        if any(sheet.pivot_tables for sheet in self.sheets_):
+            raise VBAUnsupportedError("Workbook.PivotTables of a workbook with pivot tables is not implemented")
+        tables = EmptyCollection(self, self, "PivotTables", set())
+        return tables if Index is MISSING else tables.Item(Index)
+
     # -- links to other workbooks (see _workbook_links)
 
     @method
@@ -2807,6 +2997,18 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
 
             return group(self.book, index)
         return super().vba_lookup(index, items)
+
+    @member
+    def HPageBreaks(self) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        return EmptyCollection(self.book, self.book, "HPageBreaks", set())
+
+    @member
+    def VPageBreaks(self) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        return EmptyCollection(self.book, self.book, "VPageBreaks", set())
 
     @method
     def FillAcrossSheets(self, Range: object = MISSING, Type: object = MISSING) -> object:
@@ -3471,6 +3673,24 @@ class Worksheet(ExcelObject):
         tables = PivotTables(self, [PivotTable(self, table.cache, table.root, report_owner=table)
                                    for table in self.pivot_tables])
         return tables if Index is MISSING else tables.Item(Index)
+
+    @member
+    def PrintedCommentPages(self) -> object:
+        return VBAInt(0, "Long")
+
+    @method
+    def XmlDataQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
+                     Map: object = MISSING) -> object:
+        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+            raise VBAUnsupportedError("XmlDataQuery in a workbook with XML maps is not implemented")
+        return NOTHING
+
+    @method
+    def XmlMapQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
+                    Map: object = MISSING) -> object:
+        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+            raise VBAUnsupportedError("XmlMapQuery in a workbook with XML maps is not implemented")
+        return NOTHING
 
     @member
     def Sort(self) -> object:

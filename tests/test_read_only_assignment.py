@@ -1,5 +1,5 @@
-"""Assigning to a member the model only reads: a gap where the real class lets a macro set it, VBA's error 438 where
-the type library marks it read-only."""
+"""Assigning to a member the model only reads: a gap where the real class lets a macro set it, Excel's error where
+the type library marks it read-only, which is 450 for most (tests/fixtures/read_only_lets.json)."""
 from __future__ import annotations
 
 import pytest
@@ -38,5 +38,5 @@ def test_a_property_excel_lets_a_macro_set_is_reported_as_a_gap(statement: str) 
 
 @pytest.mark.parametrize('statement', ['ActiveWorkbook.PasswordEncryptionKeyLength = 5',
                                        'ActiveSheet.Shapes(1).ID = 5'])
-def test_a_read_only_property_raises_438(statement: str) -> None:
-    assert _run(statement) == 'E438'
+def test_a_read_only_property_raises_450(statement: str) -> None:
+    assert _run(statement) == 'E450'

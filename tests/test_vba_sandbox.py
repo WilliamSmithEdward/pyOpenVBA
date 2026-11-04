@@ -30,6 +30,8 @@ WRITES_OR_READS = [
     'Workbooks.Open folder & "/not there.xlsx"',
     'Workbooks.OpenText folder & "/there.csv"',
     'ActiveSheet.SetBackgroundPicture folder & "/there.png"',
+    'ActiveWorkbook.ApplyTheme folder & "/there.png"',
+    'ActiveSheet.PageSetup.LeftHeaderPicture.Filename = folder & "/there.png"',
     'ActiveWorkbook.UpdateLink folder & "/there.xlsx"',
     'ActiveWorkbook.ChangeLink "there.xlsx", folder & "/there.xlsx"',
     'ActiveWorkbook.OpenLinks folder & "/there.xlsx"',

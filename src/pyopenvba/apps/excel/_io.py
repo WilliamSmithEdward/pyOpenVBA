@@ -1616,6 +1616,10 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._connections import refuse_changed
 
     refuse_changed(book)
+    from pyopenvba.apps.excel._workbook_more import refuse_added_parts, write_theme
+
+    write_theme(book, package)
+    refuse_added_parts(book)
     from pyopenvba.apps.excel._workbook_options import write as write_options
 
     write_options(book, package)

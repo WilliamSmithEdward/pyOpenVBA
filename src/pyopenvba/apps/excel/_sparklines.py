@@ -827,12 +827,13 @@ class SparkColor(ExcelObject):
 
     vba_type_name = 'SparkColor'
 
-    def __init__(self, parent: SparklineGroup, attribute: str, element: str) -> None:
-        self.parent, self.attribute, self.element = parent, attribute, element
+    def __init__(self, parent: SparklineGroup, attribute: str, element: str, holder: ExcelObject) -> None:
+        self.parent, self.attribute, self.element, self.holder = parent, attribute, element, holder
 
     @member
     def Parent(self) -> object:
-        return self.parent
+        """The SparkPoints or the axis it came from (tests/fixtures/object_trio.json)."""
+        return self.holder
 
     @member
     def Application(self) -> object:
@@ -872,27 +873,27 @@ class SparkPoints(ExcelObject):
 
     @member
     def Markers(self) -> object:
-        return SparkColor(self.parent, 'markers', 'colorMarkers')
+        return SparkColor(self.parent, 'markers', 'colorMarkers', self)
 
     @member
     def Highpoint(self) -> object:
-        return SparkColor(self.parent, 'high', 'colorHigh')
+        return SparkColor(self.parent, 'high', 'colorHigh', self)
 
     @member
     def Lowpoint(self) -> object:
-        return SparkColor(self.parent, 'low', 'colorLow')
+        return SparkColor(self.parent, 'low', 'colorLow', self)
 
     @member
     def Firstpoint(self) -> object:
-        return SparkColor(self.parent, 'first', 'colorFirst')
+        return SparkColor(self.parent, 'first', 'colorFirst', self)
 
     @member
     def Lastpoint(self) -> object:
-        return SparkColor(self.parent, 'last', 'colorLast')
+        return SparkColor(self.parent, 'last', 'colorLast', self)
 
     @member
     def Negative(self) -> object:
-        return SparkColor(self.parent, 'negative', 'colorNegative')
+        return SparkColor(self.parent, 'negative', 'colorNegative', self)
 
 
 class SparkAxes(ExcelObject):
@@ -911,22 +912,22 @@ class SparkAxes(ExcelObject):
 
     @member
     def Horizontal(self) -> object:
-        return SparkHorizontalAxis(self.parent)
+        return SparkHorizontalAxis(self.parent, self)
 
     @member
     def Vertical(self) -> object:
-        return SparkVerticalAxis(self.parent)
+        return SparkVerticalAxis(self.parent, self)
 
 
 class SparkHorizontalAxis(ExcelObject):
     vba_type_name = 'SparkHorizontalAxis'
 
-    def __init__(self, parent: SparklineGroup) -> None:
-        self.parent = parent
+    def __init__(self, parent: SparklineGroup, axes: SparkAxes) -> None:
+        self.parent, self.axes = parent, axes
 
     @member
     def Parent(self) -> object:
-        return self.parent
+        return self.axes
 
     @member
     def Application(self) -> object:
@@ -935,7 +936,7 @@ class SparkHorizontalAxis(ExcelObject):
     @member
     def Axis(self) -> object:
         """The axis line: displayXAxis, and its colour colorAxis."""
-        return SparkColor(self.parent, 'displayXAxis', 'colorAxis')
+        return SparkColor(self.parent, 'displayXAxis', 'colorAxis', self)
 
     @member
     def IsDateAxis(self) -> object:
@@ -972,8 +973,8 @@ SCALES = {1: 'group', 2: None, 3: 'custom'}
 class SparkVerticalAxis(ExcelObject):
     vba_type_name = 'SparkVerticalAxis'
 
-    def __init__(self, parent: SparklineGroup) -> None:
-        self.parent = parent
+    def __init__(self, parent: SparklineGroup, axes: SparkAxes) -> None:
+        self.parent, self.axes = parent, axes
 
     def _scale(self, attribute: str) -> object:
         written = self.parent.group.attributes.get(attribute, 'individual')
@@ -1009,7 +1010,7 @@ class SparkVerticalAxis(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.parent
+        return self.axes
 
     @member
     def Application(self) -> object:

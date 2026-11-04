@@ -155,6 +155,27 @@ class Scenarios(VBACollection, ExcelObject):
         return create_summary(self.sheet, ReportType, ResultCells)
 
     @method
+    def Merge(self, Source: object = MISSING) -> object:
+        """The scenarios of a sheet of this workbook, by object or name, copied here, one whose name is here already
+        taking today's date after it (tests/fixtures/workbook_members.json)."""
+        if Source is MISSING:
+            raise error(449)
+        book = self.sheet.book
+        named = to_text(Source) if isinstance(Source, str) else None
+        other = Source if isinstance(Source, type(self.sheet)) \
+            else next((sheet for sheet in book.sheets_ if sheet.name.casefold() == (named or "").casefold()), None)
+        if other is None or other is self.sheet or not state(other).items:
+            raise error(1004, "Merge method of Scenarios class failed")
+        kept = state(self.sheet)
+        for one in state(other).items:
+            name = one.name
+            if any(here.name.lower() == name.lower() for here in kept.items):
+                name = f"{name} {_today()}"
+            kept.items.append(Kept(name, list(one.cells), list(one.values), one.comment, one.user, one.locked, one.hidden))
+        _changed(self.sheet)
+        return True
+
+    @method
     def Add(self, Name: object = MISSING, ChangingCells: object = MISSING, Values: object = MISSING,
             Comment: object = MISSING, Locked: object = MISSING, Hidden: object = MISSING) -> object:
         if Name is MISSING or ChangingCells is MISSING:

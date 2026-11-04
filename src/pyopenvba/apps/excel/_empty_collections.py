@@ -45,6 +45,10 @@ KINDS = {
     'Excel4MacroSheets': Kind('Sheets', 9, 9, frozenset()),
     'Excel4IntlMacroSheets': Kind('Sheets', 9, 9, frozenset()),
     'Ranges': Kind('Ranges', 9, 9, frozenset()),
+    'PivotTables': Kind('PivotTables', 1004, 1004, frozenset()),
+    'HPageBreaks': Kind('HPageBreaks', 9, 13, frozenset()),
+    'VPageBreaks': Kind('VPageBreaks', 9, 13, frozenset()),
+    'Pages': Kind('Pages', 9, 9, frozenset()),
 }
 
 

@@ -524,7 +524,8 @@ class IconSet(VBACollection, ItemDefault, ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.book
+        """The workbook's IconSets (tests/fixtures/object_trio.json)."""
+        return IconSets(self.book)
 
 
 class Icon(ExcelObject):

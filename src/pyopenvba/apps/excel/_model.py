@@ -7404,10 +7404,20 @@ class DefinedName(ExcelObject):
 
     @setter("NameLocal")
     def _set_name_local(self, value: object) -> None:
-        self._set_name(value)
+        self._renamed(value)
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
+        """A name Excel would not take leaves the name as it was, with no error, where NameLocal's is 1004
+        (tests/fixtures/settable_lists.json)."""
+        text = to_text(value)
+        try:
+            self._renamed(text)
+        except VBARuntimeError as failed:
+            if failed.number != 1004:
+                raise
+
+    def _renamed(self, value: object) -> None:
         from pyopenvba._a1 import split_sheet
 
         book = self.entry.book
@@ -7452,7 +7462,7 @@ class DefinedName(ExcelObject):
 
     @setter("Comment")
     def _set_comment(self, value: object) -> None:
-        self.entry.comment = to_text(value)
+        self.entry.comment = to_text(value)[:255]
         _names.changed(self.entry.book)
 
     @member
@@ -7505,12 +7515,13 @@ class DefinedName(ExcelObject):
 
     @member
     def WorkbookParameter(self) -> object:
-        """False: Excel refuses every setting with error 5 (tests/fixtures/name_macro.json)."""
+        """False: Excel refuses setting it True with error 5 (tests/fixtures/name_macro.json, settable_lists.json)."""
         return False
 
     @setter("WorkbookParameter")
     def _set_workbook_parameter(self, value: object) -> None:
-        raise error(5)
+        if to_bool(value):
+            raise error(5)
 
     @member
     def ValidWorkbookParameter(self) -> object:
@@ -7556,7 +7567,11 @@ class DefinedName(ExcelObject):
 
     @setter("RefersToR1C1")
     def _set_refers_r1c1(self, value: object) -> None:
-        self._set_refers_to(to_a1(to_text(value), 1, 1))
+        text = _names.refers_text(value, empty="=#N/A")
+        try:
+            self._refer(to_a1(text, 1, 1))
+        except ValueError as failed:
+            raise error(1004, "Application-defined or object-defined error") from failed
 
     @member
     def RefersTo(self) -> object:
@@ -7585,7 +7600,10 @@ class DefinedName(ExcelObject):
 
     @setter("RefersTo")
     def _set_refers_to(self, value: object) -> None:
-        self.entry.refers_to = _names.qualify(to_text(value), self.entry.book.active_sheet.name)
+        self._refer(_names.refers_text(value, empty="=#N/A"))
+
+    def _refer(self, text: str) -> None:
+        self.entry.refers_to = text if text == "=" else _names.qualify(text, self.entry.book.active_sheet.name)
         _names.changed(self.entry.book, self.entry.name)
 
     @member(default=True)
@@ -7594,7 +7612,8 @@ class DefinedName(ExcelObject):
 
     @setter("Value")
     def _set_value(self, value: object) -> None:
-        self._set_refers_to(value)
+        """As RefersTo, but Null is 94 and Empty is nothing at all."""
+        self._refer(_names.refers_text("" if value is EMPTY else to_text(value) if value is NULL else value))
 
     @member
     def RefersToRange(self) -> object:

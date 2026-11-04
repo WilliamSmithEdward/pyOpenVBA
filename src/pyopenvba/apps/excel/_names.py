@@ -39,6 +39,34 @@ def canonical(book: Workbook, name: str, scope: Worksheet | None = None) -> str:
 _R1C1_START = re.compile(r"(R([0-9]*))?(C([0-9]*))?", re.I)
 
 
+def refers_text(value: object, empty: str = "=") -> str:
+    """What setting a name's RefersTo to ``value`` holds: a formula as it is if it parses, and error 1004 if not; TRUE for
+    True, and other text quoted, which reads as text (tests/fixtures/settable_lists.json). Null names the active cell, in
+    the table's own words if it is in one, which reports itself."""
+    from pyopenvba.exceptions import VBAUnsupportedError
+    from pyopenvba.formula._parse import FormulaError, parse
+    from pyopenvba.interpreter._values import EMPTY, NULL, to_text
+
+    if value is NULL:
+        raise VBAUnsupportedError("a name's RefersTo set to Null is not implemented")
+    if value is EMPTY:
+        return empty
+    if isinstance(value, bool):
+        return "=TRUE" if value else "=FALSE"
+    text = to_text(value)
+    if not isinstance(value, str):
+        return "=" + text
+    if not text or text == "=":
+        return "="
+    if not text.startswith("="):
+        return '="' + text.replace('"', '""') + '"'
+    try:
+        parse(text)
+    except FormulaError as failed:
+        raise error(1004, "Application-defined or object-defined error") from failed
+    return text
+
+
 def valid(bare: str) -> bool:
     """Whether Excel takes ``bare`` as a name (tests/fixtures/name_validity.json): a letter, _ or \\ first, then
     letters, digits, _, ., \\ and ?, at most 255 of them; no cell's address, A1 or RX1; and nothing that starts as
@@ -47,6 +75,8 @@ def valid(bare: str) -> bool:
     # After its first character a name may hold a combining accent, e with U+0301
     # (tests/fixtures/name_equality.json, marks).
     if not re.fullmatch(r"[A-Za-z_\\\u0080-\uffff][\w.\\?\u0300-\u036f]*", bare) or len(bare) > 255:
+        return False
+    if bare.upper() in ("TRUE", "FALSE"):
         return False
     found = _R1C1_START.match(bare)
     if found is not None and found.group(0):

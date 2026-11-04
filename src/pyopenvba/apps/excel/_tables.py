@@ -43,7 +43,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._structured import TableShape, from_file, in_file, renamed_columns, renamed_table
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBADate, VBAInt, error,
+from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, NULL, VBADate, VBAInt, error,
                                            to_bool, to_integer, to_text)
 
 if TYPE_CHECKING:
@@ -1077,11 +1077,24 @@ class ListObject(ExcelObject):
 
     @member
     def TableStyle(self) -> object:
-        return self.table.style
+        """The style as an object, or a space for none (tests/fixtures/settable_lists.json)."""
+        from pyopenvba.apps.excel._workbook_settings import table_style_named
+
+        return table_style_named(self.sheet.book, self.table.style) or " "
 
     @setter("TableStyle")
     def _set_table_style(self, value: object) -> None:
-        self.table.style = to_text(value.vba_get("Name") if isinstance(value, ExcelObject) else value)
+        """A style by name in any case, or none for "", Empty and Null; anything else is error 450."""
+        from pyopenvba.apps.excel._workbook_settings import table_style_named
+
+        wanted = value.vba_get("Name") if isinstance(value, ExcelObject) else value
+        if wanted is EMPTY or wanted is NULL or wanted == "":
+            self.table.style = ""
+        else:
+            found = table_style_named(self.sheet.book, wanted) if isinstance(wanted, str) else None
+            if found is None:
+                raise error(450, "Wrong number of arguments or invalid property assignment")
+            self.table.style = found.name
         self._changed()
 
     @member

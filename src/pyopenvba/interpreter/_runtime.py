@@ -2640,7 +2640,13 @@ class Interpreter:
         why Len(n) is 4 for a Long holding 12345 while Len of the same
         number in a Variant is 5.  Measured against Excel.
         """
-        if frame is None or len(args) != 1 or args[0].name or not isinstance(args[0].value, A.Name):
+        if frame is None or len(args) != 1 or args[0].name:
+            return None
+        stored = frame.program.stored_len_arguments.get(id(args[0].value)) if frame.program is not None else None
+        if stored is not None:
+            width = STORAGE_WIDTH.get(stored)
+            return VBAInt(width, "Integer") if width is not None else None
+        if not isinstance(args[0].value, A.Name):
             return None
         slot = self.lookup(args[0].value.name, frame, want_slot=True)
         if not isinstance(slot, Slot):

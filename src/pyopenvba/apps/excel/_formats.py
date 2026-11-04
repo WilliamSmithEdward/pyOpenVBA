@@ -793,10 +793,17 @@ class Interior(ExcelObject):
         raise error(1004, "Unable to set the InvertIfNegative property of the Interior class")
 
     def _fills(self) -> list[S.Fill]:
+        """The range's different fills. Over several, a gradient reads as no fill, having no colours of the cell's own, and
+        beside only other gradients or no fill at all it reads as a gradient does (tests/fixtures/mixed_fills.json)."""
         fills = list({style.fill: None for style in styles_of(self.target)})
-        if any(fill.gradient for fill in fills) and not all(fill.gradient for fill in fills):
-            raise VBAUnsupportedError("the Interior of a range with gradient and other fills is not implemented")
+        if len(fills) > 1 and any(fill.gradient for fill in fills):
+            plain = list({(S.Fill() if fill.gradient else fill): None for fill in fills})
+            return [next(fill for fill in fills if fill.gradient)] if plain == [S.Fill()] else plain
         return fills
+
+    def _mixes_gradient(self) -> bool:
+        fills = {style.fill for style in styles_of(self.target)}
+        return len(fills) > 1 and any(fill.gradient for fill in fills)
 
     def _write(self, change: Callable[[S.Fill], S.Fill]) -> None:
         def apply(style: S.Style) -> S.Style:
@@ -806,10 +813,10 @@ class Interior(ExcelObject):
         restyle(self.target, apply)
 
     def gradient(self) -> GradientFill:
-        """The gradient every cell of the range has."""
+        """The gradient every cell of the range has. A range without one has no Gradient to ask."""
         fills = self._fills()
-        if len(fills) != 1 or not fills[0].gradient:
-            raise VBAUnsupportedError("the gradient of a range whose cells have different fills is not implemented")
+        if self._mixes_gradient() or len(fills) != 1 or not fills[0].gradient:
+            raise error(91)
         return GradientFill.parsed(fills[0].gradient)
 
     def write_fill(self, fill: S.Fill) -> None:
@@ -819,7 +826,7 @@ class Interior(ExcelObject):
     def Gradient(self) -> object:
         """The range's gradient, Nothing for a fill that is none (tests/fixtures/interior_gradient.json)."""
         fills = self._fills()
-        if not any(fill.gradient for fill in fills):
+        if self._mixes_gradient() or not any(fill.gradient for fill in fills):
             return NOTHING
         return (RectangularGradient if self.gradient().path else LinearGradient)(self)
 
@@ -904,6 +911,8 @@ class Interior(ExcelObject):
 
     @member
     def Pattern(self) -> object:
+        if self._mixes_gradient():
+            return NULL
         fills = self._fills()
         if fills and fills[0].gradient:
             return _long(RECTANGULAR_GRADIENT if self.gradient().path else LINEAR_GRADIENT)

@@ -164,7 +164,7 @@ _DANGLING: Final = (rf"(?i:\#REF!)(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_RO
 _DANGLING_OR_QUOTED: Final = re.compile(rf"""\"(?:[^\"]|\"\")*\"|'(?:[^']|'')*'|(?P<dangling>{_DANGLING})""")
 
 #: A cell, a point and a word: a field of what the cell holds, where it holds a data type (tests/fixtures/value_gaps.json).
-_FIELD_OF_CELL = rf"{_CELL}\.[A-Za-z][A-Za-z0-9_.]*"
+_FIELD_OF_CELL = rf"{_CELL}\.[A-Za-z][A-Za-z0-9_.]*(?!!)"
 _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)

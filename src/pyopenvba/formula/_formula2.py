@@ -160,10 +160,10 @@ class _Walk:
     def _takes(self, node: Node | None) -> bool:
         """Whether a thing that can give several values takes an @ where one is wanted: all but a union, or an intersection
         of two single cells (tests/fixtures/value_gaps.json)."""
-        if isinstance(node, Binary) and isinstance(node.right, Unary) and node.right.op == "@":
-            return False
         if isinstance(node, Binary) and node.op == " ":
-            return not all(isinstance(side, Reference) and ":" not in side.text for side in (node.left, node.right))
+            # An intersection with one cell, of a cell or of what stands in brackets, is one value already.
+            cell = [isinstance(side, Reference) and ":" not in side.text for side in (node.left, node.right)]
+            return not (cell[0] or (cell[1] and isinstance(node.left, Binary)))
         return not (isinstance(node, Binary) and node.op == ",")
 
     def _many(self, node: Node | None, where: str) -> bool:
@@ -226,7 +226,9 @@ class _Walk:
         if self.merging and where == VALUE and (not self.body[self.starts[id(node)] + 1:].lstrip().startswith("(")
                                                  or isinstance(node.operand, Binary) and node.operand.op == " " and not node.operand.grouped):
             marks, merged = set(self.marks), set(self.merged)
-            if self._many(node.operand, VALUE) and self._takes(node.operand):
+            operand = node.operand
+            on_at = isinstance(operand, Binary) and operand.op != ":" and isinstance(operand.right, Unary) and operand.right.op == "@"
+            if self._many(operand, VALUE) and self._takes(operand) and not on_at:
                 self.merged.add(self.starts[id(node)])
                 return False
             # Kept: what it holds is walked again, as SINGLE takes it.

@@ -100,7 +100,7 @@ ERROR_CODES = (
 )
 
 _SPACE = re.compile(r"[ \t\r\n]+")
-_FIELD_OF_CELL = re.compile(r"\$?[A-Za-z]{1,3}\$?[0-9]{1,7}\.[^\W\d_][\w.]*")
+_FIELD_OF_CELL = re.compile(r"\$?[A-Za-z]{1,3}\$?[0-9]{1,7}\.[^\W\d_][\w.]*(?![\w.!])")
 _NUMBER = re.compile(r"(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
 #: What may not follow a reference, because the reference would then be the
 #: start of something longer: a name, a call, a table, a sheet's name.

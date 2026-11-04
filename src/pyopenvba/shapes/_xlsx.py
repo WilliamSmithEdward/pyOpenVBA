@@ -30,7 +30,7 @@ from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
 from pyopenvba.shapes._read_look import with_fill_line
-from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects,
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects, TextLine,
                                       TextLook, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
@@ -1010,11 +1010,13 @@ def _new_picture(shape: Shape) -> str:
     if shape.picture_lum is not None:
         bright, contrast = shape.picture_lum
         effects += "<a:lum" + (f' bright="{bright}"' if bright else "") + (f' contrast="{contrast}"' if contrast else "") + "/>"
+    macro = f' macro="{escape(shape.macro)}"' if shape.macro else ""
+    blip = (f'r:link="{shape.image_relationship}"/>' if shape.image_link else
+            f'r:embed="{shape.image_relationship}">{effects}<a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
+            f'<a14:useLocalDpi {_A14} val="0"/></a:ext></a:extLst></a:blip>')
     return (
-        f"<xdr:pic><xdr:nvPicPr>{_identity(shape)}<xdr:cNvPicPr>{locks}</xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill>"
-        '<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
-        f'r:embed="{shape.image_relationship}">{effects}<a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
-        f'<a14:useLocalDpi {_A14} val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
+        f"<xdr:pic{macro}><xdr:nvPicPr>{_identity(shape)}<xdr:cNvPicPr>{locks}</xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill>"
+        f'<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" {blip}<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
         f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
         f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}</xdr:spPr></xdr:pic>")
@@ -1053,7 +1055,7 @@ def _new_element(shape: Shape) -> str:
         body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US" sz="1100"><a:solidFill>'
                             '<a:schemeClr val="tx1"/></a:solidFill></a:endParaRPr>')
     if shape.text_look is not None and body:
-        body = _laid_out(body, shape.text_look)
+        body = _laid_out(body, shape.text_look, _marked_paragraphs(shape, shape.text_look))
     if shape.painted:
         body = body.replace(
             '<a:pPr algn="l"/><a:endParaRPr lang="en-US" sz="1100"/>',
@@ -1065,7 +1067,7 @@ def _new_element(shape: Shape) -> str:
     locks = "" if shape.lock_aspect is None else (
         '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>")
     properties = (
-        f"<xdr:nvCxnSpPr>{identity}<xdr:cNvCxnSpPr/></xdr:nvCxnSpPr>"
+        f"<xdr:nvCxnSpPr>{identity}{_connections(shape)}</xdr:nvCxnSpPr>"
         if line
         else f"<xdr:nvSpPr>{identity}<xdr:cNvSpPr{box}>{locks}</xdr:cNvSpPr></xdr:nvSpPr>".replace(
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
@@ -1078,8 +1080,9 @@ def _new_element(shape: Shape) -> str:
     geometry = (f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst>{guides}</a:avLst></a:prstGeom>'
                 if guides else f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>')
     style = _TEXT_BOX_STYLE if shape.kind == "textBox" else _STYLE
-    if shape.kind == "line":
-        # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json).
+    if shape.kind == "line" or shape.geometry == "arc":
+        # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json), and so does an arc
+        # (tests/fixtures/old_drawings.json).
         style = _OPEN_STYLE
     if shape.kind == "freeform":
         geometry = _free_geometry(shape)
@@ -1309,6 +1312,31 @@ def _free_geometry(shape: Shape) -> str:
             f'<a:path w="{emu(shape.width)}" h="{emu(shape.height)}">{steps}</a:path></a:pathLst></a:custGeom>')
 
 
+def _connections(shape: Shape) -> str:
+    """A connector's cNvCxnSpPr, naming the shape and site each connected end holds (tests/fixtures/shape_connectors.json)."""
+    inside = "<a:cxnSpLocks/>" if shape.link_lost else ""
+    inside += "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
+    inside += "" if shape.end_link is None else f'<a:endCxn id="{shape.end_link.target}" idx="{shape.end_link.site - 1}"/>'
+    return f"<xdr:cNvCxnSpPr>{inside}</xdr:cNvCxnSpPr>" if inside else "<xdr:cNvCxnSpPr/>"
+
+
+def _text_line(line: TextLine) -> str:
+    """The a:ln of a shape's letters (tests/fixtures/shape_font2_paint.json)."""
+    if line.hidden:
+        return "<a:ln><a:noFill/></a:ln>"
+    if line.rgb is None and line.scheme is None:
+        inside = "".join(f'<a:{name} val="{value}"/>' for name, value in line.mods) + ("" if line.alpha is None else f'<a:alpha val="{line.alpha}"/>')
+        ink = f'<a:prstClr val="black">{inside}</a:prstClr>' if inside else '<a:prstClr val="black"/>'
+    else:
+        ink = _colour(line.rgb, line.scheme or "", 0, line.alpha, line.mods)
+    if line.full:
+        return (f'<a:ln w="{9525 if line.width is None else line.width}" cap="flat" cmpd="{line.compound or "sng"}" algn="ctr"><a:solidFill>{ink}</a:solidFill>'
+                f'<a:prstDash val="{line.dash or "solid"}"/><a:round/><a:headEnd type="none" w="med" len="med"/><a:tailEnd type="none" w="med" len="med"/></a:ln>')
+    attributes = ("" if line.width is None else f' w="{line.width}"') + ("" if line.compound is None else f' cmpd="{line.compound}"')
+    dash = "" if line.dash is None else f'<a:prstDash val="{line.dash}"/>'
+    return f"<a:ln{attributes}><a:solidFill>{ink}</a:solidFill>{dash}</a:ln>"
+
+
 def _font_markup(look: TextLook) -> tuple[str, str]:
     """What Characters.Font writes on a run or a paragraph's end: its attributes and its children."""
     attributes = f' sz="{round(look.font_size * 100)}"'
@@ -1331,10 +1359,15 @@ def _font_markup(look: TextLook) -> tuple[str, str]:
     if look.font_baseline is not None:
         attributes += f' baseline="{look.font_baseline}"'
     children = ""
-    if look.font_rgb is not None:
-        children += f'<a:solidFill>{_colour(look.font_rgb, "", 0, None, (), look.font_index)}</a:solidFill>'
-    elif look.font_tint is not None:
-        children += f'<a:solidFill><a:schemeClr val="lt1"><a:tint val="{look.font_tint}"/></a:schemeClr></a:solidFill>'
+    if look.font_line is not None:
+        children += _text_line(look.font_line)
+    mods = (("tint", look.font_tint),) if look.font_tint is not None else look.font_mods
+    if look.font_no_fill:
+        children += "<a:noFill/>"
+    elif look.font_rgb is not None:
+        children += f'<a:solidFill>{_colour(look.font_rgb, "", 0, look.font_alpha, mods, look.font_index)}</a:solidFill>'
+    elif look.font_theme is not None or mods or look.font_alpha is not None or look.font_solid:
+        children += f'<a:solidFill>{_colour(None, look.font_theme or look.font_scheme, 0, look.font_alpha, mods)}</a:solidFill>'
     if look.font_shadow:
         children += ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0">'
                      '<a:scrgbClr r="0" g="0" b="0"/></a:outerShdw></a:effectLst>')
@@ -1343,7 +1376,62 @@ def _font_markup(look: TextLook) -> tuple[str, str]:
     return attributes, children
 
 
-def _laid_out(body: str, look: TextLook) -> str:
+def _run_markup(look: TextLook, mark: dict[str, object]) -> tuple[str, str]:
+    return _font_markup(replace(look, **mark))  # pyright: ignore[reportArgumentType]
+
+
+def text_run_spans(shape: Shape) -> list[tuple[int, int]]:
+    """Where each run of a new shape's text starts, and its length: characters alike in what they write run together,
+    across a paragraph's end too (tests/fixtures/shape_runs.json)."""
+    spans: list[tuple[int, int]] = []
+    last: tuple[str, str] | None = None
+    marks: list[dict[str, object]] = shape.text_marks or [{} for _ in shape.text]
+    for at, mark in enumerate(marks):
+        markup = _run_markup(shape.text_look or TextLook(), mark)
+        if spans and markup == last:
+            spans[-1] = (spans[-1][0], spans[-1][1] + 1)
+        else:
+            spans.append((at, 1))
+        last = markup
+    return spans
+
+
+def _props(tag: str, markup: tuple[str, str]) -> str:
+    return f'<{tag} lang="en-US"{markup[0]}>{markup[1]}</{tag}>' if markup[1] else f'<{tag} lang="en-US"{markup[0]}/>'
+
+
+def _marked_paragraphs(shape: Shape, look: TextLook) -> str | None:
+    """A text's paragraphs with their runs, when some of it has settings of its own (tests/fixtures/shape_runs.json).
+
+    A paragraph's end is written only where it holds settings its last run does not write, and an empty paragraph always."""
+    if not shape.text_marks and shape.text_end is None:
+        return None
+    marks: list[dict[str, object]] = shape.text_marks or [{} for _ in shape.text]
+    paragraphs: list[str] = []
+    at = 0
+    lines = shape.text.split("\n")
+    for index, line in enumerate(lines):
+        runs = ""
+        written: tuple[str, str] | None = None
+        pending = ""
+        for offset, character in enumerate(line):
+            markup = _run_markup(look, marks[at + offset])
+            if markup != written and pending:
+                runs += f'<a:r>{_props("a:rPr", written or markup)}<a:t>{dml.escaped_text(pending)}</a:t></a:r>'
+                pending = ""
+            written = markup
+            pending += character
+        if pending:
+            runs += f'<a:r>{_props("a:rPr", written or _font_markup(look))}<a:t>{dml.escaped_text(pending)}</a:t></a:r>'
+        end = marks[at + len(line)] if index < len(lines) - 1 else shape.text_end
+        if not line or (end is not None and (end or index == len(lines) - 1) and _run_markup(look, end) != written):
+            runs += _props("a:endParaRPr", _run_markup(look, end or {}))
+        paragraphs.append(f"<a:p>{runs}</a:p>")
+        at += len(line) + 1
+    return "".join(paragraphs)
+
+
+def _laid_out(body: str, look: TextLook, paragraphs: str | None = None) -> str:
     """A new shape's txBody with the layout TextFrame gave it: bodyPr's attributes in the schema's order, and each
     paragraph's algn and rtl (tests/fixtures/text_frame.json)."""
     insets = "".join(f' {name}="{emu(value)}"' for name, value in zip(("lIns", "tIns", "rIns", "bIns"), look.margins)
@@ -1376,6 +1464,8 @@ def _laid_out(body: str, look: TextLook) -> str:
         for tag in ("a:rPr", "a:endParaRPr"):
             body = body.replace(f'<{tag} lang="en-US" sz="1100"/>', f'<{tag} lang="en-US"{attributes}>{children}</{tag}>'
                                 if children else f'<{tag} lang="en-US"{attributes}/>')
+    if paragraphs is not None:
+        body = re.sub(r"<a:p>.*</a:p>", lambda _: paragraphs, body, flags=re.DOTALL)
     settings = (f' algn="{look.align}"' if look.align else "") + (
         "" if look.rtl is None else f' rtl="{1 if look.rtl else 0}"')
     paragraph = f"<a:p><a:pPr{settings}/>" if settings else "<a:p>"
@@ -1383,7 +1473,9 @@ def _laid_out(body: str, look: TextLook) -> str:
 
 
 def _identity(shape: Shape) -> str:
-    """A new shape's cNvPr: its id, name, alternative text and title, and the creation id Excel gives every shape."""
+    """A new shape's cNvPr: its id, name, alternative text and title, and the creation id Excel gives every shape. An elbow or
+    curve that keeps Excel's own name reads as "Elbow Connector 2" but is saved as "Connector: Elbow 2"
+    (tests/fixtures/shape_connectors.json)."""
     described = f' descr="{escape(shape.description)}"' if shape.description else ""
     titled = f' title="{escape(shape.title)}"' if shape.title else ""
     creation = "{" + str(uuid.uuid4()).upper() + "}"
@@ -1403,6 +1495,11 @@ def _identity(shape: Shape) -> str:
     if shape.kind == "freeform":
         # A freeform Excel named reads "Freeform 1" but is saved as "Freeform: Shape 1" (tests/fixtures/shape_polyline.json).
         name = re.sub(r"^Freeform (\d+)$", r"Freeform: Shape \1", name)
+    if shape.kind == "line":
+        name = re.sub(r"^(Elbow|Curved) Connector (\d+)$", r"Connector: \1 \2", name)
+    if shape.kind == "shape":
+        # So with a rounded rectangle, read as "Rounded Rectangle 1" (tests/fixtures/old_drawings.json).
+        name = re.sub(r"^Rounded Rectangle (\d+)$", r"Rectangle: Rounded Corners \1", name)
     return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(name)}"{described}{titled}{hidden}>'
             f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
 

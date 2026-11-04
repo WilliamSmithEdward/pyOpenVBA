@@ -10,6 +10,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, cast
 
 from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._shape_format import STYLE, DEFAULT_THEME
 from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -41,7 +42,7 @@ def _fraction(value: object) -> float:
     return wanted
 
 
-class _Effect(Created):
+class _Effect(HeldPart):
     """What the four share: the shape, and the effects a change writes."""
 
     vba_type_name = ''
@@ -86,7 +87,7 @@ class _Effect(Created):
         return bgr(colours[3 + int(scheme[-1])])
 
 
-class EffectColor(Created):
+class EffectColor(HeldPart):
     """A shadow's or glow's colour."""
 
     vba_type_name = 'ColorFormat'

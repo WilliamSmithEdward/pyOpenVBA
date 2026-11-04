@@ -1089,6 +1089,8 @@ def CRITBINOM(context: Context, trials: Scalar, chance: Scalar, alpha: Scalar) -
 
 def _poisson_term(k: int, mean: float) -> float:
     """``exp(-mean) * mean^k / k!``, in that order: measured."""
+    if mean == 0:
+        return 1.0 if k == 0 else 0.0
     try:
         return math.exp(-mean) * _power(mean, k) / math.factorial(k)
     except (OverflowError, ExcelError):

@@ -40,6 +40,7 @@ import uuid
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Final
 
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba._a1 import Area
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
@@ -373,7 +374,7 @@ def _link_text(value: object) -> str:
     return text
 
 
-class Hyperlink(ExcelObject):
+class Hyperlink(HeldPart, ExcelObject):
     """One link on a sheet's cells."""
 
     vba_type_name = "Hyperlink"
@@ -381,6 +382,9 @@ class Hyperlink(ExcelObject):
     def __init__(self, sheet: Worksheet, link: Link) -> None:
         self.sheet = sheet
         self.link = link
+
+    def held_gone(self) -> bool:
+        return not any(one is self.link for one in self.sheet.hyperlinks)
 
     @method
     def Follow(self, NewWindow: object = MISSING, AddHistory: object = MISSING,  # noqa: N803
@@ -547,6 +551,12 @@ class ShapeLink(Hyperlink):
         super().__init__(sheet, link)
         self.shape = shape
 
+    def held_gone(self) -> bool:
+        """It goes with its shape, and is on none of the sheet's cells."""
+        from pyopenvba.apps.excel._held import shape_here
+
+        return self.sheet.deleted or not shape_here(self.sheet, self.shape)
+
     def _set(self, change: Callable[[Link], None]) -> None:
         raise VBAUnsupportedError("changing a loaded shape's hyperlink is not implemented")
 
@@ -624,6 +634,9 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
     @method
     def Delete(self) -> object:
         links = links_of(self.sheet, self.areas)
+        if self.areas is not None and not links:
+            # A range's links, none left, unlike a sheet's (tests/fixtures/held_objects.json).
+            raise error(1004, "Delete method of Hyperlinks class failed")
         _refuse_locked(self.sheet, links)
         _take(self.sheet, links, formats=True)
         return EMPTY

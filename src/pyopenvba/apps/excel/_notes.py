@@ -30,6 +30,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
@@ -365,7 +366,7 @@ def _text_argument(value: object) -> str:
     raise error(1004, "Application-defined or object-defined error")
 
 
-class Comment(ExcelObject):
+class Comment(HeldPart, ExcelObject):
     """One cell's note."""
 
     vba_type_name = "Comment"
@@ -376,6 +377,21 @@ class Comment(ExcelObject):
         self.sheet = sheet
         #: Its cell, which it follows as any Range does (tests/fixtures/range_audit.json).
         self.target = Range(sheet, [Area(row, column, row, column, sheet.name)])
+        #: Who wrote it, which it goes on answering once it has gone.
+        found = note_at(sheet, row, column)
+        self.author = "" if found is None else found.author
+
+    def held_gone(self) -> bool:
+        return note_at(self.sheet, self.row, self.column) is None
+
+    def held_error(self, name: str) -> int:
+        """Gone but for its cell (with its cell, it answers nothing: see ExcelObject) (tests/fixtures/held_objects.json)."""
+        if name in ("author", "visible", "parent", "application", "creator"):
+            return 0
+        return 1004 if name == "shape" else -2147417848
+
+    def held_set_error(self, name: str) -> int:
+        return -2147417848
 
     @property
     def row(self) -> int:
@@ -422,11 +438,11 @@ class Comment(ExcelObject):
 
     @member
     def Author(self) -> object:
-        return self.note.author
+        return self.author
 
     @member
     def Visible(self) -> object:
-        return self.note.visible
+        return not self.held_gone() and self.note.visible
 
     @setter("Visible")
     def _set_visible(self, value: object) -> None:
@@ -516,21 +532,21 @@ _VML_COLOURS = {"black": "#000000", "silver": "#c0c0c0", "gray": "#808080", "whi
                 "navy": "#000080", "blue": "#0000ff", "teal": "#008080", "aqua": "#00ffff"}
 
 
-class NoteColor(ExcelObject):
+class NoteColor(HeldPart, ExcelObject):
     """A note box's fill colour, as Windows' info colour until set (tests/fixtures/note_shapes.json)."""
 
     vba_type_name = "ColorFormat"
 
-    def __init__(self, box: NoteShape) -> None:
-        self.box = box
+    def __init__(self, owner: NoteShape) -> None:
+        self.owner = owner
 
     @member
     def Parent(self) -> object:
-        return NoteFill(self.box)
+        return NoteFill(self.owner)
 
     @member
     def RGB(self) -> object:
-        found = re.search(r'\bfillcolor="([^"]*)"', self.box.markup())
+        found = re.search(r'\bfillcolor="([^"]*)"', self.owner.markup())
         text = found.group(1) if found else ""
         if text.startswith("infoBackground"):
             return VBAInt(14811135, "Long")
@@ -544,37 +560,49 @@ class NoteColor(ExcelObject):
     def _set_rgb(self, value: object) -> None:
         wanted = int(to_integer(value, "Long")) & 0xFFFFFF
         colour = f'#{wanted & 255:02x}{wanted >> 8 & 255:02x}{wanted >> 16:02x}'
-        markup, found = re.subn(r'\bfillcolor="[^"]*"', f'fillcolor="{colour}"', self.box.markup(), count=1)
+        markup, found = re.subn(r'\bfillcolor="[^"]*"', f'fillcolor="{colour}"', self.owner.markup(), count=1)
         if not found:
             raise VBAUnsupportedError("A note's box with no fill colour of its own is not implemented")
-        self.box.remade(markup)
+        self.owner.remade(markup)
 
 
-class NoteFill(ExcelObject):
+class NoteFill(HeldPart, ExcelObject):
     """A note box's fill: only its colour is modelled."""
 
     vba_type_name = "FillFormat"
 
-    def __init__(self, box: NoteShape) -> None:
-        self.box = box
+    def __init__(self, owner: NoteShape) -> None:
+        self.owner = owner
 
     @member
     def Parent(self) -> object:
-        return self.box
+        return self.owner
 
     @member
     def ForeColor(self) -> object:
-        return NoteColor(self.box)
+        return NoteColor(self.owner)
 
 
-class NoteShape(ExcelObject):
+class NoteShape(HeldPart, ExcelObject):
     """A note's box, as Shapes and Comment.Shape answer it."""
 
     vba_type_name = "Shape"
 
     def __init__(self, sheet: Worksheet, row: int, column: int) -> None:
+        from pyopenvba.apps.excel._model import Range
+
         self.sheet = sheet
         self.row, self.column = row, column
+        #: Its cell, which it follows as any Range does.
+        self.target = Range(sheet, [Area(row, column, row, column, sheet.name)])
+
+    @property
+    def held_free(self) -> frozenset[str]:  # pyright: ignore[reportIncompatibleVariableOverride]
+        """With the note gone and its cell there, these still answer (tests/fixtures/held_objects.json)."""
+        return frozenset({"parent", "application", "creator"})
+
+    def held_gone(self) -> bool:
+        return note_at(self.sheet, self.row, self.column) is None
 
     @property
     def note(self) -> Note:
@@ -678,7 +706,8 @@ class NoteShape(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.sheet
+        # Once the note has gone, what its box answers with is the note's own object.
+        return Comment(self.sheet, self.row, self.column) if self.held_gone() else self.sheet
 
     @member
     def Application(self) -> object:
@@ -690,9 +719,21 @@ class NoteTextFrame(ExcelObject):
 
     vba_type_name = "TextFrame"
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     def __init__(self, sheet: Worksheet, row: int, column: int) -> None:
+        from pyopenvba.apps.excel._model import Range
+
         self.sheet = sheet
         self.row, self.column = row, column
+        #: Its cell, as a note's box has.
+        self.target = Range(sheet, [Area(row, column, row, column, sheet.name)])
+
+    @member
+    def Parent(self) -> object:
+        return NoteShape(self.sheet, self.row, self.column)
 
     @method
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:

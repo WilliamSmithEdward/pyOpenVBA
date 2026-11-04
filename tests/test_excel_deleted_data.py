@@ -23,9 +23,6 @@ BOOK = FIXTURES / "deleted_data.xlsx"
 MACRO_BOOK = FIXTURES / "deleted_data.xlsm"
 MEASURED: dict[str, Any] = json.loads((FIXTURES / "deleted_data.json").read_text(encoding="utf-8"))
 EDITS: dict[str, dict[str, Any]] = MEASURED["edits"]
-#: Clearing all of a pivot table deletes it, as excel-held-families makes the model do: until then the model keeps it.
-PIVOT = "the model keeps a pivot table whose cells are all cleared, until excel-held-families lands"
-GAPS = {"PivotTable cleared": PIVOT, "PivotTable contents cleared": PIVOT}
 
 
 def _held(path: Path, markers: list[str]) -> dict[str, list[str]]:
@@ -55,11 +52,7 @@ def _saved(row: dict[str, Any], target: Path) -> None:
     app.save(target)
 
 
-def _params() -> list[Any]:
-    return [pytest.param(name, marks=pytest.mark.xfail(strict=True, reason=GAPS[name])) if name in GAPS else name for name in EDITS if "excel" in EDITS[name]]
-
-
-@pytest.mark.parametrize("name", _params())
+@pytest.mark.parametrize("name", [name for name in EDITS if "excel" in EDITS[name]])
 def test_no_part_holds_what_excels_file_does_not(name: str, tmp_path: Path) -> None:
     """The check that finds a deleted sheet in a file: every marker in every part, against Excel's save of the same edit."""
     row = EDITS[name]
@@ -73,6 +66,14 @@ def test_no_part_holds_what_excels_file_does_not(name: str, tmp_path: Path) -> N
     for marker, parts in row["excel"].items():
         if marker != "MKVBASUB" and not (marker == "MKMODSUB" and not parts):
             assert marker in left, marker
+
+
+@pytest.mark.parametrize("clear", ["Clear", "ClearContents"])
+def test_clearing_all_of_a_pivot_table_takes_it_and_its_cache(clear: str) -> None:
+    """As Excel reads it in the session and from its save: no table and no cache."""
+    app = ExcelApplication.open(BOOK, with_vba=False)
+    app.add_module(f'Public Function Go() As String\n    With ActiveWorkbook\n        .Worksheets("Other").PivotTables("MKPIVOT").TableRange2.{clear}\n        Go = .Worksheets("Other").PivotTables.Count & "|" & .PivotCaches.Count\n    End With\nEnd Function\n', name="E")
+    assert app.run("E.Go") == "0|0"
 
 
 def test_the_markers_were_there_to_find() -> None:

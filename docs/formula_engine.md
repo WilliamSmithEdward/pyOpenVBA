@@ -80,7 +80,16 @@ name looking like a cell is not read as the cell.
    only with nothing left is the reference #REF!; this row is the
    formula's row on any sheet (`tests/fixtures/structured_references/`).
 7. **Functions.** RIGHT past the text's length is the whole text; MATCH
-   over a single value is #N/A; CHOOSE with an array of positions picks
+   over a single value is #N/A; MATCH with -1 walks from the first value and
+   stops at the first equal to the one sought, its answer, or below it, the
+   one before being the answer, so `MATCH(2,{1,2,3},-1)` is #N/A and
+   `MATCH(2,{2,2,2},-1)` is 1 (`functions/lookup.py`,
+   `tests/fixtures/worksheet_function_args.json`);
+   POISSON with a mean of 0 is 1 at 0 and 0 elsewhere (`functions/distributions.py`),
+   and PV and MIRR at a rate of -100% are #NUM! where they divided by zero
+   and stopped the engine, though Excel's MIRR has an answer at a finance
+   rate of -100% (`functions/financial.py`,
+   `tests/fixtures/worksheet_function_types.json`); CHOOSE with an array of positions picks
    item by item, lined up as an operator lines arrays up; INDEX's first
    argument, ROWS and COLUMNS are worked out whole; INDIRECT reads an R1C1
    range; AND, OR and XOR pass over a text argument that says neither

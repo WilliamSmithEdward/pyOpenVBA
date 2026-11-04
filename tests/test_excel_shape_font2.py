@@ -46,6 +46,6 @@ def test_a_font_fill_reports_itself() -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Go()\n    Dim sh As Object\n    Set sh = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40)\n'
-                   f'    {F}Fill.ForeColor.RGB = 255\nEnd Sub\n', name='Unbuilt')
+                   f'    {F}Fill.Patterned 5\nEnd Sub\n', name='Unbuilt')
     with pytest.raises(VBAUnsupportedError):
         app.run('Unbuilt.Go')

@@ -56,7 +56,7 @@ def test_the_file_holds_what_excels_file_holds(name: str) -> None:
     excel, model = SAVED[name]["excel_cells"], SAVED[name]["model_cells"]
     assert set(excel) == set(model)
     assert model["#charts"] == excel["#charts"]
-    # Attribute by attribute: in manual calculation the model writes calcOnSave and calcCompleted the other way round.
+    # Attribute by attribute, as this record's model tags predate their order: test_excel_calc_pr_order holds the whole tag.
     assert attributes(model["#calcPr"]["tag"]) == attributes(excel["#calcPr"]["tag"])
     assert "fullCalcOnLoad" not in model["#calcPr"]["tag"]
     for sheet, cells in excel.items():

@@ -34,6 +34,7 @@ CALLS: dict[str, list[str]] = {
     'Count': ['ARG', '1, ARG'],
     'CountA': ['ARG', '1, ARG'],
     'Average': ['ARG', '1, ARG', '%s, ARG' % COLUMN],
+    'Subtotal': ['ARG, %s' % COLUMN, '9, ARG', '9, %s, ARG' % COLUMN],
 }
 HELPER = '''Private Function Note(e As Long, v As Variant) As String
     If e <> 0 Then

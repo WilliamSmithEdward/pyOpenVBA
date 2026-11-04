@@ -85,11 +85,23 @@ name looking like a cell is not read as the cell.
    one before being the answer, so `MATCH(2,{1,2,3},-1)` is #N/A and
    `MATCH(2,{2,2,2},-1)` is 1 (`functions/lookup.py`,
    `tests/fixtures/worksheet_function_args.json`);
-   POISSON with a mean of 0 is 1 at 0 and 0 elsewhere (`functions/distributions.py`),
-   and PV and MIRR at a rate of -100% are #NUM! where they divided by zero
-   and stopped the engine, though Excel's MIRR has an answer at a finance
-   rate of -100% (`functions/financial.py`,
-   `tests/fixtures/worksheet_function_types.json`); CHOOSE with an array of positions picks
+   POISSON with a mean of 0 is 1 at 0 and 0 elsewhere; HYPGEOM.DIST with
+   nothing drawn or nothing to draw is certain of none; GAMMALN of 1 and 2 is
+   exactly 0; ZTEST's far tail comes from erfc past z = 6, where one less the
+   normal's area leaves only its rounding (`functions/distributions.py`).
+   PV at a rate of -100% and MIRR at a reinvestment rate of -100% are #DIV/0!,
+   where they stopped the engine, and MIRR at a finance rate of -100% has an
+   answer while only the first flow is negative. VDB takes salvage above
+   cost, the difference coming off at once, and VDB and SYD refuse salvage
+   below 0. RATE with nothing paid and nothing to reach is #NUM!
+   (`functions/financial.py`). TEXT of a Boolean format is #VALUE!, as are
+   the formats n, N, E and B alone, and b, bb and BB show the Buddhist year in
+   two digits, three or more letters in four (`functions/text.py`,
+   `formula/_display.py`). NUMBERVALUE of a Boolean is #VALUE!
+   (`functions/text.py`). DECIMAL in base 16 takes 0x or x before the digits
+   (`functions/engineering.py`). All in
+   `tests/fixtures/worksheet_function_edges.json` and
+   `tests/fixtures/worksheet_function_types.json`; CHOOSE with an array of positions picks
    item by item, lined up as an operator lines arrays up; INDEX's first
    argument, ROWS and COLUMNS are worked out whole; INDIRECT reads an R1C1
    range; AND, OR and XOR pass over a text argument that says neither

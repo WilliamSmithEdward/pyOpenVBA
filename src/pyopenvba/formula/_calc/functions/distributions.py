@@ -646,6 +646,9 @@ def _gamma_ln(context: Context, x: Scalar) -> Value:
     value = context.number(x)
     if value <= 0:
         return NUM
+    # Exactly nothing, where the series comes a little short (tests/fixtures/worksheet_function_edges.json).
+    if value in (1, 2):
+        return 0.0
     return checked(log_gamma(value))
 
 
@@ -1131,6 +1134,9 @@ def _hypergeometric(
     n = _whole(context, sample)
     successes = _whole(context, population_s)
     size = _whole(context, population)
+    if (n == 0 or successes == 0) and k >= 0 and n >= 0 and successes >= 0 and size > 0 and n <= size and successes <= size:
+        # Nothing drawn, or nothing to draw: none is certain (tests/fixtures/worksheet_function_edges.json).
+        return 1.0 if cumulative or k == 0 else 0.0
     if (
         k < 0
         or n <= 0
@@ -1210,6 +1216,9 @@ def _z_test(context: Context, array: Value, mean: Scalar, deviation: Scalar | No
     if sigma == 0:
         return DIV0
     z = (precise.summed(values) / count - centre) / (sigma / math.sqrt(count))
+    # Far out, one less the normal's area leaves only its rounding (tests/fixtures/worksheet_function_edges.json).
+    if z > 6:
+        return checked(math.erfc(z / math.sqrt(2)) / 2)
     with localcontext(special.CONTEXT):
         return _exact(1 - special.normal_cdf(D(z)))
 

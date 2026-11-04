@@ -139,6 +139,9 @@ def DECIMAL(context: Context, text: Scalar, radix: Scalar) -> Value:
     base = context.integer(radix)
     if not 2 <= base <= 36 or len(source) > 255:
         return NUM
+    if base == 16:
+        # A hexadecimal number may say so, 0x or x before it (tests/fixtures/worksheet_function_edges.json).
+        source = source.removeprefix("0X") if source.startswith("0X") else source.removeprefix("X")
     if any(_DIGITS.find(char) not in range(base) for char in source):
         return NUM
     return checked(float(int(source, base))) if source else 0.0

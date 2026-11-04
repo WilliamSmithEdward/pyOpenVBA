@@ -188,7 +188,7 @@ def _confidence(context: Context, alpha: Scalar, deviation: Scalar, size: Scalar
 @function("CONFIDENCE", V, V, V)
 def CONFIDENCE(context: Context, alpha: Scalar, deviation: Scalar, size: Scalar) -> Value:
     level, spread_, count = _confidence(context, alpha, deviation, size)
-    return checked(-normal_inverse(level / 2) * spread_ / math.sqrt(count))
+    return checked(-statistics.NormalDist().inv_cdf(level / 2) * spread_ / math.sqrt(count))
 
 
 @function("CONFIDENCE.NORM", V, V, V)

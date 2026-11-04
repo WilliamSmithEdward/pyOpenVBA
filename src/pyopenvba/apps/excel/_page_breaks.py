@@ -341,7 +341,8 @@ def page_break(target: Range) -> object:
 def set_page_break(target: Range, value: object) -> None:
     """xlPageBreakManual puts a break before a whole row or column, or before a cell's row and its column, those
     that are not the first; xlPageBreakNone takes them away; anything else is error 1004."""
-    kind = int(to_integer(value, "Long"))
+    # 0 is none and 1 manual too (tests/fixtures/range_more.json).
+    kind = {0: NONE, 1: MANUAL}.get(int(to_integer(value, "Long")), int(to_integer(value, "Long")))
     if kind not in (MANUAL, NONE):
         raise error(1004, UNSET)
     sheet, area = target.sheet, target.first

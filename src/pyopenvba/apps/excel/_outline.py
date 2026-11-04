@@ -331,13 +331,9 @@ def group(target: Range, operation: str) -> bool:
 
 
 def read_level(target: Range) -> object:
+    """The first row's or column's level, whatever the rest have (tests/fixtures/range_more_blocks.json)."""
     _admit_axes(target.sheet)
-    rows, first, last = axis(target)
-    if first != last:
-        records = _records(target.sheet, rows)
-        found = {_depth(records.get(first)), *(_depth(r) for n, r in records.items() if first <= n <= last)}
-        if len(found) > 1 or (next(iter(found)) and last - first + 1 > sum(first <= n <= last for n in records)):
-            raise unsupported('with heterogeneous multi-row or multi-column outline level reads')
+    rows, first, _last = axis(target)
     return float(_depth(_records(target.sheet, rows).get(first)) + 1)
 
 

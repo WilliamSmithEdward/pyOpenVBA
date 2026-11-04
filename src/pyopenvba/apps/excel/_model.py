@@ -36,7 +36,7 @@ from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
-from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
+from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_APPLICATION_DEFINED,
@@ -693,7 +693,9 @@ class Application(ExcelObject):
         before = self.calculation
         for book in self.workbooks_.books:
             book.calculator.settle_automatic_cache()
-        self.calculation = int(to_integer(value, "Long"))
+        # What is no setting reads as automatic below 2 and manual above it (tests/fixtures/settable_audit.json).
+        wanted = int(to_integer(value, "Long"))
+        self.calculation = wanted if wanted in (-4105, -4135, 2) else -4105 if wanted < 2 else -4135
         for book in self.workbooks_.books:
             book.file_calculation_mode = None
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
@@ -2053,6 +2055,7 @@ class Workbook(ExcelObject):
 
     @setter("AutoUpdateSaveChanges")
     def _set_auto_update_save_changes(self, value: object) -> None:
+        to_bool(value)  # Bound early VBA converts first: text is 13 and Null 94 (tests/fixtures/settable_audit.json).
         raise error(1004)
 
     @member
@@ -3401,6 +3404,9 @@ class Worksheet(ExcelObject):
         #: the last id it gave (see _notes.next_shape_id).
         self.vml_block = 0
         self.vml_last_id = 0
+        #: The cells a save marked ca="1" on a sheet it did not write whole, as not yet worked out (see
+        #: _io._write_cached_values), so a later save can take the mark off once they are.
+        self.marked_to_calculate: set[tuple[int, int]] = set()
 
     def touched(self) -> None:
         self.dirty = True
@@ -4126,8 +4132,6 @@ class Worksheet(ExcelObject):
 
     @setter("EnableFormatConditionsCalculation")
     def _set_format_conditions_calculation(self, value: object) -> None:
-        if value is NULL:
-            raise error(13)
         to_bool(value)  # Excel takes any Boolean, and keeps reading True; anything else is a type mismatch.
 
     @member
@@ -4159,8 +4163,12 @@ class Worksheet(ExcelObject):
 
     @setter("EnableSelection")
     def _set_enable_selection(self, value: object) -> None:
-        """Kept in the file, on a sheet that is not protected too (tests/fixtures/settable_reopen.json)."""
-        self.enable_selection = int(to_integer(value, "Long"))
+        """Kept in the file, on a sheet that is not protected too (tests/fixtures/settable_reopen.json). 2 is taken
+        as xlNoSelection, and what Excel does not name is 1004 (tests/fixtures/settable_audit.json)."""
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (0, 1, 2, -4142):
+            raise error(1004, "Method 'EnableSelection' of object '_Worksheet' failed")
+        self.enable_selection = -4142 if wanted == 2 else wanted
         self.protection_changed = True
         self.touched()
 
@@ -4569,7 +4577,21 @@ class Range(ExcelObject):
 
     @setter("Name")
     def _set_range_name(self, value: object) -> None:
-        self.sheet.book.names_.Add(Name=value, RefersTo=self)
+        """A name for the range; Null and True are 1004, and a name that will not do is 450 where the range has one already
+        (tests/fixtures/range_more.json)."""
+        try:
+            self.vba_get("Name")
+            refused = 450
+        except VBARuntimeError:
+            refused = 1004
+        if value is NULL or value is True:
+            raise error(refused, "Unable to set the Name property of the Range class")
+        try:
+            self.sheet.book.names_.Add(Name=value, RefersTo=self)
+        except VBARuntimeError as failed:
+            if failed.number != 1004:
+                raise
+            raise error(refused, "Unable to set the Name property of the Range class") from failed
 
     @setter("Formula")
     def _set_formula(self, value: object) -> None:
@@ -4656,6 +4678,7 @@ class Range(ExcelObject):
 
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
+        value = _not_null(value)
         _within_length(value)
         written, dynamic = self._legacy(value, r1c1=False)
         self._formula_written(written, dynamic=dynamic)
@@ -4915,9 +4938,12 @@ class Range(ExcelObject):
     def _set_formula_array(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import whole
 
+        value = _not_null(value)
         text = to_text(value.vba_value() if isinstance(value, VBAObject) else value)
         if not _is_formula(text):
-            raise VBAUnsupportedError("FormulaArray set to a value rather than a formula is not implemented")
+            # What is no formula goes in as Formula would take it, and makes no array (tests/fixtures/range_more.json).
+            self._set_formula(value)
+            return
         if len(text) > LONGEST_ARRAY_FORMULA:
             raise error(1004, "Unable to set the FormulaArray property of the Range class")
         if self.sheet.data_tables:
@@ -5098,6 +5124,7 @@ class Range(ExcelObject):
     def _set_formula_r1c1(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        value = _not_null(value)
         _within_length(value)
         if not _arrays.write_admitted(self):
             return
@@ -5237,6 +5264,9 @@ class Range(ExcelObject):
     def _set_number_format_local(self, value: object) -> None:
         from pyopenvba.apps.excel._number_format import from_local
 
+        if value is NULL or isinstance(value, (bool, VBAObject)):
+            self._set_number_format(value)
+            return
         self._set_number_format(from_local(to_text(value), self.sheet.book.application.locale))
 
     @member
@@ -5880,10 +5910,17 @@ class Range(ExcelObject):
 
         set_page_break(self, value)
 
+    def _whole_lines(self) -> None:
+        """OutlineLevel is of whole rows or columns; a cell's is 1004, read or set (tests/fixtures/range_more.json)."""
+        area = self.first
+        if not (self.lines or area.left == 1 and area.right == MAX_COLUMNS or area.top == 1 and area.bottom == MAX_ROWS):
+            raise error(1004, "Unable to get the OutlineLevel property of the Range class")
+
     @member
     def OutlineLevel(self) -> object:
         from pyopenvba.apps.excel._outline import read_level
 
+        self._whole_lines()
         return read_level(self)
 
     @method
@@ -5895,6 +5932,7 @@ class Range(ExcelObject):
 
     @setter('OutlineLevel')
     def _set_outline_level(self, value: object) -> None:
+        self._whole_lines()
         from pyopenvba.apps.excel._outline import set_level
 
         set_level(self, value)
@@ -5918,7 +5956,8 @@ class Range(ExcelObject):
     @setter("Hidden")
     def _set_hidden(self, value: object) -> None:
         before = _dimensions.visibility_state(self)
-        _dimensions.write_hidden(self, value)
+        # Null shows them, as False does (tests/fixtures/range_more.json).
+        _dimensions.write_hidden(self, False if value is NULL else value)
         _dimensions.recalculate_visibility(self, before)
 
     @member
@@ -5928,7 +5967,8 @@ class Range(ExcelObject):
     @setter("UseStandardHeight")
     def _set_use_standard_height(self, value: object) -> None:
         before = _dimensions.visibility_state(self)
-        _dimensions.write_use_standard_height(self, value)
+        # Null is False here, and changes nothing for the width (tests/fixtures/range_more.json).
+        _dimensions.write_use_standard_height(self, False if value is NULL else value)
         _dimensions.recalculate_visibility(self, before)
 
     @member
@@ -5937,7 +5977,8 @@ class Range(ExcelObject):
 
     @setter("UseStandardWidth")
     def _set_use_standard_width(self, value: object) -> None:
-        _dimensions.write_use_standard_width(self, value)
+        if value is not NULL:
+            _dimensions.write_use_standard_width(self, value)
 
     # -- methods
 
@@ -7003,7 +7044,14 @@ class Range(ExcelObject):
 
     @setter("MergeCells")
     def _set_merge_cells(self, value: object) -> None:
-        if to_bool(value):
+        # Null changes nothing, and text that is neither is 1004 (tests/fixtures/range_more.json).
+        if value is NULL:
+            return
+        try:
+            merging = to_bool(value)
+        except VBARuntimeError as failed:
+            raise error(1004, "Unable to set the MergeCells property of the Range class") from failed
+        if merging:
             _merges.merge(self, False)
         else:
             _merges.unmerge(self)
@@ -7868,7 +7916,7 @@ class WorksheetFunction(ExcelObject):
         from pyopenvba.interpreter._inventory import member_exists
 
         if engine_name(name) is not None and member_exists("WorksheetFunction", name, "excel"):
-            return call(self.application, name, args, named, raising=True)
+            return call(self.application, name, args, named, raising=True, late=BINDING.late)
         spec = self.vba_member(name)
         if spec is None:
             # A sheet function WorksheetFunction does not carry, If or Sin, is no member either (error 438).

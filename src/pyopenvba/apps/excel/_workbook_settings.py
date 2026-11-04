@@ -212,7 +212,7 @@ def set_default_style(book: Workbook, kind: str, value: object) -> None:
 
 def set_slicer_default(value: object, styles: tuple[str, ...], name: str) -> None:
     if _style_name(value) not in styles:
-        raise error(450, "Wrong number of arguments or invalid property assignment")
+        raise error(5, "Invalid procedure call or argument")  # Bound early (tests/fixtures/settable_audit.json).
     raise VBAUnsupportedError(f"Workbook.{name} set to another style is not implemented")
 
 
@@ -298,9 +298,12 @@ def session_value(book: Workbook, name: str) -> object:
 
 def set_session_value(book: Workbook, name: str, value: object) -> None:
     if name in REFUSED_SET:
+        # Bound early VBA converts first, so text is 13 and Null 94 (tests/fixtures/settable_audit.json).
+        to_integer(value) if name == "AutoUpdateFrequency" else to_bool(value)
         raise error(1004, REFUSED_SET[name] or "Application-defined or object-defined error")
     if name in IGNORED_SET:
-        to_integer(value)
+        if value is True or not 1 <= int(to_integer(value)) <= 32767:
+            raise error(1004, "Application-defined or object-defined error")
         return
     kind = SETTABLE.get(name)
     if kind is None:

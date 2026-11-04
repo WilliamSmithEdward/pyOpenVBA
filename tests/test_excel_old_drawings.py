@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import struct
 import zipfile
@@ -40,7 +41,7 @@ def _png() -> bytes:
 
 
 def _source(statements: str, folder: str) -> str:
-    made = statements.replace('folder & "\\', f'"{folder}\\')
+    made = statements.replace('folder & "\\', f'"{folder}{os.sep}')
     lines = ['Public Function Go() As String', '    Dim ws As Object, h As Object, o As Object, v As Variant, s As String, t As String, s2 As Variant', '    Set ws = ActiveSheet']
     lines += ['    On Error Resume Next' if 'Err.Clear' in statements else '    On Error GoTo Failed', f'    {made}', '    s = "ok"', 'Measured:', '    On Error Resume Next']
     for read in READS:
@@ -93,6 +94,6 @@ def test_a_picture_inserted_is_linked_to_its_file_not_kept(tmp_path: Path) -> No
     with zipfile.ZipFile(tmp_path / 'b.xlsx') as package:
         rels = package.read('xl/drawings/_rels/drawing1.xml.rels').decode('utf-8')
         types = package.read('[Content_Types].xml').decode('utf-8')
-    # Excel puts a line break after the declaration, which every relationships part the model writes leaves out.
-    assert rels.replace(str(tmp_path), '<folder>').replace('\r', '').replace('\n', '') == RECORD['picture_relationships'].replace('\n', '')
+    # The target holds this machine's own path, spelled its own way on another system.
+    assert rels.replace(str(tmp_path) + os.sep, '<folder>\\') == RECORD['picture_relationships']
     assert 'Extension="png"' not in types

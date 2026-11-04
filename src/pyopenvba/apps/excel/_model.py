@@ -6258,6 +6258,8 @@ class Range(ExcelObject):
 
     @method
     def ClearContents(self) -> object:
+        # Here and not in clear_contents_checked, which is also how a pivot table clears the cells it is about to fill.
+        self._taking_whole_pivot_tables()
         self.clear_contents_checked()
         _events.after_edit(self)
         return EMPTY
@@ -6274,7 +6276,6 @@ class Range(ExcelObject):
             # Unlike a write, a clear that meets a locked cell leaves every cell as it was.
             raise error(1004, PROTECTED)
         _arrays.clear_admitted(target)
-        self._taking_whole_pivot_tables()
         target._clear_contents()
         header_cleared(target)
         if self.sheet.hyperlinks:

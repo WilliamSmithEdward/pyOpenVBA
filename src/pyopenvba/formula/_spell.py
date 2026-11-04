@@ -107,7 +107,7 @@ _FIRST_ITEM: Final[dict[str, _Places]] = {
 #: Where the functions that work out their own arguments read one value through intersected.
 _OWN_PLACES: Final[dict[str, _Places]] = {
     "IF": _Places((0,)), "IFS": _Places(start=0, step=2), "IFERROR": _EVERY, "IFNA": _EVERY, "CHOOSE": _Places((0,)),
-    "OFFSET": _Places(start=1),
+    "OFFSET": _Places(start=1), "INDIRECT": _Places((0,)),
 }
 #: Arguments worked out as arrays even in a cell: SUMPRODUCT(LEN(A1:A3)) adds every length, and INDEX(A1:A3*2,2)
 #: is A2*2 in any row.

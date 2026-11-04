@@ -1,0 +1,136 @@
+{
+ "measured_at": "2026-11-04T03:14:14.995344+00:00",
+ "probe": "Dim Log As String\nSub Note(ByVal s As Variant)\n    Log = Log & CStr(s) & \"|\"\nEnd Sub\nFunction Probe() As String\n    Dim wb As Workbook, ws As Worksheet, ch As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Value = 2: ws.Range(\"A3\").Value = 3\n    ws.Range(\"B1\").Value = 4: ws.Range(\"B2\").Value = 5: ws.Range(\"B3\").Value = 6\n    Set ch = ws.ChartObjects.Add(10, 10, 300, 200).Chart\n    ch.SetSourceData ws.Range(\"A1:B3\")\n    ch.ChartType = xlLine\n    On Error GoTo Failed\n{action}\n    GoTo Done\nFailed:\n    Log = Log & \"!E\" & Err.Number\nDone:\n    On Error Resume Next\n    wb.Close False\n    Probe = Log\nEnd Function\n",
+ "rows": [
+  {
+   "name": "labels_select",
+   "action": "ch.SeriesCollection(1).HasDataLabels = True\nNote ch.SeriesCollection(1).DataLabels.Select\nNote TypeName(Selection)",
+   "result": "True|DataLabels|"
+  },
+  {
+   "name": "gridlines_select",
+   "action": "ch.Axes(2).HasMajorGridlines = True\nNote ch.Axes(2).MajorGridlines.Select\nNote TypeName(Selection)",
+   "result": "True|Gridlines|"
+  },
+  {
+   "name": "legend_entry_select",
+   "action": "ch.HasLegend = True\nNote ch.Legend.LegendEntries(1).Select\nNote TypeName(Selection)",
+   "result": "True|LegendEntry|"
+  },
+  {
+   "name": "trendline_select",
+   "action": "ch.SeriesCollection(1).Trendlines.Add\nNote ch.SeriesCollection(1).Trendlines(1).Select\nNote TypeName(Selection)",
+   "result": "True|Trendline|"
+  },
+  {
+   "name": "up_bars_border",
+   "action": "ch.ChartGroups(1).HasUpDownBars = True\nNote TypeName(ch.ChartGroups(1).UpBars.Border)",
+   "result": "Border|"
+  },
+  {
+   "name": "down_bars_border",
+   "action": "ch.ChartGroups(1).HasUpDownBars = True\nNote TypeName(ch.ChartGroups(1).DownBars.Border)",
+   "result": "!E1004"
+  },
+  {
+   "name": "legend_border",
+   "action": "ch.HasLegend = True\nNote TypeName(ch.Legend.Border)",
+   "result": "Border|"
+  },
+  {
+   "name": "plot_border",
+   "action": "Note TypeName(ch.PlotArea.Border)",
+   "result": "Border|"
+  },
+  {
+   "name": "point_border",
+   "action": "Note TypeName(ch.SeriesCollection(1).Points(1).Border)",
+   "result": "Border|"
+  },
+  {
+   "name": "unique_calc_for",
+   "action": "Dim u As Object\nSet u = ws.Range(\"A1:A3\").FormatConditions.AddUniqueValues\nNote u.CalcFor",
+   "result": "!E438"
+  },
+  {
+   "name": "unique_calc_for_set",
+   "action": "Dim u As Object\nSet u = ws.Range(\"A1:A3\").FormatConditions.AddUniqueValues\nu.CalcFor = 0\nNote u.CalcFor",
+   "result": "!E438"
+  },
+  {
+   "name": "scale_last",
+   "action": "Dim c As Object\nSet c = ws.Range(\"A1:A3\").FormatConditions.AddColorScale(2)\nDim d As Object\nSet d = ws.Range(\"A1:A3\").FormatConditions.AddColorScale(3)\nNote c.Priority & \",\" & d.Priority\nNote TypeName(c.SetLastPriority)\nNote c.Priority & \",\" & d.Priority",
+   "result": "1,2|Empty|3,2|"
+  },
+  {
+   "name": "scale_last_alone",
+   "action": "Dim c As Object\nSet c = ws.Range(\"A1:A3\").FormatConditions.AddColorScale(2)\nc.SetLastPriority\nNote c.Priority",
+   "result": "2|"
+  },
+  {
+   "name": "pivot_axis",
+   "action": "ws.Range(\"E1:F1\").Value = Array(\"R\", \"N\")\nws.Range(\"E2:F2\").Value = Array(\"x\", 1)\nws.Range(\"E3:F3\").Value = Array(\"y\", 2)\nDim pt As Object\nSet pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"E1:F3\")).CreatePivotTable(ws.Range(\"H3\"), \"P\")\npt.PivotFields(\"R\").Orientation = xlRowField\npt.AddDataField pt.PivotFields(\"N\"), \"Total\", xlSum\nNote TypeName(pt.PivotRowAxis.Parent) & \",\" & TypeName(pt.PivotRowAxis.Application) & \",\" & pt.PivotRowAxis.Creator",
+   "result": "PivotTable,Application,1480803660|"
+  },
+  {
+   "name": "pivot_axis_column",
+   "action": "ws.Range(\"E1:F1\").Value = Array(\"R\", \"N\")\nws.Range(\"E2:F2\").Value = Array(\"x\", 1)\nws.Range(\"E3:F3\").Value = Array(\"y\", 2)\nDim pt As Object\nSet pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"E1:F3\")).CreatePivotTable(ws.Range(\"H3\"), \"P\")\npt.PivotFields(\"R\").Orientation = xlRowField\npt.AddDataField pt.PivotFields(\"N\"), \"Total\", xlSum\nNote TypeName(pt.PivotColumnAxis.Parent) & \",\" & TypeName(pt.PivotColumnAxis.Application) & \",\" & pt.PivotColumnAxis.Creator",
+   "result": "PivotTable,Application,1480803660|"
+  },
+  {
+   "name": "xpath_type",
+   "action": "Note TypeName(ws.Range(\"A1\").XPath)",
+   "result": "XPath|"
+  },
+  {
+   "name": "xpath_value",
+   "action": "Note \"[\" & ws.Range(\"A1\").XPath.Value & \"]\"",
+   "result": "[]|"
+  },
+  {
+   "name": "xpath_default",
+   "action": "Note \"[\" & ws.Range(\"A1\").XPath & \"]\"",
+   "result": "[]|"
+  },
+  {
+   "name": "xpath_map",
+   "action": "Note TypeName(ws.Range(\"A1\").XPath.Map)",
+   "result": "!E-2147467259"
+  },
+  {
+   "name": "xpath_repeating",
+   "action": "Note ws.Range(\"A1\").XPath.Repeating",
+   "result": "!E-2147467259"
+  },
+  {
+   "name": "xpath_creator",
+   "action": "Note ws.Range(\"A1\").XPath.Creator",
+   "result": "1480803660|"
+  },
+  {
+   "name": "xpath_clear",
+   "action": "ws.Range(\"A1\").XPath.Clear\nNote \"ok\"",
+   "result": "ok|"
+  },
+  {
+   "name": "xpath_block",
+   "action": "Note TypeName(ws.Range(\"A1:B2\").XPath)",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "nodes_creator",
+   "action": "Dim sh As Object\nSet sh = ws.Shapes.BuildFreeform(0, 10, 10).ConvertToShape\nNote sh.Nodes.Creator",
+   "result": "!E1004"
+  },
+  {
+   "name": "node_creator",
+   "action": "Dim b As Object, sh As Object\nSet b = ws.Shapes.BuildFreeform(0, 10, 10)\nb.AddNodes 0, 0, 40, 40\nSet sh = b.ConvertToShape\nNote sh.Nodes(1).Creator",
+   "result": "1480803660|"
+  },
+  {
+   "name": "text_column_creator",
+   "action": "Dim sh As Object\nSet sh = ws.Shapes.AddTextbox(1, 10, 10, 50, 50)\nNote sh.TextFrame2.Column.Creator",
+   "result": "1480803660|"
+  }
+ ]
+}

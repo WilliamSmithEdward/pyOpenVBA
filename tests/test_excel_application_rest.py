@@ -12,9 +12,8 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 MEASURED = json.loads((Path(__file__).parent / "fixtures/application_rest.json").read_text(encoding="utf-8"))
-#: Measured but left reporting themselves: what DDERequest's error value holds was not read, and UsedObjects(1) answers
-#: from what the measuring session had used.
-REPORTED = {"dde_request_nothing", "used_objects_item"}
+#: Measured but left reporting itself: UsedObjects(1) answers from what the measuring session had used.
+REPORTED = {"used_objects_item"}
 ROWS = [row for row in MEASURED["rows"] if row["name"] not in REPORTED]
 
 

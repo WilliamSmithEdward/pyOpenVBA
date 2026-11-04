@@ -1,0 +1,121 @@
+{
+ "measured_at": "2026-11-04T01:34:45.942440+00:00",
+ "probe": "Dim Log As String\nSub Note(ByVal s As Variant)\n    Log = Log & CStr(s) & \"|\"\nEnd Sub\nFunction Probe() As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, other As Object, co As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n{action}\n    GoTo Done\nFailed:\n    Log = Log & \"!E\" & Err.Number\nDone:\n    On Error Resume Next\n    Application.Calculation = xlCalculationAutomatic\n    Application.CutCopyMode = False\n    wb.Close False\n    Probe = Log\nEnd Function\n",
+ "rows": [
+  {
+   "name": "book_calculate",
+   "action": "ws.Range(\"A1\").Formula = \"=1+1\"\nApplication.Calculation = xlCalculationManual\nws.Range(\"B1\").Value = 5\nws.Range(\"A2\").Formula = \"=B1*2\"\nws.Range(\"B1\").Value = 7\nNote ws.Range(\"A2\").Value\nNote TypeName(wb.Calculate)\nNote ws.Range(\"A2\").Value\nApplication.Calculation = xlCalculationAutomatic",
+   "result": "10|!E438"
+  },
+  {
+   "name": "book_calculate_other_book",
+   "action": "Dim b As Workbook\nSet b = Workbooks.Add\nb.Worksheets(1).Range(\"A1\").Value = 3\nb.Worksheets(1).Range(\"A2\").Formula = \"=A1*2\"\nApplication.Calculation = xlCalculationManual\nb.Worksheets(1).Range(\"A1\").Value = 4\nwb.Calculate\nNote b.Worksheets(1).Range(\"A2\").Value\nb.Calculate\nNote b.Worksheets(1).Range(\"A2\").Value\nApplication.Calculation = xlCalculationAutomatic\nb.Close False",
+   "result": "!E438"
+  },
+  {
+   "name": "shape_select",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nsh.Select\nNote TypeName(Selection)\nNote ActiveSheet.Name\nNote Selection.Name\nNote Selection.ShapeRange.Count",
+   "result": "Rectangle|Sheet1|Rectangle 1|1|"
+  },
+  {
+   "name": "shape_select_replace_false",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nSet other = ws.Shapes.AddShape(1, 100, 10, 50, 50)\nsh.Select\nother.Select False\nNote TypeName(Selection)\nNote ActiveSheet.Name\nNote Selection.ShapeRange.Count",
+   "result": "DrawingObjects|Sheet1|2|"
+  },
+  {
+   "name": "shape_select_replace_true",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nSet other = ws.Shapes.AddShape(1, 100, 10, 50, 50)\nsh.Select\nother.Select True\nNote TypeName(Selection)\nNote ActiveSheet.Name\nNote Selection.Name",
+   "result": "Rectangle|Sheet1|Rectangle 2|"
+  },
+  {
+   "name": "shape_select_hidden_behind",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nsh.Visible = False\nwb.Worksheets.Add\nsh.Select\nNote TypeName(Selection)\nNote ActiveSheet.Name\n",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "shape_select_other_sheet",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nwb.Worksheets.Add\nsh.Select\nNote TypeName(Selection)\nNote ActiveSheet.Name\n",
+   "result": "Range|Sheet2|"
+  },
+  {
+   "name": "shape_select_hidden",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nsh.Visible = False\nsh.Select\nNote TypeName(Selection)\nNote ActiveSheet.Name\n",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "shapes_select_all",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nSet other = ws.Shapes.AddShape(1, 100, 10, 50, 50)\nws.Shapes.SelectAll\nNote TypeName(Selection)\nNote ActiveSheet.Name\nNote Selection.ShapeRange.Count",
+   "result": "DrawingObjects|Sheet1|2|"
+  },
+  {
+   "name": "shapes_select_all_hidden",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nSet other = ws.Shapes.AddShape(1, 100, 10, 50, 50)\nsh.Visible = False\nws.Shapes.SelectAll\nNote TypeName(Selection)\nNote ActiveSheet.Name\nNote Selection.Name",
+   "result": "Rectangle|Sheet1|Rectangle 2|"
+  },
+  {
+   "name": "shapes_select_all_every_hidden",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nsh.Visible = False\nws.Shapes.SelectAll\nNote TypeName(Selection)\nNote ActiveSheet.Name\n",
+   "result": "!E-2147024809"
+  },
+  {
+   "name": "shapes_select_all_replaces",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nSet other = ws.Shapes.AddShape(1, 100, 10, 50, 50)\nsh.Select\nws.Shapes.SelectAll\nNote TypeName(Selection)\nNote ActiveSheet.Name\nNote Selection.ShapeRange.Count",
+   "result": "DrawingObjects|Sheet1|2|"
+  },
+  {
+   "name": "shapes_select_all_with_chart",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nSet co = ws.ChartObjects.Add(10, 10, 200, 100)\nws.Shapes.SelectAll\nNote TypeName(Selection)\nNote ActiveSheet.Name\nNote Selection.ShapeRange.Count",
+   "result": "DrawingObjects|Sheet1|2|"
+  },
+  {
+   "name": "shapes_select_all_none",
+   "action": "ws.Shapes.SelectAll\nNote TypeName(Selection)\nNote ActiveSheet.Name\n",
+   "result": "Range|Sheet1|"
+  },
+  {
+   "name": "shapes_select_all_other_sheet",
+   "action": "Set sh = ws.Shapes.AddShape(1, 10, 10, 50, 50)\nwb.Worksheets.Add\nws.Shapes.SelectAll\nNote TypeName(Selection)\nNote ActiveSheet.Name\n",
+   "result": "Range|Sheet2|"
+  },
+  {
+   "name": "shapes_add_chart",
+   "action": "Set sh = ws.Shapes.AddChart\nNote TypeName(sh)\nNote sh.Type\nNote sh.HasChart\nNote sh.Name\nNote sh.Chart.ChartType\nNote sh.Width & \",\" & sh.Height",
+   "result": "Shape|3|-1|Chart 1|51|360,216|"
+  },
+  {
+   "name": "shapes_add_chart_type",
+   "action": "Set sh = ws.Shapes.AddChart(xlLine, 10, 20, 300, 200)\nNote sh.Chart.ChartType\nNote sh.Left & \",\" & sh.Top & \",\" & sh.Width & \",\" & sh.Height",
+   "result": "65|10,20,300,200|"
+  },
+  {
+   "name": "shapes_add_chart_bad_type",
+   "action": "Set sh = ws.Shapes.AddChart(99999)",
+   "result": ""
+  },
+  {
+   "name": "co_duplicate",
+   "action": "Set co = ws.ChartObjects.Add(10, 10, 200, 100)\nDim d As Object\nSet d = co.Duplicate\nNote TypeName(d)\nNote d.Name\nNote d.Left & \",\" & d.Top\nNote ws.ChartObjects.Count",
+   "result": "Shape|Chart 2|22,22|2|"
+  },
+  {
+   "name": "co_copy_paste",
+   "action": "Set co = ws.ChartObjects.Add(10, 10, 200, 100)\nco.Copy\nNote Application.CutCopyMode\nNote ws.ChartObjects.Count",
+   "result": "0|1|"
+  },
+  {
+   "name": "co_cut",
+   "action": "Set co = ws.ChartObjects.Add(10, 10, 200, 100)\nco.Cut\nNote Application.CutCopyMode\nNote ws.ChartObjects.Count",
+   "result": "0|0|"
+  },
+  {
+   "name": "protect_goal_seek",
+   "action": "Set co = ws.ChartObjects.Add(10, 10, 200, 100)\nNote co.Chart.ProtectGoalSeek\nco.Chart.ProtectGoalSeek = True\nNote co.Chart.ProtectGoalSeek",
+   "result": "False|False|"
+  },
+  {
+   "name": "series_border",
+   "action": "ws.Range(\"A1\").Value = 1\nws.Range(\"A2\").Value = 2\nSet co = ws.ChartObjects.Add(10, 10, 200, 100)\nco.Chart.SeriesCollection.NewSeries\nco.Chart.SeriesCollection(1).Values = ws.Range(\"A1:A2\")\nNote TypeName(co.Chart.SeriesCollection(1).Border)",
+   "result": "Border|"
+  }
+ ]
+}

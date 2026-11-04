@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T01:12:00.153148+00:00",
+ "measured_at": "2026-11-04T03:24:59.358991+00:00",
  "probe": "Dim Log As String\nSub Note(ByVal s As String)\n    Log = Log & s & \"|\"\nEnd Sub\nFunction Probe() As String\n    Application.DisplayAlerts = False\n    On Error GoTo Failed\n{action}\n    Probe = Log\n    Exit Function\nFailed:\n    Probe = Log & \"!E\" & Err.Number\nEnd Function\n",
  "rows": [
   {
@@ -145,7 +145,7 @@
   {
    "name": "app_on_window_set",
    "action": "Application.OnWindow = \"Nothing\"\nNote Application.OnWindow\nApplication.OnWindow = \"\"\nNote \"[\" & Application.OnWindow & \"]\"",
-   "result": "Book29!Nothing|[]|"
+   "result": "Book30!Nothing|[]|"
   },
   {
    "name": "window_on_window",
@@ -155,7 +155,7 @@
   {
    "name": "window_on_window_set",
    "action": "ActiveWindow.OnWindow = \"Nothing\"\nNote ActiveWindow.OnWindow\nActiveWindow.OnWindow = \"\"\nNote \"[\" & ActiveWindow.OnWindow & \"]\"",
-   "result": "Book31!Nothing|!E1004"
+   "result": "Book32!Nothing|!E1004"
   },
   {
    "name": "used_objects_type",
@@ -251,6 +251,21 @@
    "name": "dde_request_nothing",
    "action": "Note TypeName(Application.DDERequest(99999, \"x\"))",
    "result": "Error|"
+  },
+  {
+   "name": "dde_request_value",
+   "action": "Note CStr(Application.DDERequest(99999, \"x\"))",
+   "result": "Error 2023|"
+  },
+  {
+   "name": "dde_request_low",
+   "action": "Note CStr(Application.DDERequest(1, \"x\"))",
+   "result": "Error 2023|"
+  },
+  {
+   "name": "dde_low_channels",
+   "action": "Application.DDETerminate 1\nApplication.DDEExecute 1, \"x\"\nApplication.DDEPoke 1, \"x\", ActiveSheet.Range(\"A1\")\nNote \"ok\"",
+   "result": "ok|"
   },
   {
    "name": "phonetic",

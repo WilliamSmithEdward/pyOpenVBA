@@ -346,6 +346,9 @@ class ErrorCheckingOptions(ExcelObject):
         return VBAInt(1480803660, "Long")
 
 
+_INSTALL_PATH = "C:\\Program Files\\Microsoft Office\\root\\Office16"
+
+
 class Application(ExcelObject):
     """The Excel instance: the root of everything a macro can reach."""
 
@@ -855,7 +858,14 @@ class Application(ExcelObject):
 
     @member
     def Path(self) -> object:
-        return str(Path.cwd())
+        """A chosen install path, not a measured one: a real one names the machine, and the current folder is none of
+        Excel's (William's decision, 2026-11-03)."""
+        return _INSTALL_PATH
+
+    @member
+    def LibraryPath(self) -> object:
+        """Path and LIBRARY, as measured (tests/fixtures/application_paths.json)."""
+        return _INSTALL_PATH + "\\LIBRARY"
 
     @member
     def PathSeparator(self) -> object:
@@ -1019,6 +1029,11 @@ class Application(ExcelObject):
     def DDETerminate(self, Channel: object = MISSING) -> object:  # noqa: N803
         """No channel is ever open here, and Excel lets one that is not go by."""
         return EMPTY
+
+    @method
+    def DDERequest(self, Channel: object = MISSING, Item: object = MISSING) -> object:  # noqa: N803
+        """#REF!, with no channel open (tests/fixtures/application_rest.json)."""
+        return VBAErrorValue(2023)
 
     @method
     def DDEExecute(self, Channel: object = MISSING, String: object = MISSING) -> object:  # noqa: N803
@@ -2920,11 +2935,6 @@ class Workbook(ExcelObject):
         return any(kind != "document" or any(line.strip() and not re.match(r"\s*(Attribute|Option)\b|\s*'", line,
                                                                               re.I) for line in source.splitlines())
                    for kind, source in sources)
-
-    @method
-    def Calculate(self) -> object:
-        _events.calculated_all(self, self.calculator.calculate_all(asked=True))
-        return EMPTY
 
     @member
     def CalculationVersion(self) -> object:
@@ -6000,6 +6010,9 @@ class Range(ExcelObject):
     def XPath(self) -> object:
         from pyopenvba.apps.excel._range_members import XPath
 
+        # Of one cell only (tests/fixtures/unassessed_more.json, xpath_block).
+        if len(self.areas) != 1 or self.first.top != self.first.bottom or self.first.left != self.first.right:
+            raise error(-2147024809, "The specified value is out of range.")
         return XPath(self)
 
     @member

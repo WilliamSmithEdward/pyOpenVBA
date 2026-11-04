@@ -1025,6 +1025,10 @@ class StyleInterior(RangeInterior):
     def _fills(self) -> list[S.Fill]:
         return [self.fill]
 
+    def _mixes_gradient(self) -> bool:
+        # A style has the one fill.
+        return False
+
     def _write(self, change: Callable[[S.Fill], S.Fill], *, gradient: S.Fill | None = None) -> None:
         self._fills()  # a gradient fill reports itself before anything changes
         _change(self.owner, lambda own: replace(own, fill=change(own.fill)))

@@ -6,13 +6,14 @@ reads follows its cells and its sheet's name as an embedded chart's does; a new 
 yet, and a worksheet a chart sheet's chart reads is not deleted."""
 from __future__ import annotations
 
+from collections.abc import Sequence
 import posixpath
 import re
 from typing import TYPE_CHECKING, Union
 
 from pyopenvba.apps.excel._charts import CHART_TYPES, SERIES_KINDS, Chart, shown_type
 from pyopenvba._a1 import split_sheet
-from pyopenvba.apps.excel._charts_file import REL_CHART, _remove_style_parts, read_chart, rels_part, xml_tree
+from pyopenvba.apps.excel._charts_file import REL_CHART, remove_style_parts, read_chart, rels_part, xml_tree
 from pyopenvba.apps.excel._names import same_sheet_name
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Worksheet
@@ -242,7 +243,7 @@ def tab_position(book: Workbook, before: object, after: object) -> int:
     raise VBAUnsupportedError("Placing a tab by one of another workbook, beside a workbook with a chart sheet, is not implemented")
 
 
-def next_visible(book: Workbook, going: list[Tab]) -> Tab | None:
+def next_visible(book: Workbook, going: Sequence[Tab]) -> Tab | None:
     """The tab that is active once ``going`` is deleted or hidden: the active one where it stays, else the next visible tab
     after it, or the last visible one before it. None where no other tab is visible."""
     tabs = book.tabs()
@@ -261,7 +262,7 @@ def _activated(tab: Tab) -> None:
     tab.Activate()
 
 
-def hide(book: Workbook, tabs: list[Tab], state: int, refusal: str) -> None:
+def hide(book: Workbook, tabs: Sequence[Tab], state: int, refusal: str) -> None:
     """Hide ``tabs``; hiding every visible tab is error 1004, and hiding the active one makes another active."""
     following = next_visible(book, tabs)
     if following is None:
@@ -339,7 +340,7 @@ def remove_deleted(book: Workbook, package: OpcFile) -> None:
     for sheet in book.deleted_chart_sheets:
         drawing = _related(package, sheet.part_name, _REL_DRAWING)
         chart = sheet.state.part
-        _remove_style_parts(package, chart)
+        remove_style_parts(package, chart)
         for part in (chart, drawing, sheet.part_name):
             if part and package.has(part):
                 package.remove(part)

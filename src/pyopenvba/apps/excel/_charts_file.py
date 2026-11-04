@@ -918,7 +918,7 @@ def _write_style_parts(package: OpcFile, chart: ChartState) -> None:
     from pyopenvba.apps.excel._chart_styled import is_styled
 
     if not is_styled(chart.chart_style):
-        _remove_style_parts(package, chart.part)
+        remove_style_parts(package, chart.part)
         return
     style, colours = _style_part_names(chart.part)
     package.write(style, style_part(chart.chart_style).encode('utf-8'))
@@ -933,7 +933,7 @@ def _write_style_parts(package: OpcFile, chart: ChartState) -> None:
         '</Relationships>').encode('utf-8'))
 
 
-def _remove_style_parts(package: OpcFile, part: str) -> None:
+def remove_style_parts(package: OpcFile, part: str) -> None:
     for name in _style_part_names(part):
         if package.has(name):
             package.remove(name)
@@ -946,7 +946,7 @@ def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
                 if any(shape.shape_id == identifier and shape.kind == 'chart' for shape in owner.shapes_)}
     retired = set(sheet.deleted_chart_parts)
     for part in retired - retained:
-        _remove_style_parts(package, part)
+        remove_style_parts(package, part)
         package.remove(part)
         package.remove(rels_part(part))
         drop_content_type(package, part)

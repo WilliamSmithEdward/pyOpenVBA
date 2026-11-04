@@ -246,7 +246,7 @@ def survivor(book: Workbook, going: list[Worksheet]) -> Worksheet | None:
     return later[0] if later else (staying[-1] if staying else None)
 
 
-def set_visible(book: Workbook, sheets: list[Worksheet], value: object, refusal: str) -> None:
+def set_visible(book: Workbook, tabs: Sequence[Worksheet | ChartSheet], value: object, refusal: str) -> None:
     """Hide or show ``sheets``; hiding every visible sheet is error 1004, and hiding the active one makes another
     active. 1 shows them as xlSheetVisible does, and what Excel does not name is 1004 (tests/fixtures/settable_audit.json)."""
     from pyopenvba.apps.excel._protection import HIDING, refuse_structure
@@ -258,14 +258,16 @@ def set_visible(book: Workbook, sheets: list[Worksheet], value: object, refusal:
     if state not in (VISIBLE, 0, 2):
         raise error(1004, refusal)
     if state == VISIBLE:
-        for sheet in sheets:
-            sheet.visible = state
+        for tab in tabs:
+            tab.visible = state
         return
     if book.chart_sheets:
         from pyopenvba.apps.excel._chart_sheets import hide
 
-        hide(book, sheets, state, refusal)
+        hide(book, tabs, state, refusal)
         return
+    # Without a chart sheet in the workbook, every tab is a worksheet.
+    sheets = [tab for tab in tabs if isinstance(tab, Worksheet)]
     after = survivor(book, sheets)
     if after is None or not any(sheet.visible == VISIBLE and not any(one is sheet for one in sheets)
                                 for sheet in book.sheets_):

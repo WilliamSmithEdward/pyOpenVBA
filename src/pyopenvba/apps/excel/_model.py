@@ -1706,10 +1706,10 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project, load_project
         from pyopenvba.apps.excel._text_files import is_text, open_text
 
-        # A workbook keeps the spelling it was given: FullName of C:\\RUNNER~1\\a.xlsx is that, not the long name
-        # (tests/test_excel_short_paths.py). Whether it is already open goes by the file it really is.
+        # A workbook keeps the folder as it was given, an 8.3 name included (tests/test_excel_short_paths.py), with its own name
+        # as the disk spells it (tests/fixtures/case_saves.json). Whether it is already open goes by the file it really is.
         really = path.resolve()
-        path = Path(os.path.abspath(path))
+        path = Path(os.path.abspath(path)).parent / really.name
         existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == really), None)
         if existing is not None:
             self.application.activate_book(existing)

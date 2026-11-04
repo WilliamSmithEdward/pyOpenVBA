@@ -226,7 +226,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             from pyopenvba.apps.excel._sheet_tabs import read as read_tab
 
             read_tab(sheet, sheet_xml)
-    book.next_sheet_id = max((sheet.sheet_id for sheet in book.sheets_), default=0) + 1
+    book.next_sheet_id = max((sheet.sheet_id for sheet in book.tabs()), default=0) + 1
     _read_threads(book, package)
     book.held_kinds = {kind.rsplit("/", 1)[-1] for _, kind in _relationships(package).values()} | {
         marker for marker in ("customWorkbookViews", "webPublishObjects") if f"<{marker}" in workbook_xml}
@@ -1626,6 +1626,10 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     else:
         _sync_sheets(book, package)
         removed_sheets = _remove_deleted_sheets(book, package)
+        if book.deleted_chart_sheets:
+            from pyopenvba.apps.excel._chart_sheets import remove_deleted
+
+            remove_deleted(book, package)
     from pyopenvba.apps.excel._cell_styles import prepare_save
     from pyopenvba.apps.excel._windows import saved, tabs_moved, with_book_view, with_view
 

@@ -967,6 +967,16 @@ ControlFormat,RemoveAllItems,method,RemoveAllItems(),,PARTIAL,tests/fixtures/sha
 ControlFormat,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,SmallChange,property,As Long,,PARTIAL,tests/fixtures/shapes/numeric_controls.json,
 ControlFormat,Value,property,As Long,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
+Crop,Application,"property, read-only",As Object,,MISSING,,
+Crop,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureHeight,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureOffsetX,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureOffsetY,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureWidth,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeHeight,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeLeft,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeTop,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeWidth,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
 CustomProperties,_Default,"property, read-only",As CustomProperty,,PARTIAL,tests/fixtures/hidden_defaults_more.json; tests/test_excel_hidden_defaults_more.py,"Item, bound early."
 CustomProperties,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 CustomProperties,Add,method,"Add(Name As String, Value As Variant) As CustomProperty",,PARTIAL,tests/fixtures/custom_properties.json; tests/test_excel_custom_properties.py,"Keeps the value as text, a number or date as CStr writes it and True as -1, a range its value; kept in the order of their names. A name there already, case aside, is error 9; an empty value 7; Empty, Null or an array 1004; a missing argument 450. A name past 255 characters reports unsupported."
@@ -1406,15 +1416,6 @@ GlowFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
 GlowFormat,Parent,not in the type library,,,UNASSESSED,,
 GlowFormat,Radius,property,As Single,no setter,UNASSESSED,,
 GlowFormat,Transparency,property,As Single,no setter,UNASSESSED,,
-Graphic,Application,"property, read-only",As Application,,MISSING,,
-Graphic,Brightness,property,As Single,,MISSING,,
-Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
-Graphic,Contrast,property,As Single,,MISSING,,
-Graphic,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,CropBottom,property,As Single,,MISSING,,
-Graphic,CropLeft,property,As Single,,MISSING,,
-Graphic,CropRight,property,As Single,,MISSING,,
-Graphic,CropTop,property,As Single,,MISSING,,
 GradientStop,Application,"property, read-only",As Object,,MISSING,,
 GradientStop,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
 GradientStop,Creator,"property, read-only",As Long,,UNASSESSED,,
@@ -1429,6 +1430,15 @@ GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Tran
 GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,MISSING,,
 GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+Graphic,Application,"property, read-only",As Application,,MISSING,,
+Graphic,Brightness,property,As Single,,MISSING,,
+Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
+Graphic,Contrast,property,As Single,,MISSING,,
+Graphic,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,CropBottom,property,As Single,,MISSING,,
+Graphic,CropLeft,property,As Single,,MISSING,,
+Graphic,CropRight,property,As Single,,MISSING,,
+Graphic,CropTop,property,As Single,,MISSING,,
 Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
@@ -1949,20 +1959,20 @@ Panes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_m
 Panes,Item,"property, read-only",As Pane,,PARTIAL,tests/fixtures/windows/windows.json,"A pane, scrolled on its own, reports itself as not implemented."
 Panes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The window.
 PictureFormat,Application,"property, read-only",As Object,,MISSING,,
-PictureFormat,Brightness,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
-PictureFormat,ColorType,property,As MsoPictureColorType,,MISSING,,
-PictureFormat,Contrast,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
+PictureFormat,Brightness,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"0 to 1, written as lum bright; else out of range. A new picture only."
+PictureFormat,ColorType,property,As MsoPictureColorType,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"1 to 4, clearing brightness and contrast; 4 sets them as a watermark."
+PictureFormat,Contrast,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"0 to 1, written as lum contrast; else out of range. A new picture only."
 PictureFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
-PictureFormat,Crop,"property, read-only",As Crop,,MISSING,,
-PictureFormat,CropBottom,property,As Single,,MISSING,,
-PictureFormat,CropLeft,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
-PictureFormat,CropRight,property,As Single,,MISSING,,
-PictureFormat,CropTop,property,As Single,,MISSING,,
-PictureFormat,IncrementBrightness,method,IncrementBrightness(Increment As Single),,MISSING,,
-PictureFormat,IncrementContrast,method,IncrementContrast(Increment As Single),,MISSING,,
+PictureFormat,Crop,"property, read-only",As Crop,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+PictureFormat,CropBottom,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself.
+PictureFormat,CropLeft,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself: it moves the shape by rules not worked out.
+PictureFormat,CropRight,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself.
+PictureFormat,CropTop,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself.
+PictureFormat,IncrementBrightness,method,IncrementBrightness(Increment As Single),,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Stops at 0 and 1.
+PictureFormat,IncrementContrast,method,IncrementContrast(Increment As Single),,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Stops at 0 and 1.
 PictureFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
-PictureFormat,TransparencyColor,property,As MsoRGBType,,MISSING,,
-PictureFormat,TransparentBackground,property,As MsoTriState,,MISSING,,
+PictureFormat,TransparencyColor,property,As MsoRGBType,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"Written as clrChange. With brightness, contrast or a color type it reports itself."
+PictureFormat,TransparentBackground,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Setting it writes a fill behind the picture.
 PivotAxis,Application,"property, read-only",As Application,,UNASSESSED,,
 PivotAxis,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
 PivotAxis,Parent,"property, read-only",As Object,,UNASSESSED,,
@@ -2937,7 +2947,7 @@ Shapes,AddFormControl,method,"AddFormControl(Type As XlFormControl, Left As Long
 Shapes,AddLabel,method,"AddLabel(Orientation As MsoTextOrientation, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
 Shapes,AddLine,method,"AddLine(BeginX As Single, BeginY As Single, EndX As Single, EndY As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,AddOLEObject,method,"AddOLEObject([ClassType As Variant], [Filename As Variant], [Link As Variant], [DisplayAsIcon As Variant], [IconFileName As Variant], [IconIndex As Variant], [IconLabel As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
-Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,"A PNG kept in the workbook, bytes as they are; -1 is its own size. A link, other images and a picture's fill and line report themselves."
+Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"PNG, JPEG and GIF kept in the workbook as they are; -1 is the size the file gives. A link, a BMP (Excel converts it) and a picture's fill and line report themselves."
 Shapes,AddPicture2,method,"AddPicture2(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single, Compress As MsoPictureCompress) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,As AddPicture; Compress changed nothing measured.
 Shapes,AddPolyline,method,AddPolyline(SafeArrayOfPoints As Variant) As Shape,,PARTIAL,tests/fixtures/shape_polyline.json; tests/test_excel_shape_polyline.py,"A freeform (Type 5, AutoShapeType 138) through the points in a custGeom, closed and filled when the last point is the first, its box their bounds plus one EMU; fewer than two points raise 1004. Read as Freeform N, saved as Freeform: Shape N."
 Shapes,AddShape,method,"AddShape(Type As MsoAutoShapeType, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -3311,12 +3321,6 @@ ThemeFont,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/wo
 ThemeFont,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFont,Name,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFont,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-ThemeFonts,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Item,method,Item(Index As MsoFontLanguageIndex) As ThemeFont,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Load,method,Load(FileName As String),,MISSING,,
@@ -3324,6 +3328,12 @@ ThemeFontScheme,MajorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fix
 ThemeFontScheme,MinorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Save,method,Save(FileName As String),,MISSING,,
+ThemeFonts,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+ThemeFonts,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Item,method,Item(Index As MsoFontLanguageIndex) As ThemeFont,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThreeDFormat,Application,"property, read-only",As Object,,MISSING,,
 ThreeDFormat,BevelBottomDepth,property,As Single,,MISSING,,
 ThreeDFormat,BevelBottomInset,property,As Single,,MISSING,,
@@ -4399,12 +4409,6 @@ WorksheetView,DisplayOutline,property,As Boolean,,PARTIAL,tests/fixtures/sheet_v
 WorksheetView,DisplayZeros,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
 WorksheetView,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The window.
 WorksheetView,Sheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The sheet it shows.
-_Counted,_NewEnum,not in the type library,,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
-_Counted,Application,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-_Counted,Count,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-_Counted,Creator,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-_Counted,Item,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-_Counted,Parent,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 XPath,_Default,"property, read-only",As String,,MISSING,,
 XPath,Application,"property, read-only",As Application,,MISSING,,
 XPath,Clear,method,Clear(),,UNASSESSED,,
@@ -4414,6 +4418,12 @@ XPath,Parent,"property, read-only",As Object,,MISSING,,
 XPath,Repeating,"property, read-only",As Boolean,,UNASSESSED,,
 XPath,SetValue,method,"SetValue(Map As XmlMap, XPath As String, [SelectionNamespace As Variant], [Repeating As Variant])",,MISSING,,
 XPath,Value,"property, read-only",As String,,UNASSESSED,,
+_Counted,_NewEnum,not in the type library,,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
+_Counted,Application,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+_Counted,Count,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+_Counted,Creator,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+_Counted,Item,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+_Counted,Parent,not in the type library,,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 _Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 _ElementPart,Application,not in the type library,,,PARTIAL,tests/fixtures/table_style_elements.json; tests/test_excel_table_style_elements.py,"Reads the built-in table styles as Excel does. Pivot, slicer and timeline styles and changes to a style report themselves."
 _ElementPart,Creator,not in the type library,,,PARTIAL,tests/fixtures/table_style_elements.json; tests/test_excel_table_style_elements.py,"Reads the built-in table styles as Excel does. Pivot, slicer and timeline styles and changes to a style report themselves."

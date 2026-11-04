@@ -45,7 +45,7 @@ from typing import Any, Callable, Final
 from weakref import ReferenceType
 
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.interpreter import _locale
+from pyopenvba.interpreter import _constants_data, _locale
 
 # --- error numbers ---------------------------------------------------------------
 
@@ -643,6 +643,19 @@ def holds_objects(array: VBAArray) -> bool:
     return array.element_factory is None and default_for(array.element_type) is NOTHING
 
 
+class NullString(str):
+    """vbNullString: "" to everything but StrPtr. Assigning and CStr pass it on, and anything that makes a new string,
+    as Trim$ and & do, comes back plain, which is how Python treats a str subclass and what Excel does
+    (tests/fixtures/dialogs.json)."""
+
+    __slots__ = ()
+
+
+NULL_STRING = NullString()
+# The table is generated from the type libraries, where the constant is only "", and every host reads it.
+_constants_data.VBA_CONSTANTS["vbNullString"] = NULL_STRING
+
+
 def default_for(declared: str) -> object:
     """What a variable of ``declared`` holds before anything is assigned."""
     base = declared.rstrip("()")
@@ -653,7 +666,7 @@ def default_for(declared: str) -> object:
     if base in ("Variant", ""):
         return EMPTY
     if base == "String":
-        return ""
+        return NULL_STRING
     if base == "Boolean":
         return False
     if base == "Date":

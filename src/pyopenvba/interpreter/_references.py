@@ -12,7 +12,7 @@ from pyopenvba.interpreter._flow import Program
 from pyopenvba.interpreter._financial import SIGNATURES as FINANCIAL_SIGNATURES
 from pyopenvba.interpreter._intrinsics import INTRINSICS
 from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
-from pyopenvba.interpreter._type_library import LibraryClass, LibraryType, find_class
+from pyopenvba.interpreter._type_library import CallShape, LibraryClass, LibraryType, find_class, refusal
 from pyopenvba.interpreter._values import type_name
 
 if TYPE_CHECKING:
@@ -168,6 +168,24 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
         program.early_bound_members[id(expression)] = found.name
         return library_info(found.result(key))
 
+    def check_library_call(expression: A.Expr | None, args: Sequence[A.Argument], use: str) -> None:
+        """Refuse what VBA's compiler refuses of a member call bound early, which the type library decides."""
+        name = program.early_bound_members.get(id(expression)) if isinstance(expression, A.Member) else None
+        if library is None or name is None:
+            return
+        assert isinstance(expression, A.Member)
+        found = find_class(library, name)
+        if found is None:
+            return
+        given = [argument for argument in args if not argument.name]
+        while given and given[-1].omitted:
+            given.pop()
+        shape = CallShape(len(given), tuple(argument.name for argument in args if argument.name),
+                          frozenset(at for at, argument in enumerate(given) if isinstance(argument.value, A.Literal)))
+        said = refusal(library, found, strip_suffix(expression.name), use, shape)
+        if said is not None:
+            fail(said, expression.line)
+
     def indexed_by_default(target: A.Expr | None, context: Info | None, info: Info) -> bool:
         """Whether the arguments after this go to what it answers: Cells(1, 1) is Cells then its default member."""
         if isinstance(target, A.Member) and id(target) in program.early_bound_members:
@@ -306,6 +324,7 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 fail('Argument not optional', line)
 
     resolved: dict[tuple[int, Info | None, bool, bool], Info | None] = {}
+    with_subjects: set[int] = set()
 
     def visit(value: object, context: Info | None = None, *, callee: bool = False, lvalue: bool = False) -> Info | None:
         if isinstance(value, A.Expr):
@@ -338,10 +357,14 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             check(value.name, info, value.line)
             if not callee:
                 check_call(value, [], context)
+                check_library_call(value, [], 'value')
             return info
         if isinstance(value, A.Index):
+            with_subject = id(value) in with_subjects
             info = visit(value.target, context, callee=True)
             visit(value.args, context)
+            if not callee and not lvalue and not with_subject:
+                check_library_call(value.target, value.args, 'value')
             if isinstance(value.target, A.Name) and info is not None and not info[1]:
                 held = library_class(info[0], info[2])
                 if held is not None:
@@ -358,6 +381,7 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             visit(value.callee, context, callee=True)
             visit(value.args, context)
             check_call(value.callee, value.args, context, explicit=True)
+            check_library_call(value.callee, value.args, 'statement')
         elif isinstance(value, A.Assign):
             target = value.target
             arguments: list[A.Argument] = []
@@ -367,6 +391,8 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 target = target.target
             visit(target, context, callee=True, lvalue=True)
             visit(value.value, context)
+            if value.kind == 'let':
+                check_library_call(target, arguments, 'assign')
             kind = 'set' if value.kind == 'set' else 'let'
             called = signature(target, context, setter=kind)
             if called is None:
@@ -376,7 +402,16 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 rhs = A.Argument(value=value.value, name=name, by_value=True)
                 check_call(target, [*arguments, rhs], context, setter=kind)
         elif isinstance(value, A.With):
-            parent = visit(value.subject, context)
+            subject = value.subject
+            if isinstance(subject, A.Member):
+                parent = visit(subject, context, callee=True)
+                check_library_call(subject, [], 'with')
+            elif isinstance(subject, A.Index):
+                with_subjects.add(id(subject))
+                parent = visit(subject, context)
+                check_library_call(subject.target, subject.args, 'with')
+            else:
+                parent = visit(subject, context)
             visit(value.body, parent)
         elif isinstance(value, (list, tuple)):
             for child in cast(Sequence[object], value):

@@ -1,0 +1,161 @@
+{
+ "measured_at": "2026-11-04T05:18:50.800508+00:00",
+ "cases": {
+  "plain": "",
+  "function": "n.MacroType = 1",
+  "command": "n.MacroType = 2",
+  "function category": "n.MacroType = 1: n.Category = \"Financial\"",
+  "command key": "n.MacroType = 2: n.ShortcutKey = \"a\"",
+  "function with other": "wb.Names.Add \"Zed\", \"=Sheet1!$B$1\": n.MacroType = 1",
+  "command with other": "wb.Names.Add \"Zed\", \"=Sheet1!$B$1\": n.MacroType = 2",
+  "empty text": "n.RefersTo = \"\"",
+  "empty value": "n.Value = \"\"",
+  "empty Empty value": "n.Value = Empty",
+  "equals": "n.RefersTo = \"=\"",
+  "empty with other": "wb.Names.Add \"Zed\", \"=Sheet1!$B$1\": n.RefersTo = \"\"",
+  "empty hidden": "n.RefersTo = \"\": n.Visible = False",
+  "empty comment": "n.RefersTo = \"\": n.Comment = \"c\"",
+  "macro then back": "n.MacroType = 1: n.MacroType = -4142",
+  "macro then refers": "n.MacroType = 1: n.RefersTo = \"=Sheet1!$C$1\"",
+  "macro to formula": "n.RefersTo = \"=1+2\": n.MacroType = 2"
+ },
+ "source": "Public Function Tried(ByVal which As Long, ByVal path As String, ByVal kind As Long) As String\n    Dim wb As Workbook, n As Name, s As String, one As Name\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Names.Add \"Nm\", \"=Sheet1!$A$1\"\n    Set n = wb.Names(\"Nm\")\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        \n    Case 1\n        n.MacroType = 1\n    Case 2\n        n.MacroType = 2\n    Case 3\n        n.MacroType = 1: n.Category = \"Financial\"\n    Case 4\n        n.MacroType = 2: n.ShortcutKey = \"a\"\n    Case 5\n        wb.Names.Add \"Zed\", \"=Sheet1!$B$1\": n.MacroType = 1\n    Case 6\n        wb.Names.Add \"Zed\", \"=Sheet1!$B$1\": n.MacroType = 2\n    Case 7\n        n.RefersTo = \"\"\n    Case 8\n        n.Value = \"\"\n    Case 9\n        n.Value = Empty\n    Case 10\n        n.RefersTo = \"=\"\n    Case 11\n        wb.Names.Add \"Zed\", \"=Sheet1!$B$1\": n.RefersTo = \"\"\n    Case 12\n        n.RefersTo = \"\": n.Visible = False\n    Case 13\n        n.RefersTo = \"\": n.Comment = \"c\"\n    Case 14\n        n.MacroType = 1: n.MacroType = -4142\n    Case 15\n        n.MacroType = 1: n.RefersTo = \"=Sheet1!$C$1\"\n    Case 16\n        n.RefersTo = \"=1+2\": n.MacroType = 2\n    End Select\n    s = \"count \" & wb.Names.Count\n    For Each one In wb.Names\n        s = s & \"|\" & one.Name & \" \" & one.RefersTo & \" \" & one.Visible & \" \" & one.MacroType\n    Next\n    wb.SaveAs path, kind\n    wb.Close False\n    Set wb = Workbooks.Open(path, 0)\n    s = s & \"@reopened count \" & wb.Names.Count\n    For Each one In wb.Names\n        s = s & \"|\" & one.Name & \" \" & one.RefersTo & \" \" & one.Visible & \" \" & one.MacroType\n    Next\n    wb.Close False\n    Tried = s\n    Exit Function\nFailed:\n    Tried = s & \" Err \" & Err.Number & \" \" & Err.Description\n    On Error Resume Next\n    wb.Close False\nEnd Function\n",
+ "answers": {
+  "plain xlsx": {
+   "read": "count 1|Nm =Sheet1!$A$1 True -4142@reopened count 1|Nm =Sheet1!$A$1 True -4142",
+   "file": "<definedNames><definedName name=\"Nm\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "plain xlsm": {
+   "read": "count 1|Nm =Sheet1!$A$1 True -4142@reopened count 1|Nm =Sheet1!$A$1 True -4142",
+   "file": "<definedNames><definedName name=\"Nm\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "function xlsx": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 1@reopened count 0",
+   "file": ""
+  },
+  "function xlsm": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 1@reopened count 1|Nm =Sheet1!$A$1 True 1",
+   "file": "<definedNames><definedName name=\"Nm\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "command xlsx": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 2@reopened count 0",
+   "file": ""
+  },
+  "command xlsm": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 2@reopened count 1|Nm =Sheet1!$A$1 True 2",
+   "file": "<definedNames><definedName name=\"Nm\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "function category xlsx": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 1@reopened count 0",
+   "file": ""
+  },
+  "function category xlsm": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 1@reopened count 1|Nm =Sheet1!$A$1 True 1",
+   "file": "<definedNames><definedName name=\"Nm\" function=\"1\" xlm=\"1\" functionGroupId=\"1\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "command key xlsx": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 2@reopened count 0",
+   "file": ""
+  },
+  "command key xlsm": {
+   "read": "count 1|Nm =Sheet1!$A$1 True 2@reopened count 1|Nm =Sheet1!$A$1 True 2",
+   "file": "<definedNames><definedName name=\"Nm\" xlm=\"1\" functionGroupId=\"14\" shortcutKey=\"a\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "function with other xlsx": {
+   "read": "count 2|Nm =Sheet1!$A$1 True 1|Zed =Sheet1!$B$1 True -4142@reopened count 1|Zed =Sheet1!$B$1 True -4142",
+   "file": "<definedNames><definedName name=\"Zed\">Sheet1!$B$1</definedName></definedNames>"
+  },
+  "function with other xlsm": {
+   "read": "count 2|Nm =Sheet1!$A$1 True 1|Zed =Sheet1!$B$1 True -4142@reopened count 2|Nm =Sheet1!$A$1 True 1|Zed =Sheet1!$B$1 True -4142",
+   "file": "<definedNames><definedName name=\"Nm\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName><definedName name=\"Zed\">Sheet1!$B$1</definedName></definedNames>"
+  },
+  "command with other xlsx": {
+   "read": "count 2|Nm =Sheet1!$A$1 True 2|Zed =Sheet1!$B$1 True -4142@reopened count 1|Zed =Sheet1!$B$1 True -4142",
+   "file": "<definedNames><definedName name=\"Zed\">Sheet1!$B$1</definedName></definedNames>"
+  },
+  "command with other xlsm": {
+   "read": "count 2|Nm =Sheet1!$A$1 True 2|Zed =Sheet1!$B$1 True -4142@reopened count 2|Nm =Sheet1!$A$1 True 2|Zed =Sheet1!$B$1 True -4142",
+   "file": "<definedNames><definedName name=\"Nm\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName><definedName name=\"Zed\">Sheet1!$B$1</definedName></definedNames>"
+  },
+  "empty text xlsx": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "empty text xlsm": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "empty value xlsx": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "empty value xlsm": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "empty Empty value xlsx": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "empty Empty value xlsm": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "equals xlsx": {
+   "read": "count 1|Nm =\"=\" True -4142@reopened count 1|Nm =\"=\" True -4142",
+   "file": "<definedNames><definedName name=\"Nm\">\"=\"</definedName></definedNames>"
+  },
+  "equals xlsm": {
+   "read": "count 1|Nm =\"=\" True -4142@reopened count 1|Nm =\"=\" True -4142",
+   "file": "<definedNames><definedName name=\"Nm\">\"=\"</definedName></definedNames>"
+  },
+  "empty with other xlsx": {
+   "read": "count 1|Zed =Sheet1!$B$1 True -4142@reopened count 1|Zed =Sheet1!$B$1 True -4142",
+   "file": "<definedNames><definedName name=\"Zed\">Sheet1!$B$1</definedName></definedNames>"
+  },
+  "empty with other xlsm": {
+   "read": "count 1|Zed =Sheet1!$B$1 True -4142@reopened count 1|Zed =Sheet1!$B$1 True -4142",
+   "file": "<definedNames><definedName name=\"Zed\">Sheet1!$B$1</definedName></definedNames>"
+  },
+  "empty hidden xlsx": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "empty hidden xlsm": {
+   "read": "count 0@reopened count 0",
+   "file": ""
+  },
+  "empty comment xlsx": {
+   "read": "count 1|Nm =\"=\" True -4142@reopened count 1|Nm =\"=\" True -4142",
+   "file": "<definedNames><definedName name=\"Nm\" comment=\"c\">\"=\"</definedName></definedNames>"
+  },
+  "empty comment xlsm": {
+   "read": "count 1|Nm =\"=\" True -4142@reopened count 1|Nm =\"=\" True -4142",
+   "file": "<definedNames><definedName name=\"Nm\" comment=\"c\">\"=\"</definedName></definedNames>"
+  },
+  "macro then back xlsx": {
+   "read": "count 1|Nm =Sheet1!$A$1 True -4142@reopened count 1|Nm =Sheet1!$A$1 True -4142",
+   "file": "<definedNames><definedName name=\"Nm\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "macro then back xlsm": {
+   "read": "count 1|Nm =Sheet1!$A$1 True -4142@reopened count 1|Nm =Sheet1!$A$1 True -4142",
+   "file": "<definedNames><definedName name=\"Nm\">Sheet1!$A$1</definedName></definedNames>"
+  },
+  "macro then refers xlsx": {
+   "read": "count 1|Nm =[Book2]Sheet1!$C$1 True 1@reopened count 0",
+   "file": ""
+  },
+  "macro then refers xlsm": {
+   "read": "count 1|Nm =[Book2]Sheet1!$C$1 True 1@reopened count 1|Nm =[Book2]Sheet1!$C$1 True 1",
+   "file": "<definedNames><definedName name=\"Nm\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">[1]Sheet1!$C$1</definedName></definedNames>"
+  },
+  "macro to formula xlsx": {
+   "read": "count 1|Nm =1+2 True 2@reopened count 0",
+   "file": ""
+  },
+  "macro to formula xlsm": {
+   "read": "count 1|Nm =1+2 True 2@reopened count 1|Nm =1+2 True 2",
+   "file": "<definedNames><definedName name=\"Nm\" xlm=\"1\" functionGroupId=\"14\">1+2</definedName></definedNames>"
+  }
+ }
+}

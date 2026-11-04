@@ -27,6 +27,7 @@ from pyopenvba.exceptions import (
     VBACompileError,
     VBAError,
     VBARuntimeError,
+    VBADialogError,
     VBASandboxError,
     VBAUnsupportedError,
 )
@@ -73,6 +74,7 @@ __all__ = [
     "VBAInt",
     "VBAObject",
     "VBARuntimeError",
+    "VBADialogError",
     "VBASandboxError",
     "VBASingle",
     "VBAUnsupportedError",

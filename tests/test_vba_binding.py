@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBACompileError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter._compile import nodes
 from pyopenvba.interpreter._type_library import build, find_class
@@ -63,7 +64,11 @@ def early_here(expression: str) -> bool:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(TOP + BODY.replace('@@LINE@@', line), name='Harness')
-    assert app.run('Harness.Probe') == 'compiled'
+    try:
+        assert app.run('Harness.Probe') == 'compiled'
+    except VBACompileError as refused:
+        assert 'Method or data member not found' in str(refused)
+        return True
     assert app.interpreter is not None
     module = app.interpreter.modules['harness']
     procedure = module.procedure('Probe')

@@ -23,17 +23,17 @@ class LibraryClass:
     default: str
     members: dict[str, list[list[Any]]]
 
-    def _reading(self, member: str) -> list[Any] | None:
+    def reading(self, member: str) -> list[Any] | None:
         """The form of a member that answers a value: a method, or a property's get."""
         return next((form for form in self.members.get(member.lower(), ()) if form[0] in (1, 2)), None)
 
     def result(self, member: str) -> str | None:
         """What the member returns, '' if nothing, None if the class has no such member."""
-        form = self._reading(member)
+        form = self.reading(member)
         return None if form is None else form[3]
 
     def takes_arguments(self, member: str) -> bool:
-        form = self._reading(member)
+        form = self.reading(member)
         return form is not None and (bool(form[4]) or bool(form[2]))
 
     @property
@@ -52,6 +52,113 @@ def find_class(library: str, name: str) -> LibraryClass | None:
         if text is not None:
             found = json.loads(text)
             return LibraryClass(found['name'], found['dual'], found['nonextensible'], found['default'], found['members'])
+    return None
+
+
+#: What an interface inherits and the compiler will not let a macro name.
+_RESTRICTED = frozenset({'addref', 'release', 'queryinterface', 'gettypeinfocount', 'gettypeinfo', 'getidsofnames', 'invoke'})
+_SCALARS = frozenset({'String', 'Long', 'Boolean', 'Double', 'Integer', 'Single', 'Date', 'Currency', 'Byte', 'LongLong'})
+_LOOSE = frozenset({'Object', 'Variant'})
+WRONG_NUMBER = 'Wrong number of arguments or invalid property assignment'
+NOT_OPTIONAL = 'Argument not optional'
+NAMED_NOT_FOUND = 'Named argument not found'
+NO_FUNCTION = 'Expected Function or variable'
+WITH_OBJECT = 'With object must be user-defined type, Object, or Variant'
+
+
+@dataclass(frozen=True, slots=True)
+class CallShape:
+    """What the compiler sees of a call's arguments."""
+
+    positional: int = 0
+    named: tuple[str, ...] = ()
+    #: The places given a literal number or text, which no parameter of a class can take.
+    literals: frozenset[int] = frozenset()
+
+
+def _through_default(library: str, returned: str, shape: CallShape) -> str | None:
+    """Arguments on a member that takes none go to the default member of what it returns."""
+    if returned in _LOOSE:
+        return 'Named arguments not allowed' if shape.named else None
+    found = find_class(library, returned) if returned not in _SCALARS and returned else None
+    if found is None:
+        return WRONG_NUMBER
+    # A class with no default member leaves the call to run time.
+    return _arguments(library, found.reading(found.default), shape, through=True) if found.default else None
+
+
+def _arguments(library: str, form: list[Any] | None, shape: CallShape, *, through: bool = False, dual: bool = False) -> str | None:
+    if form is None:
+        return WRONG_NUMBER
+    parameters = [one.split(':') for one in form[4]]
+    if not parameters and not form[2]:
+        if not shape.positional and not shape.named:
+            return None
+        # A function takes arguments for what it returns only on a dual class, and only if that is a class: wb.PivotCaches(1).
+        hands_on = form[3] and form[3] not in _SCALARS and form[3] not in _LOOSE and dual
+        return WRONG_NUMBER if form[0] == 1 and not through and not hands_on else _through_default(library, form[3], shape)
+    names = {name.lower() for name, _ in parameters}
+    for name in shape.named:
+        if name.lower() not in names:
+            return NAMED_NOT_FOUND
+    for place in sorted(shape.literals):
+        if place < len(parameters) and parameters[place][1] not in _SCALARS and parameters[place][1] != 'Variant':
+            return 'Type mismatch'
+    if shape.positional + len(shape.named) > len(parameters) and not form[2]:
+        return WRONG_NUMBER
+    given = {name.lower() for name in shape.named}
+    if any(name.lower() not in given for name, _ in parameters[shape.positional:form[1]]):
+        return NOT_OPTIONAL
+    return None
+
+
+def refusal(library: str, found: LibraryClass, member: str, use: str, shape: CallShape = CallShape()) -> str | None:
+    """What VBA's compiler says of this call on a variable of this class, or None if it compiles.
+
+    A use is 'value', 'assign', 'with' or 'statement' (tests/fixtures/vba_compile_kinds.json).
+    """
+    key = member.lower()
+    forms = found.members.get(key)
+    if forms is None:
+        return 'Method or data member not found' if found.nonextensible else None
+    if key in _RESTRICTED:
+        return 'Function or interface marked as restricted, or the function uses an Automation type not supported in Visual Basic'
+    form = found.reading(key)
+    if form is None or (use == 'assign' and any(one[0] in (4, 8) for one in forms)):
+        return None
+    returned = form[3]
+    scalar = returned in _SCALARS
+    if use == 'assign' and form[0] == 1 and scalar and found.dual:
+        return 'Function call on left-hand side of assignment must return Variant or Object'
+    if use != 'assign' or shape.positional or shape.named or form[1]:
+        said = _arguments(library, form, shape, dual=found.dual)
+        if said is not None:
+            return said
+    nothing = returned == ''
+    if use == 'value':
+        return (NO_FUNCTION if found.dual else 'Type mismatch') if nothing else None
+    if use == 'with':
+        if nothing:
+            return NO_FUNCTION if found.dual else WITH_OBJECT
+        return WITH_OBJECT if scalar else None
+    if use == 'assign':
+        if nothing:
+            return NO_FUNCTION if found.dual else 'Assignment to constant not permitted'
+        if scalar:
+            if form[0] == 1 or form[4]:
+                return 'Assignment to constant not permitted'
+            return "Can't assign to read-only property" if found.dual else WRONG_NUMBER
+        if returned in _LOOSE:
+            return None
+        held = find_class(library, returned)
+        if held is None or not held.default:
+            return None
+        # A Let goes to the default member of what it answers, which has to take one.
+        takes = [one for one in held.members[held.default] if one[0] in (4, 8)]
+        if not takes:
+            reading = held.reading(held.default)
+            return NOT_OPTIONAL if reading is not None and reading[0] == 1 and reading[1] else 'Invalid use of property'
+        return NOT_OPTIONAL if len(takes[0][4]) > 1 and takes[0][1] > 1 else None
     return None
 
 

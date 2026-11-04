@@ -1,7 +1,7 @@
 """When a procedure is refused, against Excel with Compile On Demand at its default (scripts/measure_vba_compile_timing.py).
 
 A line that does not compile stops only a run that enters its procedure, first at that entry, whatever ran before it and
-under any On Error. The refusal families the compiler does not make yet join REFUSED_HERE as it learns them.
+under any On Error.
 """
 from __future__ import annotations
 
@@ -14,7 +14,8 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBACompileError
 
 ANSWERS = json.loads((Path(__file__).parent / 'fixtures/vba_compile_timing.json').read_text(encoding='utf-8'))['answers']
-REFUSED_HERE = {'undeclared_explicit': 'v = NotDeclared', 'project_function_count': 'v = Good(1, 2)'}
+REFUSED_HERE = {'read_only': 'ws.Index = 1', 'argument_count': 'v = r.Offset(1, 2, 3)', 'named_argument': 'v = r.Offset(Foo:=1)', 'sub_as_value': 'v = ws.Activate',
+                'unknown_member': 'v = ws.Nope', 'undeclared_explicit': 'v = NotDeclared', 'project_function_count': 'v = Good(1, 2)'}
 GOOD = 'Function Good() As String\n    Good = "ran"\nEnd Function\n'
 
 

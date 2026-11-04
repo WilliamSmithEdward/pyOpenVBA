@@ -35,7 +35,7 @@ def test_a_property_excel_lets_a_macro_set_is_reported_as_a_gap(statement: str) 
         _run(statement)
 
 
-@pytest.mark.parametrize('statement', ['ActiveWorkbook.PasswordEncryptionKeyLength = 5',
+@pytest.mark.parametrize('statement', ['Set co = ActiveWorkbook: co.PasswordEncryptionKeyLength = 5',
                                        'ActiveSheet.Shapes(1).ID = 5'])
 def test_a_read_only_property_raises_450(statement: str) -> None:
     assert _run(statement) == 'E450'

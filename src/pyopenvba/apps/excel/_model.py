@@ -5900,6 +5900,9 @@ class Range(ExcelObject):
     def XPath(self) -> object:
         from pyopenvba.apps.excel._range_members import XPath
 
+        # Of one cell only (tests/fixtures/unassessed_more.json, xpath_block).
+        if len(self.areas) != 1 or self.first.top != self.first.bottom or self.first.left != self.first.right:
+            raise error(-2147024809, "The specified value is out of range.")
         return XPath(self)
 
     @member

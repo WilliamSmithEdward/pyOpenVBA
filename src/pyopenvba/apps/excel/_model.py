@@ -3724,6 +3724,8 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._hyperlinks import Hyperlinks
 
         links = Hyperlinks(self)
+        if isinstance(Index, VBAArray):
+            raise error(13, "Type mismatch")
         return links if Index is MISSING else links.vba_get("Item", [Index])
 
     @member
@@ -3788,7 +3790,8 @@ class Worksheet(ExcelObject):
 
         tables = PivotTables(self, [PivotTable(self, table.cache, table.root, report_owner=table)
                                    for table in self.pivot_tables])
-        return tables if Index is MISSING else tables.Item(Index)
+        # ws.PivotTables(Null) is the collection (tests/fixtures/excel_everyday_14.json).
+        return tables if Index is MISSING or Index is NULL else tables.vba_get("Item", [Index])
 
     @member
     def PrintedCommentPages(self) -> object:
@@ -7592,12 +7595,16 @@ class DefinedName(ExcelObject):
 
     @member
     def WorkbookParameter(self) -> object:
-        """False: Excel refuses every setting with error 5 (tests/fixtures/name_macro.json)."""
+        """False: Excel refuses every setting with error 5 until the name is a valid one (tests/fixtures/name_macro.json)."""
         return False
 
     @setter("WorkbookParameter")
     def _set_workbook_parameter(self, value: object) -> None:
-        raise error(5)
+        if not self.ValidWorkbookParameter():
+            raise error(5)
+        # A saved workbook's name takes it (tests/fixtures/excel_everyday_14.json), but the model does not keep it.
+        if to_bool(value):
+            raise VBAUnsupportedError("Name.WorkbookParameter set to True is not implemented")
 
     @member
     def ValidWorkbookParameter(self) -> object:

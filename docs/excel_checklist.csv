@@ -2385,6 +2385,7 @@ Point,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL,test
 Point,Has3DEffect,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,False. No setter.
 Point,HasDataLabel,property,As Boolean,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; on a series with labels only False is taken.
 Point,Height,"property, read-only",As Double,,MISSING,,
+Point,Interior,not in the type library,,,PARTIAL,tests/fixtures/excel_everyday_14.json,Color only
 Point,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; line and scatter charts are refused.
 Point,IsTotal,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Raises 445. No setter.
 Point,Left,"property, read-only",As Double,,MISSING,,
@@ -2762,7 +2763,7 @@ Series,ErrorBar,method,"ErrorBar(Direction As XlErrorBarDirection, Include As Xl
 Series,ErrorBars,"property, read-only",As ErrorBars,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,"Parent, Application, Name (S, the series' place, E), EndStyle and Delete; members of a series with no bars raise -2147467259. Border, Format, ClearFormats and Select are not implemented."
 Series,Explosion,property,As Long,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,"The ser's explosion on a pie, none at 0; on other kinds, a doughnut's included, or below 0 it raises 1004."
 Series,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,"Fill and Line, by the kind of chart; imported charts are refused."
-Series,Formula,property,As String,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Series,Formula,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Series,FormulaLocal,property,As String,no setter,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,"Measured under en-US, where it reads as Formula. Read only."
 Series,FormulaR1C1,property,As String,no setter,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,Formula with its absolute references spelled R1C1. Read only; relative references are refused.
 Series,FormulaR1C1Local,property,As String,no setter,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,"Measured under en-US, where it reads as FormulaR1C1. Read only."
@@ -2773,6 +2774,7 @@ Series,Has3DEffect,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_se
 Series,HasDataLabels,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"The series' dLbls showing values, before its categories, on every kind; setting it either way turns HasLeaderLines off."
 Series,HasErrorBars,property,As Boolean,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py; tests/fixtures/chart_series_reads.json,"On, a fixed bar both ways, X and Y in a scatter chart, of the value axis' major unit, 1 on scatter, pie and doughnut charts; an automatic major unit needs native layout and is refused. Off removes every bar. Area charts are refused."
 Series,HasLeaderLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"True until data labels are set; written in the series' dLbls, and a pie's or doughnut's own leader lines go off once any series' do."
+Series,Interior,not in the type library,,,PARTIAL,tests/fixtures/excel_everyday_14.json,Color only
 Series,InvertColor,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"Reads white, 16777215; the setter is not implemented."
 Series,InvertColorIndex,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 2; the setter is not implemented.
 Series,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The ser's invertIfNegative on column and bar charts; other kinds take the setting silently and write nothing.
@@ -3357,7 +3359,7 @@ TextRange2,InsertChartField,method,"InsertChartField(ChartFieldType As MsoChartF
 TextRange2,InsertSymbol,method,"InsertSymbol(FontName As String, CharNumber As Long, [Unicode As MsoTriState]) As TextRange2",,MISSING,,
 TextRange2,Item,method,Item(Index As Variant) As TextRange2,,MISSING,,
 TextRange2,LanguageID,property,As MsoLanguageID,,MISSING,,
-TextRange2,Length,"property, read-only",As Long,,MISSING,,
+TextRange2,Length,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_everyday_14.json,
 TextRange2,Lines,"property, read-only",As TextRange2,,MISSING,,
 TextRange2,LtrRun,method,LtrRun(),,MISSING,,
 TextRange2,MathZones,"property, read-only",As TextRange2,,MISSING,,

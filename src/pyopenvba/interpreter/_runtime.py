@@ -1056,6 +1056,8 @@ class Assignable:
     declared: str = 'Variant'
     #: True for a property whose Let takes an object itself (setter(objects=True)).
     takes_objects: bool = False
+    #: What the property makes of a value given by Let, an object still whole, before anything else does.
+    given: Callable[[object], object] | None = None
 
 
 @dataclass(slots=True)
@@ -1767,6 +1769,8 @@ class Interpreter:
             # Nothing has no value to let: v = Range("A1:B1").Style, whose cells differ, is error 91.
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
+        if statement.kind == "let" and target.given is not None:
+            value = target.given(value)
         if statement.kind == "let" and isinstance(value, VBAObject):
             # Some objects, and some properties, take an object itself by Let; anything else hands over the
             # object's default member.
@@ -2747,6 +2751,7 @@ class Interpreter:
                 take=lambda: _dispatch_get(target, name, [], {}),
                 declared=slot.declared if slot is not None else 'Variant',
                 takes_objects=bool(spec is not None and getattr(spec.setter, '_vba_let_objects', False)),
+                given=(lambda value: target.vba_given(strip_suffix(name), value)) if isinstance(target, VBAObject) else None,
             )
         if isinstance(expression, A.Index):
             return self._index_target(expression, frame)
@@ -3140,8 +3145,6 @@ def _set_member(target: object, name: str, value: object, by_ref: bool, late: Li
     """A property set. Bound early VBA turns the value into the parameter's type first, which the setters answer: Null is 94 and
     text that is no number 13. Bound late the object takes the Variant itself and answers otherwise (tests/fixtures/settable_audit.json)."""
     try:
-        if isinstance(target, VBAObject) and not by_ref:
-            value = target.vba_given(strip_suffix(name), value)
         _dispatch_set(target, name, value, [], {}, by_ref)
     except VBARuntimeError as failed:
         number = None if late is None else late_let_error(late, strip_suffix(name), failed.number, value is NULL, isinstance(value, str))

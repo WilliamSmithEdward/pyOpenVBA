@@ -63,7 +63,7 @@ from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._visible import filtering, hidden_lines, unmeasured
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.formula._parse import shift_text
+from pyopenvba.formula._parse import sorted_text
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
@@ -462,7 +462,7 @@ def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: boo
     for (row, column), cell in moving.items():
         shift = (0, destination[column] - column) if across else (destination[row] - row, 0)
         if cell.formula and shift != (0, 0):
-            formulas[row, column] = shift_text(cell.formula, *shift)
+            formulas[row, column] = sorted_text(cell.formula, *shift)
     return SortPlan(sheet, block, moving, destination, across, formulas)
 
 

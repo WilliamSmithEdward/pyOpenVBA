@@ -3054,7 +3054,7 @@ class Workbook(ExcelObject):
             return [active]
         return [sheet for sheet in self.sheets_ if any(one is sheet for one in self.selected_sheets)]
 
-    def add_sheet(self, name: str = "", *, at: int | None = None) -> Worksheet:
+    def add_sheet(self, name: str = "", *, at: int | None = None, numbered: bool = False) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
         chosen = name or self._next_sheet_name()
         if any(_names.same_sheet_name(sheet.name, chosen) for sheet in self.sheets_):
@@ -3065,10 +3065,14 @@ class Workbook(ExcelObject):
         else:
             self.sheets_.insert(at, sheet)
         self.saved = False
-        self.sheet_name_counter = max(self.sheet_name_counter, len(self.sheets_))
+        if name and not numbered:
+            self.sheet_name_counter = max(self.sheet_name_counter, len(self.sheets_))
         return sheet
 
     def _next_sheet_name(self) -> str:
+        """The number after the last the workbook gave, past any name taken in any case. Deleting or renaming a sheet gives
+        none back; a sheet given a name, as a copy is, raises it to the count of sheets; and opening a file starts it from
+        nothing, whatever its sheets are called (tests/fixtures/new_sheet_names.json)."""
         taken = {sheet.name.lower() for sheet in self.sheets_}
         number = self.sheet_name_counter + 1
         while f"sheet{number}" in taken:
@@ -3186,7 +3190,7 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
         names = self.book.allocate_sheet_names(count)
         added: list[Worksheet] = []
         for offset, name in enumerate(reversed(names)):
-            sheet = self.book.add_sheet(name, at=None if at is None else at + offset)
+            sheet = self.book.add_sheet(name, at=None if at is None else at + offset, numbered=True)
             added.append(sheet)
             self.book.activate_sheet(sheet)
             _events.new_sheet(self.book, sheet, left)

@@ -240,6 +240,8 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     book.saved = True
     # Last, as a workbook worked out in full as it opens may be left unsaved (see _calculation_state).
     read_calculation(book, workbook_xml)
+    # Excel's numbering of new sheets starts again in an opened file (tests/fixtures/new_sheet_names.json).
+    book.sheet_name_counter = 0
     return book
 
 

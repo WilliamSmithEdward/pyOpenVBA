@@ -825,6 +825,54 @@ def shift_text(formula: str, down: int, across: int) -> str:
     return ("=" if formula.startswith("=") else "") + out
 
 
+def sorted_text(formula: str, down: int, across: int) -> str:
+    """A formula Range.Sort moved ``down`` and ``across``, which treats references its own way
+    (tests/fixtures/sort_formulas.json). A reference naming a sheet stays as it is, even the sheet's own name. A range moves
+    with each end stopped at the sheet's edge, and is #REF! only if all of it would be past the edge; a single cell past
+    the edge is #REF!, as in a copy.
+    """
+    if not down and not across:
+        return formula
+    body = formula[1:] if formula.startswith("=") else formula
+    pieces: list[tuple[int, int, str]] = []
+    for token in tokenize(body):
+        if token.kind != "ref" or "!" in token.text:
+            continue
+        pieces.append((token.at, token.at + len(token.text), _sorted_reference(token.text, down, across)))
+    out = body
+    for start, stop, replacement in reversed(pieces):
+        out = out[:start] + replacement + out[stop:]
+    return ("=" if formula.startswith("=") else "") + out
+
+
+def _sorted_reference(text: str, down: int, across: int) -> str:
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_letter, column_number
+
+    parts = text.split(":")
+    if len(parts) != 2:
+        return shift_reference(text, down, across)
+    start, end = _CORNER.match(parts[0]), _CORNER.match(parts[1])
+    if start is None or end is None:
+        return text
+
+    def moved(fixed: str, value: int | None, by: int) -> int | None:
+        return value if value is None or fixed else value + by
+
+    corners: list[list[str]] = [[start.group(1), start.group(2) or "", start.group(3), start.group(4) or ""],
+                                [end.group(1), end.group(2) or "", end.group(3), end.group(4) or ""]]
+    columns = [column_number(corner[1]) if corner[1] else None for corner in corners]
+    rows = [int(corner[3]) if corner[3] else None for corner in corners]
+    for values, by, last, fixed_at in ((columns, across, MAX_COLUMNS, 0), (rows, down, MAX_ROWS, 2)):
+        shifted = [moved(corners[index][fixed_at], values[index], by) for index in range(2)]
+        known = [value for value in shifted if value is not None]
+        if known and (all(value < 1 for value in known) or all(value > last for value in known)):
+            return "#REF!"
+        values[:] = [None if value is None else min(max(value, 1), last) for value in shifted]
+    spelled = [f"{corner[0]}{column_letter(column) if column is not None else ''}{corner[2]}{row if row is not None else ''}"
+               for corner, column, row in zip(corners, columns, rows, strict=True)]
+    return ":".join(_in_order(spelled))
+
+
 def transpose_text(formula: str, source: tuple[int, int], target: tuple[int, int]) -> str:
     """A formula pasted transposed, from the cell at ``source`` to the one at ``target``.
 

@@ -1,0 +1,405 @@
+{
+ "measured_at": "2026-11-04T06:22:36.351856+00:00",
+ "cases": [
+  [
+   [
+    "add",
+    "add",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet4 [Sheet4] [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "drop Sheet1",
+    "add"
+   ],
+   "Err 1004"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "drop Sheet3",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet4 [Sheet4] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "drop Sheet2",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet4 [Sheet4] [Sheet3] [Sheet1]"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "drop Sheet1",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet4 [Sheet4] [Sheet3] [Sheet2]"
+  ],
+  [
+   [
+    "add",
+    "drop Sheet2",
+    "add",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet4 [Sheet4] [Sheet3] [Sheet1]"
+  ],
+  [
+   [
+    "name One",
+    "add"
+   ],
+   "ok Sheet2 [Sheet2] [One]"
+  ],
+  [
+   [
+    "name One",
+    "add",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 [Sheet3] [Sheet2] [One]"
+  ],
+  [
+   [
+    "name Sheet5",
+    "add"
+   ],
+   "ok Sheet2 [Sheet2] [Sheet5]"
+  ],
+  [
+   [
+    "name Sheet5",
+    "add",
+    "add",
+    "add",
+    "add",
+    "add",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet4 Sheet6 Sheet7 Sheet8 [Sheet8] [Sheet7] [Sheet6] [Sheet4] [Sheet3] [Sheet2] [Sheet5]"
+  ],
+  [
+   [
+    "name sheet2",
+    "add"
+   ],
+   "ok Sheet3 [Sheet3] [sheet2]"
+  ],
+  [
+   [
+    "name Sheet2",
+    "add"
+   ],
+   "ok Sheet3 [Sheet3] [Sheet2]"
+  ],
+  [
+   [
+    "add",
+    "rename Sheet2 Other",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 [Sheet3] [Other] [Sheet1]"
+  ],
+  [
+   [
+    "add",
+    "rename Sheet2 Sheet9",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 [Sheet3] [Sheet9] [Sheet1]"
+  ],
+  [
+   [
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet2 [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "OPEN",
+    "add",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet4 [Sheet4] [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "drop Sheet2",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet2 [Sheet2] [Sheet3] [Sheet1]"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "drop Sheet1",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet1 [Sheet1] [Sheet3] [Sheet2]"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "drop Sheet3",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet3 [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "name One",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet1 [Sheet1] [One]"
+  ],
+  [
+   [
+    "name One",
+    "OPEN",
+    "add",
+    "add"
+   ],
+   "ok Sheet1 Sheet2 [Sheet2] [Sheet1] [One]"
+  ],
+  [
+   [
+    "name One",
+    "add",
+    "rename Sheet2 Two",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet2 Sheet1 [Sheet1] [Two] [One]"
+  ],
+  [
+   [
+    "name One",
+    "add",
+    "rename Sheet2 Two",
+    "add",
+    "rename Sheet2 Three",
+    "add",
+    "rename Sheet2 Forms",
+    "add",
+    "rename Sheet2 Blank",
+    "OPEN",
+    "add"
+   ],
+   "Err 9 Sheet2 Sheet3"
+  ],
+  [
+   [
+    "name One",
+    "add",
+    "rename Sheet2 Two",
+    "add",
+    "rename Sheet2 Three",
+    "add",
+    "rename Sheet2 Forms",
+    "add",
+    "rename Sheet2 Blank",
+    "OPEN",
+    "drop Blank",
+    "add"
+   ],
+   "Err 9 Sheet2 Sheet3"
+  ],
+  [
+   [
+    "name Sheet5",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet1 [Sheet1] [Sheet5]"
+  ],
+  [
+   [
+    "name Sheet5",
+    "OPEN",
+    "add",
+    "add"
+   ],
+   "ok Sheet1 Sheet2 [Sheet2] [Sheet1] [Sheet5]"
+  ],
+  [
+   [
+    "OPEN",
+    "drop Sheet1x",
+    "add"
+   ],
+   "Err 9"
+  ],
+  [
+   [
+    "add",
+    "OPEN",
+    "drop Sheet1",
+    "add"
+   ],
+   "ok Sheet2 Sheet1 [Sheet1] [Sheet2]"
+  ],
+  [
+   [
+    "add",
+    "OPEN",
+    "drop Sheet2",
+    "add"
+   ],
+   "ok Sheet2 Sheet2 [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "add",
+    "add",
+    "OPEN",
+    "drop Sheet3",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 Sheet3 [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "name Report",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet1 [Sheet1] [Report]"
+  ],
+  [
+   [
+    "name Sheet1x",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet1 [Sheet1] [Sheet1x]"
+  ],
+  [
+   [
+    "name sheet3",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet1 [Sheet1] [sheet3]"
+  ],
+  [
+   [
+    "name Sheet03",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet1 [Sheet1] [Sheet03]"
+  ],
+  [
+   [
+    "Sheets.Add",
+    "Sheets.Add"
+   ],
+   "ok Sheet2 Sheet3 [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "Add Count 2"
+   ],
+   "ok Sheet3 Sheet2 [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "OPEN",
+    "Add Count 2"
+   ],
+   "ok Sheet3 Sheet2 [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "Add After"
+   ],
+   "ok Sheet2 [Sheet1] [Sheet2]"
+  ],
+  [
+   [
+    "copy",
+    "add"
+   ],
+   "ok Sheet1 (2) Sheet3 [Sheet1] [Sheet3] [Sheet1 (2)]"
+  ],
+  [
+   [
+    "OPEN",
+    "copy",
+    "add"
+   ],
+   "ok Sheet1 (2) Sheet3 [Sheet1] [Sheet3] [Sheet1 (2)]"
+  ],
+  [
+   [
+    "chart",
+    "add"
+   ],
+   "ok Chart1 Sheet2 [Sheet2] [Chart1] [Sheet1]"
+  ],
+  [
+   [
+    "name One",
+    "OPEN",
+    "chart",
+    "add"
+   ],
+   "ok Chart1 Sheet1 [Sheet1] [Chart1] [One]"
+  ],
+  [
+   [
+    "Add xlWorksheet",
+    "add"
+   ],
+   "ok Sheet2 Sheet3 [Sheet3] [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "other",
+    "add"
+   ],
+   "ok Sheet2 Sheet2 [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "other",
+    "OPEN",
+    "add"
+   ],
+   "ok Sheet2 Sheet2 [Sheet2] [Sheet1]"
+  ],
+  [
+   [
+    "other add",
+    "add"
+   ],
+   "ok Sheet1 Sheet2 [Sheet2] [Sheet1]"
+  ]
+ ]
+}

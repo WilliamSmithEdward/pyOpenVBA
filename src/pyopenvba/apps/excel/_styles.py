@@ -329,10 +329,14 @@ class Colors:
         return min(range(1, len(entries) + 1), key=distance)
 
     def nearest(self, rrggbb: str) -> int:
-        """The palette slot nearest by summed channel distance, the first on a tie."""
+        """The palette slot nearest by summed channel distance, the first on a tie; a grey goes only to a grey
+        (tests/fixtures/color_index_nearest.json)."""
         wanted = [int(rrggbb[i:i + 2], 16) for i in (0, 2, 4)]
+        grey = len(set(wanted)) == 1
         best, found = 1 << 30, 1
         for index, entry in enumerate(self.indexed[8:64], start=1):
+            if grey and not entry[:2] == entry[2:4] == entry[4:6]:
+                continue
             distance = sum(abs(int(entry[i * 2:i * 2 + 2], 16) - wanted[i]) for i in range(3))
             if distance < best:
                 best, found = distance, index

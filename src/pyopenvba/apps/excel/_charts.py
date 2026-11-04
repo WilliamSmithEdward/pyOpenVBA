@@ -3252,7 +3252,7 @@ class LegendEntry(Created):
 
         chart = self.legend.chart
         shown = cast(ChartFont, self.legend.Font())
-        return chart.font_of(self, f'legend{self.index}', size=float(cast(float, to_number(shown.vba_get('Size', [])))),
+        return chart.font_of(self, f'legend{self.index}', size=float(cast(float, to_number(shown.size))),
                              bold=bool(shown.vba_get('Bold', [])))
 
     @member

@@ -1793,7 +1793,7 @@ def test_excel_reads_the_colour_sorts_this_wrote(tmp_path: Path) -> None:
     reads each sheet, and sorts it again, as it did its own file."""
     import json
 
-    from test_excel_sort_colour import RANGE_SORT, saved_layouts
+    from test_excel_sort_colour import saved_layouts
 
     harness = pytest.importorskip("pyvbaharness")
     record = json.loads((Path(__file__).parent / "fixtures" / "sort_colour" / "sort_colour.json")
@@ -1811,9 +1811,8 @@ def test_excel_reads_the_colour_sorts_this_wrote(tmp_path: Path) -> None:
         assert result.ok, result.message
     read, again = (dict(one.split("^", 1) for one in part.split("|") if one) for part in str(result.value).split("#"))
     for layout in record["layouts"]:
-        if layout["name"] != RANGE_SORT:
-            assert read[layout["name"]] == layout["reopened"], layout["name"]
-            assert again[layout["name"]] == layout["applied_again"], layout["name"]
+        assert read[layout["name"]] == layout["reopened"], layout["name"]
+        assert again[layout["name"]] == layout["applied_again"], layout["name"]
 
 
 def test_excel_reads_the_colour_scales_this_wrote(tmp_path: Path) -> None:

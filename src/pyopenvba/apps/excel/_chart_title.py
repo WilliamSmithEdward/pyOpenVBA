@@ -299,7 +299,9 @@ def title_element(look: TitleLook, *, text: str | None, linked_text: str = '', f
                   font: TextLook | None = None) -> str:
     """The title element: ``text`` typed in, the linked cell's text, or with neither Excel's automatic title; ``frame``
     is the spPr Format set, and ``font`` what Font set, which Excel writes in the paragraph's defaults and leaves the
-    typed run alone (tests/fixtures/chart_fonts.json)."""
+    typed run alone (tests/fixtures/chart_fonts.json). A font that says nothing a file keeps is no font."""
+    if font is not None and default_run(font) == '<a:defRPr/>':
+        font = None
     if look.rotation == VERTICAL:
         body = '<a:bodyPr rot="0" vert="wordArtVert"/>'
     elif look.rotation is not None:

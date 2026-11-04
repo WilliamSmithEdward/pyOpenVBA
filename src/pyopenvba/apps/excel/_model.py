@@ -4627,6 +4627,8 @@ class Range(ExcelObject):
 
     @setter("Formula2R1C1")
     def _set_formula2_r1c1(self, value: object) -> None:
+        if value is NULL:
+            value = ""
         _within_length(value)
         written, dynamic = self._legacy(value, r1c1=True)
         self._formula_written(written, dynamic=dynamic)
@@ -5214,6 +5216,8 @@ class Range(ExcelObject):
 
     @setter("Formula2Local")
     def _set_formula2_local(self, value: object) -> None:
+        if value is NULL:
+            value = ""
         self._set_formula2(value)
 
     @member
@@ -5222,6 +5226,8 @@ class Range(ExcelObject):
 
     @setter("Formula2R1C1Local")
     def _set_formula2_r1c1_local(self, value: object) -> None:
+        if value is NULL:
+            value = ""
         self._set_formula2_r1c1(value)
 
     # -- geometry

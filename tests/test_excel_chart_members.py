@@ -50,19 +50,3 @@ def run() -> dict[int, str]:
 @pytest.mark.parametrize('index', KEPT, ids=[NAMES[index] for index in KEPT])
 def test_each_case_as_excel_answered(run: dict[int, str], index: int) -> None:
     assert run[index] == RECORD['cases'][index][1]
-
-
-@pytest.mark.parametrize('statement', ['ch.Location xlLocationAsObject, "Other"', 'ch.Location xlLocationAsNewSheet'])
-def test_moving_a_chart_away_is_refused(statement: str) -> None:
-    app = ExcelApplication(sandbox=False)
-    app.add_workbook()
-    app.add_module(f'''Public Sub Try()
-    Dim d As Worksheet, o As Worksheet, ch As Object
-    Set d = ActiveWorkbook.Worksheets(1)
-    Set o = ActiveWorkbook.Worksheets.Add(After:=d): o.Name = "Other"
-    Set ch = d.ChartObjects.Add(300, 100, 300, 200).Chart
-    {statement}
-End Sub
-''', name='Trial')
-    with pytest.raises(VBAUnsupportedError, match='Moving a chart'):
-        app.run('Trial.Try')

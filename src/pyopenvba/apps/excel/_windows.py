@@ -561,7 +561,7 @@ def _scroll_to(view: SheetViewState, axis: int, number: int) -> None:
 
 def front_to_back(application: Application) -> list[Workbook]:
     """The open workbooks by their windows, front to back."""
-    books = application.workbooks_.books
+    books = [book for book in application.workbooks_.books if not book.is_addin]
     known = [book for book in application.window_order if book in books]
     return known + [book for book in reversed(books) if book not in known]
 
@@ -616,7 +616,7 @@ class Windows(VBACollection, ItemDefault, ExcelObject):
         self.book = book
 
     def vba_items(self) -> list[object]:
-        books = [self.book] if self.book is not None else front_to_back(self.application)
+        books = ([] if self.book.is_addin else [self.book]) if self.book is not None else front_to_back(self.application)
         return [window_of(book) for book in books]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:

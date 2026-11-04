@@ -1466,7 +1466,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                 return name
 
     def vba_items(self) -> list[object]:
-        return list(self.books)
+        """An add-in is reached by its name and is not one of these (tests/fixtures/parts_loss/parts_loss.json, sequences)."""
+        return [book for book in self.books if not book.is_addin]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
@@ -1479,7 +1480,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
     @method
     def Add(self, Template: object = MISSING) -> object:
         if isinstance(Template, str):
-            return self._from_template(Path(self._not_found(Template)))
+            return self._from_template(Path(self._not_found(Template)), added=True)
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
         book = Workbook(self.application, self.next_name("Book" if Template is MISSING else "Sheet"))
@@ -1541,18 +1542,25 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
                               "is not valid. Verify that the file has not been corrupted and that the file extension "
                               "matches the format of the file.") from None
 
-    def _from_template(self, path: Path) -> Workbook:
-        """The new book a file makes as a template: its contents, under the file's name and a number that goes on through
-        the session, with no path, as an ordinary workbook of its kind (tests/fixtures/template_opens.json)."""
+    def _from_template(self, path: Path, *, added: bool = False) -> Workbook:
+        """The new book a file makes as a template: its contents, with no path, as an ordinary workbook of its kind
+        (tests/fixtures/template_opens.json), under the file's name and a number. Open's number goes on through the session
+        across templates, Add's is the lowest free for that name, and neither takes a name in use
+        (tests/fixtures/parts_loss/parts_loss.json, sequences)."""
         from pyopenvba.apps.excel._io import prepare_format
 
         suffix = path.suffix.lower()
         if suffix not in (".xlsx", ".xlsm", ".xltx", ".xltm"):
             raise VBAUnsupportedError(f"A new workbook from a {suffix} file is not implemented")
         book = self.open_file(path)
-        self.templates_used += 1
+        names = {other.name.casefold() for other in self.books}
+        number = 1 if added else self.templates_used + 1
+        while f"{path.stem}{number}".casefold() in names:
+            number += 1
+        if not added:
+            self.templates_used = number
         prepare_format(book, 52 if suffix in (".xlsm", ".xltm") else 51)
-        book.name, book.path = f"{path.stem}{self.templates_used}", ""
+        book.name, book.path = f"{path.stem}{number}", ""
         book.saved = True
         return book
 
@@ -1665,7 +1673,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
 
         opened(book)
         before = self.application.active_book
-        self.application.activate_book(book, events=False)
+        if before is None or not book.is_addin:
+            self.application.activate_book(book, events=False)
         _events.opened(book)
         if self.application.active_book is book:
             _events.book_activated(book, before)
@@ -1737,6 +1746,8 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: Whether a macro has fetched a Name: LinkSources then leaves out links no cell refers to (see _workbook_links).
+        self.names_fetched = False
         self.project_runtime: Interpreter | None = None
         #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
         self.format_code: int | None = None
@@ -2046,7 +2057,33 @@ class Workbook(ExcelObject):
     EnvelopeVisible, _set_envelope_visible = _session_property("EnvelopeVisible")
     Excel8CompatibilityMode, _set_excel8_compatibility_mode = _session_property("Excel8CompatibilityMode")
     HighlightChangesOnScreen, _set_highlight_changes_on_screen = _session_property("HighlightChangesOnScreen")
-    IsAddin, _set_is_addin = _session_property("IsAddin")
+
+    @property
+    def is_addin(self) -> bool:
+        return bool(self.session_properties.get("IsAddin", False))
+
+    @member
+    def IsAddin(self) -> object:
+        return self.is_addin
+
+    @setter("IsAddin")
+    def _set_is_addin(self, value: object) -> None:
+        """An add-in leaves Workbooks and has no window, the next window's book taking over; turned back it is active
+        (tests/fixtures/parts_loss/parts_loss.json, sequences)."""
+        from pyopenvba.apps.excel._windows import front_to_back
+        from pyopenvba.apps.excel._workbook_settings import set_session_value
+
+        was = self.is_addin
+        set_session_value(self, "IsAddin", value)
+        if self.is_addin == was:
+            return
+        if not self.is_addin:
+            self.application.activate_book(self, events=False)
+        elif self.application.active_book is self:
+            others = front_to_back(self.application)
+            if others:
+                self.application.activate_book(others[0], events=False)
+
     IsInplace, _set_is_inplace = _session_property("IsInplace")
     KeepChangeHistory, _set_keep_change_history = _session_property("KeepChangeHistory")
     ListChangesOnNewSheet, _set_list_changes_on_new_sheet = _session_property("ListChangesOnNewSheet")
@@ -7342,12 +7379,17 @@ class Names(VBACollection, ItemDefault, ExcelObject):
         return [DefinedName(entry) for entry in sorted(entries, key=order)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
+        self.book.names_fetched = True
         if isinstance(index, str):
             found = self._item(index)
             if found is None:
                 raise error(1004, "Application-defined or object-defined error")
             return found
         return super().vba_lookup(index, items)
+
+    def vba_iterate(self) -> Iterator[object]:
+        self.book.names_fetched = True
+        return super().vba_iterate()
 
     def _item(self, name: str) -> DefinedName | None:
         """A name as Names(...) finds it by its text: a sheet's Names only the sheet's own; the workbook's one

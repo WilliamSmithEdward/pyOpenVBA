@@ -755,7 +755,8 @@ def _titles(book: Workbook) -> tuple[list[str], list[str]]:
     from pyopenvba.apps.excel._editing import name_scope
     from pyopenvba.apps.excel._model import DefinedName
 
-    sheets = [sheet.name for sheet in book.sheets_]
+    # A very hidden sheet is not listed (tests/fixtures/parts_loss/later_sheets.xlsx).
+    sheets = [sheet.name for sheet in book.sheets_ if sheet.visible != 2]
     tables = {table.name.casefold() for sheet in book.sheets_ for table in sheet.tables}
     names: list[str] = []
     for item in book.names_.vba_items():

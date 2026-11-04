@@ -120,6 +120,8 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     application.outside("Opening a workbook")
     if not path.exists():
         raise WorkbookFileError(f"there is no file at {path}")
+    if path.suffix.lower() in (".xls", ".xla", ".xlt"):
+        raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
     if path.suffix.lower() == ".xlsb":
         raise WorkbookFileError(
             "an xlsb workbook keeps its cells in a binary part that pyOpenVBA does not read; "
@@ -132,6 +134,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     respell(package)
     book = Workbook(application, path.name, str(path.parent))
     book.package = package
+    book.session_properties["IsAddin"] = workbook_format(book) == 55
     book.links_folder = str(path.resolve().parent)
     workbook_part = package.read("xl/workbook.xml")
     workbook_xml = workbook_part.decode("utf-8", errors="replace")

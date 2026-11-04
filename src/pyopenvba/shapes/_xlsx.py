@@ -947,17 +947,28 @@ def shape_default_markup(shape: Shape) -> str:
         "</a:fontRef></a:style></a:spDef>")
 
 
+_PICTURE_FILLS = {"clear": '<a:solidFill><a:schemeClr val="accent1"><a:alpha val="0"/></a:schemeClr></a:solidFill>',
+                  "solid": '<a:solidFill><a:schemeClr val="accent1"/></a:solidFill>'}
+
+
 def _new_picture(shape: Shape) -> str:
     """A picture AddPicture made, its image in the part the relationship names (tests/fixtures/shape_add_picture.json)."""
     locks = '<a:picLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:picLocks/>"
+    effects = {2: "<a:grayscl/>", 3: '<a:biLevel thresh="50000"/>'}.get(shape.picture_colour_type, "")
+    if shape.picture_clear is not None:
+        effects += (f'<a:clrChange><a:clrFrom><a:srgbClr val="{shape.picture_clear}"/></a:clrFrom><a:clrTo>'
+                    f'<a:srgbClr val="{shape.picture_clear}"><a:alpha val="0"/></a:srgbClr></a:clrTo></a:clrChange>')
+    if shape.picture_lum is not None:
+        bright, contrast = shape.picture_lum
+        effects += "<a:lum" + (f' bright="{bright}"' if bright else "") + (f' contrast="{contrast}"' if contrast else "") + "/>"
     return (
         f"<xdr:pic><xdr:nvPicPr>{_identity(shape)}<xdr:cNvPicPr>{locks}</xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill>"
         '<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
-        f'r:embed="{shape.image_relationship}"><a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
+        f'r:embed="{shape.image_relationship}">{effects}<a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
         f'<a14:useLocalDpi {_A14} val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
         f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
-        "</xdr:spPr></xdr:pic>")
+        f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}</xdr:spPr></xdr:pic>")
 
 
 def _new_element(shape: Shape) -> str:

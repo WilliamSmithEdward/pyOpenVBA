@@ -229,6 +229,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
     read_book_protection(book, workbook_xml)
     _read_queries(book, path)
+    from pyopenvba.apps.excel._query_tables import read as read_query_tables
+
+    read_query_tables(book, package, _sheet_relationships, _resolved)
     from pyopenvba.apps.excel._calculation_settings import read as read_calculation
 
     book.saved = True
@@ -1089,13 +1092,17 @@ def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
         if shape.image not in related:
             held = sorted(name for name in package.names() if name.startswith("xl/media/"))
             part = next((name for name in held if package.read(name) == shape.image), None)
+            extension = shape.image_extension
             if part is None:
                 number = 1
-                while f"xl/media/image{number}.png" in held:
+                while any(name.startswith(f"xl/media/image{number}.") for name in held):
                     number += 1
-                part = f"xl/media/image{number}.png"
+                part = f"xl/media/image{number}.{extension}"
                 package.write(part, shape.image)
-            _add_default_content_type(package, "png", "image/png")
+            # The extension names the content type, unless the file holds a PNG (tests/fixtures/shape_picture_formats.json).
+            holds_png = shape.image[:4] == b"\x89PNG"
+            _add_default_content_type(package, extension, "image/png" if holds_png else {
+                "jpg": "image/jpeg", "jpeg": "image/jpeg", "gif": "image/gif"}.get(extension, "image/png"))
             related[shape.image] = add_relationship(package, rels, _IMAGE_RELATIONSHIP, "../" + part[len("xl/"):])
             package.write(rels, in_office_order(package.read(rels).decode("utf-8")).encode("utf-8"))
         shape.image_relationship = related[shape.image]
@@ -1694,6 +1701,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._document_properties import write as write_properties
 
     write_properties(book, package)
+    from pyopenvba.apps.excel._query_tables import write as write_query_tables
+
+    write_query_tables(book, package, _add_sheet_relationship, _override_before_properties, _sheet_relationships, _resolved, _drop_sheet_part)
     book.application.outside("Saving a workbook")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())

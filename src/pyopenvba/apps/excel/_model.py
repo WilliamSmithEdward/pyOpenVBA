@@ -954,6 +954,85 @@ class Application(ExcelObject):
     def Repeat(self) -> object:
         raise error(1004, "Repeat method of Application class failed")
 
+    # -- what is left with no screen here (tests/fixtures/application_rest.json)
+
+    def _held_nowhere(self, type_name: str) -> object:
+        from pyopenvba.apps.excel._application_more import HeldNowhere
+
+        return HeldNowhere(self, type_name)
+
+    @member
+    def AddIns(self) -> object:
+        return self._held_nowhere('AddIns')
+
+    @member
+    def AddIns2(self) -> object:
+        return self._held_nowhere('AddIns2')
+
+    @member
+    def COMAddIns(self) -> object:
+        return self._held_nowhere('COMAddIns')
+
+    @member
+    def UsedObjects(self) -> object:
+        from pyopenvba.apps.excel._application_more import UsedObjects
+
+        return UsedObjects(self, 'UsedObjects')
+
+    @member
+    def FileExportConverters(self) -> object:
+        return self._held_nowhere('FileExportConverters')
+
+    @member
+    def RecentFiles(self) -> object:
+        from pyopenvba.apps.excel._application_more import RecentFiles
+
+        return RecentFiles(self, 'RecentFiles')
+
+    @member
+    def OnWindow(self) -> object:
+        """The procedure a window's activation runs, its workbook's name before it, which nothing here runs."""
+        return self.settings.get('OnWindow', '')
+
+    @setter('OnWindow')
+    def _set_on_window(self, value: object) -> None:
+        name = to_text(value)
+        self.settings['OnWindow'] = f"{self._require_book().name}!{name}" if name else ''
+
+    @method
+    def RecordMacro(self, BasicCode: object = MISSING, XlmCode: object = MISSING) -> object:  # noqa: N803
+        """Does nothing, no macro being recorded."""
+        return EMPTY
+
+    @method
+    def RegisterXLL(self, Filename: object = MISSING) -> object:  # noqa: N803
+        """False for a file that is not there; one that is would load code, which the model never does."""
+        from pyopenvba.apps.excel._application_more import required
+
+        required(Filename)
+        self.outside('Application.RegisterXLL')
+        if Path(to_text(Filename).replace('\\', '/')).exists():
+            raise VBAUnsupportedError('registering an XLL, which loads its code, is not implemented')
+        return False
+
+    @method
+    def DDETerminate(self, Channel: object = MISSING) -> object:  # noqa: N803
+        """No channel is ever open here, and Excel lets one that is not go by."""
+        return EMPTY
+
+    @method
+    def DDEExecute(self, Channel: object = MISSING, String: object = MISSING) -> object:  # noqa: N803
+        return EMPTY
+
+    @method
+    def DDEPoke(self, Channel: object = MISSING, Item: object = MISSING, Data: object = MISSING) -> object:  # noqa: N803
+        return EMPTY
+
+    @method
+    def GetPhonetic(self, Text: object = MISSING) -> object:  # noqa: N803
+        """Empty, with no Japanese input method on the measuring machine, or the model."""
+        return ''
+
     # -- what Application reads with no screen here (tests/fixtures/application_objects.json)
 
     def _profile(self, type_name: str) -> object:
@@ -1676,6 +1755,8 @@ class Workbook(ExcelObject):
         #: The kinds of part a loaded workbook came with, its relationships' types and a few markers, which the
         #: collections the model holds nothing in refuse to read as empty (see _empty_collections).
         self.held_kinds: set[str] = set()
+        #: What the file's query tables said when read or last saved, None where it has none (see _query_tables).
+        self.query_baseline: list[str] | None = None
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
         #: None until a formula is written, when the formulas it has teach it.
@@ -2225,6 +2306,10 @@ class Workbook(ExcelObject):
         """The data connections the file keeps (see _connections)."""
         from pyopenvba.apps.excel._connections import Connections
 
+        from pyopenvba.apps.excel._query_tables import connections_stale
+
+        if connections_stale(self):
+            raise VBAUnsupportedError("Workbook.Connections with a query table changed since the file was read is not implemented")
         return Connections(self)
 
     @member
@@ -3277,6 +3362,8 @@ class Worksheet(ExcelObject):
         self.notes: dict[tuple[int, int], Note] = {}
         #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
         self.held_kinds: set[str] = set()
+        #: The sheet's query tables, the newest first (see _query_tables).
+        self.query_tables: list[Any] = []
         #: The PNG SetBackgroundPicture gave the sheet, None for none; True once it changed, so a save writes it.
         self.background: bytes | None = None
         self.background_changed = False
@@ -3589,8 +3676,11 @@ class Worksheet(ExcelObject):
 
     @member
     def QueryTables(self) -> object:
-        """None on a sheet the model holds (tests/fixtures/empty_collections.json)."""
-        return self._empty("QueryTables")
+        """Those added since the sheet was made or opened; a sheet loaded with any is refused (see _query_tables)."""
+        from pyopenvba.apps.excel._query_tables import QueryTables
+
+        self._empty("QueryTables")
+        return QueryTables(self)
 
     @method
     def OLEObjects(self, Index: object = MISSING) -> object:
@@ -4837,7 +4927,12 @@ class Range(ExcelObject):
 
     @member
     def QueryTable(self) -> object:
-        """Error 1004: the model holds no query tables (tests/fixtures/range_small_reads.json)."""
+        """The query table whose result holds the first cell, or error 1004 (tests/fixtures/range_small_reads.json)."""
+        area = self.areas[0]
+        for table in self.sheet.query_tables:
+            found = table.result_area()
+            if found is not None and found.top <= area.top <= found.bottom and found.left <= area.left <= found.right:
+                return table
         raise error(1004)
 
     @member

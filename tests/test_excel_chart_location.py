@@ -79,6 +79,13 @@ def test_each_chart_part_as_excel_saved_it(index: int, app: ExcelApplication, fo
     assert sorted(map(plain, ours)) == sorted(map(plain, theirs))
 
 
+def test_a_book_from_a_template_constant_is_named_by_a_session_count() -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(FIXTURE['book_names_source'], name='P')
+    assert str(app.run('P.Names')) == FIXTURE['book_names']
+
+
 SHEET_PARTS = re.compile(r'xl/chartsheets/(_rels/)?sheet\d+\.xml(\.rels)?|docProps/app\.xml')
 
 

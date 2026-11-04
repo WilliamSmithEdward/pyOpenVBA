@@ -20,6 +20,7 @@ import re
 from pyopenvba.formula._calc import collate as _collate
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.common import matrix
+from pyopenvba.formula._calc.functions.text import regular_expression
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
 from pyopenvba.formula._calc.nodes import AreaReference, AxisReference, CellReference, Missing, NameReference, Node
 from pyopenvba.formula._calc.parser import parse
@@ -211,14 +212,15 @@ def _x_search(
 ) -> int | None:
     mode = 0 if match_mode is None or isinstance(match_mode, Empty) else int(context.number(match_mode))
     search = 1 if search_mode is None or isinstance(search_mode, Empty) else int(context.number(search_mode))
-    if mode not in (-1, 0, 1, 2) or search not in (-2, -1, 1, 2):
+    if mode not in (-1, 0, 1, 2, 3) or search not in (-2, -1, 1, 2):
         raise ExcelError(VALUE)
-    if search in (2, -2):
-        if mode == 0:
-            found = _approximate(values, target, descending=search == -2)
-            return found if found is not None and _order(values[found], target) == 0 else None
-        if mode == -1:
-            return _approximate(values, target, descending=search == -2)
+    if mode == 3:
+        # A regular expression, searched for in each value's text, case and all.
+        expression = regular_expression(context, target, None)
+        order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
+        return next((index for index in order if expression.search(context.text(values[index]))), None)
+    if search in (2, -2) and mode != 2:
+        return _x_binary(values, target, mode, descending=search == -2)
     exact = _exact(values, target, wildcards=mode == 2, last=search == -1)
     if exact is not None or mode in (0, 2):
         return exact
@@ -239,6 +241,27 @@ def _x_search(
     return best
 
 
+def _x_binary(values: list[Scalar], target: Scalar, mode: int, *, descending: bool) -> int | None:
+    """A plain binary search, in order or not, among values of ``target``'s type: where it stops, the next one
+    down or up is whichever its bounds left on that side."""
+    positions = [index for index, value in enumerate(values) if _same_kind(target, value)]
+    low, high = 0, len(positions) - 1
+    while low <= high:
+        middle = (low + high) // 2
+        order = _order(values[positions[middle]], target)
+        if order == 0:
+            return positions[middle]
+        if (order > 0) != descending:
+            high = middle - 1
+        else:
+            low = middle + 1
+    if mode == 0:
+        return None
+    # Ascending, what is above stands at low and below at high; descending, the other way about.
+    place = high if (mode == -1) != descending else low
+    return positions[place] if 0 <= place < len(positions) else None
+
+
 @function("XLOOKUP", V, R, R, LAZY, V, V, minimum=3, legacy_first=(0,))
 def XLOOKUP(
     context: Context,
@@ -252,13 +275,31 @@ def XLOOKUP(
     keys = matrix(context, lookup)
     if keys.height != 1 and keys.width != 1:
         return VALUE
+    height, width = _shape(context, result)
+    if keys.height == keys.width == 1:
+        if height != 1 and width != 1:
+            return VALUE
+    elif (height != keys.height) if keys.width == 1 else (width != keys.width):
+        # Whether or not anything is found.
+        return VALUE
     position = _x_search(context, list(keys.items()), _lookup_value(value), match_mode, search_mode)
     if position is None:
         # Left empty, as in XLOOKUP(x,a,b,,1), it is not given at all.
         if if_not_found is None or isinstance(if_not_found, Missing):
             return NA
         return context.evaluate(if_not_found)
+    if keys.height == keys.width == 1:
+        # One key to a row or column: it is all that key's.
+        return result
     return _slice(context, result, position, vertical=keys.width == 1)
+
+
+def _shape(context: Context, source: Value) -> tuple[int, int]:
+    """How many rows and columns, reading no cells of a range."""
+    if isinstance(source, Reference) and source.area is not None:
+        return source.area.height, source.area.width
+    grid = matrix(context, source)
+    return grid.height, grid.width
 
 
 def _slice(context: Context, source: Value, position: int, *, vertical: bool) -> Value:

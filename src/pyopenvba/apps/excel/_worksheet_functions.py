@@ -67,6 +67,7 @@ _ONE_AREA: Final = frozenset({"ftest", "f_test", "arraytotext"})
 BLANK: Final = object()
 #: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
 _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
+_ARRAY_OF_ONE: Final = frozenset({"sort", "sortby", "unique", "filter"})
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
 _VARIANT: Final = frozenset({
     "choose", "dget", "encodeurl", "fieldvalue", "filter", "filterxml", "frequency", "growth", "hlookup",
@@ -144,7 +145,20 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
             and isinstance(found, float):
         # A whole number indexed answers as a Long (tests/fixtures/worksheet_function_args.json).
         return VBAInt(int(found), "Long")
+    if raising and name.lower() in _ARRAY_OF_ONE:
+        return _array_of_one(context, found, values[0], name, books_of=application, late=late)
     return _returned(context, found, name, raising=raising, books_of=application, late=late)
+
+
+def _array_of_one(context: Context, found: Value, given: object, name: str, *, books_of: Application, late: bool) -> object:
+    """Sort and its kin answer an array even for one item, and hand back a whole number that fits an Integer as a Long."""
+    if isinstance(found, Reference) and found.area is not None and found.area.is_cell:
+        found = context.book.cell(found.area.sheet, found.area.top, found.area.left)
+    if isinstance(found, (Array, Reference, CellError)):
+        return _returned(context, found, name, raising=True, books_of=books_of, late=late)
+    if isinstance(given, VBAInt) and -32768 <= int(given) <= 32767:
+        return VBAArray([(1, 1)], items=[VBAInt(int(given), "Long")])
+    return answer(Array([[found]]))
 
 
 def _first_item(value: object) -> object:
@@ -231,7 +245,7 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
             raise error(5)
         if isinstance(value, VBAObject) and not isinstance(value, Range):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
-        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()):
+        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()) and not (value is NULL and name.lower() == "unique" and len(values) > 1):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
         if lower in _ONE_AREA and isinstance(value, Range) and len(value.areas) > 1:
@@ -246,6 +260,10 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
                     or (lower in ("vlookup", "hlookup") and index == 2):
                 raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
             value = BLANK if index < minimum else MISSING
+        if lower == "xlookup" and value is EMPTY:
+            # A fallback given as Empty is one: nothing found answers Empty, where one left out is an error. A search
+            # mode given as Empty is 0, which is no mode.
+            value = BLANK if index == 3 else 0.0 if index == 5 else value
         if lower in _ONE_VALUE and index == 2:
             if lower != "match" or isinstance(value, Range):
                 value = _first_item(value)

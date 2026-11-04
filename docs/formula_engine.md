@@ -107,7 +107,14 @@ name looking like a cell is not read as the cell.
    #NUM! (`registry.py`). All in
    `tests/fixtures/worksheet_function_edges.json`,
    `tests/fixtures/worksheet_function_types.json` and
-   `tests/fixtures/worksheet_function_kinds.json`; CHOOSE with an array of positions picks
+   `tests/fixtures/worksheet_function_kinds.json`. XLOOKUP is #VALUE! when
+   its result does not fit its lookup, found or not, answers a whole row or
+   column for a lookup of one cell, reads match mode 3 as a regular
+   expression, and binary searches as written, in order or not
+   (`functions/lookup.py`, with `_pattern` in `functions/text.py` now
+   `regular_expression`). YEARFRAC's basis 1 does not count 1900 as a leap
+   year (`functions/dates.py`). Those in
+   `tests/fixtures/worksheet_function_four.json`; CHOOSE with an array of positions picks
    item by item, lined up as an operator lines arrays up; INDEX's first
    argument, ROWS and COLUMNS are worked out whole; INDIRECT reads an R1C1
    range; AND, OR and XOR pass over a text argument that says neither

@@ -102,7 +102,7 @@ def _copied_in(target: Range, clip: Clip, shift: object, below: bool) -> Range:
     columns = area.columns if area.columns % width == 0 else width
     landed = Area(area.top, area.left, area.top + rows - 1, area.left + columns - 1, sheet.name)
     _admitted(sheet, source, landed)
-    target.shifting_cells()
+    target.shifting_cells(landed, vertical=_down(shift, rows, columns), delete=False)
     shift_cells(Range(sheet, [landed]), landed, delete=False, vertical=_down(shift, rows, columns), below=below)
     source.copy_to(Range(sheet, [landed]))
     return Range(sheet, [landed])
@@ -163,7 +163,7 @@ def _cut_in(target: Range, clip: Clip, shift: object) -> Range:
     _refused(sheet, first, landing, source)
     if any(intersects(first, one) for one in source.sheet.merged_areas):
         raise VBAUnsupportedError("cutting merged cells is not implemented")
-    target.shifting_cells()
+    target.shifting_cells(landing, vertical=down, delete=False)
     shift_cells(Range(sheet, [landing]), landing, delete=False, vertical=down)
     gap = source.first
     move(source, gap, Range(sheet, [landing]))

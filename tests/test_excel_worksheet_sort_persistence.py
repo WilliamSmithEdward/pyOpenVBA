@@ -58,7 +58,7 @@ def test_raw_and_macrofree_package_provenance() -> None:
 
 
 @pytest.mark.parametrize('attrs,child', [
-    ('custom="opaque"', ''), ('sortMethod="stroke"', ''), ('columnSort="1"', ''),
+    ('custom="opaque"', ''), ('sortMethod="stroke"', ''), ('columnSort="2"', ''),
     ('caseSensitive="invalid"', ''), ('', '<sortCondition ref="J2:J5" sortBy="cellColor"/>'),
     ('', '<sortCondition ref="J2:J5"><extLst/></sortCondition>'),
     ('', '<sortCondition ref="Other!J2:J5"/>'),

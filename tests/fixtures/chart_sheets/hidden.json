@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T08:07:56.486447+00:00",
+ "measured_at": "2026-11-04T14:38:20.072800+00:00",
  "answers": "Function Answers(ByVal file As String) As String\n    Dim wb As Workbook, s As String, c As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(file)\n    Set c = wb.Charts(1)\n    On Error Resume Next\n    c.Activate\n    s = Err.Number & \"|\" & wb.ActiveSheet.Name & \"|\" & c.Visible: Err.Clear\n    c.Select\n    s = s & \"|\" & Err.Number: Err.Clear\n    wb.Close False\n    Answers = s\nEnd Function\n",
  "save": "Sub Save1(ByVal file As String)\n    Dim wb As Workbook\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(file)\n    wb.Charts(1).Activate\n    wb.Save\n    wb.Close False\nEnd Sub\n",
  "rows": {

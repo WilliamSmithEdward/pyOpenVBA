@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T07:40:37.660715+00:00",
+ "measured_at": "2026-11-04T14:34:55.243100+00:00",
  "help": "Private Function Tried(ByVal n As Long, wb As Object, ws As Object) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    Select Case n\n{cases}\n    End Select\n    Tried = CStr(v)\n    Exit Function\nFailed:\n    Tried = \"E\" & Err.Number\nEnd Function\n",
  "sequences": {
   "link_only_a_name": "1|count 1|sheet count 1|item Empty|named Empty Empty|refers Empty|each Empty|cell 1|set Empty Empty",
@@ -10,6 +10,26 @@
   "addin": "1 True True 0 1 2|a.xlam|0|False|2 1 True|1 True|1 0 True True|2 1 True"
  },
  "rows": [
+  {
+   "name": "chart_embedded",
+   "format": "xlsx",
+   "action": "Set o = ws.ChartObjects.Add(10, 10, 300, 200)\n    o.Chart.SetSourceData ws.Range(\"A1:B5\")\n    o.Chart.ChartType = 51\n    o.Chart.HasTitle = True\n    o.Chart.ChartTitle.Text = \"T\"",
+   "reads": [
+    "ws.ChartObjects.Count",
+    "ws.ChartObjects(1).Chart.ChartType",
+    "ws.ChartObjects(1).Chart.ChartTitle.Text",
+    "ws.ChartObjects(1).Chart.SeriesCollection(1).Formula"
+   ],
+   "control": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "excel": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "model": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_macro": {},
+   "after_python": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_python": {}
+  },
   {
    "name": "chart_styled",
    "format": "xlsx",
@@ -26,19 +46,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "1|4|227|1",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "1|4|227|1",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "chart_sheet",
@@ -52,9 +62,13 @@
    ],
    "control": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
    "excel": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
-   "model": "reports: opening a workbook with a chart sheet is not implemented",
-   "macro_edit": "reports: opening a workbook with a chart sheet is not implemented",
-   "python_edit": "reports: opening a workbook with a chart sheet is not implemented"
+   "model": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_macro": {},
+   "after_python": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_python": {}
   },
   {
    "name": "pivot",
@@ -72,19 +86,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "pivot_slicer",
@@ -104,19 +108,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3|1|S",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3|1|S",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "vba_module",
@@ -133,19 +127,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "4|Function F()\nF = 42\nEnd Function|True",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "4|Function F()\nF = 42\nEnd Function|True",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "vba_kinds",
@@ -165,19 +149,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "5|Function F()\nF = 42\nEnd Function|True|2|2|2",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "5|Function F()\nF = 42\nEnd Function|True|2|2|2",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "vba_project",
@@ -197,19 +171,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "4|Function F()\nF = 42\nEnd Function|True|Named|About|5",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "4|Function F()\nF = 42\nEnd Function|True|Named|About|5",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "vba_form",
@@ -225,19 +189,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "3|1",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "3|1",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "format_xlsm_empty",
@@ -254,19 +208,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "False|52|a",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "False|52|a",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "format_xltm",
@@ -285,19 +229,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "4|Function F()\nF = 42\nEnd Function|True|52|a",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "4|Function F()\nF = 42\nEnd Function|True|52|a",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "format_xlam",
@@ -317,19 +251,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "4|Function F()\nF = 42\nEnd Function|True|55|True|a",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "4|Function F()\nF = 42\nEnd Function|True|55|True|a",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "format_xlsb",
@@ -379,19 +303,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "T|S|K|C|G|M|Y|http://example.com/",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "T|S|K|C|G|M|Y|http://example.com/",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "properties_custom",
@@ -413,19 +327,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "6|x|7|1.5|True|2/3/2020|a|True",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "6|x|7|1.5|True|2/3/2020|a|True",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "theme",
@@ -443,49 +347,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "197121|Arial|197121|5",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "197121|Arial|197121|5",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "image",
-   "format": "xlsx",
-   "action": "ws.Shapes.AddPicture folder & \"\\p.png\", False, True, 10, 10, 50, 40",
-   "reads": [
-    "ws.Shapes.Count",
-    "ws.Shapes(1).Type",
-    "ws.Shapes(1).Width",
-    "ws.Shapes(1).Left"
-   ],
-   "control": "1|13|50|10",
-   "excel": "1|13|50|10",
-   "model": "1|13|50|10",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|13|50|10",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "1|13|50|10",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "image_background",
@@ -500,19 +364,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "a",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "a",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "image_header",
@@ -528,19 +382,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "&G|6",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "&G|6",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "link_cell",
@@ -558,19 +402,9 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "11|[source.xlsx]Data'!$A$1|1|source.xlsx",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "11|[source.xlsx]Data'!$A$1|1|source.xlsx",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
+   "lost_python": {}
   },
   {
    "name": "link_name",
@@ -587,393 +421,8 @@
    "macro_edit": "None",
    "python_edit": "saved",
    "after_macro": "1|1|[source.xlsx]Data'!$A$1",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
+   "lost_macro": {},
    "after_python": "1|1|[source.xlsx]Data'!$A$1",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "names_scopes",
-   "format": "xlsx",
-   "action": "wb.Names.Add \"G\", \"=Sheet1!$A$1\"\n    ws.Names.Add \"L\", \"=Sheet1!$B$2\"\n    wb.Names.Add \"Both\", \"=Sheet1!$A$3\"\n    s2.Names.Add \"Both\", \"=Sheet2!$A$4\"\n    wb.Names.Add Name:=\"H\", RefersTo:=\"=Sheet1!$A$5\", Visible:=False\n    wb.Names(\"G\").Comment = \"note\"\n    wb.Names.Add \"Num\", \"=42\"\n    wb.Names.Add \"Txt\", \"=\"\"a\"\"\"\n    ws.Activate\n    ws.Range(\"B3\").Select\n    wb.Names.Add \"Rel\", \"=Sheet1!A1\"\n    wb.Names.Add \"Calc\", \"=SUM(Sheet1!$A$2:$A$5)\"",
-   "reads": [
-    "wb.Names.Count",
-    "ws.Names.Count",
-    "wb.Worksheets(2).Names.Count",
-    "wb.Names(\"G\").Comment",
-    "wb.Names(\"H\").Visible",
-    "ws.Names(\"L\").RefersTo",
-    "wb.Worksheets(2).Names(\"Both\").RefersTo",
-    "wb.Names(\"Both\").RefersTo",
-    "wb.Names(\"Num\").RefersTo",
-    "wb.Names(\"Txt\").RefersTo",
-    "wb.Names(\"Rel\").RefersToR1C1",
-    "wb.Names(\"Calc\").RefersTo"
-   ],
-   "control": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
-   "excel": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
-   "model": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "names_builtin",
-   "format": "xlsx",
-   "action": "ws.PageSetup.PrintArea = \"$A$1:$C$5\"\n    ws.PageSetup.PrintTitleRows = \"$1:$1\"\n    ws.PageSetup.PrintTitleColumns = \"$A:$A\"\n    ws.Range(\"A1:C5\").AutoFilter 1, \"a\"",
-   "reads": [
-    "ws.PageSetup.PrintArea",
-    "ws.PageSetup.PrintTitleRows",
-    "ws.PageSetup.PrintTitleColumns",
-    "ws.AutoFilterMode",
-    "ws.Names.Count",
-    "ws.Names(1).Name",
-    "ws.Rows(2).Hidden"
-   ],
-   "control": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
-   "excel": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
-   "model": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "scenarios",
-   "format": "xlsx",
-   "action": "ws.Scenarios.Add \"S\", ws.Range(\"A2:A3\"), Array(5, 6), \"note\"",
-   "reads": [
-    "ws.Scenarios.Count",
-    "ws.Scenarios(1).Name",
-    "ws.Scenarios(1).Comment",
-    "ws.Scenarios(1).ChangingCells.Address"
-   ],
-   "control": "1|S|note|$A$2:$A$3",
-   "excel": "1|S|note|$A$2:$A$3",
-   "model": "1|S|note|$A$2:$A$3",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|S|note|$A$2:$A$3",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "1|S|note|$A$2:$A$3",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "custom_views",
-   "format": "xlsx",
-   "action": "wb.CustomViews.Add \"V\", True, True",
-   "reads": [
-    "wb.CustomViews.Count",
-    "wb.CustomViews(1).Name",
-    "wb.CustomViews(1).PrintSettings"
-   ],
-   "control": "1|V|True",
-   "excel": "1|V|True",
-   "model": "reports: CustomViews of a workbook that holds customWorkbookViews parts is not implemented",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|V|True",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "1|V|True",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "edit_ranges",
-   "format": "xlsx",
-   "action": "ws.Protection.AllowEditRanges.Add \"R\", ws.Range(\"A2:A3\")",
-   "reads": [
-    "ws.Protection.AllowEditRanges.Count",
-    "ws.Protection.AllowEditRanges(1).Title",
-    "ws.Protection.AllowEditRanges(1).Range.Address"
-   ],
-   "control": "1|R|$A$2:$A$3",
-   "excel": "1|R|$A$2:$A$3",
-   "model": "1|R|$A$2:$A$3",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|R|$A$2:$A$3",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "1|R|$A$2:$A$3",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "ignored_errors",
-   "format": "xlsx",
-   "action": "ws.Range(\"D1\").NumberFormat = \"@\": ws.Range(\"D1\").Value = \"12\": ws.Range(\"D1\").Errors(3).Ignore = True",
-   "reads": [
-    "ws.Range(\"D1\").Errors(3).Ignore",
-    "ws.Range(\"D1\").Errors(3).Value"
-   ],
-   "control": "True|True",
-   "excel": "True|True",
-   "model": "reports: Range.Errors(...).Ignore on a sheet read with ignored errors is not implemented",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "True|True",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "True|True",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "page_breaks",
-   "format": "xlsx",
-   "action": "ws.HPageBreaks.Add ws.Range(\"A5\"): ws.VPageBreaks.Add ws.Range(\"C1\")",
-   "reads": [
-    "ws.HPageBreaks.Count",
-    "ws.VPageBreaks.Count",
-    "ws.HPageBreaks(1).Location.Address"
-   ],
-   "control": "3|3|$A$5",
-   "excel": "1|1|$A$5",
-   "model": "1|1|$A$5",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "3|3|$A$5",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "3|3|$A$5",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "custom_xml",
-   "format": "xlsx",
-   "action": "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:p\"\"><b>x</b></a>\"",
-   "reads": [
-    "wb.CustomXMLParts.SelectByNamespace(\"urn:p\").Count",
-    "wb.CustomXMLParts.SelectByNamespace(\"urn:p\")(1).XML"
-   ],
-   "control": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
-   "excel": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
-   "model": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "cell_style",
-   "format": "xlsx",
-   "action": "Set o = wb.Styles.Add(\"Mine\"): o.Font.Bold = True: ws.Range(\"A1\").Style = \"Mine\"",
-   "reads": [
-    "wb.Styles(\"Mine\").Font.Bold",
-    "ws.Range(\"A1\").Style.Name"
-   ],
-   "control": "True|Mine",
-   "excel": "True|Mine",
-   "model": "True|Mine",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "True|Mine",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "True|Mine",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "sparklines",
-   "format": "xlsx",
-   "action": "ws.Range(\"E2\").SparklineGroups.Add 1, \"B2:C2\"",
-   "reads": [
-    "ws.Range(\"E2\").SparklineGroups.Count",
-    "ws.Range(\"E2\").SparklineGroups(1).SourceData"
-   ],
-   "control": "1|B2:C2",
-   "excel": "1|B2:C2",
-   "model": "1|B2:C2",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|B2:C2",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "1|B2:C2",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "form_button",
-   "format": "xlsx",
-   "action": "Set o = ws.Buttons.Add(10, 10, 80, 20): o.Caption = \"Go\"",
-   "reads": [
-    "ws.Buttons.Count",
-    "ws.Buttons(1).Caption",
-    "ws.Shapes(1).Type"
-   ],
-   "control": "1|Go|8",
-   "excel": "1|Go|8",
-   "model": "E438|E438|8",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|Go|8",
-   "lost_macro": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   },
-   "after_python": "1|Go|8",
-   "lost_python": {
-    "xl/worksheets/sheet1.xml:sheetFormatPr": [
-     "<sheetFormatPr defaultRowHeight=\"14.25\" x14ac:dyDescent=\"0.45\"/>",
-     "<sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/>"
-    ]
-   }
-  },
-  {
-   "name": "chart_embedded",
-   "format": "xlsx",
-   "action": "Set o = ws.ChartObjects.Add(10, 10, 300, 200)\n    o.Chart.SetSourceData ws.Range(\"A1:B5\")\n    o.Chart.ChartType = 51\n    o.Chart.HasTitle = True\n    o.Chart.ChartTitle.Text = \"T\"",
-   "reads": [
-    "ws.ChartObjects.Count",
-    "ws.ChartObjects(1).Chart.ChartType",
-    "ws.ChartObjects(1).Chart.ChartTitle.Text",
-    "ws.ChartObjects(1).Chart.SeriesCollection(1).Formula"
-   ],
-   "control": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
-   "excel": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
-   "model": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
-   "lost_macro": {},
-   "after_python": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
-   "lost_python": {}
-  },
-  {
-   "name": "later_sheets",
-   "format": "xlsx",
-   "action": "s2.Range(\"A1\").Value = 1\n    s2.Tab.Color = RGB(9, 8, 7)\n    s2.Rows(3).RowHeight = 33\n    s2.Columns(2).ColumnWidth = 22\n    s2.Rows(4).Hidden = True\n    s2.Rows(6).OutlineLevel = 2\n    s2.Activate\n    ActiveWindow.Zoom = 130\n    ActiveWindow.DisplayGridlines = False\n    s2.Range(\"D5:E6\").Select\n    s2.Protect \"pw\"\n    Set o = wb.Worksheets.Add(After:=s2): o.Name = \"Third\": o.Range(\"A1\").Value = 3\n    Set o = wb.Worksheets.Add(After:=o): o.Name = \"Hid\": o.Tab.Color = RGB(1, 1, 1)\n    o.Visible = 0\n    Set o = wb.Worksheets.Add(After:=wb.Worksheets(\"Third\")): o.Name = \"Very\": o.Visible = 2\n    wb.Worksheets(\"Third\").Activate",
-   "reads": [
-    "wb.ActiveSheet.Name",
-    "wb.Worksheets(2).Tab.Color",
-    "wb.Worksheets(2).Rows(3).RowHeight",
-    "wb.Worksheets(2).Rows(4).Hidden",
-    "wb.Worksheets(2).Rows(6).OutlineLevel",
-    "wb.Worksheets(2).ProtectContents",
-    "wb.Worksheets(\"Hid\").Visible",
-    "wb.Worksheets(\"Very\").Visible",
-    "wb.Worksheets(\"Hid\").Tab.Color",
-    "wb.Windows(1).SheetViews(2).DisplayGridlines"
-   ],
-   "control": "Third|460809|33|True|2|True|0|2|65793|False",
-   "excel": "Third|460809|33|True|2|True|0|2|65793|False",
-   "model": "Third|460809|33|True|2|True|0|2|65793|False",
-   "macro_edit": "None",
-   "python_edit": "saved",
-   "after_macro": "Third|460809|33|True|2|True|0|2|65793|False",
-   "lost_macro": {},
-   "after_python": "Third|460809|33|True|2|True|0|2|65793|False",
    "lost_python": {}
   },
   {
@@ -1010,6 +459,269 @@
    "after_macro": "1|11",
    "lost_macro": {},
    "after_python": "1|11",
+   "lost_python": {}
+  },
+  {
+   "name": "names_scopes",
+   "format": "xlsx",
+   "action": "wb.Names.Add \"G\", \"=Sheet1!$A$1\"\n    ws.Names.Add \"L\", \"=Sheet1!$B$2\"\n    wb.Names.Add \"Both\", \"=Sheet1!$A$3\"\n    s2.Names.Add \"Both\", \"=Sheet2!$A$4\"\n    wb.Names.Add Name:=\"H\", RefersTo:=\"=Sheet1!$A$5\", Visible:=False\n    wb.Names(\"G\").Comment = \"note\"\n    wb.Names.Add \"Num\", \"=42\"\n    wb.Names.Add \"Txt\", \"=\"\"a\"\"\"\n    ws.Activate\n    ws.Range(\"B3\").Select\n    wb.Names.Add \"Rel\", \"=Sheet1!A1\"\n    wb.Names.Add \"Calc\", \"=SUM(Sheet1!$A$2:$A$5)\"",
+   "reads": [
+    "wb.Names.Count",
+    "ws.Names.Count",
+    "wb.Worksheets(2).Names.Count",
+    "wb.Names(\"G\").Comment",
+    "wb.Names(\"H\").Visible",
+    "ws.Names(\"L\").RefersTo",
+    "wb.Worksheets(2).Names(\"Both\").RefersTo",
+    "wb.Names(\"Both\").RefersTo",
+    "wb.Names(\"Num\").RefersTo",
+    "wb.Names(\"Txt\").RefersTo",
+    "wb.Names(\"Rel\").RefersToR1C1",
+    "wb.Names(\"Calc\").RefersTo"
+   ],
+   "control": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "excel": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "model": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "lost_macro": {},
+   "after_python": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "lost_python": {}
+  },
+  {
+   "name": "names_builtin",
+   "format": "xlsx",
+   "action": "ws.PageSetup.PrintArea = \"$A$1:$C$5\"\n    ws.PageSetup.PrintTitleRows = \"$1:$1\"\n    ws.PageSetup.PrintTitleColumns = \"$A:$A\"\n    ws.Range(\"A1:C5\").AutoFilter 1, \"a\"",
+   "reads": [
+    "ws.PageSetup.PrintArea",
+    "ws.PageSetup.PrintTitleRows",
+    "ws.PageSetup.PrintTitleColumns",
+    "ws.AutoFilterMode",
+    "ws.Names.Count",
+    "ws.Names(1).Name",
+    "ws.Rows(2).Hidden"
+   ],
+   "control": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "excel": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "model": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "lost_macro": {},
+   "after_python": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "lost_python": {}
+  },
+  {
+   "name": "later_sheets",
+   "format": "xlsx",
+   "action": "s2.Range(\"A1\").Value = 1\n    s2.Tab.Color = RGB(9, 8, 7)\n    s2.Rows(3).RowHeight = 33\n    s2.Columns(2).ColumnWidth = 22\n    s2.Rows(4).Hidden = True\n    s2.Rows(6).OutlineLevel = 2\n    s2.Activate\n    ActiveWindow.Zoom = 130\n    ActiveWindow.DisplayGridlines = False\n    s2.Range(\"D5:E6\").Select\n    s2.Protect \"pw\"\n    Set o = wb.Worksheets.Add(After:=s2): o.Name = \"Third\": o.Range(\"A1\").Value = 3\n    Set o = wb.Worksheets.Add(After:=o): o.Name = \"Hid\": o.Tab.Color = RGB(1, 1, 1)\n    o.Visible = 0\n    Set o = wb.Worksheets.Add(After:=wb.Worksheets(\"Third\")): o.Name = \"Very\": o.Visible = 2\n    wb.Worksheets(\"Third\").Activate",
+   "reads": [
+    "wb.ActiveSheet.Name",
+    "wb.Worksheets(2).Tab.Color",
+    "wb.Worksheets(2).Rows(3).RowHeight",
+    "wb.Worksheets(2).Rows(4).Hidden",
+    "wb.Worksheets(2).Rows(6).OutlineLevel",
+    "wb.Worksheets(2).ProtectContents",
+    "wb.Worksheets(\"Hid\").Visible",
+    "wb.Worksheets(\"Very\").Visible",
+    "wb.Worksheets(\"Hid\").Tab.Color",
+    "wb.Windows(1).SheetViews(2).DisplayGridlines"
+   ],
+   "control": "Third|460809|33|True|2|True|0|2|65793|False",
+   "excel": "Third|460809|33|True|2|True|0|2|65793|False",
+   "model": "Third|460809|33|True|2|True|0|2|65793|False",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "Third|460809|33|True|2|True|0|2|65793|False",
+   "lost_macro": {},
+   "after_python": "Third|460809|33|True|2|True|0|2|65793|False",
+   "lost_python": {}
+  },
+  {
+   "name": "scenarios",
+   "format": "xlsx",
+   "action": "ws.Scenarios.Add \"S\", ws.Range(\"A2:A3\"), Array(5, 6), \"note\"",
+   "reads": [
+    "ws.Scenarios.Count",
+    "ws.Scenarios(1).Name",
+    "ws.Scenarios(1).Comment",
+    "ws.Scenarios(1).ChangingCells.Address"
+   ],
+   "control": "1|S|note|$A$2:$A$3",
+   "excel": "1|S|note|$A$2:$A$3",
+   "model": "1|S|note|$A$2:$A$3",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|S|note|$A$2:$A$3",
+   "lost_macro": {},
+   "after_python": "1|S|note|$A$2:$A$3",
+   "lost_python": {}
+  },
+  {
+   "name": "custom_views",
+   "format": "xlsx",
+   "action": "wb.CustomViews.Add \"V\", True, True",
+   "reads": [
+    "wb.CustomViews.Count",
+    "wb.CustomViews(1).Name",
+    "wb.CustomViews(1).PrintSettings"
+   ],
+   "control": "1|V|True",
+   "excel": "1|V|True",
+   "model": "reports: CustomViews of a workbook that holds customWorkbookViews parts is not implemented",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|V|True",
+   "lost_macro": {},
+   "after_python": "1|V|True",
+   "lost_python": {}
+  },
+  {
+   "name": "edit_ranges",
+   "format": "xlsx",
+   "action": "ws.Protection.AllowEditRanges.Add \"R\", ws.Range(\"A2:A3\")",
+   "reads": [
+    "ws.Protection.AllowEditRanges.Count",
+    "ws.Protection.AllowEditRanges(1).Title",
+    "ws.Protection.AllowEditRanges(1).Range.Address"
+   ],
+   "control": "1|R|$A$2:$A$3",
+   "excel": "1|R|$A$2:$A$3",
+   "model": "1|R|$A$2:$A$3",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|R|$A$2:$A$3",
+   "lost_macro": {},
+   "after_python": "1|R|$A$2:$A$3",
+   "lost_python": {}
+  },
+  {
+   "name": "ignored_errors",
+   "format": "xlsx",
+   "action": "ws.Range(\"D1\").NumberFormat = \"@\": ws.Range(\"D1\").Value = \"12\": ws.Range(\"D1\").Errors(3).Ignore = True",
+   "reads": [
+    "ws.Range(\"D1\").Errors(3).Ignore",
+    "ws.Range(\"D1\").Errors(3).Value"
+   ],
+   "control": "True|True",
+   "excel": "True|True",
+   "model": "reports: Range.Errors(...).Ignore on a sheet read with ignored errors is not implemented",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "True|True",
+   "lost_macro": {},
+   "after_python": "True|True",
+   "lost_python": {}
+  },
+  {
+   "name": "page_breaks",
+   "format": "xlsx",
+   "action": "ws.HPageBreaks.Add ws.Range(\"A5\"): ws.VPageBreaks.Add ws.Range(\"C1\")",
+   "reads": [
+    "ws.HPageBreaks.Count",
+    "ws.VPageBreaks.Count",
+    "ws.HPageBreaks(1).Location.Address"
+   ],
+   "control": "3|3|$A$5",
+   "excel": "1|1|$A$5",
+   "model": "1|1|$A$5",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "3|3|$A$5",
+   "lost_macro": {},
+   "after_python": "3|3|$A$5",
+   "lost_python": {}
+  },
+  {
+   "name": "custom_xml",
+   "format": "xlsx",
+   "action": "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:p\"\"><b>x</b></a>\"",
+   "reads": [
+    "wb.CustomXMLParts.SelectByNamespace(\"urn:p\").Count",
+    "wb.CustomXMLParts.SelectByNamespace(\"urn:p\")(1).XML"
+   ],
+   "control": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "excel": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "model": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "lost_macro": {},
+   "after_python": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "lost_python": {}
+  },
+  {
+   "name": "cell_style",
+   "format": "xlsx",
+   "action": "Set o = wb.Styles.Add(\"Mine\"): o.Font.Bold = True: ws.Range(\"A1\").Style = \"Mine\"",
+   "reads": [
+    "wb.Styles(\"Mine\").Font.Bold",
+    "ws.Range(\"A1\").Style.Name"
+   ],
+   "control": "True|Mine",
+   "excel": "True|Mine",
+   "model": "True|Mine",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "True|Mine",
+   "lost_macro": {},
+   "after_python": "True|Mine",
+   "lost_python": {}
+  },
+  {
+   "name": "sparklines",
+   "format": "xlsx",
+   "action": "ws.Range(\"E2\").SparklineGroups.Add 1, \"B2:C2\"",
+   "reads": [
+    "ws.Range(\"E2\").SparklineGroups.Count",
+    "ws.Range(\"E2\").SparklineGroups(1).SourceData"
+   ],
+   "control": "1|B2:C2",
+   "excel": "1|B2:C2",
+   "model": "1|B2:C2",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|B2:C2",
+   "lost_macro": {},
+   "after_python": "1|B2:C2",
+   "lost_python": {}
+  },
+  {
+   "name": "form_button",
+   "format": "xlsx",
+   "action": "Set o = ws.Buttons.Add(10, 10, 80, 20): o.Caption = \"Go\"",
+   "reads": [
+    "ws.Buttons.Count",
+    "ws.Buttons(1).Caption",
+    "ws.Shapes(1).Type"
+   ],
+   "control": "1|Go|8",
+   "excel": "1|Go|8",
+   "model": "1|Go|8",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|Go|8",
+   "lost_macro": {},
+   "after_python": "1|Go|8",
+   "lost_python": {}
+  },
+  {
+   "name": "image",
+   "format": "xlsx",
+   "action": "ws.Shapes.AddPicture folder & \"\\p.png\", False, True, 10, 10, 50, 40",
+   "reads": [
+    "ws.Shapes.Count",
+    "ws.Shapes(1).Type"
+   ],
+   "control": "1|13",
+   "excel": "1|13",
+   "model": "1|13",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|13",
+   "lost_macro": {},
+   "after_python": "1|13",
    "lost_python": {}
   }
  ]

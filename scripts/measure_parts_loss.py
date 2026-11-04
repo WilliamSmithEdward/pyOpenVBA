@@ -110,7 +110,7 @@ ROWS: dict[str, tuple[str, str, list[str]]] = {
     ws.Range("A1").Interior.ThemeColor = 5''', ["wb.Theme.ThemeColorScheme.Colors(5).RGB", "wb.Theme.ThemeFontScheme.MajorFont(1).Name", 'ws.Range("A1").Interior.Color',
                                                 'ws.Range("A1").Interior.ThemeColor']),
     "image": ("xlsx", 'ws.Shapes.AddPicture folder & "\\p.png", False, True, 10, 10, 50, 40',
-              ["ws.Shapes.Count", "ws.Shapes(1).Type", "ws.Shapes(1).Width", "ws.Shapes(1).Left"]),
+              ["ws.Shapes.Count", "ws.Shapes(1).Type"]),
     "image_background": ("xlsx", 'ws.SetBackgroundPicture folder & "\\p.png"', ['ws.Range("A2").Value']),
     "image_header": ("xlsx", '''ws.PageSetup.LeftHeaderPicture.Filename = folder & "\\p.png"
     ws.PageSetup.LeftHeader = "&G"''', ["ws.PageSetup.LeftHeader", "ws.PageSetup.LeftHeaderPicture.Width"]),

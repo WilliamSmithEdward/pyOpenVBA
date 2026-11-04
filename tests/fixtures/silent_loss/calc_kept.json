@@ -1,0 +1,224 @@
+{
+ "measured_at": "2026-11-04T05:50:28.954673+00:00",
+ "probe": "Function Go(ByVal file As String) As String\n    Dim wb As Workbook, s As String\n    Dim calc As Long, iter As Boolean, maxI As Long, maxC As Double, before As Boolean\n    Application.DisplayAlerts = False\n    calc = Application.Calculation: iter = Application.Iteration: maxI = Application.MaxIterations: maxC = Application.MaxChange\n    before = Application.CalculateBeforeSave\n    Set wb = Workbooks.Open(file)\n    s = Application.Calculation & \"|\" & Application.Iteration & \"|\" & Application.MaxIterations\n    {action}\n    wb.Worksheets(1).Range(\"H20\").Value = 7\n    wb.Save\n    wb.Close False\n    Application.Calculation = calc: Application.Iteration = iter: Application.MaxIterations = maxI: Application.MaxChange = maxC\n    Application.CalculateBeforeSave = before\n    Go = s\nEnd Function\n",
+ "actions": {
+  "kept": "",
+  "app_manual": "Application.Calculation = xlCalculationManual",
+  "app_automatic": "Application.Calculation = xlCalculationAutomatic",
+  "app_iteration": "Application.Iteration = True\nApplication.MaxIterations = 7",
+  "app_no_iteration": "Application.Iteration = False",
+  "app_before_save": "Application.CalculateBeforeSave = False"
+ },
+ "rows": [
+  {
+   "file": "calc_manual",
+   "action": "kept",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_manual",
+   "action": "app_manual",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_manual",
+   "action": "app_automatic",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "calc_manual",
+   "action": "app_iteration",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\" iterate=\"1\" iterateCount=\"7\"/>"
+  },
+  {
+   "file": "calc_manual",
+   "action": "app_no_iteration",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_manual",
+   "action": "app_before_save",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>"
+  },
+  {
+   "file": "calc_iteration",
+   "action": "kept",
+   "original": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.5\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "calc_iteration",
+   "action": "app_manual",
+   "original": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.5\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_iteration",
+   "action": "app_automatic",
+   "original": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.5\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "calc_iteration",
+   "action": "app_iteration",
+   "original": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.5\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"7\"/>"
+  },
+  {
+   "file": "calc_iteration",
+   "action": "app_no_iteration",
+   "original": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.5\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "calc_iteration",
+   "action": "app_before_save",
+   "original": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.5\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcOnSave=\"0\"/>"
+  },
+  {
+   "file": "calc_not_before_save",
+   "action": "kept",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_not_before_save",
+   "action": "app_manual",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_not_before_save",
+   "action": "app_automatic",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "calc_not_before_save",
+   "action": "app_iteration",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\" iterate=\"1\" iterateCount=\"7\"/>"
+  },
+  {
+   "file": "calc_not_before_save",
+   "action": "app_no_iteration",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_not_before_save",
+   "action": "app_before_save",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\" calcOnSave=\"0\"/>"
+  },
+  {
+   "file": "calc_semi",
+   "action": "kept",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>"
+  },
+  {
+   "file": "calc_semi",
+   "action": "app_manual",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "calc_semi",
+   "action": "app_automatic",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "calc_semi",
+   "action": "app_iteration",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\" iterate=\"1\" iterateCount=\"7\"/>"
+  },
+  {
+   "file": "calc_semi",
+   "action": "app_no_iteration",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>"
+  },
+  {
+   "file": "calc_semi",
+   "action": "app_before_save",
+   "original": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"autoNoTable\" calcOnSave=\"0\"/>"
+  },
+  {
+   "file": "tab_color",
+   "action": "kept",
+   "original": "<calcPr calcId=\"191029\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "tab_color",
+   "action": "app_manual",
+   "original": "<calcPr calcId=\"191029\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcMode=\"manual\"/>"
+  },
+  {
+   "file": "tab_color",
+   "action": "app_automatic",
+   "original": "<calcPr calcId=\"191029\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "tab_color",
+   "action": "app_iteration",
+   "original": "<calcPr calcId=\"191029\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"7\"/>"
+  },
+  {
+   "file": "tab_color",
+   "action": "app_no_iteration",
+   "original": "<calcPr calcId=\"191029\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\"/>"
+  },
+  {
+   "file": "tab_color",
+   "action": "app_before_save",
+   "original": "<calcPr calcId=\"191029\"/>",
+   "reads": "-4105|False|100",
+   "saved": "<calcPr calcId=\"191029\" calcOnSave=\"0\"/>"
+  }
+ ]
+}

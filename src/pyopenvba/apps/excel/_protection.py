@@ -307,6 +307,10 @@ def read_protection(sheet: Worksheet, xml: str) -> None:
     def on(name: str) -> bool:
         return attributes.get(name, "0") in ("1", "true")
 
+    if not set(attributes) - {"selectLockedCells", "selectUnlockedCells"}:
+        # Only EnableSelection, on a sheet that is not protected.
+        sheet.enable_selection = -4142 if on("selectUnlockedCells") else (1 if on("selectLockedCells") else 0)
+        return
     allows = frozenset(option for option, name in _ATTRIBUTES if option and attributes.get(name) in ("0", "false"))
     hashed = None
     if "hashValue" in attributes:
@@ -326,7 +330,12 @@ def protection_xml(sheet: Worksheet) -> str:
     """
     found = sheet.protection
     if found is None:
-        return ""
+        # EnableSelection is kept on a sheet that is not protected, in the element with nothing else in it
+        # (tests/fixtures/settable_reopen.json).
+        locked_cells, unlocked_cells = _SELECTION.get(sheet.enable_selection, (False, False))
+        parts = [f'{name}="1"' for name, on in (("selectLockedCells", locked_cells), ("selectUnlockedCells", unlocked_cells))
+                 if on]
+        return f"<sheetProtection {' '.join(parts)}/>" if parts else ""
     if found.password and found.hashed is None:
         salt = os.urandom(16)
         found = SheetProtection(found.password, found.contents, found.drawing_objects, found.scenarios,

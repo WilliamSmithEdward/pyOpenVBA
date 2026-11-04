@@ -158,11 +158,13 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     # Each sheet keeps the number the file gives it, by its relationship, and the next one made takes one past
     # the highest.
     numbers: dict[str, int] = {}
+    states: dict[str, str] = {}
     for tag in re.findall(r"<sheet\b[^>]*>", workbook_xml):
         attributes = _tag_attributes(tag)
         identifier = next((value for key, value in attributes.items() if key.endswith(":id")), "")
         if attributes.get("sheetId", "").isdecimal():
             numbers[identifier] = int(attributes["sheetId"])
+        states[identifier] = attributes.get("state", "")
     for name, relationship_id in sheet_entries(workbook_xml):
         part = relationships.get(relationship_id, "")
         other = _OTHER_SHEETS.get(linked.get(relationship_id, ("", ""))[1])
@@ -170,6 +172,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             raise VBAUnsupportedError(f"opening a workbook with {other} is not implemented")
         sheet = book.add_sheet(name)
         sheet.sheet_id = numbers.get(relationship_id, sheet.sheet_id)
+        sheet.visible = _SHEET_VISIBILITY.get(states.get(relationship_id, ""), -1)
         sheet.part_name = part
         # Missing code names stay empty until project access materializes them.
         if part and package.has(part):
@@ -1704,6 +1707,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._query_tables import write as write_query_tables
 
     write_query_tables(book, package, _add_sheet_relationship, _override_before_properties, _sheet_relationships, _resolved, _drop_sheet_part)
+    from pyopenvba.apps.excel._calc_chain import settle as settle_calc_chain
+
+    settle_calc_chain(book, package, _relationships(package), _remove_unreferenced_part)
     book.application.outside("Saving a workbook")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
@@ -1871,7 +1877,8 @@ def _match_sheets_to_package(book: Workbook, package: OpcFile) -> None:
                 "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
                 f"worksheets/sheet{index + 1}.xml",
             )
-            additions.append(f'<sheet name="{_escape(sheet.name)}" sheetId="{sheet.sheet_id}" r:id="{relationship}"/>')
+            additions.append(f'<sheet name="{_escape(sheet.name)}" sheetId="{sheet.sheet_id}"{_sheet_state(sheet)} '
+                             f'r:id="{relationship}"/>')
     _rename_sheets_in_workbook(book, package, existing)
     if additions:
         text = package.read("xl/workbook.xml").decode("utf-8")
@@ -1938,7 +1945,12 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
             # The name first, as Excel writes a sheet, and the number it was made with.
             attrs = {"name": sheet.name, "sheetId": str(sheet.sheet_id), "r:id": rid}
         attrs["name"] = sheet.name
-        tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' for key, value in attrs.items()) + "/>")
+        # The state the model has now, between sheetId and the relationship as Excel writes it: a macro may have hidden
+        # or shown the sheet since the file was read.
+        attrs.pop("state", None)
+        state = _sheet_state(sheet)
+        tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' + (state if key == "sheetId" else "")
+                                         for key, value in attrs.items()) + "/>")
     rebuilt = "<sheets>" + "".join(tags) + "</sheets>"
     if rebuilt != block.group():
         def remap_reserved(match: re.Match[str]) -> str:
@@ -2053,6 +2065,16 @@ def _follow_defined_name(book: Workbook, package: OpcFile, name: str, target: Lo
         _write_names(book, package)
 
 
+#: Worksheet.Visible by the state the workbook part gives a sheet: none is xlSheetVisible.
+_SHEET_VISIBILITY = {"hidden": 0, "veryHidden": 2}
+
+
+def _sheet_state(sheet: Worksheet) -> str:
+    """A sheet's state attribute, as Excel writes it between sheetId and its relationship; none for one that shows."""
+    state = next((name for name, value in _SHEET_VISIBILITY.items() if value == sheet.visible), "")
+    return f' state="{state}"' if state else ""
+
+
 def _rename_sheets_in_workbook(book: Workbook, package: OpcFile, existing: list[tuple[str, str]]) -> None:
     """Put the model's sheet names, and the numbers the sheets were made with, into the package's workbook part.
 
@@ -2070,7 +2092,8 @@ def _rename_sheets_in_workbook(book: Workbook, package: OpcFile, existing: list[
             text = text.replace(f'name="{_escape(old)}"', f'name="{_escape(sheet.name)}"', 1)
         found = re.search(rf'<sheet\b[^>]*\bname="{re.escape(_escape(sheet.name))}"[^>]*>', text)
         if found is not None:
-            tag = re.sub(r'\bsheetId="\d+"', lambda _: f'sheetId="{sheet.sheet_id}"', found.group(), count=1)
+            tag = re.sub(r'\sstate="[^"]*"', "", found.group())
+            tag = re.sub(r'\bsheetId="\d+"', lambda _: f'sheetId="{sheet.sheet_id}"{_sheet_state(sheet)}', tag, count=1)
             text = text[:found.start()] + tag + text[found.end():]
     package.write("xl/workbook.xml", text.encode("utf-8"))
 
@@ -2491,9 +2514,25 @@ def _value_body(value: object) -> tuple[str, str]:
 
 
 def _number_text(value: float) -> str:
-    if isinstance(value, int) or float(value).is_integer():
+    """A number as Excel saves it (tests/fixtures/saved_numbers.json): a whole number in digits below 1E+16; else 15 or 17
+    significant digits, with an E and no padding from 1E+16 up and below 0.1, unless plain digits are no longer. Excel
+    refuses a file with a huge number in plain digits."""
+    from pyopenvba.apps.excel._styles import excel_number
+
+    if (isinstance(value, int) or float(value).is_integer()) and abs(value) < 1e16:
         return str(int(value))
-    return repr(float(value))
+    number = float(value)
+    spelled = excel_number(number)
+    digits = len(spelled.partition("e")[0].lstrip("-0.").replace(".", ""))
+    mantissa, _, power = f"{number:.{digits - 1}e}".partition("e")
+    with_power = f"{mantissa}E{int(power):+d}"
+    size = abs(number)
+    if size >= 1e16:
+        return with_power
+    plain = spelled if "e" not in spelled else f"{number:.{max(0, digits - 1 - int(power))}f}"
+    if size < 0.1 and (digits > 15 or len(with_power) < len(plain)):
+        return with_power
+    return plain
 
 
 def _write_styles(book: Workbook, package: OpcFile) -> None:

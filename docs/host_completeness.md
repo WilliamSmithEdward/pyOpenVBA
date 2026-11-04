@@ -287,6 +287,50 @@ Use **VERIFIED**, **PARTIAL**, **MISSING**, **UNASSESSED** and
 - **MISSING**: not implemented; using it reports itself unsupported.
 - **EXCLUDED**: out of headless scope, with the reason recorded.
 
+What VERIFIED asks of a row depends on its kind. A row that has met less
+stays PARTIAL, with a note saying what is missing. Each result below comes
+from live Office and is replayed offline. The note on a row names what was
+not measured, and why.
+
+- **A property a macro can set.** Every kind of value: valid codes and
+  their bounds, past either bound, a fraction, text of a number, text that
+  is no number, empty text, Null, Empty and True. Each on a fresh object
+  and on one already formatted, reading the object's other properties
+  afterwards, then again after a save and reopen. A Range's property is also
+  read over cells that differ. Live Office opens a file the model saved and
+  reads the same answers.
+- **A method.** No arguments, each argument alone, and the kinds of value
+  above for each. Its effects, and what a save keeps of them.
+- **A collection's Count and Item.** Count on a populated collection, and on
+  an empty one where a sheet can leave it empty. Item with no argument, the
+  first and last, past either end, zero, a negative, a fraction, text of a
+  number, a name in its own case and another, a name it lacks, empty text,
+  Empty, Null, True and an object, on each way of reaching the collection.
+  These are measured as `o.Item(x)`. `sr.Points(99)` and `o.Item(99)` can
+  differ, so the shorter form needs its own measurement.
+- **Application, Creator and Parent.** What each answers on each way of
+  reaching the object, and the errors from `o.Member = x` and
+  `Set o.Member = x`. Their answers do not depend on the object's state, so
+  the kinds of value above do not apply, and nothing here is saved.
+- **Any other read-only member.** Its answer in each state that can change
+  it, and the error from assigning to it. One read in one state is PARTIAL.
+
+Binding: measure a settable property's values and a collection's Item both
+late bound, `Dim o As Object`, and early bound, `Dim o As Validation`, and
+record both. A member declared with a specific type converts the value in VBA
+before Excel sees it: `ActiveWindow.DisplayGridlines = Null` is 94 early and
+changes nothing late, and `Areas.Item(Null)` is 94 early and 13 late. The model
+is to track both bindings. Until it does, it follows early binding where the two
+differ, which is how `ActiveWindow` and `Range(...).Validation` reach these
+objects in a macro. A macro holding the same object `As Object` gets the wrong
+answer meanwhile, so a row whose bindings differ stays PARTIAL, with a note,
+until tracking lands. Assigning to a read-only member can only be late bound,
+since VBA refuses it at compile time when bound early. A hidden member, whose
+answer depends on binding altogether, is one such row.
+
+A row whose evidence predates this standard is audited against it. A row
+that fails goes back to PARTIAL until it is fixed.
+
 An area becomes VERIFIED only when its operations and evidence are
 complete. Do not advance the completion milestone to Word while Excel
 has unresolved in-scope gaps; apply the same rule before PowerPoint.

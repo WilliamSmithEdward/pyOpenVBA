@@ -221,6 +221,9 @@ class _Walk:
             if node.op in (":", " ", ","):
                 left = self.visit(node.left, WHOLE)
                 self.visit(node.right, WHOLE)
+                if _is_at(node.left) and node.op == " ":
+                    # An @ on the left is enough for an intersection too: =@D2:D3 (A1:A3,A1).
+                    return False
                 if _is_at(node.right) and node.op != ":":
                     # =A1 @A2 and =A1,@A2 read back as they are; =A1:@A2 is a range all the same, and =SUM(A1:A2) @A2 as its
                     # left is (tests/fixtures/value_gaps.json).

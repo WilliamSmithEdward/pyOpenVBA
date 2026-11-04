@@ -614,7 +614,7 @@ class Parser:
         if self._at_sign():
             start = self.token.at
             self.advance()
-            return self.placed(Unary(op="@", operand=self.spilled(self.primary())), start)
+            return self.placed(Unary(op="@", operand=self.joined_operand()), start)
         return self.spilled(self.primary())
 
     def spilled(self, node: Node) -> Node:

@@ -1627,6 +1627,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
             package.write(sheet.part_name, patched.encode("utf-8"))
             if outline_changes and sheet.outline_state is not None:
                 sheet.outline_state.axes_checked = False
+    _write_cached_values(book, package)
     collector.write(package)
     from pyopenvba.apps.excel._pivot_rich import write as write_rich_pivots
 
@@ -2454,6 +2455,117 @@ def calculate_for_save(book: Workbook) -> None:
                     calculator.value_of(sheet.name, row, column)
                 except VBAUnsupportedError:
                     continue
+
+
+_CELL_REFERENCE = re.compile(r'\sr="([A-Z]+)([0-9]+)"')
+_CELL_KIND = re.compile(r'\st="([^"]*)"')
+#: The mark on a formula a save left to Excel to work out; a c element has no other attribute of the name.
+_CA_MARK = re.compile(r'\sca="1"')
+
+
+def _write_cached_values(book: Workbook, package: OpcFile) -> None:
+    """Bring the values a sheet nobody wrote to holds up to what its formulas now come to, as Excel writes every sheet's
+    at a save. Reading another sheet, a name, a table or a hidden row makes a formula's value change with its own sheet
+    untouched, and Excel does not work a file out again as it opens (tests/fixtures/saved_values.json). Only each changed
+    cell's t, v and f's ca change, so the rest of the part keeps its bytes. A sheet where nothing has been worked out
+    since the last save, and nothing waits to be, is not read."""
+    strings: list[str] | None = None
+    worked = book.calculator.worked_out
+    for sheet in book.sheets_:
+        if sheet.dirty or not sheet.part_name or not package.has(sheet.part_name):
+            continue
+        if sheet not in worked and not book.date_system_changed and not sheet.marked_to_calculate \
+                and not any(cell.formula and (cell.stale or cell.save_dirty) for cell in sheet.cells_.values()):
+            continue
+        if strings is None:
+            strings = _shared_strings(package)
+        original = package.read(sheet.part_name).decode("utf-8", errors="replace")
+        written = _sheet_with_values(sheet, original, strings)
+        if written != original:
+            package.write(sheet.part_name, written.encode("utf-8"))
+    worked.clear()
+
+
+def _sheet_with_values(sheet: Worksheet, xml: str, strings: list[str]) -> str:
+    """A sheet's xml with each formula's cell holding the value the model has for it."""
+    match = _SHEET_DATA.search(xml)
+    if match is None or match.group(3) is None:
+        return xml
+    automatic = sheet.book.calculator.automatic
+    keeping = not automatic or not sheet.enable_calculation
+    # In semi-automatic calculation a data table keeps its last values until a calculation is asked for.
+    held = [table.area for table in sheet.data_tables.values()] if sheet.book.application.calculation == 2 else []
+
+    def refreshed(found: re.Match[str]) -> str:
+        element = found.group(0)
+        head = element[:element.index(">")]
+        reference = _CELL_REFERENCE.search(head)
+        if reference is None:
+            return element
+        row, column = int(reference.group(2)), column_number(reference.group(1))
+        cell = sheet.cells_.get((row, column))
+        if cell is None or not cell.formula:
+            return element
+        kept = keeping or any(area.top <= row <= area.bottom and area.left <= column <= area.right for area in held)
+        marked = not automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)
+        kind = _CELL_KIND.search(head)
+        if not marked and (row, column) in sheet.marked_to_calculate:
+            # Worked out since a save marked it, so Excel has no more need to, and writes it without the mark.
+            sheet.marked_to_calculate.discard((row, column))
+            element = _CA_MARK.sub("", element, count=1)
+        written = _cell_with_value(element, cell, kind.group(1) if kind else "", strings, keep_stale=kept, marked=bool(marked))
+        if marked and _CA_MARK.search(written) and not _CA_MARK.search(element):
+            sheet.marked_to_calculate.add((row, column))
+        return written
+
+    return xml[:match.start(3)] + _CELL.sub(refreshed, match.group(3)) + xml[match.end(3):]
+
+
+def _cell_with_value(element: str, cell: Cell, kind: str, strings: list[str], *, keep_stale: bool, marked: bool) -> str:
+    """A formula's <c> with the value the model has for it, and with ca="1" on its <f> if ``marked``, as in manual
+    calculation until it is worked out. A cell with nothing to change comes back as it was."""
+    new_kind, body = _formula_value(cell, keep_stale=keep_stale)
+    head_end = element.index(">")
+    closed = element[head_end - 1] == "/"
+    head = element[:head_end - 1] if closed else element[:head_end]
+    inner = "" if closed else element[head_end + 1:element.rindex("</c>")]
+    held = _VALUE.search(inner)
+    changed = bool(body) != (held is not None) or (bool(body) and not _same_value(_cell_value(element, kind, strings), cell.value))
+    formula = _FORMULA.search(inner)
+    mark = marked and formula is not None and not re.search(r'\bca="', formula.group(1))
+    if not changed and not mark:
+        return element
+    if changed:
+        if held is not None:
+            inner = inner[:held.start()] + body + inner[held.end():]
+        else:
+            at = formula.end() if formula is not None else 0
+            inner = inner[:at] + body + inner[at:]
+        if new_kind != (f' t="{kind}"' if kind else ""):
+            head = _CELL_KIND.sub("", head)
+            place = re.search(r'\ss="[^"]*"', head) or _CELL_REFERENCE.search(head)
+            if place is not None:
+                head = head[:place.end()] + new_kind + head[place.end():]
+    if mark and formula is not None:
+        # Last among the f's attributes, after an array's t and ref, as Excel writes it.
+        end = formula.start() + len(formula.group(1)) + 2
+        inner = f'{inner[:end]} ca="1"{inner[end:]}'
+    return f"{head}>{inner}</c>" if inner else f"{head}/>"
+
+
+def _same_value(held: object, value: object) -> bool:
+    """Whether a value read from a file and a value the model has say the same."""
+    if isinstance(value, VBADate):
+        value = value.serial
+    if isinstance(held, ExcelError) or isinstance(value, ExcelError):
+        return isinstance(held, ExcelError) and isinstance(value, ExcelError) and held.name == value.name
+    if isinstance(held, bool) or isinstance(value, bool):
+        return isinstance(held, bool) and isinstance(value, bool) and held == value
+    if isinstance(held, str) or isinstance(value, str):
+        return isinstance(held, str) and isinstance(value, str) and held == value
+    if held is EMPTY or value is EMPTY:
+        return held is value
+    return isinstance(held, (int, float)) and isinstance(value, (int, float)) and float(held) == float(value)
 
 
 def _formula_xml(text: str, tables: Collection[str]) -> str:

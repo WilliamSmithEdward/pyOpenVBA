@@ -8,7 +8,7 @@ marker keeps tests/fixtures/point_markers.json. Delete takes away its series, an
 tests/fixtures/series_points.json has it."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pyopenvba.apps.excel._chart_format import (
     FILLED,
@@ -41,7 +41,7 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._number_format import to_file
 from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import VBACollection, member, method, setter
+from pyopenvba.interpreter._objects import VBAObject, VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer
 from pyopenvba.shapes._values import FillLine
 
@@ -205,11 +205,35 @@ class Points(VBACollection, ItemDefault, Created):
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
-            raise error(13, "Type mismatch")
+            if not index.strip().isdigit():
+                raise error(13, "Type mismatch")
+            index = int(index)
         place = int(to_integer(index, "Long"))
         if not 1 <= place <= len(items):
             raise error(1004, "Points method of Series class failed")
         return items[place - 1]
+
+
+class OldInterior(Created):
+    """Series.Interior and Point.Interior, members the type library hides: the fill that Format also reaches
+    (tests/fixtures/excel_everyday_14.json)."""
+
+    vba_type_name = "Interior"
+
+    def __init__(self, element: VBAObject) -> None:
+        self.element = element
+
+    def _colour(self) -> VBAObject:
+        fill = cast(VBAObject, self.element.vba_get("Format")).vba_get("Fill")
+        return cast(VBAObject, cast(VBAObject, fill).vba_get("ForeColor"))
+
+    @member
+    def Color(self) -> object:
+        return self._colour().vba_get("RGB")
+
+    @setter("Color")
+    def _set_color(self, value: object) -> None:
+        self._colour().vba_set("RGB", value)
 
 
 class Point(ElementProperties, PictureMembers, Created):
@@ -217,6 +241,10 @@ class Point(ElementProperties, PictureMembers, Created):
 
     def __init__(self, series: Series, index: int) -> None:
         self.series, self.index = series, index
+
+    @member
+    def Interior(self) -> object:
+        return OldInterior(self)
 
     def kind(self) -> str:
         self.series.position()

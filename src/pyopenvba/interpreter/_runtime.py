@@ -41,6 +41,7 @@ from pyopenvba.interpreter._type_library import (
     find_class,
     kinds_of,
     late_arguments,
+    late_index_error,
     late_call_error,
     late_error,
     late_let_error,
@@ -2400,7 +2401,9 @@ class Interpreter:
         count = len(positional)
         while count and positional[count - 1] is MISSING:
             count -= 1
-        number = late_error(found, strip_suffix(name), count, list(named))
+        number = late_index_error(found, strip_suffix(name)) if count and not named else None
+        if number is None:
+            number = late_error(found, strip_suffix(name), count, list(named))
         if number is not None:
             raise error(number)
 

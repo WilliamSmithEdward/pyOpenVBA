@@ -74,6 +74,14 @@ def calls() -> dict[str, dict[str, int]]:
     return table
 
 
+def indexes() -> dict[str, int]:
+    """The members of tests/fixtures/late_indexes.json that refuse an index. Any other answer is what they answered being indexed:
+    a 9 is an empty collection's Item saying so, and a 438 the Let of an object with no default, as Borders(1) reads."""
+    record = json.loads((FIXTURES / 'late_indexes.json').read_text(encoding='utf-8'))
+    return {f'{name.lower()}.{member}': number for name, members in record['classes'].items() for member, number in members.items()
+            if number in (450, 451)}
+
+
 def main() -> None:
     lines = ['"""What a call bound late answers where it differs from typed, measured per class.member.', '',
              'Written by scripts/build_late_lets.py.  Do not edit by hand.', '',
@@ -84,6 +92,9 @@ def main() -> None:
     lines += ['}', '', 'LATE_CALLS: dict[str, dict[str, int]] = {']
     made = calls()
     lines += [f'    {key!r}: {made[key]!r},' for key in sorted(made)]
+    lines += ['}', '', '#: A property that takes nothing, given an index (tests/fixtures/late_indexes.json).', 'LATE_INDEXES: dict[str, int] = {']
+    numbered = indexes()
+    lines += [f'    {key!r}: {numbered[key]!r},' for key in sorted(numbered)]
     lines += ['}', '', '#: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json,',
               '#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json).',
               "LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook', 'workbook.fileformat',",

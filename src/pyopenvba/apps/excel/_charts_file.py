@@ -357,7 +357,7 @@ def read_chart(xml: str, part: str) -> ChartState:
         item.error_bars = read_error_bars(series, NS)
         item.trendlines = read_trendlines(series, NS)
         name_ref = series.find('c:tx/c:strRef/c:f', NS)
-        item.name_reference = name_ref.text or '' if name_ref is not None else ''
+        item.name_reference = _as_excel_reads(name_ref.text or '') if name_ref is not None else ''
         name = series.find('c:tx/c:v', NS)
         item.name = name.text if name is not None else None
         cat = series.find('c:cat', NS)
@@ -430,12 +430,23 @@ def _marker_colour(node: ET.Element) -> str | None:
     return value.upper() if colour is not None and len(colour) == 0 and re.fullmatch(r'[0-9A-Fa-f]{6}', value) else '?'
 
 
+def _as_excel_reads(reference: str) -> str:
+    """One block of a sheet's cells as Excel reads it from a file spelled otherwise: absolute, and its sheet bare where a plain name
+    needs no apostrophes (tests/fixtures/tool_drawings.json). Anything else stays as written."""
+    found = re.fullmatch(r"(?:'([A-Za-z_][\w.]*)'|([^'!]+)|('(?:[^']|'')+'))!\$?([A-Z]{1,3})\$?(\d+)(?::\$?([A-Z]{1,3})\$?(\d+))?", reference)
+    if found is None:
+        return reference
+    plain, bare, needing, column, row, far_column, far_row = found.groups()
+    sheet = plain if plain is not None and not re.fullmatch(r'[A-Za-z]{1,3}\d+', plain) else needing or bare or f"'{plain}'"
+    return f'{sheet}!${column}${row}' + (f':${far_column}${far_row}' if far_column else '')
+
+
 def _data(node: ET.Element | None) -> tuple[str, list[object]]:
     if node is None:
         return '', []
     formula = node.find('.//c:f', NS)
     if formula is not None:
-        return formula.text or '', []
+        return _as_excel_reads(formula.text or ''), []
     numeric = node.find('c:numLit', NS) is not None
     values: list[object] = []
     for point in node.findall('.//c:pt', NS):

@@ -1,0 +1,1469 @@
+{
+ "measured_at": "2026-11-04T05:19:33.066816+00:00",
+ "answers": {
+  "nope ActiveSheet": {
+   "value": "compiled"
+  },
+  "creator ActiveSheet": {
+   "value": "compiled"
+  },
+  "nope ActiveWorkbook": {
+   "value": "compiled"
+  },
+  "creator ActiveWorkbook": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope ActiveCell": {
+   "value": "compiled"
+  },
+  "creator ActiveCell": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ActiveChart": {
+   "compile": "Method or data member not found"
+  },
+  "creator ActiveChart": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope ActiveWindow": {
+   "value": "compiled"
+  },
+  "creator ActiveWindow": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Selection": {
+   "value": "compiled"
+  },
+  "creator Selection": {
+   "value": "compiled"
+  },
+  "nope ThisWorkbook": {
+   "compile": "Method or data member not found"
+  },
+  "creator ThisWorkbook": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Application": {
+   "value": "compiled"
+  },
+  "creator Application": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Worksheets": {
+   "compile": "Method or data member not found"
+  },
+  "creator Worksheets": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Worksheets(1)": {
+   "value": "compiled"
+  },
+  "creator Worksheets(1)": {
+   "value": "compiled"
+  },
+  "nope Sheets": {
+   "compile": "Method or data member not found"
+  },
+  "creator Sheets": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Sheets(1)": {
+   "value": "compiled"
+  },
+  "creator Sheets(1)": {
+   "value": "compiled"
+  },
+  "nope Workbooks": {
+   "compile": "Method or data member not found"
+  },
+  "creator Workbooks": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Workbooks(1)": {
+   "value": "compiled"
+  },
+  "creator Workbooks(1)": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Charts": {
+   "compile": "Method or data member not found"
+  },
+  "creator Charts": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Charts(1)": {
+   "value": "compiled"
+  },
+  "creator Charts(1)": {
+   "value": "compiled"
+  },
+  "nope Names": {
+   "value": "compiled"
+  },
+  "creator Names": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Names(1)": {
+   "value": "compiled"
+  },
+  "creator Names(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Range(\"A1\")": {
+   "value": "compiled"
+  },
+  "creator Range(\"A1\")": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Cells": {
+   "value": "compiled"
+  },
+  "creator Cells": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "creator Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "nope Rows(1)": {
+   "value": "compiled"
+  },
+  "creator Rows(1)": {
+   "value": "compiled"
+  },
+  "nope Columns(1)": {
+   "value": "compiled"
+  },
+  "creator Columns(1)": {
+   "value": "compiled"
+  },
+  "nope Union(Range(\"A1\"), Range(\"A2\"))": {
+   "value": "compiled"
+  },
+  "creator Union(Range(\"A1\"), Range(\"A2\"))": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Intersect(Range(\"A1\"), Range(\"A2\"))": {
+   "value": "compiled"
+  },
+  "creator Intersect(Range(\"A1\"), Range(\"A2\"))": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope [A1]": {
+   "value": "compiled"
+  },
+  "creator [A1]": {
+   "value": "compiled"
+  },
+  "nope WorksheetFunction": {
+   "value": "compiled"
+  },
+  "creator WorksheetFunction": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Application.WorksheetFunction": {
+   "value": "compiled"
+  },
+  "creator Application.WorksheetFunction": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Application.ActiveSheet": {
+   "value": "compiled"
+  },
+  "creator Application.ActiveSheet": {
+   "value": "compiled"
+  },
+  "nope Application.ActiveCell": {
+   "value": "compiled"
+  },
+  "creator Application.ActiveCell": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Application.Selection": {
+   "value": "compiled"
+  },
+  "creator Application.Selection": {
+   "value": "compiled"
+  },
+  "nope Application.Range(\"A1\")": {
+   "value": "compiled"
+  },
+  "creator Application.Range(\"A1\")": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Application.Cells": {
+   "value": "compiled"
+  },
+  "creator Application.Cells": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Application.Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "creator Application.Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "nope Application.Workbooks": {
+   "compile": "Method or data member not found"
+  },
+  "creator Application.Workbooks": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Application.Workbooks(1)": {
+   "value": "compiled"
+  },
+  "creator Application.Workbooks(1)": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Application.Worksheets(1)": {
+   "value": "compiled"
+  },
+  "creator Application.Worksheets(1)": {
+   "value": "compiled"
+  },
+  "nope Application.ThisWorkbook": {
+   "value": "compiled"
+  },
+  "creator Application.ThisWorkbook": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope Application.Caller": {
+   "value": "compiled"
+  },
+  "creator Application.Caller": {
+   "value": "compiled"
+  },
+  "nope Application.Windows(1)": {
+   "value": "compiled"
+  },
+  "creator Application.Windows(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope Application.Evaluate(\"A1\")": {
+   "value": "compiled"
+  },
+  "creator Application.Evaluate(\"A1\")": {
+   "value": "compiled"
+  },
+  "nope ws": {
+   "compile": "Method or data member not found"
+  },
+  "creator ws": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope ws.Range(\"A1\")": {
+   "value": "compiled"
+  },
+  "creator ws.Range(\"A1\")": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Cells": {
+   "value": "compiled"
+  },
+  "creator ws.Cells": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "creator ws.Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "nope ws.Rows(1)": {
+   "value": "compiled"
+  },
+  "creator ws.Rows(1)": {
+   "value": "compiled"
+  },
+  "nope ws.Columns(1)": {
+   "value": "compiled"
+  },
+  "creator ws.Columns(1)": {
+   "value": "compiled"
+  },
+  "nope ws.UsedRange": {
+   "value": "compiled"
+  },
+  "creator ws.UsedRange": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Parent": {
+   "value": "compiled"
+  },
+  "creator ws.Parent": {
+   "value": "compiled"
+  },
+  "nope ws.Application": {
+   "value": "compiled"
+  },
+  "creator ws.Application": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope ws.Next": {
+   "value": "compiled"
+  },
+  "creator ws.Next": {
+   "value": "compiled"
+  },
+  "nope ws.Shapes": {
+   "value": "compiled"
+  },
+  "creator ws.Shapes": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Shapes(1)": {
+   "value": "compiled"
+  },
+  "creator ws.Shapes(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.ChartObjects": {
+   "value": "compiled"
+  },
+  "creator ws.ChartObjects": {
+   "value": "compiled"
+  },
+  "nope ws.ChartObjects(1)": {
+   "value": "compiled"
+  },
+  "creator ws.ChartObjects(1)": {
+   "value": "compiled"
+  },
+  "nope ws.ChartObjects(1).Chart": {
+   "value": "compiled"
+  },
+  "creator ws.ChartObjects(1).Chart": {
+   "value": "compiled"
+  },
+  "nope ws.ListObjects": {
+   "value": "compiled"
+  },
+  "creator ws.ListObjects": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.ListObjects(1)": {
+   "value": "compiled"
+  },
+  "creator ws.ListObjects(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.ListObjects(1).ListRows": {
+   "value": "compiled"
+  },
+  "creator ws.ListObjects(1).ListRows": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.ListObjects(1).ListRows(1)": {
+   "value": "compiled"
+  },
+  "creator ws.ListObjects(1).ListRows(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.ListObjects(1).ListRows(1).Range": {
+   "value": "compiled"
+  },
+  "creator ws.ListObjects(1).ListRows(1).Range": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Names": {
+   "value": "compiled"
+  },
+  "creator ws.Names": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Names(1)": {
+   "value": "compiled"
+  },
+  "creator ws.Names(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Hyperlinks": {
+   "value": "compiled"
+  },
+  "creator ws.Hyperlinks": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Hyperlinks(1)": {
+   "value": "compiled"
+  },
+  "creator ws.Hyperlinks(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Comments": {
+   "value": "compiled"
+  },
+  "creator ws.Comments": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Comments(1)": {
+   "value": "compiled"
+  },
+  "creator ws.Comments(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.PivotTables": {
+   "value": "compiled"
+  },
+  "creator ws.PivotTables": {
+   "value": "compiled"
+  },
+  "nope ws.PivotTables(1)": {
+   "value": "compiled"
+  },
+  "creator ws.PivotTables(1)": {
+   "value": "compiled"
+  },
+  "nope ws.Sort": {
+   "value": "compiled"
+  },
+  "creator ws.Sort": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.AutoFilter": {
+   "value": "compiled"
+  },
+  "creator ws.AutoFilter": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.PageSetup": {
+   "value": "compiled"
+  },
+  "creator ws.PageSetup": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.QueryTables": {
+   "value": "compiled"
+  },
+  "creator ws.QueryTables": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.QueryTables(1)": {
+   "value": "compiled"
+  },
+  "creator ws.QueryTables(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ws.Tab": {
+   "value": "compiled"
+  },
+  "creator ws.Tab": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb": {
+   "value": "compiled"
+  },
+  "creator wb": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope wb.Worksheets": {
+   "compile": "Method or data member not found"
+  },
+  "creator wb.Worksheets": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope wb.Worksheets(1)": {
+   "value": "compiled"
+  },
+  "creator wb.Worksheets(1)": {
+   "value": "compiled"
+  },
+  "nope wb.Sheets(1)": {
+   "value": "compiled"
+  },
+  "creator wb.Sheets(1)": {
+   "value": "compiled"
+  },
+  "nope wb.ActiveSheet": {
+   "value": "compiled"
+  },
+  "creator wb.ActiveSheet": {
+   "value": "compiled"
+  },
+  "nope wb.Names": {
+   "value": "compiled"
+  },
+  "creator wb.Names": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb.Names(1)": {
+   "value": "compiled"
+  },
+  "creator wb.Names(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb.Names(1).RefersToRange": {
+   "value": "compiled"
+  },
+  "creator wb.Names(1).RefersToRange": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb.Connections": {
+   "value": "compiled"
+  },
+  "creator wb.Connections": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb.Connections(1)": {
+   "value": "compiled"
+  },
+  "creator wb.Connections(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb.Styles": {
+   "value": "compiled"
+  },
+  "creator wb.Styles": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb.Styles(1)": {
+   "value": "compiled"
+  },
+  "creator wb.Styles(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope wb.Application": {
+   "value": "compiled"
+  },
+  "creator wb.Application": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope wb.Parent": {
+   "value": "compiled"
+  },
+  "creator wb.Parent": {
+   "value": "compiled"
+  },
+  "nope wb.Charts(1)": {
+   "value": "compiled"
+  },
+  "creator wb.Charts(1)": {
+   "value": "compiled"
+  },
+  "nope wb.Windows(1)": {
+   "value": "compiled"
+  },
+  "creator wb.Windows(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r": {
+   "value": "compiled"
+  },
+  "creator r": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Value": {
+   "value": "compiled"
+  },
+  "creator r.Value": {
+   "value": "compiled"
+  },
+  "nope r.Value2": {
+   "value": "compiled"
+  },
+  "creator r.Value2": {
+   "value": "compiled"
+  },
+  "nope r.Offset(1)": {
+   "value": "compiled"
+  },
+  "creator r.Offset(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Resize(1)": {
+   "value": "compiled"
+  },
+  "creator r.Resize(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Cells": {
+   "value": "compiled"
+  },
+  "creator r.Cells": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "creator r.Cells(1, 1)": {
+   "value": "compiled"
+  },
+  "nope r(1, 1)": {
+   "value": "compiled"
+  },
+  "creator r(1, 1)": {
+   "value": "compiled"
+  },
+  "nope r(1)": {
+   "value": "compiled"
+  },
+  "creator r(1)": {
+   "value": "compiled"
+  },
+  "nope r.Item(1, 1)": {
+   "value": "compiled"
+  },
+  "creator r.Item(1, 1)": {
+   "value": "compiled"
+  },
+  "nope r.Rows": {
+   "value": "compiled"
+  },
+  "creator r.Rows": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Rows(1)": {
+   "value": "compiled"
+  },
+  "creator r.Rows(1)": {
+   "value": "compiled"
+  },
+  "nope r.Columns(1)": {
+   "value": "compiled"
+  },
+  "creator r.Columns(1)": {
+   "value": "compiled"
+  },
+  "nope r.Areas": {
+   "value": "compiled"
+  },
+  "creator r.Areas": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Areas(1)": {
+   "value": "compiled"
+  },
+  "creator r.Areas(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.EntireRow": {
+   "value": "compiled"
+  },
+  "creator r.EntireRow": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.End(xlUp)": {
+   "value": "compiled"
+  },
+  "creator r.End(xlUp)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.CurrentRegion": {
+   "value": "compiled"
+  },
+  "creator r.CurrentRegion": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.MergeArea": {
+   "value": "compiled"
+  },
+  "creator r.MergeArea": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Find(\"a\")": {
+   "value": "compiled"
+  },
+  "creator r.Find(\"a\")": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Parent": {
+   "value": "compiled"
+  },
+  "creator r.Parent": {
+   "value": "compiled"
+  },
+  "nope r.Worksheet": {
+   "compile": "Method or data member not found"
+  },
+  "creator r.Worksheet": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope r.Application": {
+   "value": "compiled"
+  },
+  "creator r.Application": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope r.Font": {
+   "value": "compiled"
+  },
+  "creator r.Font": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Font.Color": {
+   "value": "compiled"
+  },
+  "creator r.Font.Color": {
+   "value": "compiled"
+  },
+  "nope r.Interior": {
+   "value": "compiled"
+  },
+  "creator r.Interior": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Borders": {
+   "value": "compiled"
+  },
+  "creator r.Borders": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Borders(1)": {
+   "value": "compiled"
+  },
+  "creator r.Borders(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.ListObject": {
+   "value": "compiled"
+  },
+  "creator r.ListObject": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Hyperlinks": {
+   "value": "compiled"
+  },
+  "creator r.Hyperlinks": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Comment": {
+   "value": "compiled"
+  },
+  "creator r.Comment": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Validation": {
+   "value": "compiled"
+  },
+  "creator r.Validation": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.FormatConditions": {
+   "value": "compiled"
+  },
+  "creator r.FormatConditions": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.FormatConditions(1)": {
+   "value": "compiled"
+  },
+  "creator r.FormatConditions(1)": {
+   "value": "compiled"
+  },
+  "nope r.PivotTable": {
+   "value": "compiled"
+  },
+  "creator r.PivotTable": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.QueryTable": {
+   "value": "compiled"
+  },
+  "creator r.QueryTable": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.SpecialCells(xlCellTypeBlanks)": {
+   "value": "compiled"
+  },
+  "creator r.SpecialCells(xlCellTypeBlanks)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Characters": {
+   "value": "compiled"
+  },
+  "creator r.Characters": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope r.Dependents": {
+   "value": "compiled"
+  },
+  "creator r.Dependents": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope co": {
+   "value": "compiled"
+  },
+  "creator co": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope co.Chart": {
+   "compile": "Method or data member not found"
+  },
+  "creator co.Chart": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope co.Chart.ChartArea": {
+   "value": "compiled"
+  },
+  "creator co.Chart.ChartArea": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope co.Chart.SeriesCollection": {
+   "value": "compiled"
+  },
+  "creator co.Chart.SeriesCollection": {
+   "value": "compiled"
+  },
+  "nope co.Chart.SeriesCollection(1)": {
+   "value": "compiled"
+  },
+  "creator co.Chart.SeriesCollection(1)": {
+   "value": "compiled"
+  },
+  "nope co.Chart.SeriesCollection(1).Points(1)": {
+   "value": "compiled"
+  },
+  "creator co.Chart.SeriesCollection(1).Points(1)": {
+   "value": "compiled"
+  },
+  "nope co.Chart.Axes(1)": {
+   "value": "compiled"
+  },
+  "creator co.Chart.Axes(1)": {
+   "value": "compiled"
+  },
+  "nope co.Parent": {
+   "value": "compiled"
+  },
+  "creator co.Parent": {
+   "value": "compiled"
+  },
+  "nope co.TopLeftCell": {
+   "value": "compiled"
+  },
+  "creator co.TopLeftCell": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope co.ShapeRange": {
+   "value": "compiled"
+  },
+  "creator co.ShapeRange": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ch": {
+   "compile": "Method or data member not found"
+  },
+  "creator ch": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope ch.SeriesCollection": {
+   "value": "compiled"
+  },
+  "creator ch.SeriesCollection": {
+   "value": "compiled"
+  },
+  "nope ch.SeriesCollection(1)": {
+   "value": "compiled"
+  },
+  "creator ch.SeriesCollection(1)": {
+   "value": "compiled"
+  },
+  "nope ch.SeriesCollection(1).Format": {
+   "value": "compiled"
+  },
+  "creator ch.SeriesCollection(1).Format": {
+   "value": "compiled"
+  },
+  "nope ch.Axes": {
+   "value": "compiled"
+  },
+  "creator ch.Axes": {
+   "value": "compiled"
+  },
+  "nope ch.Axes(1)": {
+   "value": "compiled"
+  },
+  "creator ch.Axes(1)": {
+   "value": "compiled"
+  },
+  "nope ch.ChartTitle": {
+   "value": "compiled"
+  },
+  "creator ch.ChartTitle": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ch.Legend": {
+   "value": "compiled"
+  },
+  "creator ch.Legend": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope ch.Parent": {
+   "value": "compiled"
+  },
+  "creator ch.Parent": {
+   "value": "compiled"
+  },
+  "nope sh": {
+   "value": "compiled"
+  },
+  "creator sh": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope sh.Fill": {
+   "compile": "Method or data member not found"
+  },
+  "creator sh.Fill": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope sh.Fill.ForeColor": {
+   "compile": "Method or data member not found"
+  },
+  "creator sh.Fill.ForeColor": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope sh.TextFrame2": {
+   "compile": "Method or data member not found"
+  },
+  "creator sh.TextFrame2": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope sh.TextFrame2.TextRange": {
+   "compile": "Method or data member not found"
+  },
+  "creator sh.TextFrame2.TextRange": {
+   "compile": "Can't assign to read-only property"
+  },
+  "nope sh.Parent": {
+   "value": "compiled"
+  },
+  "creator sh.Parent": {
+   "value": "compiled"
+  },
+  "nope sh.TopLeftCell": {
+   "value": "compiled"
+  },
+  "creator sh.TopLeftCell": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope lo": {
+   "value": "compiled"
+  },
+  "creator lo": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope lo.Range": {
+   "value": "compiled"
+  },
+  "creator lo.Range": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope lo.ListRows": {
+   "value": "compiled"
+  },
+  "creator lo.ListRows": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope lo.ListColumns(1)": {
+   "value": "compiled"
+  },
+  "creator lo.ListColumns(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope lo.DataBodyRange": {
+   "value": "compiled"
+  },
+  "creator lo.DataBodyRange": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope lo.Parent": {
+   "value": "compiled"
+  },
+  "creator lo.Parent": {
+   "value": "compiled"
+  },
+  "nope o": {
+   "value": "compiled"
+  },
+  "creator o": {
+   "value": "compiled"
+  },
+  "nope o.Range(\"A1\")": {
+   "value": "compiled"
+  },
+  "creator o.Range(\"A1\")": {
+   "value": "compiled"
+  },
+  "nope v": {
+   "value": "compiled"
+  },
+  "creator v": {
+   "value": "compiled"
+  },
+  "nope v.Range(\"A1\")": {
+   "value": "compiled"
+  },
+  "creator v.Range(\"A1\")": {
+   "value": "compiled"
+  },
+  "nope FRange": {
+   "value": "compiled"
+  },
+  "creator FRange": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope FRange()": {
+   "value": "compiled"
+  },
+  "creator FRange()": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope FObject": {
+   "value": "compiled"
+  },
+  "creator FObject": {
+   "value": "compiled"
+  },
+  "nope FObject()": {
+   "value": "compiled"
+  },
+  "creator FObject()": {
+   "value": "compiled"
+  },
+  "nope FVariant()": {
+   "value": "compiled"
+  },
+  "creator FVariant()": {
+   "value": "compiled"
+  },
+  "nope FNone()": {
+   "value": "compiled"
+  },
+  "creator FNone()": {
+   "value": "compiled"
+  },
+  "nope PRange": {
+   "value": "compiled"
+  },
+  "creator PRange": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope PObject": {
+   "value": "compiled"
+  },
+  "creator PObject": {
+   "value": "compiled"
+  },
+  "nope HeldRange": {
+   "value": "compiled"
+  },
+  "creator HeldRange": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope HeldObject": {
+   "value": "compiled"
+  },
+  "creator HeldObject": {
+   "value": "compiled"
+  },
+  "nope HeldVariant": {
+   "value": "compiled"
+  },
+  "creator HeldVariant": {
+   "value": "compiled"
+  },
+  "nope arr(1)": {
+   "value": "compiled"
+  },
+  "creator arr(1)": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope arrv(1)": {
+   "value": "compiled"
+  },
+  "creator arrv(1)": {
+   "value": "compiled"
+  },
+  "nope rec.R": {
+   "value": "compiled"
+  },
+  "creator rec.R": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope rec.O": {
+   "value": "compiled"
+  },
+  "creator rec.O": {
+   "value": "compiled"
+  },
+  "nope coll": {
+   "value": "compiled"
+  },
+  "creator coll": {
+   "value": "compiled"
+  },
+  "nope coll(1)": {
+   "value": "compiled"
+  },
+  "creator coll(1)": {
+   "value": "compiled"
+  },
+  "nope coll.Item(1)": {
+   "value": "compiled"
+  },
+  "creator coll.Item(1)": {
+   "value": "compiled"
+  },
+  "nope cobj": {
+   "value": "compiled"
+  },
+  "creator cobj": {
+   "value": "compiled"
+  },
+  "nope CreateObject(\"Scripting.Dictionary\")": {
+   "value": "compiled"
+  },
+  "creator CreateObject(\"Scripting.Dictionary\")": {
+   "value": "compiled"
+  },
+  "nope Undeclared": {
+   "value": "compiled"
+  },
+  "creator Undeclared": {
+   "value": "compiled"
+  },
+  "nope with_range": {
+   "value": "compiled"
+  },
+  "creator with_range": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope with_object": {
+   "value": "compiled"
+  },
+  "creator with_object": {
+   "value": "compiled"
+  },
+  "nope with_expression": {
+   "value": "compiled"
+  },
+  "creator with_expression": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope with_active_sheet": {
+   "value": "compiled"
+  },
+  "creator with_active_sheet": {
+   "value": "compiled"
+  },
+  "nope with_sheet_range": {
+   "value": "compiled"
+  },
+  "creator with_sheet_range": {
+   "value": "compiled"
+  },
+  "nope with_nested": {
+   "value": "compiled"
+  },
+  "creator with_nested": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope with_variant": {
+   "value": "compiled"
+  },
+  "creator with_variant": {
+   "value": "compiled"
+  },
+  "nope for_each_range": {
+   "value": "compiled"
+  },
+  "creator for_each_range": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope for_each_variant": {
+   "value": "compiled"
+  },
+  "creator for_each_variant": {
+   "value": "compiled"
+  },
+  "nope for_each_object": {
+   "value": "compiled"
+  },
+  "creator for_each_object": {
+   "value": "compiled"
+  },
+  "nope set_keeps_declared": {
+   "value": "compiled"
+  },
+  "creator set_keeps_declared": {
+   "value": "compiled"
+  },
+  "nope typed_from_late": {
+   "value": "compiled"
+  },
+  "creator typed_from_late": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope param_range": {
+   "value": "compiled"
+  },
+  "creator param_range": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "nope param_object": {
+   "value": "compiled"
+  },
+  "creator param_object": {
+   "value": "compiled"
+  },
+  "nope param_variant": {
+   "value": "compiled"
+  },
+  "creator param_variant": {
+   "value": "compiled"
+  },
+  "kind read_only_count typed": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "kind read_only_count late": {
+   "value": "450"
+  },
+  "kind read_only_address typed": {
+   "compile": "Assignment to constant not permitted"
+  },
+  "kind read_only_address late": {
+   "value": "438"
+  },
+  "kind read_only_parent typed": {
+   "value": "438"
+  },
+  "kind read_only_parent late": {
+   "value": "438"
+  },
+  "kind read_only_font typed": {
+   "value": "438"
+  },
+  "kind read_only_font late": {
+   "value": "438"
+  },
+  "kind read_only_rows_default typed": {
+   "value": "0"
+  },
+  "kind read_only_rows_default late": {
+   "value": "0"
+  },
+  "kind read_only_sheet_index typed": {
+   "compile": "Can't assign to read-only property"
+  },
+  "kind read_only_sheet_index late": {
+   "value": "450"
+  },
+  "kind set_read_only typed": {
+   "value": "438"
+  },
+  "kind set_read_only late": {
+   "value": "13"
+  },
+  "kind set_non_object_member typed": {
+   "value": "424"
+  },
+  "kind set_non_object_member late": {
+   "value": "438"
+  },
+  "kind set_scalar_member typed": {
+   "value": "424"
+  },
+  "kind set_scalar_member late": {
+   "value": "13"
+  },
+  "kind too_many_args typed": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "kind too_many_args late": {
+   "value": "450"
+  },
+  "kind too_few_args typed": {
+   "compile": "Argument not optional"
+  },
+  "kind too_few_args late": {
+   "value": "450"
+  },
+  "kind args_on_scalar typed": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "kind args_on_scalar late": {
+   "value": "451"
+  },
+  "kind args_on_property typed": {
+   "value": "13"
+  },
+  "kind args_on_property late": {
+   "value": "450"
+  },
+  "kind bad_named typed": {
+   "compile": "Named argument not found"
+  },
+  "kind bad_named late": {
+   "value": "448"
+  },
+  "kind named_twice typed": {
+   "value": "448"
+  },
+  "kind named_twice late": {
+   "value": "448"
+  },
+  "kind method_as_value typed": {
+   "value": "0"
+  },
+  "kind method_as_value late": {
+   "value": "0"
+  },
+  "kind sub_as_value typed": {
+   "compile": "Expected Function or variable"
+  },
+  "kind sub_as_value late": {
+   "value": "0"
+  },
+  "kind sub_method_parens typed": {
+   "compile": "Wrong number of arguments or invalid property assignment"
+  },
+  "kind sub_method_parens late": {
+   "value": "450"
+  },
+  "kind set_method_result typed": {
+   "value": "424"
+  },
+  "kind set_method_result late": {
+   "value": "424"
+  },
+  "kind wrong_literal_long typed": {
+   "value": "13"
+  },
+  "kind wrong_literal_long late": {
+   "value": "13"
+  },
+  "kind wrong_literal_comments typed": {
+   "value": "13"
+  },
+  "kind wrong_literal_comments late": {
+   "value": "13"
+  },
+  "kind wrong_literal_string_to_range typed": {
+   "value": "1004"
+  },
+  "kind wrong_literal_string_to_range late": {
+   "value": "1004"
+  },
+  "kind object_for_long typed": {
+   "value": "13"
+  },
+  "kind object_for_long late": {
+   "value": "13"
+  },
+  "kind set_wrong_type typed": {
+   "value": "13"
+  },
+  "kind set_wrong_type late": {
+   "value": "0"
+  },
+  "kind let_object_from_object typed": {
+   "value": "1004"
+  },
+  "kind let_object_from_object late": {
+   "value": "1004"
+  },
+  "kind default_let typed": {
+   "value": "0"
+  },
+  "kind default_let late": {
+   "value": "0"
+  },
+  "kind default_read typed": {
+   "value": "0"
+  },
+  "kind default_read late": {
+   "value": "0"
+  },
+  "kind default_read_sheet typed": {
+   "value": "438"
+  },
+  "kind default_read_sheet late": {
+   "value": "438"
+  },
+  "kind default_let_sheet typed": {
+   "value": "438"
+  },
+  "kind default_let_sheet late": {
+   "value": "438"
+  },
+  "kind hidden_default typed": {
+   "value": "0"
+  },
+  "kind hidden_default late": {
+   "value": "438"
+  },
+  "kind hidden_default_sheet typed": {
+   "value": "0"
+  },
+  "kind hidden_default_sheet late": {
+   "value": "0"
+  },
+  "kind index_on_sheet typed": {
+   "value": "438"
+  },
+  "kind index_on_sheet late": {
+   "value": "438"
+  },
+  "kind index_on_range typed": {
+   "value": "0"
+  },
+  "kind index_on_range late": {
+   "value": "0"
+  },
+  "kind index_on_font typed": {
+   "value": "438"
+  },
+  "kind index_on_font late": {
+   "value": "450"
+  },
+  "kind item_on_range typed": {
+   "value": "0"
+  },
+  "kind item_on_range late": {
+   "value": "0"
+  },
+  "kind is_scalar typed": {
+   "value": "424"
+  },
+  "kind is_scalar late": {
+   "value": "424"
+  },
+  "kind not_a_member typed": {
+   "value": "438"
+  },
+  "kind not_a_member late": {
+   "value": "438"
+  },
+  "kind bang_on_range typed": {
+   "value": "5"
+  },
+  "kind bang_on_range late": {
+   "value": "5"
+  },
+  "kind bang_on_sheet typed": {
+   "value": "438"
+  },
+  "kind bang_on_sheet late": {
+   "value": "438"
+  },
+  "kind typeof_scalar typed": {
+   "value": "0"
+  },
+  "kind typeof_scalar late": {
+   "value": "0"
+  },
+  "kind for_each_scalar typed": {
+   "value": "92"
+  },
+  "kind for_each_scalar late": {
+   "value": "92"
+  },
+  "kind with_scalar typed": {
+   "compile": "With object must be user-defined type, Object, or Variant"
+  },
+  "kind with_scalar late": {
+   "value": "0"
+  }
+ }
+}

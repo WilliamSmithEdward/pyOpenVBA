@@ -1,10 +1,12 @@
 """Generate the object-model inventory and constant tables.
 
 Reads the type-library dumps in the pyVBAReference repository and writes
-two committed Python modules:
+two committed Python modules, and reads the registered libraries themselves
+for what the dumps do not hold:
 
     src/pyopenvba/interpreter/_inventory_data.py   every class's members
     src/pyopenvba/apps/excel/_constants_data.py    every xl / vb constant
+    src/pyopenvba/interpreter/_type_library_data.py   how each member is called
 
 The inventory is what lets an unknown member be answered honestly: a
 member the real Worksheet has is a gap in pyOpenVBA, and one it has not
@@ -22,6 +24,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REFERENCE = ROOT.parent / "pyVBAReference"
@@ -37,6 +40,15 @@ CONSTANTS_OUT = ROOT / "src" / "pyopenvba" / "interpreter" / "_constants_data.py
 #: VBA's constants read from its own type library (scripts/dump_vba_typelib_constants.py): the dumps leave out
 #: ColorConstants, KeyCodeConstants, SystemColorConstants, VbQueryClose and FormShowConstants.
 VBA_TYPELIB = ROOT / "scripts" / "vba_typelib_constants.json"
+TYPE_LIBRARY_OUT = ROOT / "src" / "pyopenvba" / "interpreter" / "_type_library_data.py"
+#: The libraries whose calls the compiler checks, in the order a project looks in them: registered id and version.
+TYPE_LIBRARIES = {
+    "excel": ("{00020813-0000-0000-C000-000000000046}", 1, 9),
+    "office": ("{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}", 2, 8),
+}
+#: VARTYPE numbers as VBA names them.
+_VARIANT_TYPES = {2: "Integer", 3: "Long", 4: "Single", 5: "Double", 6: "Currency", 7: "Date", 8: "String", 9: "Object", 11: "Boolean", 13: "Object", 17: "Byte",
+                  19: "Long", 20: "LongLong", 22: "Long", 24: "", 25: ""}
 
 
 def load_library(reference: Path, library: str) -> list[dict[str, object]]:
@@ -220,7 +232,109 @@ def write_constants(tables: dict[str, dict[str, int | float | str]], integers: s
     CONSTANTS_OUT.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _type_text(info: Any, described: Any) -> str:
+    """A return or parameter type as VBA names it: an enumeration is a Long, nothing returned is ''."""
+    if isinstance(described, tuple) and isinstance(described[0], tuple):
+        return _type_text(info, described[0])
+    kind = described[0] if isinstance(described, tuple) else described
+    if kind in (26, 27):  # A pointer to, or a safe array of, what it holds.
+        return _type_text(info, described[1])
+    if kind == 29:
+        held = info.GetRefTypeInfo(described[1])
+        return "Long" if held.GetTypeAttr().typekind == 0 else held.GetDocumentation(-1)[0]
+    return _VARIANT_TYPES.get(kind, "Variant")
+
+
+def _library_table(library: Any) -> dict[str, object]:
+    classes: dict[str, object] = {}
+    aliases: dict[str, str] = {}
+    for index in range(library.GetTypeInfoCount()):
+        info = library.GetTypeInfo(index)
+        attr = info.GetTypeAttr()
+        title = info.GetDocumentation(-1)[0]
+        if attr.typekind == 5:  # A coclass answers to its default interface, not its events.
+            for place in range(attr.cImplTypes):
+                if info.GetImplTypeFlags(place) == 1:
+                    aliases[title.lower()] = info.GetRefTypeInfo(info.GetRefTypeOfImplType(place)).GetDocumentation(-1)[0].lower()
+            continue
+        if attr.typekind != 4:
+            continue
+        members: dict[str, list[object]] = {}
+        default = ""
+        for place in range(attr.cFuncs):
+            described = info.GetFuncDesc(place)
+            names = info.GetNames(described.memid)
+            # A parameter is optional by its flags (optional, has a default) or by being one of the last cParamsOpt.
+            count = len(described.args)
+            plain = count - max(described.cParamsOpt, 0)
+            required = sum(1 for at, argument in enumerate(described.args) if at < plain and not argument[1] & 0x30)
+            parameters = [f"{names[at + 1] if at + 1 < len(names) else ''}:{_type_text(info, argument[0])}" for at, argument in enumerate(described.args)]
+            members.setdefault(names[0].lower(), []).append(
+                [described.invkind, required, described.cParamsOpt == -1, _type_text(info, described.rettype), parameters])
+            if described.memid == 0:
+                default = names[0].lower()
+        classes[title.lower()] = {"name": title, "dual": bool(attr.wTypeFlags & 0x40), "nonextensible": bool(attr.wTypeFlags & 0x80), "default": default, "members": members}
+    return {"classes": classes, "aliases": aliases}
+
+
+def write_type_library() -> None:
+    """How each class's members are called, read from the registered libraries: what the VBA compiler reads.
+
+    The dumps above hold names and help text. This needs pywin32 and Office on the machine, so a machine without
+    them keeps the committed table. One class is one line, so that a rebuild's difference can be read.
+    """
+    try:
+        import pythoncom
+        import win32api
+    except ImportError:
+        print(f"no pywin32: {TYPE_LIBRARY_OUT.name} left as it is")
+        return
+    versions: dict[str, str] = {}
+    build = ""
+    aliases: list[str] = []
+    classes: list[str] = []
+    for name, (guid, major, minor) in TYPE_LIBRARIES.items():
+        library = pythoncom.LoadRegTypeLib(guid, major, minor, 0)
+        attributes = library.GetLibAttr()
+        versions[name] = f"{attributes[3]}.{attributes[4]}"
+        table = _library_table(library)
+        if name == "excel":
+            path = pythoncom.QueryPathOfRegTypeLib(guid, major, minor, 0).rstrip("\0")
+            found = win32api.GetFileVersionInfo(path, "\\")
+            build = f"{found['FileVersionMS'] >> 16}.{found['FileVersionMS'] & 0xFFFF}.{found['FileVersionLS'] >> 16}.{found['FileVersionLS'] & 0xFFFF}"
+        held = cast("dict[str, object]", table["classes"])
+        aliases.append(f"    {name!r}: {table['aliases']!r},")
+        classes.extend(f"    {name + ':' + key!r}: {json.dumps(held[key], separators=(',', ':'))!r}," for key in sorted(held))
+    lines = [
+        '"""How the members of each class are called, generated from the registered type libraries.',
+        "",
+        "Written by scripts/build_object_inventory.py.  Do not edit by hand.",
+        "",
+        "One JSON string per class, read the first time that class is asked for,",
+        "because the thousands of members cost more to build at import than a",
+        "compile ever uses.",
+        '"""',
+        "",
+        "from __future__ import annotations",
+        "",
+        f"EXCEL_BUILD = {build!r}",
+        f"VERSIONS: dict[str, str] = {versions!r}",
+        "",
+        "ALIASES: dict[str, dict[str, str]] = {",
+        *aliases,
+        "}",
+        "",
+        "CLASSES: dict[str, str] = {",
+        *classes,
+        "}",
+        "",
+    ]
+    TYPE_LIBRARY_OUT.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    print(f"{len(classes)} classes, Excel {build} -> {TYPE_LIBRARY_OUT.relative_to(ROOT)} ({TYPE_LIBRARY_OUT.stat().st_size} bytes)")
+
+
 def main() -> int:
+    write_type_library()
     reference = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_REFERENCE
     if not reference.is_dir():
         raise SystemExit(f"pyVBAReference is not at {reference}")

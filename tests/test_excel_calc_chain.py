@@ -28,11 +28,8 @@ SAVED = {name: row for name, row in MEASURED["edits"].items() if "model_reads" i
 #: Where Excel reads the model's save differently, for reasons that are not the chain: the chain kept or dropped, Excel's
 #: own save reads the same without one (test_a_missing_chain_changes_nothing).
 READ_GAPS = {
-    "clear all of formula": "a formula on another sheet keeps its old value in the file",
-    "formula over a value": "a formula on another sheet keeps its old value in the file",
-    "copy over a formula": "a formula on another sheet keeps its old value in the file",
     "cut a formula": "a formula on another sheet does not follow a Cut",
-    "sort formulas": "Sort of relative formulas gives #REF!, and a formula on another sheet keeps its old value",
+    "sort formulas": "Sort of relative formulas gives #REF!",
     "add a sheet": "Excel names the new sheet Sheet1, the model Sheet6",
     "delete then add a sheet": "Excel names the new sheet Sheet1, the model Sheet6",
 }

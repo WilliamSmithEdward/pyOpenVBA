@@ -22,7 +22,7 @@ from copy import deepcopy
 from dataclasses import replace
 from typing import TYPE_CHECKING, cast
 
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
@@ -153,8 +153,12 @@ class Shapes(VBACollection, ItemDefault, Created):
                     from pyopenvba.apps.excel._notes import NoteShape
 
                     return NoteShape(self.sheet, *key)
+            # No name at all finds a Shape whose name is empty too (tests/fixtures/excel_everyday_14.json).
+            if not index and items:
+                return NamelessShape()
             raise error(ERR_NO_SUCH_SHAPE, f"there is no shape called {index}")
-        position = int(to_number(index))
+        # A number rounds as VBA rounds, and 1.5 of one shape is past the end.
+        position = int(to_integer(index, "Long"))
         if 1 <= position <= len(items):
             return items[position - 1]
         raise error(ERR_NO_SUCH_SHAPE, f"there is no shape number {position}")
@@ -995,6 +999,16 @@ class ShapeRange(VBACollection, Created):
         for index, shape in enumerate(self.shapes):
             select(shape.sheet, shape.shape, Replace if index == 0 else False)
         return EMPTY
+
+
+class NamelessShape(Created):
+    """What Shapes("") answers: a Shape, whose name is empty. What else it is was not measured, and says so."""
+
+    vba_type_name = "Shape"
+
+    @member
+    def Name(self) -> object:
+        return ""
 
 
 class ShapeObject(_Drawn):
@@ -3314,6 +3328,10 @@ class TextRange2(Characters):
     vba_type_name = "TextRange2"
 
     @member
+    def Length(self) -> object:
+        return VBAInt(len(to_text(self.vba_get("Text"))), "Long")
+
+    @member
     def Font(self) -> object:
         return ShapeFont2(self)
 
@@ -3800,7 +3818,11 @@ def _chosen(shapes: VBACollection, index: object) -> ShapeRange:
     else:
         wanted = [*index] if isinstance(index, list) else [index]  # type: ignore[misc]
     items = shapes.vba_items()
-    chosen = [shapes.vba_lookup(one, items) for one in wanted]
+    try:
+        chosen = [shapes.vba_lookup(one, items) for one in wanted]
+    except VBARuntimeError as failed:
+        # What Item calls by its own error, Range answers with its own (tests/fixtures/excel_everyday_14.json).
+        raise error(1004, "The index into the specified collection is out of bounds.") from failed
     return ShapeRange([one for one in chosen if isinstance(one, ShapeObject)])
 
 

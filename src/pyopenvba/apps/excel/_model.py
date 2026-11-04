@@ -481,6 +481,10 @@ class Application(ExcelObject):
     def Name(self) -> object:
         return "Microsoft Excel"
 
+    def vba_value(self) -> object:
+        """Its name, where a value is wanted: a cell given Application shows it (tests/fixtures/range_values.json)."""
+        return self.vba_get("Name")
+
     @member(name="_Default")
     def hidden_default(self) -> object:
         """The hidden _Default: Name (tests/fixtures/hidden_defaults.json)."""
@@ -690,6 +694,8 @@ class Application(ExcelObject):
         for book in self.workbooks_.books:
             book.calculator.settle_automatic_cache()
         self.calculation = int(to_integer(value, "Long"))
+        for book in self.workbooks_.books:
+            book.file_calculation_mode = None
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
             # Back to automatic works out what manual mode left stale, with its
             # Calculate events. Volatile UDFs in the active workbook run too;
@@ -1832,6 +1838,9 @@ class Workbook(ExcelObject):
         #: ForceFullCalculation is on; and whether it was opened wanting a full calculation it has not had yet
         #: (see _calculation_state).
         self.calculation_version = VERSION
+        #: calcPr's calcMode as the file has it, kept in a save until a macro sets Application.Calculation
+        #: (see _calculation_settings).
+        self.file_calculation_mode: str | None = None
         self.force_full_calculation = False
         self.full_pending = False
         #: True once a sheet's custom properties change, so a save writes them all (see _custom_properties).
@@ -3418,6 +3427,9 @@ class Worksheet(ExcelObject):
         #: the last id it gave (see _notes.next_shape_id).
         self.vml_block = 0
         self.vml_last_id = 0
+        #: The cells a save marked ca="1" on a sheet it did not write whole, as not yet worked out (see
+        #: _io._write_cached_values), so a later save can take the mark off once they are.
+        self.marked_to_calculate: set[tuple[int, int]] = set()
 
     def touched(self) -> None:
         self.dirty = True
@@ -3746,6 +3758,8 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._hyperlinks import Hyperlinks
 
         links = Hyperlinks(self)
+        if isinstance(Index, VBAArray):
+            raise error(13, "Type mismatch")
         return links if Index is MISSING else links.vba_get("Item", [Index])
 
     @member
@@ -3810,7 +3824,8 @@ class Worksheet(ExcelObject):
 
         tables = PivotTables(self, [PivotTable(self, table.cache, table.root, report_owner=table)
                                    for table in self.pivot_tables])
-        return tables if Index is MISSING else tables.Item(Index)
+        # ws.PivotTables(Null) is the collection (tests/fixtures/excel_everyday_14.json).
+        return tables if Index is MISSING or Index is NULL else tables.vba_get("Item", [Index])
 
     @member
     def PrintedCommentPages(self) -> object:
@@ -4325,6 +4340,21 @@ _FORMAT_PROPERTIES = frozenset({"NumberFormat", "NumberFormatLocal", "Horizontal
                                 "Locked", "FormulaHidden"})
 
 
+def _not_null(value: object) -> object:
+    """What a cell takes for Null: nothing, as for Empty (tests/fixtures/range_values.json)."""
+    return EMPTY if value is NULL else value
+
+
+def _formula_of_long_text(found: object) -> object:
+    """Formula shows 8192 characters of a long text and fails past 8221, though the cell holds 32767
+    (tests/fixtures/range_values.json)."""
+    if isinstance(found, str) and len(found) > 8192:
+        if len(found) > 8221:
+            raise error(1004, "Unable to get the Formula property of the Range class")
+        return found[:8192]
+    return found
+
+
 class Range(ExcelObject):
     """A rectangle of cells, or several of them."""
 
@@ -4450,6 +4480,7 @@ class Range(ExcelObject):
     def _set_value(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        value = _not_null(value)
         _within_length(value)
         if not _arrays.write_admitted(self):
             return
@@ -4477,6 +4508,7 @@ class Range(ExcelObject):
     def _set_value2(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing
 
+        value = _not_null(value)
         _within_length(value)
         if not _arrays.write_admitted(self):
             return
@@ -4514,6 +4546,11 @@ class Range(ExcelObject):
 
     @member
     def Text(self) -> object:
+        """What the cell shows, at most 8221 characters of it (tests/fixtures/range_values.json)."""
+        shown = self._shown_text()
+        return shown[:8221] if isinstance(shown, str) else shown
+
+    def _shown_text(self) -> object:
         # Read the current value (the cache in manual mode) before formatting;
         # read raw, since a Date too large to hold still shows.
         row, column = self.first.top, self.first.left
@@ -4545,7 +4582,7 @@ class Range(ExcelObject):
 
     @member
     def Formula(self) -> object:
-        return self._read_formulas(r1c1=False)
+        return _formula_of_long_text(self._read_formulas(r1c1=False))
 
     @member
     def Name(self) -> object:
@@ -4573,6 +4610,7 @@ class Range(ExcelObject):
         a formula is typed as Value types it, and a Text cell keeps even a
         formula as the text it is.
         """
+        value = _not_null(value)
         _within_length(value)
         self._formula_written(value)
 
@@ -5185,7 +5223,13 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._formats import restyle
         from pyopenvba.apps.excel._number_format import normalized
 
-        text = normalized(to_text(value))
+        # Null changes nothing, empty is General, and True, an object or more than 255 characters are refused
+        # (tests/fixtures/range_values.json).
+        if value is NULL:
+            return
+        if isinstance(value, (bool, VBAObject)) or len(to_text(value)) > 255:
+            raise error(1004, "Unable to set the NumberFormat property of the Range class")
+        text = normalized(to_text(value) or "General")
         restyle(self, lambda style: applying(style, "number_format", number_format=text))
         _column_fit.widen(self.sheet, self.areas)
 
@@ -5199,6 +5243,11 @@ class Range(ExcelObject):
     def _set_style(self, value: object) -> None:
         from pyopenvba.apps.excel._cell_styles import set_style
 
+        # Null is Normal, and Application is no style's name (tests/fixtures/range_values.json).
+        if value is NULL:
+            value = "Normal"
+        if isinstance(value, Application):
+            raise error(450)
         set_style(self, value)
         _column_fit.widen(self.sheet, self.areas)
 
@@ -5758,6 +5807,8 @@ class Range(ExcelObject):
 
     @setter("ColumnWidth")
     def _set_column_width(self, value: object) -> None:
+        if value is NULL:
+            return  # Null changes nothing (tests/fixtures/range_sizes.json).
         _dimensions.write_column_width(self, value)
 
     @member
@@ -5766,6 +5817,8 @@ class Range(ExcelObject):
 
     @setter("RowHeight")
     def _set_row_height(self, value: object) -> None:
+        if value is NULL:
+            return  # Null changes nothing (tests/fixtures/range_sizes.json).
         before = _dimensions.visibility_state(self)
         _dimensions.write_row_height(self, value)
         _dimensions.recalculate_visibility(self, before)
@@ -7576,12 +7629,16 @@ class DefinedName(ExcelObject):
 
     @member
     def WorkbookParameter(self) -> object:
-        """False: Excel refuses every setting with error 5 (tests/fixtures/name_macro.json)."""
+        """False: Excel refuses every setting with error 5 until the name is a valid one (tests/fixtures/name_macro.json)."""
         return False
 
     @setter("WorkbookParameter")
     def _set_workbook_parameter(self, value: object) -> None:
-        raise error(5)
+        if not self.ValidWorkbookParameter():
+            raise error(5)
+        # A saved workbook's name takes it (tests/fixtures/excel_everyday_14.json), but the model does not keep it.
+        if to_bool(value):
+            raise VBAUnsupportedError("Name.WorkbookParameter set to True is not implemented")
 
     @member
     def ValidWorkbookParameter(self) -> object:

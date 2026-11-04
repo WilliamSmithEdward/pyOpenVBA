@@ -34,12 +34,41 @@ _OTHER_LET_ERRORS: dict[int, dict[str, tuple[str, ...]]] = {
     438: {
         'pivotfield': ('hiddenitems', 'parentitems', 'visibleitems'),
         'pivotitem': ('childitems',),
-        'range': ('address', 'addresslocal'),
+        'range': ('address', 'addresslocal', 'end'),
+        'series': ('datalabels',),
     },
     5: {'pivotfield': ('sourcecaption',)},
 }
 _LET_ERRORS = {(owner, name): number for number, owners in _OTHER_LET_ERRORS.items()
                for owner, names in owners.items() for name in names}
+
+
+def listed_let_error(owner: str, name: str) -> int | None:
+    """The error from assigning to a member listed above, whatever it answers."""
+    return _LET_ERRORS.get((owner.lower(), name.lower()))
+
+
+#: `Set o.X = y` on these is a type mismatch, though each answers an object or a number, and no rule says so
+#: (tests/fixtures/excel_everyday_14.json).
+_SET_MISMATCHES = {('range', 'currentregion'), ('range', 'font'), ('range', 'interior'), ('worksheet', 'usedrange')}
+
+
+def set_error(owner: str, name: str, found: object) -> int:
+    """The error from `Set o.X = y` on a read-only member: as `o.X = 1` for a value, except that what that calls 1004 is 13 here;
+    438 for an object, except Application, as `Set o.Parent` has it (tests/fixtures/excel_everyday_14.json)."""
+    from pyopenvba.interpreter._objects import VBAObject
+    from pyopenvba.interpreter._values import NOTHING
+
+    if (owner.lower(), name.lower()) in _SET_MISMATCHES:
+        return 13
+    listed = listed_let_error(owner, name)
+    if listed is not None:
+        return 13 if listed == 1004 else listed
+    if found is NOTHING:
+        return 438
+    if isinstance(found, VBAObject):
+        return 450 if found.vba_type_name == 'Application' else 438
+    return 450
 
 
 def let_error(owner: str, name: str) -> int:

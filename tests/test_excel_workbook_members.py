@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -41,13 +40,11 @@ def _dated(text: str) -> str:
     return re.sub(r'\d+/\d+/\d{4}', '<date>', text)
 
 
-@pytest.mark.skipif(sys.platform != 'win32', reason='the macros name files by Windows paths')
 @pytest.mark.parametrize('index', KEPT, ids=[NAMES[index] for index in KEPT])
 def test_each_case_as_excel_answered(tmp_path: Path, index: int) -> None:
     assert _dated(_run(index, tmp_path)) == _dated(RECORD['cases'][index][1])
 
 
-@pytest.mark.skipif(sys.platform != 'win32', reason='the macros name files by Windows paths')
 @pytest.mark.parametrize('index', SHOWN, ids=[NAMES[index] for index in SHOWN])
 def test_what_is_not_followed_reports_itself(tmp_path: Path, index: int) -> None:
     with pytest.raises(VBAUnsupportedError):

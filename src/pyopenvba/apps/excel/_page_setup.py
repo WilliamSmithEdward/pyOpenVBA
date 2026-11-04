@@ -418,13 +418,13 @@ class PageSetup(ExcelObject):
             value = next((number for number, text in mapping.items() if text == raw), default)
             return float(value) if name in ('Orientation', 'Order') else VBAInt(value, 'Long')
         if name == 'PaperSize':
-            return float(setup.get('paperSize', '1'))
+            return float(setup.get('paperSize', '1')) or 1.0  # Excel writes 0 beside some settings, and reads it as Letter (tests/fixtures/page_files.json)
         if name == 'FirstPageNumber':
             return float(setup.get('firstPageNumber', '1')) if setup.get('useFirstPageNumber') in ('1', 'true') else VBAInt(-4105, 'Long')
         if name == 'Zoom':
             if current.attributes.get(('sheetPr', 'pageSetUpPr'), {}).get('fitToPage') in ('1', 'true'):
                 return False
-            return VBAInt(int(setup.get('scale', '100')), 'Long')
+            return VBAInt(int(setup.get('scale', '100')) or 100, 'Long')  # and 0 as 100
         if name in ('FitToPagesWide', 'FitToPagesTall'):
             value = int(setup.get('fitToWidth' if name.endswith('Wide') else 'fitToHeight', '1'))
             return VBAInt(value, 'Long') if value else False

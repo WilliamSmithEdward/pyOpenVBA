@@ -18,7 +18,7 @@ from pathlib import Path
 from pyvbaharness import ExcelSession, HarnessConfig
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fixture_workbook import stripped  # noqa: E402
+from fixture_workbook import without_save_path
 
 OUT = Path(__file__).resolve().parents[1] / 'tests/fixtures/page_files.json'
 
@@ -93,7 +93,7 @@ def main() -> None:
         assert made.ok, made
         result = excel.run_vba(READER, 'Opened', (str(path), ','.join(READ)), timeout=120.0)
         assert result.ok, result
-        data = stripped(path.read_bytes())
+        data = without_save_path(path.read_bytes())
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'read': READ, 'changes': CHANGES, 'reader': READER, 'answer': str(result.value), 'file': base64.b64encode(data).decode('ascii')}
     OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
     print(len(CHANGES), len(data), flush=True)

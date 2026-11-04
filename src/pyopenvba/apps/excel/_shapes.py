@@ -287,8 +287,9 @@ class Shapes(VBACollection, ItemDefault, Created):
         Width: object = MISSING,
         Height: object = MISSING,
     ) -> object:
-        """A picture from a PNG file, kept in the workbook. A linked picture and other kinds of image report themselves
-        (tests/fixtures/shape_add_picture.json)."""
+        """A picture from a PNG, JPEG or GIF file, kept in the workbook as it is. A linked picture, a BMP, which Excel
+        converts, and other kinds of image report themselves (tests/fixtures/shape_add_picture.json,
+        tests/fixtures/shape_picture_formats.json)."""
         from pyopenvba.apps.excel._protection import guard_drawing
 
         self.sheet.book.application.outside("Shapes.AddPicture")
@@ -299,10 +300,13 @@ class Shapes(VBACollection, ItemDefault, Created):
         if linked:
             raise _unsupported("a linked picture")
         try:
-            data = Path(to_text(Filename)).read_bytes()
+            source = Path(to_text(Filename))
+            data = source.read_bytes()
         except OSError:
             raise error(1004, "AddPicture method of Shapes class failed") from None
-        wide, tall = _png_points(data)
+        wide, tall, kind = _image_points(data)
+        # The part keeps the file's own extension where it is an image's, whatever the file holds.
+        extension = source.suffix[1:] if source.suffix[1:] in ("png", "jpg", "jpeg", "gif") else kind
         width, height = _number(Width), _number(Height)
         if (width < 0 and width != -1) or (height < 0 and height != -1):
             raise _unsupported("a picture with a negative size")
@@ -313,7 +317,8 @@ class Shapes(VBACollection, ItemDefault, Created):
         # A picture takes two of the sheet's numbers and two of its ids.
         self.sheet.shape_count += 1
         shape = Shape(name=self._free_name("Picture"), kind="picture", left=_number(Left), top=_number(Top), width=across,
-                      height=down, shape_id=self._free_id() + 1, edit_as="oneCell", lock_aspect=natural, image=data)
+                      height=down, shape_id=self._free_id() + 1, edit_as="oneCell", lock_aspect=natural, image=data,
+                      image_extension=extension)
         self.sheet.shapes_.append(shape)
         self.sheet.drawing_changed()
         return ShapeObject(self.sheet, shape)
@@ -1825,10 +1830,40 @@ class Adjustments(Created):
         self.owner.shape.adjustments = None if values == [default for _, default, _ in table] else tuple(values)
 
 
+def _jpeg_points(data: bytes) -> tuple[float, float]:
+    """A JPEG's own size in points: its frame's pixels at its JFIF density in inches, or at 96 an inch with none."""
+    at, across, down = 2, 0.0, 0.0
+    wide, tall = 0, 0
+    while at + 9 < len(data) and data[at] == 0xFF:
+        marker, length = data[at + 1], int.from_bytes(data[at + 2:at + 4], "big")
+        if marker == 0xE0 and data[at + 4:at + 9] == b"JFIF\0":
+            units = data[at + 11]
+            if units == 2:
+                raise _unsupported("a JPEG with its density in centimetres")
+            if units == 1:
+                across, down = int.from_bytes(data[at + 12:at + 14], "big"), int.from_bytes(data[at + 14:at + 16], "big")
+        if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+            tall, wide = int.from_bytes(data[at + 5:at + 7], "big"), int.from_bytes(data[at + 7:at + 9], "big")
+            break
+        at += 2 + length
+    if not wide or not tall:
+        raise _unsupported("a JPEG this cannot read the size of")
+    return wide * 72 / (across or 96), tall * 72 / (down or 96)
+
+
+def _image_points(data: bytes) -> tuple[float, float, str]:
+    """An image's own size in points and the extension its kind takes, from what the file holds."""
+    if data[:2] == b"\xff\xd8":
+        return (*_jpeg_points(data), "jpg")
+    if data[:4] == b"GIF8":
+        return (int.from_bytes(data[6:8], "little") * 0.75, int.from_bytes(data[8:10], "little") * 0.75, "gif")
+    return (*_png_points(data), "png")
+
+
 def _png_points(data: bytes) -> tuple[float, float]:
     """A PNG's own size in points: its pixels at its pHYs density, or at 96 a inch with none. Other images are not read."""
     if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
-        raise _unsupported("a picture that is not a PNG")
+        raise _unsupported("a picture that is not a PNG, JPEG or GIF")
     wide, tall = int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
     at = data.find(b"pHYs", 33, 200)
     if at >= 0 and data[at + 12] == 1:
@@ -2043,9 +2078,62 @@ class CalloutFormat(Created):
         self.put(values)
 
 
+class PictureCrop(Created):
+    """A new picture's Crop, uncropped (tests/fixtures/shape_picture_formats.json). Setting a crop moves and sizes the shape
+    by rules not worked out, including a bottom crop of the shape's fifth on the first, and reports itself."""
+
+    vba_type_name = "Crop"
+
+    def __init__(self, format_: PictureFormat) -> None:
+        self.format = format_
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        raise _unsupported(f"setting Crop.{name}")
+
+    def shape(self) -> Shape:
+        self.format.picture()
+        return self.format.owner.shape
+
+    @member
+    def ShapeWidth(self) -> object:
+        return VBASingle(self.shape().width)
+
+    @member
+    def ShapeHeight(self) -> object:
+        return VBASingle(self.shape().height)
+
+    @member
+    def ShapeLeft(self) -> object:
+        return VBASingle(self.shape().left)
+
+    @member
+    def ShapeTop(self) -> object:
+        return VBASingle(self.shape().top)
+
+    @member
+    def PictureWidth(self) -> object:
+        return VBASingle(self.shape().width)
+
+    @member
+    def PictureHeight(self) -> object:
+        return VBASingle(self.shape().height)
+
+    @member
+    def PictureOffsetX(self) -> object:
+        self.shape()
+        return VBASingle(0.0)
+
+    @member
+    def PictureOffsetY(self) -> object:
+        self.shape()
+        return VBASingle(0.0)
+
+
 class PictureFormat(Created):
-    """What a new picture reads (tests/fixtures/shape_add_picture.json); other shapes give this object, and reading it
-    is out of range. Changing a picture's look is not implemented."""
+    """What a new picture reads and sets (tests/fixtures/shape_add_picture.json, tests/fixtures/shape_picture_formats.json);
+    other shapes give this object, and using it is out of range. Brightness and contrast run 0 to 1, with 0.5 as the
+    file's 0. ColorType's 4, a watermark, sets them both, and any ColorType clears them first."""
 
     vba_type_name = "PictureFormat"
 
@@ -2062,18 +2150,147 @@ class PictureFormat(Created):
     def Parent(self) -> object:
         return self.owner
 
+    def lum(self, at: int) -> object:
+        self.picture()
+        found = self.owner.shape.picture_lum
+        return VBASingle(0.5 if found is None else (found[at] / 100000 + 1) / 2)
+
+    def set_lum(self, at: int, wanted: float) -> None:
+        self.picture()
+        if not 0 <= wanted <= 1:
+            raise error(-2147024809, "The specified value is out of range.")
+        self.put_lum(at, wanted)
+
+    def put_lum(self, at: int, wanted: float) -> None:
+        shape = self.owner.shape
+        if shape.picture_clear is not None:
+            raise _unsupported("brightness or contrast on a picture with a transparent colour")
+        values = list(shape.picture_lum or (0, 0))
+        values[at] = round((wanted - 0.5) * 200000)
+        shape.picture_lum = (values[0], values[1])
+        self.owner.restyled()
+
+    def stepped(self, at: int, value: object) -> None:
+        self.picture()
+        now = float(self.lum(at))  # pyright: ignore[reportArgumentType]
+        self.put_lum(at, min(1.0, max(0.0, now + float(VBASingle(float(to_number(value)))))))
+
     @member
     def Brightness(self) -> object:
-        self.picture()
-        return VBASingle(0.5)
+        return self.lum(0)
+
+    @setter("Brightness")
+    def _brightness(self, value: object) -> None:
+        self.set_lum(0, float(VBASingle(float(to_number(value)))))
 
     @member
     def Contrast(self) -> object:
+        return self.lum(1)
+
+    @setter("Contrast")
+    def _contrast(self, value: object) -> None:
+        self.set_lum(1, float(VBASingle(float(to_number(value)))))
+
+    @method
+    def IncrementBrightness(self, Increment: object = MISSING) -> object:
+        self.stepped(0, Increment)
+        return EMPTY
+
+    @method
+    def IncrementContrast(self, Increment: object = MISSING) -> object:
+        self.stepped(1, Increment)
+        return EMPTY
+
+    @member
+    def ColorType(self) -> object:
         self.picture()
-        return VBASingle(0.5)
+        return VBAInt(self.owner.shape.picture_colour_type, "Long")
+
+    @setter("ColorType")
+    def _color_type(self, value: object) -> None:
+        self.picture()
+        wanted = int(to_number(value))
+        if not 1 <= wanted <= 4:
+            raise error(-2147024809, "The specified value is out of range.")
+        shape = self.owner.shape
+        shape.picture_colour_type = wanted
+        shape.picture_lum = (70000, -70000) if wanted == 4 else None
+        self.owner.restyled()
+
+    @member
+    def TransparentBackground(self) -> object:
+        shape = self.owner.shape
+        if shape.kind != "picture":
+            # Measured: a line reads true and an AutoShape false, though neither has a picture.
+            return VBAInt(-1 if shape.kind == "line" else 0, "Long")
+        return VBAInt(-1 if shape.picture_transparent else 0, "Long")
+
+    @setter("TransparentBackground")
+    def _transparent_background(self, value: object) -> None:
+        self.picture()
+        wanted = bool(to_number(value))
+        if not wanted and self.owner.shape.picture_clear is not None:
+            raise _unsupported("turning a picture's transparent colour off")
+        shape = self.owner.shape
+        shape.picture_transparent, shape.picture_fill = wanted, "clear" if wanted else "solid"
+        self.owner.restyled()
+
+    @member
+    def TransparencyColor(self) -> object:
+        self.picture()
+        chosen = self.owner.shape.picture_clear
+        if chosen is None:
+            return VBAInt(-2147483648, "Long")
+        red, green, blue = (int(chosen[at:at + 2], 16) for at in (0, 2, 4))
+        return VBAInt(red | green << 8 | blue << 16, "Long")
+
+    @setter("TransparencyColor")
+    def _transparency_color(self, value: object) -> None:
+        self.picture()
+        shape = self.owner.shape
+        if shape.picture_lum is not None or shape.picture_colour_type != 1:
+            raise _unsupported("a transparent colour on a picture with its brightness, contrast or colour changed")
+        colour = int(to_number(value)) & 0xFFFFFF
+        shape.picture_clear = f"{colour & 255:02X}{colour >> 8 & 255:02X}{colour >> 16 & 255:02X}"
+        self.owner.restyled()
+
+    @member
+    def Crop(self) -> object:
+        return PictureCrop(self)
+
+    @setter("CropLeft")
+    def _crop_left(self, value: object) -> None:
+        raise _unsupported("setting a picture's crop")
+
+    @setter("CropRight")
+    def _crop_right(self, value: object) -> None:
+        raise _unsupported("setting a picture's crop")
+
+    @setter("CropTop")
+    def _crop_top(self, value: object) -> None:
+        raise _unsupported("setting a picture's crop")
+
+    @setter("CropBottom")
+    def _crop_bottom(self, value: object) -> None:
+        raise _unsupported("setting a picture's crop")
 
     @member
     def CropLeft(self) -> object:
+        self.picture()
+        return VBASingle(0.0)
+
+    @member
+    def CropRight(self) -> object:
+        self.picture()
+        return VBASingle(0.0)
+
+    @member
+    def CropTop(self) -> object:
+        self.picture()
+        return VBASingle(0.0)
+
+    @member
+    def CropBottom(self) -> object:
         self.picture()
         return VBASingle(0.0)
 

@@ -1089,13 +1089,17 @@ def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
         if shape.image not in related:
             held = sorted(name for name in package.names() if name.startswith("xl/media/"))
             part = next((name for name in held if package.read(name) == shape.image), None)
+            extension = shape.image_extension
             if part is None:
                 number = 1
-                while f"xl/media/image{number}.png" in held:
+                while any(name.startswith(f"xl/media/image{number}.") for name in held):
                     number += 1
-                part = f"xl/media/image{number}.png"
+                part = f"xl/media/image{number}.{extension}"
                 package.write(part, shape.image)
-            _add_default_content_type(package, "png", "image/png")
+            # The extension names the content type, unless the file holds a PNG (tests/fixtures/shape_picture_formats.json).
+            holds_png = shape.image[:4] == b"\x89PNG"
+            _add_default_content_type(package, extension, "image/png" if holds_png else {
+                "jpg": "image/jpeg", "jpeg": "image/jpeg", "gif": "image/gif"}.get(extension, "image/png"))
             related[shape.image] = add_relationship(package, rels, _IMAGE_RELATIONSHIP, "../" + part[len("xl/"):])
             package.write(rels, in_office_order(package.read(rels).decode("utf-8")).encode("utf-8"))
         shape.image_relationship = related[shape.image]

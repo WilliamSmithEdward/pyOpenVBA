@@ -190,7 +190,7 @@ Application,Iteration,property,As Boolean,,VERIFIED,tests/fixtures/iteration.jso
 Application,LanguageSettings,"property, read-only",As LanguageSettings,,MISSING,,
 Application,LargeOperationCellThousandCount,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,1 and up; starts as the measuring machine's Excel had it.
 Application,Left,property,As Double,,MISSING,,
-Application,LibraryPath,"property, read-only",As String,,MISSING,,
+Application,LibraryPath,"property, read-only",As String,,UNASSESSED,,
 Application,MacroOptions,method,"MacroOptions([Macro As Variant], [Description As Variant], [HasMenu As Variant], [MenuText As Variant], [HasShortcutKey As Variant], [ShortcutKey As Variant], [Category As Variant], [StatusBar As Variant], [HelpContextID As Variant], [HelpFile As Variant], [ArgumentDescriptions As Variant])",,PARTIAL,tests/fixtures/macro_options.json; tests/test_excel_macro_options.py,"Description, HelpContextID, ShortcutKey and a Category of 0 to 14 as attribute lines in the procedure, kept out of the editor's sight; an unknown macro, a key that is no letter and category 40 are 1004. A category by name, ArgumentDescriptions, StatusBar, HelpFile, menus and a workbook-qualified macro are unsupported."
 Application,MailLogoff,method,MailLogoff(),,MISSING,,
 Application,MailLogon,method,"MailLogon([Name As Variant], [Password As Variant], [DownloadNewMail As Variant])",,MISSING,,
@@ -967,6 +967,16 @@ ControlFormat,RemoveAllItems,method,RemoveAllItems(),,PARTIAL,tests/fixtures/sha
 ControlFormat,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,SmallChange,property,As Long,,PARTIAL,tests/fixtures/shapes/numeric_controls.json,
 ControlFormat,Value,property,As Long,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
+Crop,Application,"property, read-only",As Object,,MISSING,,
+Crop,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureHeight,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureOffsetX,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureOffsetY,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,PictureWidth,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeHeight,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeLeft,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeTop,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+Crop,ShapeWidth,property,As Single,no setter,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
 CustomProperties,_Default,"property, read-only",As CustomProperty,,PARTIAL,tests/fixtures/hidden_defaults_more.json; tests/test_excel_hidden_defaults_more.py,"Item, bound early."
 CustomProperties,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 CustomProperties,Add,method,"Add(Name As String, Value As Variant) As CustomProperty",,PARTIAL,tests/fixtures/custom_properties.json; tests/test_excel_custom_properties.py,"Keeps the value as text, a number or date as CStr writes it and True as -1, a range its value; kept in the order of their names. A name there already, case aside, is error 9; an empty value 7; Empty, Null or an array 1004; a missing argument 450. A name past 255 characters reports unsupported."
@@ -1950,20 +1960,20 @@ Panes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_m
 Panes,Item,"property, read-only",As Pane,,PARTIAL,tests/fixtures/windows/windows.json,"A pane, scrolled on its own, reports itself as not implemented."
 Panes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The window.
 PictureFormat,Application,"property, read-only",As Object,,MISSING,,
-PictureFormat,Brightness,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
-PictureFormat,ColorType,property,As MsoPictureColorType,,MISSING,,
-PictureFormat,Contrast,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
+PictureFormat,Brightness,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"0 to 1, written as lum bright; else out of range. A new picture only."
+PictureFormat,ColorType,property,As MsoPictureColorType,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"1 to 4, clearing brightness and contrast; 4 sets them as a watermark."
+PictureFormat,Contrast,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"0 to 1, written as lum contrast; else out of range. A new picture only."
 PictureFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
-PictureFormat,Crop,"property, read-only",As Crop,,MISSING,,
-PictureFormat,CropBottom,property,As Single,,MISSING,,
-PictureFormat,CropLeft,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
-PictureFormat,CropRight,property,As Single,,MISSING,,
-PictureFormat,CropTop,property,As Single,,MISSING,,
-PictureFormat,IncrementBrightness,method,IncrementBrightness(Increment As Single),,MISSING,,
-PictureFormat,IncrementContrast,method,IncrementContrast(Increment As Single),,MISSING,,
+PictureFormat,Crop,"property, read-only",As Crop,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads an uncropped picture. Setting reports itself.
+PictureFormat,CropBottom,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself.
+PictureFormat,CropLeft,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself: it moves the shape by rules not worked out.
+PictureFormat,CropRight,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself.
+PictureFormat,CropTop,property,As Single,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Reads 0. Setting a crop reports itself.
+PictureFormat,IncrementBrightness,method,IncrementBrightness(Increment As Single),,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Stops at 0 and 1.
+PictureFormat,IncrementContrast,method,IncrementContrast(Increment As Single),,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Stops at 0 and 1.
 PictureFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
-PictureFormat,TransparencyColor,property,As MsoRGBType,,MISSING,,
-PictureFormat,TransparentBackground,property,As MsoTriState,,MISSING,,
+PictureFormat,TransparencyColor,property,As MsoRGBType,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"Written as clrChange. With brightness, contrast or a color type it reports itself."
+PictureFormat,TransparentBackground,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,Setting it writes a fill behind the picture.
 PivotAxis,Application,"property, read-only",As Application,,UNASSESSED,,
 PivotAxis,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
 PivotAxis,Parent,"property, read-only",As Object,,UNASSESSED,,
@@ -2938,7 +2948,7 @@ Shapes,AddFormControl,method,"AddFormControl(Type As XlFormControl, Left As Long
 Shapes,AddLabel,method,"AddLabel(Orientation As MsoTextOrientation, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
 Shapes,AddLine,method,"AddLine(BeginX As Single, BeginY As Single, EndX As Single, EndY As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,AddOLEObject,method,"AddOLEObject([ClassType As Variant], [Filename As Variant], [Link As Variant], [DisplayAsIcon As Variant], [IconFileName As Variant], [IconIndex As Variant], [IconLabel As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
-Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,"A PNG kept in the workbook, bytes as they are; -1 is its own size. A link, other images and a picture's fill and line report themselves."
+Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/shape_picture_formats.json; tests/test_excel_shape_picture_formats.py,"PNG, JPEG and GIF kept in the workbook as they are; -1 is the size the file gives. A link, a BMP (Excel converts it) and a picture's fill and line report themselves."
 Shapes,AddPicture2,method,"AddPicture2(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single, Compress As MsoPictureCompress) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,As AddPicture; Compress changed nothing measured.
 Shapes,AddPolyline,method,AddPolyline(SafeArrayOfPoints As Variant) As Shape,,PARTIAL,tests/fixtures/shape_polyline.json; tests/test_excel_shape_polyline.py,"A freeform (Type 5, AutoShapeType 138) through the points in a custGeom, closed and filled when the last point is the first, its box their bounds plus one EMU; fewer than two points raise 1004. Read as Freeform N, saved as Freeform: Shape N."
 Shapes,AddShape,method,"AddShape(Type As MsoAutoShapeType, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,

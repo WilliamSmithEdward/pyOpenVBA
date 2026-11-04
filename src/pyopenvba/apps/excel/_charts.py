@@ -983,6 +983,8 @@ def selection(sheet: Worksheet) -> object:
         return sheet.selection if drawn is None else drawn
     if sheet.chart_part == 'area':
         return ChartArea(chart)
+    if sheet.chart_part == 'data_table':
+        return ChartDataTable(chart)
     if sheet.chart_part == 'plot':
         return PlotArea(chart)
     if sheet.chart_part == 'element':
@@ -1340,6 +1342,13 @@ class ChartDataTable(Created):
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
 
+    @method
+    def Select(self) -> object:
+        """Selection answers the table, until a cell is selected (tests/fixtures/unassessed_charts.json)."""
+        self.chart.admit_read()
+        ChartObject(self.chart.sheet, self.chart.shape).made_active('data_table')
+        return EMPTY
+
     @member
     def Parent(self) -> object:
         return self.chart
@@ -1400,9 +1409,9 @@ class ChartDataTable(Created):
     def _has_border_outline(self, value: object) -> None:
         self._set_border(2, value)
 
-    @method
-    def Select(self) -> object:
-        self.chart.admit_read()
+    @member
+    def Name(self) -> object:
+        """No member of a data table's: what chart_members_more.json read of its Selection (438)."""
         raise error(438, "Object doesn't support this property or method")
 
     @method
@@ -2976,9 +2985,21 @@ class LegendKey(Created):
     def Smooth(self) -> object:
         return self.series.vba_get('Smooth', [])
 
+    @setter('Smooth')
+    def _smooth(self, value: object) -> None:
+        self.series.vba_set('Smooth', value)
+
     @member
     def InvertIfNegative(self) -> object:
         return self.series.vba_get('InvertIfNegative', [])
+
+    @setter('InvertIfNegative')
+    def _invert_if_negative(self, value: object) -> None:
+        # On a chart that is no column or bar Excel's key still reads back what it was given, where the series' own
+        # setter writes nothing (tests/fixtures/unassessed_charts.json).
+        if CHART_TYPES.get(shown_type(self.series.chart.state)) not in ('column', 'bar'):
+            raise VBAUnsupportedError("LegendKey.InvertIfNegative on this kind of chart is not implemented")
+        self.series.vba_set('InvertIfNegative', value)
 
     @method
     def Delete(self) -> object:
@@ -3587,6 +3608,12 @@ class CategoryCollection(ItemDefault, Created):
     def __init__(self, group: ChartGroup) -> None:
         self.group = group
 
+    @method(name='_Default')
+    def hidden_default(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Asked for by its name it is 438; the collection called with an index still finds an item
+        (tests/fixtures/unassessed_charts.json)."""
+        raise error(438, "Object doesn't support this property or method")
+
     def vba_iterate(self) -> Iterator[object]:
         self.names()
         raise error(438, "Object doesn't support this property or method")
@@ -3695,6 +3722,11 @@ class FullSeriesCollection(SeriesCollection):
     (tests/fixtures/chart_full_series.json). It adds none."""
 
     vba_type_name = 'FullSeriesCollection'
+
+    @method(name='_Default')
+    def hidden_default(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Asked for by its name it is 438 (tests/fixtures/unassessed_charts.json)."""
+        raise error(438, "Object doesn't support this property or method")
 
     def vba_items(self) -> list[object]:
         self.chart.admit_read()

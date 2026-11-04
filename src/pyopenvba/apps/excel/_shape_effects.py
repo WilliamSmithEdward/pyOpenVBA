@@ -6,7 +6,8 @@ not visible but has been changed goes in the file's hidden effects."""
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, cast
 
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._shape_format import STYLE, DEFAULT_THEME
@@ -17,7 +18,7 @@ from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_in
 from pyopenvba.shapes._values import FillLine, ShapeEffects
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._shapes import ShapeObject
+    from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange
 
 _MIXED = -2147483648
 _EMU_PER_POINT = 12700
@@ -102,6 +103,15 @@ class EffectColor(Created):
         colour = int(to_integer(value, 'Long')) & 0xFFFFFF
         red, green, blue = colour & 255, (colour >> 8) & 255, (colour >> 16) & 255
         self.owner.set_colour(f'{red:02X}{green:02X}{blue:02X}')
+
+    @member
+    def ObjectThemeColor(self) -> object:
+        # Mixed with the RGB while there is no colour yet, 0 for an RGB; a glow's theme colour is not read back here.
+        if self.owner.read_colour() == -2147483648:
+            return VBAInt(-2, 'Long')
+        if isinstance(self.owner, GlowFormat) and self.owner.held().glow_scheme:
+            raise VBAUnsupportedError('The theme colour of a glow is not implemented')
+        return VBAInt(0, 'Long')
 
     @setter('ObjectThemeColor')
     def _object_theme_color(self, value: object) -> None:
@@ -426,3 +436,116 @@ class ReflectionFormat(_Effect):
         if wanted < 0:
             raise error(*_OUT_OF_RANGE)
         self.worked().reflection_blur = round(wanted * _EMU_PER_POINT) or None
+
+
+class _RangeEffect(_Effect):
+    """An effect through a ShapeRange (tests/fixtures/shape_range_effects.json): a set reaches every shape, and a read
+    gives what they share, or the mixed value for its type."""
+
+    #: The format each of its shapes has, and what a measurement they do not share reads.
+    single: type[_Effect] = _Effect
+    mixed_measure = -2147483648.0
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        super().__init__(shapes.shapes[0])
+        self.range = shapes
+
+    def parts(self) -> list[_Effect]:
+        return [self.single(one) for one in self.range.shapes]
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        if name == 'Parent':
+            return self.range
+        if name == 'Application':
+            return super().vba_get(name, args, named)
+        found = [part.vba_get(name, args, named) for part in self.parts()]
+        if isinstance(found[0], EffectColor):
+            return RangeEffectColor(self, name)
+        return self.shared(name, found)
+
+    def shared(self, name: str, found: list[object]) -> object:
+        if all(one == found[0] for one in found[1:]):
+            return found[0]
+        return VBASingle(self.mixed_measure) if isinstance(found[0], VBASingle) else VBAInt(-2, 'Long')
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        for part in self.parts():
+            part.vba_set(name, value, args, named, by_ref=by_ref)
+
+
+class RangeEffectColor(Created):
+    """A range's shadow or glow colour."""
+
+    vba_type_name = 'ColorFormat'
+
+    def __init__(self, effect: _RangeEffect, name: str) -> None:
+        self.effect, self.name = effect, name
+
+    def colours(self) -> list[EffectColor]:
+        return [cast(EffectColor, part.vba_get(self.name)) for part in self.effect.parts()]
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        found = [one.vba_get(name, args, named) for one in self.colours()]
+        if all(one == found[0] for one in found[1:]):
+            return found[0]
+        return VBAInt(-2147483648 if name == 'RGB' else -2, 'Long')
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        for one in self.colours():
+            one.vba_set(name, value, args, named, by_ref=by_ref)
+
+
+class RangeShadow(_RangeEffect, ShadowFormat):
+    """Any shape's shadow showing makes the range's Visible true. While none shows, a read gives the last shape's."""
+
+    vba_type_name = 'ShadowFormat'
+    single = ShadowFormat
+
+    def shared(self, name: str, found: list[object]) -> object:
+        visible = [part.vba_get('Visible') for part in self.parts()]
+        if name == 'Visible':
+            return VBAInt(-1 if any(one == -1 for one in visible) else 0, 'Long')
+        if not any(one == -1 for one in visible):
+            return found[-1]
+        if len(set(visible)) > 1:
+            # One showing beside one hidden: these do not count as shared even where they are equal.
+            if name in ('OffsetX', 'OffsetY'):
+                return VBASingle(-2147483648.0)
+            if name == 'RotateWithShape':
+                return VBAInt(-2, 'Long')
+        return super().shared(name, found)
+
+
+class RangeGlow(_RangeEffect, GlowFormat):
+    """A glow on one shape and none on another reads its Radius as mixed, even where neither has one set."""
+
+    vba_type_name = 'GlowFormat'
+    single = GlowFormat
+
+    def shared(self, name: str, found: list[object]) -> object:
+        if name == 'Radius' and len({part.held().glow for part in self.parts() if isinstance(part, GlowFormat)}) > 1:
+            return VBASingle(self.mixed_measure)
+        return super().shared(name, found)
+
+
+class RangeSoftEdge(_RangeEffect, SoftEdgeFormat):
+    """Radii that differ read -1, and types the last shape's."""
+
+    vba_type_name = 'SoftEdgeFormat'
+    single = SoftEdgeFormat
+    mixed_measure = -1.0
+
+    def shared(self, name: str, found: list[object]) -> object:
+        return found[-1] if name == 'Type' else super().shared(name, found)
+
+
+class RangeReflection(_RangeEffect, ReflectionFormat):
+    """Types that differ read mixed, and measurements the last shape's."""
+
+    vba_type_name = 'ReflectionFormat'
+    single = ReflectionFormat
+
+    def shared(self, name: str, found: list[object]) -> object:
+        return found[-1] if isinstance(found[0], VBASingle) else super().shared(name, found)

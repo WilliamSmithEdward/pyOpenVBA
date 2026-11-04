@@ -393,6 +393,9 @@ class Application(ExcelObject):
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
         self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
         self.user_name = "pyOpenVBA"
+        #: What Shape.PickUp kept for Shape.Apply, which outlives the workbook.
+        self.picked_up_shape: object = None
+        self.shape_picked_up = False
         self.interpreter: Interpreter | None = None
         self.executing_projects: list[Interpreter] = []
         #: Workbook.RunAutoMacros does nothing on the call after one that ran a macro (tests/fixtures/run_auto_macros.json).
@@ -1562,6 +1565,9 @@ class Workbook(ExcelObject):
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
+        #: SetShapesDefaultProperties: the look later AutoShapes take, and the theme's spDef.
+        self.shape_default_look: object = None
+        self.shape_default_markup = ""
         self.name = name
         self.path = path
         self.saved = True

@@ -502,6 +502,23 @@ CalculatedItems,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/pivo
 CalculatedItems,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
 CalculatedItems,Item,method,Item(Index As Variant) As PivotItem,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
 CalculatedItems,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
+CalloutFormat,Accent,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Angle,property,As MsoCalloutAngleType,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Application,"property, read-only",As Object,,MISSING,,
+CalloutFormat,AutoAttach,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,AutoLength,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,AutomaticLength,method,AutomaticLength(),,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Border,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+CalloutFormat,CustomDrop,method,CustomDrop(Drop As Single),,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,CustomLength,method,CustomLength(Length As Single),,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Drop,"property, read-only",As Single,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,DropType,"property, read-only",As MsoCalloutDropType,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Gap,property,As Single,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Length,"property, read-only",As Single,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,PresetDrop,method,PresetDrop(DropType As MsoCalloutDropType),,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
+CalloutFormat,Type,property,As MsoCalloutType,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,Read from and written to the adjustments. CustomLength on three lines and Angle on several report themselves.
 CategoryCollection,_Default,method,_Default(Index As Variant) As ChartCategory,,UNASSESSED,,
 CategoryCollection,Application,"property, read-only",As Application,,UNASSESSED,,
 CategoryCollection,Count,"property, read-only",As Long,,UNASSESSED,,
@@ -1286,6 +1303,42 @@ Font,ThemeColor,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; 
 Font,ThemeFont,property,As XlThemeFont,,PARTIAL,tests/fixtures/cell_styles/style_changes.json,Read; setting it on a range reports unsupported.
 Font,TintAndShade,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Underline,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Values other than the five styles, True, False and 3 report unsupported."
+Font2,Allcaps,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Application,"property, read-only",As Object,,MISSING,,
+Font2,AutorotateNumbers,property,As MsoTriState,,MISSING,,
+Font2,BaselineOffset,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Bold,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Caps,property,As MsoTextCaps,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Creator,"property, read-only",As Long,,UNASSESSED,,
+Font2,DoubleStrikeThrough,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Embeddable,"property, read-only",As MsoTriState,,MISSING,,
+Font2,Embedded,"property, read-only",As MsoTriState,,MISSING,,
+Font2,Equalize,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Fill,"property, read-only",As FillFormat,,MISSING,,
+Font2,Glow,"property, read-only",As GlowFormat,,MISSING,,
+Font2,Highlight,"property, read-only",As ColorFormat,,MISSING,,
+Font2,Italic,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Kerning,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Line,"property, read-only",As LineFormat,,MISSING,,
+Font2,Name,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,NameAscii,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,NameComplexScript,property,As String,,MISSING,,
+Font2,NameFarEast,property,As String,,MISSING,,
+Font2,NameOther,property,As String,,MISSING,,
+Font2,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
+Font2,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
+Font2,Size,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Smallcaps,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,SoftEdgeFormat,property,As MsoSoftEdgeType,,MISSING,,
+Font2,Spacing,property,As Single,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Strike,property,As MsoTextStrike,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,StrikeThrough,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Subscript,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,Superscript,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,UnderlineColor,"property, read-only",As ColorFormat,,MISSING,,
+Font2,UnderlineStyle,property,As MsoTextUnderlineType,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,"All of a new shape's text. Fill, Line, effects and other names are not built."
+Font2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 FormatColor,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 FormatColor,Color,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"The colour as it shows, a theme colour with its tint worked out."
 FormatColor,ColorIndex,property,As XlColorIndex,no setter,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,A colour scale's criterion colour.
@@ -1896,18 +1949,18 @@ Panes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_m
 Panes,Item,"property, read-only",As Pane,,PARTIAL,tests/fixtures/windows/windows.json,"A pane, scrolled on its own, reports itself as not implemented."
 Panes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The window.
 PictureFormat,Application,"property, read-only",As Object,,MISSING,,
-PictureFormat,Brightness,property,As Single,,MISSING,,
+PictureFormat,Brightness,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
 PictureFormat,ColorType,property,As MsoPictureColorType,,MISSING,,
-PictureFormat,Contrast,property,As Single,,MISSING,,
+PictureFormat,Contrast,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
 PictureFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
 PictureFormat,Crop,"property, read-only",As Crop,,MISSING,,
 PictureFormat,CropBottom,property,As Single,,MISSING,,
-PictureFormat,CropLeft,property,As Single,,MISSING,,
+PictureFormat,CropLeft,property,As Single,no setter,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
 PictureFormat,CropRight,property,As Single,,MISSING,,
 PictureFormat,CropTop,property,As Single,,MISSING,,
 PictureFormat,IncrementBrightness,method,IncrementBrightness(Increment As Single),,MISSING,,
 PictureFormat,IncrementContrast,method,IncrementContrast(Increment As Single),,MISSING,,
-PictureFormat,Parent,"property, read-only",As Object,,UNASSESSED,,
+PictureFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,A new picture's reads only.
 PictureFormat,TransparencyColor,property,As MsoRGBType,,MISSING,,
 PictureFormat,TransparentBackground,property,As MsoTriState,,MISSING,,
 PivotAxis,Application,"property, read-only",As Application,,UNASSESSED,,
@@ -2707,12 +2760,12 @@ ShadowFormat,Visible,property,As MsoTriState,no setter,UNASSESSED,,
 Shape,Adjustments,"property, read-only",As Adjustments,,PARTIAL,tests/fixtures/shape_adjustments.json; tests/fixtures/shape_adjustment_table.json; tests/test_excel_shape_adjustments.py,Every AutoShape type measured; a loaded shape is refused.
 Shape,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"Written as cNvPr descr, on new and loaded shapes; empty removes it."
 Shape,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
-Shape,Apply,method,Apply(),,MISSING,,
+Shape,Apply,method,Apply(),,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"Replaces the look with the one picked up, and writes the empty text format out. An AutoShape with no text only."
 Shape,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_range_more.json,"Reads the AutoShape type; setting it swaps the saved preset geometry, for new AutoShapes of the types the model can write."
 Shape,BackgroundStyle,property,As MsoBackgroundStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,BlackWhiteMode,property,As MsoBlackWhiteMode,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Reads automatic for shapes the model makes; no setter.
 Shape,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"The cell under the shape's bottom right corner; after a shape that sizes with its cells has moved with them, the cell it is anchored to."
-Shape,Callout,"property, read-only",As CalloutFormat,,MISSING,,
+Shape,Callout,"property, read-only",As CalloutFormat,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_callout.py,"A callout AutoShape; other shapes give the object, out of range on use except AutoAttach and AutoLength."
 Shape,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"A shape with no chart raises -2147024809, as in Excel."
 Shape,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Whether the shape is inside a group.
 Shape,ConnectionSiteCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused."
@@ -2749,13 +2802,13 @@ Shape,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_prop
 Shape,Locked,property,As Boolean,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"False writes clientData fLocksWithSheet 0, on new and loaded shapes."
 Shape,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 Shape,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,Nodes,"property, read-only",As ShapeNodes,,MISSING,,
+Shape,Nodes,"property, read-only",As ShapeNodes,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,A freeform; other shapes report themselves.
 Shape,OLEFormat,"property, read-only",As OLEFormat,,MISSING,,
 Shape,OnAction,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The sheet.
 Shape,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,The group a shape is in; a shape in none raises 1004.
-Shape,PickUp,method,PickUp(),,MISSING,,
-Shape,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
+Shape,PickUp,method,PickUp(),,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"An AutoShape with no text layout set; a line, text box or other source is refused though measured."
+Shape,PictureFormat,"property, read-only",As PictureFormat,,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,"A new picture's Brightness, Contrast and CropLeft reads. Other shapes give the object, out of range on use."
 Shape,Placement,property,As XlPlacement,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json; tests/fixtures/shape_structure_moves.json,"Read and set as the anchor's editAs. xlMoveAndSize moves and sizes the shape with the columns and rows under it, rows grown by their fonts included, xlMove moves it, xlFreeFloating leaves it; values other than 1 to 3 are not implemented. Rows grown by wrapped text are not measured."
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
@@ -2764,7 +2817,7 @@ Shape,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_properties.json;
 Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,Select,method,Select([Replace As Variant]),,UNASSESSED,,
-Shape,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
+Shape,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_defaults.py,"A new AutoShape's fill, line and effects, for later AutoShapes and the theme. Text settings report themselves."
 Shape,Shadow,"property, read-only",As ShadowFormat,,PARTIAL,tests/test_excel_shape_effects.py,"As live Excel on an AutoShape, a text box and a line; a shape from a file is refused."
 Shape,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,SmartArt,"property, read-only",As SmartArt,,MISSING,,
@@ -2779,18 +2832,35 @@ Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_m
 Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Ungroup,method,Ungroup() As ShapeRange,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"The members back in the group's place, answered as a ShapeRange; a shape that is no group raises -2147024891. A group loaded from a file is refused."
 Shape,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipV is set.
-Shape,Vertices,"property, read-only",As Variant,,MISSING,,
+Shape,Vertices,"property, read-only",As Variant,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"A freeform, as Singles from 1; other shapes report themselves."
 Shape,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"0 hides the shape, written as cNvPr hidden after descr and title; any other number shows it; text that is no number is error 13. Read back once reopened."
 Shape,Width,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,"Moves the shape to the front or back, or one place, in the drawing's order, which Shapes and ZOrderPosition follow. Other commands raise -2147024809."
 Shape,ZOrderPosition,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
+ShapeNode,Application,"property, read-only",As Object,,MISSING,,
+ShapeNode,Creator,"property, read-only",As Long,,UNASSESSED,,
+ShapeNode,EditingType,"property, read-only",As MsoEditingType,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."
+ShapeNode,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."
+ShapeNode,Points,"property, read-only",As Variant,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."
+ShapeNode,SegmentType,"property, read-only",As MsoSegmentType,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."
+ShapeNodes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+ShapeNodes,Application,"property, read-only",As Object,,MISSING,,
+ShapeNodes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,A freeform's points in order; a close adds none.
+ShapeNodes,Creator,"property, read-only",As Long,,UNASSESSED,,
+ShapeNodes,Delete,method,Delete(Index As Long),,MISSING,,
+ShapeNodes,Insert,method,"Insert(Index As Long, SegmentType As MsoSegmentType, EditingType As MsoEditingType, X1 As Single, Y1 As Single, [X2 As Single], [Y2 As Single], [X3 As Single], [Y3 As Single])",,MISSING,,
+ShapeNodes,Item,method,Item(Index As Variant) As ShapeNode,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,A freeform's points in order; a close adds none.
+ShapeNodes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,A freeform's points in order; a close adds none.
+ShapeNodes,SetEditingType,method,"SetEditingType(Index As Long, EditingType As MsoEditingType)",,MISSING,,
+ShapeNodes,SetPosition,method,"SetPosition(Index As Long, X1 As Single, Y1 As Single)",,MISSING,,
+ShapeNodes,SetSegmentType,method,"SetSegmentType(Index As Long, SegmentType As MsoSegmentType)",,MISSING,,
 ShapeRange,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 ShapeRange,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 ShapeRange,Adjustments,"property, read-only",As Adjustments,,PARTIAL,tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"What its shapes share, or the mixed value. Past any shape's end is error 5, and a set stops there."
 ShapeRange,Align,method,"Align(AlignCmd As MsoAlignCmd, RelativeTo As MsoTriState)",,PARTIAL,tests/fixtures/shape_align.json; tests/test_excel_shape_align.py,"Lefts, centers, rights, tops, middles and bottoms of the shapes' box together; RelativeTo is ignored but must be -1, 0 or 1. One shape or a bad command raises -2147024809."
 ShapeRange,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared text; a set gives every shape the text. Differing texts are refused.
 ShapeRange,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
-ShapeRange,Apply,method,Apply(),,MISSING,,
+ShapeRange,Apply,method,Apply(),,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"Each shape, as Shape.Apply."
 ShapeRange,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,The shared value or -2; a set reaches every shape.
 ShapeRange,BackgroundStyle,property,As MsoBackgroundStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
 ShapeRange,BlackWhiteMode,property,As MsoBlackWhiteMode,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
@@ -2808,7 +2878,7 @@ ShapeRange,Distribute,method,"Distribute(DistributeCmd As MsoDistributeCmd, Rela
 ShapeRange,Duplicate,method,Duplicate() As ShapeRange,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy of each shape, after every other shape, as one ShapeRange."
 ShapeRange,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_range_fill_line.json; tests/test_excel_shape_range_fill_line.py,What its shapes with a fill share; hiding leaves all but the first a bare noFill.
 ShapeRange,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape turned over where it stands, its rotation mirrored; other commands raise -2147024809."
-ShapeRange,Glow,"property, read-only",As GlowFormat,,MISSING,,
+ShapeRange,Glow,"property, read-only",As GlowFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,A set reaches every shape; reads what they share or Excel's mixed value.
 ShapeRange,GraphicStyle,property,As MsoGraphicStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
 ShapeRange,Group,method,Group() As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"One group in the topmost member's place, members in sheet order, box their union, named Group and the next number, the next id; one shape raises 1004. Loaded, rotated or flipped shapes, charts and controls are refused."
 ShapeRange,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
@@ -2828,9 +2898,9 @@ ShapeRange,Name,property,As String,,PARTIAL,tests/fixtures/shape_range_propertie
 ShapeRange,Nodes,"property, read-only",As ShapeNodes,,MISSING,,
 ShapeRange,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
-ShapeRange,PickUp,method,PickUp(),,MISSING,,
+ShapeRange,PickUp,method,PickUp(),,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,One shape; a range of more is out of range.
 ShapeRange,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
-ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
+ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,"A set reaches every shape; types that differ read mixed, measurements the last shape's."
 ShapeRange,Regroup,method,Regroup() As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The ungrouped shapes made a group again, with the next name and id; shapes from no group raise 1004. Regrouping after a member moved, or part of the shapes, is refused."
 ShapeRange,RerouteConnections,method,RerouteConnections(),,MISSING,,
 ShapeRange,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set turns every shape."
@@ -2838,9 +2908,9 @@ ShapeRange,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalS
 ShapeRange,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
 ShapeRange,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/excel_everyday_10.json,"Rectangles, ovals, lines and text boxes join the selection; other kinds of shape do not yet"
 ShapeRange,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
-ShapeRange,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
+ShapeRange,Shadow,"property, read-only",As ShadowFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,A set reaches every shape; reads what they share or Excel's mixed value. A preset Type reports itself.
 ShapeRange,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
-ShapeRange,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
+ShapeRange,SoftEdge,"property, read-only",As SoftEdgeFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,A set reaches every shape; radii that differ read -1.
 ShapeRange,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
 ShapeRange,TextFrame,"property, read-only",As TextFrame,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,One shape's; several are refused.
 ShapeRange,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,One shape's; several are refused.
@@ -2867,8 +2937,8 @@ Shapes,AddFormControl,method,"AddFormControl(Type As XlFormControl, Left As Long
 Shapes,AddLabel,method,"AddLabel(Orientation As MsoTextOrientation, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
 Shapes,AddLine,method,"AddLine(BeginX As Single, BeginY As Single, EndX As Single, EndY As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,AddOLEObject,method,"AddOLEObject([ClassType As Variant], [Filename As Variant], [Link As Variant], [DisplayAsIcon As Variant], [IconFileName As Variant], [IconIndex As Variant], [IconLabel As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
-Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,MISSING,,
-Shapes,AddPicture2,method,"AddPicture2(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single, Compress As MsoPictureCompress) As Shape",,MISSING,,
+Shapes,AddPicture,method,"AddPicture(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,"A PNG kept in the workbook, bytes as they are; -1 is its own size. A link, other images and a picture's fill and line report themselves."
+Shapes,AddPicture2,method,"AddPicture2(Filename As String, LinkToFile As MsoTriState, SaveWithDocument As MsoTriState, Left As Single, Top As Single, Width As Single, Height As Single, Compress As MsoPictureCompress) As Shape",,PARTIAL,tests/fixtures/shape_add_picture.json; tests/test_excel_shape_add_picture.py,As AddPicture; Compress changed nothing measured.
 Shapes,AddPolyline,method,AddPolyline(SafeArrayOfPoints As Variant) As Shape,,PARTIAL,tests/fixtures/shape_polyline.json; tests/test_excel_shape_polyline.py,"A freeform (Type 5, AutoShapeType 138) through the points in a custGeom, closed and filled when the last point is the first, its box their bounds plus one EMU; fewer than two points raise 1004. Read as Freeform N, saved as Freeform: Shape N."
 Shapes,AddShape,method,"AddShape(Type As MsoAutoShapeType, Left As Single, Top As Single, Width As Single, Height As Single) As Shape",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,AddSmartArt,method,"AddSmartArt(Layout As SmartArtLayout, [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
@@ -3133,6 +3203,12 @@ TableStyles,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/table_st
 TableStyles,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Read.
 TableStyles,Item,method,Item(Index As Variant) As TableStyle,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,By number in Excel's order or by name in any case; error 9 for neither.
 TableStyles,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,The workbook.
+TextColumn2,Application,"property, read-only",As Object,,MISSING,,
+TextColumn2,Creator,"property, read-only",As Long,,UNASSESSED,,
+TextColumn2,Number,property,As Long,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"1 to 16, written as numCol; 1 writes nothing."
+TextColumn2,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"Not in the type library: 438, as in Excel."
+TextColumn2,Spacing,property,As Single,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,"Not below 0, written as spcCol; 0 writes nothing."
+TextColumn2,TextDirection,property,As MsoTextDirection,,MISSING,,
 TextFrame,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Answers as Excel does over the measured cases.
 TextFrame,AutoMargins,property,As Boolean,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"Excel raises 1004 reading or setting it, on a rectangle and a text box alike."
 TextFrame,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -3151,7 +3227,7 @@ TextFrame,VerticalAlignment,property,As XlVAlign,,PARTIAL,tests/fixtures/text_fr
 TextFrame,VerticalOverflow,property,As XlOartVerticalOverflow,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's vertOverflow, ellipsis too; 3 raises -2147467259. A rectangle whose overflow changes writes bodyPr in full."
 TextFrame2,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Read.
 TextFrame2,AutoSize,property,As MsoAutoSize,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"None or text to fit shape, as bodyPr's noAutofit or normAutofit; 3 raises -2147024809. Shape to fit text, which resizes the shape, is refused."
-TextFrame2,Column,"property, read-only",As TextColumn2,,MISSING,,
+TextFrame2,Column,"property, read-only",As TextColumn2,,PARTIAL,tests/fixtures/shape_columns.json; tests/test_excel_shape_columns.py,A new AutoShape or text box; on a line the object exists and using it is out of range.
 TextFrame2,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 TextFrame2,DeleteText,method,DeleteText(),,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"The text gone, its empty paragraph's end left without a size."
 TextFrame2,HasText,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -3171,6 +3247,48 @@ TextFrame2,VerticalAnchor,property,As MsoVerticalAnchor,,PARTIAL,tests/fixtures/
 TextFrame2,WarpFormat,property,As MsoWarpFormat,,MISSING,,
 TextFrame2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
 TextFrame2,WordWrap,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's wrap; any value but 0 wraps.
+TextRange2,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+TextRange2,AddPeriods,method,AddPeriods(),,MISSING,,
+TextRange2,Application,"property, read-only",As Object,,MISSING,,
+TextRange2,BoundHeight,"property, read-only",As Single,,MISSING,,
+TextRange2,BoundLeft,"property, read-only",As Single,,MISSING,,
+TextRange2,BoundTop,"property, read-only",As Single,,MISSING,,
+TextRange2,BoundWidth,"property, read-only",As Single,,MISSING,,
+TextRange2,ChangeCase,method,ChangeCase(Type As MsoTextChangeCase),,MISSING,,
+TextRange2,Characters,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Copy,method,Copy(),,MISSING,,
+TextRange2,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,Creator,"property, read-only",As Long,,UNASSESSED,,
+TextRange2,Cut,method,Cut(),,MISSING,,
+TextRange2,Delete,method,Delete(),,MISSING,,
+TextRange2,Find,method,"Find(FindWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
+TextRange2,Font,"property, read-only",As Font2,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,InsertAfter,method,InsertAfter([NewText As String]) As TextRange2,,MISSING,,
+TextRange2,InsertBefore,method,InsertBefore([NewText As String]) As TextRange2,,MISSING,,
+TextRange2,InsertChartField,method,"InsertChartField(ChartFieldType As MsoChartFieldType, [Formula As String], [Position As Long]) As TextRange2",,MISSING,,
+TextRange2,InsertSymbol,method,"InsertSymbol(FontName As String, CharNumber As Long, [Unicode As MsoTriState]) As TextRange2",,MISSING,,
+TextRange2,Item,method,Item(Index As Variant) As TextRange2,,MISSING,,
+TextRange2,LanguageID,property,As MsoLanguageID,,MISSING,,
+TextRange2,Length,"property, read-only",As Long,,MISSING,,
+TextRange2,Lines,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,LtrRun,method,LtrRun(),,MISSING,,
+TextRange2,MathZones,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,ParagraphFormat,"property, read-only",As ParagraphFormat2,,MISSING,,
+TextRange2,Paragraphs,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Parent,"property, read-only",As Object,,MISSING,,
+TextRange2,Paste,method,Paste() As TextRange2,,MISSING,,
+TextRange2,PasteSpecial,method,PasteSpecial(Format As MsoClipboardFormat) As TextRange2,,MISSING,,
+TextRange2,RemovePeriods,method,RemovePeriods(),,MISSING,,
+TextRange2,Replace,method,"Replace(FindWhat As String, ReplaceWhat As String, [After As Long], [MatchCase As MsoTriState], [WholeWords As MsoTriState]) As TextRange2",,MISSING,,
+TextRange2,RotatedBounds,method,"RotatedBounds(X1 As Single, Y1 As Single, X2 As Single, Y2 As Single, X3 As Single, Y3 As Single, x4 As Single, y4 As Single)",,MISSING,,
+TextRange2,RtlRun,method,RtlRun(),,MISSING,,
+TextRange2,Runs,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Select,method,Select(),,MISSING,,
+TextRange2,Sentences,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Start,"property, read-only",As Long,,MISSING,,
+TextRange2,Text,property,As String,,PARTIAL,tests/fixtures/shape_font2.json; tests/test_excel_shape_font2.py,The whole text only.
+TextRange2,TrimText,method,TrimText() As TextRange2,,MISSING,,
+TextRange2,Words,"property, read-only",As TextRange2,,MISSING,,
 ThemeColor,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeColor,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeColor,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."

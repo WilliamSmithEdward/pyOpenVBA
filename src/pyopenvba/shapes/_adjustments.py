@@ -633,3 +633,5 @@ EXCEL_SHAPE_NAMES: dict[int, str] = {
     182: "",
     183: "Straight Connector",
 }
+#: Types Excel turns into another as it makes them.
+EXCEL_ALIASES: dict[int, int] = {110: 109, 117: 113, 118: 113, 121: 109, 137: 106}

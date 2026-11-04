@@ -1,0 +1,387 @@
+{
+ "measured_at": "2026-11-03T21:23:54.742235+00:00",
+ "reads": [
+  "TypeName(r.Shadow)",
+  "r.Shadow.Visible",
+  "r.Shadow.OffsetX",
+  "r.Shadow.OffsetY",
+  "r.Shadow.Blur",
+  "r.Shadow.Transparency",
+  "r.Shadow.Size",
+  "r.Shadow.ForeColor.RGB",
+  "r.Shadow.ForeColor.ObjectThemeColor",
+  "r.Shadow.Style",
+  "r.Shadow.Type",
+  "r.Shadow.Obscured",
+  "r.Shadow.RotateWithShape",
+  "TypeName(r.Glow)",
+  "r.Glow.Radius",
+  "r.Glow.Color.RGB",
+  "r.Glow.Transparency",
+  "TypeName(r.SoftEdge)",
+  "r.SoftEdge.Radius",
+  "r.SoftEdge.Type",
+  "TypeName(r.Reflection)",
+  "r.Reflection.Type",
+  "r.Reflection.Transparency",
+  "r.Reflection.Size",
+  "r.Reflection.Offset",
+  "r.Reflection.Blur",
+  "TypeName(r.Shadow.Parent)"
+ ],
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, a As Object, b As Object, r As Object, s As String, v As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Select Case which\n    Case 0: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 1: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddLine(20, 70, 120, 110)\n    Case 2: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 3: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 4: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 5: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 6: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 7: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 8: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 9: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 10: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 11: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 12: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 13: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 14: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 15: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 16: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 17: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 18: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 19: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 20: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 21: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 22: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 23: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 24: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 25: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 26: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 27: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 28: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 29: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 30: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 31: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 32: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 33: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 34: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 35: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 36: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 37: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 38: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 39: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddShape(1, 20, 70, 100, 40)\n    Case 40: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddLine(20, 70, 120, 110)\n    Case 41: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddLine(20, 70, 120, 110)\n    Case 42: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddLine(20, 70, 120, 110)\n    Case 43: Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40): Set b = ws.Shapes.AddLine(20, 70, 120, 110)\n    End Select\n    a.Name = \"a\": b.Name = \"b\"\n    Set r = ws.Shapes.Range(Array(\"a\", \"b\"))\n    On Error GoTo Failed\n    Select Case which\n    Case 2\n        r.Shadow.Visible = msoTrue\n    Case 3\n        r.Shadow.OffsetX = 5\n    Case 4\n        r.Shadow.OffsetY = 5\n    Case 5\n        r.Shadow.Blur = 3\n    Case 6\n        r.Shadow.Transparency = 0.5\n    Case 7\n        r.Shadow.Size = 110\n    Case 8\n        r.Shadow.ForeColor.RGB = 255\n    Case 9\n        r.Shadow.Style = 2\n    Case 10\n        r.Shadow.Type = 21\n    Case 11\n        r.Glow.Radius = 5\n    Case 12\n        r.Glow.Color.RGB = 255\n    Case 13\n        r.Glow.Transparency = 0.5\n    Case 14\n        r.SoftEdge.Radius = 5\n    Case 15\n        r.SoftEdge.Type = 1\n    Case 16\n        r.Reflection.Type = 1\n    Case 17\n        r.Reflection.Transparency = 0.5\n    Case 18\n        r.Reflection.Size = 50\n    Case 19\n        r.Reflection.Offset = 3\n    Case 20\n        r.Reflection.Blur = 2\n    Case 21\n        a.Shadow.Visible = msoTrue\n    Case 22\n        a.Shadow.OffsetX = 5\n    Case 23\n        a.Shadow.OffsetY = 5\n    Case 24\n        a.Shadow.Blur = 3\n    Case 25\n        a.Shadow.Transparency = 0.5\n    Case 26\n        a.Shadow.Size = 110\n    Case 27\n        a.Shadow.ForeColor.RGB = 255\n    Case 28\n        a.Shadow.Style = 2\n    Case 29\n        a.Shadow.Type = 21\n    Case 30\n        a.Glow.Radius = 5\n    Case 31\n        a.Glow.Color.RGB = 255\n    Case 32\n        a.Glow.Transparency = 0.5\n    Case 33\n        a.SoftEdge.Radius = 5\n    Case 34\n        a.SoftEdge.Type = 1\n    Case 35\n        a.Reflection.Type = 1\n    Case 36\n        a.Reflection.Transparency = 0.5\n    Case 37\n        a.Reflection.Size = 50\n    Case 38\n        a.Reflection.Offset = 3\n    Case 39\n        a.Reflection.Blur = 2\n    Case 40\n        r.Shadow.Visible = msoTrue\n    Case 41\n        r.Glow.Radius = 5\n    Case 42\n        r.SoftEdge.Radius = 5\n    Case 43\n        r.Reflection.Type = 1\n    End Select\n    s = \"ok\"\nMeasured:\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = TypeName(r.Shadow)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.OffsetX\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.OffsetY\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.Blur\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.Size\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.ForeColor.ObjectThemeColor\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.Style\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.Obscured\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Shadow.RotateWithShape\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(r.Glow)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Glow.Radius\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Glow.Color.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Glow.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(r.SoftEdge)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.SoftEdge.Radius\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.SoftEdge.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(r.Reflection)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Reflection.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Reflection.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Reflection.Size\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Reflection.Offset\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = r.Reflection.Blur\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(r.Shadow.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    On Error GoTo 0\n    Tried = s\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Measured\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 43\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.Visible = msoTrue",
+   "ok,ShadowFormat,-1,2.079952,2.079952,5,0,100,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.OffsetX = 5",
+   "ok,ShadowFormat,0,4.999989,2.079946,5,0,100,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"68775\" dir=\"1355210\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"68775\" dir=\"1355210\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.OffsetY = 5",
+   "ok,ShadowFormat,0,2.079946,4.999989,5,0,100,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"68775\" dir=\"4044790\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"68775\" dir=\"4044790\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.Blur = 3",
+   "ok,ShadowFormat,0,2.079952,2.079952,3,0,100,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"38100\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"38100\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.Transparency = 0.5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,0.5,100,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"><a:alpha val=\"50000\"/></a:scrgbClr></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"><a:alpha val=\"50000\"/></a:scrgbClr></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.Size = 110",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,0,110,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" sx=\"110000\" sy=\"110000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" sx=\"110000\" sy=\"110000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.ForeColor.RGB = 255",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.Style = 2",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,0,100,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.Type = 21",
+   "ok,ShadowFormat,-1,2.12132,2.12132,4,0.6,100,0,0,2,21,0,-1,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"50800\" dist=\"38100\" dir=\"2700000\" algn=\"tl\"><a:prstClr val=\"black\"><a:alpha val=\"40000\"/></a:prstClr></a:outerShdw></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"50800\" dist=\"38100\" dir=\"2700000\" algn=\"tl\"><a:prstClr val=\"black\"><a:alpha val=\"40000\"/></a:prstClr></a:outerShdw></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Glow.Radius = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,5,0,0,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow rad=\"63500\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:glow></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow rad=\"63500\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:glow></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Glow.Color.RGB = 255",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,255,0,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow><a:srgbClr val=\"FF0000\"/></a:glow></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow><a:srgbClr val=\"FF0000\"/></a:glow></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Glow.Transparency = 0.5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,0,0.5,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"><a:alpha val=\"50000\"/></a:scrgbClr></a:glow></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"><a:alpha val=\"50000\"/></a:scrgbClr></a:glow></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.SoftEdge.Radius = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,5,3,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"63500\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"63500\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.SoftEdge.Type = 1",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,1,1,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"12700\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"12700\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Reflection.Type = 1",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,1,0.48,35,0,0.5,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"6350\" stA=\"52000\" endA=\"300\" endPos=\"35000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"6350\" stA=\"52000\" endA=\"300\" endPos=\"35000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Reflection.Transparency = 0.5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,0.5,100,0,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection stA=\"50000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection stA=\"50000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Reflection.Size = 50",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,0,50,0,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection endPos=\"50000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection endPos=\"50000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Reflection.Offset = 3",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,0,100,3,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection dist=\"38100\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection dist=\"38100\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Reflection.Blur = 2",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,0,100,0,2,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"25400\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"25400\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.Visible = msoTrue",
+   "ok,ShadowFormat,-1,-2.147484E+09,-2.147484E+09,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,-2,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.OffsetX = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"68775\" dir=\"1355210\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.OffsetY = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"68775\" dir=\"4044790\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.Blur = 3",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"38100\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.Transparency = 0.5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"><a:alpha val=\"50000\"/></a:scrgbClr></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.Size = 110",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" sx=\"110000\" sy=\"110000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.ForeColor.RGB = 255",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.Style = 2",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst/><a:extLst><a:ext uri=\"{AF507438-7753-43E0-B8FC-AC1667EBCBE1}\"><a14:hiddenEffects xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></a14:hiddenEffects></a:ext></a:extLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Shadow.Type = 21",
+   "ok,ShadowFormat,-1,-2.147484E+09,-2.147484E+09,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,-2,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"50800\" dist=\"38100\" dir=\"2700000\" algn=\"tl\"><a:prstClr val=\"black\"><a:alpha val=\"40000\"/></a:prstClr></a:outerShdw></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Glow.Radius = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,-2.147484E+09,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow rad=\"63500\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:glow></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Glow.Color.RGB = 255",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,-2.147484E+09,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow><a:srgbClr val=\"FF0000\"/></a:glow></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Glow.Transparency = 0.5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,-2.147484E+09,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"><a:alpha val=\"50000\"/></a:scrgbClr></a:glow></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.SoftEdge.Radius = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,-1,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"63500\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.SoftEdge.Type = 1",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,-1,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"12700\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Reflection.Type = 1",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"6350\" stA=\"52000\" endA=\"300\" endPos=\"35000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Reflection.Transparency = 0.5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection stA=\"50000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Reflection.Size = 50",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection endPos=\"50000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Reflection.Offset = 3",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection dist=\"38100\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "a.Reflection.Blur = 2",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,-2,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"25400\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Shadow.Visible = msoTrue",
+   "ok,ShadowFormat,-1,2.079952,2.079952,5,0,100,0,0,2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:effectLst><a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:outerShdw></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Glow.Radius = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,5,0,0,SoftEdgeFormat,0,0,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:glow rad=\"63500\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:glow></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:effectLst><a:glow rad=\"63500\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:glow></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.SoftEdge.Radius = 5",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,5,3,ReflectionFormat,0,-2.147484E+09,100,-2.147484E+09,0,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"63500\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:effectLst><a:softEdge rad=\"63500\"/></a:effectLst></xdr:spPr>"
+   ]
+  ],
+  [
+   "r.Reflection.Type = 1",
+   "ok,ShadowFormat,0,2.079952,2.079952,5,-2.147484E+09,100,-2147483648,-2,-2,-2,0,0,GlowFormat,0,-2147483648,-2.147484E+09,SoftEdgeFormat,0,0,ReflectionFormat,1,0.48,35,0,0.5,ShapeRange",
+   [
+    "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"6350\" stA=\"52000\" endA=\"300\" endPos=\"35000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>",
+    "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"889000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:effectLst><a:reflection blurRad=\"6350\" stA=\"52000\" endA=\"300\" endPos=\"35000\" dir=\"5400000\" sy=\"-100000\" algn=\"bl\" rotWithShape=\"0\"/></a:effectLst></xdr:spPr>"
+   ]
+  ]
+ ]
+}

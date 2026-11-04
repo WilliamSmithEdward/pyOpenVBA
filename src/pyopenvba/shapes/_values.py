@@ -430,6 +430,10 @@ class FillLine:
     #: Each end's type, w and len as set, and those a hidden line had when it was hidden.
     line_head: tuple[str | None, str | None, str | None] = (None, None, None)
     line_tail: tuple[str | None, str | None, str | None] = (None, None, None)
+    #: On a shape from a file: the theme colour its style's fill takes, its style's line colour and shade, and its width.
+    style_fill: str | None = None
+    style_line: tuple[str, int] | None = None
+    style_width: int | None = None
     frozen_head: tuple[str | None, str | None, str | None] = (None, None, None)
     frozen_tail: tuple[str | None, str | None, str | None] = (None, None, None)
 

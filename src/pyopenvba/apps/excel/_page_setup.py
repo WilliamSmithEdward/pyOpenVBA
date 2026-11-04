@@ -212,7 +212,7 @@ def flush(application: Application) -> None:
         try:
             apply()
         except VBARuntimeError:
-            refused = True
+            refused = refused or (value is not NULL and not isinstance(value, str))
         except VBAUnsupportedError:
             if value is not NULL and not isinstance(value, str):
                 raise

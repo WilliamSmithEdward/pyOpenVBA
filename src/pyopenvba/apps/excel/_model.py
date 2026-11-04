@@ -7988,6 +7988,9 @@ class WorksheetFunction(ExcelObject):
     """
 
     vba_type_name = "WorksheetFunction"
+    #: Whether the call under way reached this through a variable of no particular type, which the interpreter says.
+    vba_wants_binding = True
+    late_bound = False
 
     def __init__(self, application: Application) -> None:
         self.application = application
@@ -7997,7 +8000,7 @@ class WorksheetFunction(ExcelObject):
         from pyopenvba.interpreter._inventory import member_exists
 
         if engine_name(name) is not None and member_exists("WorksheetFunction", name, "excel"):
-            return call(self.application, name, args, named, raising=True)
+            return call(self.application, name, args, named, raising=True, late=self.late_bound)
         spec = self.vba_member(name)
         if spec is None:
             # A sheet function WorksheetFunction does not carry, If or Sin, is no member either (error 438).

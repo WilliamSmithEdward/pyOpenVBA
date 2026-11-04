@@ -172,6 +172,9 @@ name looking like a cell is not read as the cell.
     sign is ¥, three numbers are the year, the month and the day and
     nothing else, and a month's name reports itself unsupported
     (`tests/fixtures/excel_locale_live.json`).
+20. **CONFIDENCE to the last digit.** `distributions.py` takes the normal quantile
+    from `statistics.NormalDist().inv_cdf`, which matches Excel where the quantile
+    used before did not (`tests/fixtures/excel_everyday_15.json`).
 19. **FILTERXML and PHONETIC.** `xpath.py` is an XPath 1.0 engine for FILTERXML,
     which reads what it selects as typing it into a cell would; a document with a
     DOCTYPE fails. PHONETIC is #N/A, the answer for a cell a macro wrote; the model

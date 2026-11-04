@@ -6,7 +6,7 @@ for what the dumps do not hold:
 
     src/pyopenvba/interpreter/_inventory_data.py   every class's members
     src/pyopenvba/apps/excel/_constants_data.py    every xl / vb constant
-    src/pyopenvba/interpreter/_type_library.json   how each member is called
+    src/pyopenvba/interpreter/_type_library_data.py   how each member is called
 
 The inventory is what lets an unknown member be answered honestly: a
 member the real Worksheet has is a gap in pyOpenVBA, and one it has not
@@ -40,7 +40,7 @@ CONSTANTS_OUT = ROOT / "src" / "pyopenvba" / "interpreter" / "_constants_data.py
 #: VBA's constants read from its own type library (scripts/dump_vba_typelib_constants.py): the dumps leave out
 #: ColorConstants, KeyCodeConstants, SystemColorConstants, VbQueryClose and FormShowConstants.
 VBA_TYPELIB = ROOT / "scripts" / "vba_typelib_constants.json"
-TYPE_LIBRARY_OUT = ROOT / "src" / "pyopenvba" / "interpreter" / "_type_library.json"
+TYPE_LIBRARY_OUT = ROOT / "src" / "pyopenvba" / "interpreter" / "_type_library_data.py"
 #: The libraries whose calls the compiler checks, in the order a project looks in them: registered id and version.
 TYPE_LIBRARIES = {
     "excel": ("{00020813-0000-0000-C000-000000000046}", 1, 9),
@@ -290,8 +290,9 @@ def write_type_library() -> None:
         print(f"no pywin32: {TYPE_LIBRARY_OUT.name} left as it is")
         return
     versions: dict[str, str] = {}
-    lines: list[str] = []
     build = ""
+    aliases: list[str] = []
+    classes: list[str] = []
     for name, (guid, major, minor) in TYPE_LIBRARIES.items():
         library = pythoncom.LoadRegTypeLib(guid, major, minor, 0)
         attributes = library.GetLibAttr()
@@ -301,14 +302,35 @@ def write_type_library() -> None:
             path = pythoncom.QueryPathOfRegTypeLib(guid, major, minor, 0).rstrip("\0")
             found = win32api.GetFileVersionInfo(path, "\\")
             build = f"{found['FileVersionMS'] >> 16}.{found['FileVersionMS'] & 0xFFFF}.{found['FileVersionLS'] >> 16}.{found['FileVersionLS'] & 0xFFFF}"
-        classes = cast("dict[str, object]", table["classes"])
-        lines.append(f'"{name}": {{"aliases": {json.dumps(table["aliases"], sort_keys=True)}, "classes": {{')
-        lines.append(",\n".join(f"{json.dumps(key)}: {json.dumps(classes[key], separators=(',', ':'))}" for key in sorted(classes)))
-        lines.append("}}")
-    head = f'{{"excel_build": {json.dumps(build)}, "versions": {json.dumps(versions, sort_keys=True)}, "libraries": {{\n'
-    body = "\n".join(line + ("," if line == "}}" else "") for line in lines).rstrip(",")
-    TYPE_LIBRARY_OUT.write_text(head + body + "\n}}\n", encoding="utf-8", newline="\n")
-    print(f"{len(TYPE_LIBRARIES)} libraries, Excel {build} -> {TYPE_LIBRARY_OUT.relative_to(ROOT)} ({TYPE_LIBRARY_OUT.stat().st_size} bytes)")
+        held = cast("dict[str, object]", table["classes"])
+        aliases.append(f"    {name!r}: {table['aliases']!r},")
+        classes.extend(f"    {name + ':' + key!r}: {json.dumps(held[key], separators=(',', ':'))!r}," for key in sorted(held))
+    lines = [
+        '"""How the members of each class are called, generated from the registered type libraries.',
+        "",
+        "Written by scripts/build_object_inventory.py.  Do not edit by hand.",
+        "",
+        "One JSON string per class, read the first time that class is asked for,",
+        "because the thousands of members cost more to build at import than a",
+        "compile ever uses.",
+        '"""',
+        "",
+        "from __future__ import annotations",
+        "",
+        f"EXCEL_BUILD = {build!r}",
+        f"VERSIONS: dict[str, str] = {versions!r}",
+        "",
+        "ALIASES: dict[str, dict[str, str]] = {",
+        *aliases,
+        "}",
+        "",
+        "CLASSES: dict[str, str] = {",
+        *classes,
+        "}",
+        "",
+    ]
+    TYPE_LIBRARY_OUT.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    print(f"{len(classes)} classes, Excel {build} -> {TYPE_LIBRARY_OUT.relative_to(ROOT)} ({TYPE_LIBRARY_OUT.stat().st_size} bytes)")
 
 
 def main() -> int:

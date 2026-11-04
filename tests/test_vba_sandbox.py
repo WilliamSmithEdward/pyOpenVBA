@@ -178,7 +178,6 @@ _BEHIND_A_GATE = {
     ('interpreter/_files.py', 'attributes_of'),  # Open, Kill, FileCopy, GetAttr
     ('interpreter/_files.py', 'read_only'),  # Open, Kill, FileCopy
     ('apps/excel/_vba_save.py', '_open_zip'),  # the bytes already in memory
-    ('interpreter/_type_library.py', '_table'),  # the package's own table, no path a macro chose
 }
 
 

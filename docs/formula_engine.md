@@ -180,3 +180,7 @@ name looking like a cell is not read as the cell.
     range whose corners have crossed, top-left first, each axis on its own
     and each dollar sign staying with its value: `=SUM($D$3:D4)` copied up
     three rows is `=SUM($D1:D$3)` (`tests/fixtures/range_audit.json`).
+19. **What a deleted sheet leaves.** The lexer reads `#REF!A1`, `#REF!$A$1:$B$2`
+    and the like as the error alone, as Excel reads what `=Gone!A1` becomes when
+    the sheet goes, and `Evaluator` gives `#NAME?` for `[0]!Name`, this
+    workbook's name with its sheet gone (`tests/fixtures/sheet_delete_refs.json`).

@@ -313,7 +313,11 @@ def set_session_value(book: Workbook, name: str, value: object) -> None:
     kind = SETTABLE.get(name)
     if kind is None:
         raise VBAUnsupportedError(f"Workbook.{name} set is not implemented")
-    book.session_properties[name] = to_bool(value) if kind is bool else int(to_integer(value))
+    answer = to_bool(value) if kind is bool else int(to_integer(value))
+    if name == "ConflictResolution" and answer not in (1, 2):
+        # 3 too, on a workbook that is not shared (tests/fixtures/settable_audit.json).
+        raise error(1004, "Application-defined or object-defined error")
+    book.session_properties[name] = answer
 
 
 #: xlBordersIndex by the side a style's element names, and each line's LineStyle and Weight.

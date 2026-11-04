@@ -454,8 +454,17 @@ class Shape:
     #: Excel: LockAspectRatio once set, None until then; Locked.
     lock_aspect: bool | None = None
     locked: bool = True
-    #: Excel: a new picture's image file and, once saved, its relationship in the drawing part.
+    #: Excel: a new picture's image file, the extension its part takes, and what PictureFormat set: brightness and contrast
+    #: as the file's lum values (None until either is set), its ColorType, the colour made transparent as RRGGBB, and
+    #: whether TransparentBackground is on (tests/fixtures/shape_picture_formats.json).
     image: bytes | None = None
+    image_extension: str = "png"
+    picture_lum: tuple[int, int] | None = None
+    picture_colour_type: int = 1
+    picture_clear: str | None = None
+    picture_transparent: bool = True
+    #: Setting TransparentBackground writes a fill behind the picture: clear when on, the style's when off.
+    picture_fill: str | None = None
     image_relationship: str = ""
     #: Excel: Shape.Apply has written the empty text's format out.
     painted: bool = False

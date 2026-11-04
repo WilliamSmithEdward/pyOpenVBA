@@ -37,6 +37,7 @@ out no panes, and a freeze it saves there has no split in it.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final
 
@@ -53,6 +54,7 @@ from pyopenvba.interpreter._values import (
     EMPTY,
     ERR_SUBSCRIPT_OUT_OF_RANGE,
     MISSING,
+    NULL,
     VBAInt,
     error,
     to_bool,
@@ -145,6 +147,8 @@ class BookViewState:
     date_grouping: bool = True
     #: What Caption was set to; the workbook's name until it is.
     caption: str | None = None
+    #: The procedure Window.OnWindow names, which nothing here runs: no user activates a window.
+    on_window: str = ""
     #: WindowState, Left, Top, Width and Height once a macro sets them; before, they are the screen's.
     state: int | None = None
     left: float | None = None
@@ -219,6 +223,10 @@ def _number(text: str | None, default: int) -> int:
         return int(text) if text else default
     except ValueError:
         return default
+
+
+#: What Window.Caption holds before error 1004 (tests/fixtures/member_audit.json).
+CAPTION_LIMIT = 200
 
 
 def _flag(text: str | None, default: bool) -> bool:
@@ -677,6 +685,32 @@ class Pane(ExcelObject):
     def Application(self) -> object:
         return self.window.book.application
 
+    @method
+    def Activate(self) -> object:
+        return True
+
+    @member
+    def ScrollRow(self) -> object:
+        return self.window.vba_get("ScrollRow")
+
+    @setter("ScrollRow")
+    def _set_scroll_row(self, value: object) -> None:
+        self.window.vba_set("ScrollRow", value)
+
+    @member
+    def ScrollColumn(self) -> object:
+        return self.window.vba_get("ScrollColumn")
+
+    @setter("ScrollColumn")
+    def _set_scroll_column(self, value: object) -> None:
+        self.window.vba_set("ScrollColumn", value)
+
+    @method
+    def SmallScroll(self, Down: object = MISSING, Up: object = MISSING, ToRight: object = MISSING,  # noqa: N803
+                    ToLeft: object = MISSING) -> object:  # noqa: N803
+        self.window.SmallScroll(Down, Up, ToRight, ToLeft)
+        return True
+
 
 class Panes(VBACollection, ItemDefault, ExcelObject):
     """A window's panes: one, two when it is split one way, four when both."""
@@ -698,6 +732,16 @@ class Panes(VBACollection, ItemDefault, ExcelObject):
         if pane_count(self.window.view()) == 1:
             return [Pane(self.window)]
         raise VBAUnsupportedError("a window's panes, each scrolled on its own, are not implemented; Panes.Count is")
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        """Below 1 is 1004; any number above answers the one pane, 2 measured (tests/fixtures/application_rest.json)."""
+        if int(to_integer(index, "Long")) < 1:
+            raise error(1004, "Item method of Panes class failed")
+        return items[0]
+
+    def vba_iterate(self) -> Iterator[object]:
+        """For Each over a window's panes is 438 (tests/fixtures/application_rest.json)."""
+        raise error(438, "Object doesn't support this property or method")
 
     @member
     def Count(self) -> object:
@@ -907,6 +951,19 @@ class Window(ExcelObject):
         return EMPTY
 
     @member
+    def OnWindow(self) -> object:
+        """The procedure a window's activation runs, its workbook's name before it; none set is 1004
+        (tests/fixtures/application_rest.json)."""
+        if not self.book.view.on_window:
+            raise error(1004, "Unable to get the OnWindow property of the Window class")
+        return self.book.view.on_window
+
+    @setter("OnWindow")
+    def _set_on_window(self, value: object) -> None:
+        name = to_text(value)
+        self.book.view.on_window = f"{self.book.name}!{name}" if name else ""
+
+    @member
     def ActivePane(self) -> object:
         """The one pane of a window with no split; with panes, which is active the model does not keep."""
         if pane_count(self.view()) != 1:
@@ -973,7 +1030,11 @@ class Window(ExcelObject):
 
     @setter("Caption")
     def _set_caption(self, value: object) -> None:
-        self.book.view.caption = to_text(value)
+        """Null is empty, and Excel refuses more than it holds (tests/fixtures/member_audit.json)."""
+        text = "" if value is NULL else str(value).upper() if isinstance(value, bool) else to_text(value)
+        if len(text) > CAPTION_LIMIT:
+            raise error(1004, "Unable to set the Caption property of the Window class")
+        self.book.view.caption = text
 
     @member
     def Visible(self) -> object:
@@ -1436,7 +1497,8 @@ class Window(ExcelObject):
 
     @setter("TabRatio")
     def _set_tab_ratio(self, value: object) -> None:
-        ratio = float(to_number(value))
+        """The size of a number: -0.1 is 0.1 and True is 1 (tests/fixtures/member_audit.json)."""
+        ratio = abs(float(to_number(value)))
         if not 0 <= ratio <= 1:
             raise error(1004, "Unable to set the TabRatio property of the Window class")
         self._book_changing().tab_ratio = ratio

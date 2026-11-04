@@ -98,11 +98,7 @@ def test_a_save_writes_the_table_part_excel_wrote(book: dict[str, Any], model: d
 
 
 #: Cells the model saves differently, and why.
-KNOWN: dict[str, str] = {
-    "functions/I4": "STDEV's answer is saved as 0.7071067811865476, the shortest spelling that reads back the same "
-                    "number, where Excel writes 0.70710678118654757: a cell's <v> follows a spelling rule the model "
-                    "does not have yet",
-}
+KNOWN: dict[str, str] = {}
 _SAVED = [(book, cell) for book in BOOKS for cell in _cells(book["parts"])]
 
 

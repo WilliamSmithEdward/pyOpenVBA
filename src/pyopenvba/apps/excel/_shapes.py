@@ -3814,10 +3814,6 @@ class TextRange2(_ShapeText):
         return TextRange2(self.owner, place, len(new), "Characters")
 
     @member
-    def Length(self) -> object:
-        return VBAInt(len(to_text(self.vba_get("Text"))), "Long")
-
-    @member
     def Font(self) -> object:
         if self.span()[1] == 0 and self.owner.shape.text:  # Excel sets the word around the place, by rules not worked out.
             raise _unsupported("the Font of a TextRange2 with no characters")

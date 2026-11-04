@@ -1551,10 +1551,6 @@ class ListRow(_TablePart, ExcelObject):
         #: Its own Delete took it, which leaves it nothing, whatever row comes to its place.
         self.went = False
 
-    @member
-    def Application(self) -> object:
-        return self.sheet.book.application
-
     def _past_the_end(self) -> bool:
         data = self.table.data
         return data is None or self.index > data.bottom - data.top + 1

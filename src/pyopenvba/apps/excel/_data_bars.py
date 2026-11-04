@@ -395,6 +395,14 @@ class ConditionValue(ExcelObject):
     def __init__(self, owner: Databar, index: int) -> None:
         self.owner, self.index = owner, index
 
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
     def _point(self) -> Point:
         return self.owner.bar().points[self.index]
 
@@ -462,6 +470,14 @@ class DataBarBorder(ExcelObject):
         self.owner = owner
 
     @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
     def Type(self) -> object:
         return VBAInt(1 if self.owner.bar().border else 0, 'Long')
 
@@ -479,6 +495,14 @@ class NegativeBarFormat(ExcelObject):
 
     def __init__(self, owner: Databar) -> None:
         self.owner = owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
 
     @member
     def ColorType(self) -> object:

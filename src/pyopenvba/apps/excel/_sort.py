@@ -59,6 +59,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba._opc_xml import bounded_child, opc_part
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._visible import filtering, hidden_lines, unmeasured
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -1066,7 +1067,7 @@ def refresh_filter_sort(sheet: Worksheet) -> None:
         sheet.filter_changed = True
 
 
-class SortFields(VBACollection, ExcelObject):
+class SortFields(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = "SortFields"
 
     def __init__(self, owner: SortObject) -> None:

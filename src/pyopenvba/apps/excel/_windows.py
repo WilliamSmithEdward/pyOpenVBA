@@ -37,9 +37,10 @@ out no panes, and a freeze it saves there has no split in it.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Any, Final, cast
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba._xml import attributes, tag_attributes
@@ -47,6 +48,7 @@ from pyopenvba.apps.excel import _dimensions, _events
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range, Worksheet
 from pyopenvba.apps.excel._styles import XL_AUTOMATIC
+from pyopenvba.apps.excel._window_states import SheetState, WindowPlace, bring_in, fresh_sheet, fresh_view, sheet_state
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._r1c1 import to_a1
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -88,6 +90,9 @@ _SELECTION = re.compile(r"<selection\b[^>]*/>")
 #: What a sheetView holds besides its pane and selections, which the model keeps as it was.
 _KEPT = re.compile(r"<pivotSelection\b[^>]*?(?:/>|>.*?</pivotSelection>)|<extLst\b.*?</extLst>", re.DOTALL)
 _WORKBOOK_VIEW = re.compile(r"<workbookView\b[^>]*?/?>")
+_OTHER_VIEW = re.compile(r'<sheetView\b[^>]*\bworkbookViewId="[1-9]\d*"[^>]*?(?:/>|(?<!/)>.*?</sheetView>)', re.DOTALL)
+#: How far along a new window lies from the one before it, in twips, as measured.
+_NEW_WINDOW_STEP = 345
 
 
 @dataclass
@@ -166,17 +171,26 @@ class BookViewState:
     #: The sheets the file has selected, so a save rewrites their tabs only when another group is.
     saved_selected: list[Worksheet] = field(default_factory=lambda: [])
     changed: bool = False
-    window: Window | None = None
+    #: The workbook's windows, front to back (see _window_states).
+    windows: list[Window] = field(default_factory=lambda: [])
+    #: The one whose state the workbook and its sheets hold, the one in front but while another is asked for something.
+    live: WindowPlace | None = None
+    #: Whether windows were made or closed since the file was read or saved.
+    windows_changed: bool = False
+    #: The views a file holds for the windows behind, by window (from 0) and sheet.
+    extra_views: dict[tuple[int, int], SheetState] = field(default_factory=lambda: {})
 
 
 # --- the file ------------------------------------------------------------------------------------
 
 
 def read_view(sheet: Worksheet, xml: str) -> None:
-    """A sheet's view and its selection, from the first sheetView of its part."""
+    """A sheet's view and its selection, from the first sheetView of its part; those of other windows are kept for them."""
     found = _SHEET_VIEW.search(xml)
     if found is None:
         return
+    if not xml.startswith("<sheetView"):
+        _read_other_views(sheet, xml)
     element = found.group(0)
     head = tag_attributes(element)
     view = sheet.view
@@ -222,6 +236,17 @@ def read_view(sheet: Worksheet, xml: str) -> None:
             sheet.active_cell_range = Range(sheet, [parse_area(cell, sheet=sheet.name)])
         except ValueError:
             sheet.selection_range = sheet.active_cell_range = None
+
+
+def _read_other_views(sheet: Worksheet, xml: str) -> None:
+    for found in _SHEET_VIEW.finditer(xml):
+        number = _number(tag_attributes(found.group(0)).get("workbookViewId"), 0)
+        if number:
+            held = sheet.view, sheet.selection_range, sheet.active_cell_range
+            sheet.view, sheet.selection_range, sheet.active_cell_range = fresh_sheet()
+            read_view(sheet, found.group(0))
+            sheet.book.view.extra_views[(number, id(sheet))] = (sheet.view, sheet.selection_range, sheet.active_cell_range)
+            sheet.view, sheet.selection_range, sheet.active_cell_range = held
 
 
 def _number(text: str | None, default: int) -> int:
@@ -289,6 +314,37 @@ def tabs_moved(book: Workbook) -> bool:
 
 
 def with_view(sheet: Worksheet, xml: str, *, tabs: bool) -> str:
+    """A worksheet part with a sheetView for each of the workbook's windows, as the model has them."""
+    windows = sheet.book.view.windows
+    if len(windows) < 2 and not sheet.book.view.windows_changed:
+        return _with_first_view(sheet, xml, tabs=tabs)
+    by_number = sorted(windows, key=lambda one: one.place.number)
+    with _showing(sheet, by_number[0]):
+        xml = _with_first_view(sheet, xml, tabs=tabs)
+    changed = sheet.book.view.windows_changed or any(sheet_state(sheet.book, one.place, sheet)[0].changed for one in by_number[1:])
+    if not changed:
+        return xml
+    xml = _OTHER_VIEW.sub("", xml)
+    active = any(one is sheet for one in sheet.book.selected())
+    others = ""
+    for number, window in enumerate(by_number[1:], 1):
+        with _showing(sheet, window):
+            others += _rewritten(sheet, f'<sheetView workbookViewId="{number}"/>', active)
+    return xml.replace("</sheetViews>", others + "</sheetViews>", 1)
+
+
+@contextmanager
+def _showing(sheet: Worksheet, window: Window) -> Generator[None]:
+    """The sheet with its view and selection in that window."""
+    held = sheet.view, sheet.selection_range, sheet.active_cell_range
+    sheet.view, sheet.selection_range, sheet.active_cell_range = sheet_state(sheet.book, window.place, sheet)
+    try:
+        yield
+    finally:
+        sheet.view, sheet.selection_range, sheet.active_cell_range = held
+
+
+def _with_first_view(sheet: Worksheet, xml: str, *, tabs: bool) -> str:
     """A worksheet part with its first sheetView as the model has the view: all of it when the view changed, else
     only its tab's selection when ``tabs`` says the active sheet moved."""
     view = sheet.view
@@ -418,6 +474,7 @@ def read_book_view(book: Workbook, xml: str) -> None:
                 book.active_sheet_index = book.sheets_.index(tab)
             else:
                 book.active_chart_sheet = tab
+    _read_other_windows(book, xml)
     # A group the file keeps selected, its active tab among them, stays selected.
     book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
@@ -427,15 +484,50 @@ def read_book_view(book: Workbook, xml: str) -> None:
     book.view.saved_tab = _active_place(book)
 
 
+def _read_other_windows(book: Workbook, xml: str) -> None:
+    """A window for each further workbookView, behind the first and numbered in file order."""
+    tags = _WORKBOOK_VIEW.findall(xml)
+    if len(tags) < 2:
+        return
+    window_of(book)
+    for number, tag in enumerate(tags[1:], 2):
+        head = attributes(tag)
+        kept = fresh_view(book)
+        kept.book.update(tabs=_flag(head.get("showSheetTabs"), True), horizontal_scroll=_flag(head.get("showHorizontalScroll"), True),
+                         vertical_scroll=_flag(head.get("showVerticalScroll"), True), tab_ratio=_number(head.get("tabRatio"), 600) / 1000)
+        book.view.windows.append(Window(book, WindowPlace(number, number, kept)))
+    book.view.windows[0].place.suffix = 1
+
+
+def _window_view(book: Workbook, window: Window) -> BookViewState:
+    """The workbook's view with that window's settings."""
+    kept = window.place.kept
+    return book.view if kept is None else replace(book.view, **cast("dict[str, Any]", kept.book))
+
+
 def with_book_view(book: Workbook, xml: str) -> str:
-    """A workbook part whose first workbookView has the model's tabs, scroll bars, tab ratio and active and first tabs."""
+    """A workbook part with a workbookView for each window: the model's tabs, scroll bars, tab ratio and active and first tabs."""
     found = _WORKBOOK_VIEW.search(xml)
     if found is None:
         return xml
+    windows = sorted(book.view.windows, key=lambda one: one.place.number)
     tag = found.group(0)
+    first = _book_view_tag(book, tag, _window_view(book, windows[0]) if windows else book.view)
+    rest = xml[found.end():]
+    if book.view.windows_changed:
+        rest = _WORKBOOK_VIEW.sub("", rest)
+        for number, window in enumerate(windows[1:], 1):
+            placed = re.sub(r"\s*\bxr2:uid=\"[^\"]*\"", "", first)
+            for name in ("xWindow", "yWindow"):
+                placed = re.sub(rf'\b{name}="(-?\d+)"', lambda one: f'{name}="{int(one.group(1)) + number * _NEW_WINDOW_STEP}"', placed)  # noqa: B023
+            first_of_it = _book_view_tag(book, placed, _window_view(book, window))
+            first += first_of_it
+    return xml[:found.start()] + first + rest
+
+
+def _book_view_tag(book: Workbook, tag: str, view: BookViewState) -> str:
     closing = "/>" if tag.endswith("/>") else ">"
     opening = tag[:-len(closing)].rstrip()
-    view = book.view
     ratio = round(view.tab_ratio * 1000)
     active = _active_place(book)
     for name, value in (("showHorizontalScroll", "" if view.horizontal_scroll else "0"),
@@ -446,7 +538,7 @@ def with_book_view(book: Workbook, xml: str) -> str:
                         ("activeTab", str(active) if active else ""),
                         ("autoFilterDateGrouping", "" if view.date_grouping else "0")):
         opening = with_attribute(opening, name, value, _BOOK_VIEW_ORDER)
-    return xml[:found.start()] + opening + closing + xml[found.end():]
+    return opening + closing
 
 
 def saved(book: Workbook) -> None:
@@ -454,6 +546,10 @@ def saved(book: Workbook) -> None:
     for sheet in book.sheets_:
         sheet.view.changed = False
     book.view.changed = False
+    book.view.windows_changed = False
+    for window in book.view.windows:
+        for sheet in book.sheets_:
+            sheet_state(book, window.place, sheet)[0].changed = False
     book.view.saved_active = book.active_sheet
     book.view.saved_selected = book.selected()
     book.view.saved_tab = _active_place(book)
@@ -634,14 +730,62 @@ def print_out(book: Workbook, sheet: Worksheet | None, preview: object, printer:
 
 
 def window_of(book: Workbook) -> Window:
-    """The workbook's one window, the same object each time it is asked for."""
-    if book.view.window is None:
-        book.view.window = Window(book)
-    return book.view.window
+    """The workbook's window in front, the same object each time it is asked for."""
+    if not book.view.windows:
+        window = Window(book)
+        book.view.windows.append(window)
+        book.view.live = window.place
+    return book.view.windows[0]
+
+
+def all_windows(application: Application) -> list[Window]:
+    """Every window, the windows of each workbook together, as the model keeps no order across workbooks but theirs."""
+    return [window for book in front_to_back(application) for window in windows_of(book)]
+
+
+def windows_of(book: Workbook) -> list[Window]:
+    window_of(book)
+    return list(book.view.windows)
+
+
+def new_window(book: Workbook) -> Window:
+    """Workbook.NewWindow: a window at the front, showing the sheet of the one that was."""
+    window_of(book)
+    windows = book.view.windows
+    place = WindowPlace(1 + max(one.place.number for one in windows), 1 + sum(one.default_caption() for one in windows), fresh_view(book))
+    # The window that was in front goes to the back: three windows run 3, 1, 2.
+    windows[:] = [Window(book, place), *windows[1:], windows[0]]
+    bring_in(book, place)
+    book.view.windows_changed = True
+    book.application.activate_book(book)
+    # The macro holds an object of its own, which is not ActiveWindow, though it is that window.
+    return Window(book, place)
+
+
+def activate_window(window: Window) -> None:
+    """A window to the front, and its workbook with it."""
+    book = window.book
+    windows = book.view.windows
+    bring_in(book, window.place)
+    order = [one for one in windows if one.place is not window.place]
+    held = next(one for one in windows if one.place is window.place)
+    windows[:] = [held, *order]
+    book.application.activate_book(book)
+
+
+def _renumbered(book: Workbook) -> None:
+    """Numbers close up over a window gone, in the order they were made, and so do the numbers captions show."""
+    by_number = sorted(book.view.windows, key=lambda one: one.place.number)
+    suffix = 0
+    for number, window in enumerate(by_number, 1):
+        window.place.number = number
+        if window.default_caption():
+            suffix += 1
+            window.place.suffix = suffix
 
 
 class Windows(VBACollection, ItemDefault, ExcelObject):
-    """Application.Windows, front to back, or Workbook.Windows, the one window a workbook has."""
+    """Application.Windows, front to back, or Workbook.Windows, a workbook's own."""
 
     vba_type_name = "Windows"
 
@@ -650,8 +794,9 @@ class Windows(VBACollection, ItemDefault, ExcelObject):
         self.book = book
 
     def vba_items(self) -> list[object]:
-        books = ([] if self.book.is_addin else [self.book]) if self.book is not None else front_to_back(self.application)
-        return [window_of(book) for book in books]
+        if self.book is None:
+            return list(all_windows(self.application))
+        return [] if self.book.is_addin else list(windows_of(self.book))
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
@@ -699,7 +844,26 @@ def pane_count(view: SheetViewState) -> int:
     return 4 if view.rows and view.columns else 2
 
 
-class Pane(ExcelObject):
+class _OfWindow(ExcelObject):
+    """Something of a window, which answers with that window's state whichever is in front."""
+
+    vba_type_name = ""
+    window: Window
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        with self.window.brought():
+            return super().vba_get(name, args, named)
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
+        with self.window.brought():
+            super().vba_set(name, value, args, named, by_ref=by_ref)
+
+    def vba_call(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        with self.window.brought():
+            return super().vba_call(name, args, named)
+
+
+class Pane(_OfWindow):
     """The one pane of a window with no split (tests/fixtures/window_members.json)."""
 
     vba_type_name = "Pane"
@@ -746,7 +910,7 @@ class Pane(ExcelObject):
         return True
 
 
-class Panes(VBACollection, ItemDefault, ExcelObject):
+class Panes(VBACollection, ItemDefault, _OfWindow):
     """A window's panes: one, two when it is split one way, four when both."""
 
     vba_type_name = "Panes"
@@ -782,7 +946,7 @@ class Panes(VBACollection, ItemDefault, ExcelObject):
         return VBAInt(pane_count(self.window.sheet().view), "Long")
 
 
-class SheetViews(VBACollection, ItemDefault, ExcelObject):
+class SheetViews(VBACollection, ItemDefault, _OfWindow):
     """A window's view of each of its workbook's sheets, in tab order whichever are selected
     (tests/fixtures/sheet_views.json)."""
 
@@ -814,7 +978,7 @@ class SheetViews(VBACollection, ItemDefault, ExcelObject):
         return items[place - 1]
 
 
-class WorksheetView(ExcelObject):
+class WorksheetView(_OfWindow):
     """How a window shows one sheet: the view settings the window shows while that sheet is active, held for the
     sheet whichever one is (tests/fixtures/sheet_views.json)."""
 
@@ -897,26 +1061,76 @@ class WorksheetView(ExcelObject):
         self.window.show_outline(value, self.sheet)
 
 
+#: What a window does for itself, not by having its state brought in for the while.
+_WINDOW_TURNS = frozenset({"activate", "activatenext", "activateprevious", "close", "newwindow", "parent", "application", "creator"})
+
+
 class Window(ExcelObject):
-    """A workbook's window, which shows its active sheet."""
+    """A window of a workbook, which shows its active sheet (see _window_states for a workbook with several)."""
 
     vba_type_name = "Window"
 
-    def __init__(self, book: Workbook) -> None:
+    def __init__(self, book: Workbook, place: WindowPlace | None = None) -> None:
         self.book = book
+        self.place = place or WindowPlace()
+
+    @contextmanager
+    def brought(self) -> Generator[None]:
+        """While the workbook and its sheets hold this window's state, whichever is in front."""
+        live = self.book.view.live
+        if live is None or live is self.place:
+            yield
+            return
+        bring_in(self.book, self.place)
+        try:
+            yield
+        finally:
+            bring_in(self.book, live)
+
+    def _alive(self) -> None:
+        if self.place.gone:
+            raise VBAUnsupportedError("A window that has closed, while its workbook stays open, is not implemented")
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        self._alive()
+        if name.lower() in _WINDOW_TURNS:
+            return super().vba_get(name, args, named)
+        with self.brought():
+            return super().vba_get(name, args, named)
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
+        self._alive()
+        with self.brought():
+            super().vba_set(name, value, args, named, by_ref=by_ref)
+
+    def vba_call(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        self._alive()
+        if name.lower() in _WINDOW_TURNS:
+            return super().vba_call(name, args, named)
+        with self.brought():
+            return super().vba_call(name, args, named)
 
     def sheet(self) -> Worksheet:
-        sheet = self.book.active_sheet
+        with self.brought():
+            sheet = self.book.active_sheet
         if sheet is None:
             raise error(1004, "the window shows no sheet")
         return sheet
 
     def view(self) -> SheetViewState:
-        return self.sheet().view
+        with self.brought():
+            return self.sheet().view
+
+    def default_caption(self) -> bool:
+        with self.brought():
+            return self.book.view.caption is None
 
     def caption(self) -> str:
-        caption = self.book.view.caption
-        return self.book.name if caption is None else caption
+        with self.brought():
+            caption = self.book.view.caption
+        if caption is not None:
+            return caption
+        return self.book.name if len(self.book.view.windows) < 2 else f"{self.book.name}  -  {self.place.suffix}"
 
     def _changing(self, sheet: Worksheet | None = None) -> SheetViewState:
         """The view a setter changes, the active sheet's unless ``sheet`` is given; panes the model does not lay out
@@ -977,12 +1191,17 @@ class Window(ExcelObject):
 
     @member
     def Index(self) -> object:
-        return VBAInt(front_to_back(self.book.application).index(self.book) + 1, "Long")
+        order = [one.place for one in all_windows(self.book.application)]
+        return VBAInt(next(at for at, one in enumerate(order, 1) if one is self.place), "Long")
 
     @method
     def Activate(self) -> object:
-        self.book.application.activate_book(self.book)
+        activate_window(self)
         return EMPTY
+
+    @method
+    def NewWindow(self) -> object:
+        return new_window(self.book)
 
     @member
     def OnWindow(self) -> object:
@@ -1026,8 +1245,20 @@ class Window(ExcelObject):
     @method
     def Close(self, SaveChanges: object = MISSING, Filename: object = MISSING,  # noqa: N803
               RouteWorkbook: object = MISSING) -> object:  # noqa: N803
-        """A workbook's only window closed: the workbook closes (tests/fixtures/more_events.json)."""
-        self.book.Close(SaveChanges, Filename, RouteWorkbook)
+        """A workbook's only window closed: the workbook closes (tests/fixtures/more_events.json); with others left, it stays."""
+        windows = self.book.view.windows
+        if len(windows) < 2:
+            self.book.Close(SaveChanges, Filename, RouteWorkbook)
+            return True
+        if (SaveChanges, Filename, RouteWorkbook) != (MISSING, MISSING, MISSING):
+            raise VBAUnsupportedError("Window.Close with arguments, with other windows of its workbook left, is not implemented")
+        left = [one for one in windows if one.place is not self.place]
+        if self.book.view.live is self.place:
+            bring_in(self.book, left[0].place)
+        windows[:] = left
+        self.place.gone = True
+        self.book.view.windows_changed = True
+        _renumbered(self.book)
         return True
 
     @method
@@ -1050,10 +1281,9 @@ class Window(ExcelObject):
         return self._stepped(-1)
 
     def _stepped(self, step: int) -> object:
-        application = self.book.application
-        order = front_to_back(application)
-        if len(order) > 1 and order[0] is self.book:
-            application.activate_book(order[step])
+        order = all_windows(self.book.application)
+        if len(order) > 1 and order[0].place is self.place:
+            activate_window(order[step])
         return True
 
     # -- the window itself
@@ -1315,8 +1545,7 @@ class Window(ExcelObject):
 
     @member
     def WindowNumber(self) -> object:
-        """1: the model keeps one window a workbook."""
-        return VBAInt(1, "Long")
+        return VBAInt(self.place.number, "Long")
 
     @member
     def Type(self) -> object:

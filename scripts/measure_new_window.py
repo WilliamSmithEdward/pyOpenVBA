@@ -123,6 +123,17 @@ Public Function Tried(ByVal name As String, ByVal binding As String, ByVal folde
     Tried = Replace(s, ThisWorkbook.Name, "<HOME>")
 End Function
 '''
+READER = '''Public Function ReadBack(ByVal path As String) As String
+    Dim wb As Workbook, w As Object, s As String
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Open(path, 0)
+    For Each w In wb.Windows
+        s = s & w.Caption & "#" & w.WindowNumber & "#" & w.ActiveSheet.Name & "|"
+    Next
+    wb.Close False
+    ReadBack = s
+End Function
+'''
 MODEL = '''
 Public Function InModel(ByVal name As String, ByVal binding As String, ByVal folder As String) As String
     Dim wb As Workbook, before As Long, books As Long
@@ -167,6 +178,9 @@ def main() -> None:
                     done = excel.run_vba(module + DRIVER, 'Tried', (name, binding, folder), timeout=40.0, line_numbers=False)
                     answer = masked(str(done.value).replace(folder, '<DIR>')) if done.ok else f'failed {done.outcome} {[one.message[:80] for one in done.dialogs]}'
                     files = {path.name: saved(path) for path in Path(folder).glob('*.xlsx')}
+                    own = next(iter(Path(folder).glob('*.xlsx')), None)
+                    read = excel.run_vba(READER, 'ReadBack', (str(own),), timeout=40.0, line_numbers=False) if own else None
+                    reads_own = masked(str(read.value)) if read is not None and read.ok else ''
                 app = ExcelApplication()
                 app.add_workbook()
                 app.interpreter.sandbox = False
@@ -176,7 +190,11 @@ def main() -> None:
                         model = masked(str(app.run('Probe.InModel', name, binding, folder)).replace(folder, '<DIR>'))
                     except VBAError as failed:
                         model = f'refused {str(failed)[:60]}'
-                cases.append({'name': name, 'binding': binding, 'excel': answer, 'files': files})
+                    # What Excel makes of the model's file: its windows, and each one's caption and sheet.
+                    mine = next(iter(Path(folder).glob('*.xlsx')), None)
+                    read = excel.run_vba(READER, 'ReadBack', (str(mine),), timeout=40.0, line_numbers=False) if mine else None
+                    reads_model = masked(str(read.value)) if read is not None and read.ok else ''
+                cases.append({'name': name, 'binding': binding, 'excel': answer, 'files': files, 'excel_reads_own': reads_own, 'excel_reads_model': reads_model})
                 print('same' if model == answer else 'DIFF', name, binding, answer[:120], '|', model[:50], flush=True)
     OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'source': module + MODEL, 'cases': cases}, indent=1) + '\n', encoding='utf-8')
 

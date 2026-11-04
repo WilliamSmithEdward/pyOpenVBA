@@ -33,7 +33,7 @@ from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.formula._parse import without_dangling_references
-from pyopenvba.formula._prefixes import calculated_always
+from pyopenvba.formula._prefixes import calculated_always, calls_only_ordinary_functions
 from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
 from pyopenvba.powerquery._opc import OpcFile
@@ -1571,6 +1571,8 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
 
     settle_manual(book)
     calculate_for_save(book)
+    # Worked out once for the save, when a sheet first asks, from the formulas as they now stand.
+    book.calculator.volatile_readers = None
     from pyopenvba.apps.excel._sort import preflight_save
 
     preflight_save(book)
@@ -2284,6 +2286,22 @@ def _plain_conditional(sheet: Worksheet) -> bool:
     return sheet.conditional_changed or any(rule.loaded and canonical_load(rule) for rule in sheet.conditional_formats)
 
 
+def _reading_volatile(sheet: Worksheet) -> set[tuple[int, int]]:
+    """The cells of a sheet a file marks ca="1" for what they read (see Calculator.reading_volatile)."""
+    book = sheet.book
+    keys = book.calculator.volatile_readers
+    if keys is None:
+        knows = _knows(book)
+
+        def marked_for_itself(formula: str) -> bool:
+            return not calls_only_ordinary_functions(formula) and calculated_always(formula, knows)
+
+        keys = book.calculator.reading_volatile(marked_for_itself)
+        book.calculator.volatile_readers = keys
+    name = sheet.name.lower()
+    return {(row, column) for owner, row, column in keys if owner == name}
+
+
 def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector: Collector | None = None) -> str:
     """The sheet's XML with the model's cells written into it; ``collector`` gathers the metadata its dynamic-array
     formulas need, which the save writes after every sheet."""
@@ -2313,7 +2331,8 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
     def always(formula: str) -> bool:
         return calculated_always(formula, knows)
 
-    formulas = formula_elements(sheet, spell, always) | elements(sheet, spell, always)
+    marked = _reading_volatile(sheet)
+    formulas = formula_elements(sheet, spell, always, marked) | elements(sheet, spell, always, marked)
     automatic = sheet.book.calculator.automatic
     #: Whether a formula keeps its last value in the file though it is to be worked out again, as in manual
     #: calculation and on a sheet whose EnableCalculation is False (tests/fixtures/worksheet_settings.json).
@@ -2352,7 +2371,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
                                                                       collector or Collector())
     for position, cell in sheet.cells_.items():
         if cell.formula and position not in formulas:
-            volatile = ' ca="1"' if always(cell.formula) else ""
+            volatile = ' ca="1"' if always(cell.formula) or position in marked else ""
             formulas[position] = f"<f{volatile}>{spell(cell.formula[1:])}</f>"
         dirty = cell.stale if cell.save_dirty is None else cell.save_dirty
         if cell.formula and dirty and not sheet.book.calculator.automatic \
@@ -2670,6 +2689,7 @@ def _sheet_with_values(sheet: Worksheet, xml: str, strings: list[str]) -> str:
         return xml
     automatic = sheet.book.calculator.automatic
     keeping = not automatic or not sheet.enable_calculation
+    reading = _reading_volatile(sheet)
     # In semi-automatic calculation a data table keeps its last values until a calculation is asked for.
     held = [table.area for table in sheet.data_tables.values()] if sheet.book.application.calculation == 2 else []
 
@@ -2684,7 +2704,7 @@ def _sheet_with_values(sheet: Worksheet, xml: str, strings: list[str]) -> str:
         if cell is None or not cell.formula:
             return element
         kept = keeping or any(area.top <= row <= area.bottom and area.left <= column <= area.right for area in held)
-        marked = not automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)
+        marked = (not automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)) or (row, column) in reading
         kind = _CELL_KIND.search(head)
         if not marked and (row, column) in sheet.marked_to_calculate:
             # Worked out since a save marked it, so Excel has no more need to, and writes it without the mark.

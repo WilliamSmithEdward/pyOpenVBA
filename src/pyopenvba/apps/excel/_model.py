@@ -108,6 +108,11 @@ class ExcelObject(Created):
     vba_library = _LIBRARY
     invalidated = False
 
+    def vba_given(self, name: str, value: object) -> object:
+        from pyopenvba.apps.excel._given_values import given
+
+        return given(self, name, value)
+
     def _check_alive(self) -> None:
         if any(getattr(owner, "invalidated", False) for owner in
                (self, getattr(self, "sheet", None), getattr(self, "entry", None), getattr(self, "target", None))):

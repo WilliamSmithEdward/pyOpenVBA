@@ -20,7 +20,7 @@ from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, DATA_TABLE_WITHOUT_KEYS, LABEL_POSITIONS,
                                              CT_CHART, SeriesData, cache_markup,
                                              chart_frame, chart_part, legend_markup, text_properties)
-from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, PointState, Series, page_markup,
+from pyopenvba.apps.excel._charts import (DATA_TABLE_LOOK, MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, PointState, Series, page_markup,
                                           SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           categories_gone, category_levels, linked_title, lost, referenced_values,
@@ -810,7 +810,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         for tag, shown in zip(('Horz', 'Vert', 'Outline'), state.data_table_borders, strict=True):
             name = f'show{tag}' if tag == 'Outline' else f'show{tag}Border'
             table = table.replace(f'<c:{name} val="1"/>', f'<c:{name} val="{int(shown)}"/>')
-        table = table.replace('</c:dTable>', text_properties(state.element_fonts.get('dataTable')) + '</c:dTable>')
+        look = element_markup(DATA_TABLE_LOOK, state.element_looks.get(DATA_TABLE_LOOK))
+        table = table.replace('</c:dTable>', look + text_properties(state.element_fonts.get('dataTable')) + '</c:dTable>')
         xml = xml.replace('</c:plotArea>', table + '</c:plotArea>', 1)
     # The plot area's look follows all of that, and the chart area's follows the chart
     # (tests/fixtures/chart_element_format.json).

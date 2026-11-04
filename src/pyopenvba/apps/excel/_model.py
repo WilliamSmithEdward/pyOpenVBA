@@ -1782,6 +1782,9 @@ class Workbook(ExcelObject):
         self.held_kinds: set[str] = set()
         #: What the file's query tables said when read or last saved, None where it has none (see _query_tables).
         self.query_baseline: list[str] | None = None
+        #: The connections of the workbook's query tables, and the names a deletion cost the file (see _query_tables).
+        self.text_links: list[Any] = []
+        self.query_names_lost: list[Any] = []
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
         #: None until a formula is written, when the formulas it has teach it.
@@ -2334,10 +2337,6 @@ class Workbook(ExcelObject):
         """The data connections the file keeps (see _connections)."""
         from pyopenvba.apps.excel._connections import Connections
 
-        from pyopenvba.apps.excel._query_tables import connections_stale
-
-        if connections_stale(self):
-            raise VBAUnsupportedError("Workbook.Connections with a query table changed since the file was read is not implemented")
         return Connections(self)
 
     @member
@@ -3001,8 +3000,10 @@ class Workbook(ExcelObject):
         (tests/fixtures/pivot_shared_caches/ refresh_all_three, refresh_all_reordered, refresh_all_disabled;
         tests/fixtures/calculate_order.json refresh_all_once)."""
         from pyopenvba.apps.excel._pivot_refresh import refresh as refresh_cache
+        from pyopenvba.apps.excel._query_tables import refresh_all
         from pyopenvba.apps.excel._refresh import refresh
 
+        refresh_all(self)
         for entry in list(self.queries_.entries):
             refresh(self, entry.name)
         used = {id(table.cache) for sheet in self.sheets_ for table in sheet.pivot_tables}

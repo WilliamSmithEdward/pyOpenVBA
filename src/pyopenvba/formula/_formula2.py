@@ -129,6 +129,11 @@ class UnreadFormula2Error(FormulaError):
     """A formula whose Formula2 the model does not work out."""
 
 
+def _is_at(node: Node | None) -> bool:
+    """Whether ``node`` is an @, or the call of SINGLE that is the same thing."""
+    return isinstance(node, Unary) and node.op == "@" or isinstance(node, Call) and function_key(node.name) == "SINGLE"
+
+
 @dataclass
 class _Walk:
     starts: dict[int, int]
@@ -216,7 +221,7 @@ class _Walk:
             if node.op in (":", " ", ","):
                 left = self.visit(node.left, WHOLE)
                 self.visit(node.right, WHOLE)
-                if isinstance(node.right, Unary) and node.right.op == "@" and node.op != ":":
+                if _is_at(node.right) and node.op != ":":
                     # =A1 @A2 and =A1,@A2 read back as they are; =A1:@A2 is a range all the same, and =SUM(A1:A2) @A2 as its
                     # left is (tests/fixtures/value_gaps.json).
                     unknown = isinstance(node.left, NameNode) or isinstance(node.left, Call) and function_key(node.left.name) not in _CHOICES
@@ -239,7 +244,7 @@ class _Walk:
                                                  or isinstance(node.operand, Binary) and node.operand.op == " " and not node.operand.grouped):
             marks, merged = set(self.marks), set(self.merged)
             operand = node.operand
-            on_at = isinstance(operand, Binary) and operand.op != ":" and isinstance(operand.right, Unary) and operand.right.op == "@"
+            on_at = isinstance(operand, Binary) and operand.op != ":" and _is_at(operand.right)
             if self._many(operand, VALUE) and self._takes(operand) and not on_at:
                 self.merged.add(self.starts[id(node)])
                 return False

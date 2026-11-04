@@ -506,7 +506,8 @@ class Context:
             return self.evaluate(node)
         value = self._reference_operand(held)
         if not isinstance(value, Reference):
-            return value if isinstance(value, CellError) else VALUE
+            # What is no reference at all is no worse than an error on the other side: =@SUM(A1),foo is #NAME?.
+            return value
         area = value.area
         if area is None:
             return REF if value.three_d else VALUE

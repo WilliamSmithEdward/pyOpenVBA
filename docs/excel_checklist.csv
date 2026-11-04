@@ -225,7 +225,7 @@ Application,ProtectedViewWindowOpen,event,ProtectedViewWindowOpen(Pvw As Protect
 Application,ProtectedViewWindowResize,event,ProtectedViewWindowResize(Pvw As ProtectedViewWindow),,MISSING,,
 Application,ProtectedViewWindows,"property, read-only",As ProtectedViewWindows,,PARTIAL,tests/fixtures/application_undo.json; tests/test_excel_application_undo.py,Count 0.
 Application,QuickAnalysis,"property, read-only",As QuickAnalysis,,MISSING,,
-Application,Quit,method,Quit(),,UNASSESSED,,
+Application,Quit,method,Quit(),,UNASSESSED,,Not measured: it ends the harness's own Excel before an answer can come back
 Application,Range,"property, read-only",As Range,,PARTIAL,tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,"Takes cells on another sheet, which the Range then belongs to; corners on two sheets are error 1004."
 Application,Ready,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/application_settings_more.json; tests/test_excel_application_settings_more.py,Reads True.
 Application,RecentFiles,"property, read-only",As RecentFiles,,MISSING,,
@@ -297,12 +297,12 @@ Application,UseClusterConnector,property,As Boolean,no setter,PARTIAL,tests/fixt
 Application,UsedObjects,"property, read-only",As UsedObjects,,MISSING,,
 Application,UserControl,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,UserLibraryPath,"property, read-only",As String,,MISSING,,
-Application,UserName,property,As String,,UNASSESSED,,
+Application,UserName,property,As String,,UNASSESSED,,Not measured: setting it writes to the measuring user's Office profile
 Application,UseSystemSeparators,property,As Boolean,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Reads True; turning it off changes nothing shown, since the custom separators are the system's."
 Application,Value,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,Microsoft Excel.
 Application,VBE,"property, read-only",As VBE,,MISSING,,
 Application,Version,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Application,Visible,property,As Boolean,,UNASSESSED,,
+Application,Visible,property,As Boolean,,UNASSESSED,,"Not measured: setting it shows Excel on the measuring user's screen, and the harness keeps it hidden"
 Application,Volatile,method,Volatile([Volatile As Variant]),,PARTIAL,tests/fixtures/excel_udf_volatility.json,Native UDF registration and opt-out; cached reads and calculation scopes; wider lifetime and scheduling remain incomplete
 Application,Wait,method,Wait(Time As Variant) As Boolean,,PARTIAL,tests/test_excel_save_copy_as.py,"Returns True at once; a frozen clock (freeze_clock) moves on to Time, the real clock is not waited on"
 Application,WarnOnFunctionNameConflict,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."

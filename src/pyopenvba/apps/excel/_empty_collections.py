@@ -4,7 +4,7 @@ workbook has them (scripts/measure_empty_collections.py, tests/fixtures/empty_co
 
 Each counts nothing, and asking for an item is the error Excel gives, which differs between them and between a
 number and a name. A workbook loaded with any of these in it is refused rather than read as empty: the loader notes
-the kinds of part a workbook and each sheet came with (see _io), and a chart sheet or an Excel 4 macro sheet stops
+the kinds of part a workbook and each sheet came with (see _io), and an Excel 4 macro sheet stops
 the load itself.
 """
 from __future__ import annotations

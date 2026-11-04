@@ -30,8 +30,8 @@ def _name(sheet: Worksheet, scope: str, name: str) -> tuple[NameEntry, str] | No
         local_id = stored.get("localSheetId")
         if not owner and local_id is not None and local_id.isdigit():
             index = int(local_id)
-            if index < len(sheet.book.sheets_):
-                owner = sheet.book.sheets_[index].name
+            if index < len(sheet.book.tabs()):
+                owner = sheet.book.tabs()[index].name
         if bare.lower() != name.lower():
             continue
         if owner.lower() == (scope or sheet.name).lower():

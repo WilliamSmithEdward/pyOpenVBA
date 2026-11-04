@@ -410,7 +410,12 @@ from the type library, a status, the fixtures that are its evidence, and
 a note. Its `interface_gaps` column lists what a registration visibly
 lacks next to the type library: a read-write property with no setter,
 or a method missing some of Excel's parameters. A member with an
-interface gap cannot be VERIFIED.
+interface gap cannot be VERIFIED. `tests/test_excel_checklist.py` works
+that column out again from the classes, and fails a VERIFIED row whose
+own code can reach a reported gap, unless
+`tests/fixtures/verified_gaps_accepted.json` gives a reason a reviewer
+can check. A row covers the member wherever a macro reaches it: a Font
+row covers a chart's font as well as a cell's.
 
 Regenerate it after adding or removing a member:
 

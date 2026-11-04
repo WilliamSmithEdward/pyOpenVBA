@@ -142,8 +142,41 @@ End Function
 '''
 
 
+def sticky_probe(first: str, second: str) -> str:
+    return f'''Function Probe() As String
+    Dim ws As Object, s As String, c As Object
+    Set ws = Fresh()
+    ws.Range("A1").Value = "h": ws.Range("A2").Value = "b": ws.Range("A3").Value = "A": ws.Range("A4").Value = "a": ws.Range("A5").Value = "B"
+    ws.Range("A1:A5").Sort ws.Range("A1"), {first}
+    ws.Range("A1:A5").Sort ws.Range("A1"), {second}
+    For Each c In ws.Range("A1:A5").Cells: s = s & c.Value: Next
+    s = s & "!" & ws.Sort.MatchCase & "!" & ws.Sort.Orientation & "!" & ws.Sort.Rng.Address
+    Probe = s
+    Gone ws
+End Function
+'''
+
+
+def closed_probe(line: str) -> str:
+    return f'''Function Probe() As String
+    Dim o As Object, b As Workbook, v As Variant
+    Set o = Workbooks.Add
+    Set b = o
+    o.Close False
+    On Error Resume Next
+    v = {line}
+    Probe = Err.Number & "!" & TypeName(v)
+End Function
+'''
+
+
 def asked() -> dict[str, str]:
     probes: dict[str, str] = {}
+    for name, first, second in (('match', 'Header:=xlYes, MatchCase:=True', 'Header:=xlYes'), ('match_off', 'Header:=xlYes, MatchCase:=True', 'Header:=xlYes, MatchCase:=False'),
+                                ('header', 'Header:=xlYes', 'Header:=xlGuess'), ('nothing', 'Header:=xlNo', 'Header:=xlNo')):
+        probes[f'sticky {name}'] = sticky_probe(first, second)
+    for line in ('o.Name', 'b.Name', 'o.Worksheets.Count', 'b.Worksheets.Count', 'o.FullName', 'o.Saved', 'TypeName(o)', 'o Is Nothing', 'o.Close', 'o.Application.Name', 'b.Parent.Name'):
+        probes[f'closed {line}'] = closed_probe(line)
     for rows, columns in ARRAYS:
         for target in RANGES:
             probes[f'array {rows}x{columns} {target}'] = array_probe(rows, columns, target)

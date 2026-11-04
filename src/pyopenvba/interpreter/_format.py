@@ -98,11 +98,33 @@ def vba_format(value: object, pattern: object = MISSING, first_day: int = 1, fir
         number = _number_or_none(value)
         if number is None:
             return to_text(value)
-        return _format_number(number, sections)
+        return _format_number(number, [_without_fill(section) for section in sections])
     when = _date_or_none(value)
     if when is None:
         return to_text(value)
     return _format_date(when, sections[0], first_day, first_week)
+
+
+def _without_fill(section: str) -> str:
+    """A section with its * and the character after it gone: a fill means nothing with no cell to fill
+    (tests/fixtures/excel_everyday_16.json)."""
+    kept: list[str] = []
+    at = 0
+    quoted = False
+    while at < len(section):
+        char = section[at]
+        if char == '"':
+            quoted = not quoted
+        elif not quoted and char == "\\":
+            kept.append(section[at:at + 2])
+            at += 2
+            continue
+        elif not quoted and char == "*":
+            at += 2
+            continue
+        kept.append(char)
+        at += 1
+    return "".join(kept)
 
 
 # --- sections and tokens ----------------------------------------------------------------

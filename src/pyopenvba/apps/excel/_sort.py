@@ -601,7 +601,9 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
     if kept not in (NO, YES, GUESS):
         raise error(1004, refusal)
     has_header = kept == YES or (kept == GUESS and guessed_header(target.sheet, area, across))
-    matching = match_case is not MISSING and switch(match_case, refusal)
+    # Left out, MatchCase is the last sort's on the sheet, and the sort goes by it (tests/fixtures/excel_fits.json).
+    last = target.sheet.sort_state.match_case if target.sheet.sort_state is not None else False
+    matching = last if match_case is MISSING else switch(match_case, refusal)
     sort_area(target.sheet, area, resolved, header=has_header, match_case=matching, across=across)
     _left_on_the_sheet(target.sheet, area, keys, has_header=has_header, match_case=matching, way=way)
     return True
@@ -1149,6 +1151,8 @@ class SortFields(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Clear(self) -> object:
+        # MatchCase goes with them (tests/fixtures/excel_fits.json).
+        self.owner.state.match_case = False
         self.owner.state.fields.clear()
         self.owner.state.area = None
         return EMPTY

@@ -1789,6 +1789,12 @@ def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., N
 
 
 class Workbook(ExcelObject):
+    def _check_alive(self) -> None:
+        # A closed book is 424 through an Object and an automation error through a Workbook (tests/fixtures/excel_fits.json).
+        if self.closed:
+            raise error(424 if BINDING.late else -2147221080, "Object required" if BINDING.late else "Automation error")
+        super()._check_alive()
+
     """One workbook: its sheets, its names, and where it came from."""
 
     vba_type_name = "Workbook"
@@ -4140,7 +4146,8 @@ class Worksheet(ExcelObject):
 
         refuse(self, "ShowAllData method of Worksheet class failed")
         show_all_data(self)
-        return EMPTY
+        # Through an Object it answers True (tests/fixtures/excel_everyday_16.json); typed it is a Sub and has no answer to read.
+        return True
 
     # -- methods
 

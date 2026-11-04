@@ -17,7 +17,7 @@ from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, TextFrame, _im
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_number, to_text
-from pyopenvba.shapes._values import Shape
+from pyopenvba.shapes._values import FillLine, Shape
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -25,6 +25,8 @@ if TYPE_CHECKING:
 _NOT_THERE = (1004, 'Unable to get the property')
 _XL_NONE = -4142
 _XL_DASH = -4115
+#: What each XlBorderWeight writes, in EMU.
+_BORDER_WIDTHS = {1: 1, 2: 9525, -4138: 17145, 4: 24765}
 _LINE_STYLES = {'lgDash': _XL_DASH}
 #: MsoTextOrientation, which the shape's TextFrame takes, to XlOrientation, for those measured.
 _ORIENTATIONS = {1: -4128, 2: -4171}
@@ -57,6 +59,10 @@ class _Paint(HeldPart):
     def _format(self) -> VBAObject:
         return _object(self.owner.drawn.vba_get('Line' if self.slot else 'Fill', []))
 
+    def _look(self) -> FillLine:
+        """What the shape holds of its own, read from its markup if it came from a file."""
+        return getattr(self._format(), 'look')()
+
     def _refuse_picture(self) -> None:
         if self.owner.shape.kind == 'picture':
             raise VBAUnsupportedError("Setting the fill or line of a picture through its old object is not implemented")
@@ -76,8 +82,8 @@ class _Paint(HeldPart):
     def Color(self) -> object:
         if self.owner.shape.kind == 'picture':
             return VBAInt(16777215, 'Long')
-        look = self.owner.shape.fill_line
-        if not self.slot and not (look is not None and look.fill_rgb is not None):
+        look = self._look()
+        if not self.slot and look.fill_rgb is None and look.fill_scheme is None:
             # The style's fill, or white where it has none, whether or not it is hidden.
             return VBAInt({'shape': 8544277}.get(_style_of(self.owner.shape), 16777215), 'Long')
         return _object(self._format().vba_get('ForeColor', [])).vba_get('RGB', [])
@@ -88,10 +94,14 @@ class _Paint(HeldPart):
 
     @member
     def ColorIndex(self) -> object:
-        look = self.owner.shape.fill_line
-        own = None if look is None else (look.line_rgb if self.slot else look.fill_rgb)
+        look = self._look()
+        own = look.line_rgb if self.slot else look.fill_rgb
         if self.owner.shape.kind == 'picture' or (own is None and not self._shown()):
             return VBAInt(_XL_NONE, 'Long')
+        scheme = look.line_scheme if self.slot else look.fill_scheme
+        given = (look.style_line[0] if look.style_line else None) if self.slot else look.style_fill
+        if own is None and scheme and scheme != given and (self.owner.shape.kind, scheme) != ('textBox', 'lt1'):
+            raise VBAUnsupportedError("The ColorIndex of a drawing's theme colour is not implemented")
         if own is None:
             return VBAInt(_STYLE_INDEXES[_style_of(self.owner.shape)][self.slot], 'Long')
         return _colour_index(self.owner, int(to_number(self.vba_get('Color', []))))
@@ -115,8 +125,8 @@ class Interior(_Paint):
     @member
     def Pattern(self) -> object:
         # Hiding the fill leaves it: only a style with no fill reads none.
-        look = self.owner.shape.fill_line
-        given = look is not None and look.fill_rgb is not None
+        look = self._look()
+        given = look.fill_rgb is not None or look.fill_scheme is not None
         return VBAInt(1 if given or _style_of(self.owner.shape) in ('shape', 'textBox') else _XL_NONE, 'Long')
 
     @setter('Pattern')
@@ -141,8 +151,10 @@ class Border(_Paint):
     def LineStyle(self) -> object:
         if not self._shown():
             return VBAInt(_XL_NONE, 'Long')
-        look = self.owner.shape.fill_line
-        return VBAInt(_LINE_STYLES.get('' if look is None or look.line_dash is None else look.line_dash, 1), 'Long')
+        dash = self._look().line_dash
+        if dash is not None and dash not in _LINE_STYLES:
+            raise VBAUnsupportedError("This LineStyle of a drawing's old object is not implemented")
+        return VBAInt(1 if dash is None else _LINE_STYLES[dash], 'Long')
 
     @setter('LineStyle')
     def _line_style(self, value: object) -> None:
@@ -159,18 +171,28 @@ class Border(_Paint):
     def Weight(self) -> object:
         if self.owner.shape.kind == 'picture':
             return VBAInt(1, 'Long')
-        look = self.owner.shape.fill_line
-        if look is not None and look.line_width == 24765:
+        width = float(to_number(self._format().vba_get('Weight', [])))
+        if width <= 0:
+            # No line shows.
+            return VBAInt(2 if self.owner.shape.kind == 'textBox' else -4138, 'Long')
+        # By the line's width, with the widths between these steps not measured (tests/fixtures/shape_settings_kept.json).
+        if width < 0.001:
+            return VBAInt(1, 'Long')
+        if 0.25 <= width <= 1:
+            return VBAInt(2, 'Long')
+        if 1.25 <= width <= 1.5:
+            return VBAInt(-4138, 'Long')
+        if width >= 1.95:
             return VBAInt(4, 'Long')
-        return VBAInt(2 if self.owner.shape.kind == 'textBox' else -4138, 'Long')
+        raise VBAUnsupportedError(f"The Weight of a drawing's line {width} points wide is not implemented")
 
     @setter('Weight')
     def _weight(self, value: object) -> None:
-        # xlThick is the one measured.
-        if int(to_number(value)) != 4:
+        width = _BORDER_WIDTHS.get(int(to_number(value)))
+        if width is None:
             raise VBAUnsupportedError("This Weight of a drawing's old object is not implemented")
         self._refuse_picture()
-        getattr(self._format(), 'change')().line_width = 24765
+        getattr(self._format(), 'change')().line_width = width
 
 
 class OldDrawing(OldObject):

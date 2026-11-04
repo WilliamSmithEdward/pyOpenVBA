@@ -73,7 +73,7 @@ class Created(VBAObject):
             return super().vba_get(name, args, named)
         if len(args) == 1 and not named:
             if self.vba_type_name == "Scenarios" and args[0] is NULL:
-                return self
+                raise error(13)  # late bound Excel hands back the collection; bound early it is 13
             # o(Array(1)) on Hyperlinks is the collection, late bound (tests/fixtures/excel_everyday_14.json).
             if self.vba_type_name == "Hyperlinks" and isinstance(args[0], VBAArray):
                 return self

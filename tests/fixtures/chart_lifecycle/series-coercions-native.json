@@ -52,7 +52,7 @@
         "error": null,
         "message": ""
       },
-      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-lifecycle-native-samples\\plot-order-variants.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "save_source": "Function SaveIt() As String\nDim old As Boolean\nold=Application.DisplayAlerts\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"<folder>\\plot-order-variants.xlsx\",51\nApplication.DisplayAlerts=old\nSaveIt=\"saved\"\nExit Function\nFailed:\nApplication.DisplayAlerts=old\nSaveIt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
       "save_status": {
         "ok": true,
         "outcome": "passed",
@@ -61,7 +61,7 @@
         "message": ""
       },
       "save_result": "saved",
-      "file": "F:\\GitHub\\pyOpenVBA\\.cache\\chart-next\\chart-series-lifecycle-native-samples\\plot-order-variants.xlsx",
+      "file": "<folder>\\plot-order-variants.xlsx",
       "file_sha256": "efea9b15c8a6aaf5d384deb7166e8e74ce2d42a0164a700b1b9107f1fd937871",
       "parts": {
         "[Content_Types].xml": "2fbfc70c3391b719732683afdba56158c4dd63aea7e528730245ac78f87e6799",
@@ -115,7 +115,7 @@
         "outcome": "timeout",
         "dialogs": [],
         "error": null,
-        "message": "Timed out after 30s. Screenshot: C:\\Users\\William\\AppData\\Local\\pyvbaharness\\artifacts\\dbd62c587b29\\timeout-run-20261020-184528.png"
+        "message": "Timed out after 30s. Screenshot: <folder>\\timeout-run-20261020-184528.png"
       }
     }
   ],

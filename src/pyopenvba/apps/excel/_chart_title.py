@@ -10,8 +10,8 @@ from pyopenvba._xml import escape_text
 from pyopenvba.apps.excel._chart_xml import TextLook, default_run, shadow_markup
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import member, setter
-from pyopenvba.interpreter._values import VBAInt, error, to_bool, to_integer, to_text
+from pyopenvba.interpreter._objects import member, method, setter
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement as Element
@@ -41,6 +41,73 @@ class TitleLook:
     def turned(self, default: int) -> int:
         """The angle the title shows at: its own once set, else the one its place gives it."""
         return default if self.rotation is None else self.rotation
+
+
+class TitleCharacters(Created):
+    """Some of a title's text: from Start, for Length or to the end, a Length of 0 meaning the end and a Start of 0 the
+    first; past the end Excel raises 5 (tests/fixtures/chart_members_more.json). Their fonts are not modelled."""
+
+    vba_type_name = 'Characters'
+
+    def __init__(self, title: TitleMembers, start: object, length: object) -> None:
+        self.title = title
+        self.start = max(1, 1 if start is MISSING else int(to_integer(start, 'Long')))
+        self.length = 0 if length is MISSING else int(to_integer(length, 'Long'))
+        if self.start > len(self._whole()) + 1:
+            raise error(5, 'Invalid procedure call or argument')
+
+    def _whole(self) -> str:
+        return to_text(self.title.vba_get('Text', []))
+
+    def _span(self) -> tuple[int, int]:
+        begin = self.start - 1
+        return begin, len(self._whole()) if self.length <= 0 else min(begin + self.length, len(self._whole()))
+
+    def _replace(self, text: str) -> None:
+        begin, end = self._span()
+        whole = self._whole()
+        self.title.vba_set('Text', whole[:begin] + text + whole[end:])
+
+    @member
+    def Parent(self) -> object:
+        return self.title
+
+    @member
+    def Application(self) -> object:
+        return self.title.vba_get('Application', [])
+
+    @member
+    def Text(self) -> object:
+        begin, end = self._span()
+        return self._whole()[begin:end]
+
+    @setter('Text')
+    def _text(self, value: object) -> None:
+        self._replace(to_text(value))
+
+    @member
+    def Caption(self) -> object:
+        return self.Text()
+
+    @setter('Caption')
+    def _caption(self, value: object) -> None:
+        self._replace(to_text(value))
+
+    @member
+    def Count(self) -> object:
+        begin, end = self._span()
+        return VBAInt(end - begin, 'Long')
+
+    @method
+    def Delete(self) -> object:
+        self._replace('')
+        return EMPTY
+
+    @method
+    def Insert(self, String: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Over what they cover, despite the name."""
+        self._replace(to_text(String))
+        return EMPTY
 
 
 class TitleMembers(Created):
@@ -75,6 +142,10 @@ class TitleMembers(Created):
     @member
     def Caption(self) -> object:
         return self.Text()
+
+    @method
+    def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return TitleCharacters(self, Start, Length)
 
     @setter('Caption')
     def _caption(self, value: object) -> None:

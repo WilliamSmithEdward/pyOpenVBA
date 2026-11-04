@@ -20,7 +20,7 @@
         "error": "None",
         "value": "header=2;case=True;orientation=2;method=2;fields=1[$J$2:$J$5:1:1];rng=$J$1:$K$5"
       },
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\fresh-unapplied-options.xlsx",
+      "file": "<folder>\\fresh-unapplied-options.xlsx",
       "save_status": {
         "ok": true,
         "dialogs": [],
@@ -55,7 +55,7 @@
         "error": "None",
         "value": "header=2;case=True;orientation=1;method=1;fields=1[$J$2:$J$5:2:1];rng=$J$1:$K$5"
       },
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\fresh-applied-edited-field.xlsx",
+      "file": "<folder>\\fresh-applied-edited-field.xlsx",
       "save_status": {
         "ok": true,
         "dialogs": [],
@@ -83,7 +83,7 @@
         "error": "None",
         "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
       },
-      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-options-before.xlsx",
+      "input_file": "<folder>\\loaded-options-before.xlsx",
       "input_save": {
         "ok": true,
         "dialogs": [],
@@ -103,7 +103,7 @@
         "error": "None",
         "value": "header=1;case=True;orientation=2;method=2;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
       },
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-options.xlsx",
+      "file": "<folder>\\loaded-options.xlsx",
       "save_status": {
         "ok": true,
         "dialogs": [],
@@ -131,7 +131,7 @@
         "error": "None",
         "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
       },
-      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-field-order-option-before.xlsx",
+      "input_file": "<folder>\\loaded-field-order-option-before.xlsx",
       "input_save": {
         "ok": true,
         "dialogs": [],
@@ -151,7 +151,7 @@
         "error": "None",
         "value": "header=0;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:2:1];rng=$J$1:$K$5"
       },
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-field-order-option.xlsx",
+      "file": "<folder>\\loaded-field-order-option.xlsx",
       "save_status": {
         "ok": true,
         "dialogs": [],
@@ -179,7 +179,7 @@
         "error": "None",
         "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
       },
-      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-clear-before.xlsx",
+      "input_file": "<folder>\\loaded-clear-before.xlsx",
       "input_save": {
         "ok": true,
         "dialogs": [],
@@ -199,7 +199,7 @@
         "error": "None",
         "value": "header=0;case=False;orientation=1;method=1;fields=0;rng=ERR:1004"
       },
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-clear.xlsx",
+      "file": "<folder>\\loaded-clear.xlsx",
       "save_status": {
         "ok": true,
         "dialogs": [],
@@ -227,7 +227,7 @@
         "error": "None",
         "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
       },
-      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-replace-range-fields-before.xlsx",
+      "input_file": "<folder>\\loaded-replace-range-fields-before.xlsx",
       "input_save": {
         "ok": true,
         "dialogs": [],
@@ -247,7 +247,7 @@
         "error": "None",
         "value": "header=0;case=False;orientation=1;method=1;fields=1[$N$2:$N$5:2:0];rng=ERR:1004"
       },
-      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-replace-range-fields.xlsx",
+      "file": "<folder>\\loaded-replace-range-fields.xlsx",
       "save_status": {
         "ok": true,
         "dialogs": [],

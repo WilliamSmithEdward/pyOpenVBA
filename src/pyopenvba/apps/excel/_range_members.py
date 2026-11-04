@@ -26,6 +26,42 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
 
 
+class SoundNote(Created):
+    """A cell's sound note: an object every cell answers, whose members are not implemented."""
+
+    vba_type_name = "SoundNote"
+
+    def __init__(self, target: Range) -> None:
+        self.target = target
+
+
+class CellControl(Created):
+    """A cell's control: an object every cell answers, whose members are not implemented."""
+
+    vba_type_name = "CellControl"
+
+    def __init__(self, target: Range) -> None:
+        self.target = target
+
+
+class XPath(Created):
+    """A cell's XML mapping, of which the model has none: an empty path, and asking for its map fails with Excel's
+    unspecified error (tests/fixtures/range_missing.json)."""
+
+    vba_type_name = "XPath"
+
+    def __init__(self, target: Range) -> None:
+        self.target = target
+
+    @member
+    def Value(self) -> object:
+        return ""
+
+    @member
+    def Map(self) -> object:
+        raise error(-2147467259, "Automation error")
+
+
 class EmptyPhonetic(Created):
     """The furigana of a cell with none."""
 

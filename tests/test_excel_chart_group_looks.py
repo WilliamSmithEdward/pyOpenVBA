@@ -22,7 +22,7 @@ UNDRAWN = ('bubble:', 'pieOfPie:', 'barOfPie:', 'radar:')
 #: Refused, which each case below checks: members yet to be built; a look over a hidden fill or line; a type change with
 #: a look on the chart; hidden error bars cleared, which Excel leaves painted; no 3-D shading, which writes a material on
 #: each series; and a style through the key of a series that refuses one.
-REFUSED = ('TickLabels', 'LegendEntries(1).Format', '.Shadow', 'CategoryCollection', '[_Default]',
+REFUSED = ('[_Default]',
            'Format.Fill.ForeColor.RGB = 255: ch.ChartGroups(1).UpBars.Format.Fill.Visible = msoFalse',
            'Format.Fill.ForeColor.RGB = 255: ch.ChartGroups(1).DownBars.Format.Fill.Visible = msoFalse',
            'Bars.Format.Fill.Visible = msoFalse: ch.ChartGroups(1).UpBars.Format.Fill',

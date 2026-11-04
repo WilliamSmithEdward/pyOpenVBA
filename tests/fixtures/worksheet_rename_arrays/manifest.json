@@ -1,5 +1,5 @@
 {
-  "raw_sha256": "5ebbc6d9e5dcf4fa9b75b3eb1f709b35465cd7ae17dc4fdde8d972573f8217c6",
+  "raw_sha256": "6b421122144cc618e0f341e969e79b9e2a481f5f4bd0cf7c7f3000d5c8869b27",
   "cases": {
     "shared-owner-auto": {
       "source_sha256": "938d2291b180b7cbb45ed4b5262b2e4ecad97a4935fbe6bd6e260a25bc513e8f",
@@ -35,14 +35,14 @@
   "admission": "all6 full runtime; host BookN labels and CalculateBeforeSave set explicitly from native initial host context; no expected-value normalization",
   "packages": {
     "shared-owner-auto.xlsx": {
-      "sha256": "7ce8232d225ce132f86cb057e282b3b71efef1e70c32b2af5697078e07f055a0",
+      "sha256": "d155dafe360b4e0cf7685310ef82083220a227ffc48efae066e9e98fb8400bb9",
       "case": "shared-owner-auto",
       "phase": "save",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-owner-auto.xlsx",
+      "original_path": "<folder>\\shared-owner-auto.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "585924d6740c6ec255497ed387c112023673eabf70c96bc905522004a96c9e09",
+        "xl/workbook.xml": "4541e5847cfda85707e6cbc5276510b86802cf582c8ec7487a8c9a708c3491b2",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "b26040f18444982474018b55234da27ace87b9a4937ecfe16d0d9e948ab73171",
         "xl/worksheets/sheet2.xml": "262b82d05073325d5bbbf6b942059c2e4095bc066b329cb5bbad9330d55f05a8",
@@ -54,14 +54,14 @@
       }
     },
     "shared-imported-cleared-master-before-clear.xlsx": {
-      "sha256": "e1f6476bd9eee756be222014c2298b96c87c66e0a6691aeb97279634869db7fa",
+      "sha256": "7846434718f880e45e42b427cf76d077af9c259a0318a95fa2459a303321255f",
       "case": "shared-imported-cleared-master",
       "phase": "before_clear",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master-before-clear.xlsx",
+      "original_path": "<folder>\\shared-imported-cleared-master-before-clear.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "491a8542f9ed85027c0d1b69fd9a63bc7dc662b2792a9df4cf1704f4aec2c015",
+        "xl/workbook.xml": "148d7236694a2f8349bd891613809785c956f12355531df16dc07abf3a3b7d61",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "4fa3efe449ba43741fa12fd25cebe9308db447e7b79784fce0a800fca75e106a",
         "xl/worksheets/sheet2.xml": "2be49fb6884b79a242e7b0ded0a4ac37c432c3e9fab4f71fdad18b2a014f435c",
@@ -73,14 +73,14 @@
       }
     },
     "shared-imported-cleared-master-seed.xlsx": {
-      "sha256": "4b6efeff34aa9b93353c6c8cb8ccb518efd90ac674fc7cc4d6c8bb3b182b2ccc",
+      "sha256": "2ed2da9d8592daf5dc20b070e5d58393a6cda2969467573a4e2d9712cdfc2fe3",
       "case": "shared-imported-cleared-master",
       "phase": "seed",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master-seed.xlsx",
+      "original_path": "<folder>\\shared-imported-cleared-master-seed.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "d4395c259df2339f332f310c8ff04a3af30df21907c522e52ba55faae8cc6230",
+        "xl/workbook.xml": "e13f287da09a36097141e6570a20605173d582835a3eb2c201616e165a521ed3",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "230176ba9c51518cb86b7e4aebdbd855b6969126b89134351489bf9c9a16aa21",
         "xl/worksheets/sheet2.xml": "9a9c3b586d6ed1d87d9cee95f673218b5ee19c2e1cfde78c2ceed44da2066dcc",
@@ -92,14 +92,14 @@
       }
     },
     "shared-imported-cleared-master.xlsx": {
-      "sha256": "1236ea94be2ad41752360c9e30ea579d62a80d3f12e51259f33bd24a1484138e",
+      "sha256": "3b91d695ee8c3a580b40eea26f4ad826bdcb6399a55b9f9ecce16d946f773fb5",
       "case": "shared-imported-cleared-master",
       "phase": "save",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master.xlsx",
+      "original_path": "<folder>\\shared-imported-cleared-master.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "4bf8351cb1cd879b2dbb6af4bdf08c1ab1a560c62dfa8859a04d095b61fe9c68",
+        "xl/workbook.xml": "f645d60ea52a785f3b20e3fb44a1c810644a0d60414e83fe2fcb9440441321c8",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "37fb1a9fe517666e44e09883cf59ccf774d6d7634ebb1ff8c1d39439f897ff91",
         "xl/worksheets/sheet2.xml": "75e657ff4bfb26f0050003d6537b6ec2c32df105dce5382f89c844953ef55e8d",
@@ -111,14 +111,14 @@
       }
     },
     "cse-other-source-auto.xlsx": {
-      "sha256": "fc000a110b0076ebc31c43b0718aba0c46ec0e64db6e465e2e01a68b4b7fb174",
+      "sha256": "19a358777f887ad77a376e2c1ed38370457218e8b41f75262753f42bbaae8955",
       "case": "cse-other-source-auto",
       "phase": "save",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-other-source-auto.xlsx",
+      "original_path": "<folder>\\cse-other-source-auto.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "cde5e4641b648e3d7d6b0466178a374d83c745ccc68bae41b9ed7f88e12a1c83",
+        "xl/workbook.xml": "b6a48939a29516da70a24cac1f44d7d2ff6e9789cd941063b55dabba15e48ac9",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "81e3fe475bd709f6f5621b8155ffe08635f4d820f5876f537151f280eb2be33b",
         "xl/worksheets/sheet2.xml": "cec74f5494c8e4f56b9bc63777ea1557959e1868035fcb8218a68496d30ef111",
@@ -130,14 +130,14 @@
       }
     },
     "cse-owner-auto.xlsx": {
-      "sha256": "4ae3ee650d9afa429975c2c981cc17bc85e5bffecd20d699f464c879c830de4b",
+      "sha256": "159b96561724e0d7fa101b5713c91b743a49357d149ff14ec6f4c0aacedba4aa",
       "case": "cse-owner-auto",
       "phase": "save",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-owner-auto.xlsx",
+      "original_path": "<folder>\\cse-owner-auto.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "33237ad4abaa123d4b424798de17a7ea0bb828cdba87ff7a623866db54be2421",
+        "xl/workbook.xml": "4470c4a6b328f02929e880bb788595bee39851aab296aa2b54ca11c16c0cfa84",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "3a8d0f617ff8b7950023aad0d257884cd583626237bbcd2538bbe1f0ce4aed79",
         "xl/worksheets/sheet2.xml": "2312f1fb5b92d57b050ad3f206362b96f63674c243b5a3684829b1b29c67fc56",
@@ -149,14 +149,14 @@
       }
     },
     "cse-manual-save-cached.xlsx": {
-      "sha256": "53da2e04da7d7522cf69fe4ec75c16696f7b4e943a381a882fbed97503caeb10",
+      "sha256": "956041ddf95f23752e2bc966f0967d7c401e04d4055b68481e92163efdfa33cd",
       "case": "cse-manual-save-cached",
       "phase": "save",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-manual-save-cached.xlsx",
+      "original_path": "<folder>\\cse-manual-save-cached.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "0f7472543c784eddddb6fa94b21a332e15d76bb269c410667902e56f792675cc",
+        "xl/workbook.xml": "c44153ebeed91ecb02a592c9e2e4cebb474b3abe3ec96e4ceb1c732fc3d78b56",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "77ba2cb689544f6d65bf24d3f5cf71b6dbd2de009e8950fa5a8c6ecfe69a092a",
         "xl/worksheets/sheet2.xml": "27913f909a795b8b71e4426e1c347ef455a0eb2070ac19ce6dff4623f94782d1",
@@ -168,14 +168,14 @@
       }
     },
     "cse-manual-save-calculate.xlsx": {
-      "sha256": "ae4359bda8aaa39b36724fc97bd99ae0bbbf1edfc701ff2bed4bb2d02c862de4",
+      "sha256": "05049ae045543340f8a8de57df6c86bdb81d6e5b52af92a9f1a5e27f0247a980",
       "case": "cse-manual-save-calculate",
       "phase": "save",
-      "original_path": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-manual-save-calculate.xlsx",
+      "original_path": "<folder>\\cse-manual-save-calculate.xlsx",
       "parts": {
         "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
         "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
-        "xl/workbook.xml": "a3b2a39ae7f1dddb0cf606989ad1b10f15b92c0fb3c879990ca4ad4d56ead068",
+        "xl/workbook.xml": "8ec5a70a561e1c90f6b1e76f9cb80a1dbc6e38d6985a301037f3128bcb3d2946",
         "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
         "xl/worksheets/sheet1.xml": "8cabe6cbddb490300199cce994fbcfe023c9e714a83f5db823c28da1a6d2e74d",
         "xl/worksheets/sheet2.xml": "fe7d1fc89547dc0e587c6c9dee5f2313fbcafbc24e2224ce4215ee6a02ae3321",

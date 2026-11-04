@@ -1,15 +1,15 @@
 {
   "raw_sha256": {
-    "initial.json": "cf3825f163089484eb945d1df1e7c74e90215042f2e82b5309891c457b8bdd92",
+    "initial.json": "faa30379eb39e7c3ea81455e8edb57a9af752c3ce254d830e1dfdf2740fa8d61",
     "followup.json": "2f07e3c6b507b7f7a4550cdaea74449023c27764973d8de3bad35659095619b0",
     "absence.json": "da2470d3a4c14b3dd5fe65426f079322aadbcf14277c19f67174153a31601aa3",
-    "hidden-save.json": "174b03b8cba5a12a59360cf1809d2f0a05bdffa36a242b0722254a0747560f58"
+    "hidden-save.json": "7e72600174599633a534e7fafd6276842cae36e60fc6c4253e23936d3ee0e8fc"
   },
   "native_inputs": {
-    "manual-scale.xlsx": "cff69bacf402039ad4718a0edb610d999b22d51e5f8d40b9a2c56e9ee29b193f",
-    "axis-titles.xlsx": "a24491a0b1c0c03ffb3ba7d138e09bf294c364468b51c9daeec429b74a59e01c",
-    "bar-scatter.xlsx": "41557a1d8d91ebb8e749cc74862cf769091d64aadd1c2f7fe526006bc686bd44",
-    "hidden-save.xlsx": "1777e38ebabb006a0fa76bcfef98e0df4d30b4a552d90686501a36b29bf056a5"
+    "manual-scale.xlsx": "b3e6f504fd0daa07fe990365bcd82cef0abf1fb08f51f239e740a74bd3453b11",
+    "axis-titles.xlsx": "52f7f297cc3f78310684d8fd1ff61a34ce79cd119057ca75d04be4e58b468ec4",
+    "bar-scatter.xlsx": "2b8a3cca7e553593bfdb86dc1ad9753510a4bcf602cefd0d117c2ce661367a07",
+    "hidden-save.xlsx": "024d60e5f57b0be2b9f26da052396821fcc1e72f857cf20cfb7f2cc118a4e199"
   },
   "projection": "Preserve axis presence/type/group/reverse/title/parent and every operation result. For each AxisSnap scale field, omit its effective numeric observation ONLY when that exact immediately preceding native IsAuto flag is True(11). Retain all IsAutoFalse manual numeric values and all IsAuto-error/category numeric errors. Source driver conditionally reads the same fields; no raw or expected-value normalization. Series Parent graph remains separately deferred. Automatic effective layout/freezing remain unsupported.",
   "admitted_initial": [

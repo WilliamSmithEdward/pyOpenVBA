@@ -65,10 +65,12 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
+    from pyopenvba.apps.excel._application_more import Timer
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
     from pyopenvba.apps.excel._external_links import LinkedBook
+    from pyopenvba.apps.excel._workbook_more import CustomXMLPart
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
@@ -351,7 +353,9 @@ class Application(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "WorkbookOpen", "WorkbookBeforeSave", "WorkbookAfterSave", "WorkbookBeforeClose",
         "WorkbookActivate", "WorkbookDeactivate", "WorkbookNewSheet", "SheetChange", "SheetCalculate",
-        "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate"})
+        "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate",
+        "NewWorkbook", "SheetBeforeDelete", "SheetFollowHyperlink", "WindowActivate", "WindowDeactivate",
+        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart"})
 
     def vba_information_value(self) -> object:
         return self.Name()
@@ -382,6 +386,8 @@ class Application(ExcelObject):
         #: Whether PageSetup settings take effect at once, and those held back while they do not (see _page_setup).
         self.print_communication = True
         self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
+        #: What Application.OnTime has waiting, oldest first (see _application_more).
+        self.timers: list[Timer] = []
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
@@ -478,7 +484,9 @@ class Application(ExcelObject):
 
     @member
     def Build(self) -> object:
-        return VBAInt(0, "Long")
+        """The build of the Excel the model is measured against, a Long; CallByName alone reads it as a Double, which
+        the model does not copy (tests/fixtures/application_objects.json)."""
+        return VBAInt(20527, "Long")
 
     @member
     def Application(self) -> object:
@@ -941,6 +949,107 @@ class Application(ExcelObject):
     def Repeat(self) -> object:
         raise error(1004, "Repeat method of Application class failed")
 
+    # -- what Application reads with no screen here (tests/fixtures/application_objects.json)
+
+    def _profile(self, type_name: str) -> object:
+        from pyopenvba.apps.excel._application_more import ProfileObject
+
+        return ProfileObject(self, type_name)
+
+    @member
+    def AutoRecover(self) -> object:
+        return self._profile('AutoRecover')
+
+    @member
+    def MultiThreadedCalculation(self) -> object:
+        return self._profile('MultiThreadedCalculation')
+
+    @member
+    def SpellingOptions(self) -> object:
+        return self._profile('SpellingOptions')
+
+    @member
+    def AutoCorrect(self) -> object:
+        return self._profile('AutoCorrect')
+
+    @member
+    def DefaultWebOptions(self) -> object:
+        return self._profile('DefaultWebOptions')
+
+    @member
+    def DefaultPivotTableLayoutOptions(self) -> object:
+        return self._profile('DefaultPivotTableLayoutOptions')
+
+    @member
+    def FileValidation(self) -> object:
+        return VBAInt(0, 'Long')
+
+    @member
+    def FileValidationPivot(self) -> object:
+        return VBAInt(0, 'Long')
+
+    @member
+    def WindowsForPens(self) -> object:
+        return False
+
+    @member
+    def ClusterConnector(self) -> object:
+        return ''
+
+    @member
+    def DDEAppReturnCode(self) -> object:
+        return 0.0
+
+    @member
+    def AlwaysUseClearType(self) -> object:
+        return False
+
+    @member
+    def FormulaBarHeight(self) -> object:
+        return VBAInt(1, 'Long')
+
+    @member
+    def RegisteredFunctions(self) -> object:
+        return NULL
+
+    @member
+    def MailSession(self) -> object:
+        return NULL
+
+    @member
+    def FileConverters(self) -> object:
+        return NULL
+
+    @member
+    def ActiveEncryptionSession(self) -> object:
+        raise error(5, 'Invalid procedure call or argument')
+
+    @member
+    def SensitivityLabelPolicy(self) -> object:
+        raise error(440, 'Automation error')
+
+    @method
+    def ExecuteExcel4Macro(self, String: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._application_more import execute_excel4, required
+
+        required(String)
+        return execute_excel4(self, to_text(String))
+
+    @method
+    def OnTime(self, EarliestTime: object = MISSING, Procedure: object = MISSING, LatestTime: object = MISSING,  # noqa: N803
+               Schedule: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._application_more import on_time
+
+        on_time(self, EarliestTime, Procedure, LatestTime, Schedule)
+        return EMPTY
+
+    def pump_timers(self) -> None:
+        """DoEvents runs what is due, Wait does not (tests/fixtures/on_time.json). Excel's first DoEvents of a macro
+        now and then lets it wait for the next, 1 time in 12 over a measured loop, which the model does not guess at."""
+        from pyopenvba.apps.excel._application_more import run_due
+
+        run_due(self)
+
     @method
     def OnUndo(self, Text: object = MISSING, Procedure: object = MISSING) -> object:  # noqa: N803 - native named args
         from pyopenvba.apps.excel._application_more import required
@@ -1277,6 +1386,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project
 
         attach_project(book)
+        _events.new_workbook(book)
         self.application.activate_book(book)
         return book
 
@@ -1447,7 +1557,8 @@ class Workbook(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
-        "SheetPivotTableUpdate"})
+        "SheetPivotTableUpdate", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
+        "WindowActivate", "WindowDeactivate", "WindowResize"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
@@ -1492,6 +1603,11 @@ class Workbook(ExcelObject):
         self.ink_comments = True
         self.remove_personal = False
         self.read_only_recommended = False
+        #: Whether a macro changed a colour of the theme, and the workbook's custom XML parts once asked for, with how
+        #: many came from its file (see _workbook_more).
+        self.theme_colours_changed = False
+        self.custom_xml_parts_: list[CustomXMLPart] | None = None
+        self.custom_xml_read = 0
         self.auto_recover = True
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
@@ -2134,14 +2250,30 @@ class Workbook(ExcelObject):
         if saving and Filename is MISSING:
             if not self._save():
                 return EMPTY
+        from pyopenvba.apps.excel._windows import front_to_back
+
+        behind = next((book for book in front_to_back(self.application) if book is not self), None)
+        _events.book_left(self)
         from pyopenvba.apps.excel._link_edits import closing
 
         closing(self)
         self.application.workbooks_.remove(self)
+        if behind is not None:
+            _events.book_entered(behind)
         from pyopenvba.apps.excel._held_ranges import closed
 
         closed(self)
         return True
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self, None, Preview, ActivePrinter, PrintToFile)
+        return EMPTY
 
     @method
     def Save(self) -> object:
@@ -2269,6 +2401,190 @@ class Workbook(ExcelObject):
     def ReadOnly(self) -> object:
         """Whether Workbooks.Open opened the workbook read-only, until a SaveAs gives it a file of its own."""
         return self.read_only
+
+    # -- what answers the same on a workbook that shares and reviews nothing (see _workbook_more)
+
+    @method
+    def AcceptAllChanges(self, When: object = MISSING, Who: object = MISSING, Where: object = MISSING) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def RejectAllChanges(self, When: object = MISSING, Who: object = MISSING, Where: object = MISSING) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def LockServerFile(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def AddToFavorites(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def HighlightChangesOptions(self, When: object = MISSING, Who: object = MISSING, Where: object = MISSING) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def Reply(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Reply method of Workbook class failed")
+
+    @method
+    def ReplyAll(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "ReplyAll method of Workbook class failed")
+
+    @method
+    def UpdateFromFile(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "UpdateFromFile method of Workbook class failed")
+
+    @method
+    def Post(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Post method of Workbook class failed")
+
+    @method
+    def EndReview(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "The current document hasn't been sent for review.")
+
+    @method
+    def ReplyWithChanges(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "This document is not currently in a review cycle.")
+
+    @method
+    def CheckIn(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "This document cannot be checked in.")
+
+    @method
+    def CheckInWithVersion(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "This document cannot be checked in.")
+
+    @method
+    def RemoveUser(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def PurgeChangeHistoryNow(self, *_args: object, **_named: object) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def Sync(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def Mailer(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
+    def Research(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def GetWorkflowTasks(self) -> object:
+        raise error(-2147467259, "Method 'GetWorkflowTasks' of object '_Workbook' failed")
+
+    @method
+    def GetWorkflowTemplates(self) -> object:
+        raise error(-2147467259, "Method 'GetWorkflowTemplates' of object '_Workbook' failed")
+    @method
+    def UnprotectSharing(self, SharingPassword: object = MISSING) -> object:
+        return EMPTY
+
+    @method
+    def ReloadAs(self, Encoding: object = MISSING) -> object:
+        if Encoding is MISSING:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        raise VBAUnsupportedError("Workbook.ReloadAs is not implemented")
+
+    @member
+    def ServerViewableItems(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def SensitivityLabel(self) -> object:
+        raise error(-2147220725, "Method 'SensitivityLabel' of object '_Workbook' failed")
+
+    @member
+    def WorkIdentity(self) -> object:
+        return ""
+
+    @member
+    def WriteReservedBy(self) -> object:
+        return self.application.user_name
+
+    @member
+    def CommandBars(self) -> object:
+        return NOTHING
+
+    @method
+    def UserStatus(self, *arguments: object) -> object:
+        from pyopenvba.apps.excel._workbook_more import user_status
+
+        if arguments:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        return user_status(self)
+
+    @member
+    def Theme(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import OfficeTheme
+
+        return OfficeTheme(self)
+
+    @method
+    def ApplyTheme(self, Filename: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_more import apply_theme
+
+        apply_theme(self, Filename)
+        return EMPTY
+
+    @member
+    def CustomXMLParts(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import CustomXMLParts
+
+        return CustomXMLParts(self)
+
+    @method
+    def ChangeFileAccess(self, Mode: object = MISSING, WritePassword: object = MISSING,
+                         Notify: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_more import change_file_access
+
+        return change_file_access(self, Mode)
+
+    @member
+    def WebOptions(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import WebOptions
+
+        return WebOptions(self)
+
+    @member
+    def Model(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import Model
+
+        return Model(self)
+
+    @member
+    def SmartDocument(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import SmartDocument
+
+        return SmartDocument(self)
+
+    @member
+    def DocumentInspectors(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import DocumentInspectors
+
+        return DocumentInspectors(self)
+
+    @member
+    def Signatures(self) -> object:
+        from pyopenvba.apps.excel._workbook_more import SignatureSet
+
+        return SignatureSet(self)
+
+    @method
+    def PivotTables(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        if any(sheet.pivot_tables for sheet in self.sheets_):
+            raise VBAUnsupportedError("Workbook.PivotTables of a workbook with pivot tables is not implemented")
+        tables = EmptyCollection(self, self, "PivotTables", set())
+        return tables if Index is MISSING else tables.Item(Index)
 
     # -- links to other workbooks (see _workbook_links)
 
@@ -2641,6 +2957,18 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
             return group(self.book, index)
         return super().vba_lookup(index, items)
 
+    @member
+    def HPageBreaks(self) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        return EmptyCollection(self.book, self.book, "HPageBreaks", set())
+
+    @member
+    def VPageBreaks(self) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        return EmptyCollection(self.book, self.book, "VPageBreaks", set())
+
     @method
     def FillAcrossSheets(self, Range: object = MISSING, Type: object = MISSING) -> object:
         """Every sheet of the workbook's, as a group's (see _sheet_groups)."""
@@ -2741,7 +3069,8 @@ class Worksheet(ExcelObject):
     vba_type_name = "Worksheet"
     #: The events the model raises in the sheet's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
-        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate"})
+        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "BeforeDelete",
+        "FollowHyperlink"})
     #: True once Delete took the sheet out of its workbook.
     deleted = False
 
@@ -3303,6 +3632,24 @@ class Worksheet(ExcelObject):
         return tables if Index is MISSING else tables.Item(Index)
 
     @member
+    def PrintedCommentPages(self) -> object:
+        return VBAInt(0, "Long")
+
+    @method
+    def XmlDataQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
+                     Map: object = MISSING) -> object:
+        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+            raise VBAUnsupportedError("XmlDataQuery in a workbook with XML maps is not implemented")
+        return NOTHING
+
+    @method
+    def XmlMapQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
+                    Map: object = MISSING) -> object:
+        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+            raise VBAUnsupportedError("XmlMapQuery in a workbook with XML maps is not implemented")
+        return NOTHING
+
+    @member
     def Sort(self) -> object:
         """The sheet's sort settings, as a recorded macro sets and applies them."""
         from pyopenvba.apps.excel._sort import SortObject
@@ -3446,6 +3793,16 @@ class Worksheet(ExcelObject):
 
         refuse_sparklines(self, "Deleting")
         delete(self.book, [self], "Cannot delete the only worksheet")
+        return EMPTY
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self.book, self, Preview, ActivePrinter, PrintToFile)
         return EMPTY
 
     @method
@@ -5436,6 +5793,68 @@ class Range(ExcelObject):
         return EMPTY
 
     @method
+    def ResetContents(self) -> object:
+        """On a cell with no control in it, which is every cell here, the same as ClearContents
+        (tests/fixtures/range_missing.json)."""
+        return self.ClearContents()
+
+    @method
+    def RemoveControls(self) -> object:
+        return EMPTY
+
+    @method
+    def TogglePythonMarshalMode(self) -> object:
+        return EMPTY
+
+    def _no_data_for_it(self) -> object:
+        """What these need, a data model's writeback, a linked data type or an edition, no cell here has."""
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def AllocateChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DiscardChanges(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def DataTypeToText(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def RefreshLinkedDataType(self) -> object:
+        return self._no_data_for_it()
+
+    @method
+    def SetCellDataTypeFromCell(self, Range: object = MISSING, Language: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @method
+    def EditionOptions(self, Type: object = MISSING, Option: object = MISSING, Name: object = MISSING,
+                       Reference: object = MISSING, Appearance: object = MISSING, ChartSize: object = MISSING,
+                       Format: object = MISSING) -> object:  # noqa: N803
+        return self._no_data_for_it()
+
+    @member
+    def SoundNote(self) -> object:
+        from pyopenvba.apps.excel._range_members import SoundNote
+
+        return SoundNote(self)
+
+    @member
+    def XPath(self) -> object:
+        from pyopenvba.apps.excel._range_members import XPath
+
+        return XPath(self)
+
+    @member
+    def CellControl(self) -> object:
+        from pyopenvba.apps.excel._range_members import CellControl
+
+        return CellControl(self)
+
+    @method
     def ClearContents(self) -> object:
         self.clear_contents_checked()
         _events.after_edit(self)
@@ -5562,6 +5981,15 @@ class Range(ExcelObject):
             else:
                 out.extend(sorted(position for position in cells if area.contains(*position)))
         return out
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._windows import print_out
+
+        print_out(self.sheet.book, self.sheet, Preview, ActivePrinter, PrintToFile)
+        return EMPTY
 
     @method
     def Delete(self, Shift: object = MISSING) -> object:

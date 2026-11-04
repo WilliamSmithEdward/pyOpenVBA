@@ -1,8 +1,8 @@
-"""Take the folder Excel saved it in out of every committed fixture workbook.
+"""Take the folder Excel saved it in out of every committed workbook.
 
     python scripts/strip_fixture_save_paths.py [--check]
 
-rewrites each workbook under tests/fixtures that git tracks and whose
+rewrites each workbook that git tracks and whose
 xl/workbook.xml records a save path, with fixture_workbook.without_save_path,
 and checks every rewrite before writing it: the package's layout is one the
 library writes back byte for byte, every other part is identical, header
@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _tracked() -> list[Path]:
-    listing = subprocess.run(["git", "ls-files", "tests/fixtures"], cwd=ROOT, capture_output=True, text=True,
+    listing = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True,
                              check=True).stdout
     return [ROOT / name for name in listing.splitlines() if name.lower().endswith((".xlsx", ".xlsm"))]
 

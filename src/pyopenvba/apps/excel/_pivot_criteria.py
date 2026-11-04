@@ -478,6 +478,34 @@ class PivotFilters(VBACollection, ItemDefault, ExcelObject):
         return add(self.field, Type, DataField, Value1, Value2, whole_day)
 
 
+class ActiveFilters(VBACollection, ItemDefault, ExcelObject):
+    """PivotTable.ActiveFilters: the filters on all the table's fields, the newest first
+    (tests/fixtures/pivot_reads.json)."""
+
+    vba_type_name = 'PivotFilters'
+
+    def __init__(self, table: PivotTable) -> None:
+        self.table = table
+
+    def vba_items(self) -> list[object]:
+        fields = self.table.PivotFields()
+        return [PivotFilter(fields.Item(rule.field + 1), rule.element) for rule in rules(self.table.entry.root)]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        position = int(to_integer(index, 'Long'))
+        if 1 <= position <= len(items):
+            return items[position - 1]
+        raise error(1004)
+
+    @member
+    def Parent(self) -> object:
+        return self.table
+
+    @member
+    def Application(self) -> object:
+        return self.table.sheet.book.application
+
+
 class PivotFilter(ExcelObject):
     """A filter of a field, found by its id each time, as a layout drawn again makes the table's filters anew."""
 
@@ -485,6 +513,24 @@ class PivotFilter(ExcelObject):
 
     def __init__(self, field: PivotField, element: XmlElement) -> None:
         self.field, self.identifier = field, element.get('id', '')
+
+    # -- tests/fixtures/pivot_reads.json: what a macro has no way to give a filter over a list here.
+
+    @member
+    def Name(self) -> object:
+        return ''
+
+    @member
+    def Description(self) -> object:
+        return ''
+
+    @member
+    def IsMemberPropertyFilter(self) -> object:
+        return False
+
+    @member
+    def Application(self) -> object:
+        return self.field.table.sheet.book.application
 
     def element(self) -> XmlElement | None:
         group = _filters(self.field.table.entry.root)

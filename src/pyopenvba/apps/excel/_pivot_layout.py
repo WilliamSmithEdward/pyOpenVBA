@@ -443,7 +443,12 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     selected = passing(ids, lists, on_axes, chosen_pages, label_hidden(found, list(fields), on_axes))
     # Each data field's values, a calculated field's worked out from its formula.
     measures = Measures(list(fields), table.sheet)
+    before_values = selected
     selected = value_filtered(selected, ids, records_, found, (rows, columns), reports, measures)
+    # A value filter narrows its own axis alone: the other keeps an item it emptied, its cells blank
+    # (tests/fixtures/pivot_reads.json, a top count on the rows).
+    row_records = value_filtered(before_values, ids, records_, found, (rows, []), reports, measures)
+    column_records = value_filtered(before_values, ids, records_, found, ([], columns), reports, measures)
     # A field's calculated items add rows for each combination of the other fields' items, whose values their
     # formulas work out (tests/fixtures/pivot_calculated_items/).
     workout: Workout | None = None
@@ -464,6 +469,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         workout = Workout(cache, list(fields), items_field, lists[items_field] or [], records_, ids, counted,
                           [index for index in shown_fields if index != items_field], measures, table.sheet)
         selected = workout.extend(selected)
+        row_records = column_records = selected
     sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_, measures,
                         workout.value if workout is not None else None)
     layouts = {index: layout_of(root, index) for index in (*rows, *columns)}
@@ -481,10 +487,10 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                      else [Line()])
     else:
         row_lines = _lines(rows, ids, display, len(reports), rows=True,
-                           grand=root.get('colGrandTotals', '1') != '0', selected=selected, sorts=sorts,
+                           grand=root.get('colGrandTotals', '1') != '0', selected=row_records, sorts=sorts,
                            layouts=layouts)
         col_lines = _lines(columns, ids, display, len(reports), rows=False,
-                           grand=root.get('rowGrandTotals', '1') != '0', selected=selected, sorts=sorts,
+                           grand=root.get('rowGrandTotals', '1') != '0', selected=column_records, sorts=sorts,
                            layouts=layouts)
     location = root.find(NS + 'location')
     assert location is not None

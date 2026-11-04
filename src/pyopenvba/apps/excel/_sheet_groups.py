@@ -245,11 +245,15 @@ def survivor(book: Workbook, going: list[Worksheet]) -> Worksheet | None:
 
 def set_visible(book: Workbook, sheets: list[Worksheet], value: object, refusal: str) -> None:
     """Hide or show ``sheets``; hiding every visible sheet is error 1004, and hiding the active one makes another
-    active."""
+    active. 1 shows them as xlSheetVisible does, and what Excel does not name is 1004 (tests/fixtures/settable_audit.json)."""
     from pyopenvba.apps.excel._protection import HIDING, refuse_structure
 
     refuse_structure(book, HIDING)
     state = VISIBLE if value is True else (0 if value is False else int(to_integer(value, "Long")))
+    if state == 1:
+        state = VISIBLE
+    if state not in (VISIBLE, 0, 2):
+        raise error(1004, refusal)
     if state == VISIBLE:
         for sheet in sheets:
             sheet.visible = state

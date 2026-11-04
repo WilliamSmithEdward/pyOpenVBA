@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._old_controls import OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
+from pyopenvba.apps.excel._styles import Color
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, TextFrame, _image_points  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
@@ -67,8 +68,14 @@ class _Paint(HeldPart):
         if self.owner.shape.kind == 'picture':
             raise VBAUnsupportedError("Setting the fill or line of a picture through its old object is not implemented")
 
+    def _bare_picture(self) -> bool:
+        """A picture with no fill or line of its own, as this part goes."""
+        look = self._look()
+        own = (look.line_rgb or look.line_scheme or look.line_width) if self.slot else (look.fill_rgb or look.fill_scheme)
+        return self.owner.shape.kind == 'picture' and not own
+
     def _shown(self) -> bool:
-        return self.owner.shape.kind != 'picture' and bool(to_number(self._format().vba_get('Visible', [])))
+        return not self._bare_picture() and bool(to_number(self._format().vba_get('Visible', [])))
 
     def _set_colour(self, name: str, value: object) -> None:
         self._refuse_picture()
@@ -80,7 +87,7 @@ class _Paint(HeldPart):
 
     @member
     def Color(self) -> object:
-        if self.owner.shape.kind == 'picture':
+        if self._bare_picture():
             return VBAInt(16777215, 'Long')
         look = self._look()
         if not self.slot and look.fill_rgb is None and look.fill_scheme is None:
@@ -96,11 +103,15 @@ class _Paint(HeldPart):
     def ColorIndex(self) -> object:
         look = self._look()
         own = look.line_rgb if self.slot else look.fill_rgb
-        if self.owner.shape.kind == 'picture' or (own is None and not self._shown()):
+        if self._bare_picture() or (own is None and not self._shown()):
             return VBAInt(_XL_NONE, 'Long')
+        colour = int(to_number(self.vba_get('Color', [])))
+        if self.owner.shape.kind == 'picture':
+            # Its colour reads as the nearest in the palette (tests/fixtures/shape_settings_kept.json).
+            colors = self.owner.sheet.book.stylesheet.colors
+            return VBAInt(colors.tab_index(Color('rgb', f'FF{colour & 255:02X}{colour >> 8 & 255:02X}{colour >> 16 & 255:02X}')), 'Long')
         scheme = look.line_scheme if self.slot else look.fill_scheme
-        given = (look.style_line[0] if look.style_line else None) if self.slot else look.style_fill
-        if own is None and scheme and scheme != given and (self.owner.shape.kind, scheme) != ('textBox', 'lt1'):
+        if own is None and scheme and colour != getattr(self._format(), 'style')()[2 if self.slot else 0]:
             raise VBAUnsupportedError("The ColorIndex of a drawing's theme colour is not implemented")
         if own is None:
             return VBAInt(_STYLE_INDEXES[_style_of(self.owner.shape)][self.slot], 'Long')
@@ -169,7 +180,7 @@ class Border(_Paint):
 
     @member
     def Weight(self) -> object:
-        if self.owner.shape.kind == 'picture':
+        if self._bare_picture():
             return VBAInt(1, 'Long')
         width = float(to_number(self._format().vba_get('Weight', [])))
         if width <= 0:
@@ -397,6 +408,14 @@ class Line(OldDrawing):
 
     def holds(self, shape: Shape) -> bool:
         return _is_collected_line(shape)
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        # An elbow or a curve has an Interior, as none shows (tests/fixtures/shape_settings_kept.json); a straight line has none.
+        if name.lower() == 'interior' and self.shape.geometry not in ('line', 'straightConnector1'):
+            from pyopenvba.apps.excel._text_paragraphs import NoEffect
+
+            return NoEffect(self, 'Interior', {'Color': VBAInt(0, 'Long'), 'ColorIndex': VBAInt(_XL_NONE, 'Long'), 'Pattern': VBAInt(_XL_NONE, 'Long')})
+        return super().vba_get(name, args, named)
 
     @member
     def ArrowHeadStyle(self) -> object:

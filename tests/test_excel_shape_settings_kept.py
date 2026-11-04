@@ -21,8 +21,8 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'shape_settings_kept.json').read_text(encoding='utf-8'))
 NEW: dict[str, str] = RECORD['new']
 CONTROLS = ('CheckBox', 'Button', 'DropDown', 'Spinner')
-#: What the model reports rather than answers: a picture's old object, which is only partly measured.
-REFUSED = re.compile(r'^(Picture|Pic): s\.DrawingObject\.(Interior\.(Color|ColorIndex)|Border\.)')
+#: What the model reports rather than answers: a change to a picture through its old object, and to a text box's colours by palette or its line's colour there.
+REFUSED = re.compile(r'^(Picture|Pic): s\.DrawingObject\.|^(TextBox|Box): s\.DrawingObject\.(Interior\.ColorIndex|Border\.Color)|^Picture: s\.Line\.Weight')
 
 
 def _png() -> bytes:

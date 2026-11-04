@@ -51,6 +51,19 @@ def _application_settings(book: Workbook, values: dict[str, str]) -> None:
         application.max_change = 0.001
 
 
+#: The attributes of calcPr in the order Excel writes them, which is the schema's.
+_ORDER = ('calcId', 'calcMode', 'fullCalcOnLoad', 'refMode', 'iterate', 'iterateCount', 'iterateDelta', 'fullPrecision', 'calcCompleted',
+          'calcOnSave', 'concurrentCalc', 'concurrentManualCount', 'forceFullCalc')
+
+
+def _in_schema_order(tag: str) -> str:
+    """A calcPr tag with its attributes in the order Excel writes them; any other stays after them, as it came."""
+    held = re.findall(r'\s([\w:]+)="([^"]*)"', tag)
+    rank = {name: at for at, name in enumerate(_ORDER)}
+    ordered = sorted(held, key=lambda one: rank.get(one[0], len(_ORDER)))
+    return '<calcPr' + ''.join(f' {name}="{value}"' for name, value in ordered) + '/>'
+
+
 def write(book: Workbook, xml: str) -> str:
     """Persist current mode and save behavior, leaving unrelated calculation settings intact."""
     found = _CALC.search(xml)
@@ -63,11 +76,12 @@ def write(book: Workbook, xml: str) -> str:
                {value: key for key, value in _MODES.items()}.get(application.calculation, 'auto'),
                'calcOnSave': '1' if application.calculate_before_save else '0'}
     pending = any(cell.formula and cell.stale for sheet in book.sheets_ for cell in sheet.cells_.values())
-    if not book.calculator.automatic and pending:
-        desired['calcCompleted'] = '0'
-    elif 'calcCompleted' in values:
-        desired['calcCompleted'] = '0' if pending else '1'
     changed = old
+    if pending and (not book.calculator.automatic or 'calcCompleted' in values):
+        desired['calcCompleted'] = '0'
+    else:
+        # Excel writes it only when a calculation is still to finish (tests/fixtures/saved_values.json).
+        changed = re.sub(r'\scalcCompleted="[^"]*"', '', changed)
     if application.reference_style == -4150:
         desired['refMode'] = 'R1C1'
     elif 'refMode' in values:
@@ -113,6 +127,9 @@ def write(book: Workbook, xml: str) -> str:
             end = changed.index('>')
             at = end - 1 if changed[end - 1] == '/' else end
             changed = changed[:at] + f' {name}="{value}"' + changed[at:]
+    if changed == old:
+        return xml
+    changed = _in_schema_order(changed)
     if changed == old:
         return xml
     if found:

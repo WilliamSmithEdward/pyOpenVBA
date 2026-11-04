@@ -249,15 +249,17 @@ def _render_number(value: Decimal, section: str) -> tuple[str, bool]:
         grouping = any(piece == ("ch", ",") for piece in integer_part[first:last])
         scale = sum(1 for piece in integer_part[last + 1:] if piece == ("ch", ","))
     first_digit = next((index for index, (kind, char) in enumerate(pieces) if kind == "ch" and char in "0#"), None)
+    # A percent scales wherever a point stands for a placeholder too: 7 under 1.5% is 1700.5% (tests/fixtures/digit_formats.json).
     percent = sum(1 for index, piece in enumerate(pieces)
-                  if piece == ("ch", "%") and first_digit is not None and index > first_digit)
+                  if piece == ("ch", "%") and ((first_digit is not None and index > first_digit) or (first_digit is None and point is not None)))
     value = value * Decimal(100) ** percent / Decimal(1000) ** scale
     if exponent_at is not None:
         return _render_scientific(value, pieces, exponent_at, placeholders, decimals, point)
     rounded = value.quantize(Decimal(1).scaleb(-len(decimals)), rounding=ROUND_HALF_UP)
     whole, _, fraction = f"{rounded:f}".partition(".")
     fraction = fraction.ljust(len(decimals), "0")
-    return _fill(pieces, point, whole, fraction, placeholders, decimals, grouping), rounded == 0
+    # With no placeholder, nothing rounds: 0.25 under 1.5;2.5;3.5 is 1.5 (tests/fixtures/digit_formats.json).
+    return _fill(pieces, point, whole, fraction, placeholders, decimals, grouping), rounded == 0 and first_digit is not None
 
 
 def _exponent_index(pieces: list[tuple[str, str]]) -> int | None:

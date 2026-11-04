@@ -33,7 +33,7 @@ from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.formula._parse import without_dangling_references
-from pyopenvba.formula._prefixes import calculated_always
+from pyopenvba.formula._prefixes import calculated_always, calls_only_ordinary_functions
 from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
 from pyopenvba.powerquery._opc import OpcFile
@@ -624,6 +624,16 @@ def _area_of(reference: str) -> tuple[int, int, int, int]:
     return area.top, area.left, area.bottom, area.right
 
 
+def _read_shape_links(shapes: list[ShapeState], relationships: dict[str, tuple[str, str]]) -> None:
+    """Each shape's hyperlink, its relationship made the address it names."""
+    for shape in shapes:
+        if shape.link is not None:
+            relationship, tip, place = shape.link
+            target = relationships.get(relationship, ("", ""))[1]
+            shape.link = (target, tip, place)
+        _read_shape_links(shape.children, relationships)
+
+
 def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     """The sheet's drawing, read into the model.
 
@@ -641,6 +651,7 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     # Anchors are read against the model's own rows and columns, the ones
     # a save writes them against, so a shape nobody moved stays put.
     sheet.shapes_ = read_drawing(sheet.drawing_xml, sheet.drawing_grid())
+    _read_shape_links(sheet.shapes_, _sheet_relationships(package, part))
     from pyopenvba.apps.excel import _charts_file
 
     _charts_file.read(sheet, package)
@@ -1578,6 +1589,8 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
 
     settle_manual(book)
     calculate_for_save(book)
+    # Worked out once for the save, when a sheet first asks, from the formulas as they now stand.
+    book.calculator.volatile_readers = None
     from pyopenvba.apps.excel._sort import preflight_save
 
     preflight_save(book)
@@ -2295,6 +2308,22 @@ def _plain_conditional(sheet: Worksheet) -> bool:
     return sheet.conditional_changed or any(rule.loaded and canonical_load(rule) for rule in sheet.conditional_formats)
 
 
+def _reading_volatile(sheet: Worksheet) -> set[tuple[int, int]]:
+    """The cells of a sheet a file marks ca="1" for what they read (see Calculator.reading_volatile)."""
+    book = sheet.book
+    keys = book.calculator.volatile_readers
+    if keys is None:
+        knows = _knows(book)
+
+        def marked_for_itself(formula: str) -> bool:
+            return not calls_only_ordinary_functions(formula) and calculated_always(formula, knows)
+
+        keys = book.calculator.reading_volatile(marked_for_itself)
+        book.calculator.volatile_readers = keys
+    name = sheet.name.lower()
+    return {(row, column) for owner, row, column in keys if owner == name}
+
+
 def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector: Collector | None = None) -> str:
     """The sheet's XML with the model's cells written into it; ``collector`` gathers the metadata its dynamic-array
     formulas need, which the save writes after every sheet."""
@@ -2324,7 +2353,8 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
     def always(formula: str) -> bool:
         return calculated_always(formula, knows)
 
-    formulas = formula_elements(sheet, spell, always) | elements(sheet, spell, always)
+    marked = _reading_volatile(sheet)
+    formulas = formula_elements(sheet, spell, always, marked) | elements(sheet, spell, always, marked)
     automatic = sheet.book.calculator.automatic
     #: Whether a formula keeps its last value in the file though it is to be worked out again, as in manual
     #: calculation and on a sheet whose EnableCalculation is False (tests/fixtures/worksheet_settings.json).
@@ -2363,7 +2393,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
                                                                       collector or Collector())
     for position, cell in sheet.cells_.items():
         if cell.formula and position not in formulas:
-            volatile = ' ca="1"' if always(cell.formula) else ""
+            volatile = ' ca="1"' if always(cell.formula) or position in marked else ""
             formulas[position] = f"<f{volatile}>{spell(cell.formula[1:])}</f>"
         dirty = cell.stale if cell.save_dirty is None else cell.save_dirty
         if cell.formula and dirty and not sheet.book.calculator.automatic \
@@ -2681,6 +2711,7 @@ def _sheet_with_values(sheet: Worksheet, xml: str, strings: list[str]) -> str:
         return xml
     automatic = sheet.book.calculator.automatic
     keeping = not automatic or not sheet.enable_calculation
+    reading = _reading_volatile(sheet)
     # In semi-automatic calculation a data table keeps its last values until a calculation is asked for.
     held = [table.area for table in sheet.data_tables.values()] if sheet.book.application.calculation == 2 else []
 
@@ -2695,7 +2726,7 @@ def _sheet_with_values(sheet: Worksheet, xml: str, strings: list[str]) -> str:
         if cell is None or not cell.formula:
             return element
         kept = keeping or any(area.top <= row <= area.bottom and area.left <= column <= area.right for area in held)
-        marked = not automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)
+        marked = (not automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)) or (row, column) in reading
         kind = _CELL_KIND.search(head)
         if not marked and (row, column) in sheet.marked_to_calculate:
             # Worked out since a save marked it, so Excel has no more need to, and writes it without the mark.
@@ -2923,6 +2954,8 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     # Excel leaves Excel 4 macro names out of a workbook saved without macros (tests/fixtures/name_macro.json).
     macros = workbook_format(book) in (52, 53, 55)
     for entry in book.names_.entries:
+        if entry.macro_links_itself and macros:
+            raise VBAUnsupportedError("Saving a macro name whose RefersTo was set to a sheet's cells is not implemented")
         if (entry.macro_type and not macros) or any(entry is lost for lost in book.query_names_lost):
             continue
         # A name that came from the file keeps the attributes it came
@@ -2956,7 +2989,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         attributes = attributes.strip()
         refers_to = saved_name(without_dangling_references(prefixes.in_file(in_file(entry.refers_to, tables))).lstrip("="))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
-                        f"<definedName {attributes}>{_escape(refers_to)}</definedName>"))
+                        f"<definedName {attributes}>{_escape_text(refers_to)}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and
     # a name on a sheet before the workbook's of the same name, sheets in the order of their names.
     written.sort(key=lambda pair: pair[0])

@@ -224,6 +224,7 @@ def load_project(book: Workbook) -> list[str]:
     project = attach_project(book)
     if project is None or book.package is None or not book.package.has("xl/vbaProject.bin"):
         return []
+    book.code_is_its_own = True
     with MemoryExcelFile(book.package.serialize()) as host:
         try:
             return project.load_project(host.vba_project())

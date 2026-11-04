@@ -49,7 +49,8 @@ from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, met
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAInt, error, to_integer, to_text
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from pyopenvba.shapes._values import Shape as ShapeState
+    from collections.abc import Callable, Iterator
 
     from pyopenvba.apps.excel._model import Worksheet
 
@@ -540,8 +541,57 @@ class Hyperlink(HeldPart, ExcelObject):
         return VBAInt(_CREATOR, "Long")
 
 
+class ShapeLink(Hyperlink):
+    """A shape's link, read from its file. It has no cells or text, and changing one reports itself
+    (tests/fixtures/object_roundtrip.json)."""
+
+    vba_type_name = "Hyperlink"
+
+    def __init__(self, sheet: Worksheet, link: Link, shape: ShapeState) -> None:
+        super().__init__(sheet, link)
+        self.shape = shape
+
+    def _set(self, change: Callable[[Link], None]) -> None:
+        raise VBAUnsupportedError("changing a loaded shape's hyperlink is not implemented")
+
+    @member
+    def TextToDisplay(self) -> object:
+        raise error(-2147467259, "Method 'TextToDisplay' of object 'Hyperlink' failed")
+
+    @member
+    def Type(self) -> object:
+        return VBAInt(1, "Long")  # msoHyperlinkShape
+
+    @member
+    def Range(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def Shape(self) -> object:
+        from pyopenvba.apps.excel._shapes import ShapeObject
+
+        return ShapeObject(self.sheet, self.shape)
+
+    @method
+    def Delete(self) -> object:
+        raise VBAUnsupportedError("deleting a loaded shape's hyperlink is not implemented")
+
+
+def shape_link(sheet: Worksheet, shape: ShapeState) -> ShapeLink:
+    assert shape.link is not None
+    address, tip, place = shape.link
+    return ShapeLink(sheet, Link(Area(1, 1, 1, 1), address, place, tip), shape)
+
+
+def _shapes_with_links(shapes: list[ShapeState]) -> Iterator[ShapeState]:
+    for shape in shapes:
+        if shape.link is not None:
+            yield shape
+        yield from _shapes_with_links(shape.children)
+
+
 class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
-    """A sheet's links, or the ones a range holds, in the order the sheet lists them."""
+    """A sheet's links, then its shapes', or the ones a range holds, in the order the sheet lists them."""
 
     vba_type_name = "Hyperlinks"
 
@@ -550,7 +600,10 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
         self.areas = None if areas is None else [Area(one.top, one.left, one.bottom, one.right) for one in areas]
 
     def vba_items(self) -> list[object]:
-        return [Hyperlink(self.sheet, link) for link in links_of(self.sheet, self.areas)]
+        found: list[object] = [Hyperlink(self.sheet, link) for link in links_of(self.sheet, self.areas)]
+        if self.areas is None:
+            found += [shape_link(self.sheet, shape) for shape in _shapes_with_links(self.sheet.shapes_)]
+        return found
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):

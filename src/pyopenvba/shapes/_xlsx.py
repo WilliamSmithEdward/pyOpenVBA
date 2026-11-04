@@ -209,6 +209,7 @@ def _from_alternate(markup: str, grid: SheetGrid | None) -> Shape | None:
         shape.kind = "formControl"
         shape.control = ControlInfo()
         shape.source = markup
+        shape.hidden = False  # a control's drawing is hidden for older readers, which Excel goes past
     return shape
 
 
@@ -216,9 +217,7 @@ def _shape_of(
     markup: str, element: str, kind: str, anchor: str, grid: SheetGrid | None
 ) -> Shape:
     shape_id, name = dml.identity(markup)
-    left, top, width, height = dml.transform(markup)
-    if not width and not height:
-        left, top, width, height = _anchor_box(anchor, grid) or (left, top, width, height)
+    left, top, width, height = _anchor_box(anchor, grid) or dml.transform(markup)
     if kind == "shape" and _TXBOX.search(markup):
         kind = "textBox"
     if kind == "chart" and 'http://schemas.openxmlformats.org/drawingml/2006/diagram' in markup:
@@ -239,8 +238,10 @@ def _shape_of(
         source=anchor,
         auto_shape_type=next((number for number, preset in PRESET_GEOMETRY.items() if preset == geometry), 1),
     )
+    shape.loaded_box = (left, top, width, height)
     if kind == "group":
         shape.children = _members(markup, grid)
+        _placed_in_group(shape.children, _CHILD_SPACE.search(markup), (left, top, width, height))
     _read_settings(shape, markup, anchor)
     return shape
 
@@ -259,6 +260,9 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
                 setattr(shape, field_name, unescape(found.group(1)))
     shape.decorative = re.search(r'<adec:decorative\b[^>]*\bval="1"', markup) is not None
     # A form control's drawing is hidden for its own reasons; Visible reads only a shape's own hidden.
+    link = _LINK.search(markup[: markup.find("</xdr:cNvPr>") if "</xdr:cNvPr>" in markup else 0])
+    if link is not None:
+        shape.link = (_attribute(link.group(1), "r:id"), _attribute(link.group(1), "tooltip"), _attribute(link.group(1), "location"))
     shape.hidden = (shape.kind != "formControl" and identity is not None
                     and re.search(r'\bhidden="(?:1|true)"', identity.group(1)) is not None)
     turned = _ROTATION.search(markup)
@@ -274,14 +278,53 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
     shape.prints = client is None or re.search(r'\bfPrintsWithSheet="(?:0|false)"', client.group(1)) is None
     placement = re.search(r'<xdr:twoCellAnchor\b[^>]*\beditAs="([^"]*)"', anchor)
     shape.edit_as = placement.group(1) if placement and placement.group(1) != "twoCell" else ""
+    # The other two kinds of anchor say it by what they are (tests/fixtures/drawing_anchors.json).
+    if anchor.lstrip().startswith("<xdr:oneCellAnchor"):
+        shape.edit_as = "oneCell"
+    elif anchor.lstrip().startswith("<xdr:absoluteAnchor"):
+        shape.edit_as = "absolute"
+
+
+_ANCHOR_SIZE = re.compile(r'<xdr:ext\b[^>]*?\bcx="(-?\d+)"[^>]*?\bcy="(-?\d+)"')
+_ANCHOR_PLACE = re.compile(r'<xdr:pos\b[^>]*?\bx="(-?\d+)"[^>]*?\by="(-?\d+)"')
+_CHILD_SPACE = re.compile(r'<a:chOff\b[^>]*?\bx="(-?\d+)"[^>]*?\by="(-?\d+)"[^>]*/>\s*<a:chExt\b[^>]*?\bcx="(-?\d+)"[^>]*?\bcy="(-?\d+)"')
+_LINK = re.compile(r'<a:hlinkClick\b([^>]*)>')
+
+
+def _attribute(attributes: str, name: str) -> str:
+    found = re.search(rf'(?:^|\s){re.escape(name)}="([^"]*)"', attributes)
+    return unescape(found.group(1)) if found else ""
+
+
+def _placed_in_group(members: list[Shape], space: re.Match[str] | None, box: tuple[float, float, float, float]) -> None:
+    """A group's members, written in its child space, placed where the group's anchor has put that space."""
+    if space is None or not int(space.group(3)) or not int(space.group(4)):
+        return
+    origin_x, origin_y = int(space.group(1)) / 12700, int(space.group(2)) / 12700
+    across, down = box[2] / (int(space.group(3)) / 12700), box[3] / (int(space.group(4)) / 12700)
+    if (origin_x, origin_y, across, down) == (box[0], box[1], 1.0, 1.0):
+        return
+    for member in members:
+        member.left, member.top = box[0] + (member.left - origin_x) * across, box[1] + (member.top - origin_y) * down
+        member.width, member.height = member.width * across, member.height * down
+        _rescaled(member.children, origin_x, origin_y, across, down, box)
+
+
+def _rescaled(members: list[Shape], origin_x: float, origin_y: float, across: float, down: float, box: tuple[float, float, float, float]) -> None:
+    for member in members:
+        member.left, member.top = box[0] + (member.left - origin_x) * across, box[1] + (member.top - origin_y) * down
+        member.width, member.height = member.width * across, member.height * down
+        _rescaled(member.children, origin_x, origin_y, across, down, box)
 
 
 def _anchor_box(anchor: str, grid: SheetGrid | None) -> tuple[float, float, float, float] | None:
-    """Where the anchor says the shape is, in points.
-
-    Used for a shape whose own transform is empty, which is how Excel
-    writes a form control.
-    """
+    """Where the anchor says the shape is, in points: what Excel goes by, whatever the shape's own transform says
+    (tests/fixtures/drawing_anchors.json). Cells for both corners, or one cell or a place on the sheet and a size."""
+    size = _ANCHOR_SIZE.search(anchor)
+    width, height = (int(size.group(1)) / 12700, int(size.group(2)) / 12700) if size else (0.0, 0.0)
+    place = _ANCHOR_PLACE.search(anchor)
+    if place is not None:
+        return int(place.group(1)) / 12700, int(place.group(2)) / 12700, width, height
     if grid is None:
         return None
     start = dml.element_span(anchor, "xdr:from")
@@ -290,8 +333,13 @@ def _anchor_box(anchor: str, grid: SheetGrid | None) -> tuple[float, float, floa
         return None
     left, top = _corner(anchor[start[0] : start[1]], grid)
     if finish is None:
-        return left, top, 0.0, 0.0
+        return left, top, width, height
     right, bottom = _corner(anchor[finish[0] : finish[1]], grid)
+    turned = _ROTATION.search(anchor)
+    if turned is not None and 45 <= int(turned.group(1)) / 60000 % 180 < 135:
+        # From 45 to 135 degrees, and 225 to 315, the cells hold the box turned about its centre.
+        width, height = bottom - top, right - left
+        return (left + right - width) / 2, (top + bottom - height) / 2, width, height
     return left, top, right - left, bottom - top
 
 
@@ -1547,7 +1595,12 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
 def _shape_of_source(shape: Shape) -> Shape | None:
     """What the markup this shape came from says about it."""
     read = read_drawing(f"<xdr:wsDr>{shape.source}</xdr:wsDr>")
-    return read[0] if read else None
+    if not read:
+        return None
+    if shape.loaded_box is not None:
+        # Where the load put it, by its anchor; the markup alone, with no grid, has only its transform.
+        read[0].left, read[0].top, read[0].width, read[0].height = shape.loaded_box
+    return read[0]
 
 
 def _moved(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None = None) -> str:

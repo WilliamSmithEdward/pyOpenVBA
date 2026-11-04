@@ -859,6 +859,9 @@ class Interior(ExcelObject):
 
     @member
     def Color(self) -> object:
+        if self._mixes_gradient() and len(self._fills()) == 1:
+            # Gradients beside each other or no fill read as no fill's white.
+            return 16777215.0
         return self._answer(cell_color, "Color", 0.0)
 
     @setter("Color")
@@ -902,10 +905,8 @@ class Interior(ExcelObject):
         def change(fill: S.Fill) -> S.Fill:
             if fill.pattern == "none":
                 return fill
-            color = cell_color(fill)
-            if color in (S.FOREGROUND, S.BACKGROUND) or color.kind == "auto":
-                raise VBAUnsupportedError("TintAndShade on an automatic fill colour is not implemented")
-            return self._colored(fill, replace(color, tint=tint))
+            # An automatic colour keeps its shade and shows no change (tests/fixtures/mixed_fills.json).
+            return self._colored(fill, replace(cell_color(fill), tint=tint))
 
         self._write(change)
 
@@ -998,10 +999,7 @@ class Interior(ExcelObject):
         def change(fill: S.Fill) -> S.Fill:
             if fill.pattern == "none":
                 return fill
-            color = pattern_color(fill)
-            if color in (S.FOREGROUND, S.BACKGROUND) or color.kind == "auto":
-                raise VBAUnsupportedError("PatternTintAndShade on an automatic pattern colour is not implemented")
-            return self._with_pattern_color(fill, replace(color, tint=tint))
+            return self._with_pattern_color(fill, replace(pattern_color(fill), tint=tint))
 
         self._write(change)
 

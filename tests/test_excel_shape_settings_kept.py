@@ -37,7 +37,10 @@ def _reader() -> str:
              'Private Function Reads(s As Object) As String', '    Dim v As Variant, r As String', '    On Error Resume Next']
     for read in RECORD['reads']:
         lines += ['    Err.Clear', f'    v = {read}', '    If Err.Number Then', '        r = r & "|E" & Err.Number', '    Else', '        r = r & "|" & Shown(v)', '    End If']
-    return '\n'.join([*lines, '    Reads = r', 'End Function', ''])
+    lines += ['    Reads = r', 'End Function', '', 'Private Function TypesOf(s As Object) As String', '    Dim v As Variant, r As String', '    On Error Resume Next']
+    for read in RECORD['reads']:
+        lines += ['    Err.Clear', f'    v = {read}', '    If Err.Number Then', '        r = r & "|E"', '    Else', '        r = r & "|" & TypeName(v)', '    End If']
+    return '\n'.join([*lines, '    TypesOf = r', 'End Function', ''])
 
 
 def _source(target: str, statement: str) -> str:
@@ -45,8 +48,8 @@ def _source(target: str, statement: str) -> str:
     lines = [_reader(), 'Public Function Go(ByVal folder As String) As String', '    Dim wb As Workbook, ws As Object, s As Object, r As String, name As String', '    Application.DisplayAlerts = False']
     lines += ['    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)', f'    {NEW[target]}', '    s.Name = "Target"'] if made else [
         '    Set wb = Workbooks.Open(folder & "\\book.xlsx")', '    Set ws = wb.Worksheets(1)', f'    Set s = ws.Shapes("{target}")']
-    lines += ['    name = s.Name', '    On Error Resume Next', f'    {statement}' if statement else "    ' Nothing is set.", '    If Err.Number Then r = "E" & Err.Number & "!"', '    Err.Clear', '    On Error GoTo 0', '    r = r & Reads(s) & "@@"',
-              '    wb.SaveAs folder & "\\saved.xlsx", xlOpenXMLWorkbook', '    wb.Close False', '    Set wb = Workbooks.Open(folder & "\\saved.xlsx")', '    r = r & Reads(wb.Worksheets(1).Shapes(name))', '    wb.Close False', '    Application.DisplayAlerts = True', '    Go = r', 'End Function']
+    lines += ['    name = s.Name', '    On Error Resume Next', f'    {statement}' if statement else "    ' Nothing is set.", '    If Err.Number Then r = "E" & Err.Number & "!"', '    Err.Clear', '    On Error GoTo 0', '    r = r & Reads(s) & "##" & TypesOf(s) & "@@"',
+              '    wb.SaveAs folder & "\\saved.xlsx", xlOpenXMLWorkbook', '    wb.Close False', '    Set wb = Workbooks.Open(folder & "\\saved.xlsx")', '    r = r & Reads(wb.Worksheets(1).Shapes(name)) & "##" & TypesOf(wb.Worksheets(1).Shapes(name))', '    wb.Close False', '    Application.DisplayAlerts = True', '    Go = r', 'End Function']
     return '\n'.join(lines).replace('folder & "\\', f'folder & "{os.sep}')+ '\n'
 
 

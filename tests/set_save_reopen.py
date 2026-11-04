@@ -22,7 +22,9 @@ from pathlib import Path
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 
-_NEVER = re.compile(r'\.Follow\b|mailto|SendMail|FollowHyperlink|xlDialogSendMail', re.IGNORECASE)
+#: These could send real mail from the machine's account, in Excel and in any probe written from a sweep.
+_NEVER = re.compile(r'\.Follow\b|mailto|FollowHyperlink|\b(?:SendMail|SendForReview|ReplyWithChanges|EndReview|Route|RouteWorkbook|RoutingSlip|HasRoutingSlip|HasMailer|Mailer|MailEnvelope|SendFaxOverInternet'
+                    r'|MailLogon|MailLogoff|MailSession|MailSystem|xlDialogSendMail|Reply|ReplyAll)\b', re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -65,7 +67,7 @@ def _reader(make: str, statement: str, read: str) -> str:
 
 def outcome(case: Case, folder: Path) -> tuple[str, str]:
     """``kept``, ``no claim`` or ``lost``, and what was seen."""
-    assert not _NEVER.search(f'{case.path} {case.value} {case.target.make} {case.target.find}'), 'no mail or link members in a sweep'
+    assert not _NEVER.search(f'{case.path} {case.value} {case.target.make} {case.target.find}'), 'no mail or link-following members in a sweep'
     target = case.target
     if target.book is not None:
         app = ExcelApplication.open(target.book, with_vba=False)

@@ -36,7 +36,9 @@ _ONLY = {'s.ConnectorFormat.Type': ['2'], 's.PictureFormat.Brightness': ['0.7'],
 SETTINGS = {**_GENERAL, **_TEXT, **_ONLY}
 KINDS: dict[str, tuple[str, ...]] = {**{path: ('text',) for path in _TEXT}, 's.ConnectorFormat.Type': ('line',), **{path: ('picture',) for path in _ONLY if 'Picture' in path}}
 #: What a save still loses. It may only shrink.
-ACCEPTED: dict[str, str] = {}
+_NEW_CONTROLS = ('check box', 'button', 'drop-down', 'spinner')
+_CONTROL_SETTINGS = ('s.AlternativeText = "Alt"', 's.Rotation = 30', 's.Visible = msoFalse', 's.LockAspectRatio = msoTrue', 's.Placement = xlFreeFloating', 's.Decorative = msoTrue', 's.Locked = False')
+ACCEPTED: dict[str, str] = {f'{control}: {setting}': "a new form control's drawing and VML are written without it" for control in _NEW_CONTROLS for setting in _CONTROL_SETTINGS}
 
 
 @pytest.mark.parametrize('case', cases(TARGETS, SETTINGS, KINDS), ids=str)

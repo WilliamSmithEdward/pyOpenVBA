@@ -1220,7 +1220,9 @@ def _fill_line(shape: Shape) -> str:
     if look.fill_gradient is not None:
         fill_paint = _gradient(look.fill_gradient)
     fill = ""
-    if look.fill_hidden or look.fill_bare:
+    if look.fill_bare and not look.fill_hidden and shape.kind == "picture":
+        fill = ""
+    elif look.fill_hidden or look.fill_bare:
         fill = "<a:noFill/>"
     elif look.fill_pattern is not None or look.fill_gradient is not None:
         fill = fill_paint
@@ -1392,11 +1394,12 @@ def _arrow_ends(head: tuple[str | None, str | None, str | None], tail: tuple[str
 
 def _stroke(tag: str, namespace: str, width: int, paint: str, dash: str, text_box: bool, full: bool, ends: str,
             align: str | None) -> str:
-    """A line written out in full: as a text box has it, with no dash or join until its ends are written, or as the
-    style gives any other shape's."""
+    """A line written out in full: as a text box has it, with no join until its ends are written and a dash only if one is set
+    (tests/fixtures/shape_settings_kept.json), or as the style gives any other shape's."""
     if text_box and not full:
         aligned = "" if align is None else f' algn="{align}"'
-        return f'<{tag}{namespace} w="{width}" cmpd="sng"{aligned}>{paint}</{tag}>'
+        dashed = "" if dash == "solid" else f'<a:prstDash val="{dash}"/>'
+        return f'<{tag}{namespace} w="{width}" cmpd="sng"{aligned}>{paint}{dashed}</{tag}>'
     join = "<a:round/>" if text_box else '<a:miter lim="800000"/>'
     return (f'<{tag}{namespace} w="{width}" cap="flat" cmpd="sng" algn="ctr">{paint}<a:prstDash val="{dash}"/>{join}'
             f"{ends}</{tag}>")

@@ -1483,10 +1483,8 @@ class ShapeObject(_Drawn):
 
     @member
     def Connector(self) -> object:
-        """Whether the shape is a connector, which no shape the model makes but a line is
-        (tests/fixtures/missing_reads.json)."""
-        if self.shape.source:
-            raise _unsupported("Connector of a loaded shape")
+        """Whether the shape is a connector, which only a line or a file's cxnSp is
+        (tests/fixtures/missing_reads.json, object_roundtrip.json)."""
         return VBAInt(-1 if self.shape.kind == "line" else 0, "Long")
 
     @member

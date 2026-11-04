@@ -3492,6 +3492,41 @@ class Worksheet(ExcelObject):
         """The older name for the same shapes."""
         return self.Shapes(Index)
 
+    @method
+    def Buttons(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import Buttons as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def CheckBoxes(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import CheckBoxes as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def OptionButtons(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import OptionButtons as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def DropDowns(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import DropDowns as kind, collection
+
+        return collection(self, kind, Index)
+
+    @method
+    def ListBoxes(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's form controls (see _old_controls)."""
+        from pyopenvba.apps.excel._old_controls import ListBoxes as kind, collection
+
+        return collection(self, kind, Index)
+
     @member
     def Cells(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:
         whole = Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)])

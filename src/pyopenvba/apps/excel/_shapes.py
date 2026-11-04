@@ -1411,8 +1411,22 @@ class ShapeObject(_Drawn):
     # -- what it does
 
     @member
+    def OLEFormat(self) -> object:
+        from pyopenvba.apps.excel._old_controls import OLEFormat
+
+        if self.shape.kind != "formControl":
+            raise _unsupported("the OLEFormat of a shape but a form control")
+        return OLEFormat(self.sheet, self.shape)
+
+    @member
     def OnAction(self) -> object:
-        return self.shape.macro
+        """A form control's macro reads with the name of the workbook running the macro, an AutoShape's as it was given
+        (tests/fixtures/old_controls.json, and on_action_prefix below)."""
+        macro = self.shape.macro
+        if self.shape.kind == "formControl" and macro and "!" not in macro:
+            running = self.sheet.book.application.vba_get("ThisWorkbook", [])
+            return f"{getattr(running, 'name', self.sheet.book.name)}!{macro}"
+        return macro
 
     @setter("OnAction")
     def _set_onaction(self, value: object) -> None:
@@ -3312,18 +3326,18 @@ class ControlFormat(_Drawn):
 
     @member
     def Enabled(self) -> object:
-        return not self._settings("Drop", "List", "Checkbox", "Button").disabled
+        return not self._settings("Drop", "List", "Checkbox", "Button", "Radio").disabled
 
     @setter("Enabled")
     def _enabled(self, value: object) -> None:
         wanted = to_bool(value)
-        self._changed("Drop", "List", "Checkbox", "Button").disabled = not wanted
+        self._changed("Drop", "List", "Checkbox", "Button", "Radio").disabled = not wanted
 
     @member
     def PrintObject(self) -> object:
         from pyopenvba.shapes._xlsx import CONTROL_KINDS
 
-        control = self._settings("Drop", "List", "Checkbox", "Button")
+        control = self._settings("Drop", "List", "Checkbox", "Button", "Radio")
         if control.print_object is None:
             # A button starts out not printing; the other controls print.
             return CONTROL_KINDS.get(control.kind, "Button") != "Button"
@@ -3332,16 +3346,16 @@ class ControlFormat(_Drawn):
     @setter("PrintObject")
     def _print_object(self, value: object) -> None:
         wanted = to_bool(value)
-        self._changed("Drop", "List", "Checkbox", "Button").print_object = wanted
+        self._changed("Drop", "List", "Checkbox", "Button", "Radio").print_object = wanted
 
     @member
     def LockedText(self) -> object:
-        return self._settings("Checkbox", "Button").lock_text
+        return self._settings("Checkbox", "Button", "Radio").lock_text
 
     @setter("LockedText")
     def _locked_text(self, value: object) -> None:
         wanted = to_bool(value)
-        self._changed("Checkbox", "Button").lock_text = wanted
+        self._changed("Checkbox", "Button", "Radio").lock_text = wanted
 
     @member
     def ListIndex(self) -> object:

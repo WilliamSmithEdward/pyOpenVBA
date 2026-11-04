@@ -473,6 +473,100 @@ Borders,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.json
 Borders,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,Reads over edges of different colours are unmeasured. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
 Borders,Value,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
 Borders,Weight,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
+Button,Accelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,AddIndent,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,AutoScaleFont,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,AutoSize,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,CancelButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Button,Copy,method,Copy() As Variant,,MISSING,,
+Button,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Button,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Cut,method,Cut() As Variant,,MISSING,,
+Button,DefaultButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,DismissButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Formula,property,As String,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,HelpButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,HorizontalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Orientation,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,ReadingOrder,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,VerticalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Buttons,Accelerator,property,As Variant,,MISSING,,
+Buttons,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Button",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,AddIndent,property,As Boolean,,MISSING,,
+Buttons,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,AutoScaleFont,property,As Variant,,MISSING,,
+Buttons,AutoSize,property,As Boolean,,MISSING,,
+Buttons,BringToFront,method,BringToFront() As Variant,,MISSING,,
+Buttons,CancelButton,property,As Boolean,,MISSING,,
+Buttons,Caption,property,As String,,MISSING,,
+Buttons,Characters,"property, read-only",As Characters,,MISSING,,
+Buttons,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+Buttons,Copy,method,Copy() As Variant,,MISSING,,
+Buttons,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+Buttons,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Cut,method,Cut() As Variant,,MISSING,,
+Buttons,DefaultButton,property,As Boolean,,MISSING,,
+Buttons,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,DismissButton,property,As Boolean,,MISSING,,
+Buttons,Duplicate,method,Duplicate() As Object,,MISSING,,
+Buttons,Enabled,property,As Boolean,,MISSING,,
+Buttons,Font,"property, read-only",As Font,,MISSING,,
+Buttons,Formula,property,As String,,MISSING,,
+Buttons,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Height,property,As Double,,MISSING,,
+Buttons,HelpButton,property,As Boolean,,MISSING,,
+Buttons,HorizontalAlignment,property,As Variant,,MISSING,,
+Buttons,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,Left,property,As Double,,MISSING,,
+Buttons,Locked,property,As Boolean,,MISSING,,
+Buttons,LockedText,property,As Boolean,,MISSING,,
+Buttons,Orientation,property,As Variant,,MISSING,,
+Buttons,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,PhoneticAccelerator,property,As Variant,,MISSING,,
+Buttons,Placement,property,As Variant,,MISSING,,
+Buttons,PrintObject,property,As Boolean,,MISSING,,
+Buttons,ReadingOrder,property,As Long,,MISSING,,
+Buttons,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Buttons,SendToBack,method,SendToBack() As Variant,,MISSING,,
+Buttons,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+Buttons,Text,property,As String,,MISSING,,
+Buttons,Top,property,As Double,,MISSING,,
+Buttons,VerticalAlignment,property,As Variant,,MISSING,,
+Buttons,Visible,property,As Boolean,,MISSING,,
+Buttons,Width,property,As Double,,MISSING,,
+Buttons,ZOrder,"property, read-only",As Long,,MISSING,,
 CalculatedFields,_Default,"property, read-only",As PivotField,,PARTIAL,tests/fixtures/hidden_defaults_more.json; tests/test_excel_hidden_defaults_more.py,"Item, bound early."
 CalculatedFields,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 CalculatedFields,Add,method,"Add(Name As String, Formula As String, [UseStandardFormula As Variant]) As PivotField",,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,"A calculated field at the end of the cache's fields and of each table's, its formula over the fields by their captions, spelled back as Excel spells it; a name a field has is error 1004; a formula Excel refuses adds nothing with alerts off and reports itself unsupported with them on, where Excel shows a message. UseStandardFormula changes nothing in English."
@@ -816,6 +910,86 @@ ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.j
 ChartTitle,Top,property,As Double,,MISSING,,
 ChartTitle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Excel accepts a set and keeps the title centred, so it reads xlCenter and writes nothing."
 ChartTitle,Width,"property, read-only",As Double,,MISSING,,
+CheckBox,_Default,property,As Long,,MISSING,,
+CheckBox,Accelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Border,"property, read-only",As Border,,MISSING,,
+CheckBox,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+CheckBox,Copy,method,Copy() As Variant,,MISSING,,
+CheckBox,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+CheckBox,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Cut,method,Cut() As Variant,,MISSING,,
+CheckBox,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+CheckBox,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Interior,"property, read-only",As Interior,,MISSING,,
+CheckBox,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+CheckBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Value,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,_Default,property,As Long,,MISSING,,
+CheckBoxes,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+CheckBoxes,Accelerator,property,As Variant,,MISSING,,
+CheckBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As CheckBox",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Border,"property, read-only",As Border,,MISSING,,
+CheckBoxes,BringToFront,method,BringToFront() As Variant,,MISSING,,
+CheckBoxes,Caption,property,As String,,MISSING,,
+CheckBoxes,Characters,"property, read-only",As Characters,,MISSING,,
+CheckBoxes,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+CheckBoxes,Copy,method,Copy() As Variant,,MISSING,,
+CheckBoxes,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+CheckBoxes,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Cut,method,Cut() As Variant,,MISSING,,
+CheckBoxes,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Display3DShading,property,As Boolean,,MISSING,,
+CheckBoxes,Duplicate,method,Duplicate() As Object,,MISSING,,
+CheckBoxes,Enabled,property,As Boolean,,MISSING,,
+CheckBoxes,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Height,property,As Double,,MISSING,,
+CheckBoxes,Interior,"property, read-only",As Interior,,MISSING,,
+CheckBoxes,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,Left,property,As Double,,MISSING,,
+CheckBoxes,LinkedCell,property,As String,,MISSING,,
+CheckBoxes,Locked,property,As Boolean,,MISSING,,
+CheckBoxes,LockedText,property,As Boolean,,MISSING,,
+CheckBoxes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,PhoneticAccelerator,property,As Variant,,MISSING,,
+CheckBoxes,Placement,property,As Variant,,MISSING,,
+CheckBoxes,PrintObject,property,As Boolean,,MISSING,,
+CheckBoxes,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBoxes,SendToBack,method,SendToBack() As Variant,,MISSING,,
+CheckBoxes,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+CheckBoxes,Text,property,As String,,MISSING,,
+CheckBoxes,Top,property,As Double,,MISSING,,
+CheckBoxes,Value,property,As Variant,,MISSING,,
+CheckBoxes,Visible,property,As Boolean,,MISSING,,
+CheckBoxes,Width,property,As Double,,MISSING,,
+CheckBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
 ColorFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
 ColorFormat,Brightness,property,As Single,,PARTIAL,tests/fixtures/shape_line_ends.json; tests/test_excel_shape_line_ends.py,lumMod and lumOff; RGB computed from them. ShapeRange refused.
 ColorFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
@@ -1172,6 +1346,92 @@ DownBars,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_type
 DownBars,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,The chart group.
 DownBars,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 DownBars,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
+DropDown,_Default,property,As Long,,MISSING,,
+DropDown,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Copy,method,Copy() As Variant,,MISSING,,
+DropDown,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+DropDown,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Cut,method,Cut() As Variant,,MISSING,,
+DropDown,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+DropDown,DropDownLines,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,LinkedObject,"property, read-only",As Variant,,MISSING,,
+DropDown,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ListIndex,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,RemoveAllItems,method,RemoveAllItems() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Selected,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Value,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,_Default,property,As Long,,MISSING,,
+DropDowns,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+DropDowns,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double, [Editable As Variant]) As DropDown",no Editable,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,MISSING,,
+DropDowns,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,BringToFront,method,BringToFront() As Variant,,MISSING,,
+DropDowns,Caption,property,As String,,MISSING,,
+DropDowns,Characters,"property, read-only",As Characters,,MISSING,,
+DropDowns,Copy,method,Copy() As Variant,,MISSING,,
+DropDowns,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+DropDowns,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Cut,method,Cut() As Variant,,MISSING,,
+DropDowns,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Display3DShading,property,As Boolean,,MISSING,,
+DropDowns,DropDownLines,property,As Long,,MISSING,,
+DropDowns,Duplicate,method,Duplicate() As Object,,MISSING,,
+DropDowns,Enabled,property,As Boolean,,MISSING,,
+DropDowns,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Height,property,As Double,,MISSING,,
+DropDowns,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Left,property,As Double,,MISSING,,
+DropDowns,LinkedCell,property,As String,,MISSING,,
+DropDowns,List,property,As Variant,,MISSING,,
+DropDowns,ListFillRange,property,As String,,MISSING,,
+DropDowns,ListIndex,property,As Long,,MISSING,,
+DropDowns,Locked,property,As Boolean,,MISSING,,
+DropDowns,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Placement,property,As Variant,,MISSING,,
+DropDowns,PrintObject,property,As Boolean,,MISSING,,
+DropDowns,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
+DropDowns,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
+DropDowns,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDowns,Selected,property,As Variant,,MISSING,,
+DropDowns,SendToBack,method,SendToBack() As Variant,,MISSING,,
+DropDowns,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+DropDowns,Text,property,As String,,MISSING,,
+DropDowns,Top,property,As Double,,MISSING,,
+DropDowns,Value,property,As Long,,MISSING,,
+DropDowns,Visible,property,As Boolean,,MISSING,,
+DropDowns,Width,property,As Double,,MISSING,,
+DropDowns,ZOrder,"property, read-only",As Long,,MISSING,,
 DropLines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,Read.
 DropLines,Border,"property, read-only",As Border,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 DropLines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,Read.
@@ -1392,20 +1652,6 @@ GlowFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
 GlowFormat,Parent,not in the type library,,,UNASSESSED,,
 GlowFormat,Radius,property,As Single,no setter,UNASSESSED,,
 GlowFormat,Transparency,property,As Single,no setter,UNASSESSED,,
-Graphic,Application,"property, read-only",As Application,,MISSING,,
-Graphic,Brightness,property,As Single,,MISSING,,
-Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
-Graphic,Contrast,property,As Single,,MISSING,,
-Graphic,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,CropBottom,property,As Single,,MISSING,,
-Graphic,CropLeft,property,As Single,,MISSING,,
-Graphic,CropRight,property,As Single,,MISSING,,
-Graphic,CropTop,property,As Single,,MISSING,,
-Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,Width,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 GradientStop,Application,"property, read-only",As Object,,MISSING,,
 GradientStop,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Position, Color and Transparency; a stop keeps its place in the list whatever its position."
 GradientStop,Creator,"property, read-only",As Long,,UNASSESSED,,
@@ -1420,6 +1666,20 @@ GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Tran
 GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,MISSING,,
 GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
+Graphic,Application,"property, read-only",As Application,,MISSING,,
+Graphic,Brightness,property,As Single,,MISSING,,
+Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
+Graphic,Contrast,property,As Single,,MISSING,,
+Graphic,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,CropBottom,property,As Single,,MISSING,,
+Graphic,CropLeft,property,As Single,,MISSING,,
+Graphic,CropRight,property,As Single,,MISSING,,
+Graphic,CropTop,property,As Single,,MISSING,,
+Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+Graphic,Width,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Gridlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/chart_borders.json; tests/test_excel_chart_borders.py,"Color, ColorIndex, Weight and LineStyle, with the markup Excel writes."
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
@@ -1649,6 +1909,88 @@ LinearGradient,ColorStops,"property, read-only",As ColorStops,,PARTIAL,tests/fix
 LinearGradient,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,xlCreatorCode.
 LinearGradient,Degree,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"Any number, written only when not 0."
 LinearGradient,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,The Interior.
+ListBox,_Default,property,As Long,,MISSING,,
+ListBox,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Caption,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Copy,method,Copy() As Variant,,MISSING,,
+ListBox,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+ListBox,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Cut,method,Cut() As Variant,,MISSING,,
+ListBox,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+ListBox,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,LinkedObject,"property, read-only",As Variant,,MISSING,,
+ListBox,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ListIndex,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,MultiSelect,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,RemoveAllItems,method,RemoveAllItems() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Selected,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Text,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Value,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,_Default,property,As Long,,MISSING,,
+ListBoxes,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+ListBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As ListBox",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,MISSING,,
+ListBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,BringToFront,method,BringToFront() As Variant,,MISSING,,
+ListBoxes,Copy,method,Copy() As Variant,,MISSING,,
+ListBoxes,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+ListBoxes,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Cut,method,Cut() As Variant,,MISSING,,
+ListBoxes,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Display3DShading,property,As Boolean,,MISSING,,
+ListBoxes,Duplicate,method,Duplicate() As Object,,MISSING,,
+ListBoxes,Enabled,property,As Boolean,,MISSING,,
+ListBoxes,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Height,property,As Double,,MISSING,,
+ListBoxes,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Left,property,As Double,,MISSING,,
+ListBoxes,LinkedCell,property,As String,,MISSING,,
+ListBoxes,List,property,As Variant,,MISSING,,
+ListBoxes,ListFillRange,property,As String,,MISSING,,
+ListBoxes,ListIndex,property,As Long,,MISSING,,
+ListBoxes,Locked,property,As Boolean,,MISSING,,
+ListBoxes,MultiSelect,property,As Long,,MISSING,,
+ListBoxes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Placement,property,As Variant,,MISSING,,
+ListBoxes,PrintObject,property,As Boolean,,MISSING,,
+ListBoxes,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
+ListBoxes,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
+ListBoxes,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBoxes,Selected,property,As Variant,,MISSING,,
+ListBoxes,SendToBack,method,SendToBack() As Variant,,MISSING,,
+ListBoxes,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+ListBoxes,Top,property,As Double,,MISSING,,
+ListBoxes,Value,property,As Long,,MISSING,,
+ListBoxes,Visible,property,As Boolean,,MISSING,,
+ListBoxes,Width,property,As Double,,MISSING,,
+ListBoxes,ZOrder,"property, read-only",As Long,,MISSING,,
 ListColumn,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/tables/tables.json,The column's name.
 ListColumn,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 ListColumn,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -1846,12 +2188,101 @@ OLEDBConnection,ServerTextColor,property,As Boolean,,MISSING,,
 OLEDBConnection,SourceConnectionFile,property,As String,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"odcFile, empty by default."
 OLEDBConnection,SourceDataFile,property,As String,,MISSING,,
 OLEDBConnection,UseLocalConnection,property,As Boolean,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
+OLEFormat,Activate,method,Activate(),,MISSING,,
+OLEFormat,Application,"property, read-only",As Application,,MISSING,,
+OLEFormat,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+OLEFormat,Object,"property, read-only",As Object,,UNASSESSED,,
+OLEFormat,Parent,"property, read-only",As Object,,UNASSESSED,,
+OLEFormat,progID,"property, read-only",As String,,MISSING,,
+OLEFormat,Verb,method,Verb([Verb As Variant]),,MISSING,,
 OfficeTheme,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 OfficeTheme,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 OfficeTheme,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 OfficeTheme,ThemeColorScheme,"property, read-only",As ThemeColorScheme,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 OfficeTheme,ThemeEffectScheme,"property, read-only",As ThemeEffectScheme,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 OfficeTheme,ThemeFontScheme,"property, read-only",As ThemeFontScheme,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+OptionButton,_Default,property,As Long,,MISSING,,
+OptionButton,Accelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Border,"property, read-only",As Border,,MISSING,,
+OptionButton,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+OptionButton,Copy,method,Copy() As Variant,,MISSING,,
+OptionButton,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+OptionButton,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Cut,method,Cut() As Variant,,MISSING,,
+OptionButton,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Display3DShading,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+OptionButton,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Enabled,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,GroupBox,"property, read-only",As GroupBox,,MISSING,,
+OptionButton,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Interior,"property, read-only",As Interior,,MISSING,,
+OptionButton,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+OptionButton,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Value,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,_Default,property,As Long,,MISSING,,
+OptionButtons,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+OptionButtons,Accelerator,property,As Variant,,MISSING,,
+OptionButtons,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As OptionButton",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Border,"property, read-only",As Border,,MISSING,,
+OptionButtons,BringToFront,method,BringToFront() As Variant,,MISSING,,
+OptionButtons,Caption,property,As String,,MISSING,,
+OptionButtons,Characters,"property, read-only",As Characters,,MISSING,,
+OptionButtons,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
+OptionButtons,Copy,method,Copy() As Variant,,MISSING,,
+OptionButtons,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
+OptionButtons,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Cut,method,Cut() As Variant,,MISSING,,
+OptionButtons,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Display3DShading,property,As Boolean,,MISSING,,
+OptionButtons,Duplicate,method,Duplicate() As Object,,MISSING,,
+OptionButtons,Enabled,property,As Boolean,,MISSING,,
+OptionButtons,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,GroupBox,"property, read-only",As GroupBox,,MISSING,,
+OptionButtons,Height,property,As Double,,MISSING,,
+OptionButtons,Interior,"property, read-only",As Interior,,MISSING,,
+OptionButtons,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,Left,property,As Double,,MISSING,,
+OptionButtons,LinkedCell,property,As String,,MISSING,,
+OptionButtons,Locked,property,As Boolean,,MISSING,,
+OptionButtons,LockedText,property,As Boolean,,MISSING,,
+OptionButtons,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,PhoneticAccelerator,property,As Variant,,MISSING,,
+OptionButtons,Placement,property,As Variant,,MISSING,,
+OptionButtons,PrintObject,property,As Boolean,,MISSING,,
+OptionButtons,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButtons,SendToBack,method,SendToBack() As Variant,,MISSING,,
+OptionButtons,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+OptionButtons,Text,property,As String,,MISSING,,
+OptionButtons,Top,property,As Double,,MISSING,,
+OptionButtons,Value,property,As Variant,,MISSING,,
+OptionButtons,Visible,property,As Boolean,,MISSING,,
+OptionButtons,Width,property,As Double,,MISSING,,
+OptionButtons,ZOrder,"property, read-only",As Long,,MISSING,,
 Outline,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,AutomaticStyles,property,As Boolean,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
@@ -2685,8 +3116,8 @@ Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json;
 Series,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The chart's ChartGroup.
 Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,Paste,method,Paste() As Variant,,MISSING,,
-Series,PictureType,property,As XlChartPictureType,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlStretch; the setter is not implemented.
-Series,PictureUnit2,property,As Double,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 0; the setter is not implemented.
+Series,PictureType,property,As XlChartPictureType,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlStretch; the setter is not implemented.
+Series,PictureUnit2,property,As Double,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 0; the setter is not implemented.
 Series,PlotColorIndex,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The series' idx plus 1.
 Series,PlotOrder,property,As Long,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,Points,method,Points([Index As Variant]) As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"One per value; by number, 1004 out of range and 13 for text."
@@ -2698,7 +3129,7 @@ Series,SeriesColorMaxGradientStop,"property, read-only",As ChartSeriesGradientSt
 Series,SeriesColorMidGradientStop,"property, read-only",As ChartSeriesGradientStopData,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,SeriesColorMinGradientStop,"property, read-only",As ChartSeriesGradientStopData,,PARTIAL,tests/test_excel_chart_members_more.py,"As live Excel, for the kinds of chart the model draws."
 Series,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
-Series,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; the setter is not implemented.
+Series,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; the setter is not implemented.
 Series,Smooth,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,Line and scatter series; 1004 on other kinds. Kept through ChartType.
 Series,Trendlines,method,Trendlines([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,"Trendlines.Add of every type, with order, period, forward, intercept, the equation and R-squared flags and a name; Count, Item, Parent. The Trendline object reads and sets Type, Order, Period, Forward, Name, NameIsAuto, DisplayEquation and DisplayRSquared, reads Backward, Intercept, InterceptIsAuto and Index, and deletes. Out-of-range values raise as Excel raises them; pie and stacked column charts raise -2147467259. Doughnut and other stacked charts, an automatic intercept's value, a scatter chart's Backward and the label's formatting are not implemented."
 Series,Type,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"The gallery constant of the chart's kind: xlColumn for any column chart, xlLine with markers or without."
@@ -2788,7 +3219,7 @@ Shape,Locked,property,As Boolean,,PARTIAL,tests/fixtures/shape_properties.json; 
 Shape,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 Shape,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Nodes,"property, read-only",As ShapeNodes,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,A freeform; other shapes report themselves.
-Shape,OLEFormat,"property, read-only",As OLEFormat,,MISSING,,
+Shape,OLEFormat,"property, read-only",As OLEFormat,,UNASSESSED,,
 Shape,OnAction,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The sheet.
 Shape,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,The group a shape is in; a shape in none raises 1004.
@@ -3280,12 +3711,6 @@ ThemeFont,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/wo
 ThemeFont,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFont,Name,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFont,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-ThemeFonts,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Item,method,Item(Index As MsoFontLanguageIndex) As ThemeFont,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-ThemeFonts,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Load,method,Load(FileName As String),,MISSING,,
@@ -3293,6 +3718,12 @@ ThemeFontScheme,MajorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fix
 ThemeFontScheme,MinorFont,"property, read-only",As ThemeFonts,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThemeFontScheme,Save,method,Save(FileName As String),,MISSING,,
+ThemeFonts,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+ThemeFonts,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Item,method,Item(Index As MsoFontLanguageIndex) As ThemeFont,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
+ThemeFonts,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 ThreeDFormat,Application,"property, read-only",As Object,,MISSING,,
 ThreeDFormat,BevelBottomDepth,property,As Single,,MISSING,,
 ThreeDFormat,BevelBottomInset,property,As Single,,MISSING,,
@@ -3845,10 +4276,12 @@ Worksheet,AutoFilterMode,property,As Boolean,,PARTIAL,tests/fixtures/autofilter.
 Worksheet,BeforeDelete,event,BeforeDelete(),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised for each sheet of a delete Excel does not refuse, last tab first"
 Worksheet,BeforeDoubleClick,event,"BeforeDoubleClick(Target As Range, Cancel As Boolean)",,MISSING,,
 Worksheet,BeforeRightClick,event,"BeforeRightClick(Target As Range, Cancel As Boolean)",,MISSING,,
+Worksheet,Buttons,not in the type library,,,UNASSESSED,,
 Worksheet,Calculate,event,Calculate(),,PARTIAL,tests/fixtures/calculation_scope.json; tests/test_excel_calculate_order.py; tests/fixtures/calculate_order.json," Calculation scope, cached precedents, deferred notifications and saved dirty states have 192 native probes, 1080 additional UDF observations and four XLSM file gates. Sheets raise it in the order they were made, which a file keeps as sheetId, and a pivot refresh raises it for each table's sheet, then for the sheets its closing calculation works out or that hold notifications. Broader graph, reentrancy and event-error behavior remains partial."
 Worksheet,Cells,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"Cells.Count overflows a Long, error 6, as in Excel."
 Worksheet,Change,event,Change(Target As Range),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for writes of Value, Formula and the rest, clears, inserts and deletes, Copy, FillDown, AutoFill, DataSeries and Replace, with the cells as Target, as Excel raises it; Sort, Merge and formats raise none (see _events)."
 Worksheet,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Worksheet,CheckBoxes,not in the type library,,,UNASSESSED,,
 Worksheet,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Worksheet,CircleInvalid,method,CircleInvalid(),,PARTIAL,tests/fixtures/tracer_arrows.json; tests/test_excel_tracer_arrows.py,"Answers Empty, protected sheet or not. Draws no circles."
 Worksheet,CircularReference,"property, read-only",As Range,,VERIFIED,tests/fixtures/iteration.json; tests/fixtures/self_reference.json; tests/test_excel_iteration.py,"A cell of a loop on the sheet, or Nothing with none or with Iteration on. A loop is found through the cells a formula reads as it is worked out, so ROWS, ROW, CELL(""address""), FORMULATEXT, an IF branch not taken and a MATCH stopping before the cell close none. Of two cells of one loop, or two loops on a sheet, Excel names either run to run; the model names the latest that closed one."
@@ -3869,6 +4302,7 @@ Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.jso
 Worksheet,DisplayPageBreaks,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, as Application's switches do, and is not saved, measured"
 Worksheet,DisplayRightToLeft,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"The sheet view's rightToLeft, the window's DisplayRightToLeft too, saved and kept by a copy; cells keep their Left"
 Worksheet,DrawingObjects,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"The sheet's Shapes; Excel's DrawingObjects leaves notes' boxes out, so its Count differs where a sheet has notes."
+Worksheet,DropDowns,not in the type library,,,UNASSESSED,,
 Worksheet,EnableAutoFilter,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; kept by a copy, not saved; it changes nothing the model does"
 Worksheet,EnableCalculation,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"False keeps the sheet's formulas through every calculation, a formula written there reading 0; True again works the sheet out under automatic calculation; not copied or saved; over 10 live cases"
 Worksheet,EnableFormatConditionsCalculation,property,As Boolean,,PARTIAL,tests/fixtures/format_conditions_calculation.json; tests/test_excel_format_conditions_calculation.py,"Reads True whatever is set, and nothing is saved; Null and text that is no Boolean are error 13."
@@ -3883,6 +4317,7 @@ Worksheet,HPageBreaks,"property, read-only",As HPageBreaks,,PARTIAL,tests/test_e
 Worksheet,Hyperlinks,"property, read-only",As Hyperlinks,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"In the order they were added, a link replaced keeping its place."
 Worksheet,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,LensGalleryRenderComplete,event,LensGalleryRenderComplete(),,MISSING,,
+Worksheet,ListBoxes,not in the type library,,,UNASSESSED,,
 Worksheet,ListObjects,"property, read-only",As ListObjects,,PARTIAL,tests/fixtures/tables/tables.json,"The sheet's tables, read from a file or made by ListObjects.Add."
 Worksheet,MailEnvelope,"property, read-only",As MsoEnvelope,,MISSING,,
 Worksheet,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Cross-book moves transfer document source with fresh fields and remove the source module; same-book moves retain identity. External links, name clashes, drawings and reserved sheet names remain unsupported."
@@ -3891,6 +4326,7 @@ Worksheet,NamedSheetViews,"property, read-only",As NamedSheetViewCollection,,PAR
 Worksheet,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/names_crud.json,
 Worksheet,Next,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_model/probes.txt,"The sheet after, Nothing after the last."
 Worksheet,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/empty_collections.json; tests/test_excel_empty_collections.py,"Empty, as on a new workbook: Count 0, an item the error Excel gives, Parent and Application. A loaded workbook holding any is refused rather than read as empty."
+Worksheet,OptionButtons,not in the type library,,,UNASSESSED,,
 Worksheet,Outline,"property, read-only",As Outline,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Worksheet,PageSetup,"property, read-only",As PageSetup,,PARTIAL,tests/test_excel_page_setup.py; tests/test_excel_page_setup_names.py; tests/fixtures/page_setup,"Measured persisted worksheet configuration: finite nonnegative margins in points, bounded scaling and fit settings, initial enums/Boolean options and scoped print areas/titles. Variant getter types, native save/reopen and quote-safe name lifecycle have controls; all 11 generated configuration/lifecycle workbooks passed the opt-in native gate. Coercion differences, negative margins, unmeasured worksheet-UDF setters, configured-sheet copying, printer services and rendering remain unsupported or partial."
 Worksheet,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.

@@ -69,7 +69,7 @@ class TableStyles(VBACollection, ItemDefault, ExcelObject):
         return [TableStyle(self.book, name) for name in BUILT_IN_STYLES]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
-        if isinstance(index, str):
+        if isinstance(index, str) and not index.strip().isdigit():
             found = _BUILT_IN.get(index.lower())
             if found is None and _custom_styles(self.book):
                 raise VBAUnsupportedError("TableStyles of a style of the workbook's own is not implemented")

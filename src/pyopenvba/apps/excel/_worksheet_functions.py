@@ -67,6 +67,9 @@ _ONE_AREA: Final = frozenset({"ftest", "f_test", "arraytotext", "sort", "unique"
 BLANK: Final = object()
 #: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
 _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
+#: The number base functions, whose places take no blank (#NUM!) and no logical (#VALUE!), item by item.
+_BASE_CONVERSIONS: Final = frozenset({"bin2dec", "bin2hex", "bin2oct", "dec2bin", "dec2hex", "dec2oct", "hex2bin", "hex2dec", "hex2oct", "oct2bin", "oct2dec", "oct2hex"})
+_ONE_CELL_WHEN_LIFTED: Final = _BASE_CONVERSIONS | {"bitand", "bitor", "bitxor", "bitlshift", "bitrshift"}
 _ARRAY_OF_ONE: Final = frozenset({"sort", "sortby", "unique", "filter"})
 _SWITCHES: Final = {"sort": (3,), "unique": (1, 2)}
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
@@ -119,6 +122,16 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     if raising and any(_is_text_cell(values[place]) for place in _SWITCHES.get(name.lower(), ()) if place < len(values)):
         # A cell of text where a switch goes fails item by item, so the answer is an array holding the error.
         return answer(Array([[CellError("#VALUE!")]]))
+    if raising and name.lower() in _BASE_CONVERSIONS and any(isinstance(value, VBAArray) for value in values):
+        values = _base_conversion_items(values)
+    if raising and name.lower() in _ONE_CELL_WHEN_LIFTED:
+        lifted = next((value for value in values if isinstance(value, VBAArray)), None)
+        if lifted is not None and any(isinstance(value, Range) and (len(value.areas) > 1 or (not value.single and name.lower() in _BASE_CONVERSIONS)) for value in values):
+            # No value to call with, whatever the array: separate areas, and for a number base several cells.
+            if not late:
+                raise error(13, "Type mismatch")
+            shape = _given_array(lifted)
+            return answer(Array([[CellError("#VALUE!")] * shape.width for _ in range(shape.height)]))
     if raising:
         values = _as_excel_reads(name, values, entry.minimum, late=late)
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
@@ -155,6 +168,23 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     if raising and name.lower() in _ARRAY_OF_ONE:
         return _array_of_one(context, found, values[0], name, books_of=application, late=late)
     return _returned(context, found, name, raising=raising, books_of=application, late=late)
+
+
+def _base_conversion_items(values: list[object]) -> list[object]:
+    """A number base function's arguments with an array among them: its places as what each item fails with."""
+    from pyopenvba.apps.excel._model import Range
+
+    if len(values) < 2:
+        return values
+    places = values[1]
+    if places is EMPTY or (isinstance(places, Range) and places.single and places.vba_value() is EMPTY):
+        return [values[0], VBAErrorValue(2036), *values[2:]]
+    if isinstance(places, bool):
+        return [values[0], VBAErrorValue(2015), *values[2:]]
+    if isinstance(places, VBAArray):
+        items = [VBAErrorValue(2036) if one is EMPTY else VBAErrorValue(2015) if isinstance(one, bool) else one for one in places.elements()]
+        return [values[0], VBAArray(places.bounds, items=items), *values[2:]]
+    return values
 
 
 def _is_text_cell(value: object) -> bool:
@@ -254,6 +284,8 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
     forms = library.members.get(name.lower(), []) if library is not None else []
     declared = [one.split(":")[-1] for one in forms[0][4]] if forms else []
     found: list[object] = []
+    # With an array among them Excel calls once per item, so what would be refused is that item's answer.
+    lifting = any(isinstance(value, VBAArray) for value in values)
     for index, value in enumerate(values):
         kind = declared[index] if index < len(declared) else "Variant"
         if not late and kind != "Variant" and index not in _NOT_CONVERTED.get(name.lower(), ()):
@@ -262,7 +294,7 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
             raise error(5)
         if isinstance(value, VBAObject) and not isinstance(value, Range):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
-        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()):
+        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()) and not lifting:
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
         if lower in _ONE_AREA and isinstance(value, Range) and len(value.areas) > 1:
@@ -273,8 +305,8 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         if value is NULL:
             # The last it cannot do without, with nothing after it, or a column; one it needs before that is a blank
             # cell, and one it does not is left out (tests/fixtures/worksheet_function_types.json).
-            if (index == minimum - 1 and index == len(values) - 1) or (lower == "index" and index in (0, 2)) \
-                    or (lower in ("vlookup", "hlookup") and index == 2):
+            if (index == minimum - 1 and index == len(values) - 1) or (not lifting and ((lower == "index" and index in (0, 2))
+                                                                                        or (lower in ("vlookup", "hlookup") and index == 2))):
                 raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
             value = BLANK if index < minimum else MISSING
         if lower == "xlookup" and value is EMPTY:

@@ -77,3 +77,57 @@ def test_enable_selection_read_alone_does_not_protect_the_sheet(tmp_path: Path) 
                    'Read1 = wb.Worksheets(1).ProtectContents & "," & wb.Worksheets(1).EnableSelection\n'
                    'wb.Worksheets(1).Range("A1").Value = 1\nwb.Close False\nEnd Function\n', name="R")
     assert app.run("Read1", file.as_posix()) == "False,-4142"
+
+
+def _edited(file: Path, action: str) -> str:
+    """The workbook part once a saved file has been opened, had ``action`` done to it, and been saved again."""
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module("Sub Go(ByVal file As String)\nDim wb As Workbook\nSet wb = Workbooks.Open(file)\n"
+                   f"{action}\nwb.Save\nwb.Close False\nEnd Sub\n", name="Measure")
+    app.run("Go", file.as_posix())
+    return _part(file, "xl/workbook.xml")
+
+
+def test_hiding_a_sheet_of_a_file_is_saved(tmp_path: Path) -> None:
+    file = _saved(tmp_path, "")
+    assert '<sheet name="Sheet2" sheetId="2" state="hidden"' in _edited(file, "wb.Worksheets(2).Visible = xlSheetHidden")
+
+
+def test_a_hidden_sheet_of_a_file_stays_hidden_through_an_unrelated_edit(tmp_path: Path) -> None:
+    file = _saved(tmp_path, "b.Visible = xlSheetHidden\nc.Visible = xlSheetVeryHidden")
+    written = _edited(file, 'wb.Worksheets(1).Range("A1").Value = 5')
+    assert 'name="Sheet2" sheetId="2" state="hidden"' in written
+    assert 'name="Sheet3" sheetId="3" state="veryHidden"' in written
+
+
+def test_showing_a_hidden_sheet_of_a_file_is_saved(tmp_path: Path) -> None:
+    file = _saved(tmp_path, "b.Visible = xlSheetHidden")
+    assert "state=" not in _edited(file, "wb.Worksheets(2).Visible = xlSheetVisible")
+
+
+def test_renaming_a_hidden_sheet_of_a_file_keeps_it_hidden(tmp_path: Path) -> None:
+    file = _saved(tmp_path, "b.Visible = xlSheetHidden")
+    assert 'name="Moved" sheetId="2" state="hidden"' in _edited(file, 'wb.Worksheets(2).Name = "Moved"')
+
+
+def test_a_macro_reads_a_hidden_sheet_of_a_file_as_hidden(tmp_path: Path) -> None:
+    file = _saved(tmp_path, "b.Visible = xlSheetHidden\nc.Visible = xlSheetVeryHidden")
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module('Function Read1(ByVal file As String) As String\nDim wb As Workbook\nSet wb = Workbooks.Open(file)\n'
+                   'Read1 = wb.Worksheets(1).Visible & "," & wb.Worksheets(2).Visible & "," & wb.Worksheets(3).Visible\n'
+                   'wb.Close False\nEnd Function\n', name="R")
+    assert app.run("Read1", file.as_posix()) == "-1,0,2"
+
+
+def test_a_new_sheet_hidden_in_a_file_is_saved(tmp_path: Path) -> None:
+    file = _saved(tmp_path, "")
+    written = _edited(file, "Dim n As Worksheet\nSet n = wb.Worksheets.Add(After:=wb.Worksheets(1))\nn.Visible = xlSheetHidden")
+    assert re.search(r'<sheet name="Sheet4" sheetId="\d+" state="hidden" r:id=', written)
+
+
+def test_every_attribute_of_a_sheet_of_a_file_stays_in_order(tmp_path: Path) -> None:
+    file = _saved(tmp_path, "")
+    written = _edited(file, "wb.Worksheets(3).Visible = xlSheetVeryHidden")
+    assert re.search(r'<sheet name="Sheet3" sheetId="3" state="veryHidden" r:id="rId\d+"/>', written)

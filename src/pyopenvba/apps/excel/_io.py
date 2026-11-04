@@ -1942,7 +1942,12 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
             # The name first, as Excel writes a sheet, and the number it was made with.
             attrs = {"name": sheet.name, "sheetId": str(sheet.sheet_id), "r:id": rid}
         attrs["name"] = sheet.name
-        tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' for key, value in attrs.items()) + "/>")
+        # The state the model has now, between sheetId and the relationship as Excel writes it: a macro may have hidden
+        # or shown the sheet since the file was read.
+        attrs.pop("state", None)
+        state = _sheet_state(sheet)
+        tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' + (state if key == "sheetId" else "")
+                                         for key, value in attrs.items()) + "/>")
     rebuilt = "<sheets>" + "".join(tags) + "</sheets>"
     if rebuilt != block.group():
         def remap_reserved(match: re.Match[str]) -> str:

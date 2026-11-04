@@ -26,7 +26,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).resolve().parents[1] / 'tests/fixtures'
 #: Each fixture: the file its probe saves, where a case holds what Excel read after its own save, and its member's place.
 AUDITS = {'format_properties': ('formats.xlsx', 5, 2), 'member_audit': ('audit.xlsx', 5, 2),
-          'method_audit': ('methods.xlsx', 4, 1), 'range_values': ('values.xlsx', 5, 0), 'range_more': ('more.xlsx', 5, 0)}
+          'method_audit': ('methods.xlsx', 4, 1), 'range_values': ('values.xlsx', 5, 0), 'range_more': ('more.xlsx', 5, 0),
+          'range_more_blocks': ('more.xlsx', 5, 0)}
 
 
 def _probe(source: str, count: int) -> str:

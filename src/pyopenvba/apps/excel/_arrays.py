@@ -212,8 +212,11 @@ def formula_array(target: Range, formula_of: Callable[[int, int], str]) -> objec
     held = has_array(target)
     if held is True:
         found = array_at(target.sheet, first.top, first.left)
-        return formula_of(*(found[0] if found is not None else (first.top, first.left)))
-    if held is NULL:
+        # Past the array's block it reads as any cells do (tests/fixtures/range_more_blocks.json).
+        if found is None or all(found[1].contains(area.top, area.left) and found[1].contains(area.bottom, area.right)
+                                 for area in target.areas):
+            return formula_of(*(found[0] if found is not None else (first.top, first.left)))
+    elif held is NULL:
         return NULL
     texts: set[str] = set()
     for area in target.areas:

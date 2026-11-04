@@ -103,8 +103,8 @@ def test_large_axis_rejected_before_materialization_and_mixed_queries_candid() -
     mixed = sheet.Rows('3:8')
     assert isinstance(grouped, Range) and isinstance(mixed, Range)
     grouped.Group()
-    with pytest.raises(VBAUnsupportedError, match='heterogeneous'):
-        mixed.OutlineLevel()
+    # A read over rows that differ answers the first's (tests/fixtures/range_more_blocks.json).
+    assert mixed.OutlineLevel() == 2.0
 
 
 def test_structural_and_whole_axis_copy_guards_preserve_all_state() -> None:

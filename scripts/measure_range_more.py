@@ -27,6 +27,8 @@ FORMATS = ['"General"', '"0.00"', '"@"', '""', 'True', 'Null', 'Empty', '5', '"b
 NAMES = ['"Named"', '"=B2"', '"1bad"', '"has space"', '""', '5', 'True', 'Null', 'Empty', '"Sheet1!Local"', 'String(255, "a")', 'String(256, "a")']
 LEVELS = ['1', '2', '8', '9', '0', '-1', '1.5', '"2"', *BAD]
 BREAKS = ['xlPageBreakNone', 'xlPageBreakManual', 'xlPageBreakAutomatic', '0', '1', '99', '"1"', *BAD]
+#: Whether what is measured follows the display (scripts/measure_range_more_blocks.py measures only what does not).
+NEEDS_96_DPI = True
 C2 = 'ws.Range("C2")'
 B2C3 = 'ws.Range("B2:C3")'
 ROW = 'ws.Rows(2)'
@@ -108,7 +110,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as folder, ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
         excel.new_document()
         standard = excel.run_vba('Public Function Probe() As Double\n    Probe = ActiveSheet.StandardHeight\nEnd Function\n', 'Probe', (), timeout=30.0)
-        assert float(str(standard.value)) == 15.0, f'not at 96 DPI: StandardHeight {standard.value}'
+        assert not NEEDS_96_DPI or float(str(standard.value)) == 15.0, f'not at 96 DPI: StandardHeight {standard.value}'
         result = excel.run_vba(source() + runner, 'Probe', (folder,), timeout=500.0)
         assert result.ok and not result.dialogs, result
         bound = excel.run_vba(source(typed=True) + only, 'Probe', (), timeout=500.0)

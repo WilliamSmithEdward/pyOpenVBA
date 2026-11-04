@@ -101,7 +101,7 @@ def test_each_box_lands_where_excel_put_it() -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(GRID_SOURCE, name='Probe')
-    wrong = []
+    wrong: list[tuple[list[float], str, str]] = []
     for start in range(0, len(GRID['boxes']), 300):
         chunk = GRID['boxes'][start:start + 300]
         found = str(app.run('Probe.Go', ';'.join(','.join(str(one) for one in box) for box in chunk))).split('|')

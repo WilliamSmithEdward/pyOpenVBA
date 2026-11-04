@@ -25,7 +25,7 @@ TARGETS = [_new('rectangle', 'text', 'Shape(1, 10, 10, 100, 40): s.TextFrame.Cha
            _new('label', 'control', 'FormControl(xlLabel, 10, 10, 100, 40)'), _new('scroll bar', 'control', 'FormControl(xlScrollBar, 10, 10, 100, 40)'),
            _loaded('Plain', 'text'), _loaded('Box', 'text'), _loaded('Runs', 'text'), _loaded('Paras', 'text'), _loaded('Clipped', 'text'), _loaded('Joined', 'line'), _loaded('Elbow', 'line'), _loaded('Line', 'line'),
            _loaded('Pic', 'picture'), _loaded('Tuned', 'picture'), _loaded('Clear', 'picture')]
-_GENERAL = {'s.AlternativeText': ['"Alt"'], 's.Left': ['33'], 's.Top': ['44'], 's.Width': ['111'], 's.Height': ['66'], 's.Rotation': ['30'], 's.Visible': ['msoFalse'], 's.LockAspectRatio': ['msoTrue'],
+_GENERAL = {'s.AlternativeText': ['"Alt"'], 's.Left': ['33'], 's.Top': ['45'], 's.Width': ['111'], 's.Height': ['66'], 's.Rotation': ['30'], 's.Visible': ['msoFalse'], 's.LockAspectRatio': ['msoTrue'],
             's.Placement': ['xlFreeFloating'], 's.Decorative': ['msoTrue'], 's.Locked': ['False'], 's.Fill.Visible': ['msoFalse'], 's.Fill.ForeColor.RGB': ['255'], 's.Fill.Transparency': ['0.3'], 's.Line.Visible': ['msoFalse'], 's.Line.ForeColor.RGB': ['255'],
             's.Line.Weight': ['3'], 's.Line.DashStyle': ['4'], 's.DrawingObject.Interior.Color': ['255'], 's.DrawingObject.Border.Color': ['255'], 's.DrawingObject.Border.Weight': ['xlThick', 'xlThin', 'xlHairline', 'xlMedium'],
             's.DrawingObject.Border.LineStyle': ['xlDash'], 's.DrawingObject.Text': ['"Xy"']}

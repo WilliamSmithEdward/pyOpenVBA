@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import re
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel import _events
@@ -44,6 +45,7 @@ from pyopenvba.interpreter._values import (ERR_SUBSCRIPT_OUT_OF_RANGE, EMPTY, MI
                                            to_bool, to_integer)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
     from pyopenvba._a1 import Area
     from pyopenvba.apps.excel._model import NameEntry, Workbook
 

@@ -98,10 +98,6 @@ PROBE = '''Private Function Shown(value As Variant) As String
     End If
 End Function
 
-Private Function Failure() As String
-    If Err.Number <> 0 Then Failure = "E" & Err.Number & ":" & Err.Description
-    Err.Clear
-End Function
 '''
 
 #: Two settings read together, and the steps between: name -> (steps, readings).
@@ -180,11 +176,11 @@ def setting_code(index: int, name: str, values: list[str]) -> str:
     for value in values:
         shown = value.replace('"', '""')
         lines += ["    Err.Clear", f"    Application.{name} = {value}",
-                  f'    out = out & "^{shown}=>" & Failure() & "|" & Shown(Application.{name})']
+                  f'    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description\n    Err.Clear\n    out = out & "^{shown}=>" & failure & "|" & Shown(Application.{name})']
     # The caption reads with the active workbook's name before it, and an empty one is Excel's own.
     back = '""' if name == "Caption" else "start"
     lines += ["    Err.Clear", f"    Application.{name} = {back}",
-              f'    out = out & "^restored=" & (Application.{name} = start) & Failure()',
+              f'    out = out & "^restored=" & (Application.{name} = start)',
               "    On Error GoTo 0", f'    Setting{index} = out & "~"', "End Function"]
     return "\n".join(lines) + "\n"
 
@@ -199,9 +195,10 @@ def together_code(index: int, name: str, steps: list[str], readings: list[str]) 
              "    Set wb = Workbooks.Add(xlWBATWorksheet)", "    Set ws = wb.Worksheets(1)",
              "    On Error Resume Next", f'    out = "{name}^"']
     for step in steps:
-        lines += ["    Err.Clear", f"    {step}", '    out = out & Failure()']
+        lines += ["    Err.Clear", f"    {step}", '    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description', "    Err.Clear", "    out = out & failure"]
     for reading in readings:
-        lines += [f'    out = out & "^" & Shown({reading}) & Failure()']
+        lines += ["    Err.Clear", f"    held = Empty: held = {reading}", '    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description', "    Err.Clear",
+                  f'    out = out & "^" & Shown({reading}) & failure', "    Err.Clear"]
     # The status bar goes back to Excel's own with False, its reading FALSE no setting of it, and the caption with an
     # empty one, its reading holding the window's caption.
     lines += [*[f"    Application.{prop} = " + {"StatusBar": "False", "Caption": "\"\""}.get(prop, f"start{n}")
@@ -221,9 +218,13 @@ BREAKS = '''Public Function Breaks(folder As String) As String
     out = out & "^" & Shown(wb.Worksheets(1).DisplayPageBreaks)
     On Error Resume Next
     wb.Worksheets(1).DisplayPageBreaks = Null
-    out = out & "^null=>" & Failure() & "|" & Shown(wb.Worksheets(1).DisplayPageBreaks)
+    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description
+    Err.Clear
+    out = out & "^null=>" & failure & "|" & Shown(wb.Worksheets(1).DisplayPageBreaks)
     wb.Worksheets(1).DisplayPageBreaks = 0
-    out = out & "^zero=>" & Failure() & "|" & Shown(wb.Worksheets(1).DisplayPageBreaks)
+    failure = "": If Err.Number <> 0 Then failure = "E" & Err.Number & ":" & Err.Description
+    Err.Clear
+    out = out & "^zero=>" & failure & "|" & Shown(wb.Worksheets(1).DisplayPageBreaks)
     wb.Worksheets(1).DisplayPageBreaks = True
     On Error GoTo 0
     wb.SaveAs folder & "\\breaks.xlsx", 51

@@ -19,7 +19,7 @@ from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
-from pyopenvba.interpreter._objects import member, setter
+from pyopenvba.interpreter._objects import member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, error, to_bool, to_integer
 
 if TYPE_CHECKING:
@@ -53,6 +53,10 @@ class XPath(Created):
     def __init__(self, target: Range) -> None:
         self.target = target
 
+    @member(default=True)
+    def _Default(self) -> object:
+        return ""
+
     @member
     def Value(self) -> object:
         return ""
@@ -60,6 +64,15 @@ class XPath(Created):
     @member
     def Map(self) -> object:
         raise error(-2147467259, "Automation error")
+
+    @member
+    def Repeating(self) -> object:
+        raise error(-2147467259, "Automation error")
+
+    @method
+    def Clear(self) -> object:
+        """Nothing to take away (tests/fixtures/unassessed_more.json)."""
+        return EMPTY
 
 
 class EmptyPhonetic(Created):

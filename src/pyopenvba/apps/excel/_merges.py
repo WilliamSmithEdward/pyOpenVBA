@@ -1,6 +1,7 @@
 """Merged-cell geometry and measured value retention."""
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
@@ -21,6 +22,10 @@ def contains(a: Area, b: Area) -> bool:
 
 def at(sheet: Worksheet, row: int, column: int) -> Area | None:
     return next((area for area in sheet.merged_areas if area.contains(row, column)), None)
+
+
+#: The most cells a merge gives its first cell's format to, all of one column.
+MOST_FORMATTED = 1048576
 
 
 def writable(sheet: Worksheet, row: int, column: int) -> bool:
@@ -108,12 +113,51 @@ def replaced(sheet: Worksheet, planned: list[Area]) -> None:
         sheet.touched()
 
 
+def _take_first_format(sheet: Worksheet, wanted: Area) -> None:
+    """Every cell of a merge takes its first cell's format, and keeps it when unmerged. Of the borders only the ends of
+    a single row or column stay, each cell's own (tests/fixtures/range_areas.json)."""
+    from pyopenvba.apps.excel import _styles as S
+
+    if wanted.rows * wanted.columns > MOST_FORMATTED:
+        raise VBAUnsupportedError("merging more than a million cells is not implemented")
+    first = sheet.style_at(wanted.top, wanted.left)
+    changes: list[tuple[int, int, S.Style]] = []
+    for row in range(wanted.top, wanted.bottom + 1):
+        for column in range(wanted.left, wanted.right + 1):
+            own = sheet.style_at(row, column).border
+            one_row, one_column = wanted.rows == 1, wanted.columns == 1
+            border = S.Border(left=own.left if one_row and column == wanted.left else S.NO_SIDE,
+                              right=own.right if one_row and column == wanted.right else S.NO_SIDE,
+                              top=own.top if one_column and row == wanted.top else S.NO_SIDE,
+                              bottom=own.bottom if one_column and row == wanted.bottom else S.NO_SIDE)
+            changes.append((row, column, S.applying(first, "border", border=border) if border != first.border else first))
+    for row, column, style in changes:
+        if style != sheet.style_at(row, column):
+            cell = sheet.cell(row, column, create=True)
+            assert cell is not None
+            cell.style = style
+            sheet.cell_changed(row, column)
+
+
+def overlap(areas: Sequence[Area]) -> bool:
+    """Whether any two of ``areas`` share a cell."""
+    return any(intersects(one, other) for at_one, one in enumerate(areas) for other in areas[at_one + 1:])
+
+
 def merge(target: Range, across: bool) -> None:
     if len(target.areas) != 1:
-        raise VBAUnsupportedError("Merge on multiple areas is not implemented")
+        # Each area alone, and areas that overlap are 1004 (tests/fixtures/range_areas.json).
+        if overlap(target.areas):
+            raise error(1004, "Merge method of Range class failed")
+        from pyopenvba.apps.excel._model import Range
+
+        for one in target.areas:
+            merge(Range(target.sheet, [one]), across)
+        return
     sheet, area = target.sheet, target.first
     if across and any(one.rows > 1 and intersects(one, area) for one in sheet.merged_areas):
-        raise VBAUnsupportedError("Across merges over existing multi-row merges are not implemented")
+        # A merge of several rows comes apart first, and each row then keeps its own first value.
+        unmerge(target)
     if sheet.data_tables:
         from pyopenvba.apps.excel._data_tables import refuse
 
@@ -143,6 +187,7 @@ def merge(target: Range, across: bool) -> None:
             assert anchor is not None
             anchor.value, anchor.formula, anchor.stale = retained
             sheet.cell_changed(wanted.top, wanted.left)
+        _take_first_format(sheet, wanted)
         if sheet.notes:
             from pyopenvba.apps.excel._notes import merged
 

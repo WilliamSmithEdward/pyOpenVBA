@@ -11,8 +11,9 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.apps.excel._shapes import Shape, ShapeObject, ShapeRange
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, to_bool
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -33,11 +34,29 @@ def _type_name(shape: Shape) -> str | None:
 
 def select(sheet: Worksheet, shape: Shape, replace: object) -> None:
     """Shape.Select: on the active sheet, instead of what was selected unless Replace is False."""
+    if shape.hidden:
+        # On any sheet (tests/fixtures/unassessed_core.json, shape_select_hidden, shape_select_hidden_behind).
+        raise error(-2147024809, "The specified value is out of range.")
     if sheet is not sheet.book.active_sheet or _type_name(shape) is None:
         return
     keeping = replace is not MISSING and not to_bool(replace)
     held = [one for one in selected(sheet) if one is not shape] if keeping else []
     sheet.selected_shapes = [*held, shape]
+    sheet.active_chart = None
+
+
+def select_all(sheet: Worksheet) -> None:
+    """Shapes.SelectAll: every shape that shows, instead of what was selected, charts among them. Some hidden and none
+    showing is refused as selecting a hidden one is; no shapes, or a sheet behind, stays as it is
+    (tests/fixtures/unassessed_core.json, shapes_select_all_*)."""
+    showing = [shape for shape in sheet.shapes_ if not shape.hidden]
+    if sheet.shapes_ and not showing:
+        raise error(-2147024809, "The specified value is out of range.")
+    if not showing or sheet is not sheet.book.active_sheet:
+        return
+    if len(showing) == 1 and _type_name(showing[0]) is None:
+        raise VBAUnsupportedError(f"Shapes.SelectAll over one {showing[0].kind} alone is not implemented")
+    sheet.selected_shapes = showing
     sheet.active_chart = None
 
 

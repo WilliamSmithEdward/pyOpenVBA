@@ -177,6 +177,12 @@ class Protection(ExcelObject):
         return name in self.sheet.protection_allows
 
     @member
+    def AllowEditRanges(self) -> object:
+        from pyopenvba.apps.excel._allow_edit_ranges import AllowEditRanges
+
+        return AllowEditRanges(self.sheet)
+
+    @member
     def AllowFormattingCells(self) -> object:
         return self._allows("AllowFormattingCells")
 
@@ -272,7 +278,7 @@ def _changed(sheet: Worksheet) -> None:
 #: The sheetProtection element, which a sheet's XML holds at most once.
 _ELEMENT = re.compile(r"<sheetProtection\b[^>]*/>")
 #: The worksheet children sheetProtection comes before, in the schema's order.
-_FOLLOWING = re.compile(
+FOLLOWING_PROTECTION = re.compile(
     r"<(?:protectedRanges|scenarios|autoFilter|sortState|dataConsolidate|customSheetViews|mergeCells|phoneticPr|"
     r"conditionalFormatting|dataValidations|hyperlinks|printOptions|pageMargins|pageSetup|headerFooter|rowBreaks|"
     r"colBreaks|customProperties|cellWatches|ignoredErrors|smartTags|drawing|legacyDrawing|legacyDrawingHF|"
@@ -301,6 +307,10 @@ def read_protection(sheet: Worksheet, xml: str) -> None:
     def on(name: str) -> bool:
         return attributes.get(name, "0") in ("1", "true")
 
+    if not set(attributes) - {"selectLockedCells", "selectUnlockedCells"}:
+        # Only EnableSelection, on a sheet that is not protected.
+        sheet.enable_selection = -4142 if on("selectUnlockedCells") else (1 if on("selectLockedCells") else 0)
+        return
     allows = frozenset(option for option, name in _ATTRIBUTES if option and attributes.get(name) in ("0", "false"))
     hashed = None
     if "hashValue" in attributes:
@@ -320,7 +330,12 @@ def protection_xml(sheet: Worksheet) -> str:
     """
     found = sheet.protection
     if found is None:
-        return ""
+        # EnableSelection is kept on a sheet that is not protected, in the element with nothing else in it
+        # (tests/fixtures/settable_reopen.json).
+        locked_cells, unlocked_cells = _SELECTION.get(sheet.enable_selection, (False, False))
+        parts = [f'{name}="1"' for name, on in (("selectLockedCells", locked_cells), ("selectUnlockedCells", unlocked_cells))
+                 if on]
+        return f"<sheetProtection {' '.join(parts)}/>" if parts else ""
     if found.password and found.hashed is None:
         salt = os.urandom(16)
         found = SheetProtection(found.password, found.contents, found.drawing_objects, found.scenarios,
@@ -352,7 +367,7 @@ def with_protection(sheet: Worksheet, xml: str) -> str:
     existing = _ELEMENT.search(xml)
     if existing is not None:
         return xml[:existing.start()] + markup + xml[existing.end():]
-    following = _FOLLOWING.search(xml)
+    following = FOLLOWING_PROTECTION.search(xml)
     if not markup or following is None:
         return xml
     return xml[:following.start()] + markup + xml[following.start():]
@@ -486,13 +501,14 @@ def locked(sheet: Worksheet, row: int, column: int) -> bool:
 def _lock_states(sheet: Worksheet, areas: list[Area]) -> set[bool]:
     """Whether the areas hold locked positions, unlocked ones or both, without walking positions nobody touched."""
     from pyopenvba.apps.excel import _row_formats
+    from pyopenvba.apps.excel._allow_edit_ranges import editable
 
     found: set[bool] = set()
     for area in areas:
         bottom, right = min(area.bottom, MAX_ROWS), min(area.right, MAX_COLUMNS)
         if (bottom - area.top + 1) * (right - area.left + 1) <= 4096:
-            found.update(locked(sheet, row, column) for row in range(area.top, bottom + 1)
-                         for column in range(area.left, right + 1))
+            found.update(locked(sheet, row, column) and not editable(sheet, row, column)
+                         for row in range(area.top, bottom + 1) for column in range(area.left, right + 1))
         else:
             found.update(style.protection.locked for style in _row_formats.distinct_styles(sheet, area))
     return found
@@ -510,7 +526,9 @@ class Gate:
         self.refused = False
 
     def admits(self, row: int, column: int) -> bool:
-        if locked(self.sheet, row, column):
+        from pyopenvba.apps.excel._allow_edit_ranges import editable
+
+        if locked(self.sheet, row, column) and not editable(self.sheet, row, column):
             self.refused = True
             return False
         return True
@@ -610,7 +628,7 @@ def refuse_structure(book: Workbook, message: str) -> None:
 #: The workbookProtection element, which workbook.xml holds at most once.
 _BOOK_ELEMENT = re.compile(r"<workbookProtection\b[^>]*/>")
 #: The workbook children workbookProtection comes before, in the schema's order.
-_BOOK_FOLLOWING = re.compile(r"<(?:bookViews|sheets)\b")
+_BOOKFOLLOWING_PROTECTION = re.compile(r"<(?:bookViews|sheets)\b")
 
 
 def read_book_protection(book: Workbook, xml: str) -> None:
@@ -657,7 +675,7 @@ def with_book_protection(book: Workbook, xml: str) -> str:
     existing = _BOOK_ELEMENT.search(xml)
     if existing is not None:
         return xml[:existing.start()] + markup + xml[existing.end():]
-    following = _BOOK_FOLLOWING.search(xml)
+    following = _BOOKFOLLOWING_PROTECTION.search(xml)
     if not markup or following is None:
         return xml
     return xml[:following.start()] + markup + xml[following.start():]

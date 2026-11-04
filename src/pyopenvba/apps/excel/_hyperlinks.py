@@ -361,6 +361,18 @@ def _with_subject(address: str, subject: str) -> str:
     return head + ("?" + "&".join(pairs) if pairs else "")
 
 
+#: What TextToDisplay takes before error 5 (tests/fixtures/member_audit.json); it reads back 255 of them.
+TEXT_TO_DISPLAY_LIMIT = 2084
+
+
+def _link_text(value: object) -> str:
+    """A SubAddress or ScreenTip: past 254 characters is error 7 (tests/fixtures/member_audit.json)."""
+    text = to_text(value)
+    if len(text) > 254:
+        raise error(7)
+    return text
+
+
 class Hyperlink(HeldPart, ExcelObject):
     """One link on a sheet's cells."""
 
@@ -429,7 +441,7 @@ class Hyperlink(HeldPart, ExcelObject):
 
     @setter("SubAddress")
     def _set_sub_address(self, value: object) -> None:
-        text = to_text(value)
+        text = _link_text(value)
 
         def change(link: Link) -> None:
             link.address, link.sub = "", text
@@ -443,20 +455,22 @@ class Hyperlink(HeldPart, ExcelObject):
 
     @setter("ScreenTip")
     def _set_screen_tip(self, value: object) -> None:
-        text = to_text(value)
+        text = _link_text(value)
         self._set(lambda link: setattr(link, "tip", text))
 
     @member
     def TextToDisplay(self) -> object:
-        return shown_text(self.sheet, self.link)
+        return shown_text(self.sheet, self.link)[:255]
 
     @setter("TextToDisplay")
     def _set_text_to_display(self, value: object) -> None:
         from pyopenvba.apps.excel import _merges
 
-        if value == "":
+        if value == "" or value is EMPTY:
             return
         name = to_text(value)
+        if len(name) > TEXT_TO_DISPLAY_LIMIT:
+            raise error(5)
         row, column = self.link.area.top, self.link.area.left
         if _merges.writable(self.sheet, row, column):
             Range(self.sheet, [Area(row, column, row, column)]).vba_set("Value", value)

@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, quote_sheet
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, ref_setter
@@ -209,7 +210,7 @@ def _line_of(before: object, rows: bool) -> int:
 # --- the collections and their breaks ------------------------------------------------------------------------------
 
 
-class _Breaks(VBACollection, ExcelObject):
+class _Breaks(VBACollection, ItemDefault, ExcelObject):
     """A sheet's horizontal or vertical breaks, as the collection counts them."""
 
     #: No type of its own: the base HPageBreaks and VPageBreaks share.
@@ -340,7 +341,8 @@ def page_break(target: Range) -> object:
 def set_page_break(target: Range, value: object) -> None:
     """xlPageBreakManual puts a break before a whole row or column, or before a cell's row and its column, those
     that are not the first; xlPageBreakNone takes them away; anything else is error 1004."""
-    kind = int(to_integer(value, "Long"))
+    # 0 is none and 1 manual too (tests/fixtures/range_more.json).
+    kind = {0: NONE, 1: MANUAL}.get(int(to_integer(value, "Long")), int(to_integer(value, "Long")))
     if kind not in (MANUAL, NONE):
         raise error(1004, UNSET)
     sheet, area = target.sheet, target.first

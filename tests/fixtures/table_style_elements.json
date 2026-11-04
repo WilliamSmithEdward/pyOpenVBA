@@ -1,0 +1,840 @@
+{
+ "measured_at": "2026-11-03T21:56:51.421787+00:00",
+ "source": "Option Explicit\n\nPrivate Function Shown(ByVal v As Variant) As String\n    On Error Resume Next\n    If IsError(v) Then\n        Shown = CStr(v)\n    ElseIf IsArray(v) Then\n        Shown = \"array\"\n    Else\n        Shown = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPublic Function Tried(ByVal first As Long, ByVal last As Long) As String\n    Dim wb As Object, r As Variant, s As String, which As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    For which = first To last\n        r = Empty\n        On Error GoTo Failed\n        Run which, wb, r\n        s = s & \"@@ok \" & Shown(r)\nAnswered:\n        On Error GoTo 0\n    Next\n    wb.Close False\n    Tried = Mid(s, 3)\n    Exit Function\nFailed:\n    s = s & \"@@Err \" & Err.Number & \" \" & Err.Description\n    Resume Answered\nEnd Function\n\nPrivate Sub Run(ByVal which As Long, wb As Object, r As Variant)\n    Dim x As Object, i As Long\n    Select Case which\n    Case 0\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements)\n    Case 1\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Count\n    Case 2\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1))\n    Case 3\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0))\n    Case 4\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(xlWholeTable))\n    Case 5\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(13))\n    Case 6\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(-1))\n    Case 7\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(43))\n    Case 8\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(44))\n    Case 9\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(\"x\"))\n    Case 10\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Item(1))\n    Case 11\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Parent)\n    Case 12\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Application)\n    Case 13\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Creator\n    Case 14\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Creator\n    Case 15\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Parent)\n    Case 16\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Application)\n    Case 17\n        For Each x In wb.TableStyles(\"TableStyleMedium2\").TableStyleElements: i = i + 1: Next: r = i\n    Case 18\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font)\n    Case 19\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior)\n    Case 20\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders)\n    Case 21\n        r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop))\n    Case 22\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).HasFormat\n    Case 23\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.Bold\n    Case 24\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.Italic\n    Case 25\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.Color\n    Case 26\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.ThemeColor\n    Case 27\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.TintAndShade\n    Case 28\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.ColorIndex\n    Case 29\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.Color\n    Case 30\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.ThemeColor\n    Case 31\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.TintAndShade\n    Case 32\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.Pattern\n    Case 33\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeTop).LineStyle\n    Case 34\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeTop).Weight\n    Case 35\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeTop).Color\n    Case 36\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeBottom).LineStyle\n    Case 37\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeLeft).LineStyle\n    Case 38\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeRight).LineStyle\n    Case 39\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlInsideHorizontal).LineStyle\n    Case 40\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlInsideVertical).LineStyle\n    Case 41\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).StripeSize\n    Case 42\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).HasFormat\n    Case 43\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Bold\n    Case 44\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Italic\n    Case 45\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Color\n    Case 46\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.ThemeColor\n    Case 47\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.TintAndShade\n    Case 48\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.ColorIndex\n    Case 49\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.Color\n    Case 50\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.ThemeColor\n    Case 51\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.TintAndShade\n    Case 52\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.Pattern\n    Case 53\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).LineStyle\n    Case 54\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).Weight\n    Case 55\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).Color\n    Case 56\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeBottom).LineStyle\n    Case 57\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeLeft).LineStyle\n    Case 58\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeRight).LineStyle\n    Case 59\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlInsideHorizontal).LineStyle\n    Case 60\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlInsideVertical).LineStyle\n    Case 61\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).StripeSize\n    Case 62\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).HasFormat\n    Case 63\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.Bold\n    Case 64\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.Italic\n    Case 65\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.Color\n    Case 66\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.ThemeColor\n    Case 67\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.TintAndShade\n    Case 68\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.ColorIndex\n    Case 69\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.Color\n    Case 70\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.ThemeColor\n    Case 71\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.TintAndShade\n    Case 72\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.Pattern\n    Case 73\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeTop).LineStyle\n    Case 74\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeTop).Weight\n    Case 75\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeTop).Color\n    Case 76\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeBottom).LineStyle\n    Case 77\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeLeft).LineStyle\n    Case 78\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeRight).LineStyle\n    Case 79\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlInsideHorizontal).LineStyle\n    Case 80\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlInsideVertical).LineStyle\n    Case 81\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).StripeSize\n    Case 82\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).HasFormat\n    Case 83\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.Bold\n    Case 84\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.Italic\n    Case 85\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.Color\n    Case 86\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.ThemeColor\n    Case 87\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.TintAndShade\n    Case 88\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.ColorIndex\n    Case 89\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.Color\n    Case 90\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.ThemeColor\n    Case 91\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.TintAndShade\n    Case 92\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.Pattern\n    Case 93\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeTop).LineStyle\n    Case 94\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeTop).Weight\n    Case 95\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeTop).Color\n    Case 96\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeBottom).LineStyle\n    Case 97\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeLeft).LineStyle\n    Case 98\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeRight).LineStyle\n    Case 99\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlInsideHorizontal).LineStyle\n    Case 100\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlInsideVertical).LineStyle\n    Case 101\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).StripeSize\n    Case 102\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).HasFormat\n    Case 103\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.Bold\n    Case 104\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.Italic\n    Case 105\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.Color\n    Case 106\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.ThemeColor\n    Case 107\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.TintAndShade\n    Case 108\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.ColorIndex\n    Case 109\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.Color\n    Case 110\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.ThemeColor\n    Case 111\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.TintAndShade\n    Case 112\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.Pattern\n    Case 113\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeTop).LineStyle\n    Case 114\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeTop).Weight\n    Case 115\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeTop).Color\n    Case 116\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeBottom).LineStyle\n    Case 117\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeLeft).LineStyle\n    Case 118\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeRight).LineStyle\n    Case 119\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlInsideHorizontal).LineStyle\n    Case 120\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlInsideVertical).LineStyle\n    Case 121\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).StripeSize\n    Case 122\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).HasFormat\n    Case 123\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.Bold\n    Case 124\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.Italic\n    Case 125\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.Color\n    Case 126\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.ThemeColor\n    Case 127\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.TintAndShade\n    Case 128\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.ColorIndex\n    Case 129\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.Color\n    Case 130\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.ThemeColor\n    Case 131\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.TintAndShade\n    Case 132\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.Pattern\n    Case 133\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeTop).LineStyle\n    Case 134\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeTop).Weight\n    Case 135\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeTop).Color\n    Case 136\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeBottom).LineStyle\n    Case 137\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeLeft).LineStyle\n    Case 138\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeRight).LineStyle\n    Case 139\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlInsideHorizontal).LineStyle\n    Case 140\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlInsideVertical).LineStyle\n    Case 141\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).StripeSize\n    Case 142\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).HasFormat\n    Case 143\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.Bold\n    Case 144\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.Italic\n    Case 145\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.Color\n    Case 146\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.ThemeColor\n    Case 147\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.TintAndShade\n    Case 148\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.ColorIndex\n    Case 149\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.Color\n    Case 150\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.ThemeColor\n    Case 151\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.TintAndShade\n    Case 152\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.Pattern\n    Case 153\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeTop).LineStyle\n    Case 154\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeTop).Weight\n    Case 155\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeTop).Color\n    Case 156\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeBottom).LineStyle\n    Case 157\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeLeft).LineStyle\n    Case 158\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeRight).LineStyle\n    Case 159\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlInsideHorizontal).LineStyle\n    Case 160\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlInsideVertical).LineStyle\n    Case 161\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).StripeSize\n    Case 162\n        r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(0).HasFormat\n    Case 163\n        r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(1).HasFormat\n    Case 164\n        r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(3).HasFormat\n    Case 165\n        r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(12).HasFormat\n    Case 166\n        r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(20).HasFormat\n    Case 167\n        r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(41).HasFormat\n    Case 168\n        r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(0).HasFormat\n    Case 169\n        r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(1).HasFormat\n    Case 170\n        r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(3).HasFormat\n    Case 171\n        r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(12).HasFormat\n    Case 172\n        r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(20).HasFormat\n    Case 173\n        r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(41).HasFormat\n    Case 174\n        r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(0).HasFormat\n    Case 175\n        r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(1).HasFormat\n    Case 176\n        r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(3).HasFormat\n    Case 177\n        r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(12).HasFormat\n    Case 178\n        r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(20).HasFormat\n    Case 179\n        r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(41).HasFormat\n    Case 180\n        r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(0).HasFormat\n    Case 181\n        r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(1).HasFormat\n    Case 182\n        r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(3).HasFormat\n    Case 183\n        r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(12).HasFormat\n    Case 184\n        r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(20).HasFormat\n    Case 185\n        r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(41).HasFormat\n    Case 186\n        r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(0).HasFormat\n    Case 187\n        r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(1).HasFormat\n    Case 188\n        r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(3).HasFormat\n    Case 189\n        r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(12).HasFormat\n    Case 190\n        r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(20).HasFormat\n    Case 191\n        r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(41).HasFormat\n    Case 192\n        r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements.Count\n    Case 193\n        r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements.Count\n    Case 194\n        r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements.Count\n    Case 195\n        r = wb.TableStyles(\"TimeSlicerStyleLight1\").TableStyleElements.Count\n    Case 196\n        wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Bold = True\n    Case 197\n        wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.Color = 255\n    Case 198\n        wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).StripeSize = 2\n    Case 199\n        wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).StripeSize = 2\n    Case 200\n        wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Clear\n    Case 201\n        r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Clear\n    Case 202\n        wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).LineStyle = xlContinuous\n    End Select\nEnd Sub\n",
+ "reads": [
+  "HasFormat",
+  "Font.Bold",
+  "Font.Italic",
+  "Font.Color",
+  "Font.ThemeColor",
+  "Font.TintAndShade",
+  "Font.ColorIndex",
+  "Interior.Color",
+  "Interior.ThemeColor",
+  "Interior.TintAndShade",
+  "Interior.Pattern",
+  "Borders(xlEdgeTop).LineStyle",
+  "Borders(xlEdgeTop).Weight",
+  "Borders(xlEdgeTop).Color",
+  "Borders(xlEdgeBottom).LineStyle",
+  "Borders(xlEdgeLeft).LineStyle",
+  "Borders(xlEdgeRight).LineStyle",
+  "Borders(xlInsideHorizontal).LineStyle",
+  "Borders(xlInsideVertical).LineStyle",
+  "StripeSize"
+ ],
+ "cases": [
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements)",
+   "ok String:TableStyleElements"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Count",
+   "ok Long:43"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(xlWholeTable))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(13))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(-1))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(43))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(44))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(\"x\"))",
+   "Err 13 Type mismatch"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Item(1))",
+   "ok String:TableStyleElement"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Parent)",
+   "ok String:TableStyle"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Application)",
+   "ok String:Application"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements.Creator",
+   "ok Long:1480803660"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Creator",
+   "ok Long:1480803660"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Parent)",
+   "ok String:TableStyleElements"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Application)",
+   "ok String:Application"
+  ],
+  [
+   "For Each x In wb.TableStyles(\"TableStyleMedium2\").TableStyleElements: i = i + 1: Next: r = i",
+   "ok Long:43"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font)",
+   "ok String:Font"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior)",
+   "ok String:Interior"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders)",
+   "ok String:Borders"
+  ],
+  [
+   "r = TypeName(wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop))",
+   "ok String:Border"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.Bold",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.Italic",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.ThemeColor",
+   "ok Long:2"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.TintAndShade",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Font.ColorIndex",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.ThemeColor",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.TintAndShade",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Interior.Pattern",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeTop).LineStyle",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeTop).Weight",
+   "ok Long:2"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeTop).Color",
+   "ok Double:14791492"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeBottom).LineStyle",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeLeft).LineStyle",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlEdgeRight).LineStyle",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlInsideHorizontal).LineStyle",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).Borders(xlInsideVertical).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(0).StripeSize",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Bold",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Italic",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Color",
+   "ok Double:16777215"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.ThemeColor",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.TintAndShade",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.ColorIndex",
+   "ok Long:2"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.Color",
+   "ok Double:8544277"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.ThemeColor",
+   "ok Long:5"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.TintAndShade",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.Pattern",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).Weight",
+   "ok Long:2"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeBottom).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeLeft).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeRight).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlInsideHorizontal).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlInsideVertical).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).StripeSize",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.Bold",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.Italic",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.ThemeColor",
+   "ok Long:2"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.TintAndShade",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Font.ColorIndex",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.ThemeColor",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.TintAndShade",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Interior.Pattern",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeTop).LineStyle",
+   "ok Long:-4119"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeTop).Weight",
+   "ok Long:4"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeTop).Color",
+   "ok Double:8544277"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeBottom).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeLeft).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlEdgeRight).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlInsideHorizontal).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).Borders(xlInsideVertical).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(2).StripeSize",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.Bold",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.Italic",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.Color",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.ThemeColor",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.TintAndShade",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Font.ColorIndex",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.Color",
+   "ok Double:16115392"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.ThemeColor",
+   "ok Long:5"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.TintAndShade",
+   "ok Double:0.799981688894314"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Interior.Pattern",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeTop).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeTop).Weight",
+   "ok Long:2"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeTop).Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeBottom).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeLeft).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlEdgeRight).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlInsideHorizontal).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).Borders(xlInsideVertical).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).StripeSize",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.Bold",
+   "Err 1004 Unable to get the Bold property of the Font class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.Italic",
+   "Err 1004 Unable to get the Italic property of the Font class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.Color",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.ThemeColor",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.TintAndShade",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Font.ColorIndex",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.ThemeColor",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.TintAndShade",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Interior.Pattern",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeTop).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeTop).Weight",
+   "Err 1004 Unable to get the Weight property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeTop).Color",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeBottom).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeLeft).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlEdgeRight).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlInsideHorizontal).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).Borders(xlInsideVertical).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(6).StripeSize",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.Bold",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.Italic",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.Color",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.ThemeColor",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.TintAndShade",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Font.ColorIndex",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.Color",
+   "ok Double:16115392"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.ThemeColor",
+   "ok Long:5"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.TintAndShade",
+   "ok Double:0.799981688894314"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Interior.Pattern",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeTop).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeTop).Weight",
+   "ok Long:2"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeTop).Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeBottom).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeLeft).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlEdgeRight).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlInsideHorizontal).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).Borders(xlInsideVertical).LineStyle",
+   "ok Long:-4142"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(7).StripeSize",
+   "ok Long:1"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.Bold",
+   "Err 1004 Unable to get the Bold property of the Font class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.Italic",
+   "Err 1004 Unable to get the Italic property of the Font class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.Color",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.ThemeColor",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.TintAndShade",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Font.ColorIndex",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.Color",
+   "ok Double:0"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.ThemeColor",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.TintAndShade",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Interior.Pattern",
+   "ok "
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeTop).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeTop).Weight",
+   "Err 1004 Unable to get the Weight property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeTop).Color",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeBottom).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeLeft).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlEdgeRight).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlInsideHorizontal).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).Borders(xlInsideVertical).LineStyle",
+   "Err 1004 Unable to get the LineStyle property of the Border class"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(9).StripeSize",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(0).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(1).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(3).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(12).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(20).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements(41).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(0).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(1).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(3).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(12).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(20).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight21\").TableStyleElements(41).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(0).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(1).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(3).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(12).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(20).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleDark11\").TableStyleElements(41).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(0).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(1).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(3).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(12).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(20).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements(41).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(0).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(1).HasFormat",
+   "ok Boolean:True"
+  ],
+  [
+   "r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(3).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(12).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(20).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements(41).HasFormat",
+   "ok Boolean:False"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleLight1\").TableStyleElements.Count",
+   "ok Long:43"
+  ],
+  [
+   "r = wb.TableStyles(\"PivotStyleLight16\").TableStyleElements.Count",
+   "ok Long:43"
+  ],
+  [
+   "r = wb.TableStyles(\"SlicerStyleLight1\").TableStyleElements.Count",
+   "ok Long:43"
+  ],
+  [
+   "r = wb.TableStyles(\"TimeSlicerStyleLight1\").TableStyleElements.Count",
+   "ok Long:43"
+  ],
+  [
+   "wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Font.Bold = True",
+   "ok Empty:"
+  ],
+  [
+   "wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Interior.Color = 255",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).StripeSize = 2",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(5).StripeSize = 2",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Clear",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "r = wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Clear",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   "wb.TableStyles(\"TableStyleMedium2\").TableStyleElements(1).Borders(xlEdgeTop).LineStyle = xlContinuous",
+   "ok Empty:"
+  ]
+ ]
+}

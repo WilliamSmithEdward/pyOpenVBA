@@ -29,10 +29,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
+from pyopenvba.apps.excel._method_arguments import enum_number, variant_number
 from pyopenvba.apps.excel._visible import bands
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import ExcelError
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error, to_integer
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
@@ -49,12 +50,16 @@ def special_cells(target: Range, kind_value: object, which: object) -> Range:
 
     from pyopenvba.apps.excel._protection import enforced
 
-    kind = int(to_integer(kind_value, "Long"))
+    refusal = "SpecialCells method of Range class failed"
+    kind = enum_number(kind_value, refusal)
     sheet = target.sheet
     # Whatever it asks for (tests/fixtures/excel_everyday_13.json).
     if enforced(sheet) is not None:
         raise error(1004, "SpecialCells method of Range class failed")
     if kind in _UNMODELLED:
+        # A sheet with none has no such cells (tests/fixtures/range_methods_moves.json).
+        if not (sheet.validations if _UNMODELLED[kind] == "data validation" else sheet.conditional_formats):
+            raise error(1004, "No cells were found.")
         raise VBAUnsupportedError(f"SpecialCells for {_UNMODELLED[kind]} is not implemented")
     bounds = sheet.used_bounds()
     if kind == LAST_CELL:
@@ -72,7 +77,9 @@ def special_cells(target: Range, kind_value: object, which: object) -> Range:
     if bounds is None:
         # A sheet with nothing on it has not even blanks.
         raise error(1004, "No cells were found.")
-    flags = 23 if which is MISSING else int(to_integer(which, "Long"))
+    flags = 23 if which is MISSING else variant_number(which, refusal)
+    if flags < 0:
+        raise error(1004, refusal)
     # The search runs from A1 to the last cell, even where the used range starts further in.
     searched = Area(1, 1, bounds[2], bounds[3], sheet.name)
     domains = [searched] if target.single else [_clipped(area, searched) for area in target.areas]

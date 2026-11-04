@@ -55,6 +55,9 @@ class ExcelBridge(HostBridge):
     def set_global(self, name: str, value: object, by_ref: bool) -> None:
         self.application.vba_set(name, value, [], {}, by_ref=by_ref)
 
+    #: Whose classes a macro's declarations and calls are read against.
+    vba_type_library = 'excel'
+
     def constant(self, name: str) -> object:
         found = _by_lower_case().get(name.lower())
         return UNRESOLVED if found is None else _as_vba(name.lower(), found)

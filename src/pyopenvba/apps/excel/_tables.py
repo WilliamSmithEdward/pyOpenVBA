@@ -32,7 +32,8 @@ from __future__ import annotations
 import re
 import uuid
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._held import HeldPart
@@ -40,17 +41,27 @@ from pyopenvba._a1 import Area, parse_area
 from pyopenvba._xml import attributes, escape, escape_text, unescape
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._structured import TableShape, from_file, in_file, renamed_columns, renamed_table
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MISSING, NOTHING, VBADate, VBAInt, error,
-                                           to_bool, to_integer, to_text)
+from pyopenvba.interpreter._values import (
+    EMPTY,
+    ERR_SUBSCRIPT_OUT_OF_RANGE,
+    MISSING,
+    NOTHING,
+    VBADate,
+    VBAInt,
+    error,
+    to_bool,
+    to_integer,
+    to_text,
+)
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._pivots import PivotTable
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._model import Workbook, Worksheet
+    from pyopenvba.apps.excel._pivots import PivotTable
     from pyopenvba.apps.excel._sort import SortState
 
 #: ListObjects.Add's SourceType for a range of the sheet, and its answers to whether the range has headers.
@@ -937,6 +948,14 @@ class ListObject(HeldPart, ExcelObject):
             raise VBAUnsupportedError("ListObject.Delete on a table that has gone, which ends Excel")
         return 0 if name in ("parent", "application", "creator") else 1004
 
+    @method
+    def ExportToVisio(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @method
+    def Publish(self, Target: object = MISSING, LinkSource: object = MISSING) -> object:
+        raise error(5, "Cannot connect to the server at this time. Your table cannot be published.")
+
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A table cut to another sheet leaves this object behind, which answers nothing more
         (tests/fixtures/table_cut.json)."""
@@ -1283,6 +1302,14 @@ class TableSlicers(VBACollection, ExcelObject):
         return self.owner.sheet.book.application
 
 
+def _table_position(value: object) -> int:
+    """Where a row or column goes; what is no number, Null included, is error 9 (tests/fixtures/method_audit.json)."""
+    try:
+        return int(to_integer(value, "Long"))
+    except VBARuntimeError as failed:
+        raise error(9, "Subscript out of range") from failed
+
+
 class _TablePart(HeldPart):
     """What hangs off a table and goes with it: if deleted, all of it; if unlisted, all but what needs no table."""
 
@@ -1329,12 +1356,38 @@ class ListColumns(VBACollection, ItemDefault, _TablePart, ExcelObject):
     def Add(self, Position: object = MISSING) -> object:
         from pyopenvba.apps.excel._table_edits import add_column
 
-        where = None if Position is MISSING else int(to_integer(Position, "Long"))
+        where = None if Position is MISSING else _table_position(Position)
         return ListColumn(self.table, add_column(self.table, where))
+
+
+class XPathOfCells(ExcelObject):
+    """The XML mapping of cells with none (tests/fixtures/small_rows.json)."""
+
+    vba_type_name = "XPath"
+
+    @member(default=True)
+    def Value(self) -> object:
+        return ""
+
+    @member
+    def Repeating(self) -> object:
+        raise error(1004, "Unable to get the Repeating property of the XPath class")
+
+    @member
+    def Map(self) -> object:
+        raise error(-2147467259, "Automation error\nUnspecified error")
+
+    @method
+    def Clear(self) -> object:
+        return EMPTY
 
 
 class ListColumn(HeldPart, ExcelObject):
     vba_type_name = "ListColumn"
+
+    @member
+    def XPath(self) -> object:
+        return XPathOfCells()
 
     def __init__(self, table: Table, index: int) -> None:
         self.table = table
@@ -1368,7 +1421,9 @@ class ListColumn(HeldPart, ExcelObject):
     def _set_name(self, value: object) -> None:
         """Rename the column, its header and every formula naming it with it. Measured: a name another column has,
         in any case, leaves the column as it was without an error; an empty one is the first free ColumnN."""
-        wanted = to_text(value)
+        wanted = str(value).upper() if isinstance(value, bool) else to_text(value)
+        if len(wanted) > 255:
+            raise error(5)
         names = [column.name for column in self.table.columns]
         if any(index != self.index - 1 and name.lower() == wanted.lower() for index, name in enumerate(names)):
             return
@@ -1389,8 +1444,8 @@ class ListColumn(HeldPart, ExcelObject):
         """What the column's totals row works out, shown or not: a SUBTOTAL, nothing, or custom, which leaves the
         cell empty until a formula is written there (tests/fixtures/tables/totals_row/)."""
         number = int(to_integer(value, "Long"))
-        if not 0 <= number < len(CALCULATIONS):
-            raise VBAUnsupportedError(f"TotalsCalculation {number} is not implemented")
+        if value is True or not 0 <= number < len(CALCULATIONS):
+            raise error(5)
         column = self.table.columns[self.index - 1]
         column.totals_function, column.totals_label, column.totals_formula = CALCULATIONS[number], "", ""
         self.table.changed = True
@@ -1457,8 +1512,11 @@ class ListRows(VBACollection, ItemDefault, _TablePart, ExcelObject):
         """A row put in, at the end or at a position (see _table_edits.add_row)."""
         from pyopenvba.apps.excel._table_edits import add_row
 
-        where = None if Position is MISSING else int(to_integer(Position, "Long"))
-        always = True if AlwaysInsert is MISSING else to_bool(AlwaysInsert)
+        where = None if Position is MISSING else _table_position(Position)
+        try:
+            always = True if AlwaysInsert is MISSING else to_bool(AlwaysInsert)
+        except VBARuntimeError as failed:
+            raise error(5, "Invalid procedure call or argument") from failed
         return ListRow(self.table, add_row(self.table, where, always))
 
 
@@ -1491,6 +1549,10 @@ class ListRow(_TablePart, ExcelObject):
         if not _table_gone(self.table, self.sheet):
             return 0 if name in ("parent", "application", "creator") else 1004
         return super().held_error(name)
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
 
     @member
     def Index(self) -> object:

@@ -426,6 +426,13 @@ def _listed(sheet: Worksheet, rule: Rule, row: int, column: int) -> list[object]
 # --- VBA -------------------------------------------------------------------------------------
 
 
+def _limited(value: object, limit: int) -> object:
+    """A title's or message's text, or error 1004 past what Excel holds of it (tests/fixtures/member_audit.json)."""
+    if len(to_text(value)) > limit:
+        raise error(1004, "Application-defined or object-defined error")
+    return value
+
+
 class Validation(ExcelObject):
     """Range.Validation: the rule the range's cells have."""
 
@@ -651,7 +658,7 @@ class Validation(ExcelObject):
 
     @setter("InputTitle")
     def _set_input_title(self, value: object) -> None:
-        self._flag("input_title", value)
+        self._flag("input_title", _limited(value, 32))
 
     @member
     def InputMessage(self) -> object:
@@ -659,7 +666,7 @@ class Validation(ExcelObject):
 
     @setter("InputMessage")
     def _set_input_message(self, value: object) -> None:
-        self._flag("input_message", value)
+        self._flag("input_message", _limited(value, 254))
 
     @member
     def ErrorTitle(self) -> object:
@@ -667,7 +674,7 @@ class Validation(ExcelObject):
 
     @setter("ErrorTitle")
     def _set_error_title(self, value: object) -> None:
-        self._flag("error_title", value)
+        self._flag("error_title", _limited(value, 32))
 
     @member
     def ErrorMessage(self) -> object:
@@ -675,7 +682,7 @@ class Validation(ExcelObject):
 
     @setter("ErrorMessage")
     def _set_error_message(self, value: object) -> None:
-        self._flag("error_message", value)
+        self._flag("error_message", _limited(value, 225))
 
     @member
     def Value(self) -> object:

@@ -22,7 +22,7 @@ from copy import deepcopy
 from dataclasses import fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -157,8 +157,12 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
                     from pyopenvba.apps.excel._notes import NoteShape
 
                     return NoteShape(self.sheet, *key)
+            # No name at all finds a Shape whose name is empty too (tests/fixtures/excel_everyday_14.json).
+            if not index and items:
+                return NamelessShape()
             raise error(ERR_NO_SUCH_SHAPE, f"there is no shape called {index}")
-        position = int(to_number(index))
+        # A number rounds as VBA rounds, and 1.5 of one shape is past the end.
+        position = int(to_integer(index, "Long"))
         if 1 <= position <= len(items):
             return items[position - 1]
         raise error(ERR_NO_SUCH_SHAPE, f"there is no shape number {position}")
@@ -453,6 +457,9 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
 
     @method
     def SelectAll(self) -> object:
+        from pyopenvba.apps.excel._selected_shapes import select_all
+
+        select_all(self.sheet)
         return EMPTY
 
     def _made(
@@ -1020,6 +1027,16 @@ class ShapeRange(VBACollection, HeldPart):
         for index, shape in enumerate(self.shapes):
             select(shape.sheet, shape.shape, Replace if index == 0 else False)
         return EMPTY
+
+
+class NamelessShape(Created):
+    """What Shapes("") answers: a Shape, whose name is empty. What else it is was not measured, and says so."""
+
+    vba_type_name = "Shape"
+
+    @member
+    def Name(self) -> object:
+        return ""
 
 
 class ShapeObject(_Drawn):
@@ -2798,6 +2815,14 @@ class TextFrame(_TextLayout):
     vba_type_name = "TextFrame"
 
     @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
         found = Characters(self.owner, Start, Length)
         # Beyond the text, it raises as soon as it is asked for, and on use if the text shrinks later.
@@ -3776,6 +3801,10 @@ class TextRange2(_ShapeText):
         return TextRange2(self.owner, place, len(new), "Characters")
 
     @member
+    def Length(self) -> object:
+        return VBAInt(len(to_text(self.vba_get("Text"))), "Long")
+
+    @member
     def Font(self) -> object:
         if self.span()[1] == 0 and self.owner.shape.text:  # Excel sets the word around the place, by rules not worked out.
             raise _unsupported("the Font of a TextRange2 with no characters")
@@ -4356,7 +4385,11 @@ def _chosen(shapes: VBACollection, index: object) -> ShapeRange:
     else:
         wanted = [*index] if isinstance(index, list) else [index]  # type: ignore[misc]
     items = shapes.vba_items()
-    chosen = [shapes.vba_lookup(one, items) for one in wanted]
+    try:
+        chosen = [shapes.vba_lookup(one, items) for one in wanted]
+    except VBARuntimeError as failed:
+        # What Item calls by its own error, Range answers with its own (tests/fixtures/excel_everyday_14.json).
+        raise error(1004, "The index into the specified collection is out of bounds.") from failed
     return ShapeRange([one for one in chosen if isinstance(one, ShapeObject)])
 
 

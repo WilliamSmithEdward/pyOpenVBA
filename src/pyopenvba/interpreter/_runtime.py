@@ -33,7 +33,7 @@ from pyopenvba.interpreter import _locale
 from pyopenvba.interpreter._files import FileTable, Spaces, TabTo
 from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
-from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
+from pyopenvba.interpreter._objects import BINDING, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -1233,6 +1233,8 @@ class Interpreter:
             return self.call(target, runtime, list(args), {}, me=runtime.document, reset_error=not preserve_error)
         except _EndSignal:
             return EMPTY
+        finally:
+            BINDING.late = False
 
     def find_procedure(self, name: str, module: str = "") -> tuple[A.Procedure | None, ModuleRuntime | None]:
         if "." in name and not module:
@@ -2318,8 +2320,13 @@ class Interpreter:
             raise VBAUnsupportedError(f"{form.parsed.name} is a UserForm, which pyOpenVBA does not run")
         return UNRESOLVED
 
+    def _note_binding(self, expression: A.Expr, frame: Frame | None) -> None:
+        program = frame.program if frame is not None else None
+        BINDING.late = program is not None and id(expression) not in program.early_bound_members
+
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
         target = self._member_target(expression, frame)
+        self._note_binding(expression, frame)
         return _dispatch_get(target, expression.name, [], {})
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
@@ -2383,6 +2390,7 @@ class Interpreter:
                 if any(index not in occupied and not parameter.optional and not parameter.param_array
                        for index, parameter in enumerate(procedure.params)):
                     raise error(450)
+            self._note_binding(callee, frame)
             return _dispatch_get(target, callee.name, positional, named)
         if isinstance(callee, A.Index):
             inner = self.evaluate_call(callee.target, callee.args, frame)
@@ -2411,13 +2419,13 @@ class Interpreter:
                 return self.call_value(frame.procedure, frame.module, positional, named, me=frame.me)
             slot = frame.locals.get(key)
             if slot is not None:
-                return self._index_or_call(slot.get(), args, frame)
+                return self._index_or_call(slot.get(), args, frame, callee)
             if isinstance(frame.me, UserClassInstance) and key in frame.me.variables:
-                return self._index_or_call(frame.me.variables[key].get(), args, frame)
+                return self._index_or_call(frame.me.variables[key].get(), args, frame, callee)
             module = frame.module
             module.initialise()
             if key in module.variables:
-                return self._index_or_call(module.variables[key].get(), args, frame)
+                return self._index_or_call(module.variables[key].get(), args, frame, callee)
             if key in module.constants:
                 return self._index_or_call(module.constants[key], args, frame)
             procedure = module.procedure(key)
@@ -2439,7 +2447,7 @@ class Interpreter:
                 continue
             runtime.initialise()
             if key in runtime.variables:
-                return self._index_or_call(runtime.variables[key].get(), args, frame)
+                return self._index_or_call(runtime.variables[key].get(), args, frame, callee)
             procedure = runtime.procedure(key)
             if procedure is not None and procedure.scope != "private":
                 positional, named = self._arguments(args, frame, procedure=procedure)
@@ -2492,8 +2500,10 @@ class Interpreter:
         width = STORAGE_WIDTH.get(slot.declared)
         return VBAInt(width, "Integer") if width is not None else None
 
-    def _index_or_call(self, value: object, args: list[A.Argument], frame: Frame | None) -> object:
+    def _index_or_call(self, value: object, args: list[A.Argument], frame: Frame | None, callee: A.Name | None = None) -> object:
         positional, named = self._arguments(args, frame, target=value)
+        if callee is not None:
+            self._note_binding(callee, frame)
         return _call_value(value, positional, named)
 
     def _arguments(

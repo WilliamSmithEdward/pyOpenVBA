@@ -46,6 +46,7 @@ from pyopenvba.apps.excel import (
     _old_controls,
     _old_drawings,
     _pivots,
+    _query_tables,
     _protection,
     _rich_text,
     _scenarios,
@@ -58,6 +59,7 @@ from pyopenvba.apps.excel import (
     _threads,
     _validation,
     _windows,
+    _allow_edit_ranges,
     _workbook_more,
     _workbook_settings,
 )
@@ -89,11 +91,11 @@ def _implemented(cls: type[VBAObject]) -> set[str]:
 def _classes() -> dict[str, type[VBAObject]]:
     found: dict[str, type[VBAObject]] = {}
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
-                   _hyperlinks, _chart_axes, _old_controls, _old_drawings, _pivots, _pivot_criteria, _pivot_calculated, _pivot_cells, _sheet_tabs, _page_setup,
+                   _hyperlinks, _chart_axes, _old_controls, _old_drawings, _query_tables, _pivots, _pivot_criteria, _pivot_calculated, _pivot_cells, _sheet_tabs, _page_setup,
                    _page_breaks, _outline, _colour_scales, _data_bars, _icon_sets, _document_properties, _rich_text,
                    _custom_properties, _error_checks, _scenarios, _cell_format, _sparklines,
                    _connections, _charts, _chart_data_labels, _chart_error_bars, _chart_trendlines, _pivot_items,
-                   _threads, _workbook_more, _workbook_settings, _shape_format, _chart_format, _chart_points, _chart_fonts):
+                   _threads, _allow_edit_ranges, _workbook_more, _workbook_settings, _shape_format, _chart_format, _chart_points, _chart_fonts):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

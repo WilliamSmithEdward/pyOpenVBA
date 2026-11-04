@@ -342,6 +342,10 @@ class SoftEdgeFormat(_Effect):
     vba_type_name = 'SoftEdgeFormat'
 
     @member
+    def Parent(self) -> object:
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
     def Radius(self) -> object:
         return VBASingle(self.held().soft_edge / _EMU_PER_POINT)
 

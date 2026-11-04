@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
-from pyopenvba.apps.excel._chart_borders import INVALID_CALL, ElementProperties
+from pyopenvba.apps.excel._chart_borders import INVALID_CALL, UNSPECIFIED, ElementProperties
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAArray, VBAInt, error, to_bool, to_integer, to_number,
@@ -782,10 +782,17 @@ class AxisTitle(ElementProperties, TitleMembers):
 
     @member
     def Name(self) -> object:
+        """Excel's name by axis, whatever the text says: the value axis 1, the category axis 2, the secondary value
+        axis 3 (tests/fixtures/unassessed_charts.json). Setting it is 450."""
         self.read()
-        if self.axis.entry.kind != 2:
+        number = {2: 1, 1: 2}.get(self.axis.entry.kind)
+        if number is None:
             raise VBAUnsupportedError("The name of this axis' title is not implemented")
-        return "Text Axis 1"
+        return f"Text Axis {number}"
+
+    @setter('Name')
+    def _set_name(self, value: object) -> None:
+        raise error(450, 'Wrong number of arguments or invalid property assignment')
 
     def read(self) -> None:
         self.axis.chart.admit_read()
@@ -934,7 +941,9 @@ def _plain(axis: Axis, *, loaded: bool = False) -> AxisState:
     return axis.entry
 
 
-class Gridlines(Created):
+class Gridlines(ElementProperties, Created):
+    set_error = UNSPECIFIED
+
     """An axis's major or minor gridlines. Excel names the four of a chart in one order: the value axis's major and
     minor, then the category axis's (tests/fixtures/chart_axis_parts.json)."""
 

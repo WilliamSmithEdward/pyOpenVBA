@@ -827,8 +827,11 @@ class ChartObjects(VBACollection, ItemDefault, Created):
             for item in items:
                 if isinstance(item, ChartObject) and item.shape.name.lower() == index.lower():
                     return item
-            raise error(-2147024809, 'The item with the specified name was not found')
-        position = int(to_number(index))
+            if not index.strip().isdigit():
+                raise error(-2147024809, 'The item with the specified name was not found')
+            index = int(index)
+        # A number rounds as VBA rounds, and 1.5 of one chart is past the end.
+        position = int(to_integer(index, 'Long'))
         if not 1 <= position <= len(items):
             raise error(1004, 'Unable to get the ChartObjects property of the Worksheet class')
         return items[position - 1]
@@ -984,6 +987,8 @@ def selection(sheet: Worksheet) -> object:
         return sheet.selection if drawn is None else drawn
     if sheet.chart_part == 'area':
         return ChartArea(chart)
+    if sheet.chart_part == 'data_table':
+        return ChartDataTable(chart)
     if sheet.chart_part == 'plot':
         return PlotArea(chart)
     if sheet.chart_part == 'element':
@@ -1333,6 +1338,10 @@ class ChartPageSetup(Created):
         return VBAErrorValue(2042)
 
 
+#: The key of a data table's look among the chart's elements.
+DATA_TABLE_LOOK = 'axisDataTable'
+
+
 class ChartDataTable(Created):
     """The table of values under a chart (tests/fixtures/chart_members_more.json)."""
 
@@ -1340,6 +1349,13 @@ class ChartDataTable(Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @method
+    def Select(self) -> object:
+        """Selection answers the table, until a cell is selected (tests/fixtures/unassessed_charts.json)."""
+        self.chart.admit_read()
+        ChartObject(self.chart.sheet, self.chart.shape).made_active('data_table')
+        return EMPTY
 
     @member
     def Parent(self) -> object:
@@ -1352,6 +1368,15 @@ class ChartDataTable(Created):
     @member
     def Font(self) -> object:
         return self.chart.font_of(self, 'dataTable')
+
+    @member
+    def Format(self) -> object:
+        """A look like an axis's, kept under a key of the same family (tests/fixtures/chart_table_look.json)."""
+        return self.chart.format_of(self, DATA_TABLE_LOOK)
+
+    @member
+    def Border(self) -> object:
+        return self.chart.border_of(self, DATA_TABLE_LOOK)
 
     @member
     def ShowLegendKey(self) -> object:
@@ -1401,9 +1426,9 @@ class ChartDataTable(Created):
     def _has_border_outline(self, value: object) -> None:
         self._set_border(2, value)
 
-    @method
-    def Select(self) -> object:
-        self.chart.admit_read()
+    @member
+    def Name(self) -> object:
+        """No member of a data table's: what chart_members_more.json read of its Selection (438)."""
         raise error(438, "Object doesn't support this property or method")
 
     @method
@@ -2439,6 +2464,9 @@ class Chart(ElementProperties, HeldPart):
         wanted = to_bool(value)
         self.changed()
         self.state.data_table = wanted
+        if not wanted:
+            # Its look goes with it (tests/fixtures/chart_table_look.json).
+            self.state.element_looks.pop(DATA_TABLE_LOOK, None)
 
     @member
     def Name(self) -> object:
@@ -3005,9 +3033,21 @@ class LegendKey(Created):
     def Smooth(self) -> object:
         return self.series.vba_get('Smooth', [])
 
+    @setter('Smooth')
+    def _smooth(self, value: object) -> None:
+        self.series.vba_set('Smooth', value)
+
     @member
     def InvertIfNegative(self) -> object:
         return self.series.vba_get('InvertIfNegative', [])
+
+    @setter('InvertIfNegative')
+    def _invert_if_negative(self, value: object) -> None:
+        # On a chart that is no column or bar Excel's key still reads back what it was given, where the series' own
+        # setter writes nothing (tests/fixtures/unassessed_charts.json).
+        if CHART_TYPES.get(shown_type(self.series.chart.state)) not in ('column', 'bar'):
+            raise VBAUnsupportedError("LegendKey.InvertIfNegative on this kind of chart is not implemented")
+        self.series.vba_set('InvertIfNegative', value)
 
     @method
     def Delete(self) -> object:
@@ -3230,6 +3270,86 @@ class ChartGroup(Created):
     @method
     def FullCategoryCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
         return self._categories(Index)
+
+    # A histogram's, which raise on the kinds the model draws (tests/fixtures/chart_bins.json).
+
+    @member
+    def BinWidthValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinWidthValue')
+    def _binwidthvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsCountValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsCountValue')
+    def _binscountvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsOverflowEnabled(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsOverflowEnabled')
+    def _binsoverflowenabled(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsOverflowValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsOverflowValue')
+    def _binsoverflowvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsUnderflowEnabled(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsUnderflowEnabled')
+    def _binsunderflowenabled(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsUnderflowValue(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsUnderflowValue')
+    def _binsunderflowvalue(self, value: object) -> None:
+        del value
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @member
+    def BinsType(self) -> object:
+        self._kind()
+        raise error(INVALID_CALL, 'Automation error')
+
+    @setter('BinsType')
+    def _binstype(self, value: object) -> None:
+        self._kind()
+        if not 0 <= int(to_integer(value, 'Long')) <= 3:
+            raise error(5, 'Invalid procedure call or argument')
+        raise error(INVALID_CALL, 'Automation error')
 
     @member
     def BubbleScale(self) -> object:
@@ -3616,6 +3736,12 @@ class CategoryCollection(ItemDefault, Created):
     def __init__(self, group: ChartGroup) -> None:
         self.group = group
 
+    @method(name='_Default')
+    def hidden_default(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Asked for by its name it is 438; the collection called with an index still finds an item
+        (tests/fixtures/unassessed_charts.json)."""
+        raise error(438, "Object doesn't support this property or method")
+
     def vba_iterate(self) -> Iterator[object]:
         self.names()
         raise error(438, "Object doesn't support this property or method")
@@ -3672,7 +3798,9 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
             for item in items:
                 if to_text(cast(Series, item).vba_get('Name', [])).casefold() == index.casefold():
                     return item
-            raise error(1004, 'Invalid Parameter')
+            if not index.strip().isdigit():
+                raise error(1004, 'Invalid Parameter')
+            index = int(index)
         position = int(to_integer(index, 'Long'))
         if 1 <= position <= len(items):
             return items[position - 1]
@@ -3725,6 +3853,11 @@ class FullSeriesCollection(SeriesCollection):
 
     vba_type_name = 'FullSeriesCollection'
 
+    @method(name='_Default')
+    def hidden_default(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Asked for by its name it is 438 (tests/fixtures/unassessed_charts.json)."""
+        raise error(438, "Object doesn't support this property or method")
+
     def vba_items(self) -> list[object]:
         self.chart.admit_read()
         state = self.chart.state
@@ -3742,6 +3875,20 @@ class FullSeriesCollection(SeriesCollection):
     @method
     def Extend(self, *_: object) -> object:
         raise error(438, "Object doesn't support this property or method")
+
+
+def _series_parts(text: str) -> list[str]:
+    """The arguments of =SERIES, split where a comma is outside quotes."""
+    parts = ['']
+    quote = ''
+    for char in text:
+        if char in '"\'' and (not quote or quote == char):
+            quote = '' if quote else char
+        if char == ',' and not quote:
+            parts.append('')
+        else:
+            parts[-1] += char
+    return parts
 
 
 class Series(PictureMembers, Created):
@@ -4180,6 +4327,27 @@ class Series(PictureMembers, Created):
         values = self.entry.value_reference or literal_array(self.entry.values)
         return f'=SERIES({name},{categories},{values},{order})'
 
+    @setter('Formula')
+    def _set_formula(self, value: object) -> None:
+        """=SERIES(name, categories, values, order) with plain references or a quoted name, each taken as its own member takes it
+        (tests/fixtures/excel_everyday_14.json). A literal array or a changed order is not implemented."""
+        text = to_text(value).strip()
+        if not (text.upper().startswith('=SERIES(') and text.endswith(')')):
+            raise VBAUnsupportedError('Series.Formula with anything but =SERIES(...) is not implemented')
+        parts = _series_parts(text[len('=SERIES('):-1])
+        if len(parts) != 4 or parts[3].strip() != str(self.full_place()) or any('{' in part for part in parts):
+            raise VBAUnsupportedError('Series.Formula with a literal array or a changed order is not implemented')
+        name, categories, values = (part.strip() for part in parts[:3])
+        book = self.chart.sheet.book
+        application = book.application
+        self.vba_set('Values', application.vba_get('Range', [values]))
+        if categories:
+            self.vba_set('XValues', application.vba_get('Range', [categories]))
+        if name.startswith('"') and name.endswith('"'):
+            self.vba_set('Name', name[1:-1].replace('""', '"'))
+        elif name:
+            self.vba_set('Name', '=' + name)
+
     @member
     def FormulaR1C1(self) -> object:
         return r1c1_series(str(self.Formula()))
@@ -4261,7 +4429,16 @@ class Series(PictureMembers, Created):
 
         self.position()
         points = Points(self)
-        return points if Index is MISSING else points.vba_get('Item', [Index])
+        if Index is MISSING:
+            return points
+        # sr.Points(99) is 1004 where o.Item(99) on the same collection is not (tests/fixtures/excel_everyday_14.json).
+        return points.vba_get('Item', [Index]) if Index is NULL else points.vba_lookup(Index, points.vba_items())
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_points import OldInterior
+
+        return OldInterior(self)
 
     @method
     def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,

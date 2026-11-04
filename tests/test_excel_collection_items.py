@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -13,8 +14,9 @@ from pyopenvba.exceptions import VBAUnsupportedError
 ROOT = Path(__file__).resolve().parents[1]
 RECORD = json.loads((ROOT / 'tests/fixtures/collection_items.json').read_text(encoding='utf-8'))
 #: Collections whose answers the model does not all reproduce yet: an index it reads otherwise, or a member it lacks.
+#: ChartGroups.Item(1) answered a group in one live run and -2147417848 in the next.
 #: Their checklist rows stay PARTIAL.
-UNFINISHED = {'ChartObjects', 'CommentsThreaded', 'DataLabels', 'DocumentProperties', 'Errors', 'FullSeriesCollection',
+UNFINISHED = {'ChartGroups', 'ChartObjects', 'CommentsThreaded', 'DataLabels', 'DocumentProperties', 'Errors', 'FullSeriesCollection',
               'Hyperlinks', 'Panes', 'PivotFilters', 'Points', 'Queries', 'SeriesCollection', 'ShapeRange', 'Shapes',
               'SheetViews', 'Slicers', 'SparklineGroup', 'VPageBreaks'}
 CASES = [(number, *case) for number, case in enumerate(RECORD['cases']) if case[0] not in UNFINISHED]
@@ -37,4 +39,33 @@ def test_each_index_as_excel_answered(app: ExcelApplication, number: int, owner:
         found = str(app.run(f'Items.C{number}'))
     except VBAUnsupportedError:
         pytest.skip('reported as a gap')
-    assert found.replace(str(app.run('Items.BookName')), '<book>') == answer
+    # The first workbook's name is the session's.
+    found = found.replace(str(app.run('Items.BookName')), '<book>')
+    assert re.sub(r'Workbook:Book\d+', 'Workbook:', found) == re.sub(r'Workbook:Book\d+', 'Workbook:', answer)
+
+
+@pytest.mark.parametrize('number', sorted(int(key) for key in RECORD['early']))
+def test_null_through_a_variable_of_the_class_answers_as_bound_early(number: int) -> None:
+    owner, reach, _, _ = RECORD['cases'][number]
+    source = RECORD['source']
+    source = source[:source.index('Public Function BookName')]
+    made = ExcelApplication(sandbox=False)
+    made.add_workbook()
+    made.add_module(source + f'''
+Public Function Typed() As String
+    Dim o As {owner}, q As Object
+    On Error Resume Next
+    Set o = {reach}
+    Set q = o.Item(Null)
+    If Err.Number = 0 Then
+        Typed = TypeName(q) & ":" & q.Name
+    Else
+        Typed = "e" & Err.Number
+    End If
+End Function
+''', name='Items')
+    made.run('Items.Setup')
+    try:
+        assert made.run('Items.Typed') == RECORD['early'][str(number)]
+    except VBAUnsupportedError:
+        pytest.skip('reported as a gap')

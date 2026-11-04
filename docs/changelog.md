@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Changed
 
+- What macros see changes in several ways since 6.6.0, and a macro that relied on the old answers may behave differently:
+  - `Workbook.Calculate` is gone, as Excel does not have it. A macro now gets error 438.
+  - Assigning to a read-only member raises Excel's error instead of changing nothing or raising 450: a value goes by the member's own measured error, an object by what it answers (a Range takes the value, `Application` is 450, anything else 438), and `Set` on one is 438, 450 or 13.
+  - Settings and members given bad values raise Excel's error where they used to change nothing: Null is 94 and text that is no value 13 on `Application` and `Worksheet` settings, and values Excel refuses are 1004 or 5. Text past Excel's limits on hyperlinks, validation, table columns and windows raises too.
+  - `Range.Value`, `Value2` and `Formula` given `Null` clear the cell.
+  - A collection's `Item` raises Excel's error for each kind of index on each collection.
+  - `x.Add(1, 2)` or `P(a:=1)` as a bare statement no longer compiles, as in Excel. Use `Call` or drop the parentheses.
+  Each is listed with its detail below.
 - VBA runs in a sandbox by default. Running VBA can no longer save, open or
   export a file, which raises `VBASandboxError`. Pass `sandbox=False` to
   `ExcelApplication`, `WordApplication` or `PowerPointApplication`, or to their
@@ -853,6 +861,74 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - `Worksheet.Scenarios` adds, shows, changes and deletes what-if
   scenarios as Excel does, with its comments and errors, and saves and
   reads them in the sheet part.
+- `Shapes.AddPicture` and `AddPicture2` of a PNG kept in the workbook, with its natural size from the file's density, and a new picture's `PictureFormat` reads, replayed from live Excel. It reads a file, so it needs `sandbox=False`. A linked picture, other image types and a picture's fill and line report themselves.
+- `Protection.AllowEditRanges`: ranges a protected sheet still lets a macro write to, with titles, passwords, `Unprotect`,
+  `ChangePassword`, `Delete` and `Users` for Everyone. A range follows its cells, a sheet's copy has its ranges, and a save
+  writes them as Excel does, over 85 live cases.
+- Raise the events a macro could not hear before, in Excel's order among the events around them: BeforeDelete, NewChart, NewWorkbook, WindowActivate, WindowDeactivate, WindowResize, BeforePrint and FollowHyperlink, in document modules and WithEvents sinks, over 70 live rows.
+- Add PrintOut on Worksheet, Workbook, Range and Window, Hyperlink.Follow for links inside the workbook, Window.Close, Window.Left and Window.Top. A workbook closing now raises WindowDeactivate, Deactivate, then Activate and WindowActivate for the window behind; a sheet delete raises Deactivate and Activate as Excel does.
+- Add Window.ActivePane, EnableResize, DisplayDataTypeIcons and ScrollWorkbookTabs, the Pane of a window with no split, and Windows' side-by-side members, over 19 live rows. The active pane of a split window reports itself.
+- Add Application.ExecuteExcel4Macro for reading a cell in R1C1, of an open or a closed workbook, and working out an expression, over 42 live rows. Excel 4 functions such as GET.CELL report themselves. Application.Build answers the measured build instead of 0.
+- Add Application's read-only option objects and values a macro meets with no screen: AutoRecover, MultiThreadedCalculation, SpellingOptions, AutoCorrect, DefaultWebOptions, DefaultPivotTableLayoutOptions, FileValidation, FormulaBarHeight and others, over 65 live rows. Setting an option reports itself, as it would change a user's profile.
+- Add Pane's Activate, ScrollRow, ScrollColumn and SmallScroll for a window with no split, Panes' item rules, Application.AddIns, COMAddIns, RecentFiles, UsedObjects and FileExportConverters holding nothing, OnWindow on Application and Window, RecordMacro, RegisterXLL for a file that is not there, GetPhonetic, and DDE calls on a channel that is not open, over 53 live rows. A real XLL reports itself and is never loaded.
+- Add Application.OnTime: a procedure runs once no macro is running or at DoEvents, not at Wait, the last scheduled first, with LatestTime and Schedule:=False as Excel takes them, over 36 live rows. `ExcelApplication.run_on_time` runs what a later time has made due.
+- A chart element's `Format` has `Glow`, `Shadow` and `SoftEdge`, which can be set one at a time and are saved, on series, points, axes, titles, areas, trendlines and error bars. `ThreeD`, `PictureFormat`, `TextFrame2`, `Adjustments` and `AutoShapeType` read as Excel does with nothing set; setting a bevel is reported as unsupported.
+- `TickLabels.Format` and `Delete`. `ChartGroup.CategoryCollection` and `FullCategoryCollection`, with `ChartCategory`. `Chart.DataTable`.
+- `Series.Shadow` can be set and is saved, and `LegendKey.Shadow` follows it. `Series.LeaderLines`. `Characters` on chart and axis titles. `LegendEntry.Format`.
+- Picture settings on series and points, and members only newer chart kinds have, raise Excel's errors.
+- `HasDataTable` reads False on pie, doughnut and scatter charts, though the file keeps the table.
+- A chart group's drop lines, high-low lines, up and down bars and series lines have `Border`, `Format` and `Select`, with their look saved. `DownBars.Border` and `DownBars.Delete` raise as Excel does.
+- `ChartGroup` keeps `BubbleScale`, `SizeRepresents`, `ShowNegativeBubbles`, `SecondPlotSize`, `SplitType`, `SplitValue` and `Has3DShading`; `HasRadarAxisLabels` and `RadarAxisLabels` raise off a radar chart.
+- `LegendKey` has its series' marker members, `ClearFormats` and `Application`. `ErrorBars.ClearFormats`. `LegendEntries` and `ChartGroups` have `Parent` and `Application`.
+- `GetProperty` and `SetProperty` on chart elements raise what Excel raises; a series answers `Name`.
+- A foreground colour on a series with no marker no longer turns the marker on.
+- `Chart.PageSetup` on a chart on a sheet, its own and not the sheet's, saved in the chart's print settings.
+- `Chart.ProtectData`, `ProtectFormatting` and `ProtectSelection` can be set and are saved. `Chart.Protect` and `Unprotect` raise 1004 on a chart on a sheet, as Excel does. `ProtectGoalSeek` takes True and answers False.
+- `QueryTable.WorkbookConnection` and `Workbook.Connections` answer for query tables over text files, with `TextConnection`, `WorkbookConnection.Refresh`, `Name`, `Description`, `RefreshWithRefreshAll` and `Delete`, and saving what they change. `Workbook.RefreshAll` refreshes those tables.
+- Deleting a query table while an open workbook has another of its name costs a file the second newest of them, as Excel does every time.
+- A copied sheet's name goes on from a number in brackets its name ends in: a copy of `Sheet1 (2)` is `Sheet1 (3)`, not `Sheet1 (2) (2)`.
+- `Connections.Add2` and `WorkbookConnection.Delete`, kept for the session, with the rest of an OLE DB connection's
+  settings; `Scenarios.CreateSummary` for one changing and one result cell; `Workbooks.CheckOut`, `OpenXML` and
+  `OpenDatabase` on a file that is not there; over 83 live cases.
+- `FillFormat.TwoColorGradient`, `OneColorGradient`, `PresetGradient`, `GradientAngle`, `RotateWithObject` and what they read, with `GradientStops` and `GradientStop`, on a new AutoShape and text box, replayed from 271 live cases with the spPr Excel saves. A gradient's colour type, style and variant follow from its stops and angle, as Excel's do.
+- `FillFormat.Patterned` and `Pattern`, with a pattern's fore and back colours, its transparency, and hiding and showing it, on a new AutoShape and text box, replayed from 28 live cases with the spPr Excel saves.
+- `Shapes.AddPicture` of JPEG and GIF files, with their natural size from the file, and `PictureFormat`'s `Brightness`, `Contrast`, their increments, `ColorType`, `TransparentBackground` and `TransparencyColor`, replayed from live Excel. A BMP, which Excel converts, and setting a crop report themselves.
+- `Worksheet.QueryTables` and `QueryTable` over local text files: `Add`, `Refresh`, `Destination`, `ResultRange`, `Delete`, the parsing and layout settings, the three refresh styles, saving, reading a saved table back, and copying a sheet with its tables. Refreshing goes behind the sandbox.
+- Other sources, a file with bytes past ASCII, `PostText`, `TextFilePromptOnRefresh = True` and a URL `Connection` are refused. A table the model could not write back as the file has it stays refused, with its parts saved as they came.
+- A refresh leaves column widths alone, where Excel's `AdjustColumnWidth` changes them: those differ from Excel. Formats in a refresh's way also differ.
+- `Range.QueryTable` finds the table whose result holds the cell. A field holding a comma stays text when the import's separators are neither comma.
+- `FILTERXML` and `WorksheetFunction.FilterXML`, on an XPath 1.0 engine: axes, unions, predicates and the core functions, reading what it selects as typing it into a cell would. A document with a DOCTYPE fails, as in Excel.
+- `PHONETIC`, #N/A for a cell a macro wrote. The model keeps no furigana from a file.
+- `Range.SoundNote`, `XPath`, `CellControl`, `ResetContents`, `RemoveControls` and `TogglePythonMarshalMode`, and the members that answer 1004 on a cell with no linked data or writeback: `AllocateChanges`, `DiscardChanges`, `DataTypeToText`, `RefreshLinkedDataType`, `SetCellDataTypeFromCell`, `EditionOptions`.
+- `DataTable.Border` and `DataTable.Format` on a chart's data table, read and saved as Excel does, with `Glow`, `Shadow` and `SoftEdge`.
+- `Shape.Adjustments` for every AutoShape type, `Shapes.AddConnector` and `Shape.ConnectorFormat`, replayed from live Excel.
+- `Shapes.AddShape` now saves every AutoShape type Excel takes. It used to save any type past 20 (other than the 5-point star) as a plain rectangle, with the wrong default name, and it took numbers Excel refuses with 1004. Callouts read `Type` 2, the 24 presets whose text starts in tx1 save it so, and a default name now follows `AutoShapeType`.
+- `Shapes.BuildFreeform` with `FreeformBuilder.AddNodes` and `ConvertToShape`, and `Shapes.AddCallout`, replayed from live Excel. `Fill` and `Line` of a freeform can now be read. A curve with `msoEditingAuto` reports itself, because Excel smooths it by a rule not measured.
+- `Shape.Callout` read from and written to a callout's adjustments, replayed from live Excel. `AddShape` now turns the callout types Excel treats as another into that one.
+- `TextFrame2.Column`, its `Number` and `Spacing`, replayed from live Excel.
+- `Shape.SetShapesDefaultProperties`: later AutoShapes in the workbook take the shape's fill, line and effects, and a save writes them to the theme, replayed from live Excel. Text settings carried by it report themselves.
+- `TextFrame.Characters.Font` on all of a shape's text, replayed from live Excel. Some of the characters, and font names beyond those measured, report themselves.
+- `TextFrame2.TextRange.Font` on all of a shape's text, with its underline, strike, caps, spacing, kerning and baseline, replayed from live Excel. Its `Fill`, `Line` and effects report themselves.
+- `LineFormat` arrowheads (`BeginArrowheadStyle`, `Width`, `Length` and the `End` set), `BackColor`, `Pattern` and `InsetPen`, and `ColorFormat` `Brightness`, `TintAndShade`, `SchemeColor` and a settable `ObjectThemeColor`, on a new AutoShape, text box and line, replayed from 277 live cases with the spPr Excel saves. `RGB` now computes shade, tint, lumMod and lumOff the way Excel does: shade and tint in linear light, lumMod and lumOff on HSL lightness, rounding only at the end. A `ShapeRange` refuses these members for now, and `SchemeColor` reports itself for a colour with no exact palette match.
+- `Shape.PickUp` and `Apply` between AutoShapes, through a `ShapeRange` too, and a freeform's `Nodes` and `Vertices`, replayed from live Excel. Other kinds of shape report themselves.
+- A `ShapeRange`'s `Shadow`, `Glow`, `SoftEdge` and `Reflection`, replayed from live Excel, including how each reads when its shapes differ. A preset `Shadow.Type` still reports itself.
+- A `ShapeRange` now takes the line arrowheads, patterns, `InsetPen`, fill patterns and gradients, theme colours, brightness and tint, `Adjustments` and `ConnectorFormat`, reading what its shapes share or the mixed value, replayed from 49 live cases. `TwoColorGradient` also reaches a line in the range, as in Excel, though the line goes on reading as having no fill.
+- A collection's hidden `_NewEnum`, and `_Default` on page breaks, sort fields, sparkline groups, icon sets, trendlines
+  and errors, as on a typed variable. `Application` and `Parent` where they were missing, `ListObject.Publish` and
+  `ExportToVisio`, `Trendline.GetProperty` and `SetProperty`, `DisplayDataTypeIcons` and `PhoneticCharacters`.
+- `Series.Formula` can be set, with plain references or a quoted name. `Series.Interior`, `Point.Interior` and `TextRange2.Length`.
+- `CellFormat.NumberFormatLocal`, `Characters.PhoneticCharacters`, `DisplayFormat.Characters`, `HeaderFooter.Picture`, `ListColumn.XPath` and `WorksheetView.DisplayDataTypeIcons`, as live Excel answers them on cells and sections with no phonetic text, picture or XML mapping.
+- `TableStyle.TableStyleElements` on the built-in table styles: each element's format, font, fill and borders.
+- `Workbook.Theme`, with its colours, which a macro can change and a save keeps, and its fonts; `CustomXMLParts`;
+  `ChangeFileAccess`; `Scenarios.Merge`; `Workbook.PivotTables`, `WebOptions`, `UserStatus`, `Model` and
+  `Signatures`; `Sheets.HPageBreaks` and `VPageBreaks`; `PageSetup.Pages` and the header and footer pictures; and
+  the shared-workbook, review and server members, which fail as Excel's do on a workbook that uses none of them,
+  over 222 live cases.
+- `Workbook.UpdateLink`, `ChangeLink`, `OpenLinks` and `SetLinkOnData`, measured over 102 live cases with what a save
+  writes of the links. `ChangeLink` to a file that is not there leaves `#REF!`, to a workbook without the sheets read
+  takes its first sheet, and numbers the links by name. While a linked workbook is open, formulas name it by its file
+  alone and read its cells as they stand; when it closes they keep what it last held.
+- `r = wb.Close(False)` answers True.
 
 ### Fixed
 
@@ -1098,6 +1174,39 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 - `Range.Locked = Null` is taken without an error and changes nothing, as
   in Excel, instead of raising "Invalid use of Null".
+- A save no longer leaves a file Excel refuses. A workbook Excel saved holds `xl/calcChain.xml`, and the model carried that part through every save unchanged. After a value or `ClearContents` over a formula, `Rows.Insert`, `Rows.Delete`, `Columns.Insert`, `Columns.Delete`, `Range.Insert`, `Range.Delete`, `Cut`, `Copy` over a formula, `Sort`, `Merge`, or deleting a sheet with formulas, the chain named a cell with no formula, and `Workbooks.Open` failed with error 1004. The chain now stays byte for byte while every entry can still be opened, and is dropped with its Override and Relationship when one cannot. Excel builds its own as it opens the file, and reads the same values. A dropped chain does not match Excel's bytes: Excel writes a reordered chain after the same edit, and matching it is a later measuring job. (`_calc_chain.py`, `scripts/measure_calc_chain.py`)
+- `ChartGroup`'s histogram bin members raise Excel's errors on the chart types the model draws. Data labels' `Format` reads `Glow`, `Shadow`, `SoftEdge`, `ThreeD`, `PictureFormat`, `TextFrame2`, `Adjustments` and `AutoShapeType`.
+- A saved file now holds the current value of a formula on a sheet nobody wrote to. A formula reading another sheet, a defined name, a table or a hidden row kept its old value in the file, though the session read the new one, and Excel opening the file read the old one too. Each changed cell's `t`, `<v>` and, in manual calculation, `ca="1"` are written, and the rest of the part keeps its bytes. `fullCalcOnLoad` is not used, as Excel's own files do not use it. (`_io._write_cached_values`, `scripts/measure_saved_values.py`)
+- Keep a hidden sheet hidden: Worksheet.Visible was neither read from a file nor saved to one, so a hidden or very hidden sheet came back visible. EnableSelection is now kept too, on a protected sheet or not.
+- `Application.StatusBar = ""` gives the bar back to Excel and reads False, where it read empty text. Semi-automatic Calculation and DisplayDrawingObjects read as Excel's Doubles, and ConflictResolution refuses 3, each measured typed and late bound.
+- Deleting a sheet other formulas read no longer stops a macro or leaves wrong answers. `=Gone!A1*2` became `=#REF!A1*2` as in Excel, but the model could not read that formula back, so reading the cell or saving ended the macro. It now reads as the error, and a file holds `#REF!*2`, as Excel writes it. A span of sheets shrinks to the sheets left (`First:Last!A1` to `First:Middle!A1`), where before it read `#REF!` and reopened as `#NAME?`. A reference to a table on the deleted sheet becomes `#REF!`, and a name of the sheet becomes `[0]!Name`, shown as `=Book.xlsx!Name`. `.Formula = "=#REF!A1"` is error 1004, as in Excel. (`_sheet_groups.gone_references`, `formula/_parse.py`, `formula/_calc/lexer.py`)
+- A macro that opens a workbook saved in manual or semi-automatic calculation and saves it keeps that mode, as Excel does, where the model wrote automatic. Setting Application.Calculation while it is open still decides. calcMode and calcOnSave are left out of the file at their defaults, as Excel leaves them.
+- Assigning to a read-only member that answers an object goes by the object: a Range takes the value, `Application` is error 450, and anything else, `Nothing` included, is 438. `Set` on a read-only member is 438 for an object, 450 for most values, and 13 where a plain assignment is 1004.
+- A collection's `Item` with `Null`, `Nothing`, an array or a date answers Excel's error for that class. `Shapes` and `ChartObjects` round a number as VBA does, so 1.5 of one is past the end. `SeriesCollection`, `Points` and `ChartObjects` take a number in text.
+- `o(99)` on a chart's `Points` is -2147467259, while `sr.Points(99)` stays 1004.
+- `x.Add(1, 2)` or `P(a:=1)` as a bare statement does not compile, as in Excel. Use `Call` or drop the parentheses.
+- `WorksheetFunction.Index` and `Choose` answer the range itself, so `.Address` works on them. Called through a variable `As Object` or a `Variant`, a function is not held to its signature: `Match(Array(1, 2), r, 0)` is an array and `Bin2Dec` a number, where typed they stay error 13 and text.
+- `CONFIDENCE` matches Excel to the last digit.
+- Measure the chart and effect members that had no evidence, over 90 live rows, and fix what differed: DataTable.Select selects the table, where a misread row had it refused; AxisTitle.Name answers on the category axis too; LegendKey.Smooth and InvertIfNegative set their series; asking a FullSeriesCollection or CategoryCollection for `_Default` by name is 438; SoftEdgeFormat.Parent is 438.
+- Application.DDERequest answers #REF!, as Excel does on a channel that is not open. No channel can be open here: DDEInitiate is out of scope.
+- UniqueValues.CalcFor is Excel's 438, read or set, where the model answered 0. Range.XPath refuses more than one cell, and XPath has its default member, Repeating and Clear, over 26 live rows.
+- Application.Path answers a fixed install path, `C:\Program Files\Microsoft Office\root\Office16`, chosen rather than measured, where it answered the current folder; LibraryPath is that path and `\LIBRARY`, as Excel's stands. Code that read Application.Path as the working folder gets a different answer.
+- Remove Workbook.Calculate, which Excel does not have: a macro now gets its error 438. Shape.Select refuses a hidden shape on any sheet. Shapes.SelectAll now selects every shape that shows, charts among them, and refuses when none shows.
+- Hyperlink, validation, column-name and window text past Excel's limits now raises its error, and TextToDisplay reads back 255 characters. Window.TabRatio takes the size of a number. Where late and early binding differ the model follows early until it tracks both, and such rows are PARTIAL.
+- Notes' Text and NoteText, table Add positions, Sort.SetRange and text limits answer as Excel does. Older VERIFIED rows were audited against a written standard, and VERIFIED goes down where they fall short.
+- Font, Interior and Border on cells take every kind of value as Excel does: Null usually changes nothing, True reads as 1 or -1 by property, text gives 1004, 5 or 13 by property, and Font.ThemeFont can be set. A mixed border edge answers its first cell along a top or left edge and its last along a bottom or right one.
+- A Range's alignment and protection take every kind of value as Excel does: Null changes nothing, True is 1, text that is no number is 1004, a code from a list refuses even text of a number, and a count or angle drops a fraction.
+- A collection's `Item` raises Excel's error for each kind of index on the collections measured: past either end, a fraction, text, a name it lacks, Empty, Null, True, an object or no argument.
+- Application and Worksheet settings answer bad values as Excel does. Null is error 94 and text that is no value 13, where they used to change nothing without an error. Values Excel refuses raise 1004 or 5: Cursor, FixedDecimalPlaces, ConstrainNumeric, GenerateTableRefs, ODBCTimeout, LargeOperationCellThousandCount, ScrollArea, EnableSelection, Visible and StandardWidth. A macro that relied on these being ignored without an `On Error` now stops, as it does in Excel.
+- `Application.Goto` outside a sheet's ScrollArea is error 1004, and selects nothing.
+- `Application.PrintCommunication = True` fails with error 1004 when a held PageSetup setting is refused. A header that is too long and text given to Orientation fail as they are set.
+- `Range.OutlineLevel` over rows or columns that differ answers the first's level, where it reported itself as not implemented. `Range.FormulaArray` over an array and cells past it reads Null.
+- More of Range's settable properties answer each kind of value as Excel does: Name, FormulaArray, NumberFormatLocal, MergeCells, Hidden, UseStandardHeight, UseStandardWidth, Formula2, FormulaR1C1, OutlineLevel and PageBreak.
+- Range.Value, Value2 and Formula = Null clear the cell, where a Null stored there broke reads and SaveAs. Numbers are saved as Excel spells them; a huge one in plain digits made Excel refuse the file. NumberFormat, Style, ColumnWidth and RowHeight take every kind of value as Excel does.
+- Assigning to a member Excel holds read-only now raises Excel's error, measured member by member: usually 450, 1004 or 438 on some, not 438 on all of them. `Set o.Parent = x` follows what Parent answers.
+- Parent and Application answer on objects that lacked them or answered wrongly: a format condition's and a CellFormat's Font, Interior and Borders, a data bar's colours, chart borders, GroupShapes, what an embedded chart holds, IconSet, ColorStop, LegendKey, Workbook.Windows and sparkline colours and axes. Creator is error 438 on the types Excel leaves it off, such as Protection and the conditional-format criteria.
+- Checklist: Application, Creator and Parent move to VERIFIED on the classes where every way measured agrees with live Excel.
+- The demo workbooks no longer record the folder they were saved in, nor do the test fixtures. `scripts/strip_fixture_save_paths.py` now covers every tracked workbook, and `tests/test_fixture_paths.py` guards both.
 
 ## [6.6.0] - 2026-10-30
 

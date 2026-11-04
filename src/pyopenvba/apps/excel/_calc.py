@@ -138,6 +138,9 @@ class Calculator:
         self._learning_depth = 0
         self._scopes: list[tuple[str | None, tuple[Area, ...] | None]] = []
         self._calculated_sheets: list[set[Worksheet]] = []
+        #: The sheets where a formula has been worked out since the last save, whose values a save may have to bring up
+        #: to date though nobody wrote to them (see _io._write_cached_values).
+        self.worked_out: set[Worksheet] = set()
         self.pending_notifications: set[Worksheet] = set()
         self._held_caches: set[CellKey] = set()
         self.automatic_pending = False
@@ -885,6 +888,7 @@ class Calculator:
             self._working.discard(key)
             self._active_formulas.pop()
         cell.value = value
+        self.worked_out.add(owner)
         cell.stale = False
         for sheets in self._calculated_sheets:
             sheets.add(owner)
@@ -1023,6 +1027,8 @@ class Calculator:
         else:
             self._loop.pop(key, None)
         cell.value = value
+        if owner is not None:
+            self.worked_out.add(owner)
         cell.save_dirty = None
         self._held_caches.discard(key)
         cell.stale = cached

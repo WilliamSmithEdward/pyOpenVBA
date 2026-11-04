@@ -19,13 +19,13 @@ scripts/measure_workbook_settings.py):
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import NULL, VBAInt, error, to_bool, to_integer
+from pyopenvba.interpreter._values import MISSING, NULL, VBAInt, error, to_bool, to_integer
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -102,6 +102,10 @@ class TableStyle(ExcelObject):
     def family(self) -> tuple[str, str, str]:
         return next(family for family in _FAMILIES if self.name.startswith(family[0]))
 
+    @method(name="_Default")
+    def hidden_default(self) -> object:
+        return self.name
+
     @member(default=True)
     def Name(self) -> object:
         return self.name
@@ -113,6 +117,10 @@ class TableStyle(ExcelObject):
         found = re.fullmatch(r"([A-Za-z]+?)(\d+)", self.name[len(prefix):])
         assert found is not None
         return f"{words} {found[1]} {found[2]}"
+
+    @member
+    def TableStyleElements(self) -> object:
+        return TableStyleElements(self)
 
     @member
     def BuiltIn(self) -> object:
@@ -204,7 +212,7 @@ def set_default_style(book: Workbook, kind: str, value: object) -> None:
 
 def set_slicer_default(value: object, styles: tuple[str, ...], name: str) -> None:
     if _style_name(value) not in styles:
-        raise error(450, "Wrong number of arguments or invalid property assignment")
+        raise error(5, "Invalid procedure call or argument")  # Bound early (tests/fixtures/settable_audit.json).
     raise VBAUnsupportedError(f"Workbook.{name} set to another style is not implemented")
 
 
@@ -290,11 +298,237 @@ def session_value(book: Workbook, name: str) -> object:
 
 def set_session_value(book: Workbook, name: str, value: object) -> None:
     if name in REFUSED_SET:
+        # Bound early VBA converts first, so text is 13 and Null 94 (tests/fixtures/settable_audit.json).
+        to_integer(value) if name == "AutoUpdateFrequency" else to_bool(value)
         raise error(1004, REFUSED_SET[name] or "Application-defined or object-defined error")
     if name in IGNORED_SET:
-        to_integer(value)
+        if value is True or not 1 <= int(to_integer(value)) <= 32767:
+            raise error(1004, "Application-defined or object-defined error")
         return
     kind = SETTABLE.get(name)
     if kind is None:
         raise VBAUnsupportedError(f"Workbook.{name} set is not implemented")
-    book.session_properties[name] = to_bool(value) if kind is bool else int(to_integer(value))
+    answer = to_bool(value) if kind is bool else int(to_integer(value))
+    if name == "ConflictResolution" and answer not in (1, 2):
+        # 3 too, on a workbook that is not shared (tests/fixtures/settable_audit.json).
+        raise error(1004, "Application-defined or object-defined error")
+    book.session_properties[name] = answer
+
+
+#: xlBordersIndex by the side a style's element names, and each line's LineStyle and Weight.
+_SIDES = {8: "top", 9: "bottom", 7: "left", 10: "right", 11: "vertical", 12: "horizontal"}
+_LINES = {"thin": (1, 2), "medium": (1, -4138), "double": (-4119, 4), "thick": (1, 4)}
+
+
+class TableStyleElements(VBACollection, ItemDefault, ExcelObject):
+    """A style's 43 elements, numbered from xlWholeTable, 0. Any whole number finds an element
+    (tests/fixtures/table_style_elements.json)."""
+
+    vba_type_name = "TableStyleElements"
+
+    def __init__(self, style: TableStyle) -> None:
+        self.style = style
+
+    def vba_items(self) -> list[object]:
+        return [TableStyleElement(self, number) for number in range(43)]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        if isinstance(index, str):
+            raise error(13, "Type mismatch")
+        return TableStyleElement(self, int(to_integer(index, "Long")))
+
+    @member
+    def Parent(self) -> object:
+        return self.style
+
+    @member
+    def Application(self) -> object:
+        return self.style.book.application
+
+
+class TableStyleElement(ExcelObject):
+    vba_type_name = "TableStyleElement"
+
+    def __init__(self, owner: TableStyleElements, number: int) -> None:
+        self.owner, self.number = owner, number
+
+    def held(self) -> list[Any] | None:
+        """The element's bold, italic, font colour, fill colour and sides, or None where it has no format."""
+        from pyopenvba.apps.excel._table_style_table import table_styles
+
+        found = table_styles().get(self.owner.style.name)
+        if found is None:
+            raise VBAUnsupportedError("the elements of a pivot, slicer or timeline style are not implemented")
+        return found.get(str(self.number))
+
+    def colour(self, spelled: list[Any] | None) -> object:
+        """A colour as Color reads it, as Excel's black where the element gives none."""
+        from pyopenvba.apps.excel._styles import Color, bgr
+
+        if spelled is None:
+            return 0.0
+        colors = self.owner.style.book.stylesheet.colors
+        return float(bgr(colors.rrggbb(Color(spelled[0], spelled[1], tint=spelled[2]), "000000")))
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.style.book.application
+
+    @member
+    def HasFormat(self) -> object:
+        return self.held() is not None
+
+    @member
+    def Font(self) -> object:
+        return TableStyleFont(self)
+
+    @member
+    def Interior(self) -> object:
+        return TableStyleInterior(self)
+
+    @member
+    def Borders(self, Index: object = MISSING) -> object:
+        found = TableStyleBorders(self)
+        return found if Index is MISSING else TableStyleBorder(self, int(to_integer(Index, "Long")))
+
+    @member
+    def StripeSize(self) -> object:
+        if self.held() is None:
+            raise error(438, "Object doesn't support this property or method")
+        return VBAInt(1, "Long")
+
+    @setter("StripeSize")
+    def _set_stripe_size(self, value: object) -> None:
+        raise error(5, "Invalid procedure call or argument")
+
+    @method
+    def Clear(self) -> object:
+        raise error(5, "Invalid procedure call or argument")
+
+
+def _tint(colour: list[Any]) -> float:
+    """A colour's TintAndShade, which the style table keeps out of 32767."""
+    return colour[2] / 32767 if abs(colour[2]) > 1 else float(colour[2])
+
+
+class _ElementPart(ExcelObject):
+    def __init__(self, element: TableStyleElement) -> None:
+        self.element = element
+
+    @member
+    def Parent(self) -> object:
+        return self.element
+
+    @member
+    def Application(self) -> object:
+        return self.element.owner.style.book.application
+
+
+class TableStyleFont(_ElementPart):
+    """An element's font. A built-in style's fonts take no change the model follows."""
+
+    vba_type_name = "Font"
+
+    def _read(self, place: int, name: str) -> object:
+        held = self.element.held()
+        if held is None:
+            raise error(1004, f"Unable to get the {name} property of the Font class")
+        return NULL if held[place] is None else held[place]
+
+    def _colour(self) -> list[Any] | None:
+        held = self.element.held()
+        if held is None:
+            raise error(438, "Object doesn't support this property or method")
+        return held[2]
+
+    @member
+    def Bold(self) -> object:
+        return self._read(0, "Bold")
+
+    @member
+    def Italic(self) -> object:
+        return self._read(1, "Italic")
+
+    @member
+    def Color(self) -> object:
+        colour = self._colour()
+        return NULL if colour is None else self.element.colour(colour)
+
+    @member
+    def ThemeColor(self) -> object:
+        colour = self._colour()
+        return NULL if colour is None or colour[0] != "theme" else VBAInt(colour[1] + 1, "Long")
+
+    @member
+    def TintAndShade(self) -> object:
+        colour = self._colour()
+        return NULL if colour is None else _tint(colour)
+
+
+class TableStyleInterior(_ElementPart):
+    vba_type_name = "Interior"
+
+    def _colour(self) -> list[Any] | None:
+        held = self.element.held()
+        return None if held is None else held[3]
+
+    @member
+    def Color(self) -> object:
+        return self.element.colour(self._colour())
+
+    @setter("Color")
+    def _set_color(self, value: object) -> None:
+        raise error(5, "Invalid procedure call or argument")
+
+    @member
+    def ThemeColor(self) -> object:
+        colour = self._colour()
+        return NULL if colour is None or colour[0] != "theme" else VBAInt(colour[1] + 1, "Long")
+
+    @member
+    def TintAndShade(self) -> object:
+        colour = self._colour()
+        return NULL if colour is None else _tint(colour)
+
+
+class TableStyleBorders(_ElementPart):
+    vba_type_name = "Borders"
+
+    @member(default=True)
+    def Item(self, Index: object = MISSING) -> object:
+        return TableStyleBorder(self.element, int(to_integer(Index, "Long")))
+
+
+class TableStyleBorder(_ElementPart):
+    vba_type_name = "Border"
+
+    def __init__(self, element: TableStyleElement, edge: int) -> None:
+        super().__init__(element)
+        self.edge = edge
+
+    def _side(self, name: str) -> list[Any] | None:
+        held = self.element.held()
+        if held is None:
+            raise error(1004, f"Unable to get the {name} property of the Border class")
+        return held[4].get(_SIDES.get(self.edge, ""))
+
+    @member
+    def LineStyle(self) -> object:
+        side = self._side("LineStyle")
+        return VBAInt(-4142 if side is None else _LINES[side[0]][0], "Long")
+
+    @member
+    def Weight(self) -> object:
+        side = self._side("Weight")
+        return VBAInt(2 if side is None else _LINES[side[0]][1], "Long")
+
+    @member
+    def Color(self) -> object:
+        if self.element.held() is None:
+            raise error(438, "Object doesn't support this property or method")
+        side = self._side("Color")
+        return self.element.colour(None if side is None else side[1])

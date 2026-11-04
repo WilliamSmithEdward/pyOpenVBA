@@ -368,7 +368,10 @@ class Context:
             if node.prefix.sheet is not None:
                 raise UnsupportedFormulaError("a name defined for one sheet of another workbook")
             found = self.book.external_name(node.prefix.book, node.name)
-            return REF if found is None else self.evaluate(found)
+            if found is None:
+                # This workbook, by what a deleted sheet leaves of its own name, has no such name.
+                return NAME if node.prefix.book == "0" else REF
+            return self.evaluate(found)
         sheet = None
         if node.prefix is not None:
             if node.prefix.sheet is None:

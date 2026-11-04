@@ -139,13 +139,18 @@ def main() -> None:
                 with zipfile.ZipFile(Path(folder) / f'c{index}.xlsx') as package:
                     names = package.namelist()
                     xml = package.read('xl/drawings/drawing1.xml').decode('utf-8') if 'xl/drawings/drawing1.xml' in names else ''
+                    if CASES[index] == f'Set h = {ADDS["Pictures"]}':
+                        kept = package.read('xl/drawings/_rels/drawing1.xml.rels').decode('utf-8').replace(folder, '<folder>')
+                        (partial.with_suffix('.rels')).write_text(kept, encoding='utf-8')
                 shapes = re.findall(r'<xdr:(?:sp|cxnSp|pic)\b.*?</xdr:(?:sp|cxnSp|pic)>', xml, re.DOTALL)
                 done.append([CASES[index], answer.replace(folder, '<folder>'), [one.replace(folder, '<folder>').replace(folder.replace('\\', '/'), '<folder>') for one in shapes]])
             partial.write_text(json.dumps(done), encoding='utf-8')
     print(len(done), 'of', len(CASES))
     if len(done) == len(CASES):
-        OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'reads': READS, 'source': source, 'cases': done}, indent=1) + '\n', encoding='utf-8')
+        relationships = partial.with_suffix('.rels')
+        OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'reads': READS, 'source': source, 'picture_relationships': relationships.read_text(encoding='utf-8'), 'cases': done}, indent=1) + '\n', encoding='utf-8')
         partial.unlink()
+        relationships.unlink()
 
 
 if __name__ == '__main__':

@@ -500,6 +500,8 @@ class Shape:
     #: Setting TransparentBackground writes a fill behind the picture: clear when on, the style's when off.
     picture_fill: str | None = None
     image_relationship: str = ""
+    #: Excel: the file a linked picture shows, which the workbook does not keep (Pictures.Insert).
+    image_link: str = ""
     #: Excel: Shape.Apply has written the empty text's format out.
     painted: bool = False
     #: Excel: Adjustments, as the file's values in the order of ADJUSTMENTS; None while the geometry's defaults stand.
@@ -544,6 +546,8 @@ class Shape:
         124 are callouts (tests/fixtures/shape_adjustment_table.json)."""
         if self.kind == "line" and self.geometry != "line":
             return 1
+        if self.image_link:
+            return 11
         if self.kind == "shape" and 109 <= getattr(self, "auto_shape_type", 1) <= 124:
             return 2
         return MSO_TYPE.get(self.kind, 1)

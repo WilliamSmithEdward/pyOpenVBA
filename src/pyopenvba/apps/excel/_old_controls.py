@@ -12,6 +12,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._held_shapes import ShapePart, shape_here
 from pyopenvba.apps.excel._shapes import ShapeObject
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -31,16 +32,27 @@ def _object(value: object) -> VBAObject:
     return cast(VBAObject, value)
 
 
-class OldControl(Created):
-    """A form control under its old name."""
+class OldObject(ShapePart):
+    """A shape under its old name, a form control's or a drawing's (see _old_drawings). Held after the shape has gone, it answers
+    only what needs no shape (tests/fixtures/shape_held_deleted.json, tests/fixtures/old_drawings.json)."""
 
     vba_type_name = ''
     kind = ''
+    held_free = frozenset({'parent', 'application', 'creator', 'shaperange', 'addindent', 'interior', 'border'})
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape
         self.drawn = ShapeObject(sheet, shape)
-        self.control = _object(self.drawn.vba_get('ControlFormat', []))
+
+    def held_gone(self) -> bool:
+        return not shape_here(self.sheet, self.shape)
+
+    def held_error(self, name: str) -> int:
+        return 1004
+
+    def holds(self, shape: Shape) -> bool:
+        """Whether a shape is one its own collection counts."""
+        return _of_kind(shape, self.kind)
 
     @member
     def Parent(self) -> object:
@@ -69,7 +81,7 @@ class OldControl(Created):
     @member
     def Index(self) -> object:
         """Its place among the controls of its kind, in the order they lie on the sheet."""
-        return VBAInt(1 + [one for one in self.sheet.shapes_ if _of_kind(one, self.kind)].index(self.shape), 'Long')
+        return VBAInt(1 + [one for one in self.sheet.shapes_ if self.holds(one)].index(self.shape), 'Long')
 
     @member
     def ZOrder(self) -> object:
@@ -103,6 +115,16 @@ class OldControl(Created):
         return item_of(self.sheet, getattr(found, 'shape'))
 
 
+class OldControl(OldObject):
+    """A form control under its old name."""
+
+    vba_type_name = ''
+
+    def __init__(self, sheet: Worksheet, shape: Shape) -> None:
+        super().__init__(sheet, shape)
+        self.control = _object(self.drawn.vba_get('ControlFormat', []))
+
+
 def _of_kind(shape: Shape, kind: str) -> bool:
     return shape.kind == 'formControl' and shape.control is not None and shape.control.kind == kind
 
@@ -110,10 +132,10 @@ def _of_kind(shape: Shape, kind: str) -> bool:
 def _through(owner: str, name: str, *, writes: bool = True) -> MemberSpec:
     """A member of the shape or of its ControlFormat, under the same name."""
 
-    def get(item: OldControl) -> object:
+    def get(item: OldObject) -> object:
         return getattr(item, owner).vba_get(name, [])
 
-    def put(item: OldControl, value: object) -> None:
+    def put(item: OldObject, value: object) -> None:
         getattr(item, owner).vba_set(name, value)
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put if writes else None)
@@ -145,8 +167,9 @@ def _raising(name: str, failure: tuple[int, str]) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-for _spec in (*(_through('drawn', _name) for _name in ('Name', 'Left', 'Top', 'Width', 'Height', 'Placement', 'OnAction')), _through('drawn', 'TopLeftCell', writes=False), _through('drawn', 'BottomRightCell', writes=False),
-              _through('control', 'Enabled'), _through('control', 'PrintObject')):
+for _spec in (*(_through('drawn', _name) for _name in ('Name', 'Left', 'Top', 'Width', 'Height', 'Placement', 'OnAction')), _through('drawn', 'TopLeftCell', writes=False), _through('drawn', 'BottomRightCell', writes=False)):
+    OldObject.vba_add_member(_spec)
+for _spec in (_through('control', 'Enabled'), _through('control', 'PrintObject')):
     OldControl.vba_add_member(_spec)
 
 
@@ -402,8 +425,12 @@ for _spec in (_through('control', 'MultiSelect'), _raising('Caption', _NO_MEMBER
 _ITEMS: dict[str, type[OldControl]] = {'Button': Button, 'CheckBox': CheckBox, 'Radio': OptionButton, 'Drop': DropDown, 'List': ListBox}
 
 
-def item_of(sheet: Worksheet, shape: Shape) -> OldControl:
-    """The old object a form control answers as."""
+def item_of(sheet: Worksheet, shape: Shape) -> OldObject:
+    """The old object a shape answers as."""
+    if shape.kind != 'formControl':
+        from pyopenvba.apps.excel._old_drawings import drawing_of
+
+        return drawing_of(sheet, shape)
     kind = '' if shape.control is None else shape.control.kind
     if kind not in _ITEMS:
         raise VBAUnsupportedError(f'The old object of a {kind or "shape"} control is not implemented')
@@ -436,11 +463,17 @@ class OldControls(VBACollection, Created):
     def __init__(self, sheet: Worksheet, picked: list[Shape] | None = None) -> None:
         self.sheet, self.picked = sheet, picked
 
+    def holds(self, shape: Shape) -> bool:
+        return _of_kind(shape, self.kind)
+
+    def item_for(self, shape: Shape) -> object:
+        return item_of(self.sheet, shape)
+
     def _shapes(self) -> list[Shape]:
-        return self.picked if self.picked is not None else [one for one in self.sheet.shapes_ if _of_kind(one, self.kind)]
+        return self.picked if self.picked is not None else [one for one in self.sheet.shapes_ if self.holds(one)]
 
     def vba_items(self) -> list[object]:
-        return [item_of(self.sheet, one) for one in self._shapes()]
+        return [self.item_for(one) for one in self._shapes()]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, VBAArray):

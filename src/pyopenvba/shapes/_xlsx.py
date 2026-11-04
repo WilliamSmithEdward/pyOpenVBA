@@ -961,11 +961,13 @@ def _new_picture(shape: Shape) -> str:
     if shape.picture_lum is not None:
         bright, contrast = shape.picture_lum
         effects += "<a:lum" + (f' bright="{bright}"' if bright else "") + (f' contrast="{contrast}"' if contrast else "") + "/>"
+    macro = f' macro="{escape(shape.macro)}"' if shape.macro else ""
+    blip = (f'r:link="{shape.image_relationship}"/>' if shape.image_link else
+            f'r:embed="{shape.image_relationship}">{effects}<a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
+            f'<a14:useLocalDpi {_A14} val="0"/></a:ext></a:extLst></a:blip>')
     return (
-        f"<xdr:pic><xdr:nvPicPr>{_identity(shape)}<xdr:cNvPicPr>{locks}</xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill>"
-        '<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
-        f'r:embed="{shape.image_relationship}">{effects}<a:extLst><a:ext uri="{{28A0092B-C50C-407E-A947-70E740481C1C}}">'
-        f'<a14:useLocalDpi {_A14} val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
+        f"<xdr:pic{macro}><xdr:nvPicPr>{_identity(shape)}<xdr:cNvPicPr>{locks}</xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill>"
+        f'<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" {blip}<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
         f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
         f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}</xdr:spPr></xdr:pic>")
@@ -1029,8 +1031,9 @@ def _new_element(shape: Shape) -> str:
     geometry = (f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst>{guides}</a:avLst></a:prstGeom>'
                 if guides else f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>')
     style = _TEXT_BOX_STYLE if shape.kind == "textBox" else _STYLE
-    if shape.kind == "line":
-        # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json).
+    if shape.kind == "line" or shape.geometry == "arc":
+        # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json), and so does an arc
+        # (tests/fixtures/old_drawings.json).
         style = _OPEN_STYLE
     if shape.kind == "freeform":
         geometry = _free_geometry(shape)
@@ -1444,6 +1447,9 @@ def _identity(shape: Shape) -> str:
         name = re.sub(r"^Freeform (\d+)$", r"Freeform: Shape \1", name)
     if shape.kind == "line":
         name = re.sub(r"^(Elbow|Curved) Connector (\d+)$", r"Connector: \1 \2", name)
+    if shape.kind == "shape":
+        # So with a rounded rectangle, read as "Rounded Rectangle 1" (tests/fixtures/old_drawings.json).
+        name = re.sub(r"^Rounded Rectangle (\d+)$", r"Rectangle: Rounded Corners \1", name)
     return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(name)}"{described}{titled}{hidden}>'
             f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
 

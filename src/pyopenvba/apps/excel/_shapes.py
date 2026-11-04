@@ -229,6 +229,9 @@ class Shapes(VBACollection, ItemDefault, Created):
             box=(Left, Top, Width, Height),
         )
         shape.auto_shape_type = EXCEL_ALIASES.get(wanted, wanted)
+        if shape.geometry == "arc":
+            # The box given is the arc's quarter of an ellipse twice as big, which stays on the sheet (tests/fixtures/old_drawings.json).
+            shape.left, shape.width, shape.height = max(shape.left - shape.width, 0.0), shape.width * 2, shape.height * 2
         book = self.sheet.book
         if book.shape_default_markup:
             # After SetShapesDefaultProperties a new AutoShape takes its look, and writes its text layout out.
@@ -278,6 +281,7 @@ class Shapes(VBACollection, ItemDefault, Created):
                 abs(end_y - start_y),
             ),
         )
+        shape.flip_h, shape.flip_v = end_x < start_x, end_y < start_y
         return ShapeObject(self.sheet, shape)
 
     @method
@@ -716,6 +720,13 @@ class ShapeRange(VBACollection, ShapePart):
         self.spread("AutoShapeType", value)
 
     @method
+    def RerouteConnections(self) -> object:
+        # Of several shapes, a connector with no connections stops another rerouting, and a shape that is no connector does not: no rule fits both yet.
+        if len(self.shapes) != 1:
+            raise _unsupported("RerouteConnections over several shapes")
+        return self.shapes[0].RerouteConnections()
+
+    @method
     def IncrementLeft(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
         for shape in self.shapes:
             shape.IncrementLeft(Increment)
@@ -1064,6 +1075,10 @@ class ShapeObject(_Drawn):
             from pyopenvba.apps.excel._charts import ChartObject
 
             return ChartObject(self.sheet, self.shape)
+        if self.shape.kind in ("shape", "textBox", "line", "picture"):
+            from pyopenvba.apps.excel._old_drawings import drawing_of
+
+            return drawing_of(self.sheet, self.shape)
         list_control(self.shape)
         return ListDrawingObject(self.sheet, self.shape)
 
@@ -1203,10 +1218,14 @@ class ShapeObject(_Drawn):
     @member
     def Left(self) -> object:
         self.sheet.dims.settle_shapes()
-        return VBASingle(self.shape.left)
+        # An arc's box is the whole ellipse, of which it is the quarter at the right (tests/fixtures/old_drawings.json).
+        return VBASingle(self.shape.left + (self.shape.width / 2 if self.shape.geometry == "arc" else 0))
 
     @setter("Left")
     def _set_left(self, value: object) -> None:
+        if self.shape.geometry == "arc":
+            self._placed(left=max(_number(value) - self.shape.width / 2, 0.0))
+            return
         self._placed(left=_number(value))
 
     @member
@@ -1359,6 +1378,8 @@ class ShapeObject(_Drawn):
     def ZOrder(self, ZOrderCmd: object = MISSING) -> object:  # noqa: N803 - native named argument
         """Moves the shape to the front (0) or back (1), or one place forward (2) or back (3), among the sheet's
         shapes, whose order is the drawing's and the Shapes collection's (tests/fixtures/shape_flip_order.json)."""
+        if ZOrderCmd is MISSING:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
         self.guard("ZOrder")
         command = int(to_integer(ZOrderCmd, "Long"))
         if command not in (0, 1, 2, 3):
@@ -1397,20 +1418,33 @@ class ShapeObject(_Drawn):
     @member
     def Width(self) -> object:
         self.sheet.dims.settle_shapes()
-        return VBASingle(self.shape.width)
+        return VBASingle(self.shape.width / 2 if self.shape.geometry == "arc" else self.shape.width)
 
     @setter("Width")
     def _set_width(self, value: object) -> None:
-        self._placed(width=_number(value))
+        wanted = _number(value)
+        if self.shape.geometry == "arc":
+            # The ellipse keeps its centre where it is.
+            self._placed(left=self.shape.left + self.shape.width / 2 - wanted, width=wanted * 2)
+            return
+        if self.shape.lock_aspect and self.shape.width:
+            # A locked shape keeps its proportions (tests/fixtures/old_drawings.json).
+            self._placed(width=wanted, height=self.shape.height * wanted / self.shape.width)
+            return
+        self._placed(width=wanted)
 
     @member
     def Height(self) -> object:
         self.sheet.dims.settle_shapes()
-        return VBASingle(self.shape.height)
+        return VBASingle(self.shape.height / 2 if self.shape.geometry == "arc" else self.shape.height)
 
     @setter("Height")
     def _set_height(self, value: object) -> None:
-        self._placed(height=_number(value))
+        wanted = _number(value)
+        if self.shape.lock_aspect and self.shape.height:
+            self._placed(width=self.shape.width * wanted / self.shape.height, height=wanted)
+            return
+        self._placed(height=wanted * 2 if self.shape.geometry == "arc" else wanted)
 
     @member
     def TopLeftCell(self) -> object:
@@ -2694,7 +2728,7 @@ class _TextLayout(ShapePart):
         if shape.text_look is None:
             shape.text_look = TextLook(align="l" if shape.kind == "shape" else None,
                                        vert="horz" if shape.kind == "textBox" else None,
-                                       font_scheme="dk1" if shape.kind == "textBox" else "lt1")
+                                       font_scheme="dk1" if shape.kind == "textBox" or shape.geometry == "arc" else "lt1")
         return shape.text_look
 
     def _changed(self) -> TextLook:
@@ -3090,6 +3124,13 @@ class Characters(_ShapeText):
 
     def held_error(self, name: str) -> int:
         return 1004
+
+    @member
+    def Parent(self) -> object:
+        """The shape's old object, whose text this is (tests/fixtures/old_drawings.json)."""
+        from pyopenvba.apps.excel._old_controls import item_of
+
+        return item_of(self.sheet, self.owner.shape)
 
     def __init__(self, shape: ShapeObject, start: object = MISSING, length: object = MISSING) -> None:
         super().__init__(shape)

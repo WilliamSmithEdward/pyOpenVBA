@@ -185,6 +185,8 @@ class _Format(ShapePart):
             # An open path has a line's style and a closed one an AutoShape's (tests/fixtures/shape_builders.json).
             closed = any(command == "close" for command, _ in shape.path)
             return STYLE["shape" if closed else "line"]
+        if not shape.source and shape.geometry == "arc":
+            return STYLE["line"]
         if shape.source or shape.kind not in STYLE:
             raise VBAUnsupportedError("The fill and line of this shape are not implemented")
         if self.owner.sheet.book.stylesheet.colors.theme != DEFAULT_THEME:

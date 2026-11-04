@@ -3494,10 +3494,61 @@ class Worksheet(ExcelObject):
         charts = ChartObjects(self)
         return charts if Index is MISSING else charts.vba_get('Item', [Index])
 
-    @member
-    def DrawingObjects(self, Index: object = MISSING) -> object:
-        """The older name for the same shapes."""
-        return self.Shapes(Index)
+    @method
+    def DrawingObjects(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """All the sheet's drawings and controls under their old names (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import DrawingObjects as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def TextBoxes(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import TextBoxes as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Pictures(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Pictures as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Rectangles(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Rectangles as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Ovals(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Ovals as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Lines(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Lines as kind
+
+        return collection(self, kind, Index)
+
+    @method
+    def Arcs(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The old name of some of the sheet's drawings (see _old_drawings)."""
+        from pyopenvba.apps.excel._old_controls import collection
+        from pyopenvba.apps.excel._old_drawings import Arcs as kind
+
+        return collection(self, kind, Index)
 
     @method
     def Buttons(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument

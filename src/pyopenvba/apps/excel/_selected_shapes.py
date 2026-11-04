@@ -17,13 +17,15 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, to_bool
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
 
-_DRAWN = {"rect": "Rectangle", "roundRect": "Rectangle", "ellipse": "Oval", "line": "Line"}
+_DRAWN = {"rect": "Rectangle", "roundRect": "Rectangle", "ellipse": "Oval", "line": "Line", "arc": "Arc"}
 
 
 def _type_name(shape: Shape) -> str | None:
     """The drawing object a shape answers as, for those measured; another kind of shape does not join the selection."""
     if shape.kind == "textBox":
         return "TextBox"
+    if shape.kind == "picture":
+        return "Picture"
     if shape.kind == "formControl" and shape.control is not None:
         return {"Button": "Button", "CheckBox": "CheckBox", "Radio": "OptionButton", "Drop": "DropDown", "List": "ListBox"}.get(shape.control.kind)
     return _DRAWN.get(shape.geometry) if shape.kind in {"autoShape", "shape", "line", "connector"} else None

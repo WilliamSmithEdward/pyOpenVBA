@@ -16,7 +16,7 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/shape_con
 F = 'sh.ConnectorFormat.'
 #: Each of these reports itself: connecting to a line or a group's member, duplicating a connector, an elbow's or a curve's routing
 #: other than its plain case, and changing a connector's type straight to a curve.
-UNBUILT = ('Set o = ws.Shapes.AddLine', 'o.GroupItems', 'sh.Duplicate', 
+UNBUILT = ('.Name, a.Name)).Reroute', '.Name, sh.Name)).Reroute', '.Name, o.Name)).Reroute', 'Set o = ws.Shapes.AddLine', 'o.GroupItems', 'sh.Duplicate', 
            f'Set sh = ws.Shapes.AddConnector(2, 10, 10, 50, 30): {F}BeginConnect a, 1', f'Set sh = ws.Shapes.AddConnector(2, 10, 10, 50, 30): {F}BeginConnect a, 3',
            f'Set sh = ws.Shapes.AddConnector(2, 10, 10, 50, 30): {F}BeginConnect a, 4: {F}EndConnect b, 4', f'Set sh = ws.Shapes.AddConnector(2, 10, 10, 50, 30): {F}BeginConnect a, 4: {F}EndConnect b, 2: b.Left',
            f'Set sh = ws.Shapes.AddConnector(3, 10, 10, 50, 30): {F}BeginConnect a, 3', f'{F}EndConnect b, 2: sh.ConnectorFormat.Type')

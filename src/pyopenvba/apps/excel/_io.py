@@ -1082,8 +1082,15 @@ def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
 
     related: dict[bytes, str] = {shape.image: shape.image_relationship for shape in sheet.shapes_
                                  if shape.image is not None and shape.image_relationship}
+    linked = {shape.image_link: shape.image_relationship for shape in sheet.shapes_ if shape.image_link and shape.image_relationship}
     rels = rels_part(drawing)
     for shape in sheet.shapes_:
+        if shape.image_link and not shape.image_relationship:
+            # A linked picture's relationship names its file, whose bytes stay out of the workbook.
+            if shape.image_link not in linked:
+                linked[shape.image_link] = add_relationship(package, rels, _IMAGE_RELATIONSHIP, "file:///" + shape.image_link, external=True)
+                package.write(rels, in_office_order(package.read(rels).decode("utf-8")).encode("utf-8"))
+            shape.image_relationship = linked[shape.image_link]
         if shape.image is None or shape.image_relationship:
             continue
         if shape.image not in related:

@@ -73,6 +73,12 @@ CASES = [
     # A follow after the connector's own size was set, and a second move.
     f'{STRAIGHT}{BEGIN_A}{END_B}: sh.Width = 5: a.Left = 150', f'{STRAIGHT}{BEGIN_A}{END_B}: sh.Height = 5: b.Top = 300', f'{STRAIGHT}{BEGIN_A}{END_B}: a.Left = 150: a.Left = 90',
     f'{STRAIGHT}{BEGIN_A}{END_B}: {F}BeginDisconnect: a.Left = 150', f'{STRAIGHT}{BEGIN_A}{END_B}: {F}BeginDisconnect: b.Left = 500',
+    # ShapeRange.RerouteConnections: my rule says each connector in it reroutes, and anything else in it raises as a shape alone does.
+    f'{STRAIGHT}{F}BeginConnect a, 1: {F}EndConnect b, 1: ws.Shapes.Range(Array(sh.Name)).RerouteConnections', f'{STRAIGHT}ws.Shapes.Range(Array(sh.Name)).RerouteConnections',
+    f'{STRAIGHT}{F}BeginConnect a, 1: ws.Shapes.Range(Array(sh.Name)).RerouteConnections', f'{STRAIGHT}{F}BeginConnect a, 1: {F}EndConnect b, 1: ws.Shapes.Range(Array(sh.Name, a.Name)).RerouteConnections',
+    f'{STRAIGHT}{F}BeginConnect a, 1: {F}EndConnect b, 1: ws.Shapes.Range(Array(a.Name, sh.Name)).RerouteConnections', f'{STRAIGHT}ws.Shapes.Range(Array(a.Name)).RerouteConnections',
+    f'{STRAIGHT}Set o = ws.Shapes.AddConnector(1, 1, 1, 2, 2): {F}BeginConnect a, 1: {F}EndConnect b, 1: o.ConnectorFormat.BeginConnect a, 3: o.ConnectorFormat.EndConnect c, 1: ws.Shapes.Range(Array(sh.Name, o.Name)).RerouteConnections',
+    f'{STRAIGHT}Set o = ws.Shapes.AddConnector(1, 1, 1, 2, 2): {F}BeginConnect a, 1: {F}EndConnect b, 1: ws.Shapes.Range(Array(sh.Name, o.Name)).RerouteConnections',
     # The Creator of each object here.
     *[f'{STRAIGHT}s2 = {one}.Creator' for one in ('sh.ConnectorFormat', 'sh.TextFrame2.TextRange', 'sh.TextFrame2.TextRange.Font', 'a.PictureFormat', 'a.ConnectorFormat')],
     # A group's member.

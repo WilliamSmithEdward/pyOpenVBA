@@ -36,7 +36,7 @@ from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
-from pyopenvba.interpreter._files import native_path, on_disk
+from pyopenvba.interpreter._files import native_path, on_disk, respell_file
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -2577,7 +2577,13 @@ class Workbook(ExcelObject):
         if self.format_code is not None:
             # A text format the model does not write reports itself before any event.
             text_writer(self.format_code)
-        return self.save_to(Path(self.path) / self.name)
+        # Save leaves the file spelled as the workbook is named, where SaveAs left the old spelling (tests/fixtures/case_saves.json).
+        named = Path(self.path) / self.name
+        saved = self.save_to(Path(on_disk(str(named))))
+        if saved:
+            self.name = named.name
+            respell_file(str(named))
+        return saved
 
     @method
     def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING, Password: object = MISSING,
@@ -2623,7 +2629,12 @@ class Workbook(ExcelObject):
         if writer is None and target.suffix.lower() != expected:
             _events.after_save(self, False)
             raise error(1004, "SaveAs filename does not match FileFormat")
-        return self.save_to(target, before=False, file_format=chosen, sheet=sheet)
+        # Over a file in another case it writes that file, whose name stays, and is named as given (tests/fixtures/case_saves.json).
+        typed = target.name
+        saved = self.save_to(Path(on_disk(str(target))), before=False, file_format=chosen, sheet=sheet)
+        if saved:
+            self.name = typed
+        return saved
 
     @method
     def SaveCopyAs(self, Filename: object = MISSING) -> object:

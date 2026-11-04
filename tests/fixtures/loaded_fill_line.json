@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T07:54:03.811713+00:00",
+ "measured_at": "2026-11-04T07:56:30.077985+00:00",
  "reads": [
   "Fill.Visible",
   "Fill.Type",
@@ -189,7 +189,7 @@
    "change": "Fill.Patterned 5",
    "excel": "E0@-1|2|255|0|1|0|5|-1|65280|0|3|4|0|1|1|-1",
    "reopened": "-1|2|255|0|1|0|5|-1|65280|0|3|4|0|1|1|-1",
-   "model_reopened": "-1|2|255|0|1|0.5|5|-1|65280|0|3|4|0|1|1|-1"
+   "model_reopened": "-1|2|255|0|1|0|5|-1|65280|0|3|4|0|1|1|-1"
   },
   {
    "target": "Painted",
@@ -357,28 +357,28 @@
    "change": "Fill.ForeColor.RGB = 255",
    "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Fill.ForeColor.ObjectThemeColor = 6",
    "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Fill.Visible = msoFalse",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Fill.Visible = msoTrue",
    "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
@@ -399,77 +399,77 @@
    "change": "Fill.Patterned 5",
    "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.ForeColor.RGB = 65280",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|65280|0|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|65280|0|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|65280|0|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.ForeColor.ObjectThemeColor = 7",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|2386713|7|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|2386713|7|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|2386713|7|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.Visible = msoFalse",
    "excel": "E0@0|-2|0|-2|-2|1|-2|0|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|0|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|0|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.Visible = msoTrue",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.Weight = 4",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|4|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|4|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|4|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.DashStyle = 4",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|4|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|4|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|4|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.Transparency = 0.5",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0.5|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0.5|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0.5|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Line.EndArrowheadStyle = 2",
    "excel": "E0@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The effects of this shape are not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Pic",
    "change": "Fill.ForeColor.RGB = 255",
    "excel": "E0@-1|1|255|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
    "reopened": "-1|1|255|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "-1|1|255|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
   },
   {
    "target": "Pic",
    "change": "Fill.ForeColor.ObjectThemeColor = 6",
    "excel": "E0@-1|1|3305961|6|2|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
    "reopened": "-1|1|3305961|6|2|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "reports Changing a colour once a hidden line or a bare fill has lost it is not implement"
   },
   {
    "target": "Pic",
@@ -483,14 +483,14 @@
    "change": "Fill.Visible = msoTrue",
    "excel": "E0@-1|1|14934203|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
    "reopened": "-1|1|14934203|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "-1|1|14934203|0|1|0|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
   },
   {
    "target": "Pic",
    "change": "Fill.Transparency = 0.25",
    "excel": "E0@-1|1|8544277|5|2|0.25|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
    "reopened": "-1|1|8544277|5|2|0.25|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
-   "model_reopened": "-1|1|8544277|5|2|0.25|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "reports The fill transparency of a line, under a hidden line, or of a fill hidden bare, "
   },
   {
    "target": "Pic",
@@ -504,7 +504,7 @@
    "change": "Fill.Patterned 5",
    "excel": "E0@-1|2|8544277|5|2|0|5|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
    "reopened": "-1|2|8544277|5|2|0|5|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "reports A pattern under a hidden line, or on a fill hidden bare, is not implemented"
   },
   {
    "target": "Pic",
@@ -525,35 +525,35 @@
    "change": "Line.Visible = msoFalse",
    "excel": "E0@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
    "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|3351556|5|1|1|0|1|1|0"
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
   },
   {
    "target": "Pic",
    "change": "Line.Visible = msoTrue",
    "excel": "E0@0|-2|16777215|0|1|1|-2|-1|0|0|0.75|1|0|1|1|0",
    "reopened": "0|-2|16777215|0|1|1|-2|-1|0|0|0.75|1|0|1|1|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "0|-2|16777215|0|1|1|-2|-1|0|0|0.75|1|0|1|1|0"
   },
   {
    "target": "Pic",
    "change": "Line.Weight = 4",
    "excel": "E0@0|-2|16777215|0|1|1|-2|-1|0|13|4|1|0|1|1|0",
    "reopened": "0|-2|16777215|0|1|1|-2|-1|0|13|4|1|0|1|1|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "0|-2|16777215|0|1|1|-2|-1|0|13|4|1|0|1|1|0"
   },
   {
    "target": "Pic",
    "change": "Line.DashStyle = 4",
    "excel": "E0@0|-2|16777215|0|1|1|-2|-1|0|13|0.75|4|0|1|1|0",
    "reopened": "0|-2|16777215|0|1|1|-2|-1|0|13|0.75|4|0|1|1|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
+   "model_reopened": "0|-2|16777215|0|1|1|-2|-1|0|13|0.75|4|0|1|1|0"
   },
   {
    "target": "Pic",
    "change": "Line.Transparency = 0.5",
    "excel": "E0@0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
    "reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0",
-   "model_reopened": "0|-2|16777215|0|1|1|-2|-1|3351556|5|1|1|0.5|1|1|0"
+   "model_reopened": "0|-2|16777215|0|1|1|-2|0|16777215|0|-2.147484E+09|-2|-2.147484E+09|-2|-2|0"
   },
   {
    "target": "Pic",

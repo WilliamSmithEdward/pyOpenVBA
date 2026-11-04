@@ -135,7 +135,9 @@ class ShadowFormat(_Effect):
             from pyopenvba.shapes._read_look import has_own_shadow
 
             # A shape from a file, by its own effect list; a theme's effects report themselves (tests/fixtures/object_roundtrip.json).
-            found = has_own_shadow(shape.source)
+            package = self.owner.sheet.book.package
+            theme = package.read('xl/theme/theme1.xml').decode('utf-8', 'replace') if package is not None and package.has('xl/theme/theme1.xml') else ''
+            found = has_own_shadow(shape.source, theme)
             if found is not None:
                 return VBAInt(-1 if found else 0, 'Long')
         return VBAInt(-1 if self.held().shadow_visible else 0, 'Long')

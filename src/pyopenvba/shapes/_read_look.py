@@ -162,13 +162,18 @@ def read_style(markup: str) -> StyleRefs:
     return StyleRefs(fill, line, line_index)
 
 
-def has_own_shadow(markup: str) -> bool | None:
-    """Whether a shape's own effect list has a shadow, False with no list and no theme effect, None if a theme's would apply."""
+def has_own_shadow(markup: str, theme: str) -> bool | None:
+    """Whether a shape has a shadow, by its own effect list or else the theme effect its style names; None for a theme with no
+    such effect to look at."""
     rest = properties(markup)
     if "<a:effectLst" in rest:
         return "<a:outerShdw" in rest
     reference = re.search(r'<a:effectRef\b[^>]*?\bidx="(\d+)"', markup)
-    return False if reference is None or reference.group(1) == "0" else None
+    if reference is None or reference.group(1) == "0":
+        return False
+    effects = re.findall(r"<a:effectStyle>.*?</a:effectStyle>", theme, re.DOTALL)
+    index = int(reference.group(1))
+    return "<a:outerShdw" in effects[index - 1] if 0 < index <= len(effects) else None
 
 
 def with_fill_line(markup: str, written: str) -> str:

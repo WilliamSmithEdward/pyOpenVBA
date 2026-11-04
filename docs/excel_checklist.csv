@@ -106,7 +106,7 @@ Application,DDEAppReturnCode,"property, read-only",As Long,,PARTIAL,tests/fixtur
 Application,DDEExecute,method,"DDEExecute(Channel As Long, String As String)",,PARTIAL,tests/fixtures/application_rest.json; tests/test_excel_application_rest.py,Does nothing: no channel is ever open here
 Application,DDEInitiate,method,"DDEInitiate(App As String, Topic As String) As Long",,EXCLUDED,,Out of headless scope: it opens a channel to another running program
 Application,DDEPoke,method,"DDEPoke(Channel As Long, Item As Variant, Data As Variant)",,PARTIAL,tests/fixtures/application_rest.json; tests/test_excel_application_rest.py,Does nothing: no channel is ever open here
-Application,DDERequest,method,"DDERequest(Channel As Long, Item As String) As Variant",,MISSING,,
+Application,DDERequest,method,"DDERequest(Channel As Long, Item As String) As Variant",,PARTIAL,tests/fixtures/application_rest.json; tests/test_excel_application_rest.py,"#REF!: no channel is ever open here, as DDEInitiate is excluded"
 Application,DDETerminate,method,DDETerminate(Channel As Long),,PARTIAL,tests/fixtures/application_rest.json; tests/test_excel_application_rest.py,Does nothing: no channel is ever open here
 Application,DecimalSeparator,property,As String,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,Reads the en-US separator; setting another is refused as unsupported.
 Application,DefaultFilePath,property,As String,,MISSING,,

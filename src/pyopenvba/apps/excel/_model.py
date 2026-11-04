@@ -1031,6 +1031,11 @@ class Application(ExcelObject):
         return EMPTY
 
     @method
+    def DDERequest(self, Channel: object = MISSING, Item: object = MISSING) -> object:  # noqa: N803
+        """#REF!, with no channel open (tests/fixtures/application_rest.json)."""
+        return VBAErrorValue(2023)
+
+    @method
     def DDEExecute(self, Channel: object = MISSING, String: object = MISSING) -> object:  # noqa: N803
         return EMPTY
 

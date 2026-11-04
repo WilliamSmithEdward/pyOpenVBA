@@ -16,6 +16,7 @@ Font, Interior, Borders, alignment -- lives in
 from __future__ import annotations
 
 import datetime as _dt
+import os
 import re
 import weakref
 from itertools import islice
@@ -1705,8 +1706,11 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project, load_project
         from pyopenvba.apps.excel._text_files import is_text, open_text
 
-        path = path.resolve()
-        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == path), None)
+        # A workbook keeps the spelling it was given: FullName of C:\\RUNNER~1\\a.xlsx is that, not the long name
+        # (tests/test_excel_short_paths.py). Whether it is already open goes by the file it really is.
+        really = path.resolve()
+        path = Path(os.path.abspath(path))
+        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == really), None)
         if existing is not None:
             self.application.activate_book(existing)
             return existing
@@ -2734,7 +2738,7 @@ class Workbook(ExcelObject):
                 save_workbook(self, target)
         except OSError as failure:
             raise error(1004, str(failure)) from failure
-        self.path = str(target.resolve().parent)
+        self.path = str(Path(os.path.abspath(target)).parent)
         self.name = target.name
         if text and file_format is not None:
             saved_as_text(self, file_format, sheet)

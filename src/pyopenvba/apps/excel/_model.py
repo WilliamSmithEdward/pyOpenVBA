@@ -1455,6 +1455,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         #: The number the next new workbook of each kind takes: Book for one with no template, Sheet for one made
         #: from xlWBATWorksheet, each counting on its own and taking none back (tests/fixtures/workbook_names.json).
         self._next_numbers = {"Book": 1, "Sheet": 1}
+        #: How many books the session has made from templates, whichever templates (tests/fixtures/template_opens.json).
+        self.templates_used = 0
 
     def next_name(self, stem: str = "Book") -> str:
         while True:
@@ -1476,6 +1478,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Add(self, Template: object = MISSING) -> object:
+        if isinstance(Template, str):
+            return self._from_template(Path(self._not_found(Template)))
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
         book = Workbook(self.application, self.next_name("Book" if Template is MISSING else "Sheet"))
@@ -1498,8 +1502,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
              Editable: object = MISSING, Notify: object = MISSING, Converter: object = MISSING,
              AddToMru: object = MISSING, Local: object = MISSING, CorruptLoad: object = MISSING) -> object:
         """A workbook, or a CSV or text file read as Excel reads one (see _text_files). UpdateLinks, Password,
-        WriteResPassword, IgnoreReadOnlyRecommended, Editable, Notify, AddToMru and Local change nothing for the
-        files the model opens, which it neither updates links in nor decrypts (tests/fixtures/text_files.json)."""
+        WriteResPassword, IgnoreReadOnlyRecommended, Notify, AddToMru and Local change nothing for the files the model
+        opens, which it neither updates links in nor decrypts (tests/fixtures/text_files.json). A template makes a new book
+        unless Editable is True (tests/fixtures/template_opens.json)."""
         from pyopenvba.apps.excel._text_files import is_text, remember_format
 
         if Filename is MISSING:
@@ -1523,6 +1528,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             # A text file Workbooks.Open reads puts OpenText's code page back to Windows-1252
             # (tests/fixtures/open_text.json).
             self.application.text_import.origin = 1252
+        if path.suffix.lower() in (".xltx", ".xltm") and not (Editable is not MISSING and to_bool(Editable)):
+            return self._from_template(path)
         try:
             return self.open_file(path, read_only=read_only, format_code=format_code)
         except PowerQueryError:
@@ -1533,6 +1540,21 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise error(1004, f"Excel cannot open the file '{path.name}' because the file format or file extension "
                               "is not valid. Verify that the file has not been corrupted and that the file extension "
                               "matches the format of the file.") from None
+
+    def _from_template(self, path: Path) -> Workbook:
+        """The new book a file makes as a template: its contents, under the file's name and a number that goes on through
+        the session, with no path, as an ordinary workbook of its kind (tests/fixtures/template_opens.json)."""
+        from pyopenvba.apps.excel._io import prepare_format
+
+        suffix = path.suffix.lower()
+        if suffix not in (".xlsx", ".xlsm", ".xltx", ".xltm"):
+            raise VBAUnsupportedError(f"A new workbook from a {suffix} file is not implemented")
+        book = self.open_file(path)
+        self.templates_used += 1
+        prepare_format(book, 52 if suffix in (".xlsm", ".xltm") else 51)
+        book.name, book.path = f"{path.stem}{self.templates_used}", ""
+        book.saved = True
+        return book
 
     def _not_found(self, name: object) -> str:
         self.application.outside("Opening a file")
@@ -2475,7 +2497,7 @@ class Workbook(ExcelObject):
         target = Path(to_text(Filename))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
         writer = text_writer(chosen)
-        expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm"}.get(chosen)
+        expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm", 53: ".xltm", 54: ".xltx"}.get(chosen)
         if expected is None:
             raise VBAUnsupportedError(f"SaveAs FileFormat {chosen} is not implemented by the Excel cell model")
         if not target.suffix:

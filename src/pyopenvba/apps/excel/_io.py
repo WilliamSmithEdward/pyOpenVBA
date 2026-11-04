@@ -1745,8 +1745,10 @@ def _fresh_package(suffix: str) -> OpcFile:
     from pyopenvba._templates import EMPTY_XLSM_BYTES
 
     package = OpcFile.parse(EMPTY_XLSM_BYTES)
-    if suffix in (".xlsx", ""):
+    if suffix in (".xlsx", ".xltx", ""):
         _make_macro_free(package)
+    if suffix in (".xltx", ".xltm"):
+        _write_main_type(package, 54 if suffix == ".xltx" else 53)
     return package
 
 
@@ -1796,7 +1798,7 @@ def prepare_format(book: Workbook, file_format: int) -> None:
                 # current in-memory rule geometry or API projection.
                 sheet.conditional_changed = True
                 sheet.touched()
-    if file_format == 51:
+    if file_format in (51, 54):
         from pyopenvba._package_signature import relationships_part, without_signature
 
         for part, data in without_signature(list(package.names()), package.read, "xl/vbaProject.bin").items():
@@ -1808,9 +1810,17 @@ def prepare_format(book: Workbook, file_format: int) -> None:
         if package.has(rels):
             package.remove(rels)
         _make_macro_free(package)
+    _write_main_type(package, file_format)
+
+
+def _write_main_type(package: OpcFile, file_format: int) -> None:
+    """The content type that says what the package is."""
     content = package.read("[Content_Types].xml").decode("utf-8")
-    main = ("application/vnd.ms-excel.sheet.macroEnabled.main+xml" if file_format == 52
-            else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
+    main = {52: "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
+            53: "application/vnd.ms-excel.template.macroEnabled.main+xml",
+            54: "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml"}.get(
+                file_format, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
+
     def changed(match: re.Match[str]) -> str:
         tag = match.group(0)
         if _content_attributes(tag).get("PartName") != "/xl/workbook.xml":

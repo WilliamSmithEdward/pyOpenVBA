@@ -1,0 +1,89 @@
+{
+ "measured_at": "2026-11-04T06:08:58.100292+00:00",
+ "cases": [
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok t1||t1|51|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltm\"): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok t1||t1|52|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Add(folder & \"\\t.xltx\"): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok t1||t1|51|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Add(folder & \"\\t.xltm\"): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok t1||t1|52|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\u.xlsx\"): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok u.xlsx|<folder>|<folder>\\u.xlsx|51|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Add(folder & \"\\u.xlsx\"): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok u1||u1|51|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): Set other = Workbooks.Open(folder & \"\\t.xltx\"): r = wb.Name & \" \" & other.Name: other.Close False",
+   "ok t1 t2"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): Set other = Workbooks.Open(folder & \"\\u2.xltx\"): r = wb.Name & \" \" & other.Name: other.Close False",
+   "ok t1 u22"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): n = wb.Name: wb.Close False: Set wb = Workbooks.Open(folder & \"\\t.xltx\"): r = n & \" \" & wb.Name",
+   "ok t1 t2"
+  ],
+  [
+   "Set wb = Workbooks.Add(folder & \"\\t.xltx\"): Set other = Workbooks.Open(folder & \"\\t.xltx\"): r = wb.Name & \" \" & other.Name: other.Close False",
+   "ok t1 t2"
+  ],
+  [
+   "Set wb = Workbooks.Add: Set other = Workbooks.Open(folder & \"\\t.xltx\"): r = (Left(wb.Name, 4) = \"Book\") & \" \" & other.Name: other.Close False",
+   "ok True t1"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): wb.Worksheets(1).Range(\"A2\").Value = 1: wb.SaveAs folder & \"\\saved.xlsx\", xlOpenXMLWorkbook: r = wb.Name & \" \" & wb.FileFormat & \" \" & wb.Path",
+   "ok saved.xlsx 51 <folder>"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): wb.Worksheets(1).Range(\"A2\").Value = 1: wb.SaveAs folder & \"\\saved2.xltx\", xlOpenXMLTemplate: r = wb.Name & \" \" & wb.FileFormat",
+   "ok saved2.xltx 54"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): r = Dir(folder & \"\\t.xltx\") & \" \" & wb.Saved: wb.Worksheets(1).Range(\"A2\").Value = 1: r = r & \" \" & wb.Saved",
+   "ok t.xltx True False"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): wb.SaveCopyAs folder & \"\\copy.xlsx\": r = wb.Name & \" \" & Dir(folder & \"\\copy.xlsx\")",
+   "ok t1 copy.xlsx"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): r = Workbooks(wb.Name).Name",
+   "ok t1"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\"): r = TypeName(Workbooks(\"t.xltx\"))",
+   "Err 9"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\", ReadOnly:=True): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok t1||t1|51|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltx\", Editable:=True): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok t.xltx|<folder>|<folder>\\t.xltx|54|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Open(folder & \"\\t.xltm\", Editable:=True): r = wb.Name & \"|\" & wb.Path & \"|\" & wb.FullName & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets(1).Range(\"A1\").Value & \"|\" & wb.Names.Count & \"|\" & wb.ReadOnly & \"|\" & wb.HasVBProject",
+   "ok t.xltm|<folder>|<folder>\\t.xltm|53|True|7|1|False|False"
+  ],
+  [
+   "Set wb = Workbooks.Add: wb.SaveAs folder & \"\\live.xltx\", xlOpenXMLTemplate: r = wb.Name & \" \" & wb.FileFormat & \" \" & wb.Path: wb.Save: r = r & \" \" & wb.Name & \" \" & wb.FileFormat",
+   "ok live.xltx 54 <folder> live.xltx 54"
+  ]
+ ]
+}

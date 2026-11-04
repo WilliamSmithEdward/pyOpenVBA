@@ -25,7 +25,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import has_dangling_reference, shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown

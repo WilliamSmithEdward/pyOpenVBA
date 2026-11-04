@@ -425,6 +425,11 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
     for sheet in reversed(going):
         _events.before_delete(sheet)
     _events.sheet_left(sheets[0])
+    # The tabs after a deleted sheet move up, and the file's active tab and first tab with them, which left as they were
+    # open the file on another sheet or, past the last, have Excel refuse it (tests/fixtures/deleted_local_names.json).
+    before_first = sum(1 for sheet in going if book.sheets_.index(sheet) < book.view.first_sheet)
+    book.view.first_sheet = max(0, min(book.view.first_sheet - before_first, len(staying) - 1))
+    book.view.changed = True
     for sheet in going:
         remove_document(sheet)
         book.sheets_.remove(sheet)

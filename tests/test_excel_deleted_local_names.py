@@ -64,6 +64,31 @@ def test_the_rule_is_what_excel_did() -> None:
     assert kept == KEPT
 
 
+@pytest.mark.parametrize("row", MEASURED["views"], ids=lambda row: f"active {row['active']} delete {row['gone']}")
+def test_the_tabs_follow_a_deleted_sheet(row: dict[str, Any], tmp_path: Path) -> None:
+    """The file's active and first tabs, from the ones Excel saved: left as they were they open the file on another sheet,
+    or past the last tab, where Excel refused it."""
+    start = tmp_path / "start.xlsx"
+    with zipfile.ZipFile(Path(__file__).parent / "fixtures/deleted_active_tab.xlsx") as old, zipfile.ZipFile(start, "w", zipfile.ZIP_DEFLATED) as new:
+        for name in old.namelist():
+            data = old.read(name)
+            if name == "xl/workbook.xml":
+                said = "".join(f' {key}="{row["start"][word]}"' for key, word in (("firstSheet", "first"), ("activeTab", "active")) if row["start"][word])
+                data = re.sub(rb"(<workbookView\b[^>]*?)(\s+xr2:uid=|/>)", lambda found: found.group(1) + said.encode() + found.group(2), data, count=1)
+            new.writestr(name, data)
+    app = ExcelApplication.open(start, with_vba=False, sandbox=False)
+    app.add_module(f'Public Function E() As String\n    Application.DisplayAlerts = False\n    ActiveWorkbook.Worksheets({row["gone"]}).Delete\n    E = ActiveWorkbook.ActiveSheet.Name\nEnd Function\n', name="M")
+    assert app.run("M.E") == row["excel_session"]
+    saved = tmp_path / "saved.xlsx"
+    app.save(saved)
+    with zipfile.ZipFile(saved) as package:
+        tag = re.search(r"<workbookView\b[^>]*/>", package.read("xl/workbook.xml").decode("utf-8"))
+    assert tag is not None
+    found = dict(re.findall(r'\b(firstSheet|activeTab)="(\d+)"', tag.group(0)))
+    assert {"first": int(found.get("firstSheet", 0)), "active": int(found.get("activeTab", 0))} == row["excel"]
+    assert row["model_opens"] == row["excel_opens"]
+
+
 LIVE = os.environ.get("RUN_LIVE_EXCEL") == "1" and importlib.util.find_spec("pyvbaharness") is not None
 OPENED = MEASURED["reader"] + """Public Function Opened(ByVal path As String) As String
     Dim wb As Workbook

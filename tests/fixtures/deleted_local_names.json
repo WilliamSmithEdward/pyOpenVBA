@@ -1,5 +1,5 @@
 {
-"measured_at": "2026-11-04T10:45:57.740957+00:00",
+"measured_at": "2026-11-04T10:54:54.935050+00:00",
 "make": "Public Function Make(ByVal path As String) As String\n    Dim wb As Object, r As Object, g As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add\n    Do While wb.Worksheets.Count < 3: wb.Worksheets.Add After:=wb.Worksheets(wb.Worksheets.Count): Loop\n    Set r = wb.Worksheets(1): r.Name = \"Reader\"\n    Set g = wb.Worksheets(2): g.Name = \"Gone\"\n    wb.Worksheets(3).Name = \"Keep\": wb.Worksheets(3).Range(\"A1\").Value = 5\n    g.Range(\"A1\").Value = 1: g.Range(\"A2\").Value = 2: g.Range(\"A3\").Value = 3\n    g.Names.Add \"Mine\", \"=Gone!$A$1\"\n    r.Range(\"A1\").Formula = \"=Gone!Mine\"\n    {extra}\n    wb.SaveAs path, 51\n    wb.Close False\n    Application.DisplayAlerts = True\n    Make = \"ok\"\nEnd Function\n",
 "reader": "Public Function Reads(wb As Object) As String\n    Dim one As Object, c As String, n As Long\n    On Error Resume Next\n    For n = 1 To 2\n        c = c & \"@@\" & wb.Worksheets(\"Reader\").Cells(1, n).Formula & \"=\" & wb.Worksheets(\"Reader\").Cells(1, n).Text\n    Next\n    For Each one In wb.Names\n        If InStr(one.Name, \"_xlfn\") = 0 Then c = c & \"@@\" & one.Name & \"=\" & one.RefersTo & \"=\" & one.Visible & \"=\" & one.Comment\n    Next\n    Reads = c\nEnd Function\n",
 "books": {
@@ -414,5 +414,247 @@
 ]
 }
 }
+},
+"views": [
+{
+"active": 1,
+"gone": 1,
+"start": {
+"first": 0,
+"active": 0
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet2",
+"excel_opens": "0 Sheet2",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet2",
+"model_opens": "0 Sheet2"
+},
+{
+"active": 1,
+"gone": 2,
+"start": {
+"first": 0,
+"active": 0
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet1",
+"excel_opens": "0 Sheet1",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet1",
+"model_opens": "0 Sheet1"
+},
+{
+"active": 1,
+"gone": 4,
+"start": {
+"first": 0,
+"active": 0
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet1",
+"excel_opens": "0 Sheet1",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet1",
+"model_opens": "0 Sheet1"
+},
+{
+"active": 2,
+"gone": 1,
+"start": {
+"first": 1,
+"active": 1
+},
+"excel": {
+"first": 0,
+"active": 0
+},
+"excel_session": "Sheet2",
+"excel_opens": "0 Sheet2",
+"model": {
+"first": 0,
+"active": 0
+},
+"model_session": "Sheet2",
+"model_opens": "0 Sheet2"
+},
+{
+"active": 2,
+"gone": 2,
+"start": {
+"first": 1,
+"active": 1
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 2,
+"gone": 4,
+"start": {
+"first": 1,
+"active": 1
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet2",
+"excel_opens": "0 Sheet2",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet2",
+"model_opens": "0 Sheet2"
+},
+{
+"active": 3,
+"gone": 1,
+"start": {
+"first": 2,
+"active": 2
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 3,
+"gone": 2,
+"start": {
+"first": 2,
+"active": 2
+},
+"excel": {
+"first": 1,
+"active": 1
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 1,
+"active": 1
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 3,
+"gone": 4,
+"start": {
+"first": 2,
+"active": 2
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
+},
+{
+"active": 4,
+"gone": 1,
+"start": {
+"first": 3,
+"active": 3
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet4",
+"excel_opens": "0 Sheet4",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet4",
+"model_opens": "0 Sheet4"
+},
+{
+"active": 4,
+"gone": 2,
+"start": {
+"first": 3,
+"active": 3
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet4",
+"excel_opens": "0 Sheet4",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet4",
+"model_opens": "0 Sheet4"
+},
+{
+"active": 4,
+"gone": 4,
+"start": {
+"first": 3,
+"active": 3
+},
+"excel": {
+"first": 2,
+"active": 2
+},
+"excel_session": "Sheet3",
+"excel_opens": "0 Sheet3",
+"model": {
+"first": 2,
+"active": 2
+},
+"model_session": "Sheet3",
+"model_opens": "0 Sheet3"
 }
+]
 }

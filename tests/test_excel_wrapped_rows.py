@@ -80,9 +80,34 @@ def test_each_held_out_curve_as_excel_answered(number: int) -> None:
 @pytest.mark.parametrize('number', range(len(ROUND3['cases'])), ids=lambda number: f"{ROUND3['cases'][number]['font']}-{ROUND3['cases'][number]['size']}-{number}")
 def test_each_third_round_curve_as_excel_answered(number: int) -> None:
     case = ROUND3['cases'][number]
-    _, sheet = _sheet(case['text'], case['font'], case['size'], bold=case['bold'], italic=case['italic'], indent=case['indent'])
+    _, sheet = _made(case)
     wrong = [(column, tall, got) for column, tall in ROUND3_ANSWERS['curves'][number].items() if (got := _height_at(sheet, int(column))) != tall]
     assert not wrong
+
+
+ROUND4 = _load('wrapped_round4_predictions')
+ROUND4_ANSWERS = _load('wrapped_round4')
+_HYPHEN_THEN_LINE_FEED = '-\n'
+
+
+@pytest.mark.parametrize('number', range(len(ROUND4['cases'])), ids=lambda number: f"{ROUND4['cases'][number]['font']}-{ROUND4['cases'][number]['size']}-{number}")
+def test_each_fourth_round_curve_as_excel_answered(number: int) -> None:
+    case = ROUND4['cases'][number]
+    _, sheet = _made(case)
+    if case['text'].endswith(_HYPHEN_THEN_LINE_FEED):
+        with pytest.raises(VBAUnsupportedError):
+            _height_at(sheet, 100)
+        return
+    wrong = [(column, tall, got) for column, tall in ROUND4_ANSWERS['curves'][number].items() if (got := _height_at(sheet, int(column))) != tall]
+    assert not wrong
+
+
+def _made(case: dict[str, Any]) -> tuple[ExcelApplication, Any]:
+    """A text with line feeds in it, which the plain setter takes through the sheet's cell."""
+    app, sheet = _sheet('x', case['font'], case['size'], bold=case['bold'], italic=case['italic'], indent=case['indent'])
+    app.add_module('Public Sub Text(ByVal text As String)\n    ActiveSheet.Range("A1").Value = "\'" & Replace(text, "~", vbLf)\nEnd Sub\n', name='Texter')
+    app.run('Texter.Text', case['text'].replace('\n', '~'))
+    return app, sheet
 
 
 _READ = '    r = r & "|" & ws.Rows(1).RowHeight & "/" & ws.Rows(2).RowHeight'

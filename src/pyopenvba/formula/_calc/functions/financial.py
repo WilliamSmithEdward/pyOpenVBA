@@ -680,9 +680,6 @@ def MIRR(context: Context, values: Value, finance: Scalar, reinvest: Scalar) -> 
     flows = [item for item, _ in context.scalars(values) if isinstance(item, float)]
     borrowed = context.number(finance)
     earned = context.number(reinvest)
-    if borrowed == -1 or earned == -1:
-        # Nothing to discount by (tests/fixtures/worksheet_function_types.json).
-        return NUM
     count = len(flows)
     # At -100% nothing can be discounted, but money borrowed at the start has no need to be
     # (tests/fixtures/worksheet_function_edges.json).

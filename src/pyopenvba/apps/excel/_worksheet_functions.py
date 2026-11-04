@@ -192,13 +192,15 @@ def _base_conversion_items(values: list[object]) -> list[object]:
     return values
 
 
-def _year_frac_item(values: list[Scalar | object], context: Context) -> str | None:
+def _year_frac_item(values: list[Any], context: Context) -> Scalar | None:
     """What one call of YearFrac with an array among its arguments fails with before it is worked out, looking at the basis, then
     each date: a logical or several cells #VALUE!, Null among the dates #N/A, a number out of range #NUM!."""
     from pyopenvba.apps.excel._model import Range
     from pyopenvba.formula._calc.values import ExcelError as EngineError
 
     start, stop, kind = values
+    if isinstance(kind, (VBAErrorValue, CellError)):
+        return _given_item(kind) if isinstance(kind, VBAErrorValue) else kind
     if isinstance(kind, bool) or (isinstance(kind, Range) and not kind.single):
         return "#VALUE!"
     if isinstance(kind, Range):
@@ -212,6 +214,8 @@ def _year_frac_item(values: list[Scalar | object], context: Context) -> str | No
     if isinstance(kind, (int, float, VBAInt)) and not 0 <= math.trunc(float(kind)) <= 4:
         return "#NUM!"
     for date in (start, stop):
+        if isinstance(date, (VBAErrorValue, CellError)):
+            return _given_item(date) if isinstance(date, VBAErrorValue) else date
         if date is NULL:
             return "#N/A"
         if isinstance(date, bool) or (isinstance(date, Range) and not date.single):
@@ -242,7 +246,7 @@ def _year_frac_lifted(values: list[object], entry: Any, context: Context, books:
             items = [arrays[place].at(row, column) if place in arrays else value for place, value in enumerate(values)]
             failed = _year_frac_item(items, context)
             if failed is not None:
-                line.append(CellError(failed))
+                line.append(CellError(failed) if isinstance(failed, str) else failed)
                 continue
             nodes = tuple(Given(item) if place in arrays else Missing() if item is NULL else _node(item, books) for place, item in enumerate(items))
             try:

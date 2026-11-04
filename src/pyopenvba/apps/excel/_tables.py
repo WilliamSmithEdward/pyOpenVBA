@@ -40,7 +40,7 @@ from pyopenvba._a1 import Area, parse_area
 from pyopenvba._xml import attributes, escape, escape_text, unescape
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._structured import TableShape, from_file, in_file, renamed_columns, renamed_table
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -1283,6 +1283,14 @@ class TableSlicers(VBACollection, ExcelObject):
         return self.owner.sheet.book.application
 
 
+def _table_position(value: object) -> int:
+    """Where a row or column goes; what is no number, Null included, is error 9 (tests/fixtures/method_audit.json)."""
+    try:
+        return int(to_integer(value, "Long"))
+    except VBARuntimeError as failed:
+        raise error(9, "Subscript out of range") from failed
+
+
 class ListColumns(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = "ListColumns"
 
@@ -1313,7 +1321,7 @@ class ListColumns(VBACollection, ItemDefault, ExcelObject):
     def Add(self, Position: object = MISSING) -> object:
         from pyopenvba.apps.excel._table_edits import add_column
 
-        where = None if Position is MISSING else int(to_integer(Position, "Long"))
+        where = None if Position is MISSING else _table_position(Position)
         return ListColumn(self.table, add_column(self.table, where))
 
 
@@ -1457,8 +1465,11 @@ class ListRows(VBACollection, ItemDefault, ExcelObject):
         """A row put in, at the end or at a position (see _table_edits.add_row)."""
         from pyopenvba.apps.excel._table_edits import add_row
 
-        where = None if Position is MISSING else int(to_integer(Position, "Long"))
-        always = True if AlwaysInsert is MISSING else to_bool(AlwaysInsert)
+        where = None if Position is MISSING else _table_position(Position)
+        try:
+            always = True if AlwaysInsert is MISSING else to_bool(AlwaysInsert)
+        except VBARuntimeError as failed:
+            raise error(5, "Invalid procedure call or argument") from failed
         return ListRow(self.table, add_row(self.table, where, always))
 
 

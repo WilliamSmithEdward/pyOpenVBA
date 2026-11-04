@@ -931,8 +931,10 @@ class SortObject(ExcelObject):
 
     @method
     def SetRange(self, Rng: object = MISSING) -> object:
+        if Rng is MISSING:
+            raise error(450)
         if not isinstance(Rng, Range):
-            raise error(1004, "SetRange needs a range")
+            raise error(13, "SetRange needs a range")
         self.state.area = Rng
         return EMPTY
 

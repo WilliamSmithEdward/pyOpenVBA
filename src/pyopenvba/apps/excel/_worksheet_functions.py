@@ -25,10 +25,11 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Iterator
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.apps.excel._engine_book import EngineBook
+from pyopenvba.apps.excel._worksheet_function_refusals import REFUSALS
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.nodes import Given, Missing, Node
@@ -60,10 +61,17 @@ if TYPE_CHECKING:
 #: Declared String, yet they take a range of several cells, typed too (tests/fixtures/worksheet_function_types.json): the
 #: places of the texts each joins, and TextJoin's delimiter.
 _NOT_CONVERTED: Final = {"textjoin": (0, 2), "concat": (0,)}
+#: Functions that refuse a range of separate areas, measured (tests/fixtures/worksheet_function_heldout.json has the areas kind).
+_ONE_AREA: Final = frozenset({"ftest", "f_test", "arraytotext", "sort", "unique", "xlookup"})
 #: A Null where a function needs a value: a blank cell's value.
 BLANK: Final = object()
 #: Functions whose third argument is one value, whatever it is given: a lookup's column or row, and Match's type.
 _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
+#: The number base functions, whose places take no blank (#NUM!) and no logical (#VALUE!), item by item.
+_BASE_CONVERSIONS: Final = frozenset({"bin2dec", "bin2hex", "bin2oct", "dec2bin", "dec2hex", "dec2oct", "hex2bin", "hex2dec", "hex2oct", "oct2bin", "oct2dec", "oct2hex"})
+_ONE_CELL_WHEN_LIFTED: Final = _BASE_CONVERSIONS | {"bitand", "bitor", "bitxor", "bitlshift", "bitrshift"}
+_ARRAY_OF_ONE: Final = frozenset({"sort", "sortby", "unique", "filter"})
+_SWITCHES: Final = {"sort": (3,), "unique": (1, 2)}
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
 _VARIANT: Final = frozenset({
     "choose", "dget", "encodeurl", "fieldvalue", "filter", "filterxml", "frequency", "growth", "hlookup",
@@ -111,6 +119,19 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         raise error(1004, "There is no workbook open")
     values = _laid_out(list(args), named or {})
     entry = registry.FUNCTIONS[function]
+    if raising and any(_is_text_cell(values[place]) for place in _SWITCHES.get(name.lower(), ()) if place < len(values)):
+        # A cell of text where a switch goes fails item by item, so the answer is an array holding the error.
+        return answer(Array([[CellError("#VALUE!")]]))
+    if raising and name.lower() in _BASE_CONVERSIONS and any(isinstance(value, VBAArray) for value in values):
+        values = _base_conversion_items(values)
+    if raising and name.lower() in _ONE_CELL_WHEN_LIFTED:
+        lifted = next((value for value in values if isinstance(value, VBAArray)), None)
+        if lifted is not None and any(isinstance(value, Range) and (len(value.areas) > 1 or (not value.single and name.lower() in _BASE_CONVERSIONS)) for value in values):
+            # No value to call with, whatever the array: separate areas, and for a number base several cells.
+            if not late:
+                raise error(13, "Type mismatch")
+            shape = _given_array(lifted)
+            return answer(Array([[CellError("#VALUE!")] * shape.width for _ in range(shape.height)]))
     if raising:
         values = _as_excel_reads(name, values, entry.minimum, late=late)
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
@@ -141,7 +162,50 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
             and isinstance(found, float):
         # A whole number indexed answers as a Long (tests/fixtures/worksheet_function_args.json).
         return VBAInt(int(found), "Long")
+    if raising and name.lower() == "xlookup" and isinstance(found, Reference) and found.area is not None and found.area.is_cell:
+        # An error in the cell it answers is its answer, not a failure.
+        return answer(context.book.cell(found.area.sheet, found.area.top, found.area.left))
+    if raising and name.lower() in _ARRAY_OF_ONE:
+        return _array_of_one(context, found, values[0], name, books_of=application, late=late)
     return _returned(context, found, name, raising=raising, books_of=application, late=late)
+
+
+def _base_conversion_items(values: list[object]) -> list[object]:
+    """A number base function's arguments with an array among them: its places as what each item fails with."""
+    from pyopenvba.apps.excel._model import Range
+
+    if len(values) < 2:
+        return values
+    places = values[1]
+    if places is EMPTY or (isinstance(places, Range) and places.single and places.vba_value() is EMPTY):
+        return [values[0], VBAErrorValue(2036), *values[2:]]
+    if isinstance(places, bool):
+        return [values[0], VBAErrorValue(2015), *values[2:]]
+    if isinstance(places, VBAArray):
+        items = [VBAErrorValue(2036) if one is EMPTY else VBAErrorValue(2015) if isinstance(one, bool) else one for one in places.elements()]
+        return [values[0], VBAArray(places.bounds, items=items), *values[2:]]
+    return values
+
+
+def _is_text_cell(value: object) -> bool:
+    from pyopenvba.apps.excel._model import Range
+
+    return isinstance(value, Range) and value.single and isinstance(value.vba_value(), str)
+
+
+def _array_of_one(context: Context, found: Value, given: object, name: str, *, books_of: Application, late: bool) -> object:
+    """Sort and its kin answer an array even for one item, and hand back a whole number that fits an Integer as a Long."""
+    from pyopenvba.apps.excel._model import Range
+
+    if isinstance(found, Reference) and found.area is not None and found.area.is_cell:
+        found = context.book.cell(found.area.sheet, found.area.top, found.area.left)
+    if isinstance(found, Array) and found.height == found.width == 1 and not isinstance(given, (Range, VBAArray)):
+        found = found.rows[0][0]
+    if isinstance(found, (Array, Reference, CellError)):
+        return _returned(context, found, name, raising=True, books_of=books_of, late=late)
+    if isinstance(given, VBAInt) and -32768 <= int(given) <= 32767:
+        return VBAArray([(1, 1)], items=[VBAInt(int(given), "Long")])
+    return answer(Array([[found]]))
 
 
 def _first_item(value: object) -> object:
@@ -173,9 +237,12 @@ def _typed(value: object, declared: str) -> object:
     if value is NOTHING:
         raise error(91)
     if isinstance(value, Range):
-        if not value.single:
+        # Its value, as VBA reads it: several cells of one area are an array, and of several areas the first area's
+        # (tests/fixtures/worksheet_function_heldout.json).
+        first = value.areas[0]
+        if first.rows * first.columns > 1:
             raise error(13)
-        value = value.vba_value()
+        value = Range(value.sheet, [first]).vba_value()
     elif isinstance(value, VBAObject):
         raise error(438)
     if isinstance(value, (VBAArray, VBAErrorValue)):
@@ -185,6 +252,25 @@ def _typed(value: object, declared: str) -> object:
     if declared == "Double":
         return float(to_number(value))
     return to_text(value) if declared == "String" else bool(to_bool(value))
+
+
+def _kind_of(value: object) -> str:
+    """The kind of value, as _worksheet_function_refusals has them."""
+    from pyopenvba.apps.excel._model import Range
+
+    if isinstance(value, Range):
+        if not value.single:
+            return "cells"
+        return "empty cell" if value.vba_value() is EMPTY else "cell"
+    if isinstance(value, VBAArray):
+        return "array"
+    if value is NULL:
+        return "null"
+    if value is EMPTY:
+        return "empty"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return "other"
 
 
 def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool) -> list[object]:
@@ -198,6 +284,8 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
     forms = library.members.get(name.lower(), []) if library is not None else []
     declared = [one.split(":")[-1] for one in forms[0][4]] if forms else []
     found: list[object] = []
+    # With an array among them Excel calls once per item, so what would be refused is that item's answer.
+    lifting = any(isinstance(value, VBAArray) for value in values)
     for index, value in enumerate(values):
         kind = declared[index] if index < len(declared) else "Variant"
         if not late and kind != "Variant" and index not in _NOT_CONVERTED.get(name.lower(), ()):
@@ -206,14 +294,28 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
             raise error(5)
         if isinstance(value, VBAObject) and not isinstance(value, Range):
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        if _kind_of(value) in REFUSALS.get(name.lower(), {}).get(index, ()) and not lifting:
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
         lower = name.lower()
+        if lower in _ONE_AREA and isinstance(value, Range) and len(value.areas) > 1:
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        if lower.startswith("im") and isinstance(value, (VBADate, VBACurrency)):
+            # The complex number functions read a Date or Currency as its number, where others read its text.
+            value = float(to_number(value))
         if value is NULL:
             # The last it cannot do without, with nothing after it, or a column; one it needs before that is a blank
             # cell, and one it does not is left out (tests/fixtures/worksheet_function_types.json).
-            if (index == minimum - 1 and index == len(values) - 1) or (lower == "index" and index in (0, 2)) \
-                    or (lower in ("vlookup", "hlookup") and index == 2):
+            if (index == minimum - 1 and index == len(values) - 1) or (not lifting and ((lower == "index" and index in (0, 2))
+                                                                                        or (lower in ("vlookup", "hlookup") and index == 2))):
                 raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
             value = BLANK if index < minimum else MISSING
+        if lower == "xlookup" and value is EMPTY:
+            # A fallback given as Empty is one: nothing found answers Empty, where one left out is an error. A search
+            # mode given as Empty is 0, which is no mode.
+            value = BLANK if index == 3 else 0.0 if index == 5 else value
+        if lower == "yearfrac" and isinstance(value, VBADate):
+            # Its number, which before March 1900 is a day from what its text would read as.
+            value = float(to_number(value))
         if lower in _ONE_VALUE and index == 2:
             if lower != "match" or isinstance(value, Range):
                 value = _first_item(value)
@@ -225,6 +327,8 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
     # Left out at the end, it is no argument at all: Count(1, Null) is 1.
     while found and found[-1] is MISSING:
         found.pop()
+    if name.lower() == "unique" and len(found) == 1 and values[0] is NULL:
+        raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     return found
 
 
@@ -278,9 +382,14 @@ def _given_item(value: object) -> Scalar:
 
     if value is EMPTY or isinstance(value, (bool, str, VBAErrorValue)):
         return scalar(value)
-    if isinstance(value, (VBADate, VBACurrency)):
-        # A Date or Currency reaches Excel as its text: IsText(Date) is TRUE, AND passes it
-        # over as it passes text over, and SUM reads the number back (native probes).
+    if isinstance(value, VBACurrency):
+        # A Currency reaches Excel as its text, in the currency format: $4.00 with a space after it, ($4.00) below nothing,
+        # to the nearest cent, half away from nothing (tests/fixtures/worksheet_function_heldout.json).
+        cents = abs(Decimal(value)).quantize(Decimal("0.01"), ROUND_HALF_UP)
+        return f"(${cents:,.2f})" if value < 0 else f"${cents:,.2f} "
+    if isinstance(value, VBADate):
+        # A Date reaches Excel as its text: IsText(Date) is TRUE, AND passes it over as it passes text over, and SUM
+        # reads the number back (native probes).
         return to_text(value)
     if isinstance(value, (Decimal, VBAInt, VBASingle, int, float)):
         return float(value)

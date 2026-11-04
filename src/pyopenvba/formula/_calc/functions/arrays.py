@@ -12,6 +12,7 @@ Excel's error for an empty array.
 
 from __future__ import annotations
 
+import math
 import random
 
 from pyopenvba.formula._calc import collate as _collate
@@ -152,7 +153,8 @@ def _orders(context: Context, value: Value | None, count: int) -> list[int]:
     if not _given(value):
         return [1] * count
     assert value is not None
-    found = [context.integer(item) for item in matrix(context, value).items()]
+    # Rounded down: 1.5 is 1, and -1.5 no order at all.
+    found = [math.floor(context.number(item)) for item in matrix(context, value).items()]
     if any(order not in (1, -1) for order in found):
         raise ExcelError(VALUE)
     if len(found) == 1:

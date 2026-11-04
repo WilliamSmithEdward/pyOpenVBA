@@ -1,0 +1,728 @@
+{
+ "measured_at": "2026-11-04T16:44:49.136584+00:00",
+ "help": "Private Function Tried(ByVal n As Long, wb As Object, ws As Object) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    Select Case n\n{cases}\n    End Select\n    Tried = CStr(v)\n    Exit Function\nFailed:\n    Tried = \"E\" & Err.Number\nEnd Function\n",
+ "sequences": {
+  "link_only_a_name": "1|count 1|sheet count 1|item Empty|named Empty Empty|refers Empty|each Empty|cell 1|set Empty Empty",
+  "link_through_a_name": "1|count 1|sheet count 1|item Empty|named Empty Empty|refers Empty|each Empty|cell 1|set Empty Empty",
+  "link_in_a_cell": "1|count 1|sheet count 1|item 1|named 1 1|refers 1|each 1|cell 1|set 1 1",
+  "template_numbers": "m1 52|m2|m3|m3|m1|m.xltm 53|m4",
+  "template_add_first": "q1|q2|q3",
+  "addin": "1 True True 0 1 2|a.xlam|0|False|2 1 True|1 True|1 0 True True|2 1 True"
+ },
+ "rows": [
+  {
+   "name": "chart_embedded",
+   "format": "xlsx",
+   "action": "Set o = ws.ChartObjects.Add(10, 10, 300, 200)\n    o.Chart.SetSourceData ws.Range(\"A1:B5\")\n    o.Chart.ChartType = 51\n    o.Chart.HasTitle = True\n    o.Chart.ChartTitle.Text = \"T\"",
+   "reads": [
+    "ws.ChartObjects.Count",
+    "ws.ChartObjects(1).Chart.ChartType",
+    "ws.ChartObjects(1).Chart.ChartTitle.Text",
+    "ws.ChartObjects(1).Chart.SeriesCollection(1).Formula"
+   ],
+   "control": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "excel": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "model": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_macro": {},
+   "after_python": "1|51|T|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_python": {}
+  },
+  {
+   "name": "chart_styled",
+   "format": "xlsx",
+   "action": "Set o = ws.Shapes.AddChart2(227, 4)\n    o.Chart.SetSourceData ws.Range(\"A1:B5\")",
+   "reads": [
+    "ws.Shapes.Count",
+    "ws.ChartObjects(1).Chart.ChartType",
+    "ws.ChartObjects(1).Chart.ChartStyle",
+    "ws.ChartObjects(1).Chart.SeriesCollection.Count"
+   ],
+   "control": "1|4|227|1",
+   "excel": "1|4|227|1",
+   "model": "reports: Reading this setting of an imported chart is not implemented",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|4|227|1",
+   "lost_macro": {},
+   "after_python": "1|4|227|1",
+   "lost_python": {}
+  },
+  {
+   "name": "chart_sheet",
+   "format": "xlsx",
+   "action": "Set o = wb.Charts.Add\n    o.SetSourceData ws.Range(\"A1:B5\")\n    o.ChartType = 4\n    o.Name = \"C\"",
+   "reads": [
+    "wb.Charts.Count",
+    "wb.Charts(\"C\").ChartType",
+    "wb.Sheets.Count",
+    "wb.Charts(\"C\").SeriesCollection(1).Formula"
+   ],
+   "control": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "excel": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "model": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_macro": {},
+   "after_python": "1|4|3|=SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1)",
+   "lost_python": {}
+  },
+  {
+   "name": "pivot",
+   "format": "xlsx",
+   "action": "Set p = wb.PivotCaches.Create(1, ws.Range(\"A1:C5\")).CreatePivotTable(s2.Range(\"A3\"), \"P\")\n    p.PivotFields(\"k\").Orientation = 1\n    p.AddDataField p.PivotFields(\"v\"), \"Sum v\", -4157",
+   "reads": [
+    "wb.Worksheets(2).PivotTables(1).Name",
+    "wb.Worksheets(2).PivotTables(1).TableRange1.Address",
+    "wb.Worksheets(2).Range(\"B4\").Value",
+    "wb.Worksheets(2).PivotTables(1).PivotCache.SourceData"
+   ],
+   "control": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3",
+   "excel": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3",
+   "model": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3",
+   "lost_macro": {},
+   "after_python": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3",
+   "lost_python": {}
+  },
+  {
+   "name": "pivot_slicer",
+   "format": "xlsx",
+   "action": "Set p = wb.PivotCaches.Create(1, ws.Range(\"A1:C5\")).CreatePivotTable(s2.Range(\"A3\"), \"P\")\n    p.PivotFields(\"k\").Orientation = 1\n    p.AddDataField p.PivotFields(\"v\"), \"Sum v\", -4157\n    wb.SlicerCaches.Add2(p, \"k\").Slicers.Add s2, , \"S\", \"S\", 10, 300, 100, 100",
+   "reads": [
+    "wb.Worksheets(2).PivotTables(1).Name",
+    "wb.Worksheets(2).PivotTables(1).TableRange1.Address",
+    "wb.Worksheets(2).Range(\"B4\").Value",
+    "wb.Worksheets(2).PivotTables(1).PivotCache.SourceData",
+    "wb.SlicerCaches.Count",
+    "wb.SlicerCaches(1).Slicers(1).Name"
+   ],
+   "control": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3|1|S",
+   "excel": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3|1|S",
+   "model": "reports: SlicerCaches of a workbook that holds slicerCache parts is not implemented",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3|1|S",
+   "lost_macro": {},
+   "after_python": "P|$A$3:$B$8|4|Sheet1!R1C1:R5C3|1|S",
+   "lost_python": {}
+  },
+  {
+   "name": "vba_module",
+   "format": "xlsm",
+   "action": "Set o = wb.VBProject.VBComponents.Add(1): o.Name = \"Mod1\": o.CodeModule.AddFromString \"Function F()\" & vbLf & \"F = 42\" & vbLf & \"End Function\"",
+   "reads": [
+    "wb.VBProject.VBComponents.Count",
+    "wb.VBProject.VBComponents(\"Mod1\").CodeModule.Lines(1, 3)",
+    "wb.HasVBProject"
+   ],
+   "control": "4|Function F()\nF = 42\nEnd Function|True",
+   "excel": "4|Function F()\nF = 42\nEnd Function|True",
+   "model": "4|Function F()\r\nF = 42\r\nEnd Function|True",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "4|Function F()\nF = 42\nEnd Function|True",
+   "lost_macro": {},
+   "after_python": "4|Function F()\nF = 42\nEnd Function|True",
+   "lost_python": {}
+  },
+  {
+   "name": "vba_kinds",
+   "format": "xlsm",
+   "action": "Set o = wb.VBProject.VBComponents.Add(1): o.Name = \"Mod1\": o.CodeModule.AddFromString \"Function F()\" & vbLf & \"F = 42\" & vbLf & \"End Function\"\n    Set o = wb.VBProject.VBComponents.Add(2): o.Name = \"Cls1\": o.CodeModule.AddFromString \"Public V As Long\"\n    wb.VBProject.VBComponents(\"ThisWorkbook\").CodeModule.AddFromString \"Private Sub Workbook_Open()\" & vbLf & \"End Sub\"\n    wb.VBProject.VBComponents(ws.CodeName).CodeModule.AddFromString \"Private Sub Worksheet_Activate()\" & vbLf & \"End Sub\"",
+   "reads": [
+    "wb.VBProject.VBComponents.Count",
+    "wb.VBProject.VBComponents(\"Mod1\").CodeModule.Lines(1, 3)",
+    "wb.HasVBProject",
+    "wb.VBProject.VBComponents(\"Cls1\").Type",
+    "wb.VBProject.VBComponents(\"ThisWorkbook\").CodeModule.CountOfLines",
+    "wb.VBProject.VBComponents(ws.CodeName).CodeModule.CountOfLines"
+   ],
+   "control": "5|Function F()\nF = 42\nEnd Function|True|2|2|2",
+   "excel": "5|Function F()\nF = 42\nEnd Function|True|2|2|2",
+   "model": "5|Function F()\r\nF = 42\r\nEnd Function|True|2|2|2",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "5|Function F()\nF = 42\nEnd Function|True|2|2|2",
+   "lost_macro": {},
+   "after_python": "5|Function F()\nF = 42\nEnd Function|True|2|2|2",
+   "lost_python": {}
+  },
+  {
+   "name": "vba_project",
+   "format": "xlsm",
+   "action": "Set o = wb.VBProject.VBComponents.Add(1): o.Name = \"Mod1\": o.CodeModule.AddFromString \"Function F()\" & vbLf & \"F = 42\" & vbLf & \"End Function\"\n    wb.VBProject.Name = \"Named\"\n    wb.VBProject.Description = \"About\"\n    wb.VBProject.References.AddFromGuid \"{420B2830-E718-11CF-893D-00A0C9054228}\", 1, 0",
+   "reads": [
+    "wb.VBProject.VBComponents.Count",
+    "wb.VBProject.VBComponents(\"Mod1\").CodeModule.Lines(1, 3)",
+    "wb.HasVBProject",
+    "wb.VBProject.Name",
+    "wb.VBProject.Description",
+    "wb.VBProject.References.Count"
+   ],
+   "control": "4|Function F()\nF = 42\nEnd Function|True|Named|About|5",
+   "excel": "4|Function F()\nF = 42\nEnd Function|True|Named|About|5",
+   "model": "reports: VBProject.Description is a real member that pyOpenVBA does not implement",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "4|Function F()\nF = 42\nEnd Function|True|Named|About|5",
+   "lost_macro": {},
+   "after_python": "4|Function F()\nF = 42\nEnd Function|True|Named|About|5",
+   "lost_python": {}
+  },
+  {
+   "name": "vba_form",
+   "format": "xlsm",
+   "action": "Set o = wb.VBProject.VBComponents.Add(3): o.Name = \"Form1\": o.Designer.Controls.Add \"Forms.Label.1\", \"Lab\"",
+   "reads": [
+    "wb.VBProject.VBComponents(\"Form1\").Type",
+    "wb.VBProject.VBComponents(\"Form1\").Designer.Controls.Count"
+   ],
+   "control": "3|1",
+   "excel": "3|1",
+   "model": "reports: VBComponent.Designer is a real member that pyOpenVBA does not implement",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "3|1",
+   "lost_macro": {},
+   "after_python": "3|1",
+   "lost_python": {}
+  },
+  {
+   "name": "format_xlsm_empty",
+   "format": "xlsm",
+   "action": "",
+   "reads": [
+    "wb.HasVBProject",
+    "wb.FileFormat",
+    "ws.Range(\"A2\").Value"
+   ],
+   "control": "False|52|a",
+   "excel": "False|52|a",
+   "model": "False|52|a",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "False|52|a",
+   "lost_macro": {},
+   "after_python": "False|52|a",
+   "lost_python": {}
+  },
+  {
+   "name": "format_xltm",
+   "format": "xltm",
+   "action": "Set o = wb.VBProject.VBComponents.Add(1): o.Name = \"Mod1\": o.CodeModule.AddFromString \"Function F()\" & vbLf & \"F = 42\" & vbLf & \"End Function\"",
+   "reads": [
+    "wb.VBProject.VBComponents.Count",
+    "wb.VBProject.VBComponents(\"Mod1\").CodeModule.Lines(1, 3)",
+    "wb.HasVBProject",
+    "wb.FileFormat",
+    "ws.Range(\"A2\").Value"
+   ],
+   "control": "4|Function F()\nF = 42\nEnd Function|True|52|a",
+   "excel": "4|Function F()\nF = 42\nEnd Function|True|52|a",
+   "model": "4|Function F()\r\nF = 42\r\nEnd Function|True|52|a",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "4|Function F()\nF = 42\nEnd Function|True|52|a",
+   "lost_macro": {},
+   "after_python": "4|Function F()\nF = 42\nEnd Function|True|52|a",
+   "lost_python": {}
+  },
+  {
+   "name": "format_xlam",
+   "format": "xlam",
+   "action": "Set o = wb.VBProject.VBComponents.Add(1): o.Name = \"Mod1\": o.CodeModule.AddFromString \"Function F()\" & vbLf & \"F = 42\" & vbLf & \"End Function\"",
+   "reads": [
+    "wb.VBProject.VBComponents.Count",
+    "wb.VBProject.VBComponents(\"Mod1\").CodeModule.Lines(1, 3)",
+    "wb.HasVBProject",
+    "wb.FileFormat",
+    "wb.IsAddin",
+    "ws.Range(\"A2\").Value"
+   ],
+   "control": "4|Function F()\nF = 42\nEnd Function|True|55|True|a",
+   "excel": "4|Function F()\nF = 42\nEnd Function|True|55|True|a",
+   "model": "4|Function F()\r\nF = 42\r\nEnd Function|True|55|True|a",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "4|Function F()\nF = 42\nEnd Function|True|55|True|a",
+   "lost_macro": {},
+   "after_python": "4|Function F()\nF = 42\nEnd Function|True|55|True|a",
+   "lost_python": {}
+  },
+  {
+   "name": "format_xlsb",
+   "format": "xlsb",
+   "action": "",
+   "reads": [
+    "wb.FileFormat",
+    "ws.Range(\"A2\").Value"
+   ],
+   "control": "50|a",
+   "excel": "50|a",
+   "model": "crash: WorkbookFileError: an xlsb workbook keeps its cells in a binary part that pyOpenVBA does not read; its VBA project is r",
+   "macro_edit": "crash: WorkbookFileError: an xlsb workbook keeps its cells in a binary part that pyOpenVBA does not read; its VBA project is r",
+   "python_edit": "crash: WorkbookFileError: an xlsb workbook keeps its cells in a binary part that pyOpenVBA does not read; its VBA project is r"
+  },
+  {
+   "name": "format_xls",
+   "format": "xls",
+   "action": "",
+   "reads": [
+    "wb.FileFormat",
+    "ws.Range(\"A2\").Value"
+   ],
+   "control": "56|a",
+   "excel": "56|a",
+   "model": "reports: opening an Excel 97-2003 workbook is not implemented",
+   "macro_edit": "reports: opening an Excel 97-2003 workbook is not implemented",
+   "python_edit": "reports: opening an Excel 97-2003 workbook is not implemented"
+  },
+  {
+   "name": "properties",
+   "format": "xlsx",
+   "action": "wb.BuiltinDocumentProperties(\"Title\") = \"T\"\n    wb.BuiltinDocumentProperties(\"Subject\") = \"S\"\n    wb.BuiltinDocumentProperties(\"Keywords\") = \"K\"\n    wb.BuiltinDocumentProperties(\"Comments\") = \"C\"\n    wb.BuiltinDocumentProperties(\"Category\") = \"G\"\n    wb.BuiltinDocumentProperties(\"Manager\") = \"M\"\n    wb.BuiltinDocumentProperties(\"Company\") = \"Y\"\n    wb.BuiltinDocumentProperties(\"Hyperlink base\") = \"http://example.com/\"",
+   "reads": [
+    "wb.BuiltinDocumentProperties(\"Title\").Value",
+    "wb.BuiltinDocumentProperties(\"Subject\").Value",
+    "wb.BuiltinDocumentProperties(\"Keywords\").Value",
+    "wb.BuiltinDocumentProperties(\"Comments\").Value",
+    "wb.BuiltinDocumentProperties(\"Category\").Value",
+    "wb.BuiltinDocumentProperties(\"Manager\").Value",
+    "wb.BuiltinDocumentProperties(\"Company\").Value",
+    "wb.BuiltinDocumentProperties(\"Hyperlink base\").Value"
+   ],
+   "control": "T|S|K|C|G|M|Y|http://example.com/",
+   "excel": "T|S|K|C|G|M|Y|http://example.com/",
+   "model": "T|S|K|C|G|M|Y|http://example.com/",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "T|S|K|C|G|M|Y|http://example.com/",
+   "lost_macro": {},
+   "after_python": "T|S|K|C|G|M|Y|http://example.com/",
+   "lost_python": {}
+  },
+  {
+   "name": "theme",
+   "format": "xlsx",
+   "action": "wb.Theme.ThemeColorScheme.Colors(5).RGB = RGB(1, 2, 3)\n    wb.Theme.ThemeFontScheme.MajorFont(1).Name = \"Arial\"\n    ws.Range(\"A1\").Interior.ThemeColor = 5",
+   "reads": [
+    "wb.Theme.ThemeColorScheme.Colors(5).RGB",
+    "wb.Theme.ThemeFontScheme.MajorFont(1).Name",
+    "ws.Range(\"A1\").Interior.Color",
+    "ws.Range(\"A1\").Interior.ThemeColor"
+   ],
+   "control": "197121|Arial|197121|5",
+   "excel": "197121|Arial|197121|5",
+   "model": "197121|Arial|197121|5",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "197121|Arial|197121|5",
+   "lost_macro": {},
+   "after_python": "197121|Arial|197121|5",
+   "lost_python": {}
+  },
+  {
+   "name": "image_background",
+   "format": "xlsx",
+   "action": "ws.SetBackgroundPicture folder & \"\\p.png\"",
+   "reads": [
+    "ws.Range(\"A2\").Value"
+   ],
+   "control": "a",
+   "excel": "a",
+   "model": "a",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "a",
+   "lost_macro": {},
+   "after_python": "a",
+   "lost_python": {}
+  },
+  {
+   "name": "image_header",
+   "format": "xlsx",
+   "action": "ws.PageSetup.LeftHeaderPicture.Filename = folder & \"\\p.png\"\n    ws.PageSetup.LeftHeader = \"&G\"",
+   "reads": [
+    "ws.PageSetup.LeftHeader",
+    "ws.PageSetup.LeftHeaderPicture.Width"
+   ],
+   "control": "&G|6",
+   "excel": "&G|6",
+   "model": "&G|E1004",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "&G|6",
+   "lost_macro": {},
+   "after_python": "&G|6",
+   "lost_python": {}
+  },
+  {
+   "name": "link_cell",
+   "format": "xlsx",
+   "action": "Set o = Workbooks.Add(1)\n    o.Worksheets(1).Name = \"Data\": o.Worksheets(1).Range(\"A1\").Value = 11\n    o.SaveAs folder & \"\\source.xlsx\", 51\n    ws.Range(\"E7\").Formula = \"=[source.xlsx]Data!$A$1\"\n    o.Close False",
+   "reads": [
+    "ws.Range(\"E7\").Value",
+    "Mid$(ws.Range(\"E7\").Formula, InStrRev(ws.Range(\"E7\").Formula, \"\\\") + 1)",
+    "UBound(wb.LinkSources(1))",
+    "Mid$(wb.LinkSources(1)(1), InStrRev(wb.LinkSources(1)(1), \"\\\") + 1)"
+   ],
+   "control": "11|[source.xlsx]Data'!$A$1|1|source.xlsx",
+   "excel": "11|[source.xlsx]Data'!$A$1|1|source.xlsx",
+   "model": "11|[source.xlsx]Data'!$A$1|1|source.xlsx",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "11|[source.xlsx]Data'!$A$1|1|source.xlsx",
+   "lost_macro": {},
+   "after_python": "11|[source.xlsx]Data'!$A$1|1|source.xlsx",
+   "lost_python": {}
+  },
+  {
+   "name": "link_name",
+   "format": "xlsx",
+   "action": "Set o = Workbooks.Add(1)\n    o.Worksheets(1).Name = \"Data\": o.Worksheets(1).Range(\"A1\").Value = 11\n    o.SaveAs folder & \"\\source.xlsx\", 51\n    wb.Names.Add \"Far\", \"=[source.xlsx]Data!$A$1\"\n    o.Close False",
+   "reads": [
+    "UBound(wb.LinkSources(1))",
+    "wb.Names.Count",
+    "Mid$(wb.Names(\"Far\").RefersTo, InStrRev(wb.Names(\"Far\").RefersTo, \"\\\") + 1)"
+   ],
+   "control": "1|1|[source.xlsx]Data'!$A$1",
+   "excel": "1|1|[source.xlsx]Data'!$A$1",
+   "model": "1|1|[source.xlsx]Data'!$A$1",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|1|[source.xlsx]Data'!$A$1",
+   "lost_macro": {},
+   "after_python": "1|1|[source.xlsx]Data'!$A$1",
+   "lost_python": {}
+  },
+  {
+   "name": "link_used",
+   "format": "xlsx",
+   "action": "Set o = Workbooks.Add(1)\n    o.Worksheets(1).Name = \"Data\": o.Worksheets(1).Range(\"A1\").Value = 11\n    o.SaveAs folder & \"\\source.xlsx\", 51\n    wb.Names.Add \"Far\", \"=[source.xlsx]Data!$A$1\"\n    ws.Range(\"E7\").Formula = \"=Far\"\n    o.Close False",
+   "reads": [
+    "UBound(wb.LinkSources(1))",
+    "ws.Range(\"E7\").Value"
+   ],
+   "control": "1|11",
+   "excel": "1|11",
+   "model": "1|11",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|11",
+   "lost_macro": {},
+   "after_python": "1|11",
+   "lost_python": {}
+  },
+  {
+   "name": "link_both",
+   "format": "xlsx",
+   "action": "Set o = Workbooks.Add(1)\n    o.Worksheets(1).Name = \"Data\": o.Worksheets(1).Range(\"A1\").Value = 11\n    o.SaveAs folder & \"\\source.xlsx\", 51\n    wb.Names.Add \"Far\", \"=[source.xlsx]Data!$A$1\"\n    ws.Range(\"E8\").Formula = \"=[source.xlsx]Data!$A$1\"\n    o.Close False",
+   "reads": [
+    "UBound(wb.LinkSources(1))",
+    "ws.Range(\"E8\").Value"
+   ],
+   "control": "1|11",
+   "excel": "1|11",
+   "model": "1|11",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|11",
+   "lost_macro": {},
+   "after_python": "1|11",
+   "lost_python": {}
+  },
+  {
+   "name": "names_scopes",
+   "format": "xlsx",
+   "action": "wb.Names.Add \"G\", \"=Sheet1!$A$1\"\n    ws.Names.Add \"L\", \"=Sheet1!$B$2\"\n    wb.Names.Add \"Both\", \"=Sheet1!$A$3\"\n    s2.Names.Add \"Both\", \"=Sheet2!$A$4\"\n    wb.Names.Add Name:=\"H\", RefersTo:=\"=Sheet1!$A$5\", Visible:=False\n    wb.Names(\"G\").Comment = \"note\"\n    wb.Names.Add \"Num\", \"=42\"\n    wb.Names.Add \"Txt\", \"=\"\"a\"\"\"\n    ws.Activate\n    ws.Range(\"B3\").Select\n    wb.Names.Add \"Rel\", \"=Sheet1!A1\"\n    wb.Names.Add \"Calc\", \"=SUM(Sheet1!$A$2:$A$5)\"",
+   "reads": [
+    "wb.Names.Count",
+    "ws.Names.Count",
+    "wb.Worksheets(2).Names.Count",
+    "wb.Names(\"G\").Comment",
+    "wb.Names(\"H\").Visible",
+    "ws.Names(\"L\").RefersTo",
+    "wb.Worksheets(2).Names(\"Both\").RefersTo",
+    "wb.Names(\"Both\").RefersTo",
+    "wb.Names(\"Num\").RefersTo",
+    "wb.Names(\"Txt\").RefersTo",
+    "wb.Names(\"Rel\").RefersToR1C1",
+    "wb.Names(\"Calc\").RefersTo"
+   ],
+   "control": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "excel": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "model": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "lost_macro": {},
+   "after_python": "9|1|1|note|False|=Sheet1!$B$2|=Sheet2!$A$4|=Sheet1!$A$3|=42|=\"a\"|=Sheet1!RC|=SUM(Sheet1!$A$2:$A$5)",
+   "lost_python": {}
+  },
+  {
+   "name": "names_builtin",
+   "format": "xlsx",
+   "action": "ws.PageSetup.PrintArea = \"$A$1:$C$5\"\n    ws.PageSetup.PrintTitleRows = \"$1:$1\"\n    ws.PageSetup.PrintTitleColumns = \"$A:$A\"\n    ws.Range(\"A1:C5\").AutoFilter 1, \"a\"",
+   "reads": [
+    "ws.PageSetup.PrintArea",
+    "ws.PageSetup.PrintTitleRows",
+    "ws.PageSetup.PrintTitleColumns",
+    "ws.AutoFilterMode",
+    "ws.Names.Count",
+    "ws.Names(1).Name",
+    "ws.Rows(2).Hidden"
+   ],
+   "control": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "excel": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "model": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "lost_macro": {},
+   "after_python": "$A$1:$C$5|$1:$1|$A:$A|True|3|Sheet1!_FilterDatabase|False",
+   "lost_python": {}
+  },
+  {
+   "name": "later_sheets",
+   "format": "xlsx",
+   "action": "s2.Range(\"A1\").Value = 1\n    s2.Tab.Color = RGB(9, 8, 7)\n    s2.Rows(3).RowHeight = 33\n    s2.Columns(2).ColumnWidth = 22\n    s2.Rows(4).Hidden = True\n    s2.Rows(6).OutlineLevel = 2\n    s2.Activate\n    ActiveWindow.Zoom = 130\n    ActiveWindow.DisplayGridlines = False\n    s2.Range(\"D5:E6\").Select\n    s2.Protect \"pw\"\n    Set o = wb.Worksheets.Add(After:=s2): o.Name = \"Third\": o.Range(\"A1\").Value = 3\n    Set o = wb.Worksheets.Add(After:=o): o.Name = \"Hid\": o.Tab.Color = RGB(1, 1, 1)\n    o.Visible = 0\n    Set o = wb.Worksheets.Add(After:=wb.Worksheets(\"Third\")): o.Name = \"Very\": o.Visible = 2\n    wb.Worksheets(\"Third\").Activate",
+   "reads": [
+    "wb.ActiveSheet.Name",
+    "wb.Worksheets(2).Tab.Color",
+    "wb.Worksheets(2).Rows(3).RowHeight",
+    "wb.Worksheets(2).Rows(4).Hidden",
+    "wb.Worksheets(2).Rows(6).OutlineLevel",
+    "wb.Worksheets(2).ProtectContents",
+    "wb.Worksheets(\"Hid\").Visible",
+    "wb.Worksheets(\"Very\").Visible",
+    "wb.Worksheets(\"Hid\").Tab.Color",
+    "wb.Windows(1).SheetViews(2).DisplayGridlines"
+   ],
+   "control": "Third|460809|33|True|2|True|0|2|65793|False",
+   "excel": "Third|460809|33|True|2|True|0|2|65793|False",
+   "model": "Third|460809|33|True|2|True|0|2|65793|False",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "Third|460809|33|True|2|True|0|2|65793|False",
+   "lost_macro": {},
+   "after_python": "Third|460809|33|True|2|True|0|2|65793|False",
+   "lost_python": {}
+  },
+  {
+   "name": "scenarios",
+   "format": "xlsx",
+   "action": "ws.Scenarios.Add \"S\", ws.Range(\"A2:A3\"), Array(5, 6), \"note\"",
+   "reads": [
+    "ws.Scenarios.Count",
+    "ws.Scenarios(1).Name",
+    "ws.Scenarios(1).Comment",
+    "ws.Scenarios(1).ChangingCells.Address"
+   ],
+   "control": "1|S|note|$A$2:$A$3",
+   "excel": "1|S|note|$A$2:$A$3",
+   "model": "1|S|note|$A$2:$A$3",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|S|note|$A$2:$A$3",
+   "lost_macro": {},
+   "after_python": "1|S|note|$A$2:$A$3",
+   "lost_python": {}
+  },
+  {
+   "name": "custom_views",
+   "format": "xlsx",
+   "action": "wb.CustomViews.Add \"V\", True, True",
+   "reads": [
+    "wb.CustomViews.Count",
+    "wb.CustomViews(1).Name",
+    "wb.CustomViews(1).PrintSettings"
+   ],
+   "control": "1|V|True",
+   "excel": "1|V|True",
+   "model": "reports: CustomViews of a workbook that holds customWorkbookViews parts is not implemented",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|V|True",
+   "lost_macro": {},
+   "after_python": "1|V|True",
+   "lost_python": {}
+  },
+  {
+   "name": "edit_ranges",
+   "format": "xlsx",
+   "action": "ws.Protection.AllowEditRanges.Add \"R\", ws.Range(\"A2:A3\")",
+   "reads": [
+    "ws.Protection.AllowEditRanges.Count",
+    "ws.Protection.AllowEditRanges(1).Title",
+    "ws.Protection.AllowEditRanges(1).Range.Address"
+   ],
+   "control": "1|R|$A$2:$A$3",
+   "excel": "1|R|$A$2:$A$3",
+   "model": "1|R|$A$2:$A$3",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|R|$A$2:$A$3",
+   "lost_macro": {},
+   "after_python": "1|R|$A$2:$A$3",
+   "lost_python": {}
+  },
+  {
+   "name": "ignored_errors",
+   "format": "xlsx",
+   "action": "ws.Range(\"D1\").NumberFormat = \"@\": ws.Range(\"D1\").Value = \"12\": ws.Range(\"D1\").Errors(3).Ignore = True",
+   "reads": [
+    "ws.Range(\"D1\").Errors(3).Ignore",
+    "ws.Range(\"D1\").Errors(3).Value"
+   ],
+   "control": "True|True",
+   "excel": "True|True",
+   "model": "reports: Range.Errors(...).Ignore on a sheet read with ignored errors is not implemented",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "True|True",
+   "lost_macro": {},
+   "after_python": "True|True",
+   "lost_python": {}
+  },
+  {
+   "name": "page_breaks",
+   "format": "xlsx",
+   "action": "ws.HPageBreaks.Add ws.Range(\"A5\"): ws.VPageBreaks.Add ws.Range(\"C1\")",
+   "reads": [
+    "ws.HPageBreaks.Count",
+    "ws.VPageBreaks.Count",
+    "ws.HPageBreaks(1).Location.Address"
+   ],
+   "control": "3|3|$A$5",
+   "excel": "1|1|$A$5",
+   "model": "1|1|$A$5",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "3|3|$A$5",
+   "lost_macro": {},
+   "after_python": "3|3|$A$5",
+   "lost_python": {}
+  },
+  {
+   "name": "custom_xml",
+   "format": "xlsx",
+   "action": "wb.CustomXMLParts.Add \"<a xmlns=\"\"urn:p\"\"><b>x</b></a>\"",
+   "reads": [
+    "wb.CustomXMLParts.SelectByNamespace(\"urn:p\").Count",
+    "wb.CustomXMLParts.SelectByNamespace(\"urn:p\")(1).XML"
+   ],
+   "control": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "excel": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "model": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "lost_macro": {},
+   "after_python": "1|<a xmlns=\"urn:p\"><b>x</b></a>",
+   "lost_python": {}
+  },
+  {
+   "name": "cell_style",
+   "format": "xlsx",
+   "action": "Set o = wb.Styles.Add(\"Mine\"): o.Font.Bold = True: ws.Range(\"A1\").Style = \"Mine\"",
+   "reads": [
+    "wb.Styles(\"Mine\").Font.Bold",
+    "ws.Range(\"A1\").Style.Name"
+   ],
+   "control": "True|Mine",
+   "excel": "True|Mine",
+   "model": "True|Mine",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "True|Mine",
+   "lost_macro": {},
+   "after_python": "True|Mine",
+   "lost_python": {}
+  },
+  {
+   "name": "sparklines",
+   "format": "xlsx",
+   "action": "ws.Range(\"E2\").SparklineGroups.Add 1, \"B2:C2\"",
+   "reads": [
+    "ws.Range(\"E2\").SparklineGroups.Count",
+    "ws.Range(\"E2\").SparklineGroups(1).SourceData"
+   ],
+   "control": "1|B2:C2",
+   "excel": "1|B2:C2",
+   "model": "1|B2:C2",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|B2:C2",
+   "lost_macro": {},
+   "after_python": "1|B2:C2",
+   "lost_python": {}
+  },
+  {
+   "name": "form_button",
+   "format": "xlsx",
+   "action": "Set o = ws.Buttons.Add(10, 10, 80, 20): o.Caption = \"Go\"",
+   "reads": [
+    "ws.Buttons.Count",
+    "ws.Buttons(1).Caption",
+    "ws.Shapes(1).Type"
+   ],
+   "control": "1|Go|8",
+   "excel": "1|Go|8",
+   "model": "1|Go|8",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|Go|8",
+   "lost_macro": {},
+   "after_python": "1|Go|8",
+   "lost_python": {}
+  },
+  {
+   "name": "image",
+   "format": "xlsx",
+   "action": "ws.Shapes.AddPicture folder & \"\\p.png\", False, True, 10, 10, 50, 40",
+   "reads": [
+    "ws.Shapes.Count",
+    "ws.Shapes(1).Type"
+   ],
+   "control": "1|13",
+   "excel": "1|13",
+   "model": "1|13",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "1|13",
+   "lost_macro": {},
+   "after_python": "1|13",
+   "lost_python": {}
+  },
+  {
+   "name": "properties_custom",
+   "format": "xlsx",
+   "action": "wb.Names.Add \"Linked\", \"=Sheet1!$A$2\"\n    wb.CustomDocumentProperties.Add \"Text\", False, 4, \"x\"\n    wb.CustomDocumentProperties.Add \"Whole\", False, 1, 7\n    wb.CustomDocumentProperties.Add \"Real\", False, 5, 1.5\n    wb.CustomDocumentProperties.Add \"Flag\", False, 2, True\n    wb.CustomDocumentProperties.Add \"When\", False, 3, DateSerial(2020, 2, 3)\n    wb.CustomDocumentProperties.Add Name:=\"Link\", LinkToContent:=True, Type:=4, LinkSource:=\"Linked\"",
+   "reads": [
+    "wb.CustomDocumentProperties.Count",
+    "wb.CustomDocumentProperties(\"Text\").Value",
+    "wb.CustomDocumentProperties(\"Whole\").Value",
+    "wb.CustomDocumentProperties(\"Real\").Value",
+    "wb.CustomDocumentProperties(\"Flag\").Value",
+    "wb.CustomDocumentProperties(\"Link\").Value",
+    "Year(wb.CustomDocumentProperties(\"When\").Value)",
+    "wb.CustomDocumentProperties(\"Link\").LinkToContent"
+   ],
+   "control": "6|x|7|1.5|True|a|2020|True",
+   "excel": "6|x|7|1.5|True|a|2020|True",
+   "model": "6|x|7|1.5|True|a|2020|True",
+   "macro_edit": "None",
+   "python_edit": "saved",
+   "after_macro": "6|x|7|1.5|True|a|2020|True",
+   "lost_macro": {},
+   "after_python": "6|x|7|1.5|True|a|2020|True",
+   "lost_python": {}
+  }
+ ]
+}

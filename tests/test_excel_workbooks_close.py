@@ -36,7 +36,7 @@ def test_a_changed_book_with_alerts_on_reports_the_prompt_and_closes_nothing() -
     app.add_module('Public Sub Tried()\n    ThisWorkbook.IsAddin = True\n    Workbooks.Add\n    Workbooks(1).Saved = False\n    Application.DisplayAlerts = True\n    Workbooks.Close\nEnd Sub\n', name='M')
     with pytest.raises(VBAUnsupportedError, match='save prompt'):
         app.run('M.Tried')
-    assert len(app.application.workbooks_.books) == 1
+    assert len(app.application.workbooks_.vba_items()) == 1
 
 
 @pytest.mark.parametrize('statement', ['ThisWorkbook.Close False', 'ThisWorkbook.Saved = False: Application.DisplayAlerts = False: ThisWorkbook.Close', 'ThisWorkbook.Activate: ActiveWorkbook.Close False'])

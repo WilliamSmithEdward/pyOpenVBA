@@ -95,8 +95,8 @@ def name_scope(book: Workbook, entry: NameEntry) -> str:
     """The sheet a defined name belongs to, by its qualified name or its localSheetId; "" for the workbook's own."""
     scope, _ = split_sheet(entry.name)
     local_id = attributes(f"<definedName {entry.attributes}>").get("localSheetId", "")
-    if not scope and local_id.isdigit() and int(local_id) < len(book.sheets_):
-        scope = book.sheets_[int(local_id)].name
+    if not scope and local_id.isdigit() and int(local_id) < len(book.tabs()):
+        scope = book.tabs()[int(local_id)].name
     return scope
 
 

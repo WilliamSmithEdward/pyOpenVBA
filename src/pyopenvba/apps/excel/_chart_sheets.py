@@ -329,6 +329,7 @@ def copy_among_tabs(sheet: Worksheet, before: object, after: object) -> object:
     answer = copy_sheet(sheet, MISSING, worksheets_before[-1]) if worksheets_before else copy_sheet(sheet, book.sheets_[0], MISSING)
     for added in [one for one in book.sheets_ if not any(one is other for other in known)]:
         book.file_tabs.insert(position, added)
+    book.view.first_sheet = min(book.view.first_sheet, position)
     return answer
 
 

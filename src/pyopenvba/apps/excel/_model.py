@@ -3224,7 +3224,9 @@ class Workbook(ExcelObject):
 
         self.active_chart_sheet = None
         self.active_sheet_index = self.sheets_.index(sheet)
-        self.view.first_sheet = min(self.view.first_sheet, self.tabs().index(sheet))
+        # A copy is made active before it has its place among chart sheets, which then bring this back (see _chart_sheets).
+        self.view.first_sheet = min(self.view.first_sheet, next((at for at, tab in enumerate(self.tabs()) if tab is sheet),
+                                                                self.view.first_sheet))
         # A sheet of the group stays in it as it becomes active; any other stands alone
         # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
         if not any(one is sheet for one in self.selected_sheets):

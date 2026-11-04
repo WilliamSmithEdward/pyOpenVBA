@@ -33,7 +33,7 @@ MAX_NESTING = 32
 _OBSERVED = ('Change', 'Calculate', 'Activate', 'Deactivate', 'SelectionChange', 'PivotTableUpdate')
 _RELATION_TYPES = {
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/' + suffix
-    for suffix in ('officeDocument', 'worksheet', 'styles', 'theme', 'sharedStrings', 'calcChain', 'extended-properties')
+    for suffix in ('officeDocument', 'worksheet', 'chartsheet', 'styles', 'theme', 'sharedStrings', 'calcChain', 'extended-properties')
 } | {
     'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
     'http://schemas.microsoft.com/office/2006/relationships/vbaProject',

@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T09:04:56.540885+00:00",
+ "measured_at": "2026-11-04T18:29:26.497435+00:00",
  "probe": "Private Function Tabs(wb As Object) As String\n    Dim s As Object, t As String\n    For Each s In wb.Sheets\n        t = t & \",\" & TypeName(s) & \":\" & s.Name & \":\" & s.Index\n    Next\n    Tabs = Mid$(t, 2) & \"|active \" & wb.ActiveSheet.Name & \"|selected \" & wb.Windows(1).SelectedSheets.Count\nEnd Function\nFunction Go(ByVal file As String) As String\n    Dim wb As Workbook, r As Object, e As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(file)\n    On Error Resume Next\n    {action}\n    e = Err.Number\n    Err.Clear\n    Dim made As String\n    If Not r Is Nothing Then made = TypeName(r) & \":\" & r.Name\n    Err.Clear\n    Go = \"E\" & e & \"|made \" & made & \"|\" & Tabs(wb)\n    wb.Close False\nEnd Function\n",
  "actions": {
   "sheets_add": "Set r = wb.Sheets.Add",
@@ -203,6 +203,21 @@
   },
   {
    "book": "middle",
+   "case": "delete_active_worksheet",
+   "answer": "E0|made |Chart:C:1,Worksheet:Two:2|active C|selected 1"
+  },
+  {
+   "book": "middle",
+   "case": "hide_active_worksheet",
+   "answer": "E0|made |Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3|active C|selected 1"
+  },
+  {
+   "book": "middle",
+   "case": "added_then_named",
+   "answer": "E0|made Worksheet:Fresh|Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3,Worksheet:Fresh:4|active Fresh|selected 1"
+  },
+  {
+   "book": "middle",
    "case": "delete_active_chart",
    "answer": "E0|made |Worksheet:Sheet1:1,Worksheet:Two:2|active Two|selected 1"
   },
@@ -395,6 +410,21 @@
    "book": "first",
    "case": "delete_chart",
    "answer": "E0|made |Worksheet:Sheet1:1|active Sheet1|selected 1"
+  },
+  {
+   "book": "first",
+   "case": "delete_active_worksheet",
+   "answer": "E0|made |Chart:C:1|active C|selected 1"
+  },
+  {
+   "book": "first",
+   "case": "hide_active_worksheet",
+   "answer": "E0|made |Chart:C:1,Worksheet:Sheet1:2|active C|selected 1"
+  },
+  {
+   "book": "first",
+   "case": "added_then_named",
+   "answer": "E0|made Worksheet:Fresh|Chart:C:1,Worksheet:Sheet1:2,Worksheet:Fresh:3|active Fresh|selected 1"
   },
   {
    "book": "first",
@@ -593,6 +623,21 @@
   },
   {
    "book": "last",
+   "case": "delete_active_worksheet",
+   "answer": "E0|made |Chart:C:1|active C|selected 1"
+  },
+  {
+   "book": "last",
+   "case": "hide_active_worksheet",
+   "answer": "E0|made |Worksheet:Sheet1:1,Chart:C:2|active C|selected 1"
+  },
+  {
+   "book": "last",
+   "case": "added_then_named",
+   "answer": "E0|made Worksheet:Fresh|Worksheet:Sheet1:1,Chart:C:2,Worksheet:Fresh:3|active Fresh|selected 1"
+  },
+  {
+   "book": "last",
    "case": "delete_active_chart",
    "answer": "E0|made |Worksheet:Sheet1:1|active Sheet1|selected 1"
   },
@@ -785,6 +830,21 @@
    "book": "two_charts",
    "case": "delete_chart",
    "answer": "E0|made |Chart:D:1,Worksheet:Sheet1:2|active Sheet1|selected 1"
+  },
+  {
+   "book": "two_charts",
+   "case": "delete_active_worksheet",
+   "answer": "E0|made |Chart:C:1,Chart:D:2|active D|selected 1"
+  },
+  {
+   "book": "two_charts",
+   "case": "hide_active_worksheet",
+   "answer": "E0|made |Chart:C:1,Chart:D:2,Worksheet:Sheet1:3|active D|selected 1"
+  },
+  {
+   "book": "two_charts",
+   "case": "added_then_named",
+   "answer": "E0|made Worksheet:Fresh|Chart:C:1,Chart:D:2,Worksheet:Sheet1:3,Worksheet:Fresh:4|active Fresh|selected 1"
   },
   {
    "book": "two_charts",
@@ -983,6 +1043,21 @@
   },
   {
    "book": "active",
+   "case": "delete_active_worksheet",
+   "answer": "E0|made |Chart:C:1|active C|selected 1"
+  },
+  {
+   "book": "active",
+   "case": "hide_active_worksheet",
+   "answer": "E0|made |Chart:C:1,Worksheet:Sheet1:2|active C|selected 1"
+  },
+  {
+   "book": "active",
+   "case": "added_then_named",
+   "answer": "E0|made Worksheet:Fresh|Chart:C:1,Worksheet:Sheet1:2,Worksheet:Fresh:3|active Fresh|selected 1"
+  },
+  {
+   "book": "active",
    "case": "delete_active_chart",
    "answer": "E0|made |Worksheet:Sheet1:1|active Sheet1|selected 1"
   },
@@ -1178,6 +1253,21 @@
   },
   {
    "book": "names",
+   "case": "delete_active_worksheet",
+   "answer": "E0|made |Chart:C:1,Worksheet:Two:2|active C|selected 1"
+  },
+  {
+   "book": "names",
+   "case": "hide_active_worksheet",
+   "answer": "E0|made |Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3|active C|selected 1"
+  },
+  {
+   "book": "names",
+   "case": "added_then_named",
+   "answer": "E0|made Worksheet:Fresh|Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3,Worksheet:Fresh:4|active Fresh|selected 1"
+  },
+  {
+   "book": "names",
    "case": "delete_active_chart",
    "answer": "E0|made |Worksheet:Sheet1:1,Worksheet:Two:2|active Two|selected 1"
   },
@@ -1215,96 +1305,6 @@
    "book": "names",
    "case": "group_select",
    "answer": "E0|made |Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3|active Sheet1|selected 2"
-  },
-  {
-   "book": "middle",
-   "case": "delete_active_worksheet",
-   "answer": "E0|made |Chart:C:1,Worksheet:Two:2|active C|selected 1"
-  },
-  {
-   "book": "middle",
-   "case": "hide_active_worksheet",
-   "answer": "E0|made |Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3|active C|selected 1"
-  },
-  {
-   "book": "middle",
-   "case": "added_then_named",
-   "answer": "E0|made Worksheet:Fresh|Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3,Worksheet:Fresh:4|active Fresh|selected 1"
-  },
-  {
-   "book": "first",
-   "case": "delete_active_worksheet",
-   "answer": "E0|made |Chart:C:1|active C|selected 1"
-  },
-  {
-   "book": "first",
-   "case": "hide_active_worksheet",
-   "answer": "E0|made |Chart:C:1,Worksheet:Sheet1:2|active C|selected 1"
-  },
-  {
-   "book": "first",
-   "case": "added_then_named",
-   "answer": "E0|made Worksheet:Fresh|Chart:C:1,Worksheet:Sheet1:2,Worksheet:Fresh:3|active Fresh|selected 1"
-  },
-  {
-   "book": "last",
-   "case": "delete_active_worksheet",
-   "answer": "E0|made |Chart:C:1|active C|selected 1"
-  },
-  {
-   "book": "last",
-   "case": "hide_active_worksheet",
-   "answer": "E0|made |Worksheet:Sheet1:1,Chart:C:2|active C|selected 1"
-  },
-  {
-   "book": "last",
-   "case": "added_then_named",
-   "answer": "E0|made Worksheet:Fresh|Worksheet:Sheet1:1,Chart:C:2,Worksheet:Fresh:3|active Fresh|selected 1"
-  },
-  {
-   "book": "two_charts",
-   "case": "delete_active_worksheet",
-   "answer": "E0|made |Chart:C:1,Chart:D:2|active D|selected 1"
-  },
-  {
-   "book": "two_charts",
-   "case": "hide_active_worksheet",
-   "answer": "E0|made |Chart:C:1,Chart:D:2,Worksheet:Sheet1:3|active D|selected 1"
-  },
-  {
-   "book": "two_charts",
-   "case": "added_then_named",
-   "answer": "E0|made Worksheet:Fresh|Chart:C:1,Chart:D:2,Worksheet:Sheet1:3,Worksheet:Fresh:4|active Fresh|selected 1"
-  },
-  {
-   "book": "active",
-   "case": "delete_active_worksheet",
-   "answer": "E0|made |Chart:C:1|active C|selected 1"
-  },
-  {
-   "book": "active",
-   "case": "hide_active_worksheet",
-   "answer": "E0|made |Chart:C:1,Worksheet:Sheet1:2|active C|selected 1"
-  },
-  {
-   "book": "active",
-   "case": "added_then_named",
-   "answer": "E0|made Worksheet:Fresh|Chart:C:1,Worksheet:Sheet1:2,Worksheet:Fresh:3|active Fresh|selected 1"
-  },
-  {
-   "book": "names",
-   "case": "delete_active_worksheet",
-   "answer": "E0|made |Chart:C:1,Worksheet:Two:2|active C|selected 1"
-  },
-  {
-   "book": "names",
-   "case": "hide_active_worksheet",
-   "answer": "E0|made |Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3|active C|selected 1"
-  },
-  {
-   "book": "names",
-   "case": "added_then_named",
-   "answer": "E0|made Worksheet:Fresh|Worksheet:Sheet1:1,Chart:C:2,Worksheet:Two:3,Worksheet:Fresh:4|active Fresh|selected 1"
   }
  ],
  "saved": [
@@ -1337,32 +1337,32 @@
    "case": "add_before_2",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
    "case": "add_after_1",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
    "case": "add_after_2",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "middle",
    "case": "add_after_last",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"3\" firstSheet=\"3\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "excel_view": "activeTab=\"3\"",
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "middle",
@@ -1377,16 +1377,16 @@
    "case": "add_after_two",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
    "case": "activated_chart_add",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
@@ -1402,7 +1402,7 @@
    "excel": "Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "middle",
@@ -1410,7 +1410,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Two:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Two:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
@@ -1418,7 +1418,7 @@
    "excel": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|Two|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|Two|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
@@ -1434,7 +1434,7 @@
    "excel": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "middle",
@@ -1450,7 +1450,7 @@
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"3\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "middle",
@@ -1473,8 +1473,8 @@
    "case": "hide_active_worksheet",
    "excel": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
@@ -1482,7 +1482,7 @@
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"3\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "middle",
@@ -1490,7 +1490,7 @@
    "excel": "Worksheet:Sheet1:-1,Worksheet:Two:-1|Two|1|names 0",
    "model": "Worksheet:Sheet1:-1,Worksheet:Two:-1|Two|1|names 0",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
@@ -1521,8 +1521,8 @@
    "case": "hide_only_visible_sheet",
    "excel": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "middle",
@@ -1553,16 +1553,16 @@
    "case": "sheets_add",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "worksheets_add",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
@@ -1577,48 +1577,48 @@
    "case": "add_before_2",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "add_after_1",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "add_after_2",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "first",
    "case": "add_after_last",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "first",
    "case": "add_two",
    "excel": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "add_after_two",
    "excel": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
@@ -1641,16 +1641,16 @@
    "case": "move_sheet_last",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "move_sheet_after_chart",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
@@ -1673,8 +1673,8 @@
    "case": "move_chart_last",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
@@ -1689,8 +1689,8 @@
    "case": "copy_sheet_last",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "first",
@@ -1713,8 +1713,8 @@
    "case": "added_then_named",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "first",
@@ -1729,24 +1729,24 @@
    "case": "rename_sheet",
    "excel": "Chart:C:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$1,Renamed!$A$2:$A$5,Renamed!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$1,Renamed!$A$2:$A$5,Renamed!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "rename_chart",
    "excel": "Chart:Renamed:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|Renamed =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:Renamed:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|Renamed =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "hide_chart",
    "excel": "Chart:C:0,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:0,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
@@ -1761,24 +1761,24 @@
    "case": "insert_row",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$2,Sheet1!$A$3:$A$6,Sheet1!$B$3:$B$6,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$2,Sheet1!$A$3:$A$6,Sheet1!$B$3:$B$6,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "insert_column",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$C$1,Sheet1!$B$2:$B$5,Sheet1!$C$2:$C$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$C$1,Sheet1!$B$2:$B$5,Sheet1!$C$2:$C$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "first",
    "case": "rename_then_insert",
    "excel": "Chart:C:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$2,Renamed!$A$3:$A$6,Renamed!$B$3:$B$6,1) 4",
    "model": "Chart:C:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$2,Renamed!$A$3:$A$6,Renamed!$B$3:$B$6,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
@@ -1809,32 +1809,32 @@
    "case": "add_before_2",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
    "case": "add_after_1",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
    "case": "add_after_2",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "last",
    "case": "add_after_last",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "last",
@@ -1849,16 +1849,16 @@
    "case": "add_after_two",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
    "case": "activated_chart_add",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
@@ -1874,7 +1874,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
@@ -1882,7 +1882,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
@@ -1906,7 +1906,7 @@
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
@@ -1922,7 +1922,7 @@
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "last",
@@ -1937,8 +1937,8 @@
    "case": "hide_active_worksheet",
    "excel": "Worksheet:Sheet1:0,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:0,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
@@ -1946,7 +1946,7 @@
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "last",
@@ -1985,8 +1985,8 @@
    "case": "hide_only_visible_sheet",
    "excel": "Worksheet:Sheet1:0,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:0,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "last",
@@ -2017,16 +2017,16 @@
    "case": "sheets_add",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "worksheets_add",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
@@ -2041,48 +2041,48 @@
    "case": "add_before_2",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "two_charts",
    "case": "add_after_1",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "two_charts",
    "case": "add_after_2",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "add_after_last",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"3\" firstSheet=\"3\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "excel_view": "activeTab=\"3\"",
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "two_charts",
    "case": "add_two",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "add_after_two",
    "excel": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "two_charts",
@@ -2105,16 +2105,16 @@
    "case": "move_sheet_last",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "move_sheet_after_chart",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Chart:D:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Chart:D:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "two_charts",
@@ -2137,8 +2137,8 @@
    "case": "move_chart_last",
    "excel": "Chart:D:-1,Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:D:-1,Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
@@ -2153,32 +2153,32 @@
    "case": "copy_sheet_last",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"3\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "excel_view": "activeTab=\"3\"",
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "two_charts",
    "case": "delete_chart",
    "excel": "Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "two_charts",
    "case": "hide_active_worksheet",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:0|D|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:0|D|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "two_charts",
    "case": "added_then_named",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"3\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "excel_view": "activeTab=\"3\"",
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "two_charts",
@@ -2193,56 +2193,56 @@
    "case": "rename_sheet",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$1,Renamed!$A$2:$A$5,Renamed!$B$2:$B$5,1) 4|D =SERIES(Renamed!$B$1,Renamed!$A$2:$A$5,Renamed!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$1,Renamed!$A$2:$A$5,Renamed!$B$2:$B$5,1) 4|D =SERIES(Renamed!$B$1,Renamed!$A$2:$A$5,Renamed!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "rename_chart",
    "excel": "Chart:Renamed:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|Renamed =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:Renamed:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|Renamed =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "hide_chart",
    "excel": "Chart:C:0,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:0,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "hide_only_visible_sheet",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:0|D|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:0|D|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4|D =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "two_charts",
    "case": "insert_row",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$2,Sheet1!$A$3:$A$6,Sheet1!$B$3:$B$6,1) 4|D =SERIES(Sheet1!$B$2,Sheet1!$A$3:$A$6,Sheet1!$B$3:$B$6,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$2,Sheet1!$A$3:$A$6,Sheet1!$B$3:$B$6,1) 4|D =SERIES(Sheet1!$B$2,Sheet1!$A$3:$A$6,Sheet1!$B$3:$B$6,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "insert_column",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$C$1,Sheet1!$B$2:$B$5,Sheet1!$C$2:$C$5,1) 4|D =SERIES(Sheet1!$C$1,Sheet1!$B$2:$B$5,Sheet1!$C$2:$C$5,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$C$1,Sheet1!$B$2:$B$5,Sheet1!$C$2:$C$5,1) 4|D =SERIES(Sheet1!$C$1,Sheet1!$B$2:$B$5,Sheet1!$C$2:$C$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "two_charts",
    "case": "rename_then_insert",
    "excel": "Chart:C:-1,Chart:D:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$2,Renamed!$A$3:$A$6,Renamed!$B$3:$B$6,1) 4|D =SERIES(Renamed!$B$2,Renamed!$A$3:$A$6,Renamed!$B$3:$B$6,1) 4",
    "model": "Chart:C:-1,Chart:D:-1,Worksheet:Renamed:-1|Renamed|1|names 0|C =SERIES(Renamed!$B$2,Renamed!$A$3:$A$6,Renamed!$B$3:$B$6,1) 4|D =SERIES(Renamed!$B$2,Renamed!$A$3:$A$6,Renamed!$B$3:$B$6,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "active",
@@ -2273,32 +2273,32 @@
    "case": "add_before_2",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "active",
    "case": "add_after_1",
    "excel": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "active",
    "case": "add_after_2",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "active",
    "case": "add_after_last",
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "active",
@@ -2313,8 +2313,8 @@
    "case": "add_after_two",
    "excel": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Worksheet:Sheet1:-1|Sheet3|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "active",
@@ -2338,7 +2338,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "active",
@@ -2346,7 +2346,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "active",
@@ -2370,7 +2370,7 @@
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1|C|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "active",
@@ -2386,7 +2386,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "active",
@@ -2410,7 +2410,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Fresh:-1|Fresh|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "active",
@@ -2441,8 +2441,8 @@
    "case": "hide_chart",
    "excel": "Chart:C:0,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:0,Worksheet:Sheet1:-1|Sheet1|1|names 0|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "active",
@@ -2505,32 +2505,32 @@
    "case": "add_before_2",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
    "case": "add_after_1",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
    "case": "add_after_2",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Sheet2:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "names",
    "case": "add_after_last",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet2:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet2:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"3\" firstSheet=\"3\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "excel_view": "activeTab=\"3\"",
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "names",
@@ -2545,16 +2545,16 @@
    "case": "add_after_two",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet3|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet3|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
    "case": "activated_chart_add",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Chart:C:-1,Worksheet:Two:-1|Sheet2|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
@@ -2570,7 +2570,7 @@
    "excel": "Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1:-1|Sheet1|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1:-1|Sheet1|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "names",
@@ -2578,7 +2578,7 @@
    "excel": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Two:-1|Sheet1|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Chart:C:-1,Worksheet:Sheet1:-1,Worksheet:Two:-1|Sheet1|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
@@ -2586,7 +2586,7 @@
    "excel": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|Two|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|Two|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
@@ -2602,7 +2602,7 @@
    "excel": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|C|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Two:-1,Chart:C:-1|C|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "names",
@@ -2610,13 +2610,13 @@
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 5|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:-1,Chart:C:-1,Worksheet:Two:-1,Worksheet:Sheet1 (2):-1|Sheet1 (2)|1|names 5|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "activeTab=\"3\"",
-   "model_view": "activeTab=\"3\" firstSheet=\"3\""
+   "model_view": "activeTab=\"3\""
   },
   {
    "book": "names",
    "case": "delete_sheet",
    "excel": "Worksheet:Sheet1:-1,Chart:C:-1|Sheet1|1|names 3|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "model": "failed ",
+   "model": "Worksheet:Sheet1:-1,Chart:C:-1|Sheet1|1|names 3|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "excel_view": "",
    "model_view": ""
   },
@@ -2633,8 +2633,8 @@
    "case": "hide_active_worksheet",
    "excel": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
@@ -2642,7 +2642,7 @@
    "excel": "Worksheet:Sheet1:-1,Worksheet:Two:-1|Two|1|names 4",
    "model": "Worksheet:Sheet1:-1,Worksheet:Two:-1|Two|1|names 4",
    "excel_view": "activeTab=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
@@ -2665,8 +2665,8 @@
    "case": "hide_only_visible_sheet",
    "excel": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
    "model": "Worksheet:Sheet1:0,Chart:C:-1,Worksheet:Two:-1|C|1|names 4|C =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$5,Sheet1!$B$2:$B$5,1) 4",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "names",
@@ -2689,8 +2689,8 @@
    "case": "move_active",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "plain",
@@ -2705,16 +2705,16 @@
    "case": "delete_active",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1|Sheet3|1|names 0",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet3:-1|Sheet3|1|names 0",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "plain",
    "case": "hide_before_active",
    "excel": "Worksheet:Sheet1:0,Worksheet:Sheet2:-1,Worksheet:Sheet3:-1|Sheet2|1|names 0",
    "model": "Worksheet:Sheet1:0,Worksheet:Sheet2:-1,Worksheet:Sheet3:-1|Sheet2|1|names 0",
-   "excel_view": "activeTab=\"1\" firstSheet=\"1\"",
-   "model_view": "activeTab=\"1\" firstSheet=\"1\""
+   "excel_view": "activeTab=\"1\"",
+   "model_view": "activeTab=\"1\""
   },
   {
    "book": "plain",
@@ -2729,24 +2729,24 @@
    "case": "add_before_then_back",
    "excel": "Worksheet:Sheet4:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Worksheet:Sheet3:-1|Sheet2|1|names 0",
    "model": "Worksheet:Sheet4:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Worksheet:Sheet3:-1|Sheet2|1|names 0",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "plain",
    "case": "move_other_across",
    "excel": "Worksheet:Sheet3:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0",
    "model": "Worksheet:Sheet3:-1,Worksheet:Sheet1:-1,Worksheet:Sheet2:-1|Sheet2|1|names 0",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   },
   {
    "book": "plain",
    "case": "activate_another",
    "excel": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Worksheet:Sheet3:-1|Sheet3|1|names 0",
    "model": "Worksheet:Sheet1:-1,Worksheet:Sheet2:-1,Worksheet:Sheet3:-1|Sheet3|1|names 0",
-   "excel_view": "activeTab=\"2\" firstSheet=\"2\"",
-   "model_view": "activeTab=\"2\" firstSheet=\"2\""
+   "excel_view": "activeTab=\"2\"",
+   "model_view": "activeTab=\"2\""
   }
  ]
 }

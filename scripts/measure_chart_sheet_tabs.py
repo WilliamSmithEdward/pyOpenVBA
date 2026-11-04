@@ -157,11 +157,12 @@ End Function
 
 
 def _view(file: Path) -> str:
-    """The book's first and active tabs as the file has them."""
+    """The book's active tab as the file has it. Its first tab is where the tab bar is scrolled to, which this session's hidden
+    window has no room for: scripts/measure_active_tab.py measures that with a window shown."""
     with zipfile.ZipFile(file) as package:
         book = package.read("xl/workbook.xml").decode("utf-8")
     found = re.search(r"<workbookView\b[^>]*>", book)
-    return " ".join(sorted(re.findall(r'\b(?:activeTab|firstSheet)="\d+"', found.group(0)))) if found else ""
+    return " ".join(re.findall(r'\bactiveTab="\d+"', found.group(0))) if found else ""
 
 
 def _model_acted(action: str, file: Path) -> str:

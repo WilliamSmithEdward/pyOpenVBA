@@ -92,7 +92,7 @@ def _stored(raw: bytes) -> dict[str, tuple[bytes, bytes]]:
 
 def test_there_are_packages_to_test() -> None:
     assert len(PACKAGES) >= 40
-    assert {path.suffix.lower() for path in PACKAGES} == set(HOSTS) - {".xlam"}
+    assert {path.suffix.lower() for path in PACKAGES} == set(HOSTS)
 
 
 @pytest.mark.parametrize("path", PACKAGES, ids=lambda path: path.name)

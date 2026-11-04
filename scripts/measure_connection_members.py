@@ -144,7 +144,8 @@ def main() -> None:
                         answers.append(f'breaks: {result.outcome} {text}')
                         print(index - 1, CASES[index - 1], '=>', answers[-1], flush=True)
                         break
-                    answers.append(re.sub(re.escape(folder), '<folder>', str(result.value), flags=re.IGNORECASE))
+                    answer = re.sub(re.escape(folder), '<folder>', str(result.value), flags=re.IGNORECASE)
+                    answers.append(re.sub(r'[A-Z]:\\Users\\[^\\]+\\[^\\]+', '<documents>', answer))
                     print(index - 1, CASES[index - 1], '=>', answers[-1], flush=True)
         log = Path(folder) / 'close.log'
         with ExcelSession(HarnessConfig(exclusive=False)) as excel:

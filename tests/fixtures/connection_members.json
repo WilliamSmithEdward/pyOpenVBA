@@ -282,7 +282,7 @@
   ],
   [
    "w.OpenXML \"nope.xml\"",
-   "Err 1004 Sorry, we couldn't find C:\\Users\\<user>\\Documents\\nope.xml. Is it possible it was moved, renamed or deleted?"
+   "Err 1004 Sorry, we couldn't find <documents>\\nope.xml. Is it possible it was moved, renamed or deleted?"
   ],
   [
    "w.OpenDatabase \"nope.accdb\"",

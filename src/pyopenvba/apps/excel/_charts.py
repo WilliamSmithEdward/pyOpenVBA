@@ -1893,7 +1893,8 @@ class Chart(ElementProperties, HeldPart):
 
         return export_fixed_format(self, 'Chart', self._book(), None,
                                    given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
-                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity),
+                                   in_frame=getattr(self, 'book', None) is None)
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape

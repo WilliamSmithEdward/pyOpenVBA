@@ -10,6 +10,8 @@ the function set with ExcelApplication.set_hook (see _hooks). The model makes no
 - PrintOut: a bad argument is 1004, Null passes as if left out, and any printer name passes. It answers True; cancelled in BeforePrint, it goes no further, raises nothing and answers False
   (tests/fixtures/print_returns.json).
 - Window.PrintOut is always 1004, so it never reaches the function.
+- A chart in a frame prints as a chart sheet does. It exports nothing: past its argument errors, From or To below 1, a name too long and a read-only file, -2147417848 bound late, shown or hidden and active or not, and with no name -2147024773, and no file. Bound
+  typed, Excel's macro stops there, which is not modelled: it answers as bound late (tests/fixtures/output_embedded_chart.json).
 
 Chosen, not measured: From or To below 1 going on to the file check's stage rather than before the event, as it reads as a failure to write; and the length a path can hold, the 259
 characters of Windows. Measured only on one printer: what a print to a file writes, which a spooler writes late, and From past the last page, as the model has no pages.
@@ -103,9 +105,27 @@ def _check_writable(path: Path, *, failed: tuple[int, str], read_only: tuple[int
         raise error(*read_only)
 
 
-def export_fixed_format(target: object, owner: str, book: Workbook, sheet: Worksheet | None, given: dict[str, object]) -> object:
+def _refuse_frame(book: Workbook, kind: int, given: dict[str, object]) -> None:
+    """Excel makes no file of a chart in a frame (tests/fixtures/output_embedded_chart.json), so there is nothing for a function to stand in for. What it does look at it answers for first."""
+    if any(name in given and (_number(given[name]) or 0) < 1 for name in ('From', 'To')):
+        raise error(1004, _NOT_SAVED)
+    name = given.get('Filename', '')
+    if name is NULL or name == '' or name is MISSING:
+        raise error(-2147024773, 'Document not saved.')
+    book.application.outside('ExportAsFixedFormat writing a file')
+    path = _export_path(book, kind, given)
+    if len(str(path)) > _LONGEST_PATH:
+        raise error(5, _INVALID)
+    if os.access(path, os.F_OK) and not os.access(path, os.W_OK):
+        raise error(_READ_ONLY, 'Document not saved.')
+    raise error(-2147417848, 'Automation error\nThe object invoked has disconnected from its clients.')
+
+
+def export_fixed_format(target: object, owner: str, book: Workbook, sheet: Worksheet | None, given: dict[str, object], *, in_frame: bool = False) -> object:
     application = book.application
     kind = _export_arguments(owner, given)
+    if in_frame:
+        _refuse_frame(book, kind, given)
     if sheet is not None and owner == 'Worksheet' and sheet.visible != -1:
         raise error(5, _INVALID)
     hook = hook_of(application, 'ExportAsFixedFormat')

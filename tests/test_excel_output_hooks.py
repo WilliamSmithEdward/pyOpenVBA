@@ -440,3 +440,33 @@ def test_what_printout_returns(case: dict[str, Any], tmp_path: Path, monkeypatch
                    '    r = o.PrintOut(PrintToFile:=True, PrToFileName:=folder & "\\p.prn")\n    Row = TypeName(r) & " " & CStr(r)\nEnd Function\n', name='Row')
     assert str(app.run('Row.Row', str(tmp_path))) == case['answer']
     assert bool(heard) != case['cancel']
+
+
+EMBEDDED: dict[str, Any] = json.loads((FIXTURES / 'output_embedded_chart.json').read_text(encoding='utf-8'))
+
+
+@pytest.mark.parametrize('case', [one for one in EMBEDDED['cases'] if not one['excel'].startswith('failed')], ids=lambda one: f'{one["member"]} {one["binding"]} {one["row"]}')
+def test_a_chart_in_a_frame_as_excel_did(case: dict[str, Any], tmp_path: Path) -> None:
+    _prepared(tmp_path)
+    try:
+        app, heard = _book(tmp_path)
+        app.set_hook(case['member'], heard.append)
+        declared = 'Chart' if case['binding'] == 'Typed' else 'Object'
+        app.add_module(f'Public Function Row(ByVal folder As String) As String\n    Dim wb As Workbook, o As {declared}, s As String\n    Set wb = ActiveWorkbook\n'
+                       f'    wb.Worksheets(1).ChartObjects.Add(10, 10, 200, 100).Chart.SetSourceData wb.Worksheets(1).Range("A1:A5")\n    Set o = {EMBEDDED["get"]}\n'
+                       f'    On Error Resume Next\n    {case["call"]}\n    Row = "E" & Err.Number\nEnd Function\n', name='Row')
+        got = str(app.run('Row.Row', str(tmp_path)))
+    finally:
+        for name in ('ro.pdf', 'ro.prn'):
+            (tmp_path / name).chmod(0o666)
+    assert got == case['excel'].split('~')[0]
+    assert bool(heard) == (got == 'E0')
+
+
+def test_a_chart_in_a_frame_returns_as_excel_did(tmp_path: Path) -> None:
+    app, heard = _book(tmp_path)
+    app.set_hook('PrintOut', heard.append)
+    app.add_module('Public Function Row() As String\n    Dim o As Object, r As Variant\n    ActiveWorkbook.Worksheets(1).ChartObjects.Add(10, 10, 200, 100).Chart.SetSourceData ActiveWorkbook.Worksheets(1).Range("A1:A5")\n'
+                   f'    Set o = ActiveWorkbook.{EMBEDDED["get"].removeprefix("wb.")}\n    r = o.PrintOut\n    Row = TypeName(r) & " " & CStr(r)\nEnd Function\n', name='Row')
+    assert str(app.run('Row.Row')) == EMBEDDED['returns']['False']
+    assert len(heard) == 1

@@ -156,7 +156,6 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     respell(package)
     book = Workbook(application, path.name, str(path.parent))
     book.package = package
-    book.hidden_names_due = True
     book.links_folder = str(path.resolve().parent)
     workbook_part = package.read("xl/workbook.xml")
     workbook_xml = workbook_part.decode("utf-8", errors="replace")
@@ -267,6 +266,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     read_calculation(book, workbook_xml)
     # Excel's numbering of new sheets starts again in an opened file (tests/fixtures/new_sheet_names.json).
     book.sheet_name_counter = 0
+    from pyopenvba.apps.excel._hidden_names import read_from_file
+
+    read_from_file(book)
     return book
 
 

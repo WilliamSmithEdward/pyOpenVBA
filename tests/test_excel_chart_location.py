@@ -20,12 +20,9 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURE: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_location.json').read_text(encoding='utf-8'))
 CASES: list[list[Any]] = FIXTURE['cases']
-#: What is left out, each saying so: the tab operations on a chart sheet, a move off one, whose geometry comes from the
-#: window, and a sheet's copy with another shape beside its chart.
+#: What is left out, each saying so: a move off a chart sheet, whose geometry comes from the window, and a sheet's copy with another shape
+#: beside its chart.
 REFUSED = {
-    39: 'Renaming a chart sheet', 40: 'Moving a chart sheet', 41: 'Deleting a chart sheet',
-    48: 'Renaming a sheet in a workbook with a chart sheet', 51: 'Copying a sheet in a workbook with a chart sheet',
-    52: 'Adding a sheet in a workbook with a chart sheet', 53: 'Adding a sheet in a workbook with a chart sheet',
     68: 'Moving a chart off a chart sheet', 69: 'Moving a chart off a chart sheet', 70: 'Moving a chart off a chart sheet',
     71: 'Moving a chart off a chart sheet', 170: 'Worksheet.Copy with drawings',
 }

@@ -152,7 +152,7 @@ def _part_step(state: ChartState, turned_text: Callable[[str], str]) -> Step | N
 def plan(book: Workbook, change: Change) -> list[Step]:
     """All that moves, worked out before anything does; what cannot be done is refused here."""
     steps: list[Step] = []
-    for sheet in [*book.sheets_, *(tab.sheet for tab in book.chart_sheets)]:
+    for sheet in book.sheets_:
         for state in sheet.chart_states.values():
             steps += _chart_plan(sheet, state, change)
     for chart_sheet in book.chart_sheets:

@@ -14,7 +14,6 @@ PROBES: list[dict[str, Any]] = json.loads(
     (Path(__file__).parent / 'fixtures/excel_everyday_14.json').read_text(encoding='utf-8'))['probes']
 #: What each probe the model cannot answer yet needs.
 GAPS: dict[str, str] = {
-    'chart_sheet': 'deleting a chart sheet',
 }
 
 

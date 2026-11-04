@@ -315,6 +315,8 @@ class SheetDimensions:
         self._unmeasured: dict[int, str] = {}
         #: Rows showing wrapped text, and how tall that makes them now, in quarter pixels.
         self._wrapped_now: dict[int, int] = {}
+        #: No cell wrapped when last looked, since when none has changed.
+        self._nothing_wraps = False
         #: Rows whose cells changed since the file was read, so a height it
         #: recorded for them no longer holds.
         self._touched: set[int] = set()
@@ -566,7 +568,12 @@ class SheetDimensions:
         self.invalidate_growth()
 
     def _hold_wrapped(self) -> None:
-        """Before a column's width changes: wrapped text keeps the height it has."""
+        """Before a column's width changes: wrapped text keeps the height it has. A sheet with none need not settle for it."""
+        if self._nothing_wraps:
+            return
+        if not any(cell.style is not None and _wraps(cell.style) for cell in self.sheet.cells_.values()):
+            self._nothing_wraps = True
+            return
         self._settle()
         for row, quarters in self._wrapped_now.items():
             record = self.rows.get(row)
@@ -587,6 +594,7 @@ class SheetDimensions:
         if self._grown_valid and self.sheet.shapes_:
             self.remember_shapes()
         self._grown_valid = False
+        self._nothing_wraps = False
 
     def remember_shapes(self) -> None:
         """Where each shape that follows its cells is anchored now, which rows that grow by their fonts later move

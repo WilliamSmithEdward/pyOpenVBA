@@ -85,6 +85,7 @@ def test_each_third_round_curve_as_excel_answered(number: int) -> None:
     assert not wrong
 
 
+SAVES = _load('wrapped_model_saves')
 ROUND4 = _load('wrapped_round4_predictions')
 ROUND4_ANSWERS = _load('wrapped_round4')
 _HYPHEN_THEN_LINE_FEED = '-\n'
@@ -171,6 +172,14 @@ def test_a_saved_height_carries_as_in_excel(name: str, tmp_path: Path) -> None:
     app.add_module('\n'.join(source) + '\n', name='Probe')
     assert app.run('Probe.Go', str(tmp_path)) == HISTORY[name]['set, opened, after']
     assert _row_tag(tmp_path / 'saved.xlsx') == HISTORY[name]['row']
+
+
+@pytest.mark.parametrize('name', SAVES['cases'])
+def test_what_excel_read_of_the_model_s_saves_still_holds(name: str) -> None:
+    """scripts/check_wrapped_model_saves.py: Excel opened each file the model saved, and read what the model did, and Excel's own save of the same steps has the same rows."""
+    case = SAVES['cases'][name]
+    assert case['model read'] == case['excel read'] == case['excel opening the model']
+    assert case['model rows'] == case['excel rows']
 
 
 def test_a_wrapped_row_with_no_height_in_its_file_is_the_standard_row(tmp_path: Path) -> None:

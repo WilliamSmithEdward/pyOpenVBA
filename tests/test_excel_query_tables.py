@@ -18,15 +18,11 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/query_tab
 NAMES = [case[0] for case in RECORD['cases']]
 #: Refused, which each case below checks.
 REFUSED = ('q.PostText = "x"', 'q.Connection = "URL;', 'q.TextFilePromptOnRefresh = True', '"URL;http', 'q.TextFilePlatform = 1252', 'q.TextFilePlatform = 65001',
-           'TypeName(q.Parameters)', 'TypeName(q.Sort)', 'TypeName(q.WorkbookConnection)', 'q.WorkbookConnection.Name',
-           'Parent.Connections')
+           'TypeName(q.Parameters)', 'TypeName(q.Sort)')
 #: What is measured and not modelled, so not replayed: widths after AdjustColumnWidth, which a 144-DPI display decides; what a
-#: refresh does to formats in its way; a name changed by hand; a table's cells all deleted; and a connection Excel saves for a
-#: table deleted before any refresh.
+#: refresh does to formats in its way; a name changed by hand; and a table's cells all deleted.
 LEFT_OUT = ('.ColumnWidth', 'Interior.ColorIndex', 'A2").NumberFormat', 'ws.Names(1).Delete', 'ws.Names(1).RefersTo =', 'ws.Rows("1:3").Delete', 'r = q.Delete & ')
-#: Connections answers again once the table has gone.
-ANSWERED = 'q.Delete: r = ws.Names.Count'
-REFUSALS = [index for index, name in enumerate(NAMES) if any(text in name for text in REFUSED) and not any(text in name for text in LEFT_OUT) and ANSWERED not in name]
+REFUSALS = [index for index, name in enumerate(NAMES) if any(text in name for text in REFUSED) and not any(text in name for text in LEFT_OUT)]
 KEPT = [index for index, name in enumerate(NAMES) if index not in REFUSALS and not any(text in name for text in LEFT_OUT)]
 
 

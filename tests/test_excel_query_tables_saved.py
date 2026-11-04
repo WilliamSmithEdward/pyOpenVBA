@@ -19,14 +19,9 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 SAVED = FIXTURES / 'query_table_saved.xlsx'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'query_tables_saved.json').read_text(encoding='utf-8'))
 NAMES = [case[0] for case in RECORD['cases']]
-#: What the model answers differently and refuses: Connections once the tables have changed.
-REFUSED = ('.Connections.Count', 'w2.Parent.Connections')
-REFUSALS = [index for index, name in enumerate(NAMES) if any(text in name for text in REFUSED)]
-#: Left out: the order of a saved sheet's tables, which goes with Excel's numbering of them and changes from save to save; and
-#: deleting a table on a copied sheet, after which Excel's file loses the original's same-named table and name, though the
-#: original goes on answering that it has them. The model keeps the original's.
-LEFT_OUT = ('QueryTables(1).Name & ', 'w2.QueryTables(1).Name', 'w2.QueryTables(2).Name', 'w2.QueryTables("ExternalData_1").Delete')
-KEPT = [index for index in range(len(NAMES)) if index not in REFUSALS and not any(text in NAMES[index] for text in LEFT_OUT)]
+#: Left out: the order of a saved sheet's tables, which goes with Excel's numbering of them and changes from save to save.
+LEFT_OUT = ('QueryTables(1).Name & ', 'w2.QueryTables(1).Name', 'w2.QueryTables(2).Name')
+KEPT = [index for index in range(len(NAMES)) if not any(text in NAMES[index] for text in LEFT_OUT)]
 PARTS = ('xl/connections.xml',)
 
 
@@ -97,16 +92,6 @@ def test_each_case_as_excel_answered(tmp_path: Path, index: int) -> None:
     alone = {name.removeprefix('copy/'): text for name, text in RECORD['cases'][index][2].items() if name.startswith('copy/')}
     if alone:
         assert _said(_read(tmp_path / f'o{index}.xlsx', tmp_path)) == _said(alone)
-
-
-@pytest.mark.parametrize('index', REFUSALS, ids=[NAMES[index] for index in REFUSALS])
-def test_what_is_not_built_says_so(tmp_path: Path, index: int) -> None:
-    _folder(tmp_path)
-    app = ExcelApplication(sandbox=False)
-    app.add_workbook()
-    app.add_module(_source({index}), name='SavedProbe')
-    with pytest.raises(VBAUnsupportedError):
-        app.run('SavedProbe.Probe', index, str(tmp_path))
 
 
 def _opened(path: Path) -> tuple[ExcelApplication, Any]:

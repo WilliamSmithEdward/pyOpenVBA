@@ -2584,7 +2584,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     # Excel leaves Excel 4 macro names out of a workbook saved without macros (tests/fixtures/name_macro.json).
     macros = workbook_format(book) in (52, 53, 55)
     for entry in book.names_.entries:
-        if entry.macro_type and not macros:
+        if (entry.macro_type and not macros) or any(entry is lost for lost in book.query_names_lost):
             continue
         # A name that came from the file keeps the attributes it came
         # with; localSheetId and hidden are not the model's to drop.

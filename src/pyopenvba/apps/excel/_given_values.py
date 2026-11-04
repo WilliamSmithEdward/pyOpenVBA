@@ -5,8 +5,9 @@ The type library declares these properties Variant, so what a property is shows 
 
 - A colour or a shade converts as VBA does, so a Currency rounds and separate areas read as the first: it is left alone.
 - A property that holds a formula or a value reads separate areas as the first, too: it is left alone.
-- Any other property refuses separate areas with 1004, and takes a block of cells as its last cell's value.
-- A border's Weight and LineStyle, and a font's Background, read a number cut to a whole one, a block as its first cell.
+- Any other property refuses separate areas with 1004, and is given a block of cells one cell at a time, row by row, so what the
+  cells before a refusal did stays done.
+- A border's Weight and LineStyle read a block as its first cell.
 - One that answers a Boolean also refuses a Currency and a Date with 1004.
 - One that answers text takes a Currency's text, $1.50 with a space after it. NumberFormat refuses a Date.
 - A number given to a pattern, a line, an underline, an alignment or a reading order goes through Excel's own numbering for it,
@@ -33,7 +34,7 @@ CONVERTING: Final = frozenset({'color', 'colorindex', 'themecolor', 'tintandshad
 HOLDING: Final = frozenset({'value', 'value2', 'formula', 'formular1c1', 'formulalocal', 'formular1c1local', 'formula2', 'formula2r1c1', 'formula2local', 'formula2r1c1local', 'formulaarray'})
 NUMBER_FORMATS: Final = frozenset({'numberformat', 'numberformatlocal'})
 #: Read a block as its first cell.
-CUTTING: Final = frozenset({'weight', 'linestyle', 'background'})
+CUTTING: Final = frozenset({'weight', 'linestyle'})
 #: Excel's own numbering, member by member, measured from -3 to 20 and over its named values.
 CODES: Final = {
     'pattern': {-1: 1, 2: -4125, 3: -4126, 4: -4124, 5: -4128, 6: -4166, 7: -4121, 8: -4162, -4105: 1},
@@ -121,10 +122,18 @@ def given(target: VBAObject, name: str, value: object) -> object:
             value = value.vba_value()
             if lower == 'style' and value is EMPTY:
                 return 'Normal'
+        elif lower in CUTTING:
+            area = value.first
+            value = Range(value.sheet, [Area(area.top, area.left, area.top, area.left, value.sheet.name)]).vba_value()
         else:
             area = value.first
-            row, column = (area.top, area.left) if lower in CUTTING else (area.bottom, area.right)
-            value = Range(value.sheet, [Area(row, column, row, column, value.sheet.name)]).vba_value()
+            cells = [Range(value.sheet, [Area(row, column, row, column, value.sheet.name)]) for row in range(area.top, area.bottom + 1)
+                     for column in range(area.left, area.right + 1)]
+            spec = target.vba_member(name)
+            for cell in cells[:-1]:
+                if spec is not None and spec.setter is not None:
+                    spec.setter(target, given(target, name, cell.vba_value()))
+            return given(target, name, cells[-1].vba_value())
     if lower == 'size' and target.vba_type_name == 'Font' and _is_number(value):
         twentieths = Decimal(repr(float(to_number(value)))) * 20
         return float(twentieths.quantize(Decimal(1), ROUND_HALF_UP) / 20) if twentieths >= Decimal('19.5') else value

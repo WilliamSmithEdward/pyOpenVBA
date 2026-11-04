@@ -6,7 +6,8 @@ probe builds is the populated state, and the second sheet's collections the empt
     python scripts/measure_collection_items.py
 
 writes tests/fixtures/collection_items.json, which tests/test_excel_collection_items.py replays. A collection that
-ends the run is recorded as KILLS, and left out of the test.
+ends the run is recorded as KILLS, and left out of the test. Its "early" holds what Item(Null) answers where it differs
+with o typed by its class, which the model follows.
 """
 from __future__ import annotations
 
@@ -121,6 +122,26 @@ def module(chosen: list[int], cases: list[tuple[str, str, str]], log: str = '') 
             + '    Probe = Replace(Mid(out, 3), wb.Name, "<book>")\n    wb.Close False\nEnd Function\n')
 
 
+def _early(cases: list[tuple[str, str, str]], answers: dict[int, str]) -> dict[str, str]:
+    """What Item(Null) answers with o typed by its class, where that differs: an index declared As Long makes it 94."""
+    chosen = [number for number, case in enumerate(cases) if case[2] == 'null']
+    source = module([], [])
+    head = source[:source.index('Public Function BookName')]
+    body = ''.join(f'\nPublic Function C{number}() As String\n    Dim o As {cases[number][0]}, q As Object\n'
+                   f'    On Error Resume Next\n    Set o = {cases[number][1]}\n    Set q = o.Item(Null)\n'
+                   f'    If Err.Number = 0 Then\n        C{number} = TypeName(q) & ":" & q.Name\n    Else\n'
+                   f'        C{number} = "e" & Err.Number\n    End If\nEnd Function\n' for number in chosen)
+    calls = ''.join(f'    out = out & "@@" & C{number}()\n' for number in chosen)
+    probe = (head + body + f'Public Function Probe() As String\n    Dim out As String\n    Setup\n{calls}'
+             '    Probe = Replace(Mid(out, 3), wb.Name, "<book>")\n    wb.Close False\nEnd Function\n')
+    with ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
+        excel.new_document()
+        result = excel.run_vba(probe, 'Probe', (), timeout=120.0)
+        assert result.ok and not result.dialogs, result
+    found = dict(zip(chosen, str(result.value).split('@@'), strict=True))
+    return {str(number): one for number, one in found.items() if one != answers[number]}
+
+
 def main() -> None:
     cases = all_cases()
     pending = list(range(len(cases)))
@@ -150,7 +171,8 @@ def main() -> None:
             excel = None
     if excel is not None:
         excel.__exit__(None, None, None)
-    OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(),
+    early = _early(cases, answers)
+    OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'early': early,
                                'source': module(list(range(len(cases))), cases),
                                'cases': [[*cases[number], answers[number]] for number in range(len(cases))]},
                               indent=0) + '\n', encoding='utf-8')

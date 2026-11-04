@@ -32,17 +32,19 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
     NOTHING,
+    NULL,
     VBAInt,
     VBASingle,
     error,
     to_bool,
     to_integer,
+    to_number,
     to_text,
 )
 
@@ -391,15 +393,27 @@ class Comment(ExcelObject):
         current = self.note.text
         if Text is MISSING:
             return current
-        added = to_text(Text)
+        # Only text is taken, and empty text changes nothing (tests/fixtures/method_audit.json).
+        if not isinstance(Text, str):
+            raise error(1004, "Application-defined or object-defined error")
+        if not Text and Start is MISSING:
+            return current
+        added = Text
         if Start is MISSING:
             edited(self.sheet, self.row, self.column, added)
             return added
-        start = int(to_integer(Start, "Long"))
-        if start < 1 or (Overwrite is not MISSING and to_bool(Overwrite)):
+        try:
+            if isinstance(Start, bool):
+                raise error(5)
+            start = int(to_integer(Start, "Long"))
+            # True is refused and False or Empty puts the text in; a number is how many characters it replaces.
+            count = 0 if Overwrite is MISSING or Overwrite is False or Overwrite is EMPTY else int(to_integer(Overwrite, "Long"))
+        except VBARuntimeError as failed:
+            raise error(5, "Invalid procedure call or argument") from failed
+        if start < 1 or Overwrite is True:
             raise error(5, "Invalid procedure call or argument")
         at = start - 1
-        wanted = current[:at] + added + (current[at:] if Overwrite is not MISSING else "")
+        wanted = current[:at] + added + ("" if Overwrite is MISSING else current[at + count:])
         edited(self.sheet, self.row, self.column, wanted)
         return wanted
 
@@ -431,11 +445,15 @@ class Comment(ExcelObject):
         return Comment(self.sheet, *order[at]) if 0 <= at < len(order) else NOTHING
 
     @method
-    def Next(self) -> object:
+    def Next(self, Index: object = MISSING) -> object:  # noqa: N803 - any argument is error 438, as Excel has it
+        if Index is not MISSING:
+            raise error(438, "Comment.Next takes no argument")
         return self._neighbour(1)
 
     @method
-    def Previous(self) -> object:
+    def Previous(self, Index: object = MISSING) -> object:  # noqa: N803 - any argument is error 438, as Excel has it
+        if Index is not MISSING:
+            raise error(438, "Comment.Previous takes no argument")
         return self._neighbour(-1)
 
     @member
@@ -631,28 +649,41 @@ def note_text(target: Range, text: object, start: object, length: object) -> obj
     if note is not None and note.thread:
         raise VBAUnsupportedError("NoteText on a cell with a threaded comment is not implemented")
     current = "" if note is None else note.text
-    at = 0 if start is MISSING else int(to_integer(start, "Long")) - 1
+    # Bound early, as Text As String: Null leaves the note, True is TRUE and Start and Length drop a fraction
+    # (tests/fixtures/method_audit.json).
+    if text is NULL:
+        return current
+    if start is MISSING or start is NULL or start is True:
+        at = 0
+    else:
+        at = int(float(to_number(start))) - 1
     if at < 0:
         raise error(1004, "Application-defined or object-defined error")
     if text is MISSING:
         if length is MISSING:
             return current[at:]
         return current[at:at + int(to_integer(length, "Long"))]
-    added = _text_argument(text)
+    added = str(text).upper() if isinstance(text, bool) else to_text(text)
+    if len(added) > 255:
+        raise error(13)
     if start is MISSING:
         wanted = added
-    elif length is MISSING:
+    elif length is MISSING or length is NULL:
         wanted = current[:at] + added
     else:
-        wanted = current[:at] + added + current[at + int(to_integer(length, "Long")):]
+        count = 1 if length is True else int(float(to_number(length)))
+        if count < 0:
+            raise error(1004, "Application-defined or object-defined error")
+        wanted = current[:at] + added + current[at + count:]
     if not wanted and start is MISSING:
         remove(sheet, row, column)
-        return ""
+        return "0"
     if note is None:
         add(sheet, row, column, wanted)
     else:
         edited(sheet, row, column, wanted)
-    return wanted
+    # What a write answers is how long the note now is, a String bound early (a Double late).
+    return str(len(wanted))
 
 
 __all__ = [

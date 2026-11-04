@@ -113,7 +113,8 @@ def test_create_edit_save_reopen_and_vba_share_one_shape(kind: str, tmp_path: Pa
     creator = {"shape": sheet.add_shape, "textBox": sheet.add_textbox, "formControl": sheet.add_button}[kind]
     made = creator(name="Start", left=12, top=30, width=90, height=40, text="First", macro="Clicked")
     assert made.kind == kind
-    assert app.evaluate('ActiveSheet.Shapes("Start").OnAction') == "Clicked"
+    # A form control's reads with its workbook's name (tests/fixtures/form_control_macros.json).
+    assert app.evaluate('ActiveSheet.Shapes("Start").OnAction') == ("Book1!Clicked" if kind == "formControl" else "Clicked")
     first = tmp_path / "first.xlsm"
     app.save(first)
     sheet.update_shape("start", new_name=r"Run & \1", left=144, top=88, width=123, height=45,

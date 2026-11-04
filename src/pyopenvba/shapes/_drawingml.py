@@ -166,6 +166,11 @@ def with_name(markup: str, name: str) -> str:
     return markup[: found.start(1)] + changed + markup[found.end(1) :]
 
 
+def escaped_text(text: str) -> str:
+    """Text as an a:t holds it. Vertical tab stands for a line break within a paragraph, which the file spells CR LF."""
+    return escape(text).replace("\x0b", "\r\n")
+
+
 def text_body(text: str, tag: str, *, size: int = 1100) -> str:
     """A txBody holding this text, one paragraph per line.
 
@@ -176,7 +181,7 @@ def text_body(text: str, tag: str, *, size: int = 1100) -> str:
     paragraphs: list[str] = []
     for line in lines:
         if line:
-            run = f'<a:r><a:rPr lang="en-US" sz="{size}"/><a:t>{escape(line)}</a:t></a:r>'
+            run = f'<a:r><a:rPr lang="en-US" sz="{size}"/><a:t>{escaped_text(line)}</a:t></a:r>'
         else:
             run = f'<a:endParaRPr lang="en-US" sz="{size}"/>'
         paragraphs.append(f"<a:p>{run}</a:p>")

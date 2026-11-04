@@ -30,6 +30,14 @@
 "differ": {
 "saved read PatternTintAndShade": 2
 }
+},
+"third": {
+"predictions_sha256_16": "be5052e4de6083aa",
+"comparisons": 480,
+"differ": {
+"saved read ColorIndex": 2,
+"saved read PatternColorIndex": 4
+}
 }
 },
 "rounds": {
@@ -5016,6 +5024,2501 @@
 "value": "",
 "late": "Null",
 "typed": "Null"
+}
+]
+}
+],
+"third": [
+{
+"book_file": "9003_0.xlsx",
+"dress": [
+"ws.Range(\"A1\").Style = \"Normal\": Grad ws.Range(\"A1\"), 255, 65280",
+"ws.Range(\"B1\").Style = \"FillGray\"",
+"ws.Range(\"C1\").Style = \"Bad\": ws.Range(\"C1\").Interior.ColorIndex = 8",
+"",
+"ws.Range(\"B2\").Style = \"FillGray\": ws.Range(\"B2\").Interior.Pattern = xlGray75",
+"ws.Range(\"C2\").Style = \"FillNone\": ws.Range(\"C2\").Interior.Pattern = xlGray75",
+"ws.Range(\"A3\").Style = \"FillIndex\": ws.Range(\"A3\").Interior.Pattern = xlNone",
+"",
+"ws.Range(\"C3\").Style = \"FillNone\": ws.Range(\"C3\").Interior.ColorIndex = 8",
+"ws.Range(\"E1\").Style = \"FillIndex\": ws.Range(\"E1\").Interior.Color = 65535",
+"ws.Range(\"E2\").Style = \"NoFillSet\": ws.Range(\"E2\").Interior.ColorIndex = 8",
+"ws.Range(\"E3\").Style = \"FillGreen\""
+],
+"cases": [
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null",
+"known": true
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:B1",
+"kind": "set",
+"member": "Pattern",
+"value": "xlSolid",
+"late": "Empty|Long 1|Double 16777215|Long -4105",
+"typed": "Empty|Long 1|Double 16777215|Long -4105"
+},
+{
+"area": "A1,C1,E1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "4",
+"late": "Empty|Long 1|Double 65280|Long 4",
+"typed": "Empty|Long 1|Double 65280|Long 4"
+},
+{
+"area": "A1:B1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Null|Double 16777215|Long -4105",
+"typed": "Empty|Null|Double 16777215|Long -4105"
+},
+{
+"area": "A1,B2",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Null|Double 12632256|Long 15",
+"typed": "Empty|Null|Double 12632256|Long 15"
+},
+{
+"area": "B2,E2",
+"kind": "set",
+"member": "ColorIndex",
+"value": "4",
+"late": "Empty|Null|Double 65280|Long 4",
+"typed": "Empty|Null|Double 65280|Long 4"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": "9003_1.xlsx",
+"dress": [
+"Grad ws.Range(\"A1\"), 255, 65280",
+"ws.Range(\"B1\").Style = \"FillRed\"",
+"ws.Range(\"C1\").Style = \"FillIndex\"",
+"ws.Range(\"A2\").Style = \"FillGreen\"",
+"ws.Range(\"B2\").Style = \"Accent1\"",
+"ws.Range(\"C2\").Style = \"Normal\": ws.Range(\"C2\").Interior.Pattern = xlGray75",
+"ws.Range(\"A3\").Style = \"FillGreen\": ws.Range(\"A3\").Interior.Pattern = xlNone",
+"ws.Range(\"B3\").Interior.Color = 255",
+"ws.Range(\"C3\").Style = \"Accent1\"",
+"ws.Range(\"E1\").Style = \"Good\"",
+"ws.Range(\"E2\").Style = \"FillTheme\"",
+"ws.Range(\"E3\").Style = \"FillIndex\""
+],
+"cases": [
+{
+"area": "A1:C1",
+"kind": "set",
+"member": "Color",
+"value": "255",
+"late": "Empty|Long 1|Double 255|Long 3",
+"typed": "Empty|Long 1|Double 255|Long 3"
+},
+{
+"area": "A1",
+"kind": "set",
+"member": "PatternColor",
+"value": "65535",
+"late": "Empty|Long 1|Double 16777215|Long -4105",
+"typed": "Empty|Long 1|Double 16777215|Long -4105"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Long 1|Double 12632256|Long 15",
+"typed": "Empty|Long 1|Double 12632256|Long 15"
+},
+{
+"area": "A1,B2",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Long 1|Double 12632256|Long 15",
+"typed": "Empty|Long 1|Double 12632256|Long 15"
+},
+{
+"area": "A2:B3",
+"kind": "set",
+"member": "Pattern",
+"value": "xlGray25",
+"late": "Empty|Long -4124|Double 0|Null",
+"typed": "Empty|Long -4124|Double 0|Null"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": "9003_2.xlsx",
+"dress": [
+"",
+"ws.Range(\"B1\").Style = \"FillIndex\"",
+"ws.Range(\"C1\").Style = \"FillNone\"",
+"ws.Range(\"A2\").Style = \"Input\"",
+"Grad ws.Range(\"B2\"), 255, 65280",
+"ws.Range(\"C2\").Style = \"Input\"",
+"ws.Range(\"A3\").Interior.Color = 255",
+"ws.Range(\"B3\").Style = \"FillTheme\": ws.Range(\"B3\").Interior.ColorIndex = 8",
+"",
+"ws.Range(\"E1\").Interior.Pattern = xlNone",
+"Grad ws.Range(\"E2\"), 255, 65280",
+"ws.Range(\"E3\").Style = \"Bad\""
+],
+"cases": [
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null",
+"known": true
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null",
+"known": true
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+}
+]
+},
+{
+"book_file": "9003_3.xlsx",
+"dress": [
+"",
+"ws.Range(\"B1\").Style = \"FillTheme\"",
+"ws.Range(\"C1\").Style = \"FillNone\"",
+"ws.Range(\"A2\").Interior.Pattern = xlNone",
+"ws.Range(\"B2\").Style = \"Normal\"",
+"ws.Range(\"C2\").Style = \"FillTheme\": ws.Range(\"C2\").Interior.Color = 255",
+"ws.Range(\"A3\").Interior.Color = 65535",
+"Grad ws.Range(\"B3\"), 255, 65280",
+"ws.Range(\"C3\").Style = \"FillIndex\"",
+"ws.Range(\"E1\").Style = \"Bad\": ws.Range(\"E1\").Interior.Pattern = xlNone",
+"",
+"ws.Range(\"E3\").Style = \"FillIndex\""
+],
+"cases": [
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A1:B1",
+"kind": "set",
+"member": "Pattern",
+"value": "xlNone",
+"late": "Empty|Long -4142|Double 16777215|Long -4142",
+"typed": "Empty|Long -4142|Double 16777215|Long -4142"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+}
+]
+},
+{
+"book_file": "9003_4.xlsx",
+"dress": [
+"ws.Range(\"A1\").Style = \"FillLight\": ws.Range(\"A1\").Interior.Pattern = xlGray75",
+"ws.Range(\"B1\").Style = \"FillGray\"",
+"ws.Range(\"C1\").Style = \"NoFillSet\"",
+"ws.Range(\"A2\").Style = \"FillRed\"",
+"ws.Range(\"B2\").Style = \"FillGreen\"",
+"ws.Range(\"C2\").Style = \"Accent1\"",
+"ws.Range(\"A3\").Interior.Color = 65535",
+"",
+"ws.Range(\"C3\").Interior.ColorIndex = 8",
+"ws.Range(\"E1\").Style = \"FillLight\"",
+"ws.Range(\"E2\").Style = \"Input\": Grad ws.Range(\"E2\"), 255, 65280",
+"ws.Range(\"E3\").Style = \"FillRed\""
+],
+"cases": [
+{
+"area": "A1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Long -4126|Double 16777215|Long -4105",
+"typed": "Empty|Long -4126|Double 16777215|Long -4105"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "C3,A1",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Null|Double 12632256|Long 15",
+"typed": "Empty|Null|Double 12632256|Long 15"
+},
+{
+"area": "A1:C3",
+"kind": "set",
+"member": "PatternColor",
+"value": "65535",
+"late": "Empty|Null|Double 0|Null",
+"typed": "Empty|Null|Double 0|Null"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+}
+]
+},
+{
+"book_file": "9003_5.xlsx",
+"dress": [
+"",
+"ws.Range(\"B1\").Style = \"FillGreen\"",
+"ws.Range(\"C1\").Style = \"FillIndex\"",
+"",
+"ws.Range(\"B2\").Style = \"FillIndex\"",
+"ws.Range(\"C2\").Style = \"Good\": ws.Range(\"C2\").Interior.Pattern = xlGray75",
+"ws.Range(\"A3\").Style = \"FillTheme\"",
+"ws.Range(\"B3\").Style = \"Bad\": ws.Range(\"B3\").Interior.Color = 65535",
+"ws.Range(\"C3\").Style = \"Input\"",
+"ws.Range(\"E1\").Style = \"FillGray\"",
+"ws.Range(\"E2\").Style = \"Input\"",
+"ws.Range(\"E3\").Style = \"FillGreen\": ws.Range(\"E3\").Interior.Pattern = xlNone"
+],
+"cases": [
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Long 1|Double 16777215|Long -4105",
+"typed": "Empty|Long 1|Double 16777215|Long -4105"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "C3,A1",
+"kind": "set",
+"member": "Pattern",
+"value": "xlGray25",
+"late": "Empty|Long -4124|Double 0|Null",
+"typed": "Empty|Long -4124|Double 0|Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillGray\"",
+"Grad ws.Range(\"B1\"), 255, 65280",
+"ws.Range(\"C1\").Style = \"FillGreen\"",
+"ws.Range(\"A2\").Style = \"FillNone\"",
+"ws.Range(\"B2\").Style = \"Accent1\": ws.Range(\"B2\").Interior.Pattern = xlNone",
+"",
+"ws.Range(\"A3\").Style = \"NoFillSet\"",
+"ws.Range(\"B3\").Interior.ColorIndex = 8",
+"ws.Range(\"C3\").Interior.Color = 255",
+"ws.Range(\"E1\").Style = \"Good\"",
+"ws.Range(\"E2\").Style = \"Good\"",
+"ws.Range(\"E3\").Interior.Pattern = xlGray75"
+],
+"cases": [
+{
+"area": "E2",
+"kind": "set",
+"member": "ColorIndex",
+"value": "4",
+"late": "Empty|Long 1|Double 65280|Long 4",
+"typed": "Empty|Long 1|Double 65280|Long 4"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:B1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlNone",
+"late": "Empty|Long -4142|Double 16777215|Long -4142",
+"typed": "Empty|Long -4142|Double 16777215|Long -4142"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"Normal\": ws.Range(\"A1\").Interior.ColorIndex = 8",
+"ws.Range(\"B1\").Style = \"Input\"",
+"ws.Range(\"C1\").Interior.Color = 255",
+"ws.Range(\"A2\").Style = \"FillGray\"",
+"ws.Range(\"B2\").Interior.Color = 255",
+"Grad ws.Range(\"C2\"), 255, 65280",
+"ws.Range(\"A3\").Style = \"FillLight\"",
+"ws.Range(\"B3\").Style = \"FillGray\": ws.Range(\"B3\").Interior.Pattern = xlGray75",
+"ws.Range(\"C3\").Interior.Color = 255",
+"ws.Range(\"E1\").Style = \"Good\"",
+"ws.Range(\"E2\").Style = \"FillRed\": Grad ws.Range(\"E2\"), 255, 65280",
+"ws.Range(\"E3\").Style = \"FillLight\": ws.Range(\"E3\").Interior.Color = 255"
+],
+"cases": [
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Long 1",
+"typed": "Long 1"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "set",
+"member": "PatternColorIndex",
+"value": "7",
+"late": "Empty|Null|Double 0|Null",
+"typed": "Empty|Null|Double 0|Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillTheme\"",
+"ws.Range(\"B1\").Style = \"Good\": ws.Range(\"B1\").Interior.Color = 65535",
+"ws.Range(\"C1\").Style = \"Accent1\": ws.Range(\"C1\").Interior.Pattern = xlGray75",
+"ws.Range(\"A2\").Style = \"Normal\"",
+"ws.Range(\"B2\").Interior.Color = 255",
+"ws.Range(\"C2\").Style = \"NoFillSet\"",
+"",
+"ws.Range(\"B3\").Style = \"NoFillSet\": ws.Range(\"B3\").Interior.ColorIndex = 8",
+"ws.Range(\"C3\").Style = \"Good\"",
+"ws.Range(\"E1\").Style = \"Normal\"",
+"ws.Range(\"E2\").Interior.Pattern = xlNone",
+"ws.Range(\"E3\").Style = \"Normal\": ws.Range(\"E3\").Interior.Pattern = xlNone"
+],
+"cases": [
+{
+"area": "E2",
+"kind": "set",
+"member": "Pattern",
+"value": "xlSolid",
+"late": "Empty|Long 1|Double 16777215|Long -4105",
+"typed": "Empty|Long 1|Double 16777215|Long -4105"
+},
+{
+"area": "A1:C3",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Null|Double 16777215|Long -4105",
+"typed": "Empty|Null|Double 16777215|Long -4105"
+},
+{
+"area": "A1:C3",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Null|Double 16777215|Long -4105",
+"typed": "Empty|Null|Double 16777215|Long -4105"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlNone",
+"late": "Empty|Long -4142|Double 16777215|Long -4142",
+"typed": "Empty|Long -4142|Double 16777215|Long -4142"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillIndex\": ws.Range(\"A1\").Interior.Color = 255",
+"ws.Range(\"B1\").Style = \"Input\"",
+"ws.Range(\"C1\").Style = \"FillIndex\"",
+"",
+"ws.Range(\"B2\").Style = \"Bad\": ws.Range(\"B2\").Interior.Color = 255",
+"",
+"ws.Range(\"A3\").Style = \"Normal\"",
+"ws.Range(\"B3\").Style = \"Accent1\": ws.Range(\"B3\").Interior.Pattern = xlGray75",
+"ws.Range(\"C3\").Style = \"NoFillSet\"",
+"ws.Range(\"E1\").Interior.ColorIndex = 8",
+"",
+"ws.Range(\"E3\").Interior.ColorIndex = 8"
+],
+"cases": [
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1,C1,E1",
+"kind": "set",
+"member": "PatternColorIndex",
+"value": "7",
+"late": "Empty|Long 1|Double 0|Null",
+"typed": "Empty|Long 1|Double 0|Null"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Long 1",
+"typed": "Long 1"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillNone\": Grad ws.Range(\"A1\"), 255, 65280",
+"ws.Range(\"B1\").Style = \"Good\"",
+"ws.Range(\"C1\").Style = \"Bad\"",
+"",
+"ws.Range(\"B2\").Style = \"FillTheme\"",
+"ws.Range(\"C2\").Style = \"FillTheme\"",
+"ws.Range(\"A3\").Style = \"Input\": ws.Range(\"A3\").Interior.ColorIndex = 8",
+"ws.Range(\"B3\").Style = \"FillRed\"",
+"ws.Range(\"C3\").Style = \"FillGray\"",
+"ws.Range(\"E1\").Style = \"FillRed\"",
+"ws.Range(\"E2\").Style = \"Accent1\"",
+"ws.Range(\"E3\").Style = \"FillGray\""
+],
+"cases": [
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C1",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Long 1|Double 12632256|Long 15",
+"typed": "Empty|Long 1|Double 12632256|Long 15"
+},
+{
+"area": "A1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2",
+"kind": "set",
+"member": "Pattern",
+"value": "xlNone",
+"late": "Empty|Long -4142|Double 16777215|Long -4142",
+"typed": "Empty|Long -4142|Double 16777215|Long -4142"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"NoFillSet\"",
+"ws.Range(\"B1\").Style = \"FillTheme\"",
+"ws.Range(\"C1\").Style = \"FillNone\"",
+"",
+"",
+"ws.Range(\"C2\").Style = \"FillLight\": Grad ws.Range(\"C2\"), 255, 65280",
+"ws.Range(\"A3\").Style = \"FillRed\": Grad ws.Range(\"A3\"), 255, 65280",
+"ws.Range(\"B3\").Style = \"FillRed\"",
+"ws.Range(\"C3\").Style = \"FillGray\"",
+"ws.Range(\"E1\").Style = \"Bad\": Grad ws.Range(\"E1\"), 255, 65280",
+"",
+"ws.Range(\"E3\").Style = \"Accent1\""
+],
+"cases": [
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A1:A2",
+"kind": "set",
+"member": "Pattern",
+"value": "xlSolid",
+"late": "Empty|Long 1|Double 16777215|Long -4105",
+"typed": "Empty|Long 1|Double 16777215|Long -4105"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "B2,E2",
+"kind": "set",
+"member": "ColorIndex",
+"value": "4",
+"late": "Empty|Long 1|Double 65280|Long 4",
+"typed": "Empty|Long 1|Double 65280|Long 4"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillGray\"",
+"ws.Range(\"B1\").Style = \"FillTheme\"",
+"ws.Range(\"C1\").Style = \"Good\"",
+"ws.Range(\"A2\").Style = \"FillGray\": ws.Range(\"A2\").Interior.Color = 255",
+"ws.Range(\"B2\").Style = \"FillGray\"",
+"ws.Range(\"C2\").Interior.Pattern = xlNone",
+"",
+"Grad ws.Range(\"B3\"), 255, 65280",
+"ws.Range(\"C3\").Style = \"FillLight\"",
+"ws.Range(\"E1\").Style = \"FillTheme\"",
+"ws.Range(\"E2\").Style = \"FillGray\"",
+"ws.Range(\"E3\").Style = \"FillRed\": ws.Range(\"E3\").Interior.Pattern = xlGray75"
+],
+"cases": [
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Null|Double 16777215|Long -4105",
+"typed": "Empty|Null|Double 16777215|Long -4105"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillGray\"",
+"ws.Range(\"B1\").Style = \"FillRed\": ws.Range(\"B1\").Interior.Pattern = xlNone",
+"ws.Range(\"C1\").Style = \"Normal\"",
+"ws.Range(\"A2\").Style = \"FillRed\"",
+"ws.Range(\"B2\").Style = \"FillIndex\": ws.Range(\"B2\").Interior.ColorIndex = 8",
+"ws.Range(\"C2\").Style = \"FillIndex\"",
+"ws.Range(\"A3\").Interior.ColorIndex = 8",
+"ws.Range(\"B3\").Interior.Pattern = xlNone",
+"ws.Range(\"C3\").Style = \"FillLight\": ws.Range(\"C3\").Interior.Color = 255",
+"ws.Range(\"E1\").Interior.ColorIndex = 8",
+"ws.Range(\"E2\").Style = \"FillIndex\": ws.Range(\"E2\").Interior.Color = 65535",
+"ws.Range(\"E3\").Style = \"FillNone\": ws.Range(\"E3\").Interior.Pattern = xlNone"
+],
+"cases": [
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Long 1",
+"typed": "Long 1"
+},
+{
+"area": "A1",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:C1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Null|Double 16777215|Long -4105",
+"typed": "Empty|Null|Double 16777215|Long -4105"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Interior.Color = 65535",
+"ws.Range(\"B1\").Style = \"FillGray\"",
+"ws.Range(\"C1\").Style = \"Normal\"",
+"ws.Range(\"A2\").Style = \"Input\"",
+"",
+"ws.Range(\"C2\").Style = \"Input\"",
+"ws.Range(\"A3\").Interior.Pattern = xlGray75",
+"ws.Range(\"B3\").Interior.Pattern = xlNone",
+"ws.Range(\"C3\").Interior.Pattern = xlNone",
+"",
+"ws.Range(\"E2\").Style = \"Normal\"",
+"ws.Range(\"E3\").Style = \"Input\""
+],
+"cases": [
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "set",
+"member": "PatternColor",
+"value": "65535",
+"late": "Empty|Long 1|Double 0|Null",
+"typed": "Empty|Long 1|Double 0|Null"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1:A2",
+"kind": "set",
+"member": "Color",
+"value": "255",
+"late": "Empty|Long 1|Double 255|Long 3",
+"typed": "Empty|Long 1|Double 255|Long 3"
+},
+{
+"area": "E1:E3",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Long 1|Double 12632256|Long 15",
+"typed": "Empty|Long 1|Double 12632256|Long 15"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillRed\"",
+"ws.Range(\"B1\").Style = \"Input\"",
+"ws.Range(\"C1\").Style = \"FillGreen\": ws.Range(\"C1\").Interior.ColorIndex = 8",
+"ws.Range(\"A2\").Style = \"FillNone\"",
+"ws.Range(\"B2\").Style = \"Normal\"",
+"ws.Range(\"C2\").Style = \"Normal\"",
+"",
+"ws.Range(\"B3\").Interior.ColorIndex = 8",
+"",
+"ws.Range(\"E1\").Style = \"FillRed\": ws.Range(\"E1\").Interior.Pattern = xlGray75",
+"ws.Range(\"E2\").Style = \"Accent1\"",
+"ws.Range(\"E3\").Style = \"NoFillSet\": ws.Range(\"E3\").Interior.Pattern = xlGray75"
+],
+"cases": [
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1:A2",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlNone",
+"late": "Empty|Long -4142|Double 16777215|Long -4142",
+"typed": "Empty|Long -4142|Double 16777215|Long -4142"
+},
+{
+"area": "A1",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,B2",
+"kind": "set",
+"member": "PatternColor",
+"value": "65535",
+"late": "Empty|Long 1|Double 0|Null",
+"typed": "Empty|Long 1|Double 0|Null"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "E2",
+"kind": "set",
+"member": "Pattern",
+"value": "xlSolid",
+"late": "Empty|Long 1|Double 8544277|Long 14",
+"typed": "Empty|Long 1|Double 8544277|Long 14"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"Grad ws.Range(\"A1\"), 255, 65280",
+"",
+"ws.Range(\"C1\").Style = \"FillTheme\"",
+"ws.Range(\"A2\").Style = \"NoFillSet\"",
+"ws.Range(\"B2\").Style = \"FillLight\": ws.Range(\"B2\").Interior.ColorIndex = 8",
+"ws.Range(\"C2\").Style = \"FillGray\"",
+"ws.Range(\"A3\").Style = \"FillNone\"",
+"",
+"ws.Range(\"C3\").Style = \"Input\"",
+"ws.Range(\"E1\").Style = \"FillGray\"",
+"ws.Range(\"E2\").Interior.Pattern = xlNone",
+"ws.Range(\"E3\").Style = \"FillTheme\""
+],
+"cases": [
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 16776960",
+"typed": "Double 16776960"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long -1",
+"typed": "Long -1"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"Accent1\": ws.Range(\"A1\").Interior.Color = 65535",
+"ws.Range(\"B1\").Style = \"FillRed\"",
+"",
+"ws.Range(\"A2\").Interior.Color = 255",
+"",
+"",
+"ws.Range(\"A3\").Style = \"FillTheme\": ws.Range(\"A3\").Interior.Color = 65535",
+"ws.Range(\"B3\").Style = \"FillIndex\": ws.Range(\"B3\").Interior.Color = 255",
+"",
+"ws.Range(\"E1\").Style = \"FillIndex\"",
+"ws.Range(\"E2\").Style = \"FillGreen\": ws.Range(\"E2\").Interior.Pattern = xlNone",
+"ws.Range(\"E3\").Interior.Pattern = xlGray75"
+],
+"cases": [
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"Input\": ws.Range(\"A1\").Interior.ColorIndex = 8",
+"ws.Range(\"B1\").Interior.Color = 65535",
+"",
+"ws.Range(\"A2\").Interior.Color = 255",
+"ws.Range(\"B2\").Style = \"FillTheme\": ws.Range(\"B2\").Interior.ColorIndex = 8",
+"ws.Range(\"C2\").Style = \"Bad\": ws.Range(\"C2\").Interior.Color = 65535",
+"ws.Range(\"A3\").Style = \"Good\"",
+"ws.Range(\"B3\").Style = \"FillIndex\"",
+"ws.Range(\"C3\").Style = \"FillGreen\"",
+"ws.Range(\"E1\").Style = \"FillIndex\"",
+"ws.Range(\"E2\").Style = \"FillGray\"",
+"ws.Range(\"E3\").Style = \"Bad\""
+],
+"cases": [
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlNone",
+"late": "Empty|Long -4142|Double 16777215|Long -4142",
+"typed": "Empty|Long -4142|Double 16777215|Long -4142"
+},
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Long 8",
+"typed": "Long 8"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"Input\"",
+"ws.Range(\"B1\").Interior.Color = 255",
+"ws.Range(\"C1\").Interior.Pattern = xlGray75",
+"ws.Range(\"A2\").Style = \"FillNone\"",
+"",
+"ws.Range(\"C2\").Style = \"Bad\"",
+"ws.Range(\"A3\").Style = \"Bad\"",
+"ws.Range(\"B3\").Style = \"Input\"",
+"",
+"ws.Range(\"E1\").Style = \"FillNone\"",
+"ws.Range(\"E2\").Style = \"Input\": ws.Range(\"E2\").Interior.Color = 255",
+"ws.Range(\"E3\").Interior.Color = 65535"
+],
+"cases": [
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Interior.Color = 255",
+"ws.Range(\"B1\").Style = \"Accent1\"",
+"ws.Range(\"C1\").Interior.Pattern = xlNone",
+"ws.Range(\"A2\").Style = \"FillIndex\"",
+"ws.Range(\"B2\").Style = \"FillTheme\"",
+"ws.Range(\"C2\").Style = \"NoFillSet\"",
+"ws.Range(\"A3\").Interior.Pattern = xlNone",
+"ws.Range(\"B3\").Interior.Pattern = xlNone",
+"",
+"ws.Range(\"E1\").Style = \"FillTheme\"",
+"",
+""
+],
+"cases": [
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1",
+"kind": "set",
+"member": "Pattern",
+"value": "xlGray25",
+"late": "Empty|Long -4124|Double 255|Long 3",
+"typed": "Empty|Long -4124|Double 255|Long 3"
+},
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Long 1",
+"typed": "Long 1"
+},
+{
+"area": "A1:C3",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Long 1|Double 12632256|Long 15",
+"typed": "Empty|Long 1|Double 12632256|Long 15"
+},
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Interior.Color = 255",
+"ws.Range(\"B1\").Style = \"FillGray\"",
+"ws.Range(\"C1\").Style = \"Bad\"",
+"ws.Range(\"A2\").Interior.Pattern = xlNone",
+"ws.Range(\"B2\").Interior.Pattern = xlNone",
+"ws.Range(\"C2\").Style = \"Bad\"",
+"ws.Range(\"A3\").Style = \"FillTheme\"",
+"ws.Range(\"B3\").Style = \"FillGray\": ws.Range(\"B3\").Interior.Pattern = xlNone",
+"",
+"ws.Range(\"E1\").Style = \"Input\"",
+"",
+"ws.Range(\"E3\").Style = \"FillIndex\": ws.Range(\"E3\").Interior.Pattern = xlGray75"
+],
+"cases": [
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "A1,C1,E1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Long 1|Double 16777215|Long -4105",
+"typed": "Empty|Long 1|Double 16777215|Long -4105"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillIndex\"",
+"ws.Range(\"B1\").Style = \"FillGreen\"",
+"",
+"ws.Range(\"A2\").Style = \"FillRed\"",
+"ws.Range(\"B2\").Style = \"FillNone\": ws.Range(\"B2\").Interior.ColorIndex = 8",
+"ws.Range(\"C2\").Style = \"Bad\"",
+"ws.Range(\"A3\").Style = \"FillGreen\"",
+"ws.Range(\"B3\").Style = \"FillGray\": ws.Range(\"B3\").Interior.ColorIndex = 8",
+"ws.Range(\"C3\").Style = \"FillRed\": Grad ws.Range(\"C3\"), 255, 65280",
+"ws.Range(\"E1\").Style = \"Accent1\": ws.Range(\"E1\").Interior.Pattern = xlGray75",
+"",
+"ws.Range(\"E3\").Style = \"FillIndex\""
+],
+"cases": [
+{
+"area": "A1:C1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long -4142",
+"typed": "Long -4142"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Interior.Pattern = xlGray75",
+"",
+"ws.Range(\"C1\").Style = \"Input\": ws.Range(\"C1\").Interior.Color = 65535",
+"ws.Range(\"A2\").Interior.ColorIndex = 8",
+"Grad ws.Range(\"B2\"), 255, 65280",
+"ws.Range(\"C2\").Style = \"Input\": ws.Range(\"C2\").Interior.Pattern = xlGray75",
+"ws.Range(\"A3\").Style = \"FillNone\"",
+"Grad ws.Range(\"B3\"), 255, 65280",
+"ws.Range(\"C3\").Style = \"Normal\": ws.Range(\"C3\").Interior.Pattern = xlGray75",
+"ws.Range(\"E1\").Style = \"Accent1\"",
+"ws.Range(\"E2\").Style = \"Accent1\"",
+"ws.Range(\"E3\").Interior.ColorIndex = 8"
+],
+"cases": [
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "B2",
+"kind": "read",
+"member": "TintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "A1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1",
+"kind": "set",
+"member": "ColorIndex",
+"value": "4",
+"late": "Empty|Long -4126|Double 65280|Long 4",
+"typed": "Empty|Long -4126|Double 65280|Long 4"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "B2,E2",
+"kind": "set",
+"member": "Color",
+"value": "255",
+"late": "Empty|Long 1|Double 255|Long 3",
+"typed": "Empty|Long 1|Double 255|Long 3"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillNone\": ws.Range(\"A1\").Interior.ColorIndex = 8",
+"ws.Range(\"B1\").Style = \"Good\"",
+"ws.Range(\"C1\").Interior.Color = 255",
+"ws.Range(\"A2\").Style = \"Bad\": ws.Range(\"A2\").Interior.Color = 65535",
+"ws.Range(\"B2\").Style = \"NoFillSet\"",
+"ws.Range(\"C2\").Style = \"Good\"",
+"ws.Range(\"A3\").Style = \"FillGray\"",
+"ws.Range(\"B3\").Style = \"FillGreen\"",
+"ws.Range(\"C3\").Style = \"FillLight\"",
+"ws.Range(\"E1\").Style = \"FillLight\"",
+"",
+"ws.Range(\"E3\").Style = \"FillNone\""
+],
+"cases": [
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1,B2",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "E2",
+"kind": "set",
+"member": "Pattern",
+"value": "xlSolid",
+"late": "Empty|Long 1|Double 16777215|Long -4105",
+"typed": "Empty|Long 1|Double 16777215|Long -4105"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"Grad ws.Range(\"A1\"), 255, 65280",
+"ws.Range(\"B1\").Style = \"FillNone\"",
+"",
+"ws.Range(\"A2\").Interior.ColorIndex = 8",
+"ws.Range(\"B2\").Style = \"Normal\"",
+"",
+"ws.Range(\"A3\").Style = \"Normal\"",
+"",
+"ws.Range(\"C3\").Style = \"Good\": Grad ws.Range(\"C3\"), 255, 65280",
+"",
+"ws.Range(\"E2\").Style = \"FillTheme\": ws.Range(\"E2\").Interior.Pattern = xlGray75",
+"ws.Range(\"E3\").Style = \"FillTheme\""
+],
+"cases": [
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A2",
+"kind": "set",
+"member": "Pattern",
+"value": "xlSolid",
+"late": "Empty|Long 1|Double 0|Null",
+"typed": "Empty|Long 1|Double 0|Null"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"Input\"",
+"ws.Range(\"B1\").Style = \"NoFillSet\"",
+"ws.Range(\"C1\").Style = \"FillRed\"",
+"Grad ws.Range(\"A2\"), 255, 65280",
+"ws.Range(\"B2\").Interior.Pattern = xlGray75",
+"ws.Range(\"C2\").Style = \"FillTheme\"",
+"ws.Range(\"A3\").Style = \"Accent1\": ws.Range(\"A3\").Interior.Color = 255",
+"ws.Range(\"B3\").Style = \"FillTheme\"",
+"ws.Range(\"C3\").Interior.Color = 255",
+"ws.Range(\"E1\").Style = \"Good\"",
+"ws.Range(\"E2\").Style = \"FillNone\"",
+"ws.Range(\"E3\").Style = \"Bad\""
+],
+"cases": [
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:B1",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Long 1|Double 12632256|Long 15",
+"typed": "Empty|Long 1|Double 12632256|Long 15"
+},
+{
+"area": "E1:E3",
+"kind": "set",
+"member": "PatternColorIndex",
+"value": "7",
+"late": "Empty|Long 1|Double 0|Null",
+"typed": "Empty|Long 1|Double 0|Null"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A2:B3",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"Good\"",
+"",
+"",
+"ws.Range(\"A2\").Style = \"NoFillSet\"",
+"",
+"",
+"ws.Range(\"A3\").Style = \"Normal\"",
+"ws.Range(\"B3\").Style = \"FillGray\": ws.Range(\"B3\").Interior.Color = 65535",
+"ws.Range(\"C3\").Interior.Pattern = xlNone",
+"ws.Range(\"E1\").Interior.Pattern = xlNone",
+"ws.Range(\"E2\").Interior.Color = 65535",
+"ws.Range(\"E3\").Style = \"Accent1\""
+],
+"cases": [
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:A2",
+"kind": "set",
+"member": "PatternColor",
+"value": "65535",
+"late": "Empty|Long 1|Double 0|Null",
+"typed": "Empty|Long 1|Double 0|Null"
+},
+{
+"area": "E2",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
+},
+{
+"area": "B2",
+"kind": "set",
+"member": "ColorIndex",
+"value": "4",
+"late": "Empty|Long 1|Double 65280|Long 4",
+"typed": "Empty|Long 1|Double 65280|Long 4"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "B2,E2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Style = \"FillGray\"",
+"ws.Range(\"B1\").Style = \"FillGray\"",
+"ws.Range(\"C1\").Interior.Color = 255",
+"ws.Range(\"A2\").Style = \"FillLight\"",
+"",
+"ws.Range(\"C2\").Style = \"Good\"",
+"ws.Range(\"A3\").Style = \"FillNone\": ws.Range(\"A3\").Interior.Color = 255",
+"ws.Range(\"B3\").Style = \"Normal\"",
+"ws.Range(\"C3\").Style = \"FillIndex\"",
+"",
+"ws.Range(\"E2\").Style = \"Good\"",
+"ws.Range(\"E3\").Style = \"FillIndex\": ws.Range(\"E3\").Interior.Pattern = xlNone"
+],
+"cases": [
+{
+"area": "E1:E3",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "ColorIndex",
+"value": "",
+"late": "Long -4105",
+"typed": "Long -4105"
+},
+{
+"area": "A1:C3",
+"kind": "set",
+"member": "ColorIndex",
+"value": "xlAutomatic",
+"late": "Empty|Null|Double 16777215|Long -4105",
+"typed": "Empty|Null|Double 16777215|Long -4105"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Pattern",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "ThemeColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1,C1,E1",
+"kind": "read",
+"member": "PatternColorIndex",
+"value": "",
+"late": "Null",
+"typed": "Null"
+},
+{
+"area": "A1:A2",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Null",
+"typed": "Null"
+}
+]
+},
+{
+"book_file": null,
+"dress": [
+"ws.Range(\"A1\").Interior.Color = 255",
+"ws.Range(\"B1\").Style = \"FillGray\"",
+"ws.Range(\"C1\").Interior.Color = 65535",
+"ws.Range(\"A2\").Style = \"FillTheme\"",
+"ws.Range(\"B2\").Style = \"FillLight\"",
+"ws.Range(\"C2\").Style = \"Normal\"",
+"ws.Range(\"A3\").Interior.Color = 255",
+"ws.Range(\"B3\").Style = \"FillNone\"",
+"ws.Range(\"C3\").Style = \"FillGreen\"",
+"ws.Range(\"E1\").Style = \"FillGreen\"",
+"ws.Range(\"E2\").Style = \"FillRed\"",
+""
+],
+"cases": [
+{
+"area": "A1:B1",
+"kind": "set",
+"member": "PatternColor",
+"value": "65535",
+"late": "Empty|Null|Double 0|Null",
+"typed": "Empty|Null|Double 0|Null"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "C3,A1",
+"kind": "read",
+"member": "PatternColor",
+"value": "",
+"late": "Long 0",
+"typed": "Long 0"
+},
+{
+"area": "A1:B1",
+"kind": "read",
+"member": "PatternThemeColor",
+"value": "",
+"late": "Long -1",
+"typed": "Long -1"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "PatternTintAndShade",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:C3",
+"kind": "read",
+"member": "Color",
+"value": "",
+"late": "Double 0",
+"typed": "Double 0"
+},
+{
+"area": "A1:B1",
+"kind": "set",
+"member": "Color",
+"value": "12632256",
+"late": "Empty|Null|Double 12632256|Long 15",
+"typed": "Empty|Null|Double 12632256|Long 15"
+},
+{
+"area": "A1:A3,E1:E3",
+"kind": "read",
+"member": "Gradient",
+"value": "",
+"late": "Object Nothing",
+"typed": "Object Nothing"
 }
 ]
 }

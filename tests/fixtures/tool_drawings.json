@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-04T21:20:20.775100+00:00",
+ "measured_at": "2026-11-04T21:31:09.948880+00:00",
  "source": "Public Function Probe(ByVal path As String) As String\n    Dim wb As Workbook, s As Worksheet, r As String\n    Set wb = Workbooks.Open(path)\n    Set s = wb.Worksheets(1)\n    On Error Resume Next\n    Err.Clear\n    r = r & TypeName(s.Shapes.Count) & \" \" & s.Shapes.Count & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.Shapes(1).Name) & \" \" & s.Shapes(1).Name & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.Shapes(1).Type) & \" \" & s.Shapes(1).Type & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.Shapes(1).HasChart) & \" \" & s.Shapes(1).HasChart & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.Shapes(2).Name) & \" \" & s.Shapes(2).Name & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects.Count) & \" \" & s.ChartObjects.Count & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Name) & \" \" & s.ChartObjects(1).Name & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Name) & \" \" & s.ChartObjects(2).Name & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.ChartType) & \" \" & s.ChartObjects(1).Chart.ChartType & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.SeriesCollection.Count) & \" \" & s.ChartObjects(1).Chart.SeriesCollection.Count & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.SeriesCollection(1).Name) & \" \" & s.ChartObjects(1).Chart.SeriesCollection(1).Name & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.SeriesCollection(1).Formula) & \" \" & s.ChartObjects(1).Chart.SeriesCollection(1).Formula & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.HasTitle) & \" \" & s.ChartObjects(1).Chart.HasTitle & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.HasLegend) & \" \" & s.ChartObjects(1).Chart.HasLegend & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.ChartType) & \" \" & s.ChartObjects(2).Chart.ChartType & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.SeriesCollection.Count) & \" \" & s.ChartObjects(2).Chart.SeriesCollection.Count & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).TopLeftCell.Address) & \" \" & s.ChartObjects(1).TopLeftCell.Address & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).TopLeftCell.Address) & \" \" & s.ChartObjects(2).TopLeftCell.Address & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.HasAxis(1)) & \" \" & s.ChartObjects(1).Chart.HasAxis(1) & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.HasAxis(2)) & \" \" & s.ChartObjects(1).Chart.HasAxis(2) & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.ChartGroups(1).VaryByCategories) & \" \" & s.ChartObjects(1).Chart.ChartGroups(1).VaryByCategories & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.SeriesCollection(1).InvertIfNegative) & \" \" & s.ChartObjects(1).Chart.SeriesCollection(1).InvertIfNegative & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.SeriesCollection(1).MarkerStyle) & \" \" & s.ChartObjects(1).Chart.SeriesCollection(1).MarkerStyle & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(1).Chart.SeriesCollection(1).Smooth) & \" \" & s.ChartObjects(1).Chart.SeriesCollection(1).Smooth & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.HasAxis(1)) & \" \" & s.ChartObjects(2).Chart.HasAxis(1) & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.HasAxis(2)) & \" \" & s.ChartObjects(2).Chart.HasAxis(2) & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.ChartGroups(1).VaryByCategories) & \" \" & s.ChartObjects(2).Chart.ChartGroups(1).VaryByCategories & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.SeriesCollection(1).InvertIfNegative) & \" \" & s.ChartObjects(2).Chart.SeriesCollection(1).InvertIfNegative & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.SeriesCollection(1).MarkerStyle) & \" \" & s.ChartObjects(2).Chart.SeriesCollection(1).MarkerStyle & \" \" & Err.Number & \"|\"\n    Err.Clear\n    r = r & TypeName(s.ChartObjects(2).Chart.SeriesCollection(1).Smooth) & \" \" & s.ChartObjects(2).Chart.SeriesCollection(1).Smooth & \" \" & Err.Number & \"|\"\n    On Error GoTo 0\n    wb.Close False\n    Probe = r\nEnd Function\n\nPublic Function Moved(ByVal path As String, ByVal out As String) As String\n    Dim wb As Workbook, s As Worksheet\n    Set wb = Workbooks.Open(path)\n    Set s = wb.Worksheets(1)\n    s.Rows(1).Insert\n    Moved = s.ChartObjects(1).Chart.SeriesCollection(1).Formula\n    Application.DisplayAlerts = False\n    wb.SaveAs out, xlOpenXMLWorkbook\n    wb.Close False\nEnd Function",
  "reads": [
   "s.Shapes.Count",
@@ -48,6 +48,10 @@
     "One!$C$2",
     "One!$A$3:$A$4",
     "One!$C$3:$C$4"
+   ],
+   [
+    "2",
+    "20"
    ]
   ],
   "tool_drawing_prefixed.xlsx": [
@@ -59,6 +63,10 @@
     "One!$C$2",
     "One!$A$3:$A$4",
     "One!$C$3:$C$4"
+   ],
+   [
+    "2",
+    "20"
    ]
   ],
   "tool_drawing_kinds.xlsx": [
@@ -67,6 +75,10 @@
     "One!$B$2",
     "One!$A$3:$A$4",
     "One!$B$3:$B$4"
+   ],
+   [
+    "2",
+    "20"
    ]
   ]
  }

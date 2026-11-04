@@ -1786,15 +1786,19 @@ def _moved(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None = None)
     it was.  Both corners are worked out from the grid, because an
     offset that runs past its own cell is clamped rather than carried.
     """
-    del was
     out = dml.with_transform(markup, shape)
     span = dml.element_span(out, "xdr:from")
     finish = dml.element_span(out, "xdr:to")
-    if span is None or finish is None:
+    if span is None:
         return out
     grid = grid or SheetGrid()
     left, top, width, height = _turned_box(shape)
     start = _corner_markup("from", grid, left, top)
+    if finish is None:
+        # A one-cell anchor has only this corner, and its size apart (tests/fixtures/tool_drawings.json).
+        if (shape.width, shape.height) != (was.width, was.height):
+            raise VBAUnsupportedError("Resizing a shape on a one-cell anchor is not implemented")
+        return out[: span[0]] + start + out[span[1] :]
     end = _corner_markup("to", grid, left + width, top + height)
     return out[: span[0]] + start + out[span[1] : finish[0]] + end + out[finish[1] :]
 

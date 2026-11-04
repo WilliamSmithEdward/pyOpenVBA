@@ -70,6 +70,11 @@ def other_kinds(out: Path) -> None:
     book.save(out)
 
 
+def anchor_rows(path: Path) -> list[str]:
+    with zipfile.ZipFile(path) as package:
+        return re.findall(r'<(?:\w+:)?row>(\d+)', package.read('xl/drawings/drawing1.xml').decode('utf-8'))
+
+
 def references(path: Path) -> list[str]:
     with zipfile.ZipFile(path) as package:
         return re.findall(r'<(?:c:)?f>(.*?)</(?:c:)?f>', package.read('xl/charts/chart1.xml').decode('utf-8'))
@@ -101,7 +106,7 @@ def main() -> None:
             out = Path(tempfile.mkdtemp()) / 'out.xlsx'
             done = excel.run_vba(SOURCE, 'Moved', (str(FIXTURES / name), str(out)), timeout=120.0, line_numbers=False)
             assert done.outcome == 'passed', done.message
-            moved[name] = [done.value, references(out)]
+            moved[name] = [done.value, references(out), anchor_rows(out)]
             print(moved[name])
     record = {'measured_at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'source': SOURCE, 'reads': READS, 'answers': answers, 'moved': moved}
     (FIXTURES / 'tool_drawings.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')

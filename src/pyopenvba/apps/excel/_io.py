@@ -1704,6 +1704,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._query_tables import write as write_query_tables
 
     write_query_tables(book, package, _add_sheet_relationship, _override_before_properties, _sheet_relationships, _resolved, _drop_sheet_part)
+    from pyopenvba.apps.excel._calc_chain import settle as settle_calc_chain
+
+    settle_calc_chain(book, package, _relationships(package), _remove_unreferenced_part)
     book.application.outside("Saving a workbook")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())

@@ -1,0 +1,2226 @@
+{
+"measured_at": "2026-11-04T20:17:02.395936+00:00",
+"source": "Public Sub Setup(ws As Object)\n    Dim s As Object\n    ws.Range(\"A1\").Value = \"text\": ws.Range(\"A2\").Value = 2: ws.Range(\"A3\").Value = 3\n    Set s = ws.Shapes.AddShape(1, 10, 10, 100, 40): s.Name = \"Box\": s.TextFrame.Characters.Text = \"Boxed\"\n    Set s = ws.Shapes.AddTextbox(1, 120, 10, 100, 40): s.Name = \"Note\": s.TextFrame.Characters.Text = \"Noted\"\n    Set s = ws.Shapes.AddFormControl(1, 10, 60, 90, 20): s.Name = \"Tick\": s.ControlFormat.Value = 1: s.ControlFormat.LinkedCell = \"$C$1\"\n    Set s = ws.Shapes.AddFormControl(2, 10, 90, 90, 20): s.Name = \"Drop\": s.ControlFormat.ListFillRange = \"$A$1:$A$3\": s.ControlFormat.Value = 2\n    Set s = ws.Shapes.AddFormControl(6, 10, 120, 90, 50): s.Name = \"Pick\": s.ControlFormat.ListFillRange = \"$A$1:$A$3\": s.ControlFormat.Value = 1\n    Set s = ws.Shapes.AddFormControl(9, 110, 60, 20, 50): s.Name = \"Spin\": s.ControlFormat.Value = 3\nEnd Sub\nPrivate Function Show(v As Variant) As String\n    If IsObject(v) Then\n        Show = \"obj \" & TypeName(v)\n    ElseIf IsArray(v) Then\n        Show = TypeName(v)\n    ElseIf IsNull(v) Or IsEmpty(v) Then\n        Show = TypeName(v)\n    ElseIf IsError(v) Then\n        Show = \"Error \" & CStr(v)\n    Else\n        Show = TypeName(v) & \" \" & CStr(v)\n    End If\nEnd Function\nPublic Function TypedFillFormatbox(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.FillFormat, v As Variant\n    Set o = ws.Shapes(\"Box\").Fill\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.GradientAngle\n    Case 2\n        v = o.GradientColorType\n    Case 3\n        v = o.GradientDegree\n    Case 4\n        v = o.GradientStyle\n    Case 5\n        v = o.GradientVariant\n    Case 6\n        v = o.Pattern\n    Case 7\n        v = o.PresetGradientType\n    Case 8\n        v = o.PresetTexture\n    Case 9\n        v = o.RotateWithObject\n    Case 10\n        v = o.TextureAlignment\n    Case 11\n        v = o.TextureHorizontalScale\n    Case 12\n        v = o.TextureName\n    Case 13\n        v = o.TextureOffsetX\n    Case 14\n        v = o.TextureOffsetY\n    Case 15\n        v = o.TextureTile\n    Case 16\n        v = o.TextureType\n    Case 17\n        v = o.TextureVerticalScale\n    Case 18\n        v = o.Transparency\n    Case 19\n        v = o.Type\n    Case 20\n        v = o.Visible\n    End Select\n    If Err.Number Then\n        TypedFillFormatbox = \"E\" & Err.Number\n    Else\n        TypedFillFormatbox = Show(v)\n    End If\nEnd Function\n\nPublic Function LateFillFormatbox(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").Fill\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.GradientAngle\n    Case 2\n        v = o.GradientColorType\n    Case 3\n        v = o.GradientDegree\n    Case 4\n        v = o.GradientStyle\n    Case 5\n        v = o.GradientVariant\n    Case 6\n        v = o.Pattern\n    Case 7\n        v = o.PresetGradientType\n    Case 8\n        v = o.PresetTexture\n    Case 9\n        v = o.RotateWithObject\n    Case 10\n        v = o.TextureAlignment\n    Case 11\n        v = o.TextureHorizontalScale\n    Case 12\n        v = o.TextureName\n    Case 13\n        v = o.TextureOffsetX\n    Case 14\n        v = o.TextureOffsetY\n    Case 15\n        v = o.TextureTile\n    Case 16\n        v = o.TextureType\n    Case 17\n        v = o.TextureVerticalScale\n    Case 18\n        v = o.Transparency\n    Case 19\n        v = o.Type\n    Case 20\n        v = o.Visible\n    End Select\n    If Err.Number Then\n        LateFillFormatbox = \"E\" & Err.Number\n    Else\n        LateFillFormatbox = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedLineFormatbox(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.LineFormat, v As Variant\n    Set o = ws.Shapes(\"Box\").Line\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.BeginArrowheadLength\n    Case 1\n        v = o.BeginArrowheadStyle\n    Case 2\n        v = o.BeginArrowheadWidth\n    Case 3\n        v = o.Creator\n    Case 4\n        v = o.DashStyle\n    Case 5\n        v = o.EndArrowheadLength\n    Case 6\n        v = o.EndArrowheadStyle\n    Case 7\n        v = o.EndArrowheadWidth\n    Case 8\n        v = o.InsetPen\n    Case 9\n        v = o.Pattern\n    Case 10\n        v = o.Style\n    Case 11\n        v = o.Transparency\n    Case 12\n        v = o.Visible\n    Case 13\n        v = o.Weight\n    End Select\n    If Err.Number Then\n        TypedLineFormatbox = \"E\" & Err.Number\n    Else\n        TypedLineFormatbox = Show(v)\n    End If\nEnd Function\n\nPublic Function LateLineFormatbox(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").Line\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.BeginArrowheadLength\n    Case 1\n        v = o.BeginArrowheadStyle\n    Case 2\n        v = o.BeginArrowheadWidth\n    Case 3\n        v = o.Creator\n    Case 4\n        v = o.DashStyle\n    Case 5\n        v = o.EndArrowheadLength\n    Case 6\n        v = o.EndArrowheadStyle\n    Case 7\n        v = o.EndArrowheadWidth\n    Case 8\n        v = o.InsetPen\n    Case 9\n        v = o.Pattern\n    Case 10\n        v = o.Style\n    Case 11\n        v = o.Transparency\n    Case 12\n        v = o.Visible\n    Case 13\n        v = o.Weight\n    End Select\n    If Err.Number Then\n        LateLineFormatbox = \"E\" & Err.Number\n    Else\n        LateLineFormatbox = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedColorFormatfill(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.ColorFormat, v As Variant\n    Set o = ws.Shapes(\"Box\").Fill.ForeColor\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Brightness\n    Case 1\n        v = o.Creator\n    Case 2\n        v = o.ObjectThemeColor\n    Case 3\n        v = o.RGB\n    Case 4\n        v = o.SchemeColor\n    Case 5\n        v = o.TintAndShade\n    Case 6\n        v = o.Type\n    End Select\n    If Err.Number Then\n        TypedColorFormatfill = \"E\" & Err.Number\n    Else\n        TypedColorFormatfill = Show(v)\n    End If\nEnd Function\n\nPublic Function LateColorFormatfill(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").Fill.ForeColor\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Brightness\n    Case 1\n        v = o.Creator\n    Case 2\n        v = o.ObjectThemeColor\n    Case 3\n        v = o.RGB\n    Case 4\n        v = o.SchemeColor\n    Case 5\n        v = o.TintAndShade\n    Case 6\n        v = o.Type\n    End Select\n    If Err.Number Then\n        LateColorFormatfill = \"E\" & Err.Number\n    Else\n        LateColorFormatfill = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedShadowFormatbox(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.ShadowFormat, v As Variant\n    Set o = ws.Shapes(\"Box\").Shadow\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Blur\n    Case 1\n        v = o.Creator\n    Case 2\n        v = o.Obscured\n    Case 3\n        v = o.OffsetX\n    Case 4\n        v = o.OffsetY\n    Case 5\n        v = o.RotateWithShape\n    Case 6\n        v = o.Size\n    Case 7\n        v = o.Style\n    Case 8\n        v = o.Transparency\n    Case 9\n        v = o.Type\n    Case 10\n        v = o.Visible\n    End Select\n    If Err.Number Then\n        TypedShadowFormatbox = \"E\" & Err.Number\n    Else\n        TypedShadowFormatbox = Show(v)\n    End If\nEnd Function\n\nPublic Function LateShadowFormatbox(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").Shadow\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Blur\n    Case 1\n        v = o.Creator\n    Case 2\n        v = o.Obscured\n    Case 3\n        v = o.OffsetX\n    Case 4\n        v = o.OffsetY\n    Case 5\n        v = o.RotateWithShape\n    Case 6\n        v = o.Size\n    Case 7\n        v = o.Style\n    Case 8\n        v = o.Transparency\n    Case 9\n        v = o.Type\n    Case 10\n        v = o.Visible\n    End Select\n    If Err.Number Then\n        LateShadowFormatbox = \"E\" & Err.Number\n    Else\n        LateShadowFormatbox = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedCharactersbox(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.Characters, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame.Characters\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Caption\n    Case 1\n        v = o.Count\n    Case 2\n        v = o.Creator\n    Case 3\n        v = o.PhoneticCharacters\n    Case 4\n        v = o.Text\n    End Select\n    If Err.Number Then\n        TypedCharactersbox = \"E\" & Err.Number\n    Else\n        TypedCharactersbox = Show(v)\n    End If\nEnd Function\n\nPublic Function LateCharactersbox(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame.Characters\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Caption\n    Case 1\n        v = o.Count\n    Case 2\n        v = o.Creator\n    Case 3\n        v = o.PhoneticCharacters\n    Case 4\n        v = o.Text\n    End Select\n    If Err.Number Then\n        LateCharactersbox = \"E\" & Err.Number\n    Else\n        LateCharactersbox = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedTextFrame2box(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.TextFrame2, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame2\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AutoSize\n    Case 1\n        v = o.Column\n    Case 2\n        v = o.Creator\n    Case 3\n        v = o.HasText\n    Case 4\n        v = o.HorizontalAnchor\n    Case 5\n        v = o.MarginBottom\n    Case 6\n        v = o.MarginLeft\n    Case 7\n        v = o.MarginRight\n    Case 8\n        v = o.MarginTop\n    Case 9\n        v = o.NoTextRotation\n    Case 10\n        v = o.Orientation\n    Case 11\n        v = o.Ruler\n    Case 12\n        v = o.VerticalAnchor\n    Case 13\n        v = o.WordArtformat\n    Case 14\n        v = o.WordWrap\n    End Select\n    If Err.Number Then\n        TypedTextFrame2box = \"E\" & Err.Number\n    Else\n        TypedTextFrame2box = Show(v)\n    End If\nEnd Function\n\nPublic Function LateTextFrame2box(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame2\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AutoSize\n    Case 1\n        v = o.Column\n    Case 2\n        v = o.Creator\n    Case 3\n        v = o.HasText\n    Case 4\n        v = o.HorizontalAnchor\n    Case 5\n        v = o.MarginBottom\n    Case 6\n        v = o.MarginLeft\n    Case 7\n        v = o.MarginRight\n    Case 8\n        v = o.MarginTop\n    Case 9\n        v = o.NoTextRotation\n    Case 10\n        v = o.Orientation\n    Case 11\n        v = o.Ruler\n    Case 12\n        v = o.VerticalAnchor\n    Case 13\n        v = o.WordArtformat\n    Case 14\n        v = o.WordWrap\n    End Select\n    If Err.Number Then\n        LateTextFrame2box = \"E\" & Err.Number\n    Else\n        LateTextFrame2box = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedTextRange2box(ws As Object, ByVal which As Long) As String\n    Dim o As Office.TextRange2, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame2.TextRange\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.BoundHeight\n    Case 1\n        v = o.BoundLeft\n    Case 2\n        v = o.BoundTop\n    Case 3\n        v = o.BoundWidth\n    Case 4\n        v = o.Count\n    Case 5\n        v = o.Creator\n    Case 6\n        v = o.LanguageID\n    Case 7\n        v = o.Length\n    Case 8\n        v = o.ParagraphFormat\n    Case 9\n        v = o.Start\n    Case 10\n        v = o.Text\n    End Select\n    If Err.Number Then\n        TypedTextRange2box = \"E\" & Err.Number\n    Else\n        TypedTextRange2box = Show(v)\n    End If\nEnd Function\n\nPublic Function LateTextRange2box(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame2.TextRange\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.BoundHeight\n    Case 1\n        v = o.BoundLeft\n    Case 2\n        v = o.BoundTop\n    Case 3\n        v = o.BoundWidth\n    Case 4\n        v = o.Count\n    Case 5\n        v = o.Creator\n    Case 6\n        v = o.LanguageID\n    Case 7\n        v = o.Length\n    Case 8\n        v = o.ParagraphFormat\n    Case 9\n        v = o.Start\n    Case 10\n        v = o.Text\n    End Select\n    If Err.Number Then\n        LateTextRange2box = \"E\" & Err.Number\n    Else\n        LateTextRange2box = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedFont2box(ws As Object, ByVal which As Long) As String\n    Dim o As Office.Font2, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame2.TextRange.Font\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Allcaps\n    Case 1\n        v = o.AutorotateNumbers\n    Case 2\n        v = o.BaselineOffset\n    Case 3\n        v = o.Bold\n    Case 4\n        v = o.Caps\n    Case 5\n        v = o.Creator\n    Case 6\n        v = o.DoubleStrikeThrough\n    Case 7\n        v = o.Embeddable\n    Case 8\n        v = o.Embedded\n    Case 9\n        v = o.Equalize\n    Case 10\n        v = o.Italic\n    Case 11\n        v = o.Kerning\n    Case 12\n        v = o.Name\n    Case 13\n        v = o.NameAscii\n    Case 14\n        v = o.NameComplexScript\n    Case 15\n        v = o.NameFarEast\n    Case 16\n        v = o.NameOther\n    Case 17\n        v = o.Size\n    Case 18\n        v = o.Smallcaps\n    Case 19\n        v = o.SoftEdgeFormat\n    Case 20\n        v = o.Spacing\n    Case 21\n        v = o.Strike\n    Case 22\n        v = o.StrikeThrough\n    Case 23\n        v = o.Subscript\n    Case 24\n        v = o.Superscript\n    Case 25\n        v = o.UnderlineStyle\n    Case 26\n        v = o.WordArtformat\n    End Select\n    If Err.Number Then\n        TypedFont2box = \"E\" & Err.Number\n    Else\n        TypedFont2box = Show(v)\n    End If\nEnd Function\n\nPublic Function LateFont2box(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame2.TextRange.Font\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Allcaps\n    Case 1\n        v = o.AutorotateNumbers\n    Case 2\n        v = o.BaselineOffset\n    Case 3\n        v = o.Bold\n    Case 4\n        v = o.Caps\n    Case 5\n        v = o.Creator\n    Case 6\n        v = o.DoubleStrikeThrough\n    Case 7\n        v = o.Embeddable\n    Case 8\n        v = o.Embedded\n    Case 9\n        v = o.Equalize\n    Case 10\n        v = o.Italic\n    Case 11\n        v = o.Kerning\n    Case 12\n        v = o.Name\n    Case 13\n        v = o.NameAscii\n    Case 14\n        v = o.NameComplexScript\n    Case 15\n        v = o.NameFarEast\n    Case 16\n        v = o.NameOther\n    Case 17\n        v = o.Size\n    Case 18\n        v = o.Smallcaps\n    Case 19\n        v = o.SoftEdgeFormat\n    Case 20\n        v = o.Spacing\n    Case 21\n        v = o.Strike\n    Case 22\n        v = o.StrikeThrough\n    Case 23\n        v = o.Subscript\n    Case 24\n        v = o.Superscript\n    Case 25\n        v = o.UnderlineStyle\n    Case 26\n        v = o.WordArtformat\n    End Select\n    If Err.Number Then\n        LateFont2box = \"E\" & Err.Number\n    Else\n        LateFont2box = Show(v)\n    End If\nEnd Function\n\n\nPublic Sub Prepared()\n    Setup ActiveWorkbook.Worksheets(1)\nEnd Sub\n\nPublic Function InModel(ByVal routine As String, ByVal which As Long) As String\n    InModel = Application.Run(routine, ActiveWorkbook.Worksheets(1), which)\nEnd Function\n",
+"cases": [
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedFillFormatbox",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "GradientAngle",
+"routine": "TypedFillFormatbox",
+"which": 1,
+"excel": "E-2147467259",
+"model": "E-2147467259"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "GradientColorType",
+"routine": "TypedFillFormatbox",
+"which": 2,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "GradientDegree",
+"routine": "TypedFillFormatbox",
+"which": 3,
+"excel": "E70",
+"model": "E70"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "GradientStyle",
+"routine": "TypedFillFormatbox",
+"which": 4,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "GradientVariant",
+"routine": "TypedFillFormatbox",
+"which": 5,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Pattern",
+"routine": "TypedFillFormatbox",
+"which": 6,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "PresetGradientType",
+"routine": "TypedFillFormatbox",
+"which": 7,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "PresetTexture",
+"routine": "TypedFillFormatbox",
+"which": 8,
+"excel": "Long -2",
+"model": "reports FillFormat.PresetTexture is not implemented by pyO"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "RotateWithObject",
+"routine": "TypedFillFormatbox",
+"which": 9,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureAlignment",
+"routine": "TypedFillFormatbox",
+"which": 10,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureAlignment is not implemented by "
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureHorizontalScale",
+"routine": "TypedFillFormatbox",
+"which": 11,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureHorizontalScale is not implement"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureName",
+"routine": "TypedFillFormatbox",
+"which": 12,
+"excel": "E70",
+"model": "reports FillFormat.TextureName is not implemented by pyOpe"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureOffsetX",
+"routine": "TypedFillFormatbox",
+"which": 13,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureOffsetX is not implemented by py"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureOffsetY",
+"routine": "TypedFillFormatbox",
+"which": 14,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureOffsetY is not implemented by py"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureTile",
+"routine": "TypedFillFormatbox",
+"which": 15,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureTile is not implemented by pyOpe"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureType",
+"routine": "TypedFillFormatbox",
+"which": 16,
+"excel": "Long -2",
+"model": "reports FillFormat.TextureType is not implemented by pyOpe"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "TextureVerticalScale",
+"routine": "TypedFillFormatbox",
+"which": 17,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureVerticalScale is not implemented"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Transparency",
+"routine": "TypedFillFormatbox",
+"which": 18,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Type",
+"routine": "TypedFillFormatbox",
+"which": 19,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Visible",
+"routine": "TypedFillFormatbox",
+"which": 20,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateFillFormatbox",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "GradientAngle",
+"routine": "LateFillFormatbox",
+"which": 1,
+"excel": "E-2147467259",
+"model": "E-2147467259"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "GradientColorType",
+"routine": "LateFillFormatbox",
+"which": 2,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "GradientDegree",
+"routine": "LateFillFormatbox",
+"which": 3,
+"excel": "E70",
+"model": "E70"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "GradientStyle",
+"routine": "LateFillFormatbox",
+"which": 4,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "GradientVariant",
+"routine": "LateFillFormatbox",
+"which": 5,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "Pattern",
+"routine": "LateFillFormatbox",
+"which": 6,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "PresetGradientType",
+"routine": "LateFillFormatbox",
+"which": 7,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "PresetTexture",
+"routine": "LateFillFormatbox",
+"which": 8,
+"excel": "Long -2",
+"model": "reports FillFormat.PresetTexture is not implemented by pyO"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "RotateWithObject",
+"routine": "LateFillFormatbox",
+"which": 9,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureAlignment",
+"routine": "LateFillFormatbox",
+"which": 10,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureAlignment is not implemented by "
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureHorizontalScale",
+"routine": "LateFillFormatbox",
+"which": 11,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureHorizontalScale is not implement"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureName",
+"routine": "LateFillFormatbox",
+"which": 12,
+"excel": "E70",
+"model": "reports FillFormat.TextureName is not implemented by pyOpe"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureOffsetX",
+"routine": "LateFillFormatbox",
+"which": 13,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureOffsetX is not implemented by py"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureOffsetY",
+"routine": "LateFillFormatbox",
+"which": 14,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureOffsetY is not implemented by py"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureTile",
+"routine": "LateFillFormatbox",
+"which": 15,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureTile is not implemented by pyOpe"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureType",
+"routine": "LateFillFormatbox",
+"which": 16,
+"excel": "Long -2",
+"model": "reports FillFormat.TextureType is not implemented by pyOpe"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "TextureVerticalScale",
+"routine": "LateFillFormatbox",
+"which": 17,
+"excel": "E-2147024809",
+"model": "reports FillFormat.TextureVerticalScale is not implemented"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "Transparency",
+"routine": "LateFillFormatbox",
+"which": 18,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "Type",
+"routine": "LateFillFormatbox",
+"which": 19,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "FillFormat",
+"on": "box",
+"binding": "Late",
+"member": "Visible",
+"routine": "LateFillFormatbox",
+"which": 20,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "BeginArrowheadLength",
+"routine": "TypedLineFormatbox",
+"which": 0,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "BeginArrowheadStyle",
+"routine": "TypedLineFormatbox",
+"which": 1,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "BeginArrowheadWidth",
+"routine": "TypedLineFormatbox",
+"which": 2,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedLineFormatbox",
+"which": 3,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "DashStyle",
+"routine": "TypedLineFormatbox",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "EndArrowheadLength",
+"routine": "TypedLineFormatbox",
+"which": 5,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "EndArrowheadStyle",
+"routine": "TypedLineFormatbox",
+"which": 6,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "EndArrowheadWidth",
+"routine": "TypedLineFormatbox",
+"which": 7,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "InsetPen",
+"routine": "TypedLineFormatbox",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Pattern",
+"routine": "TypedLineFormatbox",
+"which": 9,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Style",
+"routine": "TypedLineFormatbox",
+"which": 10,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Transparency",
+"routine": "TypedLineFormatbox",
+"which": 11,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Visible",
+"routine": "TypedLineFormatbox",
+"which": 12,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Weight",
+"routine": "TypedLineFormatbox",
+"which": 13,
+"excel": "Single 1.5",
+"model": "Single 1.5"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "BeginArrowheadLength",
+"routine": "LateLineFormatbox",
+"which": 0,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "BeginArrowheadStyle",
+"routine": "LateLineFormatbox",
+"which": 1,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "BeginArrowheadWidth",
+"routine": "LateLineFormatbox",
+"which": 2,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateLineFormatbox",
+"which": 3,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "DashStyle",
+"routine": "LateLineFormatbox",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "EndArrowheadLength",
+"routine": "LateLineFormatbox",
+"which": 5,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "EndArrowheadStyle",
+"routine": "LateLineFormatbox",
+"which": 6,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "EndArrowheadWidth",
+"routine": "LateLineFormatbox",
+"which": 7,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "InsetPen",
+"routine": "LateLineFormatbox",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "Pattern",
+"routine": "LateLineFormatbox",
+"which": 9,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "Style",
+"routine": "LateLineFormatbox",
+"which": 10,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "Transparency",
+"routine": "LateLineFormatbox",
+"which": 11,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "Visible",
+"routine": "LateLineFormatbox",
+"which": 12,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "LineFormat",
+"on": "box",
+"binding": "Late",
+"member": "Weight",
+"routine": "LateLineFormatbox",
+"which": 13,
+"excel": "Single 1.5",
+"model": "Single 1.5"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Typed",
+"member": "Brightness",
+"routine": "TypedColorFormatfill",
+"which": 0,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedColorFormatfill",
+"which": 1,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Typed",
+"member": "ObjectThemeColor",
+"routine": "TypedColorFormatfill",
+"which": 2,
+"excel": "Long 5",
+"model": "Long 5"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Typed",
+"member": "RGB",
+"routine": "TypedColorFormatfill",
+"which": 3,
+"excel": "Long 8544277",
+"model": "Long 8544277"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Typed",
+"member": "SchemeColor",
+"routine": "TypedColorFormatfill",
+"which": 4,
+"excel": "Long 21",
+"model": "reports SchemeColor of a colour not in the palette is not "
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Typed",
+"member": "TintAndShade",
+"routine": "TypedColorFormatfill",
+"which": 5,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Typed",
+"member": "Type",
+"routine": "TypedColorFormatfill",
+"which": 6,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Late",
+"member": "Brightness",
+"routine": "LateColorFormatfill",
+"which": 0,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateColorFormatfill",
+"which": 1,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Late",
+"member": "ObjectThemeColor",
+"routine": "LateColorFormatfill",
+"which": 2,
+"excel": "Long 5",
+"model": "Long 5"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Late",
+"member": "RGB",
+"routine": "LateColorFormatfill",
+"which": 3,
+"excel": "Long 8544277",
+"model": "Long 8544277"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Late",
+"member": "SchemeColor",
+"routine": "LateColorFormatfill",
+"which": 4,
+"excel": "Long 21",
+"model": "reports SchemeColor of a colour not in the palette is not "
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Late",
+"member": "TintAndShade",
+"routine": "LateColorFormatfill",
+"which": 5,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "ColorFormat",
+"on": "fill",
+"binding": "Late",
+"member": "Type",
+"routine": "LateColorFormatfill",
+"which": 6,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Blur",
+"routine": "TypedShadowFormatbox",
+"which": 0,
+"excel": "Single 5",
+"model": "Single 5"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedShadowFormatbox",
+"which": 1,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Obscured",
+"routine": "TypedShadowFormatbox",
+"which": 2,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "OffsetX",
+"routine": "TypedShadowFormatbox",
+"which": 3,
+"excel": "Single 2.079952",
+"model": "Single 2.079952"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "OffsetY",
+"routine": "TypedShadowFormatbox",
+"which": 4,
+"excel": "Single 2.079952",
+"model": "Single 2.079952"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "RotateWithShape",
+"routine": "TypedShadowFormatbox",
+"which": 5,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Size",
+"routine": "TypedShadowFormatbox",
+"which": 6,
+"excel": "Single 100",
+"model": "Single 100"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Style",
+"routine": "TypedShadowFormatbox",
+"which": 7,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Transparency",
+"routine": "TypedShadowFormatbox",
+"which": 8,
+"excel": "Single -2.147484E+09",
+"model": "Single -2.147484E+09"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Type",
+"routine": "TypedShadowFormatbox",
+"which": 9,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Typed",
+"member": "Visible",
+"routine": "TypedShadowFormatbox",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Blur",
+"routine": "LateShadowFormatbox",
+"which": 0,
+"excel": "Single 5",
+"model": "Single 5"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateShadowFormatbox",
+"which": 1,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Obscured",
+"routine": "LateShadowFormatbox",
+"which": 2,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "OffsetX",
+"routine": "LateShadowFormatbox",
+"which": 3,
+"excel": "Single 2.079952",
+"model": "Single 2.079952"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "OffsetY",
+"routine": "LateShadowFormatbox",
+"which": 4,
+"excel": "Single 2.079952",
+"model": "Single 2.079952"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "RotateWithShape",
+"routine": "LateShadowFormatbox",
+"which": 5,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Size",
+"routine": "LateShadowFormatbox",
+"which": 6,
+"excel": "Single 100",
+"model": "Single 100"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Style",
+"routine": "LateShadowFormatbox",
+"which": 7,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Transparency",
+"routine": "LateShadowFormatbox",
+"which": 8,
+"excel": "Single -2.147484E+09",
+"model": "Single -2.147484E+09"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Type",
+"routine": "LateShadowFormatbox",
+"which": 9,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "ShadowFormat",
+"on": "box",
+"binding": "Late",
+"member": "Visible",
+"routine": "LateShadowFormatbox",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Typed",
+"member": "Caption",
+"routine": "TypedCharactersbox",
+"which": 0,
+"excel": "String Boxed",
+"model": "String Boxed"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Typed",
+"member": "Count",
+"routine": "TypedCharactersbox",
+"which": 1,
+"excel": "Long 5",
+"model": "Long 5"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedCharactersbox",
+"which": 2,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Typed",
+"member": "PhoneticCharacters",
+"routine": "TypedCharactersbox",
+"which": 3,
+"excel": "String ",
+"model": "reports Characters.PhoneticCharacters is a real member tha"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Typed",
+"member": "Text",
+"routine": "TypedCharactersbox",
+"which": 4,
+"excel": "String Boxed",
+"model": "String Boxed"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Late",
+"member": "Caption",
+"routine": "LateCharactersbox",
+"which": 0,
+"excel": "String Boxed",
+"model": "String Boxed"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Late",
+"member": "Count",
+"routine": "LateCharactersbox",
+"which": 1,
+"excel": "Long 5",
+"model": "Long 5"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateCharactersbox",
+"which": 2,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Late",
+"member": "PhoneticCharacters",
+"routine": "LateCharactersbox",
+"which": 3,
+"excel": "String ",
+"model": "reports Characters.PhoneticCharacters is a real member tha"
+},
+{
+"class": "Characters",
+"on": "box",
+"binding": "Late",
+"member": "Text",
+"routine": "LateCharactersbox",
+"which": 4,
+"excel": "String Boxed",
+"model": "String Boxed"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "AutoSize",
+"routine": "TypedTextFrame2box",
+"which": 0,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "Column",
+"routine": "TypedTextFrame2box",
+"which": 1,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedTextFrame2box",
+"which": 2,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "HasText",
+"routine": "TypedTextFrame2box",
+"which": 3,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "HorizontalAnchor",
+"routine": "TypedTextFrame2box",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "MarginBottom",
+"routine": "TypedTextFrame2box",
+"which": 5,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "MarginLeft",
+"routine": "TypedTextFrame2box",
+"which": 6,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "MarginRight",
+"routine": "TypedTextFrame2box",
+"which": 7,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "MarginTop",
+"routine": "TypedTextFrame2box",
+"which": 8,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "NoTextRotation",
+"routine": "TypedTextFrame2box",
+"which": 9,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "Orientation",
+"routine": "TypedTextFrame2box",
+"which": 10,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "Ruler",
+"routine": "TypedTextFrame2box",
+"which": 11,
+"excel": "E438",
+"model": "reports TextFrame2.Ruler is not implemented by pyOpenVBA"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "VerticalAnchor",
+"routine": "TypedTextFrame2box",
+"which": 12,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "WordArtformat",
+"routine": "TypedTextFrame2box",
+"which": 13,
+"excel": "Long -2",
+"model": "reports TextFrame2.WordArtformat is not implemented by pyO"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Typed",
+"member": "WordWrap",
+"routine": "TypedTextFrame2box",
+"which": 14,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "AutoSize",
+"routine": "LateTextFrame2box",
+"which": 0,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "Column",
+"routine": "LateTextFrame2box",
+"which": 1,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateTextFrame2box",
+"which": 2,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "HasText",
+"routine": "LateTextFrame2box",
+"which": 3,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "HorizontalAnchor",
+"routine": "LateTextFrame2box",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "MarginBottom",
+"routine": "LateTextFrame2box",
+"which": 5,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "MarginLeft",
+"routine": "LateTextFrame2box",
+"which": 6,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "MarginRight",
+"routine": "LateTextFrame2box",
+"which": 7,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "MarginTop",
+"routine": "LateTextFrame2box",
+"which": 8,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "NoTextRotation",
+"routine": "LateTextFrame2box",
+"which": 9,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "Orientation",
+"routine": "LateTextFrame2box",
+"which": 10,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "Ruler",
+"routine": "LateTextFrame2box",
+"which": 11,
+"excel": "E438",
+"model": "reports TextFrame2.Ruler is not implemented by pyOpenVBA"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "VerticalAnchor",
+"routine": "LateTextFrame2box",
+"which": 12,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "WordArtformat",
+"routine": "LateTextFrame2box",
+"which": 13,
+"excel": "Long -2",
+"model": "reports TextFrame2.WordArtformat is not implemented by pyO"
+},
+{
+"class": "TextFrame2",
+"on": "box",
+"binding": "Late",
+"member": "WordWrap",
+"routine": "LateTextFrame2box",
+"which": 14,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "BoundHeight",
+"routine": "TypedTextRange2box",
+"which": 0,
+"excel": "Single 13.43",
+"model": "reports TextRange2.BoundHeight is not implemented by pyOpe"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "BoundLeft",
+"routine": "TypedTextRange2box",
+"which": 1,
+"excel": "Single 17.2",
+"model": "reports TextRange2.BoundLeft is not implemented by pyOpenV"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "BoundTop",
+"routine": "TypedTextRange2box",
+"which": 2,
+"excel": "Single 13.6",
+"model": "reports TextRange2.BoundTop is not implemented by pyOpenVB"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "BoundWidth",
+"routine": "TypedTextRange2box",
+"which": 3,
+"excel": "Single 29.15",
+"model": "reports TextRange2.BoundWidth is not implemented by pyOpen"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "Count",
+"routine": "TypedTextRange2box",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedTextRange2box",
+"which": 5,
+"excel": "Long 1480803660",
+"model": "E-2147024809"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "LanguageID",
+"routine": "TypedTextRange2box",
+"which": 6,
+"excel": "Long 1033",
+"model": "reports TextRange2.LanguageID is not implemented by pyOpen"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "Length",
+"routine": "TypedTextRange2box",
+"which": 7,
+"excel": "Long 5",
+"model": "Long 5"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "ParagraphFormat",
+"routine": "TypedTextRange2box",
+"which": 8,
+"excel": "E438",
+"model": "reports TextRange2.ParagraphFormat is not implemented by p"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "Start",
+"routine": "TypedTextRange2box",
+"which": 9,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Typed",
+"member": "Text",
+"routine": "TypedTextRange2box",
+"which": 10,
+"excel": "String Boxed",
+"model": "String Boxed"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "BoundHeight",
+"routine": "LateTextRange2box",
+"which": 0,
+"excel": "Single 13.43",
+"model": "reports TextRange2.BoundHeight is not implemented by pyOpe"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "BoundLeft",
+"routine": "LateTextRange2box",
+"which": 1,
+"excel": "Single 17.2",
+"model": "reports TextRange2.BoundLeft is not implemented by pyOpenV"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "BoundTop",
+"routine": "LateTextRange2box",
+"which": 2,
+"excel": "Single 13.6",
+"model": "reports TextRange2.BoundTop is not implemented by pyOpenVB"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "BoundWidth",
+"routine": "LateTextRange2box",
+"which": 3,
+"excel": "Single 29.15",
+"model": "reports TextRange2.BoundWidth is not implemented by pyOpen"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "Count",
+"routine": "LateTextRange2box",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateTextRange2box",
+"which": 5,
+"excel": "Long 1480803660",
+"model": "E-2147024809"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "LanguageID",
+"routine": "LateTextRange2box",
+"which": 6,
+"excel": "Long 1033",
+"model": "reports TextRange2.LanguageID is not implemented by pyOpen"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "Length",
+"routine": "LateTextRange2box",
+"which": 7,
+"excel": "Long 5",
+"model": "Long 5"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "ParagraphFormat",
+"routine": "LateTextRange2box",
+"which": 8,
+"excel": "E438",
+"model": "reports TextRange2.ParagraphFormat is not implemented by p"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "Start",
+"routine": "LateTextRange2box",
+"which": 9,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextRange2",
+"on": "box",
+"binding": "Late",
+"member": "Text",
+"routine": "LateTextRange2box",
+"which": 10,
+"excel": "String Boxed",
+"model": "String Boxed"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Allcaps",
+"routine": "TypedFont2box",
+"which": 0,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "AutorotateNumbers",
+"routine": "TypedFont2box",
+"which": 1,
+"excel": "Long 0",
+"model": "reports Font2.AutorotateNumbers is not implemented by pyOp"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "BaselineOffset",
+"routine": "TypedFont2box",
+"which": 2,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Bold",
+"routine": "TypedFont2box",
+"which": 3,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Caps",
+"routine": "TypedFont2box",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedFont2box",
+"which": 5,
+"excel": "Long 1480803660",
+"model": "E-2147024809"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "DoubleStrikeThrough",
+"routine": "TypedFont2box",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Embeddable",
+"routine": "TypedFont2box",
+"which": 7,
+"excel": "Long -1",
+"model": "reports Font2.Embeddable is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Embedded",
+"routine": "TypedFont2box",
+"which": 8,
+"excel": "Long 0",
+"model": "reports Font2.Embedded is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Equalize",
+"routine": "TypedFont2box",
+"which": 9,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Italic",
+"routine": "TypedFont2box",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Kerning",
+"routine": "TypedFont2box",
+"which": 11,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Name",
+"routine": "TypedFont2box",
+"which": 12,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "NameAscii",
+"routine": "TypedFont2box",
+"which": 13,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "NameComplexScript",
+"routine": "TypedFont2box",
+"which": 14,
+"excel": "String +mn-cs",
+"model": "reports Font2.NameComplexScript is not implemented by pyOp"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "NameFarEast",
+"routine": "TypedFont2box",
+"which": 15,
+"excel": "String +mn-ea",
+"model": "reports Font2.NameFarEast is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "NameOther",
+"routine": "TypedFont2box",
+"which": 16,
+"excel": "String ",
+"model": "reports Font2.NameOther is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Size",
+"routine": "TypedFont2box",
+"which": 17,
+"excel": "Single 11",
+"model": "Long 11"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Smallcaps",
+"routine": "TypedFont2box",
+"which": 18,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "SoftEdgeFormat",
+"routine": "TypedFont2box",
+"which": 19,
+"excel": "Long 0",
+"model": "reports Font2.SoftEdgeFormat is not implemented by pyOpenV"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Spacing",
+"routine": "TypedFont2box",
+"which": 20,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Strike",
+"routine": "TypedFont2box",
+"which": 21,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "StrikeThrough",
+"routine": "TypedFont2box",
+"which": 22,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Subscript",
+"routine": "TypedFont2box",
+"which": 23,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "Superscript",
+"routine": "TypedFont2box",
+"which": 24,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "UnderlineStyle",
+"routine": "TypedFont2box",
+"which": 25,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Typed",
+"member": "WordArtformat",
+"routine": "TypedFont2box",
+"which": 26,
+"excel": "Long -2",
+"model": "reports Font2.WordArtformat is not implemented by pyOpenVB"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Allcaps",
+"routine": "LateFont2box",
+"which": 0,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "AutorotateNumbers",
+"routine": "LateFont2box",
+"which": 1,
+"excel": "Long 0",
+"model": "reports Font2.AutorotateNumbers is not implemented by pyOp"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "BaselineOffset",
+"routine": "LateFont2box",
+"which": 2,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Bold",
+"routine": "LateFont2box",
+"which": 3,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Caps",
+"routine": "LateFont2box",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateFont2box",
+"which": 5,
+"excel": "Long 1480803660",
+"model": "E-2147024809"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "DoubleStrikeThrough",
+"routine": "LateFont2box",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Embeddable",
+"routine": "LateFont2box",
+"which": 7,
+"excel": "Long -1",
+"model": "reports Font2.Embeddable is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Embedded",
+"routine": "LateFont2box",
+"which": 8,
+"excel": "Long 0",
+"model": "reports Font2.Embedded is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Equalize",
+"routine": "LateFont2box",
+"which": 9,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Italic",
+"routine": "LateFont2box",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Kerning",
+"routine": "LateFont2box",
+"which": 11,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Name",
+"routine": "LateFont2box",
+"which": 12,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "NameAscii",
+"routine": "LateFont2box",
+"which": 13,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "NameComplexScript",
+"routine": "LateFont2box",
+"which": 14,
+"excel": "String +mn-cs",
+"model": "reports Font2.NameComplexScript is not implemented by pyOp"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "NameFarEast",
+"routine": "LateFont2box",
+"which": 15,
+"excel": "String +mn-ea",
+"model": "reports Font2.NameFarEast is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "NameOther",
+"routine": "LateFont2box",
+"which": 16,
+"excel": "String ",
+"model": "reports Font2.NameOther is not implemented by pyOpenVBA"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Size",
+"routine": "LateFont2box",
+"which": 17,
+"excel": "Single 11",
+"model": "Long 11"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Smallcaps",
+"routine": "LateFont2box",
+"which": 18,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "SoftEdgeFormat",
+"routine": "LateFont2box",
+"which": 19,
+"excel": "Long 0",
+"model": "reports Font2.SoftEdgeFormat is not implemented by pyOpenV"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Spacing",
+"routine": "LateFont2box",
+"which": 20,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Strike",
+"routine": "LateFont2box",
+"which": 21,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "StrikeThrough",
+"routine": "LateFont2box",
+"which": 22,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Subscript",
+"routine": "LateFont2box",
+"which": 23,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "Superscript",
+"routine": "LateFont2box",
+"which": 24,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "UnderlineStyle",
+"routine": "LateFont2box",
+"which": 25,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font2",
+"on": "box",
+"binding": "Late",
+"member": "WordArtformat",
+"routine": "LateFont2box",
+"which": 26,
+"excel": "Long -2",
+"model": "reports Font2.WordArtformat is not implemented by pyOpenVB"
+}
+]
+}

@@ -381,7 +381,7 @@ def read_chart(xml: str, part: str) -> ChartState:
         item.error_bars = read_error_bars(series, NS)
         item.trendlines = read_trendlines(series, NS)
         name_ref = series.find('c:tx/c:strRef/c:f', NS)
-        item.name_reference = name_ref.text or '' if name_ref is not None else ''
+        item.name_reference = _as_excel_reads(name_ref.text or '') if name_ref is not None else ''
         name = series.find('c:tx/c:v', NS)
         item.name = name.text if name is not None else None
         cat = series.find('c:cat', NS)
@@ -393,7 +393,9 @@ def read_chart(xml: str, part: str) -> ChartState:
         item.category_reference, item.categories = _data(cat)
         item.value_reference, item.values = _data(val)
         smooth = series.find('c:smooth', NS)
-        item.smooth = smooth is not None and smooth.get('val', '1') in ('1', 'true')
+        # A line left without it means its default, on (tests/fixtures/tool_drawings.json).
+        item.smooth = (smooth.get('val', '1') in ('1', 'true') if smooth is not None
+                       else owners[id(series)].tag.endswith('}lineChart'))
         symbol = series.find('c:marker/c:symbol', NS)
         owner = owners[id(series)]
         owner_kind = owner.tag.rpartition('}')[2]
@@ -423,7 +425,9 @@ def read_chart(xml: str, part: str) -> ChartState:
             if leaders is not None:
                 item.leader_lines = leaders.get('val', '1') in ('1', 'true')
         invert = series.find('c:invertIfNegative', NS)
-        item.invert_if_negative = invert is not None and invert.get('val', '1') in ('1', 'true')
+        # Excel always writes it on bars; another writer leaving it out means its default, on (tests/fixtures/tool_drawings.json).
+        item.invert_if_negative = (invert.get('val', '1') in ('1', 'true') if invert is not None
+                                   else owner_kind in ('barChart', 'bar3DChart'))
         explosion = series.find('c:explosion', NS)
         if explosion is not None and re.fullmatch(r'[0-9]{1,9}', explosion.get('val', '')):
             item.explosion = int(explosion.get('val', ''))
@@ -455,12 +459,23 @@ def _marker_colour(node: ET.Element) -> str | None:
     return value.upper() if colour is not None and len(colour) == 0 and re.fullmatch(r'[0-9A-Fa-f]{6}', value) else '?'
 
 
+def _as_excel_reads(reference: str) -> str:
+    """One block of a sheet's cells as Excel reads it from a file spelled otherwise: absolute, and its sheet bare where a plain name
+    needs no apostrophes (tests/fixtures/tool_drawings.json). Anything else stays as written."""
+    found = re.fullmatch(r"(?:'([A-Za-z_][\w.]*)'|([^'!]+)|('(?:[^']|'')+'))!\$?([A-Z]{1,3})\$?(\d+)(?::\$?([A-Z]{1,3})\$?(\d+))?", reference)
+    if found is None:
+        return reference
+    plain, bare, needing, column, row, far_column, far_row = found.groups()
+    sheet = plain if plain is not None and not re.fullmatch(r'[A-Za-z]{1,3}\d+', plain) else needing or bare or f"'{plain}'"
+    return f'{sheet}!${column}${row}' + (f':${far_column}${far_row}' if far_column else '')
+
+
 def _data(node: ET.Element | None) -> tuple[str, list[object]]:
     if node is None:
         return '', []
     formula = node.find('.//c:f', NS)
     if formula is not None:
-        return formula.text or '', []
+        return _as_excel_reads(formula.text or ''), []
     numeric = node.find('c:numLit', NS) is not None
     values: list[object] = []
     for point in node.findall('.//c:pt', NS):
@@ -494,9 +509,9 @@ def _read_group(result: ChartState, group: ET.Element) -> None:
         text = node.get('val', '') if node is not None else ''
         return int(text) if re.fullmatch(r'-?[0-9]{1,3}', text) else None
 
+    # Left out it means its default, on (tests/fixtures/tool_drawings.json).
     vary = group.find('c:varyColors', NS)
-    if vary is not None:
-        result.vary = vary.get('val', '1') in ('1', 'true')
+    result.vary = vary is None or vary.get('val', '1') in ('1', 'true')
     gap, overlap, first, hole = number('gapWidth'), number('overlap'), number('firstSliceAng'), number('holeSize')
     result.gap_width = gap if gap is not None else result.gap_width
     result.overlap = overlap if overlap is not None else result.overlap

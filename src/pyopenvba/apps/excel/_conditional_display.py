@@ -136,7 +136,12 @@ class _DisplayInterior(formats.Interior):
         with conditional_read():
             return super()._fills()
 
-    def _write(self, change: Callable[[styles.Fill], styles.Fill]) -> None:
+    def _mixes_gradient(self) -> bool:
+        # A conditional format gives no gradient, so the cells' own fills say, with no conditions to work out.
+        fills = {style.fill for style in formats.styles_of(self.original)}
+        return len(fills) > 1 and any(fill.gradient for fill in fills)
+
+    def _write(self, change: Callable[[styles.Fill], styles.Fill], *, gradient: styles.Fill | None = None) -> None:
         raise error(1004)
 
     @member

@@ -491,6 +491,14 @@ class ExcelApplication(NamedRangeAPI):
         with nothing queued raises VBADialogError, except MsgBox, which answers with its default button."""
         self.interpreter.answers.extend(answers)
 
+    def set_hook(self, name: str, function: object, *, folders: object = ()) -> None:
+        """Have ``function`` do what the engine cannot for a member, ExportAsFixedFormat or PrintOut; ``None`` removes it. It is called with a HookRequest after the macro's argument errors and
+        BeforePrint. Its output is its own, and not claimed to match Excel; a library that draws needs its own layout for that. Under the sandbox, a macro's file must lie in one of ``folders``
+        or the function is not called; with none named, no file passes. Docs: docs/vba_runtime.md, Hooks."""
+        from pyopenvba.apps.excel._hooks import set_hook
+
+        set_hook(self.interpreter.hooks, name, function, folders)
+
     @property
     def console(self) -> list[str]:
         """Everything Debug.Print wrote."""

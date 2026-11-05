@@ -31,7 +31,7 @@ CURVE_ANSWERS = _load('wrapped_curves')
 ROUND3 = _load('wrapped_round3_predictions')
 ROUND3_ANSWERS = _load('wrapped_round3')
 #: The model has widths for these alone, and refuses the rest.
-TABLED = ('Calibri', 'Aptos Narrow')
+TABLED = ("Aptos Narrow", "Calibri", "Arial", "Times New Roman")
 
 
 def _sheet(text: str, font: str, size: float, *, bold: bool = False, italic: bool = False, indent: int = 0) -> tuple[ExcelApplication, Any]:

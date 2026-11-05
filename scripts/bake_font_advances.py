@@ -15,7 +15,7 @@ from fontTools.ttLib import TTFont
 ROOT = Path(__file__).resolve().parent.parent
 MODULE = ROOT / 'src' / 'pyopenvba' / 'apps' / 'excel' / '_font_advances.py'
 CODES = [*range(0x20, 0x7F), *range(0xA0, 0x100)]
-FONTS = ('Aptos Narrow', 'Calibri')
+FONTS = ('Aptos Narrow', 'Calibri', 'Arial', 'Times New Roman')
 STYLES = {'': (False, False), ' Bold': (True, False), ' Italic': (False, True), ' Bold Italic': (True, True)}
 
 

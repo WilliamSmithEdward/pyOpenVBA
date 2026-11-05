@@ -4918,7 +4918,7 @@ class Range(ExcelObject):
         return self._shared_text()
 
     def _shared_text(self) -> object:
-        from pyopenvba.apps.excel._column_fit import _cells_in
+        from pyopenvba.apps.excel._column_fit import _cells_in  # pyright: ignore[reportPrivateUsage]
 
         stored = _cells_in(self.sheet, list(self.areas))
         total = sum(area.rows * area.columns for area in self.areas)

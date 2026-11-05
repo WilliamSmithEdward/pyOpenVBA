@@ -671,8 +671,8 @@ def clear_links(target: Range) -> None:
     from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
 
     links = links_of(target.sheet, list(target.areas))
-    if enforced(target.sheet) is not None and any_locked(target.sheet, list(target.areas)):
-        # Locked cells refuse it, links or none, but for protection for the user alone (tests/fixtures/protected_links.json).
+    if enforced(target.sheet) is not None and any_locked(target.sheet, list(target.areas), edits=False):
+        # Locked cells refuse it, links or none, a range a macro may edit too, but for protection for the user alone (tests/fixtures/protected_links.json).
         raise error(1004, PROTECTED)
     if links:
         _take(target.sheet, links, formats=False)

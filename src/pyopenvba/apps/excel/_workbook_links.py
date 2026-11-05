@@ -152,6 +152,9 @@ def links_of(book: Workbook) -> list[LinkedBook]:
 def sources(book: Workbook, kind: object) -> object:
     """Workbook.LinkSources: the full names of the workbooks the workbook links to, as an array from 1, or Empty
     where it has none; any Type but xlExcelLinks is Empty, the model keeping no other kind of link."""
+    from pyopenvba.apps.excel._new_links import drop_unread
+
+    drop_unread(book)
     if link_kind(kind) != _EXCEL_LINKS:
         if book.foreign_links:
             raise VBAUnsupportedError("LinkSources of a workbook with OLE or DDE links is not implemented")
@@ -549,7 +552,11 @@ def set_save_link_values(book: Workbook, value: object) -> None:
 
 
 def write(book: Workbook, package: OpcFile) -> None:
-    """The links' parts as Excel saves them where they differ from those read (see the module's docstring)."""
+    """The links' parts as Excel saves them where they differ from those read (see the module's docstring). A link a
+    formula made has no part yet: _new_links writes it."""
+    from pyopenvba.apps.excel._new_links import drop_unread
+
+    drop_unread(book)
     changes = book.link_changes
     if book.save_link_values:
         for part, text in changes.values.items():
@@ -557,7 +564,7 @@ def write(book: Workbook, package: OpcFile) -> None:
                 package.write(part, text.encode("utf-8"))
         changes.values.clear()
     links = links_of(book)
-    phantom = {linked.part: linked for linked in links if _reads_book_names(book, linked.number)}
+    phantom = {linked.part: linked for linked in links if reads_book_names(book, linked.number)}
     if not changes.broken and not changes.pruned and not changes.reread and not changes.retargeted \
             and book.save_link_values and not phantom \
             and all(linked.part == f"xl/externalLinks/externalLink{linked.number}.xml" or not linked.part
@@ -579,7 +586,7 @@ def write(book: Workbook, package: OpcFile) -> None:
         if linked.part in changes.pruned:
             text = _pruned(book, linked, text)
         if linked.part in phantom:
-            text = _with_book_sheet(linked, text)
+            text = with_book_sheet(linked, text)
         if not book.save_link_values:
             changes.values.setdefault(linked.part, text)
             text = re.sub(r"<sheetDataSet>.*?</sheetDataSet>|<sheetDataSet/>", "", text, count=1, flags=re.DOTALL)
@@ -591,13 +598,13 @@ def write(book: Workbook, package: OpcFile) -> None:
     changes.retargeted.clear()
 
 
-def _reads_book_names(book: Workbook, number: int) -> bool:
+def reads_book_names(book: Workbook, number: int) -> bool:
     """Whether a formula or name reads one of link ``number``'s workbook's own names: [1]!Rate."""
     return any(reference.number == number and not reference.first
                for formula, _ in formulas_of(book) for reference in references_in(formula))
 
 
-def _with_book_sheet(linked: LinkedBook, text: str) -> str:
+def with_book_sheet(linked: LinkedBook, text: str) -> str:
     """A link's part with the sheet Excel adds, named after its workbook, for its workbook's names: listed last,
     with an empty sheetData marked refreshError (tests/fixtures/workbook_links.json, NamedAgain.xlsx)."""
     from html import escape, unescape

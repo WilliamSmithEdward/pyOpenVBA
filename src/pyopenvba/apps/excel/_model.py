@@ -8558,6 +8558,13 @@ class _BookNames:
         from pyopenvba._a1 import split_sheet
 
         scope = next((one for one in self.book.sheets_ if one.name.lower() == sheet.lower()), None)
+        if scope is None and sheet:
+            linked = self.sheet(sheet)
+            if linked is not None and linked.startswith("[") and linked.endswith("]"):
+                # Another workbook's name, Alpha.xlsx!Rate: as that workbook spells it, if its link has it.
+                number = linked[1:-1]
+                held = self.book.linked_books.get(int(number)) if number.isdigit() else None
+                return None if held is None else next((own for own in held.names if own.casefold() == name.casefold()), None)
         found = self.book.names_.find(name, scope=scope)
         if found is None:
             # A table's name is the workbook's too, and stands for the table's data.

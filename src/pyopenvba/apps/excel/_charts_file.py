@@ -31,6 +31,7 @@ from pyopenvba.apps.excel._chart_xml import group_markup, plain_label_text
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.apps.excel._chart_line_format import group_line_markup
+from pyopenvba.apps.excel._chart_loaded_looks import read_looks
 from pyopenvba.apps.excel._chart_trendlines import TYPES as TRENDLINE_TYPES, TrendlineState, markup as trendlines_markup
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
@@ -38,7 +39,6 @@ from pyopenvba.powerquery._sheets import add_content_type, add_relationship, dro
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._chart_xml import ChartKind
-    from pyopenvba.shapes._values import FillLine
     from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -170,95 +170,7 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
             rels = rels_part(part)
             sheet.chart_states[shape.shape_id].style_part = package.has(rels) and REL_CHART_STYLE in package.read(rels).decode('utf-8')
-            _read_series_looks(sheet.chart_states[shape.shape_id])
-            _read_element_looks(sheet.chart_states[shape.shape_id])
-
-_SERIES_MARKUP = re.compile(r'<c:ser>.*?</c:ser>', re.DOTALL)
-#: What a series holds that has its own spPr: its points, labels, trendlines and error bars.
-_SERIES_PARTS = re.compile(r'<c:(dPt|dLbls|trendline|errBars)>.*?</c:\1>', re.DOTALL)
-_SERIES_ORDER = re.compile(r'<c:order val="(\d+)"/>')
-
-
-def _plain_look(look: FillLine) -> bool:
-    """Whether a look holds only what a chart's reads answer: colours by RGB with no alpha, and nothing the series' reads leave
-    out (tests/fixtures/loaded_chart_looks.json)."""
-    themed = (look.fill_scheme, look.line_scheme, look.fill_alpha, look.line_alpha, look.fill_pattern, look.extra, look.chart_effect)
-    return all(item is None for item in themed) and not look.fill_mods and not look.line_mods and not look.effects
-
-
-def _read_series_looks(state: ChartState) -> None:
-    """Each loaded series' own look, from the spPr it holds directly. One the reads could not answer leaves it unread, and its
-    reads refused; so does every series of a chart with a style part, whose looks Excel answers from that style: there an element with
-    no fill and no line reads visible, its colour and transparency mixed (tests/fixtures/loaded_chart_looks.json)."""
-    from pyopenvba.shapes._read_look import read_look
-
-    if state.style_part:
-        return
-    found = _SERIES_MARKUP.findall(state.original)
-    orders = [int(hit.group(1)) if (hit := _SERIES_ORDER.search(one)) else -1 for one in found]
-    if len(found) != len(state.series) or sorted(orders) != orders:
-        return
-    for entry, markup in zip(state.series, found):
-        own = re.search(r'<c:spPr>.*?</c:spPr>', _SERIES_PARTS.sub('', markup), re.DOTALL)
-        if own is None:
-            entry.look_read = True
-            continue
-        try:
-            look = read_look('<xdr:spPr>' + own.group(0)[len('<c:spPr>'):-len('</c:spPr>')] + '</xdr:spPr>')
-        except VBAUnsupportedError:
-            continue
-        if _plain_look(look):
-            entry.format_look, entry.look_read = look, True
-
-
-_SPPR = re.compile(r'<c:spPr>.*?</c:spPr>', re.DOTALL)
-#: What an element holds that has a spPr of its own.
-_ELEMENT_PARTS = re.compile(r'<c:(title|majorGridlines|minorGridlines|legendEntry|dLbls|txPr|ser|dTable)>.*?</c:\1>', re.DOTALL)
-
-
-def _own_look(state: ChartState, key: str, markup: str | None) -> None:
-    """The look of the element this markup is, read into the chart where its reads answer."""
-    from pyopenvba.shapes._read_look import read_look
-
-    if markup is None or state.style_part:
-        return
-    own = _SPPR.search(markup)
-    if own is None:
-        state.looks_read.add(key)
-        return
-    try:
-        look = read_look('<xdr:spPr>' + own.group(0)[len('<c:spPr>'):-len('</c:spPr>')] + '</xdr:spPr>')
-    except VBAUnsupportedError:
-        return
-    if _plain_look(look):
-        state.element_looks[key] = look
-        state.looks_read.add(key)
-
-
-def _read_element_looks(state: ChartState) -> None:
-    """The chart area, plot area, legend, title, and each primary axis with its major gridlines, by the spPr each holds directly."""
-    xml = state.original
-    area = re.search(r'</c:chart>(<c:spPr>.*?</c:spPr>)?', xml, re.DOTALL)
-    _own_look(state, 'area', area.group(1) or '' if area else None)
-    plot = re.search(r'<c:plotArea>.*?</c:plotArea>', xml, re.DOTALL)
-    if plot is not None:
-        inner = _ELEMENT_PARTS.sub('', re.sub(r'<c:(valAx|catAx|dateAx|serAx)>.*?</c:\1>', '', plot.group(0), flags=re.DOTALL))
-        inner = re.sub(r'<c:(\w+Chart)>.*?</c:\1>', '', inner, flags=re.DOTALL)
-        _own_look(state, 'plot', inner)
-    legend = re.search(r'<c:legend>.*?</c:legend>', xml, re.DOTALL)
-    _own_look(state, 'legend', _ELEMENT_PARTS.sub('', legend.group(0)) if legend else None)
-    title = re.search(r'(?<=<c:chart>)<c:title>.*?</c:title>', xml, re.DOTALL)
-    _own_look(state, 'title', re.sub(r'<c:(tx|txPr)>.*?</c:\1>', '', title.group(0), flags=re.DOTALL) if title else None)
-    for entry in state.axes.values():
-        if entry.group != 1:
-            continue
-        axis = re.search(rf'<c:(valAx|catAx|dateAx)><c:axId val="{entry.identifier}"/>.*?</c:\1>', xml, re.DOTALL)
-        if axis is None:
-            continue
-        _own_look(state, f'axis{entry.tag}', _ELEMENT_PARTS.sub('', axis.group(0)))
-        grid = re.search(r'<c:majorGridlines(?:/>|>.*?</c:majorGridlines>)', axis.group(0), re.DOTALL)
-        _own_look(state, f'grid{entry.tag}', grid.group(0) if grid else None)
-
+            read_looks(sheet.chart_states[shape.shape_id], package, part)
 
 def _axis_elements(plot: ET.Element) -> list[ET.Element]:
     return [child for child in plot if child.tag.rpartition('}')[2] in ('catAx', 'valAx', 'dateAx')]

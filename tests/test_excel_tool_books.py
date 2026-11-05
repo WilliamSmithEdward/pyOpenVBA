@@ -62,14 +62,6 @@ ACT = """Sub Act(ByVal file As String)
     wb.Close False
 End Sub
 """
-#: openpyxl spells a drawing's namespace as the default, which the shape readers do not take yet.
-DRAWN = ("ChartObjects", "Shapes", "Pictures")
-
-
-def _unread_drawing(tool: str, read: str) -> bool:
-    return tool == "openpyxl" and any(f"ws.{name}" in read for name in DRAWN)
-
-
 def _read(file: Path, read: str, binding: str) -> str:
     book, sheet = BINDINGS[binding]
     app = ExcelApplication(sandbox=False)
@@ -84,8 +76,6 @@ CASES = [(tool, binding, index) for tool in BOOKS["tools"] for binding in BINDIN
 @pytest.mark.parametrize(("tool", "binding", "index"), CASES, ids=[f"{tool}-{binding}-{READS[index]}" for tool, binding, index in CASES])
 def test_reads_what_excel_reads(tool: str, binding: str, index: int, tmp_path: Path) -> None:
     read = READS[index]
-    if _unread_drawing(tool, read):
-        pytest.xfail("a drawing under a default namespace is not read")
     file = tmp_path / f"{tool}.xlsx"
     shutil.copy(HERE / f"{tool}.xlsx", file)
     assert _read(file, read, binding) == BOOKS["tools"][tool][binding]["excel"][index]
@@ -113,8 +103,7 @@ def test_a_save_after_an_edit_is_a_file_excel_opens(tool: str, name: str, tmp_pa
 def test_excel_read_the_models_save_as_its_own(tool: str, name: str) -> None:
     """Measured live: what Excel read of the file the model saved, against the one it saved itself."""
     entry = BOOKS["tools"][tool]["edits"][name]
-    differing = [read for read, theirs, ours in zip(READS, entry["excel"], entry["model"], strict=True) if theirs != ours]
-    assert [read for read in differing if not _unread_drawing(tool, read)] == []
+    assert [read for read, theirs, ours in zip(READS, entry["excel"], entry["model"], strict=True) if theirs != ours] == []
 
 
 def test_vml_under_any_prefix_is_spelled_as_excel_spells_it() -> None:

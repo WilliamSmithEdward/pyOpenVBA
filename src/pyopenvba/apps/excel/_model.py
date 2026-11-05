@@ -16,6 +16,7 @@ Font, Interior, Borders, alignment -- lives in
 from __future__ import annotations
 
 import datetime as _dt
+import os
 import re
 import weakref
 from itertools import islice
@@ -1714,8 +1715,11 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project, load_project
         from pyopenvba.apps.excel._text_files import is_text, open_text
 
-        path = path.resolve()
-        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == path), None)
+        # A workbook keeps the folder as it was given, an 8.3 name included (tests/test_excel_short_paths.py), with its own name
+        # as the disk spells it (tests/fixtures/case_saves.json). Whether it is already open goes by the file it really is.
+        really = path.resolve()
+        path = Path(os.path.abspath(path)).parent / really.name
+        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == really), None)
         if existing is not None:
             self.application.activate_book(existing)
             return existing
@@ -1814,6 +1818,12 @@ def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., N
 
 
 class Workbook(ExcelObject):
+    def _check_alive(self) -> None:
+        # A closed book is 424 through an Object and an automation error through a Workbook (tests/fixtures/excel_fits.json).
+        if self.closed:
+            raise error(424 if BINDING.late else -2147221080, "Object required" if BINDING.late else "Automation error")
+        super()._check_alive()
+
     """One workbook: its sheets, its names, and where it came from."""
 
     vba_type_name = "Workbook"
@@ -2742,7 +2752,7 @@ class Workbook(ExcelObject):
                 save_workbook(self, target)
         except OSError as failure:
             raise error(1004, str(failure)) from failure
-        self.path = str(target.resolve().parent)
+        self.path = str(Path(os.path.abspath(target)).parent)
         self.name = target.name
         if text and file_format is not None:
             saved_as_text(self, file_format, sheet)
@@ -4240,7 +4250,8 @@ class Worksheet(ExcelObject):
 
         refuse(self, "ShowAllData method of Worksheet class failed")
         show_all_data(self)
-        return EMPTY
+        # Through an Object it answers True (tests/fixtures/excel_everyday_16.json); typed it is a Sub and has no answer to read.
+        return True
 
     # -- methods
 
@@ -6896,9 +6907,9 @@ class Range(ExcelObject):
         if len(self.areas) != 1 or len(Destination.areas) != 1:
             raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
         area, target = self.first, Destination.first
-        repeat = target.rows % area.rows == 0 and target.columns % area.columns == 0
-        rows = target.rows if repeat else area.rows
-        columns = target.columns if repeat else area.columns
+        from pyopenvba.apps.excel._clipboard import tiled_size
+
+        rows, columns = tiled_size(target.rows, target.columns, area.rows, area.columns)
         bottom, right = target.top + rows - 1, target.left + columns - 1
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
@@ -7623,25 +7634,26 @@ class Range(ExcelObject):
         """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item."""
         areas = self._array_areas(array)
         for area in areas:
-            if array.dimensions == 1:
-                # A flat array is one row, laid across and repeated down
-                # every row of the range, which is what Excel does with it.
-                items = array.elements()
-                for offset, item in enumerate(items):
-                    column = area.left + offset
-                    if column > area.right:
-                        break
-                    for row in range(area.top, area.bottom + 1):
-                        self._put(row, column, item, raw=raw)
+            # A flat array is one row. One row or one column repeats that way over the range; past the end of any other is #N/A
+            # (tests/fixtures/excel_fits.json).
+            flat: list[object] = list(array.elements()) if array.dimensions == 1 else []
+            rows, columns = (1, 1), (0, len(flat) - 1)
+            if array.dimensions != 1:
+                rows, columns = array.bounds[0], array.bounds[1]
+            height, width = rows[1] - rows[0] + 1, columns[1] - columns[0] + 1
+            if height < 1 or width < 1:
                 continue
-            rows, columns = array.bounds[0], array.bounds[1]
-            for row_index in range(rows[0], rows[1] + 1):
-                for column_index in range(columns[0], columns[1] + 1):
-                    row = area.top + row_index - rows[0]
-                    column = area.left + column_index - columns[0]
-                    if row > area.bottom or column > area.right:
-                        continue
-                    self._put(row, column, array.get([row_index, column_index]), raw=raw)
+            for row in range(area.rows):
+                for column in range(area.columns):
+                    down, across = 0 if height == 1 else row, 0 if width == 1 else column
+                    item: object
+                    if down >= height or across >= width:
+                        item = VBAErrorValue(2042)
+                    elif array.dimensions == 1:
+                        item = flat[across]
+                    else:
+                        item = array.get([rows[0] + down, columns[0] + across])
+                    self._put(area.top + row, area.left + column, item, raw=raw)
         self.sheet.touched()
 
     def _array_areas(self, array: VBAArray) -> list[Area]:

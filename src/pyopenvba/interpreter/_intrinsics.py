@@ -1475,7 +1475,8 @@ INTRINSICS["iif"] = vba_iif
 def vba_choose(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
     if not args:
         raise error(449)
-    index = int(to_integer(args[0], "Long"))
+    # Its index's whole part, where a conversion to Long would round: Choose(1.9, "a", "b") is "a" (tests/fixtures/vba_everyday_17.json).
+    index = int(to_number(args[0]))
     if 1 <= index < len(args):
         return args[index]
     return NULL
@@ -1486,7 +1487,7 @@ INTRINSICS["choose"] = vba_choose
 
 def vba_switch(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
     if len(args) % 2:
-        raise error(450, "Switch takes pairs")
+        raise error(5, "Switch takes pairs")
     for index in range(0, len(args), 2):
         if to_bool(args[index]):
             return args[index + 1]

@@ -13,10 +13,8 @@ from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/shape_structure_moves.json').read_text(encoding='utf-8'))
-#: Rows that grow with wrapped text, whose height the model does not measure.
-GROWN = ('WrapText',)
-#: The probe as recorded, the wrapped rows' cases left as they are made but with nothing changed.
-SOURCE = '\n'.join('' if any(marker in line for marker in GROWN) else line for line in RECORD['source'].split('\n'))
+#: The probe as recorded.
+SOURCE = RECORD['source']
 
 
 @pytest.fixture(scope='module')
@@ -59,7 +57,5 @@ def test_moved_shapes_save_where_the_rows_put_them(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize('index', range(len(RECORD['cases'])))
 def test_each_case_as_excel_answered(answers: list[str], index: int) -> None:
-    case, answer = RECORD['cases'][index]
-    if any(marker in case for marker in GROWN):
-        pytest.skip('the model does not measure how tall wrapped text makes a row')
+    _, answer = RECORD['cases'][index]
     assert answers[index] == answer

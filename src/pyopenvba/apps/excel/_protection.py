@@ -498,8 +498,9 @@ def locked(sheet: Worksheet, row: int, column: int) -> bool:
     return sheet.style_at(row, column).protection.locked
 
 
-def _lock_states(sheet: Worksheet, areas: list[Area]) -> set[bool]:
-    """Whether the areas hold locked positions, unlocked ones or both, without walking positions nobody touched."""
+def _lock_states(sheet: Worksheet, areas: list[Area], *, edits: bool = True) -> set[bool]:
+    """Whether the areas hold locked positions, unlocked ones or both, without walking positions nobody touched; ``edits`` for
+    a range a macro may edit to count as unlocked."""
     from pyopenvba.apps.excel import _row_formats
     from pyopenvba.apps.excel._allow_edit_ranges import editable
 
@@ -507,15 +508,15 @@ def _lock_states(sheet: Worksheet, areas: list[Area]) -> set[bool]:
     for area in areas:
         bottom, right = min(area.bottom, MAX_ROWS), min(area.right, MAX_COLUMNS)
         if (bottom - area.top + 1) * (right - area.left + 1) <= 4096:
-            found.update(locked(sheet, row, column) and not editable(sheet, row, column)
+            found.update(locked(sheet, row, column) and not (edits and editable(sheet, row, column))
                          for row in range(area.top, bottom + 1) for column in range(area.left, right + 1))
         else:
             found.update(style.protection.locked for style in _row_formats.distinct_styles(sheet, area))
     return found
 
 
-def any_locked(sheet: Worksheet, areas: list[Area]) -> bool:
-    return True in _lock_states(sheet, areas)
+def any_locked(sheet: Worksheet, areas: list[Area], *, edits: bool = True) -> bool:
+    return True in _lock_states(sheet, areas, edits=edits)
 
 
 class Gate:

@@ -185,6 +185,8 @@ _BEHIND_A_GATE = {
     ('interpreter/_files.py', 'attributes_of'),  # Open, Kill, FileCopy, GetAttr
     ('interpreter/_files.py', 'read_only'),  # Open, Kill, FileCopy
     ('apps/excel/_vba_save.py', '_open_zip'),  # the bytes already in memory
+    ('apps/excel/_output.py', '_check_writable'),  # _hooks.gate, which every caller runs first
+    ('apps/excel/_hooks.py', 'saved_bytes'),  # a temporary file of its own, for the caller's function
 }
 
 

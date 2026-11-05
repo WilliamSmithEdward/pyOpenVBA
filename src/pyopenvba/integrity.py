@@ -105,17 +105,35 @@ def _xml(data: bytes) -> tuple[str, list[tuple[str, dict[str, str]]]]:
         nonlocal depth
         depth -= 1
 
-    def refuse_dtd(*_args: object) -> NoReturn:
-        raise ValueError("DTDs and declared entities are not supported")
-
     parser.StartElementHandler = start
     parser.EndElementHandler = end
-    parser.StartDoctypeDeclHandler = refuse_dtd
-    parser.EntityDeclHandler = refuse_dtd
-    parser.ExternalEntityRefHandler = refuse_dtd
-    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    _refuse_dtds(parser)
     parser.Parse(data, True)
     return root, children
+
+
+def _refuse_dtd(*_args: object) -> NoReturn:
+    raise ValueError("DTDs and declared entities are not supported")
+
+
+def _refuse_dtds(parser: expat.XMLParserType) -> None:
+    """Stop at a DOCTYPE, before any entity it declares can be expanded."""
+    parser.StartDoctypeDeclHandler = _refuse_dtd
+    parser.EntityDeclHandler = _refuse_dtd
+    parser.ExternalEntityRefHandler = _refuse_dtd
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+
+
+def xml_problem(data: bytes) -> str | None:
+    """Why a part is not well-formed XML under the package rules, which allow no DTD, or None. It keeps nothing of the part, and
+    sets no handler for elements, so a large sheet costs what Expat's scan costs."""
+    parser = expat.ParserCreate()
+    _refuse_dtds(parser)
+    try:
+        parser.Parse(data, True)
+    except (expat.ExpatError, ValueError) as failure:
+        return str(failure)
+    return None
 
 
 def _verify_deflate(raw: bytes, info: zipfile.ZipInfo, limit: int) -> None:

@@ -1,0 +1,1436 @@
+{
+"measured_at": "2026-11-04T23:25:47.171980+00:00",
+"get": "wb.Worksheets(1).ChartObjects(1).Chart",
+"cases": [
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "base",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "base",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "xps",
+"call": "o.ExportAsFixedFormat Type:=xlTypeXPS, Filename:=folder & \"\\x.xps\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "xps",
+"call": "o.ExportAsFixedFormat Type:=xlTypeXPS, Filename:=folder & \"\\x.xps\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_2",
+"call": "o.ExportAsFixedFormat Type:=2, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_2",
+"call": "o.ExportAsFixedFormat Type:=2, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_negative",
+"call": "o.ExportAsFixedFormat Type:=-1, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_negative",
+"call": "o.ExportAsFixedFormat Type:=-1, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_text",
+"call": "o.ExportAsFixedFormat Type:=\"x\", Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E13~Type mismatch~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_text",
+"call": "o.ExportAsFixedFormat Type:=\"x\", Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E13~Type mismatch~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_digit_text",
+"call": "o.ExportAsFixedFormat Type:=\"0\", Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_digit_text",
+"call": "o.ExportAsFixedFormat Type:=\"0\", Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_null",
+"call": "o.ExportAsFixedFormat Type:=Null, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E13~Type mismatch~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_null",
+"call": "o.ExportAsFixedFormat Type:=Null, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E94~Invalid use of Null~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_true",
+"call": "o.ExportAsFixedFormat Type:=True, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_true",
+"call": "o.ExportAsFixedFormat Type:=True, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_fraction",
+"call": "o.ExportAsFixedFormat Type:=0.5, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_fraction",
+"call": "o.ExportAsFixedFormat Type:=0.5, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_empty",
+"call": "o.ExportAsFixedFormat Type:=Empty, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_empty",
+"call": "o.ExportAsFixedFormat Type:=Empty, Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "type_omitted",
+"call": "o.ExportAsFixedFormat Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E450~Wrong number of arguments or invalid property assignment~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "type_omitted",
+"call": "o.ExportAsFixedFormat Filename:=folder & \"\\x.pdf\", OpenAfterPublish:=False",
+"excel": "failed modal-blocked ['Compile error:\\n\\nArgument not optional']",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_omitted",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, OpenAfterPublish:=False",
+"excel": "E-2147024773~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_omitted",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, OpenAfterPublish:=False",
+"excel": "E-2147024773~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_empty",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"\", OpenAfterPublish:=False",
+"excel": "E-2147024773~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_empty",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"\", OpenAfterPublish:=False",
+"excel": "E-2147024773~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=Null, OpenAfterPublish:=False",
+"excel": "E-2147024773~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=Null, OpenAfterPublish:=False",
+"excel": "E-2147024773~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_number",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=5, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_number",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=5, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_true",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=True, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_true",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=True, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_relative",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"rel.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_relative",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"rel.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_relative_folder",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"sub\\rel.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_relative_folder",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"sub\\rel.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_dotdot",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"sub\\..\\up.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_dotdot",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=\"sub\\..\\up.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_no_extension",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\noext\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_no_extension",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\noext\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_other_extension",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.txt\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_other_extension",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.txt\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_xps_as_pdf",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.xps\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_xps_as_pdf",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.xps\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_no_folder",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\nothere\\x.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_no_folder",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\nothere\\x.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_is_folder",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_is_folder",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_read_only",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\ro.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147018887~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_read_only",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\ro.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147018887~Document not saved.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_bad_character",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\a?b.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_bad_character",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\a?b.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_long",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\\" & String(300, \"a\") & \".pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_long",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\\" & String(300, \"a\") & \".pdf\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_existing",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\there.pdf\", OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_existing",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\there.pdf\", OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "quality_0",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=0, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "quality_0",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=0, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "quality_1",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=1, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "quality_1",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=1, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "quality_2",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=2, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "quality_2",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=2, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "quality_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "quality_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "quality_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=Null, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "quality_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Quality:=Null, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "props_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IncludeDocProperties:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "props_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IncludeDocProperties:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "props_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IncludeDocProperties:=Null, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "props_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IncludeDocProperties:=Null, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "areas_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IgnorePrintAreas:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "areas_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IgnorePrintAreas:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "areas_true",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IgnorePrintAreas:=True, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "areas_true",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", IgnorePrintAreas:=True, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_0",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=0, OpenAfterPublish:=False",
+"excel": "E1004~Document not saved. The document may be open, or an error may have been encountered when saving.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_0",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=0, OpenAfterPublish:=False",
+"excel": "E1004~Document not saved. The document may be open, or an error may have been encountered when saving.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_negative",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=-1, OpenAfterPublish:=False",
+"excel": "E1004~Document not saved. The document may be open, or an error may have been encountered when saving.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_negative",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=-1, OpenAfterPublish:=False",
+"excel": "E1004~Document not saved. The document may be open, or an error may have been encountered when saving.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_past",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=99, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_past",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=99, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_text",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=\"x\", OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=Null, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_null",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=Null, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "to_0",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", To:=0, OpenAfterPublish:=False",
+"excel": "E1004~Document not saved. The document may be open, or an error may have been encountered when saving.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "to_0",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", To:=0, OpenAfterPublish:=False",
+"excel": "E1004~Document not saved. The document may be open, or an error may have been encountered when saving.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "to_past",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", To:=99, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "to_past",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", To:=99, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_after_to",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=3, To:=1, OpenAfterPublish:=False",
+"excel": "E-2147417848~Automation error\nThe object invoked has disconnected from its clients. ~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_after_to",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", From:=3, To:=1, OpenAfterPublish:=False",
+"excel": "failed typed not run",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "bogus",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Bogus:=1, OpenAfterPublish:=False",
+"excel": "E1004~Application-defined or object-defined error~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "bogus",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", Bogus:=1, OpenAfterPublish:=False",
+"excel": "failed modal-blocked ['Compile error:\\n\\nNamed argument not found']",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Late",
+"row": "class_pointer",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", FixedFormatExtClassPtr:=Nothing, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "ExportAsFixedFormat",
+"owner": "Chart",
+"binding": "Typed",
+"row": "class_pointer",
+"call": "o.ExportAsFixedFormat Type:=xlTypePDF, Filename:=folder & \"\\x.pdf\", FixedFormatExtClassPtr:=Nothing, OpenAfterPublish:=False",
+"excel": "E5~Invalid procedure call or argument~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "base",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "base",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_relative",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=\"rel.prn\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_relative",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=\"rel.prn\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_relative_folder",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=\"sub\\rel.prn\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_relative_folder",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=\"sub\\rel.prn\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_empty",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=\"\"",
+"excel": "failed modal-blocked ['Namespace Tree Control']",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_empty",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=\"\"",
+"excel": "failed modal-blocked ['Namespace Tree Control']",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=Null",
+"excel": "failed modal-blocked ['Namespace Tree Control']",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=Null",
+"excel": "failed modal-blocked ['Namespace Tree Control']",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_number",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=5",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_number",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=5",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_no_folder",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\nothere\\p.prn\"",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_no_folder",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\nothere\\p.prn\"",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_is_folder",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_is_folder",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_read_only",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\ro.prn\"",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_read_only",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\ro.prn\"",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_bad_character",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\a?b.prn\"",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_bad_character",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\a?b.prn\"",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_0",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=0",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_0",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=0",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_negative",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=-1",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_negative",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=-1",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_past",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=99",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_past",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=99",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=\"x\"",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=\"x\"",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=Null",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=Null",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "to_0",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", To:=0",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "to_0",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", To:=0",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "from_after_to",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=3, To:=1",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "from_after_to",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", From:=3, To:=1",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "copies_0",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=0",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "copies_0",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=0",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "copies_negative",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=-1",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "copies_negative",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=-1",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "copies_2",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=2",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": [
+"p.prn"
+]
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "copies_2",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=2",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": [
+"p.prn"
+]
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "copies_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=\"x\"",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "copies_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=\"x\"",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "copies_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=Null",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "copies_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=Null",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "copies_fraction",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=1.5",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "copies_fraction",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Copies:=1.5",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "collate_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Collate:=\"x\"",
+"excel": "E1004~PrintOut method of Chart class failed~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "collate_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Collate:=\"x\"",
+"excel": "E1004~The specified dimension is not valid for the current chart type.~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "collate_true",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Collate:=True",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "collate_true",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Collate:=True",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "printer_unknown",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", ActivePrinter:=\"No Such Printer\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "printer_unknown",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", ActivePrinter:=\"No Such Printer\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "printer_empty",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", ActivePrinter:=\"\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "printer_empty",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", ActivePrinter:=\"\"",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "printer_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", ActivePrinter:=Null",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "printer_null",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", ActivePrinter:=Null",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "preview_false",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Preview:=False",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "preview_false",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Preview:=False",
+"excel": "E0~~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "areas_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", IgnorePrintAreas:=\"x\"",
+"excel": "E1004~Application-defined or object-defined error~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "areas_text",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", IgnorePrintAreas:=\"x\"",
+"excel": "failed modal-blocked ['Compile error:\\n\\nNamed argument not found']",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "areas_true",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", IgnorePrintAreas:=True",
+"excel": "E1004~Application-defined or object-defined error~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "areas_true",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", IgnorePrintAreas:=True",
+"excel": "failed modal-blocked ['Compile error:\\n\\nNamed argument not found']",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Late",
+"row": "bogus",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Bogus:=1",
+"excel": "E1004~Application-defined or object-defined error~~Microsoft Print to PDF on Ne00:",
+"files": []
+},
+{
+"member": "PrintOut",
+"owner": "Chart",
+"binding": "Typed",
+"row": "bogus",
+"call": "o.PrintOut PrintToFile:=True, PrToFileName:=folder & \"\\p.prn\", Bogus:=1",
+"excel": "failed modal-blocked ['Compile error:\\n\\nNamed argument not found']",
+"files": []
+}
+],
+"returns": {
+"False": "Boolean True",
+"True": "Boolean False"
+}
+}

@@ -1,0 +1,2242 @@
+{
+"scores": {
+"9004": {
+"predictions_sha256_16": "d855634024345970",
+"differ": 37,
+"note": "Most from Hyperlinks.Add writing over a number; found that rule and protection for the user alone."
+},
+"9005": {
+"predictions_sha256_16": "9eaba13ef3fb7f34",
+"differ": 1
+},
+"9006": {
+"predictions_sha256_16": "eca7edb05e63d93c",
+"differ": 0
+},
+"9007": {
+"predictions_sha256_16": "c4eb911475be6166",
+"differ": 1
+},
+"9008": {
+"predictions_sha256_16": "d7c01ced1e147a81",
+"differ": 0
+},
+"9009": {
+"predictions_sha256_16": "5489332ae06e0428",
+"differ": 1
+},
+"9010": {
+"predictions_sha256_16": "2a26c41ad42681e3",
+"differ": 0
+},
+"9011": {
+"predictions_sha256_16": "84654ac94feea3e0",
+"differ": 0
+}
+},
+"add": {
+"calls": [
+[
+"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = \"abc\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = \"abc\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = \"abc\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = \"abc\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = \"abc\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = \"abc\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = 1",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = 1",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = 1",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = 1",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = 1",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = 1",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = 0",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = 0",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = 0",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = 0",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = 0",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = 0",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = 2.5",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = 2.5",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = 2.5",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = 2.5",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = 2.5",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = 2.5",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = #1/2/2020#",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = #1/2/2020#",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = #1/2/2020#",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = #1/2/2020#",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = #1/2/2020#",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = #1/2/2020#",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = True",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = True",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = True",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = True",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = True",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = True",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = CVErr(2007)",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = CVErr(2007)",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = CVErr(2007)",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = CVErr(2007)",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = CVErr(2007)",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = CVErr(2007)",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Formula = \"=1+1\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Formula = \"=1+1\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Formula = \"=1+1\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Formula = \"=1+1\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Formula = \"=1+1\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Formula = \"=1+1\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Formula = \"=\"\"a\"\"\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Formula = \"=\"\"a\"\"\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Formula = \"=\"\"a\"\"\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Formula = \"=\"\"a\"\"\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Formula = \"=\"\"a\"\"\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Formula = \"=\"\"a\"\"\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = \" \"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = \" \"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = \" \"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = \" \"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = \" \"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = \" \"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+],
+[
+"c.Value = \"'12\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"x\""
+],
+[
+"c.Value = \"'12\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\""
+],
+[
+"c.Value = \"'12\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"\""
+],
+[
+"c.Value = \"'12\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, 5"
+],
+[
+"c.Value = \"'12\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\", \"t\""
+],
+[
+"c.Value = \"'12\"",
+"ws.Hyperlinks.Add c, \"\", \"Sheet1!D1\",, \"7\""
+]
+],
+"answers": [
+"0|String|x|x|2|1",
+"0|String|Sheet1!D1|Sheet1!D1|2|1",
+"0|String|Sheet1!D1|Sheet1!D1|2|1",
+"5|Empty|||-4142|0",
+"0|String|Sheet1!D1|Sheet1!D1|2|1",
+"0|Double|7|7|2|1",
+"0|String|x|x|2|1",
+"0|String|abc|abc|2|1",
+"0|String|Sheet1!D1|Sheet1!D1|2|1",
+"5|String|abc|abc|-4142|0",
+"0|String|abc|abc|2|1",
+"0|Double|7|7|2|1",
+"0|Double|1|1|2|1",
+"0|Double|1|1|2|1",
+"0|Double|1|1|2|1",
+"5|Double|1|1|-4142|0",
+"0|Double|1|1|2|1",
+"0|Double|1|1|2|1",
+"0|Double|0|0|2|1",
+"0|Double|0|0|2|1",
+"0|Double|0|0|2|1",
+"5|Double|0|0|-4142|0",
+"0|Double|0|0|2|1",
+"0|Double|0|0|2|1",
+"0|Double|2.5|2.5|2|1",
+"0|Double|2.5|2.5|2|1",
+"0|Double|2.5|2.5|2|1",
+"5|Double|2.5|2.5|-4142|0",
+"0|Double|2.5|2.5|2|1",
+"0|Double|2.5|2.5|2|1",
+"0|Date|43832|1/2/2020|2|1",
+"0|Date|43832|1/2/2020|2|1",
+"0|Date|43832|1/2/2020|2|1",
+"5|Date|43832|1/2/2020|-4142|0",
+"0|Date|43832|1/2/2020|2|1",
+"0|Date|43832|1/2/2020|2|1",
+"0|Boolean|TRUE|TRUE|2|1",
+"0|Boolean|TRUE|TRUE|2|1",
+"0|Boolean|TRUE|TRUE|2|1",
+"5|Boolean|TRUE|TRUE|-4142|0",
+"0|Boolean|TRUE|TRUE|2|1",
+"0|Boolean|TRUE|TRUE|2|1",
+"0|Error|#DIV/0!|#DIV/0!|2|1",
+"0|Error|#DIV/0!|#DIV/0!|2|1",
+"0|Error|#DIV/0!|#DIV/0!|2|1",
+"5|Error|#DIV/0!|#DIV/0!|-4142|0",
+"0|Error|#DIV/0!|#DIV/0!|2|1",
+"0|Error|#DIV/0!|#DIV/0!|2|1",
+"0|Double|=1+1|2|2|1",
+"0|Double|=1+1|2|2|1",
+"0|Double|=1+1|2|2|1",
+"5|Double|=1+1|2|-4142|0",
+"0|Double|=1+1|2|2|1",
+"0|Double|=1+1|2|2|1",
+"0|String|=\"a\"|a|2|1",
+"0|String|=\"a\"|a|2|1",
+"0|String|=\"a\"|a|2|1",
+"5|String|=\"a\"|a|-4142|0",
+"0|String|=\"a\"|a|2|1",
+"0|String|=\"a\"|a|2|1",
+"0|String|x|x|2|1",
+"0|String| | |2|1",
+"0|String|Sheet1!D1|Sheet1!D1|2|1",
+"5|String| | |-4142|0",
+"0|String| | |2|1",
+"0|Double|7|7|2|1",
+"0|String|x|x|2|1",
+"0|String|12|12|2|1",
+"0|String|Sheet1!D1|Sheet1!D1|2|1",
+"5|String|12|12|-4142|0",
+"0|String|12|12|2|1",
+"0|Double|7|7|2|1"
+]
+},
+"rounds": {
+"9010": [
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"1:1\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"1:1\").ClearHyperlinks",
+"excel": "1004|0|-4142|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "Set h = ws.Range(\"A:A\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "1004/1004|2|2|2|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Protect"
+],
+"act": "ws.Range(\"1:1\").ClearHyperlinks",
+"excel": "1004|0|-4142|-4142|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1\").Locked = False"
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0/0|2|2|2|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect"
+],
+"act": "Set h = ws.Range(\"1:1\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "1004/1004|1|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"1:1\").Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"A1\").Locked = False"
+],
+"act": "ws.Range(\"A1\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "0/0|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "424/424|0|-4142|-4142|t"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Hyperlinks(1).Delete",
+"excel": "9|0|-4142|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1\")",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set h = ws.Range(\"C3\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/0|1|2|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1:B2\")",
+"ws.Protect"
+],
+"act": "ws.Range(\"A:A\").Hyperlinks.Delete",
+"excel": "0|1|-4142|2|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0|1|2|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|2|2|2|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear"
+],
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A:A\").Hyperlinks.Delete",
+"excel": "0|1|-4142|2|t"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"C3\").Hyperlinks(1).Delete",
+"excel": "9|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1\")"
+],
+"act": "ws.Range(\"A:A\").ClearHyperlinks",
+"excel": "0|1|2|2|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Protect"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|t"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"B2\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect"
+],
+"act": "ws.Range(\"C3\").Hyperlinks(1).Delete",
+"excel": "9|1|2|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A1\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "0/0|0|-4142|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A:A\").ClearHyperlinks",
+"excel": "1004|1|2|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|2|2|2|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "1004/1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"1:1\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"1:1\").Hyperlinks.Delete",
+"excel": "1004/1004|2|2|2|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|-4142|2|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"A1:B2\").Locked = False"
+],
+"act": "ws.Range(\"1:1\").Hyperlinks(1).Delete",
+"excel": "0|0|-4142|-4142|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect"
+],
+"act": "Set h = ws.Range(\"C3\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/0|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect"
+],
+"act": "ws.Range(\"C3\").Hyperlinks(1).Delete",
+"excel": "9|1|2|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\""
+],
+"act": "ws.Range(\"C3\").Hyperlinks(1).Delete",
+"excel": "9|1|-4142|2|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "0/424|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\""
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "0/424|0|-4142|-4142|43832"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A1:B2\").ClearHyperlinks",
+"excel": "1004|1|2|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Range(\"A1:B2\").Locked = False"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|t"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "1004/1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\""
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|43832"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Hyperlinks(1).Delete",
+"excel": "1004|2|2|2|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\""
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "0/424|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"B2\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"B2\").Hyperlinks.Delete",
+"excel": "0/0|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"B2\").Hyperlinks.Delete",
+"excel": "0|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"C3\").Hyperlinks(1).Delete",
+"excel": "9|1|2|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect"
+],
+"act": "Set h = ws.Range(\"B2\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/1004|1|2|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1:B2\")",
+"ws.Protect"
+],
+"act": "Set h = ws.Range(\"A1\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "1004/1004|1|2|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|2|2|2|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1\")",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|43832"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1:B2\").Hyperlinks.Delete",
+"excel": "0/0|0|-4142|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1:B2\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks(1).Delete",
+"excel": "0|0|-4142|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0/0|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"A1\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "0/0|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A:A\").ClearHyperlinks",
+"excel": "1004|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|7"
+},
+{
+"kind": "password",
+"password": "cX ",
+"book": "old_9010_0.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"CEEE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "cX ",
+"book": "old_9010_0.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEEE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "cX ",
+"book": "old_9010_0.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEEE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "cX ",
+"book": "old_9010_0.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEEE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "cX ",
+"book": "old_9010_0.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEEE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "cX ",
+"book": "old_9010_0.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEEE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "cX ",
+"book": "old_9010_0.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"1!0Z0!1ca0Yq\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 7",
+"excel": "1004/|1004|1|~<protectedRanges><protectedRange password=\"CEEE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0ZX0919YZXY ",
+"book": "old_9010_1.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).ChangePassword \"Z!Z19c\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0ZX0919YZXY ",
+"book": "old_9010_1.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"9C6D\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0ZX0919YZXY ",
+"book": "old_9010_1.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"0ZX0919YZXY \": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0ZX0919YZXY ",
+"book": "old_9010_1.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"9C6D\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0ZX0919YZXY ",
+"book": "old_9010_1.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"9C6D\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0ZX0919YZXY ",
+"book": "old_9010_1.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"9C6D\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0ZX0919YZXY ",
+"book": "old_9010_1.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"9C6D\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "b!! XX 9Xc9",
+"book": "old_9010_2.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"ZcZc10baq\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 7",
+"excel": "1004/|1004|1|~<protectedRanges><protectedRange password=\"8D09\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "b!! XX 9Xc9",
+"book": "old_9010_2.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"8D09\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "b!! XX 9Xc9",
+"book": "old_9010_2.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"8D09\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "b!! XX 9Xc9",
+"book": "old_9010_2.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"8D09\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "b!! XX 9Xc9",
+"book": "old_9010_2.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Title = \"Other\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange password=\"8D09\" sqref=\"A1:A3\" name=\"Other\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "b!! XX 9Xc9",
+"book": "old_9010_2.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).ChangePassword \"!\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "b!! XX 9Xc9",
+"book": "old_9010_2.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Delete",
+"excel": "0/|0|1|~<protectedRanges><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "91",
+"book": "old_9010_3.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"CEFF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "91",
+"book": "old_9010_3.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEFF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "91",
+"book": "old_9010_3.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Delete",
+"excel": "0/|0|1|~<protectedRanges><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "91",
+"book": "old_9010_3.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).ChangePassword \"bY\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "91",
+"book": "old_9010_3.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"CEFF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "91",
+"book": "old_9010_3.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"Y!19ca0q\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 7",
+"excel": "1004/|1004|1|~<protectedRanges><protectedRange password=\"CEFF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "91",
+"book": "old_9010_3.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Title = \"Other\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange password=\"CEFF\" sqref=\"A1:A3\" name=\"Other\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0Ya",
+"book": "old_9010_4.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"CC44\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0Ya",
+"book": "old_9010_4.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"0Ya\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0Ya",
+"book": "old_9010_4.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CC44\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0Ya",
+"book": "old_9010_4.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"CC44\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0Ya",
+"book": "old_9010_4.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CC44\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0Ya",
+"book": "old_9010_4.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"CC44\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "0Ya",
+"book": "old_9010_4.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CC44\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Y1c ",
+"book": "old_9010_5.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"CF21\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Y1c ",
+"book": "old_9010_5.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).ChangePassword \"bX1Y\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Y1c ",
+"book": "old_9010_5.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CF21\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Y1c ",
+"book": "old_9010_5.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"CF21\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Y1c ",
+"book": "old_9010_5.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CF21\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Y1c ",
+"book": "old_9010_5.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"X9q\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 7",
+"excel": "1004/|1004|1|~<protectedRanges><protectedRange password=\"CF21\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Y1c ",
+"book": "old_9010_5.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"CF21\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+}
+],
+"9011": [
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A1:B2\").ClearHyperlinks",
+"excel": "0|0|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0|2|2|2|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")"
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks(1).Delete",
+"excel": "9|0|-4142|-4142|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "Set h = ws.Range(\"A1\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/1004|1|-4142|2|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\""
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0/0|1|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1:B2\")"
+],
+"act": "ws.Range(\"1:1\").Hyperlinks(1).Delete",
+"excel": "0|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1:B2\")",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set h = ws.Range(\"C3\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/0|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"1:1\").Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"1:1\").ClearHyperlinks",
+"excel": "0|1|-4142|2|t"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"1:1\").Hyperlinks.Delete",
+"excel": "0|1|-4142|2|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\""
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"B2\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"B2\").Hyperlinks.Delete",
+"excel": "0/0|0|-4142|-4142|t"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#"
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\""
+],
+"act": "ws.Range(\"C3\").ClearHyperlinks",
+"excel": "0|1|-4142|2|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks.Delete",
+"excel": "1004|2|2|2|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "Set h = ws.Range(\"C3\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/0|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|x"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\""
+],
+"act": "ws.Range(\"A1\").ClearHyperlinks",
+"excel": "0|0|2|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A:A\").ClearHyperlinks",
+"excel": "0|1|2|2|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set h = ws.Range(\"A1\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/1004|1|-4142|2|43832"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"1:1\").Hyperlinks(1).Delete",
+"excel": "9|0|-4142|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"A:A\").Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"A:A\").Hyperlinks(1).Delete",
+"excel": "1004|2|2|2|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "1004/1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Protect"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A:A\").ClearHyperlinks",
+"excel": "1004|1|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Range(\"A1:B2\").Locked = False"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Protect"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protect"
+],
+"act": "Set h = ws.Range(\"B2\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/0|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"A1\").ClearHyperlinks",
+"excel": "1004|1|2|-4142|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0|2|2|2|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = 1",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"A1:B2\").ClearHyperlinks",
+"excel": "1004|1|2|-4142|1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1:B2\")"
+],
+"act": "Set h = ws.Range(\"A:A\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/1004|1|-4142|2|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A1\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "0/0|1|-4142|2|43832"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect"
+],
+"act": "ws.Range(\"A:A\").ClearHyperlinks",
+"excel": "1004|1|-4142|2|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"1:1\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"1:1\").Hyperlinks.Delete",
+"excel": "0/0|1|-4142|2|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "1004/1004|2|2|2|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect UserInterfaceOnly:=True"
+],
+"act": "ws.Range(\"B2\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"B2\").Hyperlinks.Delete",
+"excel": "0/0|1|2|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Protect"
+],
+"act": "Set h = ws.Range(\"A1:B2\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "0/0|0|-4142|-4142|1/2/2020"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "0/424|1|-4142|2|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A1\").ClearHyperlinks",
+"excel": "1004|1|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = #1/2/2020#",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"x\""
+],
+"act": "ws.Range(\"1:1\").Hyperlinks.Delete",
+"excel": "0|0|-4142|-4142|43832"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A:A\").Hyperlinks.Delete",
+"excel": "1004|1|2|-4142|2"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set l = ws.Hyperlinks(1): l.Delete: s = s & Err.Number & \"/\": Err.Clear: l.Delete",
+"excel": "0/424|0|-4142|-4142|t"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "Set h = ws.Range(\"B2\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "1004/1004|2|2|2|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Range(\"A1:B2\").Locked = False",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"C3\")"
+],
+"act": "ws.Range(\"B2\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"B2\").Hyperlinks.Delete",
+"excel": "0/0|0|-4142|-4142|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"\"",
+"ws.Protect AllowFormattingCells:=True"
+],
+"act": "ws.Range(\"A1:B2\").Hyperlinks(1).Delete",
+"excel": "1004|1|2|-4142|Sheet1!D1"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Clear",
+"ws.Hyperlinks.Add ws.Range(\"B2\"), \"\", \"Sheet1!D2\", , \"y\"",
+"ws.Protection.AllowEditRanges.Add \"F\", ws.Range(\"A1\")",
+"ws.Protect Password:=\"p\""
+],
+"act": "Set h = ws.Range(\"A1:B2\").Hyperlinks: h.Delete: s = s & Err.Number & \"/\": Err.Clear: h.Delete",
+"excel": "1004/1004|1|-4142|2|"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Value = \"t\"",
+"ws.Hyperlinks.Add ws.Range(\"A1\"), \"\", \"Sheet1!D1\", , \"7\"",
+"ws.Range(\"B2\").Locked = False"
+],
+"act": "ws.Range(\"A:A\").Hyperlinks(1).Delete",
+"excel": "0|0|-4142|-4142|7"
+},
+{
+"kind": "link",
+"setup": [
+"ws.Range(\"A1\").Formula = \"=1+1\"",
+"ws.Range(\"B2\").Locked = False",
+"ws.Protect Password:=\"p\""
+],
+"act": "ws.Range(\"C3\").Hyperlinks.Delete: s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"C3\").Hyperlinks.Delete",
+"excel": "0/0|0|-4142|-4142|2"
+},
+{
+"kind": "password",
+"password": "c11",
+"book": "old_9011_0.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c11",
+"book": "old_9011_0.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c11",
+"book": "old_9011_0.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"c11\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c11",
+"book": "old_9011_0.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c11",
+"book": "old_9011_0.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c11",
+"book": "old_9011_0.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c11",
+"book": "old_9011_0.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "aa!X c1",
+"book": "old_9011_1.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"aa!X c1\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "aa!X c1",
+"book": "old_9011_1.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).ChangePassword \"c\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "aa!X c1",
+"book": "old_9011_1.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "aa!X c1",
+"book": "old_9011_1.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"aa!X c1\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "aa!X c1",
+"book": "old_9011_1.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Delete",
+"excel": "0/|0|1|~<protectedRanges><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "aa!X c1",
+"book": "old_9011_1.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).ChangePassword \"0!a1\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "aa!X c1",
+"book": "old_9011_1.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"aY!Y1Y0q\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 7",
+"excel": "1004/|1004|1|~<protectedRanges><protectedRange password=\"CFC2\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "bY0Z19Yb0YX ",
+"book": "old_9011_2.xlsx",
+"act": "ws.Range(\"A1\").Value = 5",
+"excel": "|1004|1|~<protectedRanges><protectedRange password=\"C924\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "bY0Z19Yb0YX ",
+"book": "old_9011_2.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"C924\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "bY0Z19Yb0YX ",
+"book": "old_9011_2.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"C924\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "bY0Z19Yb0YX ",
+"book": "old_9011_2.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).ChangePassword \"0!\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "bY0Z19Yb0YX ",
+"book": "old_9011_2.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"C924\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "bY0Z19Yb0YX ",
+"book": "old_9011_2.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"C924\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "bY0Z19Yb0YX ",
+"book": "old_9011_2.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"C924\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": " acb!100cb",
+"book": "old_9011_3.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \" acb!100cb\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": " acb!100cb",
+"book": "old_9011_3.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Title = \"Other\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange password=\"A4DF\" sqref=\"A1:A3\" name=\"Other\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": " acb!100cb",
+"book": "old_9011_3.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"A4DF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": " acb!100cb",
+"book": "old_9011_3.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"A4DF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": " acb!100cb",
+"book": "old_9011_3.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"A4DF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": " acb!100cb",
+"book": "old_9011_3.xlsx",
+"act": "ws.Range(\"A1\").Hyperlinks.Delete",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"A4DF\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": " acb!100cb",
+"book": "old_9011_3.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \" acb!100cb\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Z",
+"book": "old_9011_4.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"Yq\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 7",
+"excel": "1004/|1004|1|~<protectedRanges><protectedRange password=\"CEFE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Z",
+"book": "old_9011_4.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEFE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Z",
+"book": "old_9011_4.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"CEFE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Z",
+"book": "old_9011_4.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \" 11!0b! Zbq\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 7",
+"excel": "1004/|1004|1|~<protectedRanges><protectedRange password=\"CEFE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Z",
+"book": "old_9011_4.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CEFE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Z",
+"book": "old_9011_4.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Title = \"Other\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange password=\"CEFE\" sqref=\"A1:A3\" name=\"Other\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "Z",
+"book": "old_9011_4.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"CEFE\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c0",
+"book": "old_9011_5.xlsx",
+"act": "ws.Range(\"A1\").ClearComments",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CE4F\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c0",
+"book": "old_9011_5.xlsx",
+"act": "s = s & ws.Protection.AllowEditRanges.Count & \"/\" & ws.Protection.AllowEditRanges(1).Title & \"/\" & ws.Protection.AllowEditRanges(1).Range.Address",
+"excel": "2/Old/$A$1:$A$3|0|1|~<protectedRanges><protectedRange password=\"CE4F\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c0",
+"book": "old_9011_5.xlsx",
+"act": "ws.Protection.AllowEditRanges(1).Unprotect \"c0\": s = s & Err.Number & \"/\": Err.Clear: ws.Range(\"A1\").Value = 8",
+"excel": "0/|0|8|~<protectedRanges><protectedRange algorithmName=\"SHA-512\" hashValue=\"\" saltValue=\"\" spinCount=\"100000\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c0",
+"book": "old_9011_5.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"CE4F\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c0",
+"book": "old_9011_5.xlsx",
+"act": "ws.Unprotect: s = s & Err.Number & \"/\": Err.Clear: ws.Protection.AllowEditRanges(1).Title = \"Other\"",
+"excel": "0/|0|1|~<protectedRanges><protectedRange password=\"CE4F\" sqref=\"A1:A3\" name=\"Other\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c0",
+"book": "old_9011_5.xlsx",
+"act": "ws.Range(\"C1\").Value = 6",
+"excel": "|0|1|6~<protectedRanges><protectedRange password=\"CE4F\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+},
+{
+"kind": "password",
+"password": "c0",
+"book": "old_9011_5.xlsx",
+"act": "ws.Range(\"C1\").ClearNotes",
+"excel": "|0|1|~<protectedRanges><protectedRange password=\"CE4F\" sqref=\"A1:A3\" name=\"Old\"/><protectedRange sqref=\"C1:C3\" name=\"Free\"/></protectedRanges>"
+}
+]
+}
+}

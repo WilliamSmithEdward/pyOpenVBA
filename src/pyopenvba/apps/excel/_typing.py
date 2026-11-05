@@ -59,8 +59,8 @@ import math
 import re
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
+from typing import Final
 
-from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._display import clock, format_value, keeps_text
 from pyopenvba.formula._parse import literal
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
@@ -89,7 +89,8 @@ _FIELD = re.compile(r"(?a)\d+")
 _COLON = re.compile(r" ?: ?")
 _POINT = re.compile(r" ?\. ?")
 _HALF = re.compile(r" ([AaPp][Mm]?)(?![A-Za-z])")
-_HALVES = frozenset(("a", "am", "p", "pm"))
+# A month's name, a day before it if there is one, and a space: what a time is read one place along after.
+_SHIFTED_DATE = re.compile(rf"(?a)[/-]?(?:(\d{{1,2}}){_APART})?([A-Za-z]+) ")
 #: The numbers and words a date and a time are read from, nine at most.
 _TOKENS = re.compile(r"(?a)\d+|[A-Za-z]+")
 #: What Excel reads past after a date and a time, once the spaces round slashes and dashes are gone.
@@ -435,10 +436,8 @@ def _after_space(body: str) -> Typed | None:
     """A date or time typed after a space: Excel reads only a day and a month's name there, d-mmm.
 
     Every other date or time with a space before it stays text, except a
-    month's name with a time, in a string of nothing but numbers, month's
-    names, AM or PM and separators: Excel misreads that into a number, as
-    ``" 2-Jan 12:30"`` into 27 December 2011 at 7:20, which is not
-    modelled. Words that are none of those keep the whole string text.
+    month's name and then a time, which Excel reads one place along (see
+    :func:`_shifted`). Words that are none of those keep the whole string text.
     """
     body = re.sub(" {2,}", " ", body)
     found = _DAY_MONTH.fullmatch(body)
@@ -447,12 +446,66 @@ def _after_space(body: str) -> Typed | None:
         serial = date_serial(_this_year(), month, int(found.group(1)))
         if serial is not None:
             return Typed(serial, "d-mmm")
-    words = [word.lower() for word in re.findall("[A-Za-z]+", body)]
-    dated = body.lstrip("/-")[:1].isalnum() and all(word in _MONTHS or word in _HALVES for word in words)
-    if dated and any(word in _MONTHS for word in words) and (":" in body or any(word in _HALVES for word in words)):
-        raise VBAUnsupportedError(f"typing {' ' + body!r}, a space before a month's name and a time, is not "
-                                  "implemented")
-    return None
+    return _shifted(body)
+
+
+#: What fills the place after the last one read, in a time read one place along: a day less 10,000 of that place's unit.
+_NOT_READ: Final = -10000
+def _past_their_limits(places: list[int]) -> int:
+    """How many of an hour, a minute and a second are past where a clock's stop."""
+    return sum(place >= limit for place, limit in zip(places, (24, 60, 60), strict=False))
+
+
+#: What AM and PM are read as, where one is taken for a number: a whole number kept in 32 bits, unsigned.
+_HALF_NUMBERS: Final = {"a": 2 ** 32 - 22, "p": 2 ** 32 - 21}
+
+
+def _shifted(body: str) -> Typed | None:
+    """A month's name and a time after a space, read one place along: the time's first number takes the place of the
+    year, or of the day where the date has none and that day is in the month, the next numbers go to the hour, the
+    minute and the second, and AM or PM goes in as a number. So " 2-Jan 12:30" is 2 January 2012, 30 hours and a
+    minute of -10000. The place after the last is -10000 unless another number stands after the time
+    (tests/fixtures/value_gaps.json)."""
+    found = _SHIFTED_DATE.match(body)
+    if found is None:
+        return None
+    month = _MONTHS.get(found.group(2).lower())
+    time = _clock(body, found.end()) if month is not None else None
+    number = _FIELD.match(body, found.end())
+    if month is None or time is None or number is None or len(number.group()) == 3 or not _read_past(body[time.end:]):
+        return None
+    if found.group(1) is not None:
+        serial, code = date_serial(typed_year(number.group()), month, int(found.group(1))), "d-mmm-yy"
+    else:
+        serial = date_serial(_this_year(), month, int(number.group())) if len(number.group()) <= 2 else None
+        code = "d-mmm"
+        if serial is None:
+            serial, code = date_serial(typed_year(number.group()), month, 1), "mmm-yy"
+    if serial is None:
+        return None
+    places = list(time.fields[1:])
+    if time.fraction:
+        # As in a time with a point: the numbers before it end at the minute, and the digits after it are the second.
+        places = [*([0] * (2 - len(places))), *places, int(time.fraction)]
+        if _past_their_limits(places) > 1:
+            return Typed(None, code)
+        return Typed(serial + (places[0] * 3600 + places[1] * 60 + places[2]) / 86400, "mm:ss.0")
+    if time.half is not None:
+        if len(places) == 2:
+            return None
+        if (places and places[0] >= 24) or time.past is not None:
+            return Typed(None, code)
+        places.append(_HALF_NUMBERS[time.half[0].lower()])
+    extra = re.search(r"(?a)\d+", body[time.end:])
+    places.append(int(extra.group()) if extra is not None else _NOT_READ)
+    hours, minutes, seconds = (*places, 0, 0)[:3]
+    if _past_their_limits([hours, minutes, seconds]) > 1 and time.half is None:
+        # One place past its limit is General; two leave the text, with the date's format.
+        return Typed(None, code)
+    value = serial + (hours * 3600 + minutes * 60 + seconds) / 86400
+    if time.half is not None or hours >= 24 or minutes >= 60 or seconds >= 60:
+        return Typed(value, "General")
+    return Typed(value, "m/d/yyyy h:mm")
 
 
 def _dated(date: Typed, time: _Clock) -> Typed:
@@ -570,6 +623,8 @@ class _Clock:
     #: A, AM, P or PM as typed.
     half: str | None
     end: int
+    #: The digits after a point after AM or PM, which leaves an hour and a minute at most (see :func:`_clock_value`).
+    past: str | None = None
 
 
 def _clock(text: str, start: int) -> _Clock | None:
@@ -601,6 +656,7 @@ def _clock(text: str, start: int) -> _Clock | None:
             return None
         fraction, at = (found.group(), found.end()) if found is not None else ("", point.end())
     half = _HALF.match(text, at)
+    past = None
     if half is not None:
         at = half.end()
         point = _POINT.match(text, at)
@@ -609,10 +665,17 @@ def _clock(text: str, start: int) -> _Clock | None:
             # A point after AM or PM with nothing after it is passed over: 10 am.
             at = point.end()
         elif after is not None and _read_past(text[after.end():]):
-            raise VBAUnsupportedError(f"typing {text!r}, a fraction of a second after AM or PM, is not implemented")
+            if fraction or len(fields) == 3:
+                return None
+            past, at = after.group(), after.end()
     if any(len(field) > 4 for field in fields) or not (colons or half is not None) or (fraction and not colons):
         return None
-    return _Clock(tuple(int(field) for field in fields), fraction, half.group(1) if half is not None else None, at)
+    return _Clock(tuple(int(field) for field in fields), fraction, half.group(1) if half is not None else None, at, past)
+
+
+def _milliseconds(digits: str) -> float:
+    """The digits after a point in a typed second, to the millisecond, a 5 rounding up."""
+    return float(Decimal("0." + digits).quantize(Decimal("0.001"), ROUND_HALF_UP))
 
 
 def _clock_value(time: _Clock) -> tuple[float, str] | None:
@@ -624,6 +687,14 @@ def _clock_value(time: _Clock) -> tuple[float, str] | None:
     or PM the hour runs from 0 to 12 and the minutes and seconds stop at 59.
     """
     fields = time.fields
+    if time.past is not None:
+        # AM or PM goes into the second as a number and changes nothing else, up to 23:59. One number is the minute.
+        hours, minutes = (0, *fields)[-2:]
+        if hours >= 24 or minutes >= 60:
+            return None
+        assert time.half is not None
+        seconds = _HALF_NUMBERS[time.half[0].lower()] + _milliseconds(time.past)
+        return (hours * 3600 + minutes * 60 + seconds) / 86400, "mm:ss.0"
     if time.fraction and len(fields) == 2:
         hours, minutes, seconds = 0, *fields
     else:
@@ -633,7 +704,7 @@ def _clock_value(time: _Clock) -> tuple[float, str] | None:
             return None
         hours = hours % 12 + (12 if time.half[0] in "Pp" else 0)
     # Excel keeps a typed fraction of a second to the millisecond.
-    part = round(float("0." + time.fraction), 3) if time.fraction else 0
+    part = _milliseconds(time.fraction) if time.fraction else 0
     value = (hours * 3600 + minutes * 60 + seconds + part) / 86400
     if time.fraction:
         code = "mm:ss.0"

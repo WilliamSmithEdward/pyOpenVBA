@@ -218,6 +218,12 @@ class VBAObject:
             default = found.vba_default_member() if isinstance(found, VBAObject) else None
             if isinstance(found, VBAObject) and default is not None:
                 return found.vba_get(default.name, args)
+            if isinstance(found, VBAObject):
+                raise error(438)
+            if not BINDING.late:
+                # Typed, it is VBA that hands them on, and a scalar in a Variant is 13 (tests/fixtures/excel_everyday_18.json).
+                # Late, the object refuses them itself, with 451 or with 450 (tests/fixtures/late_indexes.json).
+                raise error(13)
         return spec.getter(self, *self._bind(spec, args, named))
 
     def vba_set(

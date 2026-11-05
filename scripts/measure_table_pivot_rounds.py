@@ -154,7 +154,9 @@ def setup(kind: str, seed: int) -> str:
     lines += [f'    tname = lo.Name: tcell = "{letter}2": tcolumn = "g"', f'    ptname = pt.Name: ptcell = "A4": pfield = "k": pitem = "{first_key}"',
               f'    hcell = "Q2": ccell = "S{notes[0]}": nname = "Nm_0_{seed % 10}": fcells = "D1:D5"']
     if kind == 'reopened':
-        lines += ['    wbT.SaveAs path & "\\r.xlsx", xlOpenXMLWorkbook', '    wbT.Close False', '    Set wbT = Workbooks.Open(path & "\\r.xlsx"): Set wbL = wbT',
+        # A file of its own each run, so a run that failed with the book still open cannot stop the next one's SaveAs.
+        lines += ['    saved = path & "\\r" & Format(Now, "hhnnss") & (Int(Timer * 1000) Mod 1000) & ".xlsx"', '    wbT.SaveAs saved, xlOpenXMLWorkbook',
+                  '    wbT.Close False', '    Set wbT = Workbooks.Open(saved): Set wbL = wbT',
                   '    Set ws = wbT.Worksheets("Main"): Set wsL = ws: Set ws2 = wbT.Worksheets("Second")']
     return '\n'.join(lines) + '\n'
 
@@ -199,7 +201,7 @@ def source(case: dict[str, str], typed: bool, seed: int) -> str:
     return (HELPER + 'Public Function One(ByVal path As String) As String\n'
             f'    Dim wbT As Object, wbL As Object, ws As Object, ws2 As Object, wsL As Object, lo As Object, pt As Object, o As {kind}, x As String, book As String\n'
             '    Dim tname As String, tcell As String, tcolumn As String, ptname As String, ptcell As String, pfield As String, pitem As String\n'
-            '    Dim hcell As String, ccell As String, nname As String, fcells As String\n'
+            '    Dim hcell As String, ccell As String, nname As String, fcells As String, saved As String\n'
             '    Application.DisplayAlerts = False\n' + setup(case['kind'], seed) + '    book = wbT.Name\n    On Error Resume Next\n' + body
             + '    If Err.Number <> 0 Then\n        One = "reach E" & Err.Number\n    Else\n'
             f'        {statement}\n        One = x & " E" & Err.Number\n    End If\n    Err.Clear\n    On Error GoTo 0\n'
@@ -265,13 +267,15 @@ def measure(seed: int, chunks: int) -> None:
         folder = Path(held)
         books(folder)
         for tag, typed in (('late', False), ('typed', True)):
-            todo = [case for case in cases if tag not in case]
+            # A case the harness gave no answer for is asked again: the run failed, not Excel's answer.
+            todo = [case for case in cases if not str(case.get(tag, 'no answer')).startswith('no answer')]
+            todo = [case for case in cases if case not in todo]
             for start in range(0, len(todo), CHUNK):
                 if chunks <= 0:
                     print('stopped; run again to carry on')
                     return
                 chunks -= 1
-                chunk = todo[start:start + CHUNK]
+                left = todo[start:start + CHUNK]
                 while True:
                     try:
                         os.mkdir(lock)
@@ -279,15 +283,23 @@ def measure(seed: int, chunks: int) -> None:
                     except FileExistsError:
                         time.sleep(10)
                 try:
-                    with ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
-                        excel.new_document()
-                        for case in chunk:
-                            done = excel.run_vba(source(case, typed, seed), 'One', (str(folder),), timeout=60.0, line_numbers=False)
-                            case[tag] = str(done.value) if done.ok else f'no answer: {str(done)[:120]}'
+                    while left:
+                        # A failed run can leave its books open in that Excel, so the rest go to a new one.
+                        with ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
+                            excel.new_document()
+                            while left:
+                                case = left.pop(0)
+                                done = excel.run_vba(source(case, typed, seed), 'One', (str(folder),), timeout=60.0, line_numbers=False)
+                                case[tag] = str(done.value) if done.ok else f'no answer: {str(done)[:600]}'
+                                if not done.ok:
+                                    break
                 finally:
                     os.rmdir(lock)
                 path.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
-                print(tag, start + len(chunk), 'of', len(todo), flush=True)
+                print(tag, start + CHUNK, 'of', len(todo), flush=True)
+            if any(str(case[tag]).startswith('no answer') for case in cases):
+                print(tag, 'has cases with no answer: run again to ask them again')
+                return
     record['measured_at'] = datetime.now(timezone.utc).isoformat()
     path.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
     differ = [(case, tag) for case in cases for tag in ('late', 'typed') if case[tag] != case[f'model_{tag}']]

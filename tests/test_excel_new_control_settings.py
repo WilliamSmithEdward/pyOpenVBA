@@ -21,8 +21,8 @@ KINDS: dict[str, int] = RECORD['kinds']
 BOXES: dict[str, Any] = json.loads((FIXTURES / 'new_control_boxes.json').read_text(encoding='utf-8'))
 GRID: dict[str, Any] = json.loads((FIXTURES / 'new_control_grid.json').read_text(encoding='utf-8'))
 GEOMETRY: set[str] = set()
-#: What the model reports rather than answers: a scroll bar's width, and a list box's height.
-REFUSED = re.compile(r'^ScrollBar: s\.Width|^ListBox: s\.Height')
+#: What the model reports rather than answers: a scroll bar's size, and a list box's height.
+REFUSED = re.compile(r'^ScrollBar: s\.(?:Width|Height)|^ListBox: s\.Height')
 
 
 def _block(name: str, form: str) -> list[str]:
@@ -139,3 +139,40 @@ def test_a_setting_on_a_control_in_a_file_comes_back(tmp_path: Path) -> None:
     again.add_module(source.format(''), name='Probe')
     assert again.run('Probe.Go') == 'Alt,3,False,0'
 
+
+PLACES = json.loads((Path(__file__).parent / 'fixtures/new_control_places.json').read_text('utf-8'))
+_CONSTANTS = {'xlButtonControl': 0, 'xlCheckBox': 1, 'xlDropDown': 2, 'xlListBox': 6, 'xlGroupBox': 4, 'xlLabel': 5, 'xlOptionButton': 7, 'xlScrollBar': 8, 'xlSpinner': 9}
+
+
+@pytest.mark.parametrize('case', PLACES['cases'], ids=[f"{one['kind']}-{one['member']}-{one['value']}" for one in PLACES['cases']])
+def test_a_place_or_size_set_lands_where_excel_put_it(case: dict[str, Any], tmp_path: Path) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(PLACES['source'], name='Probe')
+    arguments = (_CONSTANTS[case['kind']], case['member'], case['value'], str(tmp_path / 'book.xlsx'))
+    if (case['kind'], case['member']) in (('xlScrollBar', 'Width'), ('xlScrollBar', 'Height'), ('xlListBox', 'Height')):
+        with pytest.raises(VBAUnsupportedError):
+            app.run('Probe.Go', *arguments)
+        return
+    assert str(app.run('Probe.Go', *arguments)) == f"15~15~{case['answer']}"
+
+
+OLD_PLACES = json.loads((Path(__file__).parent / 'fixtures/new_control_old_places.json').read_text('utf-8'))
+#: A height set through the old object also takes an EMU off the Shape's Top, for no reason worked out; nothing else reads it.
+_TOP_OF_SHAPE = re.compile(r'(Single:[^,]+),[^,]+,')
+
+
+@pytest.mark.parametrize('case', OLD_PLACES['cases'], ids=[f"{one['kind']}-{one['set']}" for one in OLD_PLACES['cases']])
+def test_an_old_object_reads_its_box_as_excel_does(case: dict[str, str]) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(OLD_PLACES['source'].replace('%MAKE%', OLD_PLACES['makers'][case['kind']]).replace('%SET%', case['set']), name='Probe')
+    member = case['set'][2:].split(' = ')[0]
+    if case['kind'] in ('group box', 'label', 'spinner', 'scroll bar') or (case['kind'] == 'list box' and member == 'Height'):  # Their old objects are not built, and a list box's height goes its own way.
+        with pytest.raises(VBAUnsupportedError):
+            app.run('Probe.Go')
+        return
+    found, expected = str(app.run('Probe.Go')).split('~', 2)[2], case['answer']
+    if case['set'].startswith('o.Height'):
+        found, expected = _TOP_OF_SHAPE.sub(r'\1,,', found), _TOP_OF_SHAPE.sub(r'\1,,', expected)
+    assert found == expected

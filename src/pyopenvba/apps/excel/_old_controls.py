@@ -14,9 +14,10 @@ from typing import TYPE_CHECKING, Any, ClassVar, cast
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.apps.excel._shapes import ShapeObject
+from pyopenvba.shapes._xlsx import on_pixel
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBAErrorValue, VBAInt, error, to_bool, to_number, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBAErrorValue, VBAInt, VBASingle, error, to_bool, to_number, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -141,6 +142,28 @@ def _through(owner: str, name: str, *, writes: bool = True) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put if writes else None)
 
 
+def _box_side(name: str) -> MemberSpec:
+    """Left, Top, Width or Height, a Double. A new form control's is the pixel its file will hold, whatever the Shape reads. A width set here stays as it was given on the
+    Shape (tests/fixtures/new_control_old_places.json)."""
+
+    def get(item: OldObject) -> object:
+        found = float(cast(float, item.drawn.vba_get(name, [])))
+        shape = item.shape
+        if shape.kind != 'formControl' or shape.source:
+            return found
+        return on_pixel(found) if name in ('Left', 'Top') else round(found * 4 / 3) * 0.75
+
+    def put(item: OldObject, value: object) -> None:
+        shape = item.shape
+        if name == 'Width' and shape.kind == 'formControl' and not shape.source and shape.control is not None and shape.control.kind != 'Scroll':
+            shape.width = float(VBASingle(float(to_number(value))))
+            item.sheet.drawing_changed()
+            return
+        item.drawn.vba_set(name, value)
+
+    return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
 def _new_control(name: str, value: object) -> MemberSpec:
     """What a new control answers; setting it is refused until what it writes is measured."""
 
@@ -167,7 +190,7 @@ def _raising(name: str, failure: tuple[int, str]) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-for _spec in (*(_through('drawn', _name) for _name in ('Name', 'Left', 'Top', 'Width', 'Height', 'Placement', 'OnAction')), _through('drawn', 'TopLeftCell', writes=False), _through('drawn', 'BottomRightCell', writes=False)):
+for _spec in (*(_box_side(_name) for _name in ('Left', 'Top', 'Width', 'Height')), *(_through('drawn', _name) for _name in ('Name', 'Placement', 'OnAction')), _through('drawn', 'TopLeftCell', writes=False), _through('drawn', 'BottomRightCell', writes=False)):
     OldObject.vba_add_member(_spec)
 for _spec in (_through('control', 'Enabled'), _through('control', 'PrintObject')):
     OldControl.vba_add_member(_spec)

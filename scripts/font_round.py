@@ -185,7 +185,7 @@ def items(font: str) -> list[list[object]]:
             found.append(['Wrapped', f'{text(3)}~{text(4)}', font, size, bold, italic, 0, widths])
             pixels = sorted(chooser.sample(range(24, 500), 10))
             found.append(['Lined', text(), font, size, bold, italic, ','.join(str(pixel * .75) for pixel in pixels)])
-            for value, shape in ((1234567.891, 'General'), (0.000123456, 'General'), (-0.000123456, 'General'), (98765.4321, '#,##0.00'), (45123.0, 'yyyy-mm-dd'), (12.5, '0.00%')):
+            for value, shape in ((1234567.891, 'General'), (0.000123456, 'General'), (-0.000123456, 'General'), (98765.4321, '#,##0.00'), (45123.0, 'yyyy-mm-dd'), (12.5, '0.00%'), ('abc', '@*-'), (True, 'General'), (1234.5, '_(* #,##0.00_)')):
                 found.append(['Shown', value, shape, font, size, bold, italic, ','.join(str(one) for one in (0.09, 0.25, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18))])
     for size in (9.0, 11.0, 14.0):
         for width in (40.0, 70.0, 120.0):

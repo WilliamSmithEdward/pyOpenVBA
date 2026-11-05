@@ -114,7 +114,7 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
     A value its format cannot show, a date before 1900 say, fills the column with #. A number shown by General
     loses decimals, then goes to scientific notation, then shows 0 where it rounds to that, as the column narrows,
     the format's other text kept; any other number, a date, a logical or an error fills the column with # once it
-    no longer fits, as does a General number nothing else fits, a constant one # however narrow the column. Text shows whole, unless a section with a ``*``
+    no longer fits, as does a General number nothing else fits, a typed number one # however narrow the column. Text shows whole, unless a section with a ``*``
     fill lays it out, and then fills with # as a number would. A fill repeats its character as often as it fits,
     to 255 characters in all, each ``_x`` and ``?`` counted a space wide. What a cell has to show its text in is
     its column's width but 5 pixels and the pad a big font adds, an indent level's 9 and, for italic, a pixel for
@@ -169,8 +169,9 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
                                   f"8 to 72pt")
     room = pixels - 5 - font_pad(table) - _steps(font)
     space = room - _INDENT * alignment.indent
-    # Too narrow for one, a constant still shows one and a formula shows nothing, in every font (tests/fixtures/font_round_arial.json against tests/fixtures/autofit_sizes.json).
-    hashes = "#" * max(0 if cell.formula else 1, room // table["#"])
+    # Too narrow for one, a typed number still shows one, and a formula or text with a fill shows nothing, in every font (tests/fixtures/font_round_arial.json against
+    # tests/fixtures/autofit_sizes.json and tests/fixtures/narrow_text.json).
+    hashes = "#" * max(0 if cell.formula or isinstance(value, str) else 1, room // table["#"])
     if shown is None:
         return hashes if undisplayable or _glyphs(table, text) > space else text
     laid, fill_at = shown.text, shown.fill_at

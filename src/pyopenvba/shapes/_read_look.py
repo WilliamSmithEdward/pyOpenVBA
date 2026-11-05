@@ -105,6 +105,17 @@ def read_look(markup: str) -> FillLine:
             raise VBAUnsupportedError(f"The fill and line of a shape with {tag[2:]} are not implemented")
     if line is not None:
         _read_line(look, rest[line[0]:line[1]])
+    # What a hidden fill or line would be, shown again, which the file keeps in an extension.
+    hidden = re.search(r"<a14:hiddenFill\b.*?</a14:hiddenFill>", rest, re.DOTALL)
+    if look.fill_hidden and hidden is not None:
+        paint = _paint(hidden.group(0))
+        if paint is not None:
+            look.fill_rgb, look.fill_scheme, look.fill_mods = paint.rgb, paint.scheme, paint.mods
+    hidden = re.search(r"<a14:hiddenLine\b.*?</a14:hiddenLine>", rest, re.DOTALL)
+    if look.line_hidden and hidden is not None:
+        paint = _paint(hidden.group(0))
+        if paint is not None:
+            look.line_rgb, look.line_scheme, look.line_mods = paint.rgb, paint.scheme, paint.mods
     return look
 
 

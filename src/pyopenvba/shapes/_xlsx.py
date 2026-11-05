@@ -275,7 +275,7 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
     transform = re.search(r"<a:xfrm\b([^>]*)>", markup)
     shape.flip_h = transform is not None and re.search(r'\bflipH="(?:1|true)"', transform.group(1)) is not None
     shape.flip_v = transform is not None and re.search(r'\bflipV="(?:1|true)"', transform.group(1)) is not None
-    locks = re.search(r"<a:spLocks\b([^>]*)/?>", markup)
+    locks = re.search(r"<a:(?:sp|cxnSp|pic)Locks\b([^>]*)/?>", markup)
     if locks is not None:
         shape.lock_aspect = re.search(r'\bnoChangeAspect="(?:1|true)"', locks.group(1)) is not None
     client = re.search(r"<xdr:clientData\b([^>]*)/?>", anchor)
@@ -1277,8 +1277,10 @@ def _fill_line(shape: Shape) -> str:
     if look.fill_gradient is not None:
         fill_paint = _gradient(look.fill_gradient)
     fill = ""
-    if look.fill_hidden or look.fill_bare:
+    if look.fill_hidden or (look.fill_bare and shape.kind != "picture"):
         fill = "<a:noFill/>"
+    elif look.fill_bare:
+        pass  # A picture with no fill of its own stays without one (tests/fixtures/shape_settings_kept.json).
     elif look.fill_pattern is not None or look.fill_gradient is not None:
         fill = fill_paint
     elif (look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box
@@ -1449,11 +1451,12 @@ def _arrow_ends(head: tuple[str | None, str | None, str | None], tail: tuple[str
 
 def _stroke(tag: str, namespace: str, width: int, paint: str, dash: str, text_box: bool, full: bool, ends: str,
             align: str | None) -> str:
-    """A line written out in full: as a text box has it, with no dash or join until its ends are written, or as the
-    style gives any other shape's."""
+    """A line written out in full: as a text box has it, with no join until its ends are written and a dash only if one is set
+    (tests/fixtures/shape_settings_kept.json), or as the style gives any other shape's."""
     if text_box and not full:
         aligned = "" if align is None else f' algn="{align}"'
-        return f'<{tag}{namespace} w="{width}" cmpd="sng"{aligned}>{paint}</{tag}>'
+        dashed = "" if dash == "solid" else f'<a:prstDash val="{dash}"/>'
+        return f'<{tag}{namespace} w="{width}" cmpd="sng"{aligned}>{paint}{dashed}</{tag}>'
     join = "<a:round/>" if text_box else '<a:miter lim="800000"/>'
     return (f'<{tag}{namespace} w="{width}" cap="flat" cmpd="sng" algn="ctr">{paint}<a:prstDash val="{dash}"/>{join}'
             f"{ends}</{tag}>")
@@ -1471,7 +1474,7 @@ def _free_geometry(shape: Shape) -> str:
 
 def _connections(shape: Shape) -> str:
     """A connector's cNvCxnSpPr, naming the shape and site each connected end holds (tests/fixtures/shape_connectors.json)."""
-    inside = "<a:cxnSpLocks/>" if shape.link_lost else ""
+    inside = '<a:cxnSpLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:cxnSpLocks/>" if shape.link_lost or shape.lock_aspect is False else ""
     inside += "" if shape.begin_link is None else f'<a:stCxn id="{shape.begin_link.target}" idx="{shape.begin_link.site - 1}"/>'
     inside += "" if shape.end_link is None else f'<a:endCxn id="{shape.end_link.target}" idx="{shape.end_link.site - 1}"/>'
     return f"<xdr:cNvCxnSpPr>{inside}</xdr:cNvCxnSpPr>" if inside else "<xdr:cNvCxnSpPr/>"
@@ -1757,8 +1760,6 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
         markup = _with_loaded_picture(markup, shape, was)
     if shape.kind == "line" and shape.links_read:
         markup = _with_loaded_links(markup, shape)
-    if (shape.flip_h, shape.flip_v) != (was.flip_h, was.flip_v):
-        markup = re.sub(r"<a:xfrm\b[^>]*>", lambda _: f"<a:xfrm{_xfrm_attributes(shape)}>", markup, count=1)
     return _restyled(markup, shape, was, grid)
 
 
@@ -1817,6 +1818,23 @@ _ADEC = ('<a:ext uri="' + _ADEC_URI + '"><adec:decorative '
          'xmlns:adec="http://schemas.microsoft.com/office/drawing/2017/decorative" val="{value}"/></a:ext>')
 
 
+def _with_lock(markup: str, shape: Shape) -> str:
+    """A loaded shape's markup with its aspect locked or not, in the locks element of its kind, first in its properties
+    (tests/fixtures/shape_settings_kept.json). What else the element locks stays."""
+    tag, holder = {"line": ("a:cxnSpLocks", "xdr:cNvCxnSpPr"), "picture": ("a:picLocks", "xdr:cNvPicPr")}.get(shape.kind, ("a:spLocks", "xdr:cNvSpPr"))
+    found = re.search(rf"<{tag}\b([^>]*?)/>", markup)
+    kept = "" if found is None else re.sub(r'\s*noChangeAspect="[^"]*"', "", found.group(1)).rstrip()
+    locks = f'<{tag} noChangeAspect="1"{kept}/>' if shape.lock_aspect else f"<{tag}{kept}/>"
+    if found is not None:
+        return markup[:found.start()] + locks + markup[found.end():]
+    opened = re.search(rf"<{holder}([^>]*?)(/?)>", markup)
+    if opened is None:
+        return markup
+    if opened.group(2):
+        return markup[:opened.start()] + f"<{holder}{opened.group(1)}>{locks}</{holder}>" + markup[opened.end():]
+    return markup[:opened.end()] + locks + markup[opened.end():]
+
+
 def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> str:
     """A loaded shape's markup with the settings a macro changed patched in, as Excel patches them
     (tests/fixtures/loaded_shape/cases.json): descr and title on cNvPr, the decorative extension (val 0 once
@@ -1841,11 +1859,7 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
     if shape.fill_line is not None:
         markup = with_fill_line(markup, _fill_line(shape))
     if shape.lock_aspect != was.lock_aspect:
-        locks = '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>"
-        if re.search(r"<a:spLocks\b", markup):
-            markup = re.sub(r"<a:spLocks\b[^>]*/>", locks, markup, count=1)
-        else:
-            markup = re.sub(r"<xdr:cNvSpPr([^>]*)/>", rf"<xdr:cNvSpPr\1>{locks}</xdr:cNvSpPr>", markup, count=1)
+        markup = _with_lock(markup, shape)
     if (shape.locked, shape.prints) != (was.locked, was.prints):
         markup = re.sub(r"<xdr:clientData\b[^>]*/>", lambda _: _client_data(shape), markup, count=1)
     if shape.edit_as != was.edit_as:

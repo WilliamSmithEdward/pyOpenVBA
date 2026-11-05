@@ -4715,7 +4715,7 @@ Window,Hwnd,"property, read-only",As Long,,MISSING,,
 Window,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/read_audit.json; tests/test_excel_read_audit.py; tests/fixtures/windows/windows.json,"Read in each state that changes it, and after a save and reopen where the file keeps it; assigning to it is measured too."
 Window,LargeScroll,method,"LargeScroll([Down As Variant], [Up As Variant], [ToRight As Variant], [ToLeft As Variant]) As Variant",,MISSING,,
 Window,Left,property,As Double,,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Reads back what a macro set, no event; before one does it is the screen's and reports itself"
-Window,NewWindow,method,NewWindow() As Window,,MISSING,,
+Window,NewWindow,method,NewWindow() As Window,,PARTIAL,tests/fixtures/new_window.json; tests/test_excel_new_window.py,"Typed and late on a shown Excel, and Excel read the save. Window order across workbooks, events and a hidden window are not modelled."
 Window,OnWindow,property,As String,,PARTIAL,tests/fixtures/application_rest.json; tests/test_excel_application_rest.py,"Reads back what a macro set, its workbook's name before it; none set is 1004; nothing here runs it"
 Window,Panes,"property, read-only",As Panes,,VERIFIED,tests/fixtures/read_audit.json; tests/test_excel_read_audit.py; tests/fixtures/windows/windows.json,"Read in each state that changes it, and after a save and reopen where the file keeps it; assigning to it is measured too."
 Window,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
@@ -4871,7 +4871,7 @@ Workbook,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads
 Workbook,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt,
 Workbook,NewChart,event,NewChart(Ch As Chart),,PARTIAL,tests/fixtures/more_events.json; tests/test_excel_more_events.py,"Raised by AddChart, AddChart2, ChartObjects.Add and Duplicate; not by a sheet copy"
 Workbook,NewSheet,event,NewSheet(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for a sheet added, before the sheet left deactivates and the new one activates."
-Workbook,NewWindow,method,NewWindow() As Window,,MISSING,,
+Workbook,NewWindow,method,NewWindow() As Window,,PARTIAL,tests/fixtures/new_window.json; tests/test_excel_new_window.py,"Typed and late on a shown Excel, and Excel read the save. Window order across workbooks, events and a hidden window are not modelled."
 Workbook,Open,event,Open(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when a workbook opens, before the application's WorkbookOpen and its activation."
 Workbook,OpenLinks,method,"OpenLinks(Name As String, [ReadOnly As Variant], [Type As Variant])",,PARTIAL,tests/fixtures/link_edits.json; tests/test_excel_link_edits.py,"Opens the files named, on a workbook that has links, over 22 live cases."
 Workbook,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"Application, by the way it is reached; Set o.Parent is the error set_parent_error gives."

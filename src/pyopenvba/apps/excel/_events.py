@@ -276,7 +276,10 @@ def calculated_all(book: Workbook, worked: list[Worksheet]) -> None:
 def after_edit(target: Range, *, calculate_first: bool = True) -> None:
     """An edit's Change and the Calculate it brings, in the order Excel raises them. What a dynamic-array formula
     spills is in place after the edit, as Excel spills it, events or none."""
+    from pyopenvba.apps.excel._hidden_names import edited
+
     book = target.sheet.book
+    edited(target)
     book.calculator.settle_spills()
     settled = book.calculator.settle_entries()
     settled_names = {key[0] for key in settled}

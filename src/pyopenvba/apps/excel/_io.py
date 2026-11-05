@@ -1144,6 +1144,7 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
     from pyopenvba.apps.excel import _charts_file
 
     for chart_sheet in book.chart_sheets:
+        chart_sheet.write_changes(package)
         _charts_file.refresh(chart_sheet.sheet, package)
         if package.read(chart_sheet.part_name).decode("utf-8", errors="replace") != chart_sheet.saved_xml():
             package.write(chart_sheet.part_name, chart_sheet.saved_xml().encode("utf-8"))
@@ -1152,6 +1153,10 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         sheet.dims.settle_shapes()
         _charts_file.refresh(sheet, package)
         if not sheet.drawing_dirty:
+            continue
+        if not sheet.drawing_part and not sheet.shapes_:
+            # Its only chart moved away before it was ever written (tests/fixtures/chart_location.json).
+            sheet.drawing_dirty = False
             continue
         part = sheet.drawing_part or _new_drawing(book, package, sheet)
         if not part:
@@ -1649,6 +1654,8 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         package = _fresh_package(fresh_suffix if fresh_suffix is not None else target.suffix.lower())
         book.package = package
         _match_sheets_to_package(book, package)
+        if book.chart_sheets:
+            _sync_sheets(book, package)
     else:
         _sync_sheets(book, package)
         removed_sheets = _remove_deleted_sheets(book, package)
@@ -2181,10 +2188,14 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
         reserved[match.group()] = ("" if position is None else
                                   "<definedName" + patch_attribute(fragment, "localSheetId", str(position))
                                   + ">" + body + "</definedName>")
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
+
     tags: list[str] = []
     for sheet in book.tabs():
         attrs = dict(existing.get(sheet.part_name, {}))
-        if not attrs:
+        if not attrs and isinstance(sheet, ChartSheet):
+            attrs = {"name": sheet.name, "sheetId": str(sheet.sheet_id), "r:id": sheet.write_parts(package)}
+        elif not attrs:
             number = 1
             while package.has(f"xl/worksheets/sheet{number}.xml"):
                 number += 1

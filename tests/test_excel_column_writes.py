@@ -31,7 +31,7 @@ End Function
 
 def test_a_plain_cell_does_not_send_the_sheet_back_through_its_row_fonts() -> None:
     app = _app(COLUMN)
-    real = SheetDimensions._work_out_growth
+    real = SheetDimensions._work_out_growth  # pyright: ignore[reportPrivateUsage]
     calls: list[int] = []
 
     def counted(self: Any) -> None:

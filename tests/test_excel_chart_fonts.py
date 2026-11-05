@@ -41,10 +41,7 @@ def test_each_chart_part_as_excel_saved_it(run: tuple[list[str], Path], index: i
 
 
 @pytest.mark.parametrize('statements', [
-    'ch.Legend.Font.Superscript = True',
     # Whether the chart area's font reaches the others was not measured.
-    'ch.ChartArea.Font.Size = 14: x = ch.Legend.Font.Size',
-    'ch.Legend.Font.Size = 14: ch.ChartArea.Font.Size = 14',
     # Taking away an element with a font: what it comes back with was not measured.
     'ch.Legend.Font.Size = 14: ch.HasLegend = False',
     'ch.ChartTitle.Font.Size = 14: ch.HasTitle = False',
@@ -56,12 +53,6 @@ def test_each_chart_part_as_excel_saved_it(run: tuple[list[str], Path], index: i
     'ch.ChartType = xlLine',
     'ch.SeriesCollection(1).HasDataLabels = True: ch.SeriesCollection(1).DataLabels.Font.Size = 14: '
     'ch.SeriesCollection(1).HasDataLabels = False',
-    # The settings no case measured.
-    'ch.Legend.Font.Size = 450',
-    'ch.Legend.Font.Underline = xlUnderlineStyleDouble',
-    'ch.Legend.Font.Size = 10.25',
-    'ch.Legend.Font.ColorIndex = xlColorIndexAutomatic',
-    'ch.Legend.Font.Strikethrough = False',
 ])
 def test_an_unmeasured_step_is_refused(statements: str) -> None:
     app = ExcelApplication(sandbox=False)

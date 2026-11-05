@@ -601,9 +601,32 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
     if kept not in (NO, YES, GUESS):
         raise error(1004, refusal)
     has_header = kept == YES or (kept == GUESS and guessed_header(target.sheet, area, across))
-    sort_area(target.sheet, area, resolved, header=has_header,
-              match_case=match_case is not MISSING and switch(match_case, refusal), across=across)
+    # Left out, MatchCase is the last sort's on the sheet, and the sort goes by it (tests/fixtures/excel_fits.json).
+    last = target.sheet.sort_state.match_case if target.sheet.sort_state is not None else False
+    matching = last if match_case is MISSING else switch(match_case, refusal)
+    sort_area(target.sheet, area, resolved, header=has_header, match_case=matching, across=across)
+    _left_on_the_sheet(target.sheet, area, keys, has_header=has_header, match_case=matching, way=way)
     return True
+
+
+def _left_on_the_sheet(sheet: Worksheet, area: Area, keys: list[tuple[object, object, object]], *, has_header: bool, match_case: bool, way: int) -> None:
+    """Range.Sort replaces the sheet's sort settings, which Worksheet.Sort then reads (tests/fixtures/excel_fits.json)."""
+    state = sheet.sort_state if sheet.sort_state is not None else _loaded_state(sheet)
+    sheet.sort_state = state
+    fields: list[SortField] = []
+    for key, order, option in keys:
+        if not isinstance(key, Range):
+            continue
+        field = SortField(key, ASCENDING if order is MISSING else enum_number(order, "Sort method of Range class failed"),
+                          0 if option is MISSING else int(to_integer(option, "Long")))
+        field.state = state
+        fields.append(field)
+    state.fields = fields
+    top = area.top + 1 if has_header and way == TOP_TO_BOTTOM else area.top
+    left = area.left + 1 if has_header and way == LEFT_TO_RIGHT else area.left
+    state.area = Range(sheet, [Area(top, left, area.bottom, area.right, area.sheet)])
+    state.match_case = match_case
+    state.orientation = way
 
 
 def _named_key(target: Range, name: str, area: Area, across: bool) -> int:
@@ -716,7 +739,7 @@ def sort_state_markup(sheet: Worksheet, state: SortState) -> bytes:
         raise VBAUnsupportedError('Persisting cross-sheet worksheet sort settings is not implemented')
     if state.header not in (GUESS, YES, NO) or any(field.order not in (ASCENDING, DESCENDING) for field in state.fields):
         raise VBAUnsupportedError('Persisting unmeasured worksheet sort enums is not implemented')
-    if state.orientation != TOP_TO_BOTTOM or state.method != 1:
+    if state.orientation not in (TOP_TO_BOTTOM, LEFT_TO_RIGHT) or state.method != 1:
         raise VBAUnsupportedError('Persisting non-default worksheet sort methods/orientations is not implemented')
     if any(field.subfield is not EMPTY for field in state.fields):
         raise VBAUnsupportedError("Persisting a sort field's SubField is not implemented")
@@ -734,6 +757,10 @@ def sort_state_markup(sheet: Worksheet, state: SortState) -> bytes:
     root = XmlElement(ns + 'sortState', {'xmlns': namespace, 'ref': block.address(absolute=False)})
     if state.match_case:
         root.set('caseSensitive', '1')
+    if state.orientation == LEFT_TO_RIGHT:
+        root.set('columnSort', '1')
+    # Excel writes the ref after these (tests/test_excel_fits.py).
+    root.set('ref', root.attrib.pop('ref'))
     for field in state.fields:
         root.append(XmlElement(ns + 'sortCondition', condition_attributes(sheet.book, field)))
     return xml_bytes(root).split(b'?>', 1)[1].lstrip()
@@ -882,7 +909,7 @@ def _loaded_state(sheet: Worksheet) -> SortState:
     allowed = {'ref', 'caseSensitive', 'columnSort', 'sortMethod'}
     if (any(key not in allowed and key != 'xmlns' and not key.startswith('xmlns:') for key in group.attributes)
             or group.get('caseSensitive', '0') not in ('0', '1', 'false', 'true')
-            or group.get('columnSort', '0') not in ('0', 'false')
+            or group.get('columnSort', '0') not in ('0', 'false', '1', 'true')
             or group.get('sortMethod', 'pinYin') != 'pinYin'
             or len(group.children) > 64 or group.has_text or group.has_opaque):
         raise VBAUnsupportedError('Custom worksheet sort settings are not implemented')
@@ -893,6 +920,7 @@ def _loaded_state(sheet: Worksheet) -> SortState:
         state.area = Range(sheet, [area])
         state.header = GUESS
         state.match_case = group.get('caseSensitive') in ('1', 'true')
+        state.orientation = LEFT_TO_RIGHT if group.get('columnSort') in ('1', 'true') else TOP_TO_BOTTOM
         for condition in group.children:
             sort_by = condition.get('sortBy', 'value')
             if (condition.name != ns + 'sortCondition' or condition.children or condition.has_text or condition.has_opaque
@@ -1128,6 +1156,8 @@ class SortFields(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Clear(self) -> object:
+        # MatchCase goes with them (tests/fixtures/excel_fits.json).
+        self.owner.state.match_case = False
         self.owner.state.fields.clear()
         self.owner.state.area = None
         return EMPTY

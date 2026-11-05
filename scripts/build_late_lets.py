@@ -84,8 +84,11 @@ def main() -> None:
     lines += ['}', '', 'LATE_CALLS: dict[str, dict[str, int]] = {']
     made = calls()
     lines += [f'    {key!r}: {made[key]!r},' for key in sorted(made)]
-    lines += ['}', '', '#: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json).',
-              "LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook'})", '']
+    lines += ['}', '', '#: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json,',
+              '#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json).',
+              "LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook', 'workbook.fileformat',",
+              "                          'dropdown.listcount', 'dropdown.listindex', 'dropdown.value', 'dropdown.dropdownlines',",
+              "                          'listbox.listcount', 'listbox.listindex', 'listbox.value'})", '']
     OUT.write_text('\n'.join(lines), encoding='utf-8', newline='\n')
     print(len(built), 'properties,', len(made), 'methods')
 

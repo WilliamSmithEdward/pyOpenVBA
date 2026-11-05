@@ -3725,8 +3725,8 @@ class Worksheet(ExcelObject):
             from pyopenvba.apps.excel._tables import edited
 
             edited(self, row, column)
+        self.dims.value_changed(row, column)
         cell = self.cells_.get((row, column))
-        self.dims.contents_changed(row, cell)
         calculator = self.book.calculator
         if cell is not None:
             calculator.remember(self.name, row, column, cell)

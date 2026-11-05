@@ -294,7 +294,8 @@ def read_chart(xml: str, part: str) -> ChartState:
         result.title, result.title_typed = typed if rich else 'Chart Title', rich
         result.title_look = read_look(title, NS)
     deleted = root.find('c:chart/c:autoTitleDeleted', NS)
-    result.title_deleted = title is None and deleted is not None and deleted.get('val', '1') in ('1', 'true')
+    # A chart without the flag has had its title deleted, as Excel takes it (tests/fixtures/chart_loaded_title.json).
+    result.title_deleted = title is None and (deleted is None or deleted.get('val', '1') in ('1', 'true'))
     legend = root.find('c:chart/c:legend', NS)
     result.legend = legend is not None
     if legend is not None:
@@ -821,7 +822,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     from pyopenvba.apps.excel._chart_points import point_labels_markup, points_markup
     from pyopenvba.apps.excel._chart_styled import dressed, is_styled
 
-    chart = Chart(sheet, shape)
+    chart = sheet.chart_sheet or Chart(sheet, shape)
     settle_hidden(sheet, chart.state)
     data: list[SeriesData] = []
     for item in chart.state.full_series or chart.state.series:
@@ -980,6 +981,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     # A series with no values yet, as NewSeries makes one, has no values element (tests/fixtures/chart_stacked.json).
     xml = re.sub(r'<c:(val|yVal)><c:numLit><c:formatCode>[^<]*</c:formatCode><c:ptCount val="0"/></c:numLit>'
                  r'</c:\1>', '', xml)
+    if sheet.chart_sheet is not None:
+        # A chart sheet's chart leaves its page to the sheet (tests/fixtures/chart_location.json).
+        xml = re.sub(r'<c:printSettings>.*?</c:printSettings>', '', xml, count=1, flags=re.S)
     return xml
 
 CT_CHART_STYLE = 'application/vnd.ms-office.chartstyle+xml'

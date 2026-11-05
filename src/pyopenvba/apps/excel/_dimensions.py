@@ -204,10 +204,14 @@ class RowRecord:
     xf: int = -1
     #: The thickTop and thickBot the file gave the row, kept where the model cannot work them out.
     flags_as_read: tuple[bool, bool] = (False, False)
+    #: The height wrapped text gave the row when Excel last worked it out, in quarter pixels, which holds until a value or format
+    #: in it changes: a column's width changing does not move it, and a file's height stands (tests/fixtures/wrapped_events.json,
+    #: tests/fixtures/wrapped_curves.json). None while it follows the columns as they are.
+    wrapped: int | None = None
 
     def empty(self) -> bool:
         return (self.height is None and not self.hidden and self.grown is None and not self.extra
-                and self.style is None)
+                and self.style is None and self.wrapped is None)
 
 
 @dataclass(slots=True)
@@ -309,6 +313,10 @@ class SheetDimensions:
         self._grown: dict[int, tuple[int, int]] = {}
         #: Rows whose height rests on something not measured, and what.
         self._unmeasured: dict[int, str] = {}
+        #: Rows showing wrapped text, and how tall that makes them now, in quarter pixels.
+        self._wrapped_now: dict[int, int] = {}
+        #: No cell wrapped when last looked, since when none has changed.
+        self._nothing_wraps = False
         #: Rows whose cells changed since the file was read, so a height it
         #: recorded for them no longer holds.
         self._touched: set[int] = set()
@@ -429,6 +437,46 @@ class SheetDimensions:
                 if record.empty() and not self.zero_height:
                     del self.rows[row]
 
+    def _wrapped_pixels(self, row: int, column: int, cell: Cell, style: Style, *, formulas: bool = False) -> int | str:
+        """How tall a cell's wrapped text makes its row, in pixels, as if it stood alone; 0 where it adds nothing, or the reason the model
+        cannot tell. A number stays on a line, and a merged cell and a formula add nothing, until AutoFit for a formula
+        (tests/fixtures/wrapped_events.json)."""
+        from pyopenvba.apps.excel._column_fit import font_pad
+        from pyopenvba.apps.excel._font_widths import ascent, widths
+        from pyopenvba.apps.excel._wrapped_text import lines_of, row_pixels_for
+
+        if cell.runs is not None:
+            return "wrapped text in several fonts"
+        if cell.formula and not formulas:
+            return 0
+        value = self.sheet.book.calculator.value_of(self.sheet.name, row, column) if cell.formula else cell.value
+        if not isinstance(value, str) or any(area.contains(row, column) for area in self.sheet.merged_areas):
+            return 0
+        if value.endswith("-\n"):
+            # The fourth held-out round's one miss, in columns about a letter wide (tests/fixtures/wrapped_round4.json).
+            return "wrapped text ending in a hyphen and a line feed"
+        font = style.font
+        table = widths(font.name, font.bold, font.italic, float(font.size))
+        if table is None:
+            return f"the font {font.name}"
+        if any(character not in table and character != "\n" for character in value):
+            return "wrapped text with characters not measured"
+        family = _font_rows.table_of(font.name, font.bold, font.italic)
+        pixels = font_pixels(font.size)
+        if family is None or not 1 <= pixels <= _font_rows.MOST_PIXELS:
+            return f"the font {font.name}"
+        taken = 9 * style.alignment.indent
+        if font.italic:
+            rise = ascent(font.name, font.bold, True, float(font.size))
+            assert rise is not None
+            taken += rise // 5
+
+        def extent(text: str) -> int:
+            return sum(table[character] for character in text)
+
+        lines = lines_of(value, self.column_pixels(column) - taken, extent, font_pad(table))
+        return 0 if lines == 1 else row_pixels_for(lines, _font_rows.row_of(family, pixels, alone=True)[0])
+
     # -- the standard sizes
 
     def normal_known(self) -> bool:
@@ -499,6 +547,53 @@ class SheetDimensions:
     def fonts_changed(self, row: int) -> None:
         """A cell in a row changed its value or its format, or went away, or the row's format changed."""
         self._touched.add(row)
+        record = self.rows.get(row)
+        if record is not None:
+            record.wrapped = None
+        self.invalidate_growth()
+
+    def value_changed(self, row: int, column: int) -> None:
+        """A cell's contents changed. A row's wrapped text is worked out again only for a cell that wraps, and not for a formula
+        (tests/fixtures/wrapped_events.json)."""
+        self._touched.add(row)
+        record = self.rows.get(row)
+        cell = self.sheet.cells_.get((row, column))
+        if cell is not None and cell.style is not None and _wraps(cell.style):
+            if cell.formula:
+                last = self._wrapped_now.get(row)
+                if last is not None and (record is None or record.wrapped is None):
+                    self.rows.setdefault(row, RowRecord()).wrapped = last
+            elif record is not None:
+                record.wrapped = None
+        self.contents_changed(row, cell)
+
+    def _hold_wrapped(self) -> None:
+        """Before a column's width changes: wrapped text keeps the height it has. A sheet with none need not settle for it."""
+        if self._nothing_wraps:
+            return
+        if not any(cell.style is not None and _wraps(cell.style) for cell in self.sheet.cells_.values()):
+            self._nothing_wraps = True
+            return
+        self._settle()
+        for row, quarters in self._wrapped_now.items():
+            record = self.rows.get(row)
+            if record is None:
+                record = self.rows[row] = RowRecord()
+            if record.wrapped is None:
+                record.wrapped = quarters
+
+    def contents_changed(self, row: int, cell: Cell | None) -> None:
+        """A cell's contents changed and its format did not. A plain cell shows the Normal font, which grows no row, so a
+        write to a row nothing has grown, beside no edged row, leaves what was worked out as it was: the whole sheet need not
+        be gone through again for each cell a macro writes down a column."""
+        self._touched.add(row)
+        if (self._grown_valid and (cell is None or (cell.style is None and cell.runs is None))
+                and row not in self._grown and row not in self._unmeasured
+                and all(self._flags.get(near, self._default_flags) == self._default_flags for near in (row - 1, row, row + 1))
+                and (row not in self.rows or self.rows[row].style is None)
+                and not any(record.style is not None for record in self.columns.values())
+                and not self.sheet.merged_areas and self.normal_known()):
+            return
         self.invalidate_growth()
 
     def column_fonts_changed(self) -> None:
@@ -513,6 +608,7 @@ class SheetDimensions:
         if self._grown_valid and self.sheet.shapes_:
             self.remember_shapes()
         self._grown_valid = False
+        self._nothing_wraps = False
 
     def remember_shapes(self) -> None:
         """Where each shape that follows its cells is anchored now, which rows that grow by their fonts later move
@@ -550,6 +646,7 @@ class SheetDimensions:
         self._grown.clear()
         self._unmeasured.clear()
         self._flags.clear()
+        self._wrapped_now.clear()
         default = self.sheet.book.stylesheet.default
         normal = default.font
         normal_entry = (_font_rows.table_of(normal.name, normal.bold, normal.italic), font_pixels(normal.size))
@@ -580,6 +677,7 @@ class SheetDimensions:
         special = set(by_row) | {row for row, record in self.rows.items() if record.style is not None}
         fonts: dict[int, tuple[int, int] | str | None] = {}
         lines: dict[int, tuple[int, int]] = {}
+        wrapped_pixels: dict[int, int] = {}
         for row in special:
             cells = sorted(by_row.get(row, []), key=lambda found: found[0])
             entries: list[tuple[int, int] | str | None] = []
@@ -590,6 +688,12 @@ class SheetDimensions:
                 entries.append(_font_entry(style, cell.value is not EMPTY or bool(cell.formula)))
                 if cell.runs is not None:
                     entries.extend(_run_entries(cell, style))
+                if _wraps(style) and (cell.value is not EMPTY or cell.formula):
+                    wrapped = self._wrapped_pixels(row, column, cell, style)
+                    if isinstance(wrapped, str):
+                        entries.append(wrapped)
+                    else:
+                        wrapped_pixels[row] = max(wrapped_pixels.get(row, 0), wrapped)
             record = self.rows.get(row)
             own = record.style if record is not None and record.style is not None else None
             if len(cells) < MAX_COLUMNS:
@@ -603,7 +707,13 @@ class SheetDimensions:
                         covered[column_format] = covered.get(column_format, 0) + 1
                     others = [style for style, count in groups.items() if count > covered.get(style, 0)]
                 entries.extend(_font_entry(style, False) for style in others)
-            fonts[row] = _row_fonts(entries, normal_entry, unknown)
+            fonts[row] = found_fonts = _row_fonts(entries, normal_entry, unknown)
+            kept = record.wrapped if record is not None else None
+            if isinstance(found_fonts, tuple) and (row in wrapped_pixels or kept is not None):
+                # Taller than its fonts alone make it; the descent is still theirs.
+                quarters = kept if kept is not None else 4 * wrapped_pixels[row]
+                fonts[row] = (max(found_fonts[0], quarters), found_fonts[1])
+                self._wrapped_now[row] = max(found_fonts[0], quarters)
             taken = {column for column, _ in cells}
             beyond = [(0, _lines(own))] if own is not None and len(cells) < MAX_COLUMNS else \
                 [(column, found) for column, found in edged_columns if column not in taken]
@@ -623,6 +733,8 @@ class SheetDimensions:
                 # The Normal font was not measured: the file's heights stand, unless a border moves them.
                 if flags != self._default_flags:
                     self._unmeasured[row] = unknown or "the Normal font"
+            elif row in self._wrapped_now and flags != (False, False) and found[0] != STANDARD_ROW:
+                self._unmeasured[row] = "wrapped text beside a heavy border"
             else:
                 self._flags[row] = flags
                 shape = _with_flags(found, flags)
@@ -674,8 +786,18 @@ class SheetDimensions:
         """
         self._grown_valid = False
         self._settle()
+        # Excel does not work wrapped text out on opening: the file's height stands, and with none it is the standard row.
+        wrapped = set(self._wrapped_now)
+        for row in wrapped:
+            record = self.rows.get(row)
+            if record is None:
+                record = self.rows[row] = RowRecord()
+            if record.height is None:
+                record.wrapped = record.grown if record.grown is not None else self.standard_written()[0]
+        self._grown_valid = False
+        self._settle()
         for row, record in list(self.rows.items()):
-            if record.grown is not None and row not in self._unmeasured:
+            if record.grown is not None and row not in self._unmeasured and row not in wrapped:
                 record.grown, record.height_as_read = None, ""
                 if record.empty() and not self.zero_height:
                     del self.rows[row]
@@ -699,6 +821,9 @@ class SheetDimensions:
                 return None, None
             return (record.height_as_read or None) if record.grown is not None else None, record.descent or None
         grown = self._grown.get(row)
+        if record is not None and record.wrapped is not None and record.wrapped == record.grown and record.height_as_read:
+            # As the file had it, while nothing has worked it out again.
+            return record.height_as_read, record.descent or (excel_number(grown[1] / 20) if grown is not None else None)
         if grown is None:
             return None, None
         quarters, descent = grown
@@ -864,8 +989,18 @@ class SheetDimensions:
         if reason is not None:
             raise VBAUnsupportedError(f"AutoFit of row {row} rests on {reason}, which is not measured")
         record = self.touch_row(row)
-        record.height, record.hidden, record.grown, record.height_as_read = None, False, None, ""
+        record.height, record.hidden, record.grown, record.height_as_read, record.wrapped = None, False, None, "", None
+        # A formula's text counts here, where setting it did not.
+        tallest = 0
+        for (one, column), cell in self.sheet.cells_.items():
+            if one == row and cell.formula and cell.style is not None and _wraps(cell.style):
+                found = self._wrapped_pixels(row, column, cell, cell.style, formulas=True)
+                if isinstance(found, int):
+                    tallest = max(tallest, found)
+        if tallest:
+            record.wrapped = 4 * tallest
         self.settle_row(row)
+        self.invalidate_growth()
 
     def size_all_rows(self, quarters: int) -> None:
         """Every row sized at once, which Excel keeps as the sheet's default rather than row by row."""
@@ -918,6 +1053,7 @@ class SheetDimensions:
         return record is not None and record.custom
 
     def touch_column(self, column: int) -> ColumnRecord:
+        self._hold_wrapped()
         self.hold_shapes()
         record = self.columns.get(column)
         if record is None:
@@ -988,6 +1124,7 @@ class SheetDimensions:
         self.settle_column(column)
 
     def set_standard_width(self, pixels: int) -> None:
+        self._hold_wrapped()
         self.hold_shapes()
         self.standard = pixels
         self.format_changed = True
@@ -1241,6 +1378,11 @@ def _with_flags(shape: tuple[int, int], flags: tuple[bool, bool]) -> tuple[int, 
     return shape[0] + 4 * (top + bottom), shape[1] + bottom
 
 
+def _wraps(style: Style) -> bool:
+    alignment = style.alignment
+    return alignment.wrap or alignment.horizontal in _WRAPPING or alignment.vertical in _WRAPPING
+
+
 def _font_entry(style: Style, text: bool) -> tuple[int, int] | str | None:
     """What a cell showing a format adds to its row's height.
 
@@ -1249,12 +1391,9 @@ def _font_entry(style: Style, text: bool) -> tuple[int, int] | str | None:
     cell does.
     """
     font, alignment = style.font, style.alignment
-    wraps = alignment.wrap or alignment.horizontal in _WRAPPING or alignment.vertical in _WRAPPING
     if alignment.text_rotation:
         # Turned text in an empty cell takes no room; with text it takes its length.
         return "turned text" if text else None
-    if wraps and text:
-        return "wrapped text"
     if font.vert_align in ("superscript", "subscript"):
         return f"{font.vert_align} text"
     table = _font_rows.table_of(font.name, font.bold, font.italic)

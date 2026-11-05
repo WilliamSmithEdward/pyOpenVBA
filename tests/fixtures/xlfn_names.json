@@ -1,0 +1,236 @@
+{
+ "measured_at": "2026-11-04T16:10:05.397366+00:00",
+ "probe": "Private Function Listed(wb As Object) As String\n    Dim n As Object, s As String, i As Long\n    s = wb.Names.Count & \":\"\n    For Each n In wb.Names\n        s = s & \" [\" & n.Name & \"=\" & n.RefersTo & \" vis \" & n.Visible & \" idx \" & n.Index & \"]\"\n    Next\n    Listed = s\nEnd Function\nFunction Go(ByVal file As String) As String\n    Dim wb As Workbook, ws As Worksheet, c As Range, t As String, v As Variant\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(-4167): Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Value = 2: ws.Range(\"A3\").Value = 3\n    Set c = ws.Range(\"D1\")\n    {action}\n    t = \"formula \" & c.Formula & \" text \" & c.Text & \" | \" & Listed(wb)\n    On Error Resume Next\n    v = wb.Names(\"_xlfn.SINGLE\").Name\n    t = t & \" | item E\" & Err.Number\n    Err.Clear\n    On Error GoTo 0\n    wb.SaveAs file, 51\n    t = t & \" | saved \" & Listed(wb)\n    wb.Close False\n    Set wb = Workbooks.Open(file)\n    t = t & \" | reopen \" & Listed(wb) & \" | \" & wb.Worksheets(1).Range(\"D1\").Formula\n    wb.Worksheets(1).Range(\"D1\").ClearContents\n    t = t & \" | cleared \" & Listed(wb)\n    wb.Close False\n    Go = t\nEnd Function\n",
+ "cases": {
+  "nothing": "",
+  "plain": "c.Formula = \"=A1+1\"",
+  "unknown_name": "c.Formula = \"=Nowhere\"",
+  "unknown_name2": "c.Formula2 = \"=Nowhere\"",
+  "unknown_in_sum": "c.Formula = \"=SUM(Nowhere)\"",
+  "unknown_plus": "c.Formula = \"=Nowhere+1\"",
+  "known_name": "wb.Names.Add \"Here\", \"=Sheet1!$A$1\": c.Formula = \"=Here\"",
+  "known_block": "wb.Names.Add \"Here\", \"=Sheet1!$A$1:$A$3\": c.Formula = \"=Here\"",
+  "block": "c.Formula = \"=A1:A3\"",
+  "block2": "c.Formula2 = \"=A1:A3\"",
+  "at_block": "c.Formula2 = \"=@A1:A3\"",
+  "at_unknown": "c.Formula2 = \"=@Nowhere\"",
+  "block_in_len": "c.Formula = \"=LEN(A1:A3)\"",
+  "udf_like": "c.Formula = \"=NoFunction(1)\"",
+  "concat": "c.Formula = \"=CONCAT(A1:A3)\"",
+  "textjoin": "c.Formula = \"=TEXTJOIN(\"\",\"\",TRUE,A1:A3)\"",
+  "xlookup": "c.Formula = \"=XLOOKUP(1,A1:A3,A1:A3)\"",
+  "sequence": "c.Formula2 = \"=SEQUENCE(2)\"",
+  "two_cells": "c.Formula = \"=Nowhere\": ws.Range(\"D2\").Formula = \"=Elsewhere\"",
+  "cleared": "c.Formula = \"=Nowhere\": c.ClearContents",
+  "replaced": "c.Formula = \"=Nowhere\": c.Value = 1",
+  "replaced_formula": "c.Formula = \"=Nowhere\": c.Formula = \"=1+1\"",
+  "named_after": "c.Formula = \"=Nowhere\": wb.Names.Add \"Nowhere\", \"=Sheet1!$A$1\"",
+  "sort": "c.Formula2 = \"=SORT(A1:A3)\"",
+  "filter": "c.Formula2 = \"=FILTER(A1:A3,A1:A3>1)\"",
+  "unique": "c.Formula2 = \"=UNIQUE(A1:A3)\"",
+  "let": "c.Formula2 = \"=LET(x,1,x+1)\"",
+  "lambda": "c.Formula2 = \"=LAMBDA(x,x+1)(2)\"",
+  "ifs": "c.Formula = \"=IFS(A1>0,1)\"",
+  "maxifs": "c.Formula = \"=MAXIFS(A1:A3,A1:A3,\"\">0\"\")\"",
+  "stdev_s": "c.Formula = \"=STDEV.S(A1:A3)\"",
+  "aggregate": "c.Formula = \"=AGGREGATE(9,6,A1:A3)\"",
+  "iferror": "c.Formula = \"=IFERROR(A1,0)\"",
+  "both": "c.Formula = \"=CONCAT(A1:A3)\": ws.Range(\"D2\").Formula = \"=Nowhere\": ws.Range(\"D3\").Formula = \"=XLOOKUP(1,A1:A3,A1:A3)\"",
+  "name_with_function": "wb.Names.Add \"Calc\", \"=CONCAT(Sheet1!$A$1:$A$3)\"",
+  "name_at": "wb.Names.Add \"Calc\", \"=Nowhere\"",
+  "cond_format": "ws.Range(\"E1\").FormatConditions.Add 2, , \"=CONCAT($A$1:$A$3)=\"\"x\"\"\"",
+  "with_a_name": "wb.Names.Add \"Zed\", \"=Sheet1!$A$1\": wb.Names.Add \"Abc\", \"=Sheet1!$A$2\": c.Formula = \"=Nowhere\""
+ },
+ "rows": [
+  {
+   "name": "nothing",
+   "answer": "formula  text  | 0: | item E1004 | saved 0: | reopen 0: |  | cleared 0:",
+   "file": ""
+  },
+  {
+   "name": "plain",
+   "answer": "formula =A1+1 text 2 | 0: | item E1004 | saved 0: | reopen 0: | =A1+1 | cleared 0:",
+   "file": "<f>A1+1</f>"
+  },
+  {
+   "name": "unknown_name",
+   "answer": "formula =Nowhere text #NAME? | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =Nowhere | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f>Nowhere</f>"
+  },
+  {
+   "name": "unknown_name2",
+   "answer": "formula =Nowhere text #NAME? | 0: | item E1004 | saved 0: | reopen 0: | =Nowhere | cleared 0:",
+   "file": "<c r=\"D1\" t=\"e\" cm=\"1\"> <f t=\"array\" ref=\"D1\">Nowhere</f>"
+  },
+  {
+   "name": "unknown_in_sum",
+   "answer": "formula =SUM(Nowhere) text #NAME? | 0: | item E1004 | saved 0: | reopen 0: | =SUM(Nowhere) | cleared 0:",
+   "file": "<f>SUM(Nowhere)</f>"
+  },
+  {
+   "name": "unknown_plus",
+   "answer": "formula =Nowhere+1 text #NAME? | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =Nowhere+1 | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f>Nowhere+1</f>"
+  },
+  {
+   "name": "known_name",
+   "answer": "formula =Here text 1 | 1: [Here==Sheet1!$A$1 vis True idx 1] | item E1004 | saved 1: [Here==Sheet1!$A$1 vis True idx 1] | reopen 1: [Here==Sheet1!$A$1 vis True idx 1] | =Here | cleared 1: [Here==Sheet1!$A$1 vis True idx 1]",
+   "file": "<f>Here</f> <definedName name=\"Here\">Sheet1!$A$1</definedName>"
+  },
+  {
+   "name": "known_block",
+   "answer": "formula =Here text 1 | 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Here==Sheet1!$A$1:$A$3 vis True idx 2] | item E0 | saved 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Here==Sheet1!$A$1:$A$3 vis True idx 2] | reopen 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Here==Sheet1!$A$1:$A$3 vis True idx 2] | =Here | cleared 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Here==Sheet1!$A$1:$A$3 vis True idx 2]",
+   "file": "<f>Here</f> <definedName name=\"Here\">Sheet1!$A$1:$A$3</definedName>"
+  },
+  {
+   "name": "block",
+   "answer": "formula =A1:A3 text 1 | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =A1:A3 | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f>A1:A3</f>"
+  },
+  {
+   "name": "block2",
+   "answer": "formula =A1:A3 text 1 | 0: | item E1004 | saved 0: | reopen 0: | =A1:A3 | cleared 0:",
+   "file": "<c r=\"D1\" cm=\"1\"> <f t=\"array\" ref=\"D1:D3\">A1:A3</f>"
+  },
+  {
+   "name": "at_block",
+   "answer": "formula =A1:A3 text 1 | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =A1:A3 | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f>A1:A3</f>"
+  },
+  {
+   "name": "at_unknown",
+   "answer": "formula =Nowhere text #NAME? | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =Nowhere | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f>Nowhere</f>"
+  },
+  {
+   "name": "block_in_len",
+   "answer": "formula =LEN(A1:A3) text 1 | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =LEN(A1:A3) | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f>LEN(A1:A3)</f>"
+  },
+  {
+   "name": "udf_like",
+   "answer": "formula =NoFunction(1) text #NAME? | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =NoFunction(1) | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f ca=\"1\">NoFunction(1)</f>"
+  },
+  {
+   "name": "concat",
+   "answer": "formula =CONCAT(A1:A3) text 123 | 1: [_xlfn.CONCAT==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.CONCAT==#NAME? vis False idx 1] | reopen 1: [_xlfn.CONCAT==#NAME? vis False idx 1] | =CONCAT(A1:A3) | cleared 1: [_xlfn.CONCAT==#NAME? vis False idx 1]",
+   "file": "<f>_xlfn.CONCAT(A1:A3)</f>"
+  },
+  {
+   "name": "textjoin",
+   "answer": "formula =TEXTJOIN(\",\",TRUE,A1:A3) text 1,2,3 | 1: [_xlfn.TEXTJOIN==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.TEXTJOIN==#NAME? vis False idx 1] | reopen 1: [_xlfn.TEXTJOIN==#NAME? vis False idx 1] | =TEXTJOIN(\",\",TRUE,A1:A3) | cleared 1: [_xlfn.TEXTJOIN==#NAME? vis False idx 1]",
+   "file": "<f>_xlfn.TEXTJOIN(\",\",TRUE,A1:A3)</f>"
+  },
+  {
+   "name": "xlookup",
+   "answer": "formula =XLOOKUP(1,A1:A3,A1:A3) text 1 | 1: [_xlfn.XLOOKUP==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.XLOOKUP==#NAME? vis False idx 1] | reopen 1: [_xlfn.XLOOKUP==#NAME? vis False idx 1] | =XLOOKUP(1,A1:A3,A1:A3) | cleared 1: [_xlfn.XLOOKUP==#NAME? vis False idx 1]",
+   "file": "<f>_xlfn.XLOOKUP(1,A1:A3,A1:A3)</f>"
+  },
+  {
+   "name": "sequence",
+   "answer": "formula =SEQUENCE(2) text 1 | 1: [_xlfn.SEQUENCE==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.SEQUENCE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SEQUENCE==#NAME? vis False idx 1] | =SEQUENCE(2) | cleared 1: [_xlfn.SEQUENCE==#NAME? vis False idx 1]",
+   "file": "<c r=\"D1\" cm=\"1\"> <f t=\"array\" ref=\"D1:D2\">_xlfn.SEQUENCE(2)</f>"
+  },
+  {
+   "name": "two_cells",
+   "answer": "formula =Nowhere text #NAME? | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | =Nowhere | cleared 1: [_xlfn.SINGLE==#NAME? vis False idx 1]",
+   "file": "<f>Nowhere</f> <f>Elsewhere</f>"
+  },
+  {
+   "name": "cleared",
+   "answer": "formula  text  | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 0: |  | cleared 0:",
+   "file": ""
+  },
+  {
+   "name": "replaced",
+   "answer": "formula 1 text 1 | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 0: | 1 | cleared 0:",
+   "file": ""
+  },
+  {
+   "name": "replaced_formula",
+   "answer": "formula =1+1 text 2 | 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | item E0 | saved 1: [_xlfn.SINGLE==#NAME? vis False idx 1] | reopen 0: | =1+1 | cleared 0:",
+   "file": "<f>1+1</f>"
+  },
+  {
+   "name": "named_after",
+   "answer": "formula =@Nowhere text 1 | 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Nowhere==Sheet1!$A$1 vis True idx 2] | item E0 | saved 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Nowhere==Sheet1!$A$1 vis True idx 2] | reopen 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Nowhere==Sheet1!$A$1 vis True idx 2] | =@Nowhere | cleared 2: [_xlfn.SINGLE==#NAME? vis False idx 1] [Nowhere==Sheet1!$A$1 vis True idx 2]",
+   "file": "<f>_xlfn.SINGLE(Nowhere)</f> <definedName name=\"Nowhere\">Sheet1!$A$1</definedName>"
+  },
+  {
+   "name": "sort",
+   "answer": "formula =SORT(A1:A3) text 1 | 1: [_xlfn._xlws.SORT==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn._xlws.SORT==#NAME? vis False idx 1] | reopen 1: [_xlfn._xlws.SORT==#NAME? vis False idx 1] | =SORT(A1:A3) | cleared 1: [_xlfn._xlws.SORT==#NAME? vis False idx 1]",
+   "file": "<c r=\"D1\" cm=\"1\"> <f t=\"array\" ref=\"D1:D3\">_xlfn._xlws.SORT(A1:A3)</f>"
+  },
+  {
+   "name": "filter",
+   "answer": "formula =FILTER(A1:A3,A1:A3>1) text 2 | 1: [_xlfn._xlws.FILTER==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn._xlws.FILTER==#NAME? vis False idx 1] | reopen 1: [_xlfn._xlws.FILTER==#NAME? vis False idx 1] | =FILTER(A1:A3,A1:A3>1) | cleared 1: [_xlfn._xlws.FILTER==#NAME? vis False idx 1]",
+   "file": "<c r=\"D1\" cm=\"1\"> <f t=\"array\" ref=\"D1:D2\">_xlfn._xlws.FILTER(A1:A3,A1:A3&gt;1)</f>"
+  },
+  {
+   "name": "unique",
+   "answer": "formula =UNIQUE(A1:A3) text 1 | 1: [_xlfn.UNIQUE==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.UNIQUE==#NAME? vis False idx 1] | reopen 1: [_xlfn.UNIQUE==#NAME? vis False idx 1] | =UNIQUE(A1:A3) | cleared 1: [_xlfn.UNIQUE==#NAME? vis False idx 1]",
+   "file": "<c r=\"D1\" cm=\"1\"> <f t=\"array\" ref=\"D1:D3\">_xlfn.UNIQUE(A1:A3)</f>"
+  },
+  {
+   "name": "let",
+   "answer": "formula =LET(x,1,x+1) text 2 | 2: [_xlfn.LET==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2] | item E1004 | saved 2: [_xlfn.LET==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2] | reopen 2: [_xlfn.LET==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2] | =LET(x,1,x+1) | cleared 2: [_xlfn.LET==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2]",
+   "file": "<f>_xlfn.LET(_xlpm.x,1,_xlpm.x+1)</f>"
+  },
+  {
+   "name": "lambda",
+   "answer": "formula =LAMBDA(x,x+1)(2) text 3 | 2: [_xlfn.LAMBDA==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2] | item E1004 | saved 2: [_xlfn.LAMBDA==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2] | reopen 2: [_xlfn.LAMBDA==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2] | =LAMBDA(x,x+1)(2) | cleared 2: [_xlfn.LAMBDA==#NAME? vis False idx 1] [_xlpm.x==#NAME? vis False idx 2]",
+   "file": "<c r=\"D1\" cm=\"1\"> <f t=\"array\" ref=\"D1\">_xlfn.LAMBDA(_xlpm.x,_xlpm.x+1)(2)</f>"
+  },
+  {
+   "name": "ifs",
+   "answer": "formula =IFS(A1>0,1) text 1 | 2: [_xlfn.IFS==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2] | item E0 | saved 2: [_xlfn.IFS==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2] | reopen 2: [_xlfn.IFS==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2] | =IFS(A1>0,1) | cleared 2: [_xlfn.IFS==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2]",
+   "file": "<f>_xlfn.IFS(A1&gt;0,1)</f>"
+  },
+  {
+   "name": "maxifs",
+   "answer": "formula =MAXIFS(A1:A3,A1:A3,\">0\") text 3 | 1: [_xlfn.MAXIFS==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.MAXIFS==#NAME? vis False idx 1] | reopen 1: [_xlfn.MAXIFS==#NAME? vis False idx 1] | =MAXIFS(A1:A3,A1:A3,\">0\") | cleared 1: [_xlfn.MAXIFS==#NAME? vis False idx 1]",
+   "file": "<f>_xlfn.MAXIFS(A1:A3,A1:A3,\"&gt;0\")</f>"
+  },
+  {
+   "name": "stdev_s",
+   "answer": "formula =STDEV.S(A1:A3) text 1 | 1: [_xlfn.STDEV.S==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.STDEV.S==#NAME? vis False idx 1] | reopen 1: [_xlfn.STDEV.S==#NAME? vis False idx 1] | =STDEV.S(A1:A3) | cleared 1: [_xlfn.STDEV.S==#NAME? vis False idx 1]",
+   "file": "<f>_xlfn.STDEV.S(A1:A3)</f>"
+  },
+  {
+   "name": "aggregate",
+   "answer": "formula =AGGREGATE(9,6,A1:A3) text 6 | 1: [_xlfn.AGGREGATE==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.AGGREGATE==#NAME? vis False idx 1] | reopen 1: [_xlfn.AGGREGATE==#NAME? vis False idx 1] | =AGGREGATE(9,6,A1:A3) | cleared 1: [_xlfn.AGGREGATE==#NAME? vis False idx 1]",
+   "file": "<f>_xlfn.AGGREGATE(9,6,A1:A3)</f>"
+  },
+  {
+   "name": "iferror",
+   "answer": "formula =IFERROR(A1,0) text 1 | 1: [_xlfn.IFERROR==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.IFERROR==#NAME? vis False idx 1] | reopen 1: [_xlfn.IFERROR==#NAME? vis False idx 1] | =IFERROR(A1,0) | cleared 1: [_xlfn.IFERROR==#NAME? vis False idx 1]",
+   "file": "<f>IFERROR(A1,0)</f>"
+  },
+  {
+   "name": "both",
+   "answer": "formula =CONCAT(A1:A3) text 123 | 3: [_xlfn.CONCAT==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2] [_xlfn.XLOOKUP==#NAME? vis False idx 3] | item E0 | saved 3: [_xlfn.CONCAT==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2] [_xlfn.XLOOKUP==#NAME? vis False idx 3] | reopen 3: [_xlfn.CONCAT==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2] [_xlfn.XLOOKUP==#NAME? vis False idx 3] | =CONCAT(A1:A3) | cleared 3: [_xlfn.CONCAT==#NAME? vis False idx 1] [_xlfn.SINGLE==#NAME? vis False idx 2] [_xlfn.XLOOKUP==#NAME? vis False idx 3]",
+   "file": "<f>_xlfn.CONCAT(A1:A3)</f> <f>Nowhere</f> <f>_xlfn.XLOOKUP(1,A1:A3,A1:A3)</f>"
+  },
+  {
+   "name": "name_with_function",
+   "answer": "formula  text  | 2: [_xlfn.CONCAT==#NAME? vis False idx 1] [Calc==CONCAT(Sheet1!$A$1:$A$3) vis True idx 2] | item E1004 | saved 2: [_xlfn.CONCAT==#NAME? vis False idx 1] [Calc==CONCAT(Sheet1!$A$1:$A$3) vis True idx 2] | reopen 2: [_xlfn.CONCAT==#NAME? vis False idx 1] [Calc==CONCAT(Sheet1!$A$1:$A$3) vis True idx 2] |  | cleared 2: [_xlfn.CONCAT==#NAME? vis False idx 1] [Calc==CONCAT(Sheet1!$A$1:$A$3) vis True idx 2]",
+   "file": "<definedName name=\"Calc\">_xlfn.CONCAT(Sheet1!$A$1:$A$3)</definedName>"
+  },
+  {
+   "name": "name_at",
+   "answer": "formula  text  | 1: [Calc==Nowhere vis True idx 1] | item E1004 | saved 1: [Calc==Nowhere vis True idx 1] | reopen 1: [Calc==Nowhere vis True idx 1] |  | cleared 1: [Calc==Nowhere vis True idx 1]",
+   "file": "<definedName name=\"Calc\">Nowhere</definedName>"
+  },
+  {
+   "name": "cond_format",
+   "answer": "formula  text  | 1: [_xlfn.CONCAT==#NAME? vis False idx 1] | item E1004 | saved 1: [_xlfn.CONCAT==#NAME? vis False idx 1] | reopen 1: [_xlfn.CONCAT==#NAME? vis False idx 1] |  | cleared 1: [_xlfn.CONCAT==#NAME? vis False idx 1]",
+   "file": ""
+  },
+  {
+   "name": "with_a_name",
+   "answer": "formula =Nowhere text #NAME? | 3: [_xlfn.SINGLE==#NAME? vis False idx 1] [Abc==Sheet1!$A$2 vis True idx 2] [Zed==Sheet1!$A$1 vis True idx 3] | item E0 | saved 3: [_xlfn.SINGLE==#NAME? vis False idx 1] [Abc==Sheet1!$A$2 vis True idx 2] [Zed==Sheet1!$A$1 vis True idx 3] | reopen 3: [_xlfn.SINGLE==#NAME? vis False idx 1] [Abc==Sheet1!$A$2 vis True idx 2] [Zed==Sheet1!$A$1 vis True idx 3] | =Nowhere | cleared 3: [_xlfn.SINGLE==#NAME? vis False idx 1] [Abc==Sheet1!$A$2 vis True idx 2] [Zed==Sheet1!$A$1 vis True idx 3]",
+   "file": "<f>Nowhere</f> <definedName name=\"Abc\">Sheet1!$A$2</definedName> <definedName name=\"Zed\">Sheet1!$A$1</definedName>"
+  }
+ ]
+}

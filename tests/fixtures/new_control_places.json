@@ -1,0 +1,2923 @@
+{
+"measured_at": "2026-11-05T04:24:26.293412+00:00",
+"standard_height": "15",
+"source": "Public Function Go(ByVal kind As Long, ByVal member As String, ByVal value As Double, ByVal path As String) As String\n    Dim wb As Workbook, s As Object, r As String, before As String, after As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add\n    before = wb.Worksheets(1).StandardHeight\n    Set s = wb.Worksheets(1).Shapes.AddFormControl(kind, 12, 12, 100, 40)\n    Select Case member\n        Case \"Left\": s.Left = value\n        Case \"Top\": s.Top = value\n        Case \"Width\": s.Width = value\n        Case \"Height\": s.Height = value\n    End Select\n    r = TypeName(s.Left) & \":\" & s.Left & \",\" & s.Top & \",\" & s.Width & \",\" & s.Height\n    after = wb.Worksheets(1).StandardHeight\n    wb.SaveAs path, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    Set s = wb.Worksheets(1).Shapes(1)\n    r = r & \"|\" & s.Left & \",\" & s.Top & \",\" & s.Width & \",\" & s.Height\n    wb.Close False\n    Application.DisplayAlerts = True\n    Go = before & \"~\" & after & \"~\" & r\nEnd Function\n",
+"cases": [
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlButtonControl",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlCheckBox",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlOptionButton",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlDropDown",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,42|30,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,42|30,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,42|30,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,42|30.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,42|30.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,42|30.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,42|30.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,42|30.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,42|30.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,42|30.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,42|31.5,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,42|31.5,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,42|45,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,42|45.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,42|45.75,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,42|12,30,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,42|12,30,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,42|12,30,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,42|12,30.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,42|12,30.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,42|12,30.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,42|12,30.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,42|12,30.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,42|12,30.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,42|12,30.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,42|12,31.5,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,42|12,31.5,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,42|12,45,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,42|12,45.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,42|12,45.75,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,42|12,12,60,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,42|12,12,60,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,42|12,12,60,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,42|12,12,60.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,42|12,12,60.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,42|12,12,60.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,42|12,12,61.5,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,42|12,12,61.5,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,42|12,12,45,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,42|12,12,45,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,42|12,12,45.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,42|12,12,45.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,42|12,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,42|12,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,42|12,12,99.75,42"
+},
+{
+"kind": "xlListBox",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,42|12,12,99.75,42"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlGroupBox",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,39.75|12,12,60,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,39.75|12,12,60.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,39.75|12,12,61.5,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,39.75|12,12,45,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,39.75|12,12,45.75,39.75"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,60.75|12,12,99.75,60.75"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlLabel",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,45.75|12,12,99.75,45.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,60,40.5|12,12,60,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,60,40.5|12,12,60,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,60,40.5|12,12,60,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,60.75,40.5|12,12,60.75,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,60.75,40.5|12,12,60.75,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,60.75,40.5|12,12,60.75,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,61.5,40.5|12,12,61.5,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,61.5,40.5|12,12,61.5,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,45,40.5|12,12,45,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,45,40.5|12,12,45,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,45.75,40.5|12,12,45.75,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,45.75,40.5|12,12,45.75,40.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,99.75,60|12,12,99.75,60"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,99.75,61.5|12,12,99.75,61.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,99.75,45|12,12,99.75,45"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,99.75,46.5|12,12,99.75,46.5"
+},
+{
+"kind": "xlSpinner",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,99.75,46.5|12,12,99.75,46.5"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.1,
+"answer": "Single:30.1,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.2,
+"answer": "Single:30.2,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.3,
+"answer": "Single:30.3,12,99.75,39.75|30,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.375,
+"answer": "Single:30.37504,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.4,
+"answer": "Single:30.4,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.5,
+"answer": "Single:30.5,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.6,
+"answer": "Single:30.6,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.7,
+"answer": "Single:30.7,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 30.9,
+"answer": "Single:30.9,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 31.0,
+"answer": "Single:31,12,99.75,39.75|30.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 31.125,
+"answer": "Single:31.12504,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 31.2,
+"answer": "Single:31.2,12,99.75,39.75|31.5,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 45.125,
+"answer": "Single:45.12504,12,99.75,39.75|45,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 45.375,
+"answer": "Single:45.37504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Left",
+"value": 45.625,
+"answer": "Single:45.62504,12,99.75,39.75|45.75,12,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.1,
+"answer": "Single:12,30.1,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.2,
+"answer": "Single:12,30.2,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.3,
+"answer": "Single:12,30.3,99.75,39.75|12,30,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.375,
+"answer": "Single:12,30.37504,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.4,
+"answer": "Single:12,30.4,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.5,
+"answer": "Single:12,30.5,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.6,
+"answer": "Single:12,30.6,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.7,
+"answer": "Single:12,30.7,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 30.9,
+"answer": "Single:12,30.9,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 31.0,
+"answer": "Single:12,31,99.75,39.75|12,30.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 31.125,
+"answer": "Single:12,31.12504,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 31.2,
+"answer": "Single:12,31.2,99.75,39.75|12,31.5,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 45.125,
+"answer": "Single:12,45.12504,99.75,39.75|12,45,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 45.375,
+"answer": "Single:12,45.37504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Top",
+"value": 45.625,
+"answer": "Single:12,45.62504,99.75,39.75|12,45.75,99.75,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 60.1,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 60.2,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 60.375,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 60.4,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 60.6,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 60.9,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 61.125,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 61.5,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 45.125,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 45.375,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 45.6,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Width",
+"value": 46.0,
+"answer": "Single:12,12,119.25,39.75|12,12,119.25,39.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 60.1,
+"answer": "Single:12,12,180,60|12,12,180,60"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 60.2,
+"answer": "Single:12,12,180,60|12,12,180,60"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 60.375,
+"answer": "Single:12,12,180,60|12,12,180,60"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 60.4,
+"answer": "Single:12,12,182.25,60.75|12,12,182.25,60.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 60.6,
+"answer": "Single:12,12,182.25,60.75|12,12,182.25,60.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 60.9,
+"answer": "Single:12,12,182.25,60.75|12,12,182.25,60.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 61.125,
+"answer": "Single:12,12,184.5,61.5|12,12,184.5,61.5"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 61.5,
+"answer": "Single:12,12,184.5,61.5|12,12,184.5,61.5"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 45.125,
+"answer": "Single:12,12,135,45|12,12,135,45"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 45.375,
+"answer": "Single:12,12,135,45|12,12,135,45"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 45.6,
+"answer": "Single:12,12,137.25,45.75|12,12,137.25,45.75"
+},
+{
+"kind": "xlScrollBar",
+"member": "Height",
+"value": 46.0,
+"answer": "Single:12,12,137.25,45.75|12,12,137.25,45.75"
+}
+]
+}

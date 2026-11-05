@@ -29,7 +29,7 @@ from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
 from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _encode_string
-from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
+from pyopenvba.exceptions import PyOpenVBAError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.formula._parse import without_dangling_references
@@ -113,6 +113,30 @@ class WorkbookFileError(PyOpenVBAError):
 
 
 # --- reading ------------------------------------------------------------------------
+
+
+#: A column of a table named on its own: Tab[a], not Tab[@a] or Tab[[#All],[a]].
+_WHOLE_COLUMN = re.compile(r"\[[^\[\]#@,:]+\]")
+
+
+def _read_columns_as_this_row(book: Workbook) -> None:
+    """A file can hold a table's column where one value is wanted, as =@Tab[a] saves: loaded, it reads as this row's cell,
+    =Tab[@a] (tests/fixtures/formula_reads.json). A sheet nobody writes to keeps its bytes all the same."""
+    from pyopenvba.apps.excel._model import written_formula
+
+    if not any(sheet.tables for sheet in book.sheets_):
+        return
+    for sheet in book.sheets_:
+        for (row, column), cell in sheet.cells_.items():
+            formula = cell.formula
+            if not formula or cell.dynamic or "[" not in formula or not _WHOLE_COLUMN.search(formula):
+                continue
+            try:
+                read = written_formula(sheet, formula, row, column)
+            except (VBARuntimeError, VBAUnsupportedError):
+                continue
+            if read != formula and read.replace("[@", "[") == formula:
+                cell.formula = read
 
 
 def load_workbook(application: Application, path: Path) -> Workbook:
@@ -256,6 +280,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     read_calculation(book, workbook_xml)
     # Excel's numbering of new sheets starts again in an opened file (tests/fixtures/new_sheet_names.json).
     book.sheet_name_counter = 0
+    _read_columns_as_this_row(book)
     return book
 
 

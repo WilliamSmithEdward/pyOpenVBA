@@ -177,6 +177,7 @@ class ChartState:
     #: So with its legend element, and each axis's gridlines by the axis and whether major.
     legend_taken: str = ''
     gridlines_taken: dict[tuple[int, bool], str] = field(default_factory=lambda: {})
+    axis_titles_taken: dict[int, str] = field(default_factory=lambda: {})
     #: Whether a loaded chart has a style part: what it gains takes that style's look, which is not read here.
     style_part: bool = False
     #: Whether a loaded legend has a layout of its own, which makes its position custom.

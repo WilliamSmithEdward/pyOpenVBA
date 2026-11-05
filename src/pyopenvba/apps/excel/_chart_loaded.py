@@ -265,3 +265,47 @@ def link_title(chart: Chart, formula: str, shown: str) -> None:
     title = title[:text.start()] + linked + title[text.end():] if text else title.replace('<c:title>', '<c:title>' + linked, 1)
     _edited(chart, chart.state.original[:found.start()] + title + chart.state.original[found.end():])
     chart.state.title_typed, chart.state.title_look.formula = False, formula
+
+
+_AXIS_TITLE = re.compile(r'<c:title>.*?</c:title>', re.DOTALL)
+
+
+def set_axis_title(chart: Chart, entry: AxisState, wanted: bool) -> None:
+    """An axis's HasTitle: the title after the axis's gridlines, back without its text once taken away. A new one on a styled
+    chart takes the style's look, which is not read here, so it stays refused."""
+    admit(chart)
+    state = chart.state
+    start, end = _axis_span(chart, entry)
+    axis = state.original[start:end]
+    found = _AXIS_TITLE.search(axis)
+    if wanted == (found is not None):
+        return
+    if found is not None:
+        state.axis_titles_taken[entry.identifier] = found.group(0)
+        axis = axis[:found.start()] + axis[found.end():]
+    else:
+        taken = state.axis_titles_taken.get(entry.identifier)
+        if taken is None and state.style_part:
+            raise VBAUnsupportedError('A new axis title on an imported styled chart is not implemented')
+        title = _TITLE_TEXT.sub('', taken, count=1) if taken else _PLAIN_TITLE
+        place = (re.search(r'<c:minorGridlines(?:/>|>.*?</c:minorGridlines>)', axis, re.DOTALL)
+                 or re.search(r'<c:majorGridlines(?:/>|>.*?</c:majorGridlines>)', axis, re.DOTALL)
+                 or re.search(r'<c:axPos val="\w+"/>', axis))
+        if place is None:
+            raise VBAUnsupportedError('A title on this imported chart axis is not implemented')
+        axis = axis[:place.end()] + title + axis[place.end():]
+    _edited(chart, state.original[:start] + axis + state.original[end:])
+
+
+def type_axis_title(chart: Chart, entry: AxisState, wanted: str) -> None:
+    """AxisTitle.Text, as a chart title's."""
+    admit(chart)
+    if wanted == '':
+        raise VBAUnsupportedError('Typing an empty title on an imported chart axis is not implemented')
+    start, end = _axis_span(chart, entry)
+    axis = chart.state.original[start:end]
+    found = _AXIS_TITLE.search(axis)
+    if found is None:
+        raise VBAUnsupportedError('Typing this imported chart axis title is not implemented')
+    axis = axis[:found.start()] + retitled(found.group(0), wanted) + axis[found.end():]
+    _edited(chart, chart.state.original[:start] + axis + chart.state.original[end:])

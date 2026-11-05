@@ -36,9 +36,11 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off',
          'series name', 'series name formula', 'series name cell',
          'title text', 'title text marks', 'title text two lines', 'title text cr', 'title text empty', 'title text spaces', 'title text twice',
-         'title caption', 'title text then gone', 'title text read after back', 'title formula')
+         'title caption', 'title text then gone', 'title text read after back', 'title formula',
+         'axis title', 'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
 #: Built, but not for a chart with a style: new gridlines take the style's look, which is not read.
-NEEDS_NO_STYLE = ('category gridlines', 'minor gridlines', 'minor gridlines off')
+NEEDS_NO_STYLE = ('category gridlines', 'minor gridlines', 'minor gridlines off', 'axis title', 'axis title on', 'axis title text read',
+                  'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
 NOT_EXCELS = 'loaded_chart_openpyxl.xlsx'
 
 

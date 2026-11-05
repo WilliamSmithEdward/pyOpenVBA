@@ -8697,15 +8697,9 @@ def legacy_formula(sheet: Worksheet, formula: str) -> str:
     """A formula written through Range.Formula, spelled, as Excel keeps it: a call of SINGLE an @, an @ left out
     where the formula cuts to one value anyway, and where one is kept every @ Formula2 shows written out
     (see pyopenvba.formula._formula2.written)."""
-    from pyopenvba.formula._formula2 import UnreadFormula2Error, written
-    from pyopenvba.formula._parse import FormulaError
+    from pyopenvba.formula._formula2 import written
 
-    try:
-        return written(formula, lambda name: defined_formula(sheet, name))
-    except UnreadFormula2Error as exc:
-        raise VBAUnsupportedError(str(exc)) from None
-    except FormulaError:
-        raise VBAUnsupportedError(f"Range.Formula given {formula} is not implemented") from None
+    return written(formula, lambda name: defined_formula(sheet, name))
 
 
 def defined_formula(sheet: Worksheet, name: str) -> str | None:
@@ -8749,8 +8743,10 @@ def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 
 
     try:
         return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
-    except UnmodelledFormulaError as exc:
-        raise VBAUnsupportedError(str(exc)) from None
+    except UnmodelledFormulaError:
+        # Excel takes it with no dialog when alerts are off: an open workbook's cells, a closed one's read from its file, and #REF! of
+        # one not there. A formula naming a workbook the file already links to goes another way (see _external_links).
+        raise VBAUnsupportedError("a formula naming a workbook the file does not link to is not implemented") from None
     except FormulaError:
         raise error(1004, "Application-defined or object-defined error") from None
 

@@ -54,6 +54,10 @@ ACCEPTED: Final = {
     'verticalalignment': frozenset({-4160, -4108, -4107, -4130, -4117}),
     'readingorder': frozenset({-5002, -5003, -5004}),
 }
+#: Read a Double as text.
+AS_TEXT: Final = frozenset({'name', 'numberformat', 'numberformatlocal'})
+#: Colours, which refuse the largest Long on a font or a border.
+LONG_LIMITED: Final = frozenset({'color', 'colorindex', 'themecolor'})
 #: Past this many cells a block is walked by what its sheet uses.
 LARGE_BLOCK: Final = 4096
 BACKGROUNDS: Final = frozenset({1, 2, 3, -4105})
@@ -64,6 +68,24 @@ def currency_text(value: VBACurrency) -> str:
     nothing."""
     cents = abs(Decimal(value)).quantize(Decimal('0.01'), ROUND_HALF_UP)
     return f'(${cents:,.2f})' if value < 0 else f'${cents:,.2f} '
+
+
+def number_as_text(value: float) -> str:
+    """A Double given where text is wanted: fifteen digits, written out while that takes no more than twenty characters."""
+    if value == 0:
+        return '0'
+    digits, _, exponent = f'{abs(value):.14e}'.partition('e')
+    power = int(exponent)
+    significant = digits.replace('.', '').rstrip('0') or '0'
+    if power >= 0:
+        whole = significant.ljust(power + 1, '0')
+        written = whole[:power + 1] + ('.' + whole[power + 1:] if len(whole) > power + 1 else '')
+    else:
+        written = '0.' + '0' * (-power - 1) + significant
+    if len(written) > 20:
+        mantissa = significant[0] + ('.' + significant[1:] if len(significant) > 1 else '')
+        written = f'{mantissa}E{"+" if power >= 0 else "-"}{abs(power):02d}'
+    return f'-{written}' if value < 0 else written
 
 
 def _is_number(value: object) -> bool:
@@ -124,6 +146,13 @@ def given(target: VBAObject, name: str, value: object) -> object:
     if lower == 'tintandshade' and target.vba_type_name == 'Font' and _is_number(value):
         amount = float(to_number(value))
         return math.trunc(amount * 32767) / 32767 if -1 <= amount <= 1 else value
+    if lower in LONG_LIMITED and target.vba_type_name in ('Font', 'Border', 'Borders'):
+        # The largest Long stands for no value, as a colour, once it is rounded; a number past it overflows.
+        number = value
+        if isinstance(value, Range) and value.areas[0].rows * value.areas[0].columns == 1:
+            number = Range(value.sheet, [value.areas[0]]).vba_value()
+        if _is_number(number) and round(float(to_number(number))) == 2147483647:
+            raise error(1004, f'Unable to set the {name} property of the {target.vba_type_name} class')
     if lower in CONVERTING or lower in HOLDING:
         return value
     refusal = error(1004, f'Unable to set the {name} property of the {target.vba_type_name} class')
@@ -172,6 +201,8 @@ def given(target: VBAObject, name: str, value: object) -> object:
         if lower in ACCEPTED and whole not in ACCEPTED[lower]:
             raise refusal
         return whole
+    if lower in AS_TEXT and isinstance(value, float):
+        return number_as_text(value)
     if lower == 'indentlevel' and _is_number(value):
         return math.floor(float(to_number(value)))
     if lower == 'orientation' and _is_number(value):

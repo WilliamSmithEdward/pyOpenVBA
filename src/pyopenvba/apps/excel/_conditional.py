@@ -725,11 +725,7 @@ class RuleObject(ExcelObject):
         D1:D5, of every kind; reached otherwise, as the object Add gives back, AppliesTo (tests/fixtures/
         format_condition_parent.json). Held while rows go in above, it is that range where it now stands, and once its cells
         are deleted, a range that has gone (tests/fixtures/held_range_collections.json)."""
-        if self.reached is not None:
-            return self.reached
-        if self.through is None:
-            return self.AppliesTo()
-        return Range(self.sheet, [Area(a.top, a.left, a.bottom, a.right, self.sheet.name) for a in self.through])
+        return self.AppliesTo() if self.reached is None else self.reached
 
 
     def touched(self) -> None:

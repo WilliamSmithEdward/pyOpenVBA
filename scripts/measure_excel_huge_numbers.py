@@ -34,22 +34,31 @@ LINES += [(f'ws.Parent.Worksheets.Add Count:={count}', 'ws.Parent.Sheets.Count')
 LINES += [(f'{setter} = a', 'TypeName(ws.Range("Z1").Value)') for setter in ['ws.Range("Z1").Value', 'ws.Range("Z1").Value2', 'ws.Range("Z1:AA2").Value', 'ws.Range("Z1")', 'ws.Range("Z1:AA2").Formula']]
 LINES += [(f'x = Empty: x = {function}', 'TypeName(x)') for function in [
     'WorksheetFunction.MUnit(1E+308)', 'WorksheetFunction.MUnit(1099511627776#)', 'WorksheetFunction.MUnit(2147483648#)', 'WorksheetFunction.MUnit(1000000)', 'WorksheetFunction.MUnit(100000)',
-    'WorksheetFunction.MUnit(-1)', 'WorksheetFunction.MUnit(0)', 'WorksheetFunction.MUnit(1.5)', 'WorksheetFunction.MUnit(100)', 'UBound(WorksheetFunction.MUnit(3000), 1)', 'UBound(WorksheetFunction.MUnit(5000), 1)',
+    'WorksheetFunction.MUnit(-1)', 'WorksheetFunction.MUnit(0)', 'WorksheetFunction.MUnit(1.5)', 'WorksheetFunction.MUnit(100)', 'UBound(WorksheetFunction.MUnit(2000), 1)',
     'Application.MUnit(1E+308)', 'Application.MUnit(1099511627776#)', 'Application.MUnit(2147483648#)', 'Application.MUnit(1000000)', 'UBound(Application.MUnit(100), 1)',
+    'UBound(WorksheetFunction.Sequence(1000), 1)', 'UBound(WorksheetFunction.Sequence(1048576), 1)', 'WorksheetFunction.Sequence(1048577)', 'UBound(WorksheetFunction.Sequence(1, 16385), 2)', 'UBound(WorksheetFunction.Sequence(2000, 2000), 1)',
+    'WorksheetFunction.Sequence(40000, 40000)', 'WorksheetFunction.Sequence(1048576, 16384)', 'WorksheetFunction.Sequence(1099511627776#)', 'WorksheetFunction.Sequence(1E+308)', 'WorksheetFunction.Sequence(0)', 'WorksheetFunction.Sequence(-1)',
+    'Application.Sequence(1099511627776#)', 'Application.Sequence(1048577)', 'UBound(WorksheetFunction.RandArray(1000), 1)', 'WorksheetFunction.RandArray(1048577)', 'UBound(WorksheetFunction.RandArray(1, 16385), 2)', 'WorksheetFunction.RandArray(1099511627776#)',
+    'WorksheetFunction.RandArray(1048576, 16384)', 'Application.RandArray(1099511627776#)',
+    *[f'WorksheetFunction.{name}(1, {order})' for name in ('BesselJ', 'BesselI', 'BesselK', 'BesselY') for order in ('1', '50', '200', '1000', '100000000', '1099511627776#', '1E+308')],
+    'Application.BesselJ(1, 1099511627776#)', 'Application.BesselK(1, 1000)',
 ]]
-TEMPLATE = '''Private Function Shown(ByVal x As Variant) As String
+LINES += [(f'ws.Range("AC1").Formula2 = "{formula}"', 'ws.Range("AC1").Text') for formula in ['=SUM(SEQUENCE(1048577))', '=SUM(SEQUENCE(1099511627776))', '=SEQUENCE(1048577)', '=SUM(RANDARRAY(1099511627776))', '=BESSELJ(1,1099511627776)', '=BESSELK(1,1000)', '=COUNT(MUNIT(1000))']]
+#: A procedure holds only so much, so the lines go in several.
+PER_PROCEDURE = 60
+TEMPLATE = '''Private ws As {W}, c As {C}, s As {S}, z As {S}, d As {C}, r As String, e As Long, x As Variant, a() As Long
+Private Function Shown(ByVal x As Variant) As String
     On Error Resume Next
     Shown = TypeName(x) & " " & CStr(x)
 End Function
+{PARTS}
 Function Probe() As String
-    Dim ws As {W}, c As {C}, s As {S}, z As {S}, d As {C}, r As String, e As Long, x As Variant, a() As Long
     Set ws = Worksheets.Add
     Set c = ws.ChartObjects.Add(10, 100, 200, 100)
     Set s = ws.Shapes.AddShape(1, 10, 10, 50, 50)
     s.Shadow.Visible = True
     Application.DisplayAlerts = False
-    On Error Resume Next
-{BODY}
+{CALLS}
     Application.DisplayAlerts = True
     Probe = r
 End Function
@@ -57,8 +66,12 @@ End Function
 
 
 def macro(*, typed: bool) -> str:
-    body = ''.join(f'    {one.replace(": ", chr(10) + "    ")}\n    e = Err.Number: Err.Clear\n    r = r & e & "=" & Shown({two}) & "{SEPARATOR}"\n' for one, two in LINES)
-    return (TEMPLATE.replace('{W}', 'Worksheet' if typed else 'Object').replace('{C}', 'ChartObject' if typed else 'Object').replace('{S}', 'Shape' if typed else 'Object').replace('{BODY}', body))
+    bodies = [''.join(f'    {one.replace(": ", chr(10) + "    ")}\n    e = Err.Number: Err.Clear\n    r = r & e & "=" & Shown({two}) & "{SEPARATOR}"\n' for one, two in LINES[at:at + PER_PROCEDURE])
+              for at in range(0, len(LINES), PER_PROCEDURE)]
+    parts = ''.join(f'Private Sub Part{at}()\n    On Error Resume Next\n{body}End Sub\n' for at, body in enumerate(bodies))
+    calls = ''.join(f'    Part{at}\n' for at in range(len(bodies)))
+    return (TEMPLATE.replace('{W}', 'Worksheet' if typed else 'Object').replace('{C}', 'ChartObject' if typed else 'Object').replace('{S}', 'Shape' if typed else 'Object')
+            .replace('{PARTS}', parts).replace('{CALLS}', calls))
 
 
 def main() -> None:

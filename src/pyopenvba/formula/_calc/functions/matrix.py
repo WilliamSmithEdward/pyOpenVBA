@@ -119,9 +119,9 @@ def MMULT(context: Context, first: Value, second: Value) -> Value:
     return Array(product)
 
 
-#: Excel built MUNIT(5000) and refused MUNIT(100000) at once (tests/fixtures/excel_huge_numbers.json). Between them it would have to
-#: allocate billions of cells to answer, so nothing was asked, and a size there is refused openly before any work.
-_MUNIT_MEASURED = 5000
+#: Excel built MUNIT(5000) in a second and refused MUNIT(100000) at once (tests/fixtures/excel_huge_numbers.json). Past 2000, which
+#: takes seconds here, this engine says openly that it will not build it: a number in a workbook must not hold the host for minutes.
+_MUNIT_MOST_BUILT = 2000
 _MUNIT_REFUSED = 100_000
 
 
@@ -130,8 +130,8 @@ def MUNIT(context: Context, size: Scalar) -> Value:
     count = context.integer(size)
     if count < 1 or count >= _MUNIT_REFUSED:
         return VALUE
-    if count > _MUNIT_MEASURED:
-        raise UnsupportedFormulaError(f"MUNIT({count}): Excel was measured to build 5000 and refuse 100000, and this is between")
+    if count > _MUNIT_MOST_BUILT:
+        raise UnsupportedFormulaError(f"MUNIT({count}) is larger than this engine builds")
     return Array([[1.0 if row == column else 0.0 for column in range(count)] for row in range(count)])
 
 

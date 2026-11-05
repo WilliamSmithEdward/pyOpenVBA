@@ -31,12 +31,12 @@ def test_each_line_answers_as_excel_did(binding: str) -> None:
     assert not [(asked[0], excel, model) for asked, excel, model in zip(MEASURE.LINES, wanted, found) if excel != model]
 
 
-@pytest.mark.parametrize('size', [5001, 99999])
-@pytest.mark.parametrize('how', ['WorksheetFunction.MUnit', 'Application.MUnit'])
-def test_munit_between_what_was_measured_refuses_openly(how: str, size: int) -> None:
+@pytest.mark.parametrize('call', ['MUnit(2001)', 'MUnit(99999)', 'Sequence(2001, 2001)', 'Sequence(39999, 39999)', 'RandArray(2001, 2001)', 'BesselJ(1, 100001)', 'BesselI(1, 99999999)', 'BesselY(1, 99999999)', 'BesselK(1, 100001)'])
+@pytest.mark.parametrize('how', ['WorksheetFunction', 'Application'])
+def test_a_size_this_engine_will_not_work_out_refuses_openly(how: str, call: str) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
-    app.add_module(f'Function Probe()\n    Dim x As Variant\n    x = {how}({size})\nEnd Function\n', name='H')
+    app.add_module(f'Function Probe()\n    Dim x As Variant\n    x = {how}.{call}\nEnd Function\n', name='H')
     with pytest.raises(VBAUnsupportedError):
         app.run('H.Probe')
 

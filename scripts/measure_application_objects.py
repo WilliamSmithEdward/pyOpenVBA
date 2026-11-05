@@ -2,6 +2,9 @@
 RecentFiles and the rest. Read only: nothing here changes the measuring user's profile, and a value that names the
 machine or its user is reported by its shape, never its text.
 
+No live probe touches a member that could send mail, so MailSession and MailSystem, which an earlier run of this script read,
+are no longer here. The fixture keeps what that run recorded and differs from this script in those two: do not remeasure them.
+
     python scripts/measure_application_objects.py
 
 writes tests/fixtures/application_objects.json, which tests/test_excel_application_objects.py replays.
@@ -22,7 +25,7 @@ PLAIN = ["AutoRecover", "MultiThreadedCalculation", "AddIns", "AddIns2", "COMAdd
          "FileValidation", "FileValidationPivot", "FileConverters", "FileExportConverters", "SmartArtLayouts",
          "SmartArtQuickStyles", "SmartArtColors", "Speech", "UsedObjects", "WindowsForPens", "VBE", "Watches",
          "ActiveEncryptionSession", "ClusterConnector", "DefaultPivotTableLayoutOptions", "RegisteredFunctions",
-         "ClipboardFormats", "DDEAppReturnCode", "MailSession", "MailSystem", "AlwaysUseClearType",
+         "ClipboardFormats", "DDEAppReturnCode", "AlwaysUseClearType",
          "DisplayXMLSourcePane", "FormulaBarHeight", "SensitivityLabelPolicy", "QuickAnalysis",
          "SharePointVersion", "Build", "DisplayAlerts"]
 #: Text that names this machine or its user: only whether it is there.

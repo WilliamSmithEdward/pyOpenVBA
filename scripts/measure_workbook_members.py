@@ -4,6 +4,10 @@ system. What each answers or raises, on a new workbook and on one saved to a fol
 It leaves out what would print, send mail, open a browser or wait for someone: PrintOut, PrintPreview, SendMail,
 FollowHyperlink, ShowDataForm and the like. Machine details are recorded as a yes or no.
 
+An earlier run of this script called EndReview, Reply, ReplyAll and ReplyWithChanges and read MailEnvelope and Mailer, which could
+send mail, and no live probe touches those. They are no longer here. The fixture keeps what that run recorded and differs from
+this script in them: do not remeasure them.
+
     python scripts/measure_workbook_members.py
 
 writes tests/fixtures/workbook_members.json, which tests/test_excel_workbook_members.py replays.
@@ -42,12 +46,11 @@ CASES = [
     'r = wb.WriteReservedBy = ""', 'r = saved.WriteReservedBy = ""', 'r = IsEmpty(wb.UserStatus)', 'r = TypeName(wb.UserStatus)', 'r = UBound(wb.UserStatus, 1) & "/" & UBound(wb.UserStatus, 2)', 'r = wb.UserStatus(1, 1) = Application.UserName', 'r = wb.UserStatus(1, 3)',
     'r = TypeName(wb.Signatures)', 'r = wb.Signatures.Count', 'r = TypeName(wb.ServerViewableItems)', 'r = wb.ServerViewableItems.Count', 'r = TypeName(wb.DocumentInspectors)', 'r = wb.DocumentInspectors.Count > 0', 'r = TypeName(wb.Model)', 'r = wb.Model.ModelTables.Count', 'r = TypeName(wb.WorkIdentity)', 'r = TypeName(wb.SensitivityLabel)', 'r = TypeName(wb.SmartDocument)', 'r = TypeName(wb.CommandBars)',
     # Shared workbooks and review, with nothing shared.
-    'wb.AcceptAllChanges', 'wb.RejectAllChanges', 'wb.EndReview', 'wb.Reply', 'wb.ReplyAll', 'wb.ReplyWithChanges', 'wb.UnprotectSharing', 'wb.RemoveUser 1', 'wb.PurgeChangeHistoryNow 30', 'wb.HighlightChangesOptions', 'wb.Sync', 'wb.ReloadAs', 'wb.LockServerFile', 'wb.CheckIn', 'wb.CheckInWithVersion', 'wb.ToggleFormsDesign', 'r = TypeName(wb.GetWorkflowTasks)', 'r = TypeName(wb.GetWorkflowTemplates)', 'wb.AddToFavorites', 'wb.Mailer', 'wb.UpdateFromFile', 'saved.UpdateFromFile', 'wb.Post', 'wb.Research',
+    'wb.AcceptAllChanges', 'wb.RejectAllChanges', 'wb.UnprotectSharing', 'wb.RemoveUser 1', 'wb.PurgeChangeHistoryNow 30', 'wb.HighlightChangesOptions', 'wb.Sync', 'wb.ReloadAs', 'wb.LockServerFile', 'wb.CheckIn', 'wb.CheckInWithVersion', 'wb.ToggleFormsDesign', 'r = TypeName(wb.GetWorkflowTasks)', 'r = TypeName(wb.GetWorkflowTemplates)', 'wb.AddToFavorites', 'wb.UpdateFromFile', 'saved.UpdateFromFile', 'wb.Post', 'wb.Research',
     # Sheets and pages.
     'r = TypeName(wb.Sheets.HPageBreaks)', 'r = wb.Sheets.HPageBreaks.Count', 'r = wb.Sheets.VPageBreaks.Count', 'ws.Rows(5).PageBreak = xlPageBreakManual: r = wb.Sheets.HPageBreaks.Count', 'r = TypeName(wb.Worksheets.HPageBreaks)', 'wb.Worksheets.Add: wb.Sheets.Select: r = wb.Sheets.VPageBreaks.Count',
     'r = TypeName(ws.PageSetup.Pages)', 'r = ws.PageSetup.Pages.Count', 'r = TypeName(ws.PageSetup.Pages(1))', 'r = ws.PageSetup.Pages(1).CenterHeader.Text', 'r = TypeName(ws.PageSetup.Pages(1).CenterHeader)', 'r = TypeName(ws.PageSetup.LeftHeaderPicture)', 'r = ws.PageSetup.LeftHeaderPicture.Filename', 'r = TypeName(ws.PageSetup.RightFooterPicture)', 'r = ws.PrintedCommentPages', 'r = TypeName(ws.PrintedCommentPages)',
-    'r = TypeName(ws.XmlDataQuery("/a"))', 'r = TypeName(ws.XmlMapQuery("/a"))', 'r = TypeName(ws.MailEnvelope)',
-    'For Each x In Workbooks: i = i + 1: Next: r = i > 0', 'For Each x In wb.Sheets: i = i + 1: Next: r = i', 'Set x = wb.Sheets.[_NewEnum]: r = TypeName(x)', 'r = Workbooks.CanCheckOut("nope.xlsx")',
+    'r = TypeName(ws.XmlDataQuery("/a"))', 'r = TypeName(ws.XmlMapQuery("/a"))',     'For Each x In Workbooks: i = i + 1: Next: r = i > 0', 'For Each x In wb.Sheets: i = i + 1: Next: r = i', 'Set x = wb.Sheets.[_NewEnum]: r = TypeName(x)', 'r = Workbooks.CanCheckOut("nope.xlsx")',
     # Scenarios.
     'For Each x In ws.Scenarios: i = i + 1: Next: r = i', 'ws.Scenarios.Add "A", ws.Range("A1"), Array(5): For Each x In ws.Scenarios: r = x.Name: Next', 'ws.Scenarios.Merge ws', 'ws.Scenarios.Merge "Nope"', 'ws.Scenarios.Merge',
     'other.Range("A1").Value = 3: other.Scenarios.Add "B", other.Range("A1"), Array(7), "Why": ws.Scenarios.Merge other: r = ws.Scenarios.Count & "/" & ws.Scenarios(1).Name & "/" & ws.Scenarios(1).Values(1) & "/" & ws.Scenarios(1).ChangingCells.Address & "/" & ws.Scenarios(1).ChangingCells.Parent.Name & "/" & ws.Scenarios(1).Comment & "/" & other.Scenarios.Count',

@@ -520,7 +520,9 @@ LATE_INDEXES: dict[str, int] = {
 }
 
 #: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json,
-#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json).
+#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json, tests/fixtures/typed_answers/late_types_ControlFormat.json).
 LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook', 'workbook.fileformat',
                           'dropdown.listcount', 'dropdown.listindex', 'dropdown.value', 'dropdown.dropdownlines',
-                          'listbox.listcount', 'listbox.listindex', 'listbox.value'})
+                          'listbox.listcount', 'listbox.listindex', 'listbox.value', 'controlformat.dropdownlines',
+                          'controlformat.listcount', 'controlformat.listindex', 'controlformat.max', 'controlformat.min',
+                          'controlformat.smallchange'})

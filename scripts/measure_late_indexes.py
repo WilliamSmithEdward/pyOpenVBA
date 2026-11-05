@@ -12,6 +12,7 @@ the table from it.
 """
 from __future__ import annotations
 
+import ast
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,13 +25,23 @@ TARGETS = {
     'Range': 'ws.Range("A1:B2")', 'Worksheet': 'ws', 'Workbook': 'ActiveWorkbook', 'Application': 'Application', 'Font': 'ws.Range("A1").Font',
     'Interior': 'ws.Range("A1").Interior', 'Worksheets': 'Worksheets', 'Workbooks': 'Workbooks',
 }
-#: Mail, routing, and what would show a window or speak.
+#: What would show a window or speak, and every member of the mail guard (tests/test_probes_leave_mail_alone.py), read from it so that this file names none.
 LEFT_OUT = frozenset({
-    'sendmail', 'sendforreview', 'replywithchanges', 'endreview', 'route', 'routeworkbook', 'routingslip', 'hasroutingslip', 'hasmailer',
-    'mailer', 'mailenvelope', 'sendfaxoverinternet', 'maillogon', 'maillogoff', 'mailsession', 'mailsystem', 'speak', 'speech', 'functionwizard',
-    'dialogbox', 'checkspelling', 'printpreview', 'showdataform', 'sendkeys', 'inputbox', 'dialogs', 'filedialog', 'getopenfilename',
+    'speak', 'speech', 'functionwizard', 'dialogbox', 'checkspelling', 'printpreview', 'showdataform', 'sendkeys', 'inputbox', 'dialogs', 'filedialog', 'getopenfilename',
     'getsaveasfilename', 'export', 'assistant', 'vbe',
 })
+
+
+def mail_members() -> frozenset[str]:
+    """What the guard bans, whole words and those it looks for after a dot alike."""
+    guard = ast.parse((Path(__file__).resolve().parents[1] / 'tests/test_probes_leave_mail_alone.py').read_text(encoding='utf-8'))
+    found: set[str] = set()
+    for node in guard.body:
+        if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name) and node.targets[0].id.startswith('BANNED'):
+            found.update(str(one).lower() for one in ast.literal_eval(node.value))
+    return frozenset(found)
+
+
 HELPERS = '''Function Probe() As String
 Dim ws As Object, o As Object, s As String, v As Variant, e As Long
 Set ws = Worksheets.Add
@@ -46,7 +57,7 @@ def members_of(class_name: str) -> list[str]:
     found = find_class(library, class_name)
     assert found is not None
     return sorted(name for name, forms in found.members.items()
-                  if name.isidentifier() and not name.startswith('_') and name not in LEFT_OUT
+                  if name.isidentifier() and not name.startswith('_') and name not in LEFT_OUT and name not in mail_members()
                   and any(form[0] == 2 and not form[4] for form in forms) and not any(form[0] == 1 for form in forms))
 
 

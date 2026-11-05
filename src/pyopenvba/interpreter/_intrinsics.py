@@ -1394,6 +1394,12 @@ def vba_isdate(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("IsArray", "VarName", minimum=1)
 def vba_isarray(interpreter: Interpreter, value: object) -> object:
+    # An object answers for its default member, as a range of several cells does (tests/fixtures/range_area_reads.json).
+    if isinstance(value, VBAObject) and value.vba_default_member() is not None:
+        try:
+            value = value.vba_value()
+        except VBARuntimeError:
+            return False
     return isinstance(value, VBAArray)
 
 

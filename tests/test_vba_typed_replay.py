@@ -14,7 +14,9 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-TYPED = {'member_audit': ('o', 0), 'format_properties': ('c', None)}
+#: The variable each fixture's probe holds its object in, and how its cases name the class.
+TYPED = {'member_audit': 'o', 'format_properties': 'c', 'method_audit': 'o', 'range_more': 'c', 'range_methods_clipboard': 'o', 'range_methods_moves': 'o', 'range_methods_order': 'o', 'range_methods_search': 'o'}
+RANGE_ONLY = ('format_properties', 'range_more')
 CASES = [(name, int(number)) for name in TYPED for number in json.loads((FIXTURES / f'{name}.json').read_text(encoding='utf-8'))['early']]
 
 
@@ -29,12 +31,11 @@ def typed(source: str, number: int, variable: str, type_name: str) -> str:
 def test_a_typed_variable_answers_as_recorded(name: str, number: int) -> None:
     record = json.loads((FIXTURES / f'{name}.json').read_text(encoding='utf-8'))
     case = record['cases'][number]
-    variable, _ = TYPED[name]
-    type_name = case[0] if name == 'member_audit' else 'Range'
+    type_name = 'Range' if name in RANGE_ONLY else case[0]
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
-    app.add_module(typed(record['source'], number, variable, type_name), name='Replay')
-    if 'Setup' in record['source']:
+    app.add_module(typed(record['source'], number, TYPED[name], type_name), name='Replay')
+    if 'Sub Setup' in record['source']:
         app.run('Replay.Setup')
     try:
         found = str(app.run(f'Replay.S{number}'))

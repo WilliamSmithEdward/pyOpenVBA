@@ -3703,8 +3703,8 @@ class Worksheet(ExcelObject):
 
             edited(self, row, column)
         self.dims.value_changed(row, column)
-        calculator = self.book.calculator
         cell = self.cells_.get((row, column))
+        calculator = self.book.calculator
         if cell is not None:
             calculator.remember(self.name, row, column, cell)
         else:

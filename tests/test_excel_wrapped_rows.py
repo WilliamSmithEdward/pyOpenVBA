@@ -196,3 +196,44 @@ def test_a_wrapped_row_with_no_height_in_its_file_is_the_standard_row(tmp_path: 
             package.writestr(name, data)
     opened = ExcelApplication.open(tmp_path / 'bare.xlsx', with_vba=False)
     assert row_points_read(opened.workbook.sheets_[0].dims.row_quarters(1)) == 15
+
+
+_LONG = 'one two three four five six seven eight nine ten'
+_ONE_CELL = 'For i = 1 To 3: ws.Cells(i, 1).Value = "{0}": Next'
+_WHOLE_COLUMN = 'ws.Range("A1").Resize(3, 1).Value = "{0}"'
+
+
+def _after_write(statements: str) -> list[object]:
+    """Row 1 to 3's heights after these, with every height worked out before each write so that a write may leave what was worked out."""
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(f'''Public Function Go() As String
+    Dim ws As Object, i As Long, x As Variant
+    Set ws = ActiveSheet
+    ws.Range("A1:A3").WrapText = True
+    x = ws.Rows(1).RowHeight
+    {statements}
+    Go = ws.Rows(1).RowHeight & "," & ws.Rows(2).RowHeight & "," & ws.Rows(3).RowHeight
+End Function
+''', name='Probe')
+    return str(app.run('Probe.Go')).split(',')
+
+
+@pytest.mark.parametrize('write', [_ONE_CELL, _WHOLE_COLUMN], ids=['cell by cell', 'a whole column'])
+def test_a_write_down_a_column_measures_each_wrapped_row(write: str) -> None:
+    assert _after_write(write.format(_LONG)) == ['90', '90', '90']  # As live Excel answered at 96 DPI.
+
+
+@pytest.mark.parametrize('write', [_ONE_CELL, _WHOLE_COLUMN], ids=['cell by cell', 'a whole column'])
+def test_a_shorter_write_down_a_column_lets_each_wrapped_row_back(write: str) -> None:
+    assert _after_write(write.format(_LONG) + ': x = ws.Rows(1).RowHeight: ' + write.format('x')) == ['15', '15', '15']
+
+
+def test_a_plain_cell_written_beside_wrapped_text_leaves_the_row_and_the_next_write_still_counts() -> None:
+    tall = _after_write(_WHOLE_COLUMN.format(_LONG))
+    assert _after_write(_WHOLE_COLUMN.format(_LONG) + ': x = ws.Rows(1).RowHeight: ws.Range("B1").Resize(3, 1).Value = 7') == tall
+    assert _after_write(_WHOLE_COLUMN.format(_LONG) + ': x = ws.Rows(1).RowHeight: ws.Range("B1").Resize(3, 1).Value = 7: x = ws.Rows(1).RowHeight: ' + _WHOLE_COLUMN.format('x')) == ['15', '15', '15']
+
+
+def test_clearing_wrapped_text_lets_its_row_back() -> None:
+    assert _after_write(_WHOLE_COLUMN.format(_LONG) + ': x = ws.Rows(1).RowHeight: ws.Range("A1:A3").ClearContents') == ['15', '15', '15']

@@ -22,10 +22,10 @@ from __future__ import annotations
 import datetime as _dt
 import re
 from collections import deque
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -111,6 +111,58 @@ def _names_one_of(formula: str, names: set[str]) -> bool:
         return False
 
 
+class _BlockReaders:
+    """Which formulas may read a cell through a block, so that a write need not ask every formula on the book. A block
+    is filed by the column and the stretch of rows it covers; one too tall for that by its columns, as A:A is; one too
+    wide even for that by its sheet. The answer holds every formula that reads the cell and may hold others."""
+
+    STRETCH = 10
+    MOST_COLUMNS = 16
+    MOST_STRETCHES = 8
+
+    def __init__(self) -> None:
+        self._short: dict[tuple[str, int, int], set[CellKey]] = {}
+        self._tall: dict[tuple[str, int], set[CellKey]] = {}
+        self._wide: dict[str, set[CellKey]] = {}
+
+    def _places(self, area: Area) -> Iterator[tuple[dict[Any, set[CellKey]], Any]]:
+        name = area.sheet.lower()
+        if area.right - area.left >= self.MOST_COLUMNS:
+            yield self._wide, name
+            return
+        first, last = area.top >> self.STRETCH, area.bottom >> self.STRETCH
+        for column in range(area.left, area.right + 1):
+            if last - first >= self.MOST_STRETCHES:
+                yield self._tall, (name, column)
+            else:
+                for stretch in range(first, last + 1):
+                    yield self._short, (name, column, stretch)
+
+    def add(self, area: Area, key: CellKey) -> None:
+        for table, place in self._places(area):
+            table.setdefault(place, set()).add(key)
+
+    def remove(self, area: Area, key: CellKey) -> None:
+        for table, place in self._places(area):
+            readers = table.get(place)
+            if readers is not None:
+                readers.discard(key)
+                if not readers:
+                    del table[place]
+
+    def near(self, name: str, row: int, column: int) -> set[CellKey]:
+        found: set[CellKey] = set()
+        for readers in (self._short.get((name, column, row >> self.STRETCH)), self._tall.get((name, column)), self._wide.get(name)):
+            if readers:
+                found |= readers
+        return found
+
+    def clear(self) -> None:
+        self._short.clear()
+        self._tall.clear()
+        self._wide.clear()
+
+
 class Calculator:
     """A workbook's formulas, and what they come to."""
 
@@ -128,6 +180,7 @@ class Calculator:
         #: so that a change finds what reads it without going through every formula.
         self._readers: dict[CellKey, set[CellKey]] = {}
         self._blocks: dict[CellKey, list[Area]] = {}
+        self._block_readers = _BlockReaders()
         #: Cells that could not be worked out because they feed
         #: themselves.  Excel shows zero in these and warns separately.
         self.circular: set[CellKey] = set()
@@ -284,7 +337,8 @@ class Calculator:
                 readers = self._readers.get((area.sheet.lower(), area.top, area.left))
                 if readers is not None:
                     readers.discard(key)
-            self._blocks.pop(key, None)
+            for area in self._blocks.pop(key, ()):
+                self._block_readers.remove(area, key)
         if compiled is None:
             return
         self.compiled[key] = compiled
@@ -302,12 +356,14 @@ class Calculator:
                 blocks.append(area)
         if blocks:
             self._blocks[key] = blocks
+            for area in blocks:
+                self._block_readers.add(area, key)
 
     def _reading(self, name: str, row: int, column: int) -> set[CellKey]:
         """The formulas that read a cell."""
         found = set(self._readers.get((name, row, column), ()))
-        found.update(key for key, blocks in self._blocks.items()
-                     if any(area.sheet.lower() == name and area.contains(row, column) for area in blocks))
+        found.update(key for key in self._block_readers.near(name, row, column)
+                     if any(area.sheet.lower() == name and area.contains(row, column) for area in self._blocks[key]))
         return found
 
     def rebuild(self, *, keep_pending: bool = False) -> None:
@@ -335,6 +391,7 @@ class Calculator:
         self._calculation_order.clear()
         self._readers.clear()
         self._blocks.clear()
+        self._block_readers.clear()
         self.circular.clear()
         self._loop.clear()
         self._closed.clear()

@@ -516,10 +516,11 @@ def control_drawing(shape: Shape, grid: SheetGrid | None = None) -> str:
     its transform empty: where the control is comes from the anchor.
     """
     grid = grid or SheetGrid()
+    edit_as = f' editAs="{shape.edit_as}"' if shape.edit_as else ""
     return (
         '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
         '<mc:Choice xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" Requires="a14">'
-        f"<xdr:twoCellAnchor{f' editAs="{shape.edit_as}"' if shape.edit_as else ''}>"
+        f"<xdr:twoCellAnchor{edit_as}>"
         f"{_corner_markup('from', grid, _on_pixel(shape.left), _on_pixel(shape.top))}"
         f"{_corner_markup('to', grid, _on_pixel(shape.left + shape.width), _on_pixel(shape.top + shape.height))}"
         '<xdr:sp macro="" textlink="">'

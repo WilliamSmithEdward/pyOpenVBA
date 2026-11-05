@@ -19,6 +19,7 @@ from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel._hooks import link_gate
 from pyopenvba.apps.excel._workbook_links import (
     found_link,
     link_kind,
@@ -73,11 +74,11 @@ def loaded(book: Workbook, path: str) -> tuple[Workbook, bool] | None:
     source = _open_book(book, path)
     if source is not None:
         return source, True
-    book.application.outside("Reading a linked workbook")
+    link_gate(book.application, "Reading a linked workbook", path)
     file = Path(on_disk(path))
     if not file.is_file():
         return None
-    return load_workbook(book.application, file), False
+    return load_workbook(book.application, file, checked=True), False
 
 
 def _read(book: Workbook, path: str) -> tuple[tuple[str, ...], tuple[dict[tuple[int, int], object], ...]] | None:
@@ -141,7 +142,7 @@ def update_link(book: Workbook, name: object, kind: object) -> object:
         if every:
             return True
         raise _failed("UpdateLink")
-    book.application.outside("Workbook.UpdateLink")
+    link_gate(book.application, "Workbook.UpdateLink")
     if every:
         chosen = [linked for linked in links_of(book) if not source_is_open(book, linked)]
     else:
@@ -193,7 +194,7 @@ def change_link(book: Workbook, name: object, new_name: object, kind: object) ->
     the workbook to the front; pointing a link where it points already, or at this workbook, does nothing."""
     if name is MISSING or new_name is MISSING:
         raise error(449, "Argument not optional")
-    book.application.outside("Workbook.ChangeLink")
+    link_gate(book.application, "Workbook.ChangeLink")
     if link_kind(kind) != _EXCEL_LINKS:
         raise _failed("ChangeLink")
     target = to_text(new_name)

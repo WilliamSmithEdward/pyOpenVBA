@@ -85,6 +85,28 @@ _CONNECTION_SITES = {1: 4, 2: 6, 3: 4, 4: 4, 5: 4, 6: 8, 7: 6, 8: 6, 9: 8, 10: 6
                      16: 4, 17: 8, 18: 8, 19: 8, 20: 3, 92: 5}
 _KIND_SITES = {"textBox": 4, "line": 2, "chart": 4, "button": 4, "group": 0}
 _SHAPE_STYLES = {"shape": 9, "textBox": 0, "line": 10009, "chart": 0, "button": 0, "group": 9}
+def control_box(kind: int, left: object, top: object, width: object, height: object) -> tuple[float, float, float, float]:
+    """Where a new form control lands. AddFormControl takes whole numbers, and each edge then falls back to a pixel at 96 DPI, a size being
+    what is left between two edges. A check box, option button or group box has a smallest size, and a list box stands on whole lines of
+    13 pixels with its border (tests/fixtures/new_control_grid.json, 2,635 boxes)."""
+    def pixel(points: int) -> int:
+        return points * 4 // 3
+
+    x, y, wide, tall = (int(to_integer(one, "Long")) for one in (left, top, width, height))
+    across, down = pixel(x), pixel(y)
+    columns, rows = pixel(x + wide) - across, pixel(y + tall) - down
+    if kind in (1, 4, 7):
+        columns, rows = max(columns, 31), max(rows, 22)
+    if kind == 6:
+        if columns == 18:
+            raise VBAUnsupportedError("A new list box 18 pixels wide is not implemented")
+        columns = max(33, columns * 2) if columns < 18 else columns
+        rows = 4 + 13 * max(2, (rows + 3) // 13)
+    return across * 0.75, down * 0.75, columns * 0.75, rows * 0.75
+
+
+#: Whether each kind of control's fill and line show.
+_CONTROL_PAINTS = {"CheckBox": (False, False), "Radio": (False, False), "Drop": (False, True), "Label": (False, True)}
 #: Shape.FormControlType for each kind of control the model makes: the XlFormControl constants.
 _CONTROL_TYPES = {"Button": 0, "CheckBox": 1, "Drop": 2, "GBox": 4, "Label": 5, "List": 6, "Radio": 7, "Scroll": 8,
                   "Spin": 9}
@@ -430,7 +452,7 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
 
         stem = FORM_CONTROLS.get(wanted, "Button")
         name, identifier = next_named(self.sheet, stem)
-        shape = self._made(kind="formControl", geometry="rect", stem=stem, box=(Left, Top, Width, Height), name=name)
+        shape = self._made(kind="formControl", geometry="rect", stem=stem, box=control_box(wanted, Left, Top, Width, Height), name=name)
         shape.control = ControlInfo(kind=FORM_CONTROLS.get(wanted, "Button").replace(" ", ""))
         if wanted in (2, 6):
             shape.control.kind = "Drop" if wanted == 2 else "List"
@@ -443,6 +465,10 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
         if wanted in (8, 9):
             shape.control.maximum = 100 if wanted == 8 else 30000
         shape.shape_id = identifier
+        # A button, label or spinner moves and sizes with its cells, and the rest only move (tests/fixtures/new_control_settings.json).
+        shape.edit_as = "" if wanted in (0, 5, 9) else "oneCell"
+        if wanted in (0, 1, 4, 5, 7):
+            shape.text = name
         if wanted == 7:
             from pyopenvba.apps.excel._radios import groups
 
@@ -1064,6 +1090,15 @@ class ShapeObject(_Drawn):
 
     @member
     def Parent(self) -> object:
+        # A new form control's is the control's own old object, until it is saved and opened (tests/fixtures/new_control_settings.json).
+        if self.shape.kind == "formControl" and not self.shape.source:
+            from pyopenvba.apps.excel._old_controls import item_of
+            from pyopenvba.apps.excel._text_paragraphs import NoEffect
+
+            control = self.shape.control
+            if control is not None and control.kind in ("GBox", "Label", "Scroll", "Spin"):
+                return NoEffect(self, control.kind, {"Name": self.shape.name})
+            return item_of(self.sheet, self.shape)
         return self.sheet
 
     @member
@@ -1236,6 +1271,10 @@ class ShapeObject(_Drawn):
         wanted = int(to_integer(value, "Long"))
         if wanted not in (1, 2, 3):
             raise VBAUnsupportedError(f"Shape.Placement {wanted} is not implemented")
+        control = self.shape.control
+        if wanted == 1 and control is not None and control.kind not in ("Button", "Label", "Spin"):
+            # These do not size with their cells, and the set leaves them as they are (tests/fixtures/new_control_settings.json).
+            return
         self.restyled().edit_as = PLACEMENTS[wanted - 1]
 
     # -- where it is
@@ -1269,6 +1308,12 @@ class ShapeObject(_Drawn):
         one moves inside that child space, which then becomes the members' boxes together, and the group's box
         follows at the scale it had."""
         shape = self.shape
+        if shape.kind == "formControl" and not shape.source and shape.control is not None:
+            # A size falls back to a pixel, where a place does only in the file. A scroll bar's width and a list box's height go their own
+            # way (tests/fixtures/new_control_settings.json).
+            if (shape.control.kind == "Scroll" and "width" in changes) or (shape.control.kind == "List" and "height" in changes):
+                raise _unsupported("this size of a new form control")
+            changes = {name: value * 4 // 3 * 0.75 if name in ("width", "height") else value for name, value in changes.items()}
         group = parent_group(self.sheet, shape)
         if shape.kind == "group" and not shape.source:
             inside = [to_child(shape, _box(one)) for one in shape.children]
@@ -1317,6 +1362,8 @@ class ShapeObject(_Drawn):
     @setter("Title")
     def _title(self, value: object) -> None:
         wanted = to_text(value)
+        if self.shape.kind == "formControl":
+            raise error(445, "Object doesn't support this action")
         self.restyled().title = wanted
 
     @member
@@ -1326,6 +1373,8 @@ class ShapeObject(_Drawn):
     @setter("Decorative")
     def _decorative(self, value: object) -> None:
         wanted = to_bool(value)
+        if self.shape.kind == "formControl":
+            raise error(445, "Object doesn't support this action")
         shape = self.restyled()
         shape.decorative = wanted
         if wanted:
@@ -1339,6 +1388,8 @@ class ShapeObject(_Drawn):
     @setter("Rotation")
     def _rotation(self, value: object) -> None:
         wanted = float(VBASingle(_number(value)))
+        if self.shape.kind == "formControl":
+            raise error(-2147024809, "The specified value is out of range.")
         self.restyled().rotation = wanted
 
     @method
@@ -1427,11 +1478,16 @@ class ShapeObject(_Drawn):
 
     @member
     def LockAspectRatio(self) -> object:
+        # A new form control keeps it for the file, and reads it only from there (tests/fixtures/new_control_settings.json).
+        if self.shape.kind == "formControl" and not self.shape.source:
+            return VBAInt(0, "Long")
         return VBAInt(-1 if self.shape.lock_aspect else 0, "Long")
 
     @setter("LockAspectRatio")
     def _lock_aspect(self, value: object) -> None:
         wanted = to_bool(value)
+        if self.shape.kind == "formControl" and self.shape.source:
+            raise _unsupported("LockAspectRatio on a form control in a file")
         self.restyled().lock_aspect = wanted
 
     @member
@@ -1616,6 +1672,8 @@ class ShapeObject(_Drawn):
         from pyopenvba.apps.excel._shape_format import FillFormat, RangeFill
 
         self.on_sheet()
+        if self.shape.kind == "formControl":
+            return self._control_paint("FillFormat", 0)
         if self.shape.kind == "group" and self.shape.source:
             return RangeFill(ShapeRange([ShapeObject(self.sheet, one) for one in self.shape.children]))
         return FillFormat(self)
@@ -1625,9 +1683,22 @@ class ShapeObject(_Drawn):
         from pyopenvba.apps.excel._shape_format import LineFormat, RangeLine
 
         self.on_sheet()
+        if self.shape.kind == "formControl":
+            return self._control_paint("LineFormat", 1)
         if self.shape.kind == "group" and self.shape.source:
             return RangeLine(ShapeRange([ShapeObject(self.sheet, one) for one in self.shape.children]))
         return LineFormat(self)
+
+    def _control_paint(self, type_name: str, slot: int) -> object:
+        """A form control's Fill or Line: only whether it shows is read, by the kind of control. A group box's fill shows until it is
+        saved (tests/fixtures/new_control_settings.json). The rest reports itself."""
+        from pyopenvba.apps.excel._text_paragraphs import NoEffect
+
+        control = self.shape.control
+        shown = _CONTROL_PAINTS.get(control.kind if control is not None else "", (True, True))[slot]
+        if slot == 0 and control is not None and control.kind == "GBox" and self.shape.source:
+            shown = False
+        return NoEffect(self, type_name, {"Visible": VBAInt(-1 if shown else 0, "Long")})
 
     @member
     def Shadow(self) -> object:
@@ -1679,6 +1750,8 @@ class ShapeObject(_Drawn):
 
     @member
     def ConnectionSiteCount(self) -> object:
+        if self.shape.kind == "formControl":
+            return VBAInt(4, "Long")
         if self.shape.source and self.shape.kind == "line":
             # In a file a straight line has its two ends, and a connector none (tests/fixtures/loaded_shape_text.json).
             return VBAInt(2 if self.shape.geometry == "line" else 0, "Long")

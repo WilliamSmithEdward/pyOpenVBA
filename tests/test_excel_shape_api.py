@@ -117,13 +117,13 @@ def test_create_edit_save_reopen_and_vba_share_one_shape(kind: str, tmp_path: Pa
     assert app.evaluate('ActiveSheet.Shapes("Start").OnAction') == ("Book1!Clicked" if kind == "formControl" else "Clicked")
     first = tmp_path / "first.xlsm"
     app.save(first)
-    sheet.update_shape("start", new_name=r"Run & \1", left=144, top=88, width=123, height=45,
+    sheet.update_shape("start", new_name=r"Run & \1", left=144, top=87, width=123, height=45,
                        text="Next & <end>", macro="Other")
     assert app.evaluate('ActiveSheet.Shapes(1).Left') == 144
     second = tmp_path / "second.xlsm"
     app.save(second)
     again = ExcelApplication.open(second, with_vba=False).sheet(1).shape(r"Run & \1")
-    assert (again.left, again.top, again.width, again.height) == (144, 88, 123, 45)
+    assert (again.left, again.top, again.width, again.height) == (144, 87, 123, 45)
     assert (again.text, again.macro) == ("Next & <end>", "Other")
     # Revert values after a save: persistence must compare against the
     # latest saved state, including the VML caption.

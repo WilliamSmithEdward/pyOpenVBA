@@ -168,6 +168,10 @@ class _Walk:
             # (tests/fixtures/workbook_links.json).
             return ":" in node.text or ":" in node.sheet.rpartition("]")[2]
         if isinstance(node, Structured):
+            if self.merging:
+                # Written through Range.Formula, an @ on a table's cells goes as one on any other cells does
+                # (tests/fixtures/formula_reads.json).
+                return True
             raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
         if isinstance(node, ArrayLiteral):
             for row in node.rows:

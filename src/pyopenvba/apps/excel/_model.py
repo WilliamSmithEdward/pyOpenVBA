@@ -24,7 +24,7 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
@@ -1587,6 +1587,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         if path.suffix.lower() in (".xls", ".xla", ".xlt"):
             raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
+        from pyopenvba.apps.excel._io import MalformedPartError
+
         format_code = remember_format(self.application, Format, Delimiter)
         read_only = ReadOnly is not MISSING and to_bool(ReadOnly)
         if is_text(path):
@@ -1597,6 +1599,13 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             return self._from_template(path)
         try:
             return self.open_file(path, read_only=read_only, format_code=format_code)
+        except MalformedPartError as failure:
+            # Tests/fixtures/bad_xml/bad_xml.json.
+            if failure.part == "[Content_Types].xml":
+                raise error(1004, f"Excel cannot open the file '{path.name}' because the file format or file extension "
+                                  "is not valid. Verify that the file has not been corrupted and that the file extension "
+                                  "matches the format of the file.") from None
+            raise error(1004, "Method 'Open' of object 'Workbooks' failed") from None
         except PowerQueryError:
             import zipfile
 
@@ -1846,10 +1855,15 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: The hidden names the workbook's formulas have brought into Names (see _hidden_names).
+        self.hidden_names: set[str] = set()
+        self.hidden_entries: dict[str, NameEntry] = {}
         #: The chart sheets the file has, its tabs in order where it has any, and the chart sheet that is active (see
         #: _chart_sheets). sheets_ holds worksheets alone.
         self.chart_sheets: list[ChartSheet] = []
         self.file_tabs: list[Worksheet | ChartSheet] = []
+        #: The number of the last chart sheet that took one, or a name of its own (see _chart_sheets.new_name).
+        self.chart_sheets_named = 0
         self.active_chart_sheet: ChartSheet | None = None
         #: Chart sheets a macro deleted, whose parts the next save removes.
         self.deleted_chart_sheets: list[ChartSheet] = []
@@ -2542,6 +2556,13 @@ class Workbook(ExcelObject):
     def Activate(self) -> object:
         self.application.activate_book(self)
         return EMPTY
+
+    @method
+    def NewWindow(self) -> object:
+        """Another window on the workbook, at the front (see _window_states)."""
+        from pyopenvba.apps.excel._windows import new_window
+
+        return new_window(self)
 
     # -- protection (see _protection)
 
@@ -3629,6 +3650,8 @@ class Worksheet(ExcelObject):
         self.notes: dict[tuple[int, int], Note] = {}
         #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
         self.held_kinds: set[str] = set()
+        #: The chart sheet this sheet carries the chart of, which no tab shows (see _chart_sheets).
+        self.chart_sheet: ChartSheet | None = None
         #: The sheet's query tables, the newest first (see _query_tables).
         self.query_tables: list[Any] = []
         #: The PNG SetBackgroundPicture gave the sheet, None for none; True once it changed, so a save writes it.
@@ -3702,9 +3725,9 @@ class Worksheet(ExcelObject):
             from pyopenvba.apps.excel._tables import edited
 
             edited(self, row, column)
-        self.dims.fonts_changed(row)
-        calculator = self.book.calculator
+        self.dims.value_changed(row, column)
         cell = self.cells_.get((row, column))
+        calculator = self.book.calculator
         if cell is not None:
             calculator.remember(self.name, row, column, cell)
         else:
@@ -4683,6 +4706,10 @@ def _formula_of_long_text(found: object) -> object:
     return found
 
 
+#: What _array_item answers past an array's size.
+NOT_IN_ARRAY: Final = object()
+
+
 class Range(ExcelObject):
     """A rectangle of cells, or several of them."""
 
@@ -5034,11 +5061,11 @@ class Range(ExcelObject):
 
     @member
     def Formula2(self) -> object:
-        return self._read_formulas(r1c1=False, at=True)
+        return self._read_formula2s(r1c1=False)
 
     @member
     def Formula2R1C1(self) -> object:
-        return self._read_formulas(r1c1=True, at=True)
+        return self._read_formula2s(r1c1=True)
 
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
@@ -5256,12 +5283,19 @@ class Range(ExcelObject):
         except FormulaError:
             raise VBAUnsupportedError(f"Formula2 of {formula} is not implemented") from None
 
-    def _read_formulas(self, *, r1c1: bool, at: bool = False) -> object:
+    def _read_formula2s(self, *, r1c1: bool) -> object:
+        """The formulas as Formula2 reads them: with an @ where it cuts cells to one value."""
+        def with_at(text: str, whole: bool) -> str:
+            return self._formula2(text, whole=whole)
+
+        return self._read_formulas(r1c1=r1c1, rewrite=with_at)
+
+    def _read_formulas(self, *, r1c1: bool, rewrite: Callable[[str, bool], str] | None = None) -> object:
         from pyopenvba.apps.excel._data_tables import table_at
 
         # Separate areas read as the first (tests/fixtures/range_area_reads.json).
         if len(self.areas) > 1:
-            return self._first_area()._read_formulas(r1c1=r1c1, at=at)
+            return self._first_area()._read_formulas(r1c1=r1c1, rewrite=rewrite)
 
         def read(row: int, column: int) -> object:
             table = table_at(self.sheet, row, column) if self.sheet.data_tables else None
@@ -5277,9 +5311,9 @@ class Range(ExcelObject):
                 return ""
             if cell.formula:
                 text = shown_formula(self.sheet, row, column, cell.formula)
-                if at and not cell.dynamic:
+                if rewrite is not None and not cell.dynamic:
                     # A dynamic-array formula is kept as Formula2 writes it, with no @ to add.
-                    text = self._formula2(text, whole=found is not None)
+                    text = rewrite(text, found is not None)
                 # A call of SINGLE is shown as an @, even where the @ would hold less than SINGLE does.
                 text = at_shown(text)
                 # R1C1 can spell a formula longer than Excel's 8192 characters, and reads only that many
@@ -5532,6 +5566,7 @@ class Range(ExcelObject):
             self._share(placed, first[0])
 
     def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
+        from pyopenvba.apps.excel._visible import visible_areas
         from pyopenvba.formula._values import NA
 
         if array.dimensions not in (1, 2):
@@ -5542,22 +5577,17 @@ class Range(ExcelObject):
         source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
         # Validate the existing write-size limit before changing any area.
         self.writable_positions()
-        for area in self._array_areas(array):
+        for place, area in enumerate(visible_areas(self) or self.areas):
             for row in range(area.top, area.bottom + 1):
                 for column in range(area.left, area.right + 1):
                     if not _merges.writable(self.sheet, row, column):
                         continue
                     down, across = row - area.top, column - area.left
-                    source_row = 0 if source_rows == 1 else down
-                    source_column = 0 if source_columns == 1 else across
-                    if source_row >= source_rows or source_column >= source_columns:
+                    item = self._array_item(array, down, across, swapped=place % 2 == 1)
+                    if item is NOT_IN_ARRAY:
                         self._put(row, column, NA)
                         continue
-                    indices = [array.bounds[-1][0] + source_column]
-                    if array.dimensions == 2:
-                        indices.insert(0, array.bounds[0][0] + source_row)
-                    item = array.get(indices)
-                    if item is NULL:
+                    if item is NULL or isinstance(item, VBAArray):
                         item = EMPTY
                     if isinstance(item, VBAErrorValue):
                         from pyopenvba.apps.excel._calc import from_vba
@@ -7619,47 +7649,46 @@ class Range(ExcelObject):
                 self._type_into(row, column, value, raw=raw)
 
     def _write_array(self, array: VBAArray, *, raw: bool = False) -> None:
-        """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item."""
-        areas = self._array_areas(array)
-        for area in areas:
-            # A flat array is one row. One row or one column repeats that way over the range; past the end of any other is #N/A
-            # (tests/fixtures/excel_fits.json).
-            flat: list[object] = list(array.elements()) if array.dimensions == 1 else []
-            rows, columns = (1, 1), (0, len(flat) - 1)
-            if array.dimensions != 1:
-                rows, columns = array.bounds[0], array.bounds[1]
-            height, width = rows[1] - rows[0] + 1, columns[1] - columns[0] + 1
-            if height < 1 or width < 1:
-                continue
+        """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item. A row or
+        column of one repeats across the area; past the array's size each cell is #N/A (tests/fixtures/array_areas.json)."""
+        from pyopenvba.apps.excel._visible import visible_areas
+        from pyopenvba.formula._values import NA
+
+        if not array.size:
+            return
+        for place, area in enumerate(visible_areas(self) or self.areas):
+            if area.rows * area.columns > 1048576:
+                raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
             for row in range(area.rows):
                 for column in range(area.columns):
-                    down, across = 0 if height == 1 else row, 0 if width == 1 else column
-                    item: object
-                    if down >= height or across >= width:
-                        item = VBAErrorValue(2042)
-                    elif array.dimensions == 1:
-                        item = flat[across]
-                    else:
-                        item = array.get([rows[0] + down, columns[0] + across])
-                    self._put(area.top + row, area.left + column, item, raw=raw)
+                    item = self._array_item(array, row, column, swapped=place % 2 == 1)
+                    if item is NULL or isinstance(item, VBAArray):
+                        # Nothing a cell can hold.
+                        item = EMPTY
+                    self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
         self.sheet.touched()
 
-    def _array_areas(self, array: VBAArray) -> list[Area]:
-        """The areas an array is written to, each from the array's start.
-
-        Excel reads a two-dimensional array for the second of several
-        areas at another stride -- {11,12;21,22;...;61,62} written to
-        A2:B2, A4:B4 and A6:B6 leaves 11 and 31 in A4:B4 -- so areas wider
-        than one column report themselves; one column wide, each takes the
-        array's first column.
-        """
-        from pyopenvba.apps.excel._visible import visible_areas
-
-        areas = visible_areas(self) or self.areas
-        if len(areas) > 1 and array.dimensions == 2 and any(area.columns > 1 for area in areas):
-            raise VBAUnsupportedError("writing a two-dimensional array to several areas wider than one column is "
-                                      "not implemented")
-        return areas
+    def _array_item(self, array: VBAArray, row: int, column: int, *, swapped: bool) -> object:
+        """The item for a cell of an area. A flat array is one row, repeated down. Excel reads a two-dimensional array for every
+        second area with its sizes the other way about, down the columns as they are stored: {11,12;21,22;...;61,62} written to
+        A2:B2, A4:B4 and A6:B6 leaves 11 and 31 in A4:B4."""
+        if array.dimensions == 1:
+            items = array.elements()
+            at = 0 if len(items) == 1 else column
+            return items[at] if at < len(items) else NOT_IN_ARRAY
+        (low, high), (left, right) = array.bounds[0], array.bounds[1]
+        height, width = high - low + 1, right - left + 1
+        if swapped:
+            # Sizes the other way about, and items as stored, a column at a time.
+            down, across = 0 if width == 1 else row, 0 if height == 1 else column
+            if down >= width or across >= height:
+                return NOT_IN_ARRAY
+            stored = down + across * width
+            return array.get([low + stored % height, left + stored // height])
+        down, across = 0 if height == 1 else row, 0 if width == 1 else column
+        if down >= height or across >= width:
+            return NOT_IN_ARRAY
+        return array.get([low + down, left + across])
 
     def _put(self, row: int, column: int, value: object, *, raw: bool = False, r1c1: bool = False) -> None:
         """Write one cell as Value does; ``r1c1`` for a formula already turned from R1C1 into A1."""
@@ -7888,6 +7917,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
             scope, bare = split_sheet(entry.name)
             return (collation(bare), 0 if scope else 1, collation(scope))
 
+        if self.sheet is None:
+            held = {entry.name.casefold() for entry in entries}
+            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
+                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
         return [DefinedName(entry) for entry in sorted(entries, key=order)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
@@ -7925,6 +7958,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
                 entry_scope, entry_bare = split_sheet(entry.name)
                 if _names.same_name(entry_bare, bare) and _names.same_sheet_name(entry_scope, scope):
                     return DefinedName(entry)
+        if self.sheet is None and bare.lower().startswith(("_xlfn.", "_xlpm.")):
+            for item in self.vba_items():
+                if isinstance(item, DefinedName) and item.entry.name.casefold() == bare.casefold():
+                    return item
         return None
 
     def find(self, name: str, *, scope: Worksheet | None = None) -> DefinedName | None:
@@ -8004,6 +8041,9 @@ class Names(VBACollection, ItemDefault, ExcelObject):
 
         added(entry, MacroType, ShortcutKey, Category, CategoryLocal)
         _names.changed(self.book, entry.name)
+        from pyopenvba.apps.excel._hidden_names import noted
+
+        noted(self.book, entry.refers_to, single=False)
         return DefinedName(entry)
 
 
@@ -8022,7 +8062,9 @@ class DefinedName(HeldPart, ExcelObject):
         self.entry = entry
 
     def held_gone(self) -> bool:
-        return not self.entry.emptied and not any(one is self.entry for one in self.entry.book.names_.entries)
+        book = self.entry.book
+        return not self.entry.emptied and not (any(one is self.entry for one in book.names_.entries)
+                                               or any(one is self.entry for one in book.hidden_entries.values()))
 
     @member
     def Name(self) -> object:

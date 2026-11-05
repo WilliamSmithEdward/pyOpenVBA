@@ -252,6 +252,17 @@ def _verified_gaps() -> dict[str, set[str]]:
     return gaps
 
 
+def test_the_rows_that_read_formula2_still_reach_its_gap() -> None:
+    """Formula2's reading stands apart from Formula's, which never asks for it. The scan has to go on seeing it from Formula2's rows."""
+    cls = CLASSES["Range"]
+    for member in ("formula2", "formula2r1c1", "formula2local", "formula2r1c1local"):
+        spec = _registered(cls)[member]
+        seen: set[object] = set()
+        assert any("Formula2 of" in gap for gap in _reachable_gaps(cls, spec.getter, seen)), member
+    spec = _registered(cls)["formula"]
+    assert not any("Formula2 of" in gap for gap in _reachable_gaps(cls, spec.getter, set()))
+
+
 def test_a_verified_row_reaches_no_reported_gap_but_an_accepted_one() -> None:
     """An unsupported error is a reported gap, not a passing gate (docs/host_completeness.md). A gap a macro could not
     plausibly hit may stay under a VERIFIED row if tests/fixtures/verified_gaps_accepted.json gives the reason.

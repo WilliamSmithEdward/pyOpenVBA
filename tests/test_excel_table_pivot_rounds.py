@@ -27,7 +27,9 @@ USED_UP = {51101: 'ListObjects(text) went by DisplayName, not Name (tests/fixtur
            51103: "a range's Hyperlinks held across an insert kept the old place, not the links it held "
                   '(tests/fixtures/held_range_collections.json)',
            51104: "a range's Hyperlinks.Delete with none held was 1004; held links taken away were dropped, not counted "
-                  '(tests/fixtures/range_links_delete.json)'}
+                  '(tests/fixtures/range_links_delete.json)',
+           51106: 'a reference spanning every row moved its top as rows went in, so a held ws.Cells became 2:1048576 '
+                  '(tests/fixtures/whole_span_inserts.json)'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

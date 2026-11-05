@@ -151,3 +151,25 @@ def test_the_model_reports_nothing_of_these_books(tmp_path: Path) -> None:
             _read(file, read, "typed")
         except VBAUnsupportedError as failure:  # pragma: no cover
             pytest.fail(f"{read}: {failure}")
+
+
+LATE_THROUGH_AN_ARGUMENT = """Private Function Shown(ByRef v As Variant) As String
+    Shown = TypeName(v)
+End Function
+Function Go() As String
+    Dim ws As Object, typed As Worksheet, held As Variant
+    Set ws = ActiveSheet
+    Set typed = ActiveSheet
+    held = ws.PageSetup.Orientation
+    Go = TypeName(held) & " " & Shown(ws.PageSetup.Orientation) & " " & Shown(typed.PageSetup.Orientation)
+End Function
+"""
+
+
+def test_a_late_double_is_one_when_passed_by_reference_too() -> None:
+    """A property passed ByRef is read on a path of its own, which once gave the library's Long where Excel answers a Double
+    late (tests/fixtures/application_settings.json, print_off)."""
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(LATE_THROUGH_AN_ARGUMENT, name="M")
+    assert app.run("Go") == "Double Double Long"

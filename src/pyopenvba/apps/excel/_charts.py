@@ -4495,14 +4495,25 @@ class Series(PictureMembers, Created):
     @setter('Name')
     def _name(self, value: object) -> None:
         self.position()
-        self.chart.admit_change()
+        loaded = bool(self.chart.state.original)
+        if loaded:
+            from pyopenvba.apps.excel._chart_loaded import admit
+
+            admit(self.chart)
+        else:
+            self.chart.admit_change()
         text = to_text(value)
         if text.startswith('=') and len(text) > MAX_CHART_REFERENCE_TEXT:
             raise VBAUnsupportedError('Chart references exceed the supported text budget')
         self.position()
-        self.chart.changed()
+        if not loaded:
+            self.chart.changed()
         self.entry.name_reference = text[1:] if text.startswith('=') else ''
         self.entry.name = text if not self.entry.name_reference else ''
+        if loaded:
+            from pyopenvba.apps.excel._chart_loaded import name_series
+
+            name_series(self.chart, self.entry, self.entry.name_reference, text, to_text(self.Name()))
 
     @member
     def Values(self, Index: object = MISSING) -> object:  # noqa: N803 - it takes none, as Excel answers

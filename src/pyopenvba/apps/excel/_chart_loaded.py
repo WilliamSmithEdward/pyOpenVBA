@@ -11,12 +11,13 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from pyopenvba._xml import escape_text
 from pyopenvba.apps.excel._chart_title import TitleLook
 from pyopenvba.exceptions import VBAUnsupportedError
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._chart_axes import AxisState
-    from pyopenvba.apps.excel._charts import Chart
+    from pyopenvba.apps.excel._charts import Chart, SeriesState
 
 #: What Excel writes at the head of a chart part, whatever the chart holds.
 _EXCELS_HEAD = re.compile(r'(?:<\?xml[^>]*\?>\s*)?<c:chartSpace\b[^>]*><c:date1904 val="[01]"/>(?:<c:lang [^>]*/>)?<c:roundedCorners val="[01]"/>')
@@ -166,3 +167,40 @@ def set_gridlines(chart: Chart, entry: AxisState, major: bool, wanted: bool) -> 
             raise VBAUnsupportedError('Gridlines on this imported chart axis are not implemented')
         axis = axis[:place.end()] + (element or f'<{tag}/>') + axis[place.end():]
     _edited(chart, state.original[:start] + axis + state.original[end:])
+
+
+_SERIES = re.compile(r'<c:ser>.*?</c:ser>', re.DOTALL)
+_ORDER = re.compile(r'<c:order val="(\d+)"/>')
+_SERIES_TEXT = re.compile(r'<c:tx>.*?</c:tx>', re.DOTALL)
+
+
+def _series_span(chart: Chart, entry: SeriesState) -> tuple[int, int]:
+    """Where a series is in the part: the model holds them by c:order."""
+    state = chart.state
+    if state.out_of_sight or len(state.full_series) not in (0, len(state.series)):
+        raise VBAUnsupportedError('Editing a series of an imported chart with series out of sight is not implemented')
+    def order(hit: re.Match[str]) -> int:
+        number = _ORDER.search(hit.group(0))
+        return int(number.group(1)) if number else -1
+
+    found = sorted(_SERIES.finditer(state.original), key=order)
+    place = next((at for at, one in enumerate(state.series) if one is entry), None)
+    if place is None or len(found) != len(state.series):
+        raise VBAUnsupportedError('Finding this series in an imported chart is not implemented')
+    return found[place].span()
+
+
+def name_series(chart: Chart, entry: SeriesState, reference: str, literal: str, shown: str) -> None:
+    """Series.Name: its own text, or a cell's with that cell's text cached, in place of what c:tx held."""
+    admit(chart)
+    start, end = _series_span(chart, entry)
+    series = chart.state.original[start:end]
+    if _SERIES_TEXT.search(series) is None:
+        raise VBAUnsupportedError('Naming a series of an imported chart that has no name is not implemented')
+    if reference:
+        inner = (f'<c:strRef><c:f>{escape_text(reference)}</c:f><c:strCache><c:ptCount val="1"/><c:pt idx="0"><c:v>{escape_text(shown)}</c:v>'
+                 '</c:pt></c:strCache></c:strRef>')
+    else:
+        inner = f'<c:v>{escape_text(literal)}</c:v>'
+    named = _SERIES_TEXT.sub(lambda _: f'<c:tx>{inner}</c:tx>', series, count=1)
+    _edited(chart, chart.state.original[:start] + named + chart.state.original[end:])

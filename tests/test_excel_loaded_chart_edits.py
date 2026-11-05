@@ -33,7 +33,8 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'HasLegend False', 'HasLegend True', 'legend position', 'HasLegend False then True', 'legend gone position', 'legend back position',
          'legend position bottom', 'legend position same', 'legend moved position read',
          'axis maximum', 'axis minimum', 'axis both', 'axis maximum twice', 'axis maximum auto', 'axis maximum auto read',
-         'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off')
+         'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off',
+         'series name', 'series name formula', 'series name cell')
 #: Built, but not for a chart with a style: new gridlines take the style's look, which is not read.
 NEEDS_NO_STYLE = ('category gridlines', 'minor gridlines', 'minor gridlines off')
 NOT_EXCELS = 'loaded_chart_openpyxl.xlsx'

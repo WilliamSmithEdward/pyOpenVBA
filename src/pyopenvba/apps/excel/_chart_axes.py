@@ -212,7 +212,9 @@ class Axis(ElementProperties, Created):
         self.read()
         if self.chart.state.original:
             # What is built for a loaded chart goes through its own markup; the rest is refused where it would mark the chart changed.
-            self.chart.admit_read()
+            from pyopenvba.apps.excel._chart_loaded import admit
+
+            admit(self.chart)
         else:
             self.chart.admit_change()
 

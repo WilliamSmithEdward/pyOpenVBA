@@ -219,6 +219,8 @@ def model_answer(case: dict[str, str], typed: bool, seed: int) -> str:
         folder = Path(held)
         books(folder)
         app = ExcelApplication(sandbox=False)
+        # Excel answers Author with the measuring user's name, which tests/fixtures/notes.json records; the model takes it too.
+        app.application.user_name = json.loads((FIXTURES / 'notes.json').read_text(encoding='utf-8'))['author']
         app.add_workbook()
         app.add_module(source(case, typed, seed), name='Round')
         try:
@@ -250,7 +252,8 @@ def _lock() -> Path:
     return (ROOT / common).resolve() / 'excel-coordination' / 'live.lock'
 
 
-def measure(seed: int) -> None:
+def measure(seed: int, chunks: int) -> None:
+    """Up to ``chunks`` runs of CHUNK cases, carrying on from what the round file already holds; the comparison once all are in."""
     from pyvbaharness import ExcelSession, HarnessConfig
 
     path = OUT / f'round_{seed}.json'
@@ -264,6 +267,10 @@ def measure(seed: int) -> None:
         for tag, typed in (('late', False), ('typed', True)):
             todo = [case for case in cases if tag not in case]
             for start in range(0, len(todo), CHUNK):
+                if chunks <= 0:
+                    print('stopped; run again to carry on')
+                    return
+                chunks -= 1
                 chunk = todo[start:start + CHUNK]
                 while True:
                     try:
@@ -291,7 +298,7 @@ def measure(seed: int) -> None:
 
 def main() -> None:
     action, seed = sys.argv[1], int(sys.argv[2])
-    predict(seed) if action == 'predict' else measure(seed)
+    predict(seed) if action == 'predict' else measure(seed, int(sys.argv[3]) if len(sys.argv) > 3 else 1000)
 
 
 if __name__ == '__main__':

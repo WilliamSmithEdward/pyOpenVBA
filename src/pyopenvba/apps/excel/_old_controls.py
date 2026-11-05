@@ -147,8 +147,8 @@ def _box_side(name: str) -> MemberSpec:
     Shape (tests/fixtures/new_control_old_places.json)."""
 
     def get(item: OldObject) -> object:
-        found = float(cast(float, item.drawn.vba_get(name, [])))
         shape = item.shape
+        found = float(VBASingle(shape.top)) if name == 'Top' else float(cast(float, item.drawn.vba_get(name, [])))
         if shape.kind != 'formControl' or shape.source:
             return found
         return on_pixel(found) if name in ('Left', 'Top') else round(found * 4 / 3) * 0.75
@@ -160,6 +160,8 @@ def _box_side(name: str) -> MemberSpec:
             item.sheet.drawing_changed()
             return
         item.drawn.vba_set(name, value)
+        if name == 'Height' and shape.kind == 'formControl' and not shape.source:
+            shape.unsure_top = True
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 

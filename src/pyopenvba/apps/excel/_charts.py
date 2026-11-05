@@ -266,6 +266,21 @@ class ChartState:
             return False
         return len(self.series) == 1 or CHART_TYPES.get(shown_type(self)) == 'pie'
 
+    def holds_automatic_title(self, sheet: Worksheet) -> None:
+        """The automatic title made real, which a chart has only once it is read, activated or moved. A loaded chart's part gains
+        the title and nothing else, as Excel's save has it (tests/fixtures/chart_location.json, chart_loaded_title.json)."""
+        if self.title is not None or self.title_deleted or not self.has_automatic_title():
+            return
+        if self.original:
+            self.original, count = re.subn(r'<((?:\w+:)?)autoTitleDeleted\b', r'<\1title><\1overlay val="0"/></\1title>\g<0>', self.original, count=1)
+            if not count:
+                raise VBAUnsupportedError('Adding the automatic title to this imported chart is not implemented')
+            self.title = ''
+        else:
+            self.title = 'Chart Title'
+        self.dirty = True
+        sheet.drawing_changed()
+
     def names_lost(self) -> bool:
         """Whether every series' name has lost its cell, which leaves them all named by number."""
         every = self.full_series or self.series
@@ -974,8 +989,9 @@ class ChartObjects(VBACollection, ItemDefault, Created):
         items = self.vba_items()
         if len(items) != 1:
             raise VBAUnsupportedError('Selecting several chart objects together is not implemented')
-        # Alone, it is the chart that is selected, not its frame.
-        cast(ChartObject, items[0]).made_active('area')
+        # Alone, it is the chart that is selected, not its frame, whatever protects the sheet
+        # (tests/fixtures/chart_location.json).
+        cast(ChartObject, items[0]).activated('area')
         return EMPTY
 
 
@@ -1695,12 +1711,31 @@ class ChartObject(HeldPart):
         return EMPTY
 
     def made_active(self, part: str = '') -> None:
+        """A locked chart cannot be made active where drawing objects are protected. Its area cannot be selected there at all,
+        even unlocked or for the user alone (tests/fixtures/chart_location.json)."""
+        from pyopenvba.apps.excel._protection import drawing_enforced
+
+        found = self.sheet.protection
+        if found is not None and found.drawing_objects:
+            if part == 'area':
+                raise error(-2147467259, 'Automation error\nUnspecified error')
+            if part:
+                raise VBAUnsupportedError('Selecting part of a chart on a protected sheet is not implemented')
+            if drawing_enforced(self.sheet) and self.shape.locked:
+                raise error(-2147024809, 'The specified value is out of range.')
+        self.activated(part)
+
+    def activated(self, part: str) -> None:
         book = self.sheet.book
         if book.application.active_book is not book or book.active_sheet is not self.sheet:
             raise VBAUnsupportedError('Activating a chart on a sheet that is not active is not implemented')
         if not any(shape is self.shape for shape in self.sheet.shapes_):
             raise VBAUnsupportedError('Activating a deleted chart is not implemented')
         self.sheet.active_chart, self.sheet.chart_part = self.shape, part
+        state = self.sheet.chart_states[self.shape.shape_id]
+        # Selecting part of a loaded chart does not earn its title (tests/fixtures/chart_loaded_title.json).
+        if not part or not state.original:
+            state.holds_automatic_title(self.sheet)
 
     @member
     def ZOrder(self) -> object:
@@ -1906,7 +1941,8 @@ class Chart(ElementProperties, HeldPart):
 
     def admit_read(self) -> None:
         if (not any(book is self.sheet.book for book in self.sheet.book.application.workbooks_.books)
-                or not any(sheet is self.sheet for sheet in self.sheet.book.sheets_)
+                or (not any(sheet is self.sheet for sheet in self.sheet.book.sheets_)
+                    and not any(sheet is self.sheet.chart_sheet for sheet in self.sheet.book.chart_sheets))
                 or not any(shape is self.shape for shape in self.sheet.shapes_)
                 or self.sheet.chart_states.get(self.shape.shape_id) is not self.state):
             raise VBAUnsupportedError('Accessing a detached chart is not implemented')
@@ -2241,20 +2277,83 @@ class Chart(ElementProperties, HeldPart):
 
     @method
     def Location(self, Where: object, Name: object = MISSING) -> object:  # noqa: N803 - native named args
+        from pyopenvba.apps.excel._protection import drawing_enforced
+
         self.admit_read()
         where = to_integer(Where, 'Long')
         if where not in (1, 2, 3):
             raise error(13, 'Type mismatch')
+        if drawing_enforced(self.sheet) and self.shape.locked:
+            raise error(-2147024809, 'The specified value is out of range.')
+        self.state.holds_automatic_title(self.sheet)
         if where != 2:
-            raise VBAUnsupportedError('Moving a chart to a chart sheet is not implemented')
+            return self.to_new_sheet(Name)
+        # A good Where makes this the active chart, whatever becomes of the rest (tests/fixtures/chart_location.json).
+        self.sheet.active_chart = self.shape
         if Name is MISSING:
             raise error(5, 'Invalid procedure call or argument')
         wanted = to_text(Name)
-        if not any(sheet.name.casefold() == wanted.casefold() for sheet in self.sheet.book.sheets_):
+        target = next((sheet for sheet in self.sheet.book.sheets_ if sheet.name.casefold() == wanted.casefold()), None)
+        if target is None:
             raise error(1004, 'Location method of Chart class failed')
-        if wanted.casefold() != self.sheet.name.casefold():
-            raise VBAUnsupportedError('Moving a chart to another sheet is not implemented')
+        if target is not self.sheet:
+            self.moved_to(target)
+        elif self.sheet.protection is not None and self.sheet.protection.drawing_objects:
+            raise error(1004, 'Location method of Chart class failed')
         return self
+
+    def to_new_sheet(self, name: object) -> object:
+        """The chart on a new chart sheet of its own, directly before the worksheet it was on and made active, whichever sheet was
+        active. A ChartObject held from before has gone; the Chart answers on (tests/fixtures/chart_location.json)."""
+        from pyopenvba.apps.excel._chart_sheets import ChartSheet, new_name
+
+        source, shape, state = self.sheet, self.shape, self.state
+        if state.original:
+            raise VBAUnsupportedError('Moving an imported chart to a chart sheet is not implemented')
+        source.active_chart = shape
+        book = source.book
+        if book.protection is not None:
+            raise error(1004, 'Location method of Chart class failed')
+        wanted = new_name(book, name)
+        state.dirty = True
+        source.shapes_[:] = [one for one in source.shapes_ if one is not shape]
+        del source.chart_states[shape.shape_id]
+        if state.part:
+            source.deleted_chart_parts.add(state.part)
+        source.active_chart = None
+        source.drawing_changed()
+        made = ChartSheet.created(book, wanted, state, shape, book.tabs().index(source))
+        self.sheet = made.sheet
+        return made
+
+    def moved_to(self, target: Worksheet) -> None:
+        """The chart on another worksheet, last among its shapes, keeping its name and place there, which becomes the active
+        sheet with this the active chart. A ChartObject held from before has gone; the Chart answers on
+        (tests/fixtures/chart_location.json)."""
+        from pyopenvba.apps.excel._protection import enforced, refuse
+
+        self.admit_change()
+        if enforced(self.sheet) is not None:
+            raise VBAUnsupportedError('Moving a chart off a protected sheet is not implemented')
+        refuse(target, 'Location method of Chart class failed')
+        source, shape, state = self.sheet, self.shape, self.state
+        self.changed()
+        source.shapes_[:] = [one for one in source.shapes_ if one is not shape]
+        del source.chart_states[shape.shape_id]
+        if state.part:
+            source.deleted_chart_parts.add(state.part)
+        if source.active_chart is shape:
+            source.active_chart = None
+        state.part = ''
+        shape.shape_id = max((one.shape_id for one in target.shapes_), default=1) + 1
+        shape.source = ""
+        target.shapes_.append(shape)
+        target.chart_states[shape.shape_id] = state
+        self.sheet = target
+        source.drawing_changed()
+        target.drawing_changed()
+        target.book.activate_sheet(target)
+        target.active_chart = shape
 
     @member
     def Walls(self) -> object:
@@ -2450,8 +2549,9 @@ class Chart(ElementProperties, HeldPart):
         wanted = to_bool(value)
         self.keeps_look('title', wanted)
         self.changed()
-        # A styled chart's title is taken away as deleting it does (tests/fixtures/add_chart2.json).
-        self.state.title_deleted = not wanted and is_styled(self.state.chart_style)
+        # A title taken away is taken away as deleting it does, and a styled chart's whether it had one or not
+        # (tests/fixtures/add_chart2.json, chart_location.json).
+        self.state.title_deleted = not wanted and (self.state.title is not None or is_styled(self.state.chart_style))
         if not wanted:
             self.state.title, self.state.title_typed, self.state.title_look = None, False, TitleLook()
         elif self.state.title is None:
@@ -2524,7 +2624,10 @@ class Chart(ElementProperties, HeldPart):
 
     @member
     def Name(self) -> object:
-        """The sheet's name and the chart object's, as Excel answers it (tests/fixtures/chart_series_more.json)."""
+        """The sheet's name and the chart object's, as Excel answers it (tests/fixtures/chart_series_more.json). Held from before
+        it moved to a chart sheet it has neither (tests/fixtures/chart_location.json)."""
+        if self.sheet.chart_sheet is not None:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
         return f'{self.sheet.name} {self.shape.name}'
 
     @setter('Name')
@@ -2568,11 +2671,12 @@ class Chart(ElementProperties, HeldPart):
     def ChartTitle(self) -> object:
         self.admit_read()
         if self.state.title is None:
-            if not self.state.has_automatic_title():
+            if self.state.title_deleted or not self.state.has_automatic_title():
                 raise error(-2147024809, 'The parameter is incorrect.')
             # Excel gives the chart its automatic title on the way to the object.
-            self.changed()
-            self.state.title = 'Chart Title'
+            if not self.state.original:
+                self.changed()
+            self.state.holds_automatic_title(self.sheet)
         return ChartTitle(self)
 
     @member

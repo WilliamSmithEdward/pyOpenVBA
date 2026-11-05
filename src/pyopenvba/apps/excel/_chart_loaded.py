@@ -123,6 +123,9 @@ def place_legend(chart: Chart, position: str) -> None:
 
 
 def _axis_span(chart: Chart, entry: AxisState) -> tuple[int, int]:
+    if entry.group != 1:
+        # Only a primary axis's edits were measured (tests/fixtures/loaded_chart_edits.json).
+        raise VBAUnsupportedError('Editing a secondary axis of an imported chart is not implemented')
     found = re.search(rf'<c:(valAx|catAx)><c:axId val="{entry.identifier}"/>.*?</c:\1>', chart.state.original, re.DOTALL)
     if found is None:
         raise VBAUnsupportedError('Editing this imported chart axis is not implemented')

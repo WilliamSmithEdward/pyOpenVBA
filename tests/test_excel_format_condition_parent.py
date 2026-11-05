@@ -12,7 +12,8 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures' / 'format_condition_parent.json').read_text(encoding='utf-8'))
-CASES: list[tuple[int, dict[str, Any]]] = list(enumerate(RECORD['cases']))
+_MEASURED: list[dict[str, Any]] = RECORD['cases']
+CASES: list[tuple[int, dict[str, Any]]] = list(enumerate(_MEASURED))
 
 
 @pytest.mark.parametrize(('at', 'case'), CASES, ids=[f'{case["how"]} reopened {case["reopen"]}' for _, case in CASES])
@@ -24,6 +25,6 @@ def test_each_parent_as_excel_answered(at: int, case: dict[str, Any], tmp_path: 
 
 
 def test_a_rule_reached_through_another_range_names_that_range() -> None:
-    through = {case['how']: case['answer'].split('|')[0] for case in RECORD['cases'] if not case['reopen']}
+    through = {case['how']: case['answer'].split('|')[0] for case in _MEASURED if not case['reopen']}
     assert through['ws.Range("D3").FormatConditions(1)'] == 'Range:D3'
     assert through['ws.Cells.FormatConditions(1)'] == 'Range:1:1048576'

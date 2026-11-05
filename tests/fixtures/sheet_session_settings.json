@@ -1,0 +1,116 @@
+{
+ "measured_at": "2026-11-05T04:23:06.730799+00:00",
+ "cases": [
+  {
+   "member": "ScrollArea",
+   "value": "\"A1:C3\"",
+   "shown": false,
+   "before": "String $A$1:$C$3 E0",
+   "after": "String  E0"
+  },
+  {
+   "member": "EnableCalculation",
+   "value": "False",
+   "shown": false,
+   "before": "Boolean False E0",
+   "after": "Boolean True E0"
+  },
+  {
+   "member": "DisplayPageBreaks",
+   "value": "True",
+   "shown": false,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  },
+  {
+   "member": "EnableAutoFilter",
+   "value": "True",
+   "shown": false,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  },
+  {
+   "member": "EnableOutlining",
+   "value": "True",
+   "shown": false,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  },
+  {
+   "member": "EnablePivotTable",
+   "value": "True",
+   "shown": false,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  },
+  {
+   "member": "ScrollArea",
+   "value": "\"A1:C3\"",
+   "shown": true,
+   "before": "String $A$1:$C$3 E0",
+   "after": "String  E0"
+  },
+  {
+   "member": "EnableCalculation",
+   "value": "False",
+   "shown": true,
+   "before": "Boolean False E0",
+   "after": "Boolean True E0"
+  },
+  {
+   "member": "DisplayPageBreaks",
+   "value": "True",
+   "shown": true,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  },
+  {
+   "member": "EnableAutoFilter",
+   "value": "True",
+   "shown": true,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  },
+  {
+   "member": "EnableOutlining",
+   "value": "True",
+   "shown": true,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  },
+  {
+   "member": "EnablePivotTable",
+   "value": "True",
+   "shown": true,
+   "before": "Boolean True E0",
+   "after": "Boolean False E0"
+  }
+ ],
+ "controls": [
+  {
+   "collection": "Buttons",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "CheckBoxes",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "OptionButtons",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "DropDowns",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "ListBoxes",
+   "before": "30.75",
+   "after": "30.75"
+  }
+ ]
+}

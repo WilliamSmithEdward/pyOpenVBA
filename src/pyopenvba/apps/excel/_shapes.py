@@ -44,7 +44,11 @@ from pyopenvba.apps.excel._text_paragraphs import paragraphs_set
 from pyopenvba.shapes._read_look import _attribute, _paint  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.shapes._read_text import paragraph_settings, typeface
 from pyopenvba.shapes._xlsx import read_shape_text, text_run_spans
+from pyopenvba.apps.excel._shape_anchors import keep_on_sheet
 from pyopenvba.shapes._values import (
+    MOST_PLACE,
+    MOST_POINTS,
+    SINGLE_LARGEST,
     Box,
     EMU_PER_POINT,
     ControlInfo,
@@ -251,6 +255,8 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
         wanted = int(to_number(Type)) if Type is not MISSING else 1
         if wanted not in EXCEL_GEOMETRY:
             raise error(1004, "Application-defined or object-defined error")
+        if _number(Width) >= MOST_POINTS or _number(Height) >= MOST_POINTS or _number(Left) >= MOST_PLACE or _number(Top) >= MOST_PLACE:
+            raise error(1004, "Application-defined or object-defined error")
         shape = self._made(
             kind="shape",
             geometry=EXCEL_GEOMETRY[wanted],
@@ -258,6 +264,7 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
             box=(Left, Top, Width, Height),
         )
         shape.auto_shape_type = EXCEL_ALIASES.get(wanted, wanted)
+        keep_on_sheet(self.sheet, shape)
         if shape.geometry == "arc":
             # The box given is the arc's quarter of an ellipse twice as big, which stays on the sheet (tests/fixtures/old_drawings.json).
             shape.left, shape.width, shape.height = max(shape.left - shape.width, 0.0), shape.width * 2, shape.height * 2
@@ -1288,9 +1295,10 @@ class ShapeObject(_Drawn):
     @setter("Left")
     def _set_left(self, value: object) -> None:
         if self.shape.geometry == "arc":
-            self._placed(left=max(_number(value) - self.shape.width / 2, 0.0))
+            self._placed(left=max(_a_place(value) - self.shape.width / 2, 0.0))
             return
-        self._placed(left=_number(value))
+        self._placed(left=_a_place(value))
+        keep_on_sheet(self.sheet, self.shape)
 
     @member
     def Top(self) -> object:
@@ -1299,7 +1307,8 @@ class ShapeObject(_Drawn):
 
     @setter("Top")
     def _set_top(self, value: object) -> None:
-        self._placed(top=_number(value))
+        self._placed(top=_a_place(value))
+        keep_on_sheet(self.sheet, self.shape)
 
     def _placed(self, **changes: float) -> None:
         """The shape given a new left, top, width or height (tests/fixtures/shape_group_items.json).
@@ -1506,7 +1515,7 @@ class ShapeObject(_Drawn):
 
     @setter("Width")
     def _set_width(self, value: object) -> None:
-        wanted = _number(value)
+        wanted = _a_size(value)
         if self.shape.geometry == "arc":
             # The ellipse keeps its centre where it is.
             self._placed(left=self.shape.left + self.shape.width / 2 - wanted, width=wanted * 2)
@@ -1524,7 +1533,7 @@ class ShapeObject(_Drawn):
 
     @setter("Height")
     def _set_height(self, value: object) -> None:
-        wanted = _number(value)
+        wanted = _a_size(value)
         if self.shape.lock_aspect and self.shape.height:
             self._placed(width=self.shape.width * wanted / self.shape.height, height=wanted)
             return
@@ -3947,7 +3956,7 @@ class ShapeFont2(_ShapeFontBase):
 
     @setter("Spacing")
     def _spacing(self, value: object) -> None:
-        self.changed().font_spacing = round(float(to_number(value)) * 100)
+        self.changed().font_spacing = round(_letters(value, -2147024809) * 100)
 
     @member
     def Kerning(self) -> object:
@@ -3955,7 +3964,7 @@ class ShapeFont2(_ShapeFontBase):
 
     @setter("Kerning")
     def _kerning(self, value: object) -> None:
-        self.changed().font_kern = round(float(to_number(value)) * 100)
+        self.changed().font_kern = round(_letters(value, -2147467259) * 100)
 
     @member
     def Equalize(self) -> object:
@@ -4711,7 +4720,35 @@ def _number(value: object) -> float:
     """One of the four measurements a shape is placed by."""
     if value is MISSING or value is None:
         return 0.0
-    return float(to_number(value))
+    number = float(to_number(value))
+    # The parameter is a Single (tests/fixtures/excel_huge_numbers.json).
+    if abs(number) > SINGLE_LARGEST:
+        raise error(6, "Overflow")
+    return number
+
+
+def _a_place(value: object) -> float:
+    """A left or top, which stops at the sheet's end until it is too far to be one (tests/fixtures/excel_huge_numbers.json)."""
+    number = _number(value)
+    if number >= MOST_PLACE:
+        raise error(-2147024809, "The specified value is out of range.")
+    return number
+
+
+def _a_size(value: object) -> float:
+    """A width or height, which Excel refuses by 169093 points and took at 100000 (tests/fixtures/excel_huge_numbers.json)."""
+    number = _number(value)
+    if number >= MOST_POINTS:
+        raise error(-2147024809, "The specified value is out of range.")
+    return number
+
+
+def _letters(value: object, refused: int) -> float:
+    """A Font2 measurement, which Excel took at 1000 points and refused by 50000 (tests/fixtures/excel_huge_numbers.json)."""
+    number = _number(value)
+    if abs(number) >= 50000:
+        raise error(refused, "The specified value is out of range.")
+    return number
 
 
 def _unsupported(what: str) -> VBAUnsupportedError:

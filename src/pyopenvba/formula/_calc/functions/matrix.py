@@ -14,7 +14,7 @@ from pyopenvba.formula._calc.functions.arithmetic import checked
 from pyopenvba.formula._calc.functions.common import matrix
 from pyopenvba.formula._calc.registry import R, V, function
 from pyopenvba.formula._calc.values import NUM, VALUE, Array, ExcelError, Scalar, Value
-from pyopenvba.formula._calc.cells import CellError
+from pyopenvba.formula._calc.cells import CellError, UnsupportedFormulaError
 
 
 def numeric(context: Context, value: Value) -> list[list[float]]:
@@ -119,11 +119,19 @@ def MMULT(context: Context, first: Value, second: Value) -> Value:
     return Array(product)
 
 
+#: Excel built MUNIT(5000) and refused MUNIT(100000) at once (tests/fixtures/excel_huge_numbers.json). Between them it would have to
+#: allocate billions of cells to answer, so nothing was asked, and a size there is refused openly before any work.
+_MUNIT_MEASURED = 5000
+_MUNIT_REFUSED = 100_000
+
+
 @function("MUNIT", V)
 def MUNIT(context: Context, size: Scalar) -> Value:
     count = context.integer(size)
-    if count < 1:
+    if count < 1 or count >= _MUNIT_REFUSED:
         return VALUE
+    if count > _MUNIT_MEASURED:
+        raise UnsupportedFormulaError(f"MUNIT({count}): Excel was measured to build 5000 and refuse 100000, and this is between")
     return Array([[1.0 if row == column else 0.0 for column in range(count)] for row in range(count)])
 
 

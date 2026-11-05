@@ -496,6 +496,11 @@ class SheetDimensions:
         grown = self._grown.get(row)
         return grown[0] if grown is not None else self.default_quarters()
 
+    def rows_of_their_own(self) -> list[int]:
+        """The rows, in order, that may differ from a row the sheet says nothing about."""
+        self._settle()
+        return sorted({*self.rows, *self._grown, *self._unmeasured})
+
     def fonts_changed(self, row: int) -> None:
         """A cell in a row changed its value or its format, or went away, or the row's format changed."""
         self._touched.add(row)
@@ -1440,6 +1445,9 @@ def recalculate_visibility(target: Range, before: tuple[bool, frozenset[int]]) -
 
 def write_row_height(target: Range, value: object) -> None:
     points = _size(value)
+    if math.isinf(points * 20):
+        # 1E+100 is 1004 where 1E+308, either sign, is a row of no height: too large to scale (tests/fixtures/excel_huge_numbers.json).
+        points = 0.0
     if points < 0 or _c_round(points * 20) > MOST_TWIPS:
         raise error(1004, "a row can be from 0 to 409.5 points tall")
     quarters = quarters_for(points)

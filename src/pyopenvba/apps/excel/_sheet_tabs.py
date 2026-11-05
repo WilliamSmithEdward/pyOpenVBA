@@ -8,6 +8,7 @@ needs.
 """
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import replace
 from typing import TYPE_CHECKING
@@ -115,7 +116,11 @@ class Tab(ExcelObject):
     def _set_tint(self, value: object) -> None:
         """A tint of the colour, cut toward zero to n / 32767 and kept in 16 bits, so 1.5 comes back as
         -0.5000763; a tab with no colour takes none."""
-        tint = S.tint_of(float(to_number(value)))
+        number = float(to_number(value))
+        if math.isinf(number * S.TINT_SCALE):
+            # Any number is taken, and one too large to scale leaves the tab as it was (tests/fixtures/excel_huge_numbers.json).
+            return
+        tint = S.tint_of(number)
         color = self.sheet.tab_color
         if color is not None:
             self._set(replace(color, tint=(tint + 32768) % 65536 - 32768))

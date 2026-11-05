@@ -1193,6 +1193,9 @@ class ElementColor(Created):
             raise unmeasured("The theme colour of a chart element's back colour")
         if isinstance(self.owner, ElementFill):
             self.owner.usable()
+        else:
+            # A loaded chart's line is not read yet (tests/fixtures/loaded_chart_looks.json).
+            self.owner.look()
         return VBAInt(-2 if self.colourless() else 0, "Long")
 
     @member
@@ -1201,4 +1204,7 @@ class ElementColor(Created):
             raise unmeasured("The type of a chart element's back colour")
         if isinstance(self.owner, ElementFill):
             self.owner.usable()
+        else:
+            # A loaded chart's line is not read yet (tests/fixtures/loaded_chart_looks.json).
+            self.owner.look()
         return VBAInt(-2 if self.colourless() else 1, "Long")

@@ -8,18 +8,24 @@ which once did.
 """
 from __future__ import annotations
 
+import importlib.util
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from measure_sort_rounds import model  # noqa: E402
-
-RECORD: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures" / "sort_rounds.json").read_text(encoding="utf-8"))
+ROOT = Path(__file__).parents[1]
+_spec = importlib.util.spec_from_file_location("measure_sort_rounds", ROOT / "scripts/measure_sort_rounds.py")
+assert _spec is not None and _spec.loader is not None
+PROBE: Any = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(PROBE)
+RECORD: dict[str, Any] = json.loads((ROOT / "tests/fixtures/sort_rounds.json").read_text(encoding="utf-8"))
 REFUSAL = "REFUSED sorting with a DataOption other than xlSortNormal or xlSortTextAsNumbers is not implemented"
+
+
+def model_answer(case: dict[str, Any]) -> str:
+    return str(PROBE.model(case))
 
 
 def _data_option_past_text_as_numbers(case: dict[str, Any]) -> bool:
@@ -33,9 +39,10 @@ def _data_option_past_text_as_numbers(case: dict[str, Any]) -> bool:
 
 @pytest.mark.parametrize("seed", sorted(RECORD["rounds"]))
 def test_each_case_as_excel_answered(seed: str) -> None:
-    wrong, refused = [], []
+    wrong: list[tuple[Any, ...]] = []
+    refused: list[tuple[dict[str, Any], str]] = []
     for case in RECORD["rounds"][seed]:
-        answer = model(case)
+        answer = model_answer(case)
         if answer.startswith("REFUSED"):
             refused.append((case, answer))
         elif answer != case["excel"]:
@@ -46,7 +53,7 @@ def test_each_case_as_excel_answered(seed: str) -> None:
 
 def test_where_excel_stopped_for_a_dialog_the_model_refuses() -> None:
     stopped = [case for cases in RECORD["rounds"].values() for case in cases if case["excel"].startswith("no answer")]
-    assert stopped and all(model(case) == REFUSAL for case in stopped)
+    assert stopped and all(model_answer(case) == REFUSAL for case in stopped)
 
 
 def test_the_last_two_rounds_were_clean_as_run() -> None:

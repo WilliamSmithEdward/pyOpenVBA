@@ -692,7 +692,7 @@ class SortState:
         #: The SortFields every Sort of the sheet hands out, which its fields name as their Parent.
         self.collection: SortFields | None = None
         #: The range as the first Apply left it, after which Apply leaves the range as it is.
-        self.applied: Range | None = None
+        self.settled: Range | None = None
 
 
 def settings_signature(state: SortState) -> tuple[object, ...]:
@@ -1061,11 +1061,11 @@ class SortObject(ExcelObject):
         """The range Apply sorts. The first Apply after SetRange pulls it back to the used cells and leaves it so; a later
         one sorts it as it is. A SetRange after an Apply gives a range not measured (tests/fixtures/sort_rounds.json)."""
         state = self.state
-        if state.applied is not None and state.applied is not state.area:
+        if state.settled is not None and state.settled is not state.area:
             raise VBAUnsupportedError("applying a sort again after setting its range anew is not implemented")
-        if state.applied is None:
+        if state.settled is None:
             area = _within_used(self.sheet, area)
-            state.area = state.applied = Range(self.sheet, [area])
+            state.area = state.settled = Range(self.sheet, [area])
         return area
 
     @method

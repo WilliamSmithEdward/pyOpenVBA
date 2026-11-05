@@ -1587,6 +1587,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         if path.suffix.lower() in (".xls", ".xla", ".xlt"):
             raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
+        from pyopenvba.apps.excel._io import MalformedPartError
+
         format_code = remember_format(self.application, Format, Delimiter)
         read_only = ReadOnly is not MISSING and to_bool(ReadOnly)
         if is_text(path):
@@ -1597,6 +1599,13 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             return self._from_template(path)
         try:
             return self.open_file(path, read_only=read_only, format_code=format_code)
+        except MalformedPartError as failure:
+            # Tests/fixtures/bad_xml/bad_xml.json.
+            if failure.part == "[Content_Types].xml":
+                raise error(1004, f"Excel cannot open the file '{path.name}' because the file format or file extension "
+                                  "is not valid. Verify that the file has not been corrupted and that the file extension "
+                                  "matches the format of the file.") from None
+            raise error(1004, "Method 'Open' of object 'Workbooks' failed") from None
         except PowerQueryError:
             import zipfile
 
@@ -1846,6 +1855,9 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: The hidden names the workbook's formulas have brought into Names (see _hidden_names).
+        self.hidden_names: set[str] = set()
+        self.hidden_entries: dict[str, NameEntry] = {}
         #: The chart sheets the file has, its tabs in order where it has any, and the chart sheet that is active (see
         #: _chart_sheets). sheets_ holds worksheets alone.
         self.chart_sheets: list[ChartSheet] = []
@@ -2628,10 +2640,19 @@ class Workbook(ExcelObject):
                  Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
                  Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
                  IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
-        from pyopenvba.apps.excel._windows import print_out
+        from pyopenvba.apps.excel._output import given_arguments, print_out
 
-        print_out(self, None, Preview, ActivePrinter, PrintToFile)
-        return EMPTY
+        return print_out(self, 'Workbook', self, None, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName, IgnorePrintAreas=IgnorePrintAreas))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Workbook', self, None,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
     @method
     def Save(self) -> object:
@@ -3334,6 +3355,15 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
         #: Workbook.Worksheets, which passes over chart sheets (see _chart_sheets).
         self.worksheets = worksheets
 
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
+                 IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, print_out
+
+        return print_out(self, 'Sheets', self.book, None, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName, IgnorePrintAreas=IgnorePrintAreas))
+
     def vba_items(self) -> list[object]:
         return list(self.book.sheets_ if self.worksheets else self.book.tabs())
 
@@ -3713,8 +3743,8 @@ class Worksheet(ExcelObject):
             from pyopenvba.apps.excel._tables import edited
 
             edited(self, row, column)
+        self.dims.value_changed(row, column)
         cell = self.cells_.get((row, column))
-        self.dims.contents_changed(row, cell)
         calculator = self.book.calculator
         if cell is not None:
             calculator.remember(self.name, row, column, cell)
@@ -4325,10 +4355,19 @@ class Worksheet(ExcelObject):
                  Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
                  Collate: object = MISSING, PrToFileName: object = MISSING,  # noqa: N803
                  IgnorePrintAreas: object = MISSING) -> object:  # noqa: N803
-        from pyopenvba.apps.excel._windows import print_out
+        from pyopenvba.apps.excel._output import given_arguments, print_out
 
-        print_out(self.book, self, Preview, ActivePrinter, PrintToFile)
-        return EMPTY
+        return print_out(self, 'Worksheet', self.book, self, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName, IgnorePrintAreas=IgnorePrintAreas))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Worksheet', self.book, self,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
     @method
     def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
@@ -6649,10 +6688,19 @@ class Range(ExcelObject):
     def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
                  Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
                  Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
-        from pyopenvba.apps.excel._windows import print_out
+        from pyopenvba.apps.excel._output import given_arguments, print_out
 
-        print_out(self.sheet.book, self.sheet, Preview, ActivePrinter, PrintToFile)
-        return EMPTY
+        return print_out(self, 'Range', self.sheet.book, self.sheet, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter, PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Range', self.sheet.book, self.sheet,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
     def _within(self, area: Area) -> bool:
         return any(one.top <= area.top and one.left <= area.left and one.bottom >= area.bottom and one.right >= area.right for one in self.areas)
@@ -7905,6 +7953,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
             scope, bare = split_sheet(entry.name)
             return (collation(bare), 0 if scope else 1, collation(scope))
 
+        if self.sheet is None:
+            held = {entry.name.casefold() for entry in entries}
+            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
+                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
         return [DefinedName(entry) for entry in sorted(entries, key=order)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
@@ -7942,6 +7994,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
                 entry_scope, entry_bare = split_sheet(entry.name)
                 if _names.same_name(entry_bare, bare) and _names.same_sheet_name(entry_scope, scope):
                     return DefinedName(entry)
+        if self.sheet is None and bare.lower().startswith(("_xlfn.", "_xlpm.")):
+            for item in self.vba_items():
+                if isinstance(item, DefinedName) and item.entry.name.casefold() == bare.casefold():
+                    return item
         return None
 
     def find(self, name: str, *, scope: Worksheet | None = None) -> DefinedName | None:
@@ -8021,6 +8077,9 @@ class Names(VBACollection, ItemDefault, ExcelObject):
 
         added(entry, MacroType, ShortcutKey, Category, CategoryLocal)
         _names.changed(self.book, entry.name)
+        from pyopenvba.apps.excel._hidden_names import noted
+
+        noted(self.book, entry.refers_to, single=False)
         return DefinedName(entry)
 
 
@@ -8039,7 +8098,9 @@ class DefinedName(HeldPart, ExcelObject):
         self.entry = entry
 
     def held_gone(self) -> bool:
-        return not self.entry.emptied and not any(one is self.entry for one in self.entry.book.names_.entries)
+        book = self.entry.book
+        return not self.entry.emptied and not (any(one is self.entry for one in book.names_.entries)
+                                               or any(one is self.entry for one in book.hidden_entries.values()))
 
     @member
     def Name(self) -> object:
@@ -8636,15 +8697,9 @@ def legacy_formula(sheet: Worksheet, formula: str) -> str:
     """A formula written through Range.Formula, spelled, as Excel keeps it: a call of SINGLE an @, an @ left out
     where the formula cuts to one value anyway, and where one is kept every @ Formula2 shows written out
     (see pyopenvba.formula._formula2.written)."""
-    from pyopenvba.formula._formula2 import UnreadFormula2Error, written
-    from pyopenvba.formula._parse import FormulaError
+    from pyopenvba.formula._formula2 import written
 
-    try:
-        return written(formula, lambda name: defined_formula(sheet, name))
-    except UnreadFormula2Error as exc:
-        raise VBAUnsupportedError(str(exc)) from None
-    except FormulaError:
-        raise VBAUnsupportedError(f"Range.Formula given {formula} is not implemented") from None
+    return written(formula, lambda name: defined_formula(sheet, name))
 
 
 def defined_formula(sheet: Worksheet, name: str) -> str | None:
@@ -8688,8 +8743,10 @@ def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 
 
     try:
         return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
-    except UnmodelledFormulaError as exc:
-        raise VBAUnsupportedError(str(exc)) from None
+    except UnmodelledFormulaError:
+        # Excel takes it with no dialog when alerts are off: an open workbook's cells, a closed one's read from its file, and #REF! of
+        # one not there. A formula naming a workbook the file already links to goes another way (see _external_links).
+        raise VBAUnsupportedError("a formula naming a workbook the file does not link to is not implemented") from None
     except FormulaError:
         raise error(1004, "Application-defined or object-defined error") from None
 

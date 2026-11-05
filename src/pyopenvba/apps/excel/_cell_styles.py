@@ -157,10 +157,6 @@ STANDARD: Final[tuple[tuple[str, int, str, int, str | None, str, str], ...]] = (
         *((f"{shade}% - Accent{accent}", 26 + accent * 4 + step, "FP", 0, _BODY, _tinted(accent + 3, tint),
            _NO_BORDER) for step, (shade, tint) in enumerate(zip((20, 40, 60), _TINTS, strict=True)))))
 )
-#: The Hyperlink style's font, underlined in the theme's hyperlink colour, which Excel writes for the style it makes
-#: the first time a link or the HYPERLINK function needs it (tests/fixtures/hyperlinks/links.xlsx).
-_LINK_FONT: Final = ('<font><u/><sz val="11"/><color theme="10"/><name val="{minor}"/><family val="2"/>'
-                     '<scheme val="minor"/></font>')
 #: The standard styles' places in Excel's order, Normal being 0, by name in lower case.
 _RANKS: Final = {name.casefold(): rank for rank, (name, *_) in enumerate(STANDARD, start=1)}
 #: The outline styles Range.ApplyOutlineStyles gives summary rows and columns, by name in lower case: builtinId 1
@@ -170,19 +166,15 @@ OUTLINE: Final = {f"{kind}level_{level}": (f"{kind.title()}Level_{level}", built
                                            _font('theme="1"', bold=level == 1, italic=level == 2) if level <= 2
                                            else None)
                   for kind, builtin in (("row", 1), ("col", 2)) for level in range(1, 8)}
-#: The theme typefaces Excel writes with family 2, the only ones a built-in style is written in here.
-_SWISS: Final = frozenset({"Aptos", "Aptos Narrow", "Aptos Display", "Calibri", "Calibri Light"})
 
 
-def _body_font(stylesheet: S.Stylesheet) -> S.Font | None:
-    """The theme's body font as Excel writes it for a built-in style; None for a typeface none is written in."""
-    minor = stylesheet.theme_fonts[1]
-    return S.parse_font(_BODY.replace("{minor}", _typeface(minor))) if minor in _SWISS else None
+def _body_font(stylesheet: S.Stylesheet) -> S.Font:
+    """The theme's body font as Excel writes it for a built-in style."""
+    return S.parse_font(_BODY.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
 
 
 def _typeface(name: str) -> str:
-    if name not in _SWISS:
-        raise VBAUnsupportedError(f"a built-in cell style in a theme whose fonts are {name!r} is not implemented")
+    """A theme's typeface as a built-in style is written in it: family 2, whichever it is (tests/fixtures/value_gaps.json)."""
     from pyopenvba._xml import escape
 
     return escape(name)
@@ -322,7 +314,9 @@ def give_link_style(target: Range) -> None:
     stylesheet = target.sheet.book.stylesheet
     place = stylesheet.named("Hyperlink")
     if place is None:
-        font = S.parse_font(_LINK_FONT.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
+        # The Normal font underlined in the theme's hyperlink colour, its typeface, family and scheme kept
+        # (tests/fixtures/hyperlinks/links.xlsx, tests/fixtures/value_gaps.json).
+        font = replace(stylesheet.fonts[0], underline="single", color=S.parse_font('<font><color theme="10"/></font>').color)
         own = S.Style(number_format=stylesheet.number_formats[0], font=font, fill=S.parse_fill(_NO_FILL),
                       border=S.parse_border(_NO_BORDER))
         place = stylesheet.add_cell_style(S.CellStyle(own, frozenset({"font"}), name="Hyperlink", builtin=8))
@@ -361,18 +355,15 @@ def latent(stylesheet: S.Stylesheet) -> S.Latent:
     """The fonts, fills and borders of the standard built-in styles, in Excel's own order, the theme's body
     font first: the places a save's new parts take ahead of what a macro made (see Stylesheet.meet)."""
     major, minor = stylesheet.theme_fonts
-    themed = major in _SWISS and minor in _SWISS
-    lead = _body_font(stylesheet)
-    fonts: list[S.Font] = [] if lead is None else [lead]
+    fonts: list[S.Font] = [_body_font(stylesheet)]
     fills: list[S.Fill] = []
     borders: list[S.Border] = []
     for _, _, _, _, font, fill, border in STANDARD:
         if font is None:
-            value: S.Font | None = stylesheet.opening_font
+            value = stylesheet.opening_font
         else:
-            value = S.parse_font(font.replace("{major}", _typeface(major)).replace("{minor}", _typeface(minor))) \
-                if themed else None
-        if value is not None and value not in fonts:
+            value = S.parse_font(font.replace("{major}", _typeface(major)).replace("{minor}", _typeface(minor)))
+        if value not in fonts:
             fonts.append(value)
         filled, edged = S.parse_fill(fill), S.parse_border(border)
         if filled not in fills:

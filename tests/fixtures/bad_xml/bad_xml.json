@@ -1,0 +1,160 @@
+{
+ "measured_at": "2026-11-04T15:55:14.327399+00:00",
+ "read": "Function ReadIt(ByVal file As String) As String\n    Dim wb As Workbook, s As Object, x As String\n    Application.DisplayAlerts = False\n    On Error Resume Next\n    Set wb = Workbooks.Open(file)\n    x = Err.Number & \"|\" & Err.Description\n    Err.Clear\n    If Not wb Is Nothing Then\n        x = x & \"|sheets \" & wb.Worksheets.Count & \"|a2 \" & wb.Worksheets(1).Range(\"A2\").Value & \"|charts \" & wb.Worksheets(1).ChartObjects.Count\n        x = x & \"|pivots \" & wb.Worksheets(2).PivotTables.Count & \"|names \" & wb.Names.Count\n        wb.Close False\n    End If\n    ReadIt = x\nEnd Function\n",
+ "parts": {
+  "workbook": "xl/workbook\\.xml",
+  "sheet": "xl/worksheets/sheet1\\.xml",
+  "styles": "xl/styles\\.xml",
+  "strings": "xl/sharedStrings\\.xml",
+  "theme": "xl/theme/theme1\\.xml",
+  "drawing": "xl/drawings/drawing1\\.xml",
+  "chart": "xl/charts/chart1\\.xml",
+  "pivot": "xl/pivotTables/pivotTable1\\.xml",
+  "pivot_cache": "xl/pivotCache/pivotCacheDefinition1\\.xml",
+  "core": "docProps/core\\.xml",
+  "app": "docProps/app\\.xml",
+  "content_types": "\\[Content_Types\\]\\.xml",
+  "book_rels": "xl/_rels/workbook\\.xml\\.rels"
+ },
+ "broken": {
+  "surrogate": "&#55357;",
+  "cut_off": "<"
+ },
+ "rows": [
+  {
+   "part": "",
+   "how": "",
+   "answer": "0||sheets 2|a2 a|charts 1|pivots 1|names 1"
+  },
+  {
+   "part": "workbook",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "workbook",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "sheet",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "sheet",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "styles",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "styles",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "strings",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "strings",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "theme",
+   "how": "surrogate",
+   "answer": "0||sheets 2|a2 a|charts 1|pivots 1|names 1"
+  },
+  {
+   "part": "theme",
+   "how": "cut_off",
+   "answer": "0||sheets 2|a2 a|charts 1|pivots 1|names 1"
+  },
+  {
+   "part": "drawing",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "drawing",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "chart",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "chart",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "pivot",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "pivot",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "pivot_cache",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "pivot_cache",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "core",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "core",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "app",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "app",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "content_types",
+   "how": "surrogate",
+   "answer": "1004|Excel cannot open the file 'content_types_surrogate.xlsx' because the file format or file extension is not valid. Verify that the file has not been corrupted and that the file extension matches the format of the file."
+  },
+  {
+   "part": "content_types",
+   "how": "cut_off",
+   "answer": "1004|Excel cannot open the file 'content_types_cut_off.xlsx' because the file format or file extension is not valid. Verify that the file has not been corrupted and that the file extension matches the format of the file."
+  },
+  {
+   "part": "book_rels",
+   "how": "surrogate",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  },
+  {
+   "part": "book_rels",
+   "how": "cut_off",
+   "answer": "1004|Method 'Open' of object 'Workbooks' failed"
+  }
+ ]
+}

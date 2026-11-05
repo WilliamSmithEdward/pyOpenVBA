@@ -1,0 +1,2705 @@
+{
+"rule": "c = w + 7 + 2 * max(0, (d - 5) // 4) + max(0, (w - 57) // 28)",
+"cases": [
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "100% s",
+"gdi": 33,
+"predicted": 40
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "pivot oxide t",
+"gdi": 58,
+"predicted": 65
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "7.25 Mixed q",
+"gdi": 60,
+"predicted": 67
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "ledger casca",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "quartz stop. under",
+"gdi": 86,
+"predicted": 94
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "well-known Mixed",
+"gdi": 85,
+"predicted": 93
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "~tilde CASE, yes! ju",
+"gdi": 87,
+"predicted": 95
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "1984 cascade quartz 198",
+"gdi": 117,
+"predicted": 126
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "under_score what? blackout under_score w",
+"gdi": 204,
+"predicted": 216
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "7.25 yes! ledger ~tilde ~tilde ~tilde under_score glyphs $5 kernin",
+"gdi": 301,
+"predicted": 316
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "yes! kerning pivot glyphs $5 what? oxide well-known (draft) 7.25 ~tilde (draft) $5 7.25 cascade well-known 1",
+"gdi": 500,
+"predicted": 522
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "oxide blackout 100% nimbus 100% pivot zephyr CASE, ledger what? vexing well-known oxide 100% 7.25 (draft) quartz ~tilde (draft) thimble 7.25 cascade nimbus pivot ledger",
+"gdi": 799,
+"predicted": 832
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "what? under_score a/b (draft) a/b $5 quartz (draft) 100% 1984 well-known ledger well-known kerning $5 what? $5 nimbus stop. vexing glyphs (draft) glyphs oxide nimbus zephyr 100% 100% well-known quartz under_score $5 margin CASE, t",
+"gdi": 1103,
+"predicted": 1147
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "jumbled blackout jumbled ~tilde yes! thimble kerning stop. nimbus ledger $5 1984 ledger blackout glyphs kerning what? a/b $5 ledger stop. cascade jumbled yes! CASE, Mixed (draft) glyphs 100% CASE, well-known cascade a/b glyphs Mixed stop. well-known CASE, Mixed margin $5 glyphs $5 nimbus 100",
+"gdi": 1400,
+"predicted": 1454
+},
+{
+"font": "Calibri",
+"size": 8,
+"face": "Calibri",
+"digit": 6,
+"text": "pivot CASE, kerning CASE, what? stop. ledger kerning what? well-known pivot 100% oxide 100% 100% 1984 well-known (draft) vexing stop. jumbled yes! blackout quartz CASE, kerning quartz 7.25 blackout glyphs cascade kerning what? kerning blackout quartz zephyr margin quartz vexing margin well-known 1984 1984 under_score margin ~tilde 7.25 zephyr y",
+"gdi": 1653,
+"predicted": 1717
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "glyphs",
+"gdi": 35,
+"predicted": 42
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "1984 casca",
+"gdi": 57,
+"predicted": 64
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "margin bla",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "~tilde ~tild",
+"gdi": 60,
+"predicted": 67
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "kerning ~tilde $",
+"gdi": 85,
+"predicted": 93
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "nimbus jumbled",
+"gdi": 89,
+"predicted": 97
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "what? quartz ke",
+"gdi": 86,
+"predicted": 94
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "pivot thimble pivot a",
+"gdi": 113,
+"predicted": 122
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "margin yes! under_score 1984 thimble",
+"gdi": 206,
+"predicted": 218
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "100% pivot Mixed ledger quartz quartz oxide oxide oxide",
+"gdi": 304,
+"predicted": 319
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "a/b quartz pivot pivot glyphs pivot oxide margin 1984 zephyr CASE, stop. pivot jumbled 7.25 bl",
+"gdi": 500,
+"predicted": 522
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "thimble $5 1984 nimbus what? jumbled (draft) stop. under_score oxide ledger cascade pivot well-known Mixed jumbled pivot well-known zephyr Mi",
+"gdi": 801,
+"predicted": 834
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "yes! ledger what? vexing 7.25 quartz zephyr 100% $5 quartz blackout margin under_score oxide stop. a/b kerning cascade a/b quartz thimble blackout under_score under_score a/b quartz (draft) blackout ~",
+"gdi": 1101,
+"predicted": 1145
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "stop. quartz zephyr a/b a/b thimble Mixed margin 1984 what? a/b vexing vexing blackout ledger blackout 1984 stop. vexing CASE, oxide cascade $5 quartz jumbled ledger 7.25 ledger kerning what? $5 1984 ~tilde vexing stop. 7.25 kerning thimble ledger CASE, thim",
+"gdi": 1406,
+"predicted": 1461
+},
+{
+"font": "Calibri",
+"size": 9,
+"face": "Calibri",
+"digit": 6,
+"text": "what? 1984 cascade $5 7.25 vexing margin pivot ~tilde ledger quartz stop. vexing pivot vexing glyphs under_score blackout glyphs ~tilde under_score nimbus nimbus vexing well-known ledger quartz 7.25 a/b margin stop. 100% what? glyphs a/b 100% zephyr vexing 100% pivot thimble 1984 zephyr margin 1984",
+"gdi": 1653,
+"predicted": 1717
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "(draft",
+"gdi": 31,
+"predicted": 38
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "100% ledg",
+"gdi": 56,
+"predicted": 63
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "~tilde Mixe",
+"gdi": 61,
+"predicted": 68
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "margin $5",
+"gdi": 56,
+"predicted": 63
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "pivot ledger yes",
+"gdi": 86,
+"predicted": 94
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "glyphs jumbled",
+"gdi": 84,
+"predicted": 91
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "7.25 nimbus led",
+"gdi": 88,
+"predicted": 96
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "margin 100% $5 well",
+"gdi": 115,
+"predicted": 124
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "~tilde thimble CASE, kerning cascade",
+"gdi": 200,
+"predicted": 212
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "stop. blackout (draft) zephyr a/b well-known yes! CASE,",
+"gdi": 300,
+"predicted": 315
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "zephyr zephyr margin stop. what? well-known under_score CASE, blackout Mixed quartz CAS",
+"gdi": 501,
+"predicted": 523
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "cascade under_score glyphs what? margin Mixed cascade ~tilde a/b margin a/b stop. margin vexing blackout vexing oxide pivot oxide quartz 1984",
+"gdi": 803,
+"predicted": 836
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "quartz under_score jumbled zephyr 7.25 a/b (draft) jumbled under_score nimbus jumbled $5 under_score margin Mixed CASE, 1984 cascade pivot glyphs quartz 100% 1984 zephyr pivot 100% 100% ~tild",
+"gdi": 1105,
+"predicted": 1149
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "thimble what? oxide under_score a/b Mixed Mixed thimble Mixed pivot margin glyphs Mixed stop. zephyr yes! kerning under_score pivot vexing 1984 ledger jumbled $5 margin margin yes! Mixed thimble under_score thimble glyphs stop. zephyr (draft) marg",
+"gdi": 1404,
+"predicted": 1459
+},
+{
+"font": "Calibri",
+"size": 10,
+"face": "Calibri",
+"digit": 7,
+"text": "margin 100% pivot quartz cascade oxide thimble margin thimble $5 under_score ledger Mixed kerning jumbled a/b glyphs 1984 CASE, jumbled glyphs Mixed cascade pivot Mixed glyphs jumbled jumbled ~tilde quartz $5 kerning under_score quartz oxide vexing oxide 7.25 zephyr 100% pivot a/b ledger y",
+"gdi": 1651,
+"predicted": 1714
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "vexin",
+"gdi": 34,
+"predicted": 41
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "nimbus t",
+"gdi": 56,
+"predicted": 63
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "ledger we",
+"gdi": 64,
+"predicted": 71
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "(draft) $5",
+"gdi": 61,
+"predicted": 68
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "pivot nimbus",
+"gdi": 83,
+"predicted": 90
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "cascade nimb",
+"gdi": 89,
+"predicted": 97
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "stop. stop. ze",
+"gdi": 86,
+"predicted": 94
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "cascade pivot sto",
+"gdi": 113,
+"predicted": 122
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "Mixed 1984 1984 jumbled what",
+"gdi": 204,
+"predicted": 216
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "Mixed oxide zephyr yes! cascade vexing margi",
+"gdi": 300,
+"predicted": 315
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "yes! stop. thimble 7.25 CASE, nimbus glyphs well-known stop. CASE, what? wh",
+"gdi": 507,
+"predicted": 530
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "a/b quartz cascade well-known 1984 ledger nimbus what? Mixed (draft) a/b jumbled what? ledger Mixed (draft) Mixed glyph",
+"gdi": 807,
+"predicted": 840
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "pivot (draft) quartz pivot cascade well-known 7.25 100% quartz CASE, ~tilde a/b ~tilde yes! CASE, glyphs margin cascade $5 margin vexing $5 Mixed margin 1984 what? w",
+"gdi": 1102,
+"predicted": 1146
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "stop. blackout thimble Mixed glyphs glyphs yes! $5 (draft) ~tilde ~tilde margin zephyr oxide stop. well-known cascade well-known yes! kerning vexing jumbled nimbus ledger quartz yes! quartz ledger nimbus blackout",
+"gdi": 1396,
+"predicted": 1450
+},
+{
+"font": "Calibri",
+"size": 12,
+"face": "Calibri",
+"digit": 8,
+"text": "kerning under_score ~tilde cascade 100% thimble (draft) jumbled 1984 blackout zephyr margin kerning thimble zephyr a/b margin oxide pivot kerning jumbled glyphs pivot well-known vexing 7.25 oxide well-known under_score quartz under_score 1984 yes",
+"gdi": 1651,
+"predicted": 1714
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "thim",
+"gdi": 35,
+"predicted": 44
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "stop. CA",
+"gdi": 64,
+"predicted": 73
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "pivot gly",
+"gdi": 65,
+"predicted": 74
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "CASE, ju",
+"gdi": 63,
+"predicted": 72
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "jumbled qu",
+"gdi": 87,
+"predicted": 97
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "cascade Mi",
+"gdi": 85,
+"predicted": 95
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "well-known",
+"gdi": 90,
+"predicted": 100
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "glyphs 7.25 CA",
+"gdi": 114,
+"predicted": 125
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "pivot pivot margin 7.25 (dr",
+"gdi": 206,
+"predicted": 220
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "nimbus (draft) pivot stop. yes! blackout",
+"gdi": 303,
+"predicted": 320
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "glyphs CASE, a/b zephyr vexing under_score nimbus zephyr marg",
+"gdi": 501,
+"predicted": 525
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "yes! pivot well-known blackout jumbled CASE, vexing 7.25 under_score glyphs stop. oxide 7.25 $5 vexing",
+"gdi": 805,
+"predicted": 840
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "nimbus cascade (draft) nimbus margin stop. ~tilde 7.25 blackout Mixed Mixed zephyr ledger 1984 stop. quartz what? vexing $5 1984 a/b well-kn",
+"gdi": 1108,
+"predicted": 1154
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "stop. oxide Mixed 7.25 ~tilde stop. quartz 100% glyphs under_score 100% vexing margin yes! kerning $5 $5 under_score blackout jumbled stop. zephyr stop. ledger (draft) jumbled thi",
+"gdi": 1403,
+"predicted": 1460
+},
+{
+"font": "Calibri",
+"size": 14,
+"face": "Calibri",
+"digit": 10,
+"text": "Mixed ~tilde 1984 under_score well-known zephyr ~tilde stop. a/b zephyr Mixed quartz well-known kerning nimbus quartz under_score cascade jumbled oxide stop. oxide under_score yes! thimble well-known what?",
+"gdi": 1652,
+"predicted": 1717
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "wh",
+"gdi": 30,
+"predicted": 39
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "oxide",
+"gdi": 54,
+"predicted": 63
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "thimb",
+"gdi": 59,
+"predicted": 68
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "blacko",
+"gdi": 65,
+"predicted": 74
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "under_sc",
+"gdi": 90,
+"predicted": 100
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "zephyr 7.",
+"gdi": 89,
+"predicted": 99
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "jumbled",
+"gdi": 82,
+"predicted": 91
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "kerning und",
+"gdi": 118,
+"predicted": 129
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "glyphs oxide thimble",
+"gdi": 204,
+"predicted": 218
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "7.25 nimbus cascade vexing piv",
+"gdi": 306,
+"predicted": 323
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "cascade nimbus thimble pivot margin $5 pivot zeph",
+"gdi": 505,
+"predicted": 530
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "under_score $5 yes! blackout blackout oxide ~tilde zephyr under_score 1984 zeph",
+"gdi": 804,
+"predicted": 839
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "1984 Mixed yes! 100% Mixed 7.25 margin nimbus cascade pivot under_score kerning yes! what? $5 ~tilde vexing",
+"gdi": 1100,
+"predicted": 1146
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "CASE, jumbled jumbled well-known what? $5 well-known kerning CASE, glyphs glyphs Mixed glyphs cascade well-known Mixed 100% (draft) cas",
+"gdi": 1407,
+"predicted": 1464
+},
+{
+"font": "Calibri",
+"size": 18,
+"face": "Calibri",
+"digit": 12,
+"text": "oxide 100% zephyr stop. yes! jumbled pivot pivot blackout yes! stop. 1984 well-known zephyr yes! margin thimble $5 margin kerning $5 1984 7.25 what? quartz 7.25 Mix",
+"gdi": 1650,
+"predicted": 1715
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "a/b",
+"gdi": 37,
+"predicted": 48
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "a/b n",
+"gdi": 57,
+"predicted": 68
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "7.25 b",
+"gdi": 69,
+"predicted": 80
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "$5 ke",
+"gdi": 59,
+"predicted": 70
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "~tilde a/",
+"gdi": 90,
+"predicted": 102
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "$5 (draf",
+"gdi": 86,
+"predicted": 98
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "kerning",
+"gdi": 81,
+"predicted": 92
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "$5 kerning",
+"gdi": 115,
+"predicted": 128
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "well-known jumble",
+"gdi": 206,
+"predicted": 222
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "cascade kerning stop. ledger",
+"gdi": 308,
+"predicted": 327
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "cascade thimble blackout a/b blackout 1984 m",
+"gdi": 507,
+"predicted": 534
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "1984 under_score 100% ~tilde ~tilde oxide under_score 100% under_score",
+"gdi": 812,
+"predicted": 849
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "zephyr 1984 7.25 well-known oxide jumbled (draft) 100% margin $5 blackout what? vexing vexing piv",
+"gdi": 1103,
+"predicted": 1151
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "quartz oxide well-known blackout thimble Mixed jumbled 7.25 well-known cascade jumbled blackout (draft) vexing CASE, stop. ze",
+"gdi": 1406,
+"predicted": 1465
+},
+{
+"font": "Calibri",
+"size": 20,
+"face": "Calibri",
+"digit": 14,
+"text": "stop. vexing (draft) pivot stop. 1984 glyphs a/b what? well-known stop. yes! what? quartz pivot ~tilde oxide (draft) zephyr 100% vexing 7.25 vexing marg",
+"gdi": 1660,
+"predicted": 1728
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "un",
+"gdi": 34,
+"predicted": 45
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "zeph",
+"gdi": 63,
+"predicted": 74
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "CASE",
+"gdi": 67,
+"predicted": 78
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "vexin",
+"gdi": 68,
+"predicted": 79
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "vexing",
+"gdi": 83,
+"predicted": 94
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "1984 C",
+"gdi": 88,
+"predicted": 100
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "pivot ~",
+"gdi": 89,
+"predicted": 101
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "a/b casca",
+"gdi": 122,
+"predicted": 135
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "stop. zephyr vex",
+"gdi": 212,
+"predicted": 228
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "Mixed kerning ledger 19",
+"gdi": 314,
+"predicted": 334
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "kerning a/b ~tilde stop. blackout (draft",
+"gdi": 504,
+"predicted": 530
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "blackout 1984 pivot 100% 7.25 pivot stop. $5 thimble margin v",
+"gdi": 810,
+"predicted": 847
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "ledger under_score blackout pivot yes! blackout ~tilde 1984 yes! margin (draft) 1984",
+"gdi": 1099,
+"predicted": 1147
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "nimbus well-known glyphs 100% (draft) blackout blackout a/b well-known Mixed ~tilde yes! pivot jumbled le",
+"gdi": 1412,
+"predicted": 1471
+},
+{
+"font": "Calibri",
+"size": 24,
+"face": "Calibri",
+"digit": 16,
+"text": "kerning quartz glyphs well-known ~tilde what? 7.25 kerning quartz ledger ledger (draft) 7.25 quartz yes! (draft) yes! margin glyp",
+"gdi": 1658,
+"predicted": 1726
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "a/",
+"gdi": 42,
+"predicted": 57
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "qua",
+"gdi": 73,
+"predicted": 88
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "~til",
+"gdi": 62,
+"predicted": 77
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "100",
+"gdi": 72,
+"predicted": 87
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "7.25",
+"gdi": 84,
+"predicted": 99
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "black",
+"gdi": 101,
+"predicted": 117
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "well-",
+"gdi": 95,
+"predicted": 111
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "margin",
+"gdi": 137,
+"predicted": 154
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "blackout st",
+"gdi": 213,
+"predicted": 233
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "vexing Mixed le",
+"gdi": 305,
+"predicted": 328
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "nimbus kerning glyphs gly",
+"gdi": 504,
+"predicted": 534
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "nimbus Mixed vexing kerning glyphs yes!",
+"gdi": 799,
+"predicted": 840
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "jumbled cascade kerning ~tilde (draft) zephyr thimble we",
+"gdi": 1114,
+"predicted": 1166
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "what? oxide kerning Mixed thimble ledger vexing kerning 7.25 margin 19",
+"gdi": 1421,
+"predicted": 1484
+},
+{
+"font": "Calibri",
+"size": 36,
+"face": "Calibri",
+"digit": 24,
+"text": "under_score ledger what? cascade blackout 1984 CASE, what? stop. $5 pivot stop. qu",
+"gdi": 1660,
+"predicted": 1732
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "margin",
+"gdi": 32,
+"predicted": 39
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "cascade piv",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "ledger vexin",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "margin casc",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "Mixed blackout 10",
+"gdi": 86,
+"predicted": 94
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "cascade nimbus C",
+"gdi": 89,
+"predicted": 97
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "(draft) quartz ledg",
+"gdi": 88,
+"predicted": 96
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "blackout zephyr pivot 7.",
+"gdi": 115,
+"predicted": 124
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "under_score (draft) thimble well-known m",
+"gdi": 203,
+"predicted": 215
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "7.25 CASE, margin nimbus kerning glyphs (draft) CASE, casca",
+"gdi": 301,
+"predicted": 316
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "(draft) vexing CASE, $5 margin 100% yes! pivot yes! vexing ledger cascade blackout oxide margin what",
+"gdi": 501,
+"predicted": 523
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "quartz (draft) 100% vexing 7.25 ledger quartz cascade 7.25 vexing vexing thimble kerning 100% $5 nimbus ~tilde pivot thimble nimbus thimble (draft) ledger a/b jumbled",
+"gdi": 805,
+"predicted": 838
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "oxide thimble 7.25 under_score pivot cascade well-known zephyr what? yes! well-known what? 100% a/b stop. vexing kerning kerning (draft) thimble Mixed glyphs vexing CASE, well-known stop. vexing quartz kerning (draft) st",
+"gdi": 1102,
+"predicted": 1146
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "yes! what? under_score what? glyphs 7.25 1984 cascade glyphs what? Mixed ledger $5 stop. stop. CASE, vexing vexing nimbus yes! what? oxide pivot what? yes! CASE, jumbled oxide glyphs 100% jumbled 7.25 $5 margin cascade nimbus 1984 under_score pivot zephyr Mixed thimble blac",
+"gdi": 1404,
+"predicted": 1459
+},
+{
+"font": "Arial",
+"size": 8,
+"face": "Arial",
+"digit": 6,
+"text": "yes! thimble blackout 100% Mixed quartz jumbled zephyr vexing 1984 7.25 blackout vexing stop. yes! under_score Mixed well-known under_score ledger well-known nimbus under_score 100% jumbled ledger stop. zephyr 1984 jumbled stop. 1984 pivot zephyr under_score what? quartz pivot cascade well-known a/b (draft) pivot margin jumb",
+"gdi": 1653,
+"predicted": 1717
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "quar",
+"gdi": 31,
+"predicted": 40
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "stop. 7.2",
+"gdi": 60,
+"predicted": 69
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "$5 what?",
+"gdi": 63,
+"predicted": 72
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "Mixed bl",
+"gdi": 58,
+"predicted": 67
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "a/b $5 under",
+"gdi": 87,
+"predicted": 97
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "glyphs pivot",
+"gdi": 81,
+"predicted": 90
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "yes! thimble",
+"gdi": 83,
+"predicted": 92
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "$5 cascade 198",
+"gdi": 113,
+"predicted": 124
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "jumbled a/b oxide ledger kern",
+"gdi": 204,
+"predicted": 218
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "well-known 1984 100% quartz 100% 100%",
+"gdi": 296,
+"predicted": 313
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "vexing 7.25 cascade kerning quartz jumbled Mixed under_score well-know",
+"gdi": 510,
+"predicted": 535
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "thimble margin jumbled stop. Mixed vexing 1984 CASE, vexing ~tilde kerning kerning well-known Mixed thimble thimb",
+"gdi": 806,
+"predicted": 841
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "stop. under_score under_score zephyr blackout pivot CASE, under_score kerning margin 100% 1984 what? glyphs nimbus jumbled glyphs 7.25 a/b quartz CASE",
+"gdi": 1109,
+"predicted": 1155
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "jumbled quartz jumbled glyphs yes! CASE, zephyr glyphs blackout ~tilde stop. glyphs nimbus pivot 100% ledger under_score ~tilde thimble margin well-known a/b yes! under_score cascade CASE, thimble",
+"gdi": 1402,
+"predicted": 1459
+},
+{
+"font": "Arial",
+"size": 12,
+"face": "Arial",
+"digit": 9,
+"text": "~tilde nimbus cascade nimbus vexing vexing under_score glyphs margin 100% margin under_score ~tilde cascade blackout kerning oxide ledger stop. oxide thimble a/b kerning jumbled glyphs vexing pivot a/b what? well-known (draft) blackou",
+"gdi": 1657,
+"predicted": 1723
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "cas",
+"gdi": 37,
+"predicted": 48
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "quart",
+"gdi": 56,
+"predicted": 67
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "ledge",
+"gdi": 60,
+"predicted": 71
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "well-k",
+"gdi": 62,
+"predicted": 73
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "$5 (draft",
+"gdi": 90,
+"predicted": 102
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "cascade",
+"gdi": 89,
+"predicted": 101
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "kerning",
+"gdi": 80,
+"predicted": 91
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "ledger 100",
+"gdi": 114,
+"predicted": 127
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "a/b CASE, well-kno",
+"gdi": 208,
+"predicted": 224
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "yes! nimbus vexing ledger ve",
+"gdi": 312,
+"predicted": 332
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "well-known 100% 1984 jumbled well-known nim",
+"gdi": 513,
+"predicted": 540
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "(draft) ~tilde blackout CASE, 1984 zephyr CASE, a/b Mixed stop. nimbus n",
+"gdi": 801,
+"predicted": 838
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "Mixed 7.25 ledger well-known 100% under_score well-known oxide pivot yes! oxide 100% oxide zephyr",
+"gdi": 1097,
+"predicted": 1145
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "oxide kerning jumbled 1984 blackout what? jumbled zephyr nimbus $5 oxide blackout CASE, margin thimble ~tilde zephyr stop. led",
+"gdi": 1410,
+"predicted": 1469
+},
+{
+"font": "Arial",
+"size": 18,
+"face": "Arial",
+"digit": 13,
+"text": "pivot under_score CASE, zephyr (draft) 1984 vexing what? glyphs kerning what? $5 7.25 margin ledger jumbled quartz well-known glyphs quartz thimble b",
+"gdi": 1662,
+"predicted": 1730
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "(draft",
+"gdi": 33,
+"predicted": 40
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "yes! a/b c",
+"gdi": 58,
+"predicted": 65
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "CASE, piv",
+"gdi": 62,
+"predicted": 69
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "blackout $",
+"gdi": 60,
+"predicted": 67
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "yes! yes! thimb",
+"gdi": 90,
+"predicted": 98
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "margin Mixed",
+"gdi": 81,
+"predicted": 88
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "zephyr thimble",
+"gdi": 85,
+"predicted": 93
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "blackout oxide $5 v",
+"gdi": 113,
+"predicted": 122
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "ledger kerning cascade $5 pivot $5",
+"gdi": 203,
+"predicted": 215
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "Mixed cascade yes! well-known ledger (draft) 100%",
+"gdi": 310,
+"predicted": 326
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "thimble Mixed stop. Mixed ~tilde what? margin jumbled 100% thimble (draft) cascade",
+"gdi": 503,
+"predicted": 525
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "CASE, 100% zephyr under_score under_score (draft) $5 $5 oxide kerning stop. yes! zephyr $5 under_score kerning Mixed CASE, oxide",
+"gdi": 803,
+"predicted": 836
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "blackout CASE, what? Mixed nimbus cascade Mixed CASE, quartz kerning 100% cascade zephyr 7.25 vexing a/b a/b under_score 100% Mixed CASE, 100% vexing a/b $5 vexing ~tilde m",
+"gdi": 1107,
+"predicted": 1151
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "kerning vexing cascade 100% stop. cascade 1984 ~tilde what? cascade blackout ledger under_score thimble zephyr zephyr (draft) (draft) jumbled a/b 7.25 under_score yes! 7.25 CASE, under_score Mixed a/b vexing 1984 yes! 7.25 1984 q",
+"gdi": 1400,
+"predicted": 1454
+},
+{
+"font": "Times New Roman",
+"size": 11,
+"face": "Times New Roman",
+"digit": 7,
+"text": "$5 well-known Mixed pivot well-known quartz oxide oxide what? cascade nimbus yes! 100% nimbus pivot zephyr thimble kerning what? pivot cascade vexing under_score a/b blackout vexing 1984 what? well-known under_score glyphs oxide what? pivot ledger kerning zephyr ~tilde",
+"gdi": 1653,
+"predicted": 1717
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "wel",
+"gdi": 30,
+"predicted": 39
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "100%",
+"gdi": 51,
+"predicted": 60
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "jumble",
+"gdi": 58,
+"predicted": 67
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "Mixed",
+"gdi": 53,
+"predicted": 62
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "nimbus sto",
+"gdi": 91,
+"predicted": 101
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "oxide glyp",
+"gdi": 86,
+"predicted": 96
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "1984 kerni",
+"gdi": 91,
+"predicted": 101
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "oxide blackou",
+"gdi": 117,
+"predicted": 128
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "blackout pivot CASE, ze",
+"gdi": 205,
+"predicted": 219
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "nimbus (draft) zephyr jumbled Mixed",
+"gdi": 309,
+"predicted": 327
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "(draft) 7.25 vexing ledger cascade oxide vexing a/b nimbus M",
+"gdi": 510,
+"predicted": 535
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "jumbled margin thimble glyphs Mixed zephyr nimbus quartz CASE, 100% zephyr a/b stop. zephy",
+"gdi": 801,
+"predicted": 836
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "nimbus well-known 7.25 Mixed 7.25 100% glyphs zephyr vexing thimble (draft) 100% what? vexing margin CASE, thimble cascade",
+"gdi": 1100,
+"predicted": 1146
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "what? (draft) stop. what? oxide quartz pivot zephyr CASE, (draft) CASE, 100% oxide jumbled kerning blackout 7.25 $5 a/b under_score 7.25 yes! a/b pivot well-known",
+"gdi": 1398,
+"predicted": 1454
+},
+{
+"font": "Times New Roman",
+"size": 16,
+"face": "Times New Roman",
+"digit": 11,
+"text": "cascade $5 Mixed a/b glyphs $5 margin yes! yes! what? under_score cascade thimble under_score yes! blackout glyphs stop. yes! cascade nimbus thimble 1984 what? pivot jumbled CASE, ledger stop.",
+"gdi": 1649,
+"predicted": 1714
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "~tilde",
+"gdi": 36,
+"predicted": 43
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "zephyr 1",
+"gdi": 57,
+"predicted": 64
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "glyphs m",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "nimbus m",
+"gdi": 64,
+"predicted": 71
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "what? a/b un",
+"gdi": 86,
+"predicted": 94
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "1984 glyphs z",
+"gdi": 90,
+"predicted": 98
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "CASE, pivot o",
+"gdi": 88,
+"predicted": 96
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "well-known 100%",
+"gdi": 112,
+"predicted": 120
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "vexing under_score 1984 1984",
+"gdi": 201,
+"predicted": 213
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "7.25 what? under_score zephyr ledger 1984 C",
+"gdi": 301,
+"predicted": 316
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "ledger 7.25 blackout oxide vexing Mixed pivot $5 ~tilde cascade what? 7.25 g",
+"gdi": 506,
+"predicted": 529
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "$5 cascade oxide pivot CASE, 7.25 7.25 100% what? under_score 100% kerning $5 glyphs kerning (draft) quartz $5 1984",
+"gdi": 798,
+"predicted": 831
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "under_score margin glyphs under_score vexing nimbus quartz a/b kerning cascade kerning blackout $5 1984 nimbus $5 quartz 1984 CASE, cascade blackout vexing 100%",
+"gdi": 1113,
+"predicted": 1157
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "100% margin under_score ledger 100% margin ledger nimbus oxide quartz under_score 1984 7.25 zephyr oxide margin 100% blackout 7.25 jumbled a/b 7.25 1984 kerning vexing ledger 100% glyphs 7.25 margin m",
+"gdi": 1406,
+"predicted": 1461
+},
+{
+"font": "Tahoma",
+"size": 11,
+"face": "Tahoma",
+"digit": 8,
+"text": "Mixed 7.25 (draft) margin under_score 100% blackout cascade 100% zephyr what? kerning under_score ~tilde a/b yes! quartz yes! thimble thimble Mixed 7.25 CASE, oxide pivot yes! kerning under_score Mixed glyphs (draft) thimble stop. yes! ledger un",
+"gdi": 1653,
+"predicted": 1717
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "zeph",
+"gdi": 31,
+"predicted": 38
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "margin g",
+"gdi": 56,
+"predicted": 63
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "margin gl",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "stop. led",
+"gdi": 58,
+"predicted": 65
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "glyphs yes! k",
+"gdi": 87,
+"predicted": 95
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "margin 1984",
+"gdi": 80,
+"predicted": 87
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "thimble CASE",
+"gdi": 87,
+"predicted": 95
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "jumbled oxide Mix",
+"gdi": 115,
+"predicted": 124
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "zephyr jumbled under_score ke",
+"gdi": 205,
+"predicted": 217
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "margin zephyr glyphs $5 CASE, ledger thimble",
+"gdi": 302,
+"predicted": 317
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "zephyr 7.25 kerning thimble oxide 7.25 7.25 quartz nimbus ledger margin ma",
+"gdi": 503,
+"predicted": 525
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "zephyr jumbled 7.25 (draft) pivot cascade CASE, thimble what? jumbled vexing what? cascade ledger ledger glyphs $5 th",
+"gdi": 806,
+"predicted": 839
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "jumbled glyphs oxide under_score 7.25 margin what? margin $5 oxide blackout a/b nimbus glyphs vexing pivot quartz ~tilde thimble kerning what? 100% 1984 1984 Mi",
+"gdi": 1102,
+"predicted": 1146
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "pivot stop. pivot 1984 well-known nimbus under_score blackout glyphs thimble ~tilde a/b 1984 stop. yes! 7.25 Mixed nimbus quartz 100% under_score vexing kerning ~tilde what? zephyr margin cascade Mixed q",
+"gdi": 1403,
+"predicted": 1458
+},
+{
+"font": "Verdana",
+"size": 10,
+"face": "Verdana",
+"digit": 8,
+"text": "margin 1984 thimble ledger blackout under_score 1984 kerning thimble pivot glyphs zephyr well-known what? jumbled $5 stop. zephyr well-known (draft) vexing Mixed zephyr jumbled a/b what? well-known under_score thimble kerning stop. under_sc",
+"gdi": 1653,
+"predicted": 1717
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "oxid",
+"gdi": 36,
+"predicted": 45
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "pivot 1",
+"gdi": 63,
+"predicted": 72
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "quartz",
+"gdi": 54,
+"predicted": 63
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "what? k",
+"gdi": 63,
+"predicted": 72
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "7.25 quart",
+"gdi": 90,
+"predicted": 100
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "~tilde vex",
+"gdi": 90,
+"predicted": 100
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "nimbus $5",
+"gdi": 81,
+"predicted": 90
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "100% well-kno",
+"gdi": 117,
+"predicted": 128
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "cascade nimbus under_sc",
+"gdi": 207,
+"predicted": 221
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "margin glyphs 7.25 1984 zephyr piv",
+"gdi": 306,
+"predicted": 323
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "what? ledger vexing pivot stop. zephyr margin blackout w",
+"gdi": 504,
+"predicted": 528
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "quartz (draft) oxide Mixed ledger 7.25 jumbled thimble Mixed oxide oxide a/b ~tilde a/b v",
+"gdi": 801,
+"predicted": 836
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "yes! oxide $5 pivot yes! $5 margin nimbus jumbled quartz what? thimble kerning CASE, ~tilde quartz well-known yes! a/b ~til",
+"gdi": 1107,
+"predicted": 1153
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "cascade glyphs 1984 thimble 100% thimble 100% well-known vexing under_score ledger vexing jumbled glyphs a/b Mixed a/b yes! pivot Mixed Mixed vexing under_s",
+"gdi": 1404,
+"predicted": 1461
+},
+{
+"font": "Courier New",
+"size": 11,
+"face": "Courier New",
+"digit": 9,
+"text": "yes! (draft) ~tilde CASE, ~tilde quartz oxide Mixed (draft) thimble under_score jumbled (draft) quartz Mixed kerning margin oxide oxide nimbus under_score zephyr well-known 1984 a/b ma",
+"gdi": 1656,
+"predicted": 1722
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "$5 un",
+"gdi": 36,
+"predicted": 43
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "1984 bla",
+"gdi": 57,
+"predicted": 64
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "kerning c",
+"gdi": 60,
+"predicted": 67
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "~tilde ye",
+"gdi": 59,
+"predicted": 66
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "nimbus kerni",
+"gdi": 84,
+"predicted": 91
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "thimble black",
+"gdi": 90,
+"predicted": 98
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "(draft) well-k",
+"gdi": 86,
+"predicted": 94
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "pivot margin wha",
+"gdi": 116,
+"predicted": 125
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "quartz thimble under_score we",
+"gdi": 203,
+"predicted": 215
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "cascade oxide pivot 1984 $5 cascade under_sc",
+"gdi": 306,
+"predicted": 321
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "$5 oxide nimbus well-known quartz what? yes! blackout (draft) pivot cascad",
+"gdi": 501,
+"predicted": 523
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "stop. 1984 zephyr ledger oxide jumbled 7.25 CASE, oxide margin vexing kerning oxide glyphs CASE, cascade pivot ~tilde",
+"gdi": 797,
+"predicted": 830
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "CASE, 7.25 pivot a/b vexing $5 margin thimble under_score vexing vexing stop. 100% Mixed ledger thimble zephyr blackout $5 glyphs 1984 cascade vexing Mixed casc",
+"gdi": 1100,
+"predicted": 1144
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "thimble Mixed (draft) jumbled CASE, what? 100% kerning thimble what? nimbus ~tilde quartz blackout margin yes! yes! 7.25 stop. 100% ledger pivot jumbled (draft) quartz a/b what? quartz pivot vexing Mixed cas",
+"gdi": 1403,
+"predicted": 1458
+},
+{
+"font": "Segoe UI",
+"size": 11,
+"face": "Segoe UI",
+"digit": 8,
+"text": "well-known 1984 cascade ~tilde blackout zephyr under_score kerning kerning vexing 1984 what? yes! pivot thimble under_score pivot Mixed CASE, cascade nimbus oxide 7.25 oxide CASE, ledger pivot a/b pivot (draft) glyphs glyphs Mixed 100% Mixed",
+"gdi": 1651,
+"predicted": 1714
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "jumb",
+"gdi": 35,
+"predicted": 44
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "vexing ju",
+"gdi": 62,
+"predicted": 71
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "Mixed qu",
+"gdi": 64,
+"predicted": 73
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "vexing 1",
+"gdi": 58,
+"predicted": 67
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "kerning yes!",
+"gdi": 85,
+"predicted": 95
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "(draft) jumb",
+"gdi": 85,
+"predicted": 95
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "jumbled blac",
+"gdi": 88,
+"predicted": 98
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "Mixed (draft) 7.2",
+"gdi": 117,
+"predicted": 128
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "stop. what? vexing blackout th",
+"gdi": 208,
+"predicted": 222
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "$5 CASE, jumbled glyphs oxide cascade 7.25",
+"gdi": 303,
+"predicted": 320
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "a/b stop. stop. $5 what? margin yes! Mixed glyphs kerning CASE, yes! (dr",
+"gdi": 503,
+"predicted": 527
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "stop. CASE, $5 vexing ~tilde zephyr under_score nimbus yes! a/b kerning ledger oxide what? zephyr $5 vexing ledge",
+"gdi": 804,
+"predicted": 839
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "(draft) quartz under_score CASE, thimble 1984 glyphs 1984 well-known CASE, zephyr $5 CASE, cascade under_score yes! yes! yes! under_score cascade jumbled",
+"gdi": 1108,
+"predicted": 1154
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "under_score ledger ~tilde a/b what? well-known 100% $5 ledger quartz CASE, nimbus kerning 7.25 what? jumbled vexing Mixed 100% under_score 7.25 what? zephyr 100% nimbus quartz nimbus 100%",
+"gdi": 1404,
+"predicted": 1461
+},
+{
+"font": "Cambria",
+"size": 12,
+"face": "Cambria",
+"digit": 9,
+"text": "a/b ledger quartz $5 zephyr oxide well-known $5 well-known 7.25 (draft) what? pivot well-known 100% yes! a/b stop. kerning ~tilde 1984 thimble zephyr 1984 vexing vexing Mixed kerning jumbled blackout 7.25 $5 pivot nimbus a/b black",
+"gdi": 1653,
+"predicted": 1719
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "gly",
+"gdi": 30,
+"predicted": 39
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "a/b ~t",
+"gdi": 60,
+"predicted": 69
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "zephyr",
+"gdi": 60,
+"predicted": 69
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "$5 zep",
+"gdi": 60,
+"predicted": 69
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "zephyr ke",
+"gdi": 90,
+"predicted": 100
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "oxide yes",
+"gdi": 90,
+"predicted": 100
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "glyphs Mi",
+"gdi": 90,
+"predicted": 100
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "1984 blackou",
+"gdi": 120,
+"predicted": 131
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "quartz thimble margi",
+"gdi": 200,
+"predicted": 214
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "quartz 1984 (draft) glyphs qua",
+"gdi": 300,
+"predicted": 317
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "margin blackout thimble cascade ledger pivot $5 gl",
+"gdi": 500,
+"predicted": 524
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "what? quartz what? ~tilde well-known 100% ~tilde cascade nimbus jumbled jumbled",
+"gdi": 790,
+"predicted": 825
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "~tilde margin Mixed cascade vexing a/b pivot yes! ledger what? under_score CASE, blackout (draft) (draft) stop",
+"gdi": 1100,
+"predicted": 1146
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "what? $5 pivot 1984 Mixed nimbus ~tilde what? 7.25 ~tilde 7.25 $5 CASE, $5 under_score what? $5 7.25 vexing stop. yes! blackout zephyr under",
+"gdi": 1400,
+"predicted": 1456
+},
+{
+"font": "Consolas",
+"size": 14,
+"face": "Consolas",
+"digit": 10,
+"text": "yes! yes! jumbled under_score zephyr ~tilde kerning margin ledger vexing nimbus $5 glyphs cascade margin 100% CASE, vexing nimbus jumbled kerning glyphs zephyr pivot",
+"gdi": 1650,
+"predicted": 1715
+}
+]
+}

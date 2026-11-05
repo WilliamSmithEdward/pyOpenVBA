@@ -203,7 +203,7 @@ def test_opening_a_workbook_reads_its_names_and_queries() -> None:
 
 def test_a_workbook_holding_a_chart_sheet_opens() -> None:
     """Excel's workbook with a chart sheet among two worksheets; tests/test_excel_chart_sheets.py has what it reads."""
-    app = ExcelApplication.open(Path(__file__).parent / "fixtures" / "document_properties" / "chart_sheet.xlsx")
+    app = ExcelApplication.open(Path(__file__).parent / "fixtures" / "chart_sheets" / "names.xlsx")
     book = app.application.active_book
     assert book is not None and len(book.sheets_) == 2 and len(book.chart_sheets) == 1
 

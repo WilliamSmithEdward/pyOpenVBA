@@ -1121,6 +1121,9 @@ class Interpreter:
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
         self.answers: list[object] = []
+        #: What ExcelApplication.set_hook registered, and the members whose functions are running (see apps/excel/_hooks).
+        self.hooks: dict[str, object] = {}
+        self.hooks_running: list[str] = []
         self.frozen_now: Any = None
         #: The Regional format the project runs under: what CStr, Format and CDate write and read.
         self.locale: _locale.Locale = _locale.EN_US

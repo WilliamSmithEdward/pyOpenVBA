@@ -143,6 +143,8 @@ class SeriesState:
     label_generation: int = 0
     #: What Series.Format set, None until then (tests/fixtures/series_format.json).
     format_look: FillLine | None = None
+    #: Whether a loaded series' look was read from its file: none of its own on a chart with no style part, or one the reads answer.
+    look_read: bool = False
     #: What was set of its points, by their index from 0 (tests/fixtures/series_points.json).
     points: dict[int, PointState] = field(default_factory=lambda: {})
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an

@@ -179,7 +179,7 @@ class _Part(Created):
     def state(self) -> ChartState:
         self.series.position()
         state = self.series.chart.state
-        if state.original:
+        if state.original and not self.series.entry.look_read:
             raise unmeasured("The look of a series in an imported chart")
         return state
 

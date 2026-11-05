@@ -38,6 +38,7 @@ from pyopenvba.powerquery._sheets import add_content_type, add_relationship, dro
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._chart_xml import ChartKind
+    from pyopenvba.shapes._values import FillLine
     from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -169,6 +170,42 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
             rels = rels_part(part)
             sheet.chart_states[shape.shape_id].style_part = package.has(rels) and REL_CHART_STYLE in package.read(rels).decode('utf-8')
+            _read_series_looks(sheet.chart_states[shape.shape_id])
+
+_SERIES_MARKUP = re.compile(r'<c:ser>.*?</c:ser>', re.DOTALL)
+#: What a series holds that has its own spPr: its points, labels, trendlines and error bars.
+_SERIES_PARTS = re.compile(r'<c:(dPt|dLbls|trendline|errBars)>.*?</c:\1>', re.DOTALL)
+_SERIES_ORDER = re.compile(r'<c:order val="(\d+)"/>')
+
+
+def _plain_look(look: FillLine) -> bool:
+    """Whether a look holds only what a chart's reads answer: colours by RGB with no alpha, and nothing the series' reads leave
+    out (tests/fixtures/loaded_chart_looks.json)."""
+    themed = (look.fill_scheme, look.line_scheme, look.fill_alpha, look.line_alpha, look.fill_pattern, look.extra, look.chart_effect)
+    return all(item is None for item in themed) and not look.fill_mods and not look.line_mods and not look.effects
+
+
+def _read_series_looks(state: ChartState) -> None:
+    """Each loaded series' own look, from the spPr it holds directly. One the reads could not answer leaves it unread, and its
+    reads refused; so does every series of a chart with a style part, whose automatic looks come from that style."""
+    from pyopenvba.shapes._read_look import read_look
+
+    found = _SERIES_MARKUP.findall(state.original)
+    orders = [int(hit.group(1)) if (hit := _SERIES_ORDER.search(one)) else -1 for one in found]
+    if len(found) != len(state.series) or sorted(orders) != orders:
+        return
+    for entry, markup in zip(state.series, found):
+        own = re.search(r'<c:spPr>.*?</c:spPr>', _SERIES_PARTS.sub('', markup), re.DOTALL)
+        if own is None:
+            entry.look_read = not state.style_part
+            continue
+        try:
+            look = read_look('<xdr:spPr>' + own.group(0)[len('<c:spPr>'):-len('</c:spPr>')] + '</xdr:spPr>')
+        except VBAUnsupportedError:
+            continue
+        if _plain_look(look):
+            entry.format_look, entry.look_read = look, True
+
 
 def _axis_elements(plot: ET.Element) -> list[ET.Element]:
     return [child for child in plot if child.tag.rpartition('}')[2] in ('catAx', 'valAx', 'dateAx')]

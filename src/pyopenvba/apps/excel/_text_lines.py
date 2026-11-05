@@ -10,24 +10,27 @@ import re
 
 from pyopenvba.apps.excel._wrapped_text import pieces
 
-_PARAGRAPH = re.compile(r"[^\n\x0b]*[\n\x0b]|[^\n\x0b]+$")
+#: What ends a line whatever the width: a paragraph's end, and a line break by either character.
+BREAKS = "\n\x0b\x0c"
+_PARAGRAPH = re.compile(r"[^\n\x0b\x0c]*[\n\x0b\x0c]|[^\n\x0b\x0c]+$")
 #: How finely a glyph's width is held, per point.
 _STEPS = 200
 
 
 def line_spans(text: str, room: float | None, units: dict[str, int], em: int, size: float) -> list[tuple[int, int]]:
     """Each line's start, from 0, and length, spaces and its line feed included. Spaces at a line's end take no room. No room is no wrapping."""
-    steps = {character: math.floor(units[character] * size / em * _STEPS + 0.5) for character in set(text) - set("\n\x0b")}
-    limit = None if room is None else math.floor(room * _STEPS + 1e-6)
+    steps = {character: math.floor(units[character] * size / em * _STEPS + 0.5) for character in set(text) - set(BREAKS)}
+    # A margin is held as a Single, whose last places are no measure.
+    limit = None if room is None else math.floor(round(room * _STEPS, 3))
 
     def fits(line: str) -> bool:
-        return limit is None or sum(steps[character] for character in line.rstrip(" \n\x0b")) <= limit
+        return limit is None or sum(steps[character] for character in line.rstrip(" " + BREAKS)) <= limit
 
     spans: list[tuple[int, int]] = []
     for paragraph in _PARAGRAPH.finditer(text):
         begin, line = paragraph.start(), ""
         whole = paragraph.group()
-        body = whole.rstrip("\n\x0b")
+        body = whole.rstrip(BREAKS)
         found = pieces(body) or [""]
         found[-1] += whole[len(body):]
         for piece in found:
@@ -38,7 +41,7 @@ def line_spans(text: str, room: float | None, units: dict[str, int], em: int, si
                 taken = 1
                 while taken < len(piece) and fits(piece[:taken + 1]):
                     taken += 1
-                if not piece[taken:].strip(" \n\x0b"):
+                if not piece[taken:].strip(" " + BREAKS):
                     break
                 spans.append((begin, taken))
                 begin, piece = begin + taken, piece[taken:]

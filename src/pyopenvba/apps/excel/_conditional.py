@@ -604,7 +604,7 @@ class FormatConditions(VBACollection, ItemDefault, ExcelObject):
     def vba_items(self) -> list[object]:
         rules = [rule for rule in self.sheet.conditional_formats if not rule.deleted
                  and any(meets(one, area) for one in rule.areas for area in self.target.areas)]
-        return [_wrapper(self.sheet, rule, self.target.areas) for rule in sorted(rules, key=_priority)]
+        return [_wrapper(self.sheet, rule, self.target.areas, self.target) for rule in sorted(rules, key=_priority)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         position = int(to_integer(index, 'Long'))
@@ -697,6 +697,8 @@ class RuleObject(ExcelObject):
     vba_type_name = ''
     #: The range a range's FormatConditions reached the rule through, which Delete takes out of it.
     through: list[Area] | None = None
+    #: That range itself, which follows its cells as a held Range does, for Parent.
+    reached: Range | None = None
 
     def __init__(self, sheet: Worksheet, rule: Rule) -> None:
         self.sheet, self.rule = sheet, rule
@@ -721,7 +723,10 @@ class RuleObject(ExcelObject):
     def Parent(self) -> object:
         """The range FormatConditions was taken from, not the rule's AppliesTo: D3's, C1:E9's or the sheet's for a rule on
         D1:D5, of every kind; reached otherwise, as the object Add gives back, AppliesTo (tests/fixtures/
-        format_condition_parent.json)."""
+        format_condition_parent.json). Held while rows go in above, it is that range where it now stands, and once its cells
+        are deleted, a range that has gone (tests/fixtures/held_range_collections.json)."""
+        if self.reached is not None:
+            return self.reached
         if self.through is None:
             return self.AppliesTo()
         return Range(self.sheet, [Area(a.top, a.left, a.bottom, a.right, self.sheet.name) for a in self.through])
@@ -1259,7 +1264,7 @@ class UniqueValues(_StatisticalRule):
         changed(self.sheet)
 
 
-def _wrapper(sheet: Worksheet, rule: Rule, through: list[Area] | None = None) -> RuleObject:
+def _wrapper(sheet: Worksheet, rule: Rule, through: list[Area] | None = None, reached: Range | None = None) -> RuleObject:
     from pyopenvba.apps.excel._colour_scales import ColorScale
     from pyopenvba.apps.excel._data_bars import Databar
     from pyopenvba.apps.excel._icon_sets import IconSetCondition
@@ -1270,4 +1275,5 @@ def _wrapper(sheet: Worksheet, rule: Rule, through: list[Area] | None = None) ->
                                  'iconSet': IconSetCondition}.get(kind, FormatCondition)
     wrapper = factory(sheet, rule)
     wrapper.through = None if through is None else list(through)
+    wrapper.reached = reached
     return wrapper

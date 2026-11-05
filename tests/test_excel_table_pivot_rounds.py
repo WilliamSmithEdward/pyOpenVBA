@@ -23,7 +23,9 @@ RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8')) fo
 USED_UP = {51101: 'ListObjects(text) went by DisplayName, not Name (tests/fixtures/table_name_lookup.json); its Author answers were '
                   'read with the model\'s own user name, not the measuring user\'s',
            51102: 'FormatCondition.Parent was AppliesTo, not the range FormatConditions was taken from '
-                  '(tests/fixtures/format_condition_parent.json)'}
+                  '(tests/fixtures/format_condition_parent.json)',
+           51103: "a range's Hyperlinks held across an insert kept the old place, not the links it held "
+                  '(tests/fixtures/held_range_collections.json)'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

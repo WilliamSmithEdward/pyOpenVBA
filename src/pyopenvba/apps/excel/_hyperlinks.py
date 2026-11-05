@@ -604,9 +604,17 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
     def __init__(self, sheet: Worksheet, areas: list[Area] | None = None) -> None:
         self.sheet = sheet
         self.areas = None if areas is None else [Area(one.top, one.left, one.bottom, one.right) for one in areas]
+        #: A range's are the links it held when it was asked: held while rows or columns go in, they are the same links
+        #: where they now stand, and a link added later is not among them (tests/fixtures/held_range_collections.json).
+        self.held = None if areas is None else links_of(sheet, self.areas)
+
+    def _links(self) -> list[Link]:
+        if self.held is None:
+            return links_of(self.sheet, None)
+        return [link for link in self.held if any(link is one for one in self.sheet.hyperlinks)]
 
     def vba_items(self) -> list[object]:
-        found: list[object] = [Hyperlink(self.sheet, link) for link in links_of(self.sheet, self.areas)]
+        found: list[object] = [Hyperlink(self.sheet, link) for link in self._links()]
         if self.areas is None:
             found += [shape_link(self.sheet, shape) for shape in _shapes_with_links(self.sheet.shapes_)]
         return found
@@ -633,7 +641,7 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Delete(self) -> object:
-        links = links_of(self.sheet, self.areas)
+        links = self._links()
         if self.areas is not None and not links:
             # A range's links, none left, unlike a sheet's (tests/fixtures/held_objects.json).
             raise error(1004, "Delete method of Hyperlinks class failed")

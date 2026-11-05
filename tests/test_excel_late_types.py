@@ -13,9 +13,6 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures/typed_answers'
-#: Late these are Doubles, in the binding table when it holds them.
-LATE_DOUBLES = {('ControlFormat', 'drop', 'DropDownLines'), ('ControlFormat', 'drop', 'ListCount'), ('ControlFormat', 'pick', 'ListCount'), ('ControlFormat', 'spin', 'Max'),
-                ('ControlFormat', 'spin', 'Min'), ('ControlFormat', 'spin', 'SmallChange')}
 #: A new form control's box snaps to the display's pixels, and it has a placement and alternative text of its own, as the model's does not yet.
 NEW_CONTROL = {('Shape', 'tick', 'AlternativeText'), ('Shape', 'tick', 'Height'), ('Shape', 'tick', 'Left'), ('Shape', 'tick', 'Placement')}
 CASES: list[tuple[str, dict[str, Any]]] = [(path.name, one) for path in sorted(FIXTURES.glob('late_types_*.json')) for one in json.loads(path.read_text(encoding='utf-8'))['cases']]
@@ -37,6 +34,6 @@ def test_each_read_and_its_type_as_excel_gave_them(name: str, case: dict[str, An
     except VBAUnsupportedError:
         return
     key = (case['class'], case['on'], case['member'])
-    if key in NEW_CONTROL or (key in LATE_DOUBLES and case['binding'] == 'Late'):
+    if key in NEW_CONTROL:
         pytest.xfail('known, and with its owner')
     assert got == case['excel']

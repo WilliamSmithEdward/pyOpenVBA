@@ -98,6 +98,36 @@ last stay `VBAUnsupportedError`.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
 
+## The step limit
+
+A macro can loop for ever, and the sandbox does not stop that. A host that runs
+macros it does not trust can set how many steps one run may take:
+
+```python
+app = ExcelApplication(step_limit=10_000_000)   # also on open, Word and PowerPoint
+app = ExcelApplication()                        # no limit, the default
+```
+
+A step is an instruction the interpreter carries out, a loop's test and a jump
+included, so `Do: Loop` with nothing in it runs out like any other. A run is
+everything one entry from the host sets off: a procedure called from Python, an
+event raised from Python, or a recalculation that calls a VBA function, with
+whatever those call, raise, evaluate or call back in turn. Class code, event
+macros, `Evaluate` and a host's callback that runs VBA all draw on the budget of
+the run they happen in, and so does every workbook's project. The next entry from
+the host starts afresh.
+
+Past the limit the run raises `VBAStepLimitError`, a `VBAError` but no run-time
+error, so `On Error` cannot trap it and `Err` is not set. The run ends where it was:
+what it did up to that statement is kept, not rolled back. A step limit must be a
+whole number of at least 1, or `None`; anything else is `ValueError` at once.
+
+It bounds the steps between statements, not what one statement costs. A large
+`Range.Sort`, a recalculation of many formulas, or one call into the engine takes as
+long as it takes, and neither memory nor time spent by the host itself is counted.
+With no limit set, counting costs one check of an attribute per instruction, which
+did not show above the noise of timing a 300,000-pass loop.
+
 ## Dialogs
 
 Nobody is at the screen, so a dialog never blocks. It takes the next answer the

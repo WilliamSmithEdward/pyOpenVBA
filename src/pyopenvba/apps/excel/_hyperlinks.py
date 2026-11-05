@@ -668,13 +668,12 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
 
 def clear_links(target: Range) -> None:
     """Range.ClearHyperlinks: the links the range holds go, their cells' formats as they are."""
-    from pyopenvba.apps.excel._protection import PROTECTED, any_locked
+    from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
 
     links = links_of(target.sheet, list(target.areas))
     _refuse_locked(target.sheet, links)
-    protection = target.sheet.protection
-    if protection is not None and protection.contents and any_locked(target.sheet, list(target.areas)):
-        # Locked cells refuse it, links or none.
+    if enforced(target.sheet) is not None and any_locked(target.sheet, list(target.areas)):
+        # Locked cells refuse it, links or none, but for protection for the user alone (tests/fixtures/protected_links.json).
         raise error(1004, PROTECTED)
     if links:
         _take(target.sheet, links, formats=False)

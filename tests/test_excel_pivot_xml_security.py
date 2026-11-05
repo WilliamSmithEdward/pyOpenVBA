@@ -5,6 +5,7 @@ from zipfile import ZipFile
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.apps.excel._io import MalformedPartError
 
 SEED = Path(__file__).parent / 'fixtures/pivots/native-simple.xlsx'
 
@@ -30,7 +31,7 @@ def test_pivot_xml_rejects_declared_entities(tmp_path: Path, part: str, encoding
                 xml = xml[xml.index('?>') + 2:]
                 payload = (f'<?xml version="1.0" encoding="{encoding}"?>' + doctype + xml).encode(encoding)
             changed.writestr(name, payload)
-    with pytest.raises(ValueError, match='DTD'):
-        app = ExcelApplication.open(path, with_vba=False)
-        # Cache records are parsed on demand, rather than during workbook import.
-        app.evaluate('Worksheets(1).PivotTables(1).PivotFields(2).PivotItems.Count')
+    # Every part is checked as the workbook opens, so nothing past this point sees the DTD, cache records included.
+    with pytest.raises(MalformedPartError, match='DTD') as refused:
+        ExcelApplication.open(path, with_vba=False)
+    assert refused.value.part == part

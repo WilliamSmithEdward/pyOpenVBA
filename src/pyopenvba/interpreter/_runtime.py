@@ -41,6 +41,7 @@ from pyopenvba.interpreter._type_library import (
     find_class,
     kinds_of,
     late_arguments,
+    late_index_error,
     late_call_error,
     late_error,
     late_let_error,
@@ -2400,7 +2401,9 @@ class Interpreter:
         count = len(positional)
         while count and positional[count - 1] is MISSING:
             count -= 1
-        number = late_error(found, strip_suffix(name), count, list(named))
+        number = late_index_error(found, strip_suffix(name)) if count and not named else None
+        if number is None:
+            number = late_error(found, strip_suffix(name), count, list(named))
         if number is not None:
             raise error(number)
 
@@ -2637,7 +2640,13 @@ class Interpreter:
         why Len(n) is 4 for a Long holding 12345 while Len of the same
         number in a Variant is 5.  Measured against Excel.
         """
-        if frame is None or len(args) != 1 or args[0].name or not isinstance(args[0].value, A.Name):
+        if frame is None or len(args) != 1 or args[0].name:
+            return None
+        stored = frame.program.stored_len_arguments.get(id(args[0].value)) if frame.program is not None else None
+        if stored is not None:
+            width = STORAGE_WIDTH.get(stored)
+            return VBAInt(width, "Integer") if width is not None else None
+        if not isinstance(args[0].value, A.Name):
             return None
         slot = self.lookup(args[0].value.name, frame, want_slot=True)
         if not isinstance(slot, Slot):
@@ -3247,7 +3256,7 @@ def _call_value(value: object, args: list[object], named: dict[str, object]) -> 
         # An object variable set to Nothing has no default member to call (tests/fixtures/data_labels_object.json).
         raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     if args:
-        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
+        raise error(ERR_TYPE_MISMATCH)
     return value
 
 

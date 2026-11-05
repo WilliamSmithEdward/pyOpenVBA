@@ -26,7 +26,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Final
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_number, parse_reference
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import has_dangling_reference, shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
@@ -1587,6 +1587,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         if path.suffix.lower() in (".xls", ".xla", ".xlt"):
             raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
+        from pyopenvba.apps.excel._io import MalformedPartError
+
         format_code = remember_format(self.application, Format, Delimiter)
         read_only = ReadOnly is not MISSING and to_bool(ReadOnly)
         if is_text(path):
@@ -1597,6 +1599,13 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             return self._from_template(path)
         try:
             return self.open_file(path, read_only=read_only, format_code=format_code)
+        except MalformedPartError as failure:
+            # Tests/fixtures/bad_xml/bad_xml.json.
+            if failure.part == "[Content_Types].xml":
+                raise error(1004, f"Excel cannot open the file '{path.name}' because the file format or file extension "
+                                  "is not valid. Verify that the file has not been corrupted and that the file extension "
+                                  "matches the format of the file.") from None
+            raise error(1004, "Method 'Open' of object 'Workbooks' failed") from None
         except PowerQueryError:
             import zipfile
 
@@ -1846,6 +1855,9 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: The hidden names the workbook's formulas have brought into Names (see _hidden_names).
+        self.hidden_names: set[str] = set()
+        self.hidden_entries: dict[str, NameEntry] = {}
         #: The chart sheets the file has, its tabs in order where it has any, and the chart sheet that is active (see
         #: _chart_sheets). sheets_ holds worksheets alone.
         self.chart_sheets: list[ChartSheet] = []
@@ -4017,9 +4029,15 @@ class Worksheet(ExcelObject):
             # (tests/fixtures/range_lines.json).
             if "," in Index:
                 raise error(13, "Type mismatch")
+            if Index == "":
+                raise error(13, "Type mismatch")
+            if Index == "0":
+                raise error(1004, "Application-defined or object-defined error")
             wanted = Index if ":" in Index else f"{Index}:{Index}"
             return Range(self, parse_reference(wanted, sheet=self.name), whole="rows")
         row = int(to_integer(Index, "Long"))
+        if row < 1 or row > MAX_ROWS:
+            raise error(1004, "Application-defined or object-defined error")
         return Range(self, [Area(row, 1, row, MAX_COLUMNS, self.name)], whole="rows")
 
     @member
@@ -4030,6 +4048,9 @@ class Worksheet(ExcelObject):
             # Columns("C") is the whole column, the way Columns("C:D") is; several are a type mismatch, as Rows' are.
             if "," in Index:
                 raise error(13, "Type mismatch")
+            # Past XFD is no column, and nothing is none (tests/fixtures/excel_everyday_18.json).
+            if Index == "" or (re.fullmatch(r"[A-Za-z]{1,3}", Index) and column_number(Index) > MAX_COLUMNS):
+                raise error(13, "Type mismatch")
             wanted = Index if ":" in Index else f"{Index}:{Index}"
             areas = parse_reference(wanted, sheet=self.name)
             # Columns("8:9") names rows, and Excel will not have it (tests/fixtures/range_audit.json).
@@ -4037,6 +4058,8 @@ class Worksheet(ExcelObject):
                 raise error(1004, "Application-defined or object-defined error")
             return Range(self, areas, whole="columns")
         column = int(to_integer(Index, "Long"))
+        if column < 1 or column > MAX_COLUMNS:
+            raise error(1004, "Application-defined or object-defined error")
         return Range(self, [Area(1, column, MAX_ROWS, column, self.name)], whole="columns")
 
     @member
@@ -4753,6 +4776,8 @@ class Range(ExcelObject):
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
                 *, by_ref: bool = False) -> None:
         self.note_seen()
+        if args and name.lower() == "value":
+            _value_data_type(args[0])
         super().vba_set(name, value, args, named, by_ref=by_ref)
 
     def after_set(self, member: str) -> None:
@@ -4818,6 +4843,7 @@ class Range(ExcelObject):
 
     @member(default=True)
     def Value(self, RangeValueDataType: object = MISSING) -> object:
+        _value_data_type(RangeValueDataType)
         return self._values(raw=False)
 
     @setter("Value")
@@ -4896,15 +4922,31 @@ class Range(ExcelObject):
 
     @member
     def Text(self) -> object:
-        """What the cell shows, at most 8221 characters of it (tests/fixtures/range_values.json). Over several cells,
-        what they all show, or Null where they differ (tests/fixtures/range_area_reads.json); past 100,000 cells, the
-        first's, which was not measured."""
-        if not self.single and sum(area.rows * area.columns for area in self.areas) <= 100_000:
-            shown_by = {str(Range(self.sheet, [Area(row, column, row, column, self.sheet.name)]).Text())
-                        for area in self.areas for row in range(area.top, area.bottom + 1) for column in range(area.left, area.right + 1)}
-            return shown_by.pop() if len(shown_by) == 1 else NULL
-        shown = self._shown_text()
-        return shown[:8221] if isinstance(shown, str) else shown
+        """What the cell shows, at most 8221 characters of it (tests/fixtures/range_values.json). Several cells answer what
+        they all show, and Null where they differ: 5 and "5" read as one, a blank beside "x" does not
+        (tests/fixtures/excel_everyday_18.json)."""
+        if self.first.rows * self.first.columns == 1 and len(self.areas) == 1:
+            shown = self._shown_text()
+            return shown[:8221] if isinstance(shown, str) else shown
+        return self._shared_text()
+
+    def _shared_text(self) -> object:
+        from pyopenvba.apps.excel._column_fit import _cells_in  # pyright: ignore[reportPrivateUsage]
+
+        stored = _cells_in(self.sheet, list(self.areas))
+        total = sum(area.rows * area.columns for area in self.areas)
+        if len(self.areas) > 1 and total <= MAX_ROWS:
+            # Areas may overlap, and a cell they share is one cell.
+            total = len({(row, column) for area in self.areas for row in range(area.top, area.bottom + 1)
+                         for column in range(area.left, area.right + 1)})
+        shared: object = "" if len(stored) < total else None
+        for row, column, _ in stored:
+            shown = Range(self.sheet, [Area(row, column, row, column, self.sheet.name)]).vba_get("Text")
+            if shared is None:
+                shared = shown
+            elif shown != shared:
+                return NULL
+        return shared
 
     def _shown_text(self) -> object:
         # Read the current value (the cache in manual mode) before formatting;
@@ -5767,20 +5809,18 @@ class Range(ExcelObject):
         return sum(area.rows * area.columns for area in self.areas)
 
     def _line(self, index: object) -> Range:
-        """The row or column ``index`` of a range of rows or columns, counted from its first area's first and past
-        its last if need be; error 1004 before the first."""
+        """The row or column ``index`` of a range of rows or columns, counted from its first area's first, before it or
+        past its last if need be; error 1004 off the sheet (tests/fixtures/excel_everyday_18.json)."""
         area = self.first
         position = int(to_integer(index, "Long"))
-        if position < 1:
-            raise error(1004, "Application-defined or object-defined error")
         if self.lines == "rows":
             row = area.top + position - 1
-            if row > MAX_ROWS:
+            if row < 1 or row > MAX_ROWS:
                 raise error(1004, "Application-defined or object-defined error")
             line = Area(row, area.left, row, area.right, area.sheet)
         else:
             column = area.left + position - 1
-            if column > MAX_COLUMNS:
+            if column < 1 or column > MAX_COLUMNS:
                 raise error(1004, "Application-defined or object-defined error")
             line = Area(area.top, column, area.bottom, column, area.sheet)
         return Range(self.sheet, [line], whole=self.whole, lines=self.lines)
@@ -5895,22 +5935,17 @@ class Range(ExcelObject):
                 raise error(1004, "Application-defined or object-defined error")
             return self._line(RowIndex)
         if ColumnIndex is MISSING or ColumnIndex is NOTHING:
-            # One index walks the range left to right, then down.
-            position = int(to_integer(RowIndex, "Long")) - 1
-            if position < 0:
-                raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
-            row = area.top + position // area.columns
-            column = area.left + position % area.columns
+            # One index walks the range left to right, then down, and backwards as far as a whole row of it divides:
+            # Item(0) of B2 is B1, of A2:B3 off the sheet (tests/fixtures/excel_everyday_18.json).
+            position = _walking_index(RowIndex) - 1
+            rows_on = abs(position) // area.columns * (1 if position >= 0 else -1)
+            row = area.top + rows_on
+            column = area.left + position - rows_on * area.columns
         else:
-            row = area.top + int(to_integer(RowIndex, "Long")) - 1
-            if isinstance(ColumnIndex, str):
-                from pyopenvba._a1 import column_number
-
-                column = area.left + column_number(ColumnIndex) - 1
-            else:
-                column = area.left + int(to_integer(ColumnIndex, "Long")) - 1
+            row = area.top + _index_number(RowIndex) - 1
+            column = area.left + _column_index(ColumnIndex) - 1
         if row < 1 or column < 1 or row > MAX_ROWS or column > MAX_COLUMNS:
-            raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
+            raise error(ERR_APPLICATION_DEFINED, "that cell is off the sheet")
         return Range(self.sheet, [Area(row, column, row, column, area.sheet)])
 
     @member
@@ -5953,6 +5988,9 @@ class Range(ExcelObject):
 
     @member
     def Resize(self, RowSize: object = MISSING, ColumnSize: object = MISSING) -> object:
+        if len(self.areas) > 1:
+            # With or without a size (tests/fixtures/excel_everyday_18.json).
+            raise error(ERR_APPLICATION_DEFINED, "Resize takes one area")
         area = self.first
         try:
             rows = area.rows if RowSize is MISSING else int(to_integer(RowSize, "Long"))
@@ -7909,6 +7947,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
             scope, bare = split_sheet(entry.name)
             return (collation(bare), 0 if scope else 1, collation(scope))
 
+        if self.sheet is None:
+            held = {entry.name.casefold() for entry in entries}
+            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
+                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
         return [DefinedName(entry) for entry in sorted(entries, key=order)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
@@ -7946,6 +7988,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
                 entry_scope, entry_bare = split_sheet(entry.name)
                 if _names.same_name(entry_bare, bare) and _names.same_sheet_name(entry_scope, scope):
                     return DefinedName(entry)
+        if self.sheet is None and bare.lower().startswith(("_xlfn.", "_xlpm.")):
+            for item in self.vba_items():
+                if isinstance(item, DefinedName) and item.entry.name.casefold() == bare.casefold():
+                    return item
         return None
 
     def find(self, name: str, *, scope: Worksheet | None = None) -> DefinedName | None:
@@ -8025,6 +8071,9 @@ class Names(VBACollection, ItemDefault, ExcelObject):
 
         added(entry, MacroType, ShortcutKey, Category, CategoryLocal)
         _names.changed(self.book, entry.name)
+        from pyopenvba.apps.excel._hidden_names import noted
+
+        noted(self.book, entry.refers_to, single=False)
         return DefinedName(entry)
 
 
@@ -8043,7 +8092,9 @@ class DefinedName(HeldPart, ExcelObject):
         self.entry = entry
 
     def held_gone(self) -> bool:
-        return not self.entry.emptied and not any(one is self.entry for one in self.entry.book.names_.entries)
+        book = self.entry.book
+        return not self.entry.emptied and not (any(one is self.entry for one in book.names_.entries)
+                                               or any(one is self.entry for one in book.hidden_entries.values()))
 
     @member
     def Name(self) -> object:
@@ -8606,6 +8657,51 @@ def _sheets_to_add(count: object) -> int:
     if not 1 <= wanted < 256:
         raise error(1004, "Add method of Sheets class failed")
     return int(wanted)
+
+
+def _value_data_type(kind: object) -> None:
+    """Value's RangeValueDataType: 10 is the plain read, Empty as good as left out, and any other number 1004. 11 and 12, the
+    XML texts Excel writes the cells out as, are not made here (tests/fixtures/excel_everyday_18.json)."""
+    if kind is MISSING or kind is EMPTY:
+        return
+    if isinstance(kind, VBAObject):
+        raise error(13, "Type mismatch")
+    number = _index_number(kind)
+    if number in (11, 12):
+        raise VBAUnsupportedError("Range.Value as XML (xlRangeValueXMLSpreadsheet, xlRangeValueMSPersistXML) is not implemented")
+    if number != 10:
+        raise error(1004, "Application-defined or object-defined error")
+
+
+def _index_number(index: object) -> int:
+    """A number given to a Variant parameter, which the member turns itself: Null is 13, not VBA's 94."""
+    if index is NULL:
+        raise error(13, "Type mismatch")
+    return int(to_integer(index, "Long"))
+
+
+def _walking_index(index: object) -> int:
+    """Cells(n)'s one index: wider than a Long, as a whole sheet needs, and text that is no number is 5, not 13
+    (tests/fixtures/excel_everyday_18.json)."""
+    if isinstance(index, float) and abs(index) < 2.0 ** 53:
+        return round(index)
+    try:
+        return int(to_integer(index, "Long"))
+    except VBARuntimeError as caught:
+        if isinstance(index, str) and caught.number == 13:
+            raise error(5, "Invalid procedure call or argument") from None
+        raise
+
+
+def _column_index(index: object) -> int:
+    """Cells(r, c)'s column: letters to XFD with a dollar sign or without, and otherwise a number. "2" and "A1" read as
+    references first, and are no column, where "2.5" is B and " A" is 13 (tests/fixtures/excel_everyday_18.json)."""
+    if isinstance(index, str):
+        if re.fullmatch(r"\$?[A-Za-z]{1,3}", index) and column_number(index.lstrip("$")) <= MAX_COLUMNS:
+            return column_number(index.lstrip("$"))
+        if re.fullmatch(r"\$?[A-Za-z]{1,3}\$?\d+|\d+", index):
+            raise error(ERR_APPLICATION_DEFINED, "that text reads as a reference, not a column")
+    return _index_number(index)
 
 
 def _is_formula(text: str) -> bool:

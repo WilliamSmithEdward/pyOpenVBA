@@ -21,9 +21,9 @@ FIRST, SECOND, MEMBERS, EVENTS = _load('shape_lines'), _load('shape_lines2'), _l
 LAYOUT = 'LAYOUT'
 #: What is not measured to leave the rule as it is.
 REFUSED = ('.Rotation = 90', '.Rotation = 33', '.Orientation', '.Column.Number', '.LeftIndent', '.FirstLineIndent', '.RightIndent', '.IndentLevel', '.Bullet.Visible', '.Font.Spacing', '.Allcaps', '.Smallcaps', '.Superscript', 'Characters(1, 9).Font.Size', 'Characters(11, 5).Font',
-           'Font.Name = "Arial"', 'Font.Name = "No Such Font"', '.Font.Name = "+m', 'vbTab', 'ChrW(8212)', 'ChrW(20013)', 'ChrW(160)', 'ChrW(173)', '.AutoShapeType', 'T.Characters(5, 0)', '.InsertBefore', '.InsertAfter " abc"', 'AutoSize = 1', 'AddLabel')
-#: The same of shapes in a file: other shapes, an upright or set-upright text, and fonts that differ or have no table.
-REFUSED_LOADED = ('Oval', 'Upward', 'Runs', 'Fonts', 'Paint', 'Paras', 'Broken', 'Clipped', 'Whole')
+           'Font.Name = "No Such Font"', '.Font.Name = "+m', 'vbTab', 'ChrW(8212)', 'ChrW(20013)', 'ChrW(160)', 'ChrW(173)', '.AutoShapeType', 'T.Characters(5, 0)', '.InsertBefore', '.InsertAfter " abc"', 'AutoSize = 1', 'AddLabel')
+#: The same of shapes in a file: other shapes, an upright or set-upright text, and fonts that differ.
+REFUSED_LOADED = ('Oval', 'Upward', 'Runs', 'Fonts', 'Paint', 'Paras', 'Broken', 'Clipped')
 
 
 def _source(setup: str, read: str) -> str:

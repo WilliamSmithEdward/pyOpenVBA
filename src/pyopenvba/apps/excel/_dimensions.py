@@ -465,8 +465,8 @@ class SheetDimensions:
         pixels = font_pixels(font.size)
         if family is None or not 1 <= pixels <= _font_rows.MOST_PIXELS:
             return f"the font {font.name}"
-        if font.italic and font.size > 20 and font.name.lower() in ("arial", "times new roman"):
-            # 3 of 518 widths broke elsewhere in italic at 24 and 36pt, and nothing tried explains them (tests/fixtures/font_round_arial.json).
+        if font.italic and font.size >= 18 and font.name.lower() in ("arial", "times new roman"):
+            # Widths broke elsewhere in italic at 18, 24 and 36pt, and nothing tried explains them (tests/fixtures/font_round_arial.json, font_round_arial2.json).
             return f"wrapped text in large italic {font.name}"
         taken = 9 * style.alignment.indent
         if font.italic:

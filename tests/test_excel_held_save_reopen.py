@@ -50,6 +50,13 @@ def test_each_setting_comes_back(case: Case, tmp_path: Path) -> None:
     check(case, tmp_path, ACCEPTED, EXCEL_LOSES)
 
 
+def test_an_object_gone_after_the_reopen_fails_unless_listed(tmp_path: Path) -> None:
+    gone = next(case for case in CASES if str(case) == 'name new: s.MacroType = 1')
+    with pytest.raises(AssertionError, match='is lost across a save: 1 before the save; after it the object is not found again'):
+        check(gone, tmp_path, {})
+    check(gone, tmp_path, {str(gone): 'accepted'})
+
+
 def test_excel_leaves_a_function_name_out_of_a_book_without_macros() -> None:
     assert _MACRO_NAMES['function.xlsx'] == ''
     assert 'function="1"' in _MACRO_NAMES['function.xlsm']

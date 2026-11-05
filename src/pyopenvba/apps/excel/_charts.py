@@ -180,6 +180,9 @@ class ChartState:
     legend_taken: str = ''
     gridlines_taken: dict[tuple[int, bool], str] = field(default_factory=lambda: {})
     axis_titles_taken: dict[int, str] = field(default_factory=lambda: {})
+    #: The element looks a loaded chart has had read from its file, by their key: none of their own on a chart with no style part, or
+    #: one the reads answer (tests/fixtures/loaded_chart_looks.json).
+    looks_read: set[str] = field(default_factory=lambda: set())
     #: Whether a loaded chart has a style part: what it gains takes that style's look, which is not read here.
     style_part: bool = False
     #: Whether a loaded legend has a layout of its own, which makes its position custom.

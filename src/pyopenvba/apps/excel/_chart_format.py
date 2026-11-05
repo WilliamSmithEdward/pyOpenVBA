@@ -887,7 +887,7 @@ class _ElementPart(Created):
     def look(self) -> FillLine:
         chart = self.owner.chart
         chart.admit_read()
-        if chart.state.original:
+        if chart.state.original and self.key not in chart.state.looks_read:
             raise unmeasured("The look of a part of an imported chart")
         return chart.state.element_looks.get(self.key) or FillLine()
 

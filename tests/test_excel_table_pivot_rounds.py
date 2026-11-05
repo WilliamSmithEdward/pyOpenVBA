@@ -25,7 +25,9 @@ USED_UP = {51101: 'ListObjects(text) went by DisplayName, not Name (tests/fixtur
            51102: 'FormatCondition.Parent was AppliesTo, not the range FormatConditions was taken from '
                   '(tests/fixtures/format_condition_parent.json)',
            51103: "a range's Hyperlinks held across an insert kept the old place, not the links it held "
-                  '(tests/fixtures/held_range_collections.json)'}
+                  '(tests/fixtures/held_range_collections.json)',
+           51104: "a range's Hyperlinks.Delete with none held was 1004; held links taken away were dropped, not counted "
+                  '(tests/fixtures/range_links_delete.json)'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

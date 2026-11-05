@@ -605,13 +605,15 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
         self.sheet = sheet
         self.areas = None if areas is None else [Area(one.top, one.left, one.bottom, one.right) for one in areas]
         #: A range's are the links it held when it was asked: held while rows or columns go in, they are the same links
-        #: where they now stand, and a link added later is not among them (tests/fixtures/held_range_collections.json).
+        #: where they now stand, a link added later is not among them, and one taken away is still counted, answering as a
+        #: link that has gone (tests/fixtures/held_range_collections.json, range_links_delete.json).
         self.held = None if areas is None else links_of(sheet, self.areas)
 
     def _links(self) -> list[Link]:
-        if self.held is None:
-            return links_of(self.sheet, None)
-        return [link for link in self.held if any(link is one for one in self.sheet.hyperlinks)]
+        return links_of(self.sheet, None) if self.held is None else list(self.held)
+
+    def _on_sheet(self, links: list[Link]) -> list[Link]:
+        return [link for link in links if any(link is one for one in self.sheet.hyperlinks)]
 
     def vba_items(self) -> list[object]:
         found: list[object] = [Hyperlink(self.sheet, link) for link in self._links()]
@@ -641,12 +643,14 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Delete(self) -> object:
-        links = self._links()
-        if self.areas is not None and not links:
-            # A range's links, none left, unlike a sheet's (tests/fixtures/held_objects.json).
-            raise error(1004, "Delete method of Hyperlinks class failed")
+        held = self._links()
+        links = self._on_sheet(held)
         _refuse_locked(self.sheet, links)
         _take(self.sheet, links, formats=True)
+        if len(links) < len(held):
+            # A range's links, one it held gone: those still there go, then the call fails, unlike a sheet's or a range's
+            # that held none (tests/fixtures/held_objects.json, range_links_delete.json).
+            raise error(1004, "Delete method of Hyperlinks class failed")
         return EMPTY
 
     @member

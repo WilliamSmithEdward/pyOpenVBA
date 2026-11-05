@@ -20,12 +20,9 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURE: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/chart_location.json').read_text(encoding='utf-8'))
 CASES: list[list[Any]] = FIXTURE['cases']
-#: What is left out, each saying so: the tab operations on a chart sheet, a move off one, whose geometry comes from the
-#: window, and a sheet's copy with another shape beside its chart.
+#: What is left out, each saying so: a move off a chart sheet, whose geometry comes from the window, and a sheet's copy with another shape
+#: beside its chart.
 REFUSED = {
-    39: 'Renaming a chart sheet', 40: 'Moving a chart sheet', 41: 'Deleting a chart sheet',
-    48: 'Renaming a sheet in a workbook with a chart sheet', 51: 'Copying a sheet in a workbook with a chart sheet',
-    52: 'Adding a sheet in a workbook with a chart sheet', 53: 'Adding a sheet in a workbook with a chart sheet',
     68: 'Moving a chart off a chart sheet', 69: 'Moving a chart off a chart sheet', 70: 'Moving a chart off a chart sheet',
     71: 'Moving a chart off a chart sheet', 170: 'Worksheet.Copy with drawings',
 }
@@ -80,6 +77,13 @@ def test_each_chart_part_as_excel_saved_it(index: int, app: ExcelApplication, fo
         ours = [package.read(name).decode('utf-8') for name in package.namelist() if name.startswith('xl/charts/chart')]
     theirs = [text for name, text in CASES[index][2].items() if name.startswith('xl/charts/chart')]
     assert sorted(map(plain, ours)) == sorted(map(plain, theirs))
+
+
+def test_a_book_from_a_template_constant_is_named_by_a_session_count() -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(FIXTURE['book_names_source'], name='P')
+    assert str(app.run('P.Names')) == FIXTURE['book_names']
 
 
 SHEET_PARTS = re.compile(r'xl/chartsheets/(_rels/)?sheet\d+\.xml(\.rels)?|docProps/app\.xml')

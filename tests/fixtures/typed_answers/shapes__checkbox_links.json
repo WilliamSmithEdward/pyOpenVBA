@@ -1,0 +1,155 @@
+{
+ "measured_at": "2026-11-04T20:01:27.363932+00:00",
+ "cases": [
+  {
+   "name": "set_off",
+   "typed": "Long:0|Long:-4146|Empty|Empty:",
+   "drifted": ""
+  },
+  {
+   "name": "set_on",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "set_mixed",
+   "typed": "Long:0|Double:2|Error|Error:Error 2042",
+   "drifted": ""
+  },
+  {
+   "name": "set_zero",
+   "typed": "Long:0|Long:-4146|Empty|Empty:",
+   "drifted": ""
+  },
+  {
+   "name": "set_three",
+   "typed": "Long:1004|Long:-4146|Empty|Empty:",
+   "drifted": ""
+  },
+  {
+   "name": "set_minus_one",
+   "typed": "Long:1004|Long:-4146|Empty|Empty:",
+   "drifted": ""
+  },
+  {
+   "name": "set_true",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "set_false",
+   "typed": "Long:0|Long:-4146|Empty|Empty:",
+   "drifted": ""
+  },
+  {
+   "name": "set_fraction",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "set_string",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "on_then_off",
+   "typed": "Long:0|Long:-4146|Boolean|Boolean:False",
+   "drifted": ""
+  },
+  {
+   "name": "on_then_text",
+   "typed": "Long:0|Double:1|String|String:hello",
+   "drifted": ""
+  },
+  {
+   "name": "on_then_clear",
+   "typed": "Long:0|Long:-4146|Empty|Empty:",
+   "drifted": ""
+  },
+  {
+   "name": "cell_string_true",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "cell_string_number",
+   "typed": "Long:0|Double:1|Double|Double:2",
+   "drifted": ""
+  },
+  {
+   "name": "cell_divzero",
+   "typed": "Long:0|Long:-4146|Error|Error:Error 2007",
+   "drifted": ""
+  },
+  {
+   "name": "formula_true",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "formula_dependency",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "cell_true",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "cell_false",
+   "typed": "Long:0|Long:-4146|Boolean|Boolean:False",
+   "drifted": ""
+  },
+  {
+   "name": "cell_zero",
+   "typed": "Long:0|Long:-4146|Double|Double:0",
+   "drifted": ""
+  },
+  {
+   "name": "cell_one",
+   "typed": "Long:0|Double:1|Double|Double:1",
+   "drifted": ""
+  },
+  {
+   "name": "cell_two",
+   "typed": "Long:0|Double:1|Double|Double:2",
+   "drifted": ""
+  },
+  {
+   "name": "cell_text",
+   "typed": "Long:0|Long:-4146|String|String:hello",
+   "drifted": ""
+  },
+  {
+   "name": "cell_clear",
+   "typed": "Long:0|Long:-4146|Empty|Empty:",
+   "drifted": ""
+  },
+  {
+   "name": "cell_na",
+   "typed": "Long:0|Double:2|Error|Error:Error 2042",
+   "drifted": ""
+  },
+  {
+   "name": "link_true",
+   "typed": "Long:0|Long:-4146|Boolean|Boolean:False",
+   "drifted": ""
+  },
+  {
+   "name": "link_on_empty",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  },
+  {
+   "name": "link_off_number",
+   "typed": "Long:0|Long:-4146|Double|Double:0",
+   "drifted": ""
+  },
+  {
+   "name": "link_on_number",
+   "typed": "Long:0|Double:1|Boolean|Boolean:True",
+   "drifted": ""
+  }
+ ]
+}

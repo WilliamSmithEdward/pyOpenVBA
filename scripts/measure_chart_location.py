@@ -24,7 +24,7 @@ CASES: list[str] = ['r = 0']
 # The new sheet: its name, place and what the call answers.
 CASES += [NEW + 'r = TypeName(t) & " " & t.Name', 'Set t = ch.Location(xlLocationAsNewSheet): r = t.Name', 'Set t = ch.Location(1): r = t.Name', 'Set t = ch.Location(xlLocationAsNewSheet, ""): r = t.Name', 'Set t = ch.Location(xlLocationAsNewSheet, "One"): r = t.Name', 'Set t = ch.Location(xlLocationAsNewSheet, "one"): r = t.Name', 'Set t = ch.Location(xlLocationAsNewSheet, "a/b"): r = t.Name', 'Set t = ch.Location(xlLocationAsNewSheet, "' + 'x' * 32 + '"): r = t.Name', 'Set t = ch.Location(xlLocationAsNewSheet, "' + 'x' * 31 + '"): r = t.Name', 'Set t = ch.Location(xlLocationAsNewSheet, 12): r = t.Name',
           'Set t = ch.Location(xlLocationAutomatic): r = TypeName(t) & " " & t.Name', 'Set t = ch.Location(3, "Mine"): r = t.Name', 'Set t = ch.Location(0): r = 1', 'Set t = ch.Location(4): r = 1', 'Set t = ch.Location("x"): r = 1', 'ch.Location xlLocationAsNewSheet, "Mine": r = ws.Parent.Sheets.Count',
-          'ws.Parent.Worksheets("Two").Activate: ' + NEW + 'r = ws.Parent.Sheets(1).Name & " " & ws.Parent.Sheets(2).Name', 'ws.Parent.Worksheets("Three").Activate: ' + NEW + 'r = t.Index', 'ws.Parent.Worksheets("Two").Visible = False: ' + NEW + 'r = t.Index', NEW + 'r = t.Index & " " & t.Type & " " & t.Visible', NEW + 'r = TypeName(t.Parent) & " " & t.Parent.Name',
+          'ws.Parent.Worksheets("Two").Activate: ' + NEW + 'r = ws.Parent.Sheets(1).Name & " " & ws.Parent.Sheets(2).Name', 'ws.Parent.Worksheets("Three").Activate: ' + NEW + 'r = t.Index', 'ws.Parent.Worksheets("Two").Visible = False: ' + NEW + 'r = t.Index', NEW + 'r = t.Index & " " & t.Type & " " & t.Visible', NEW + 'r = TypeName(t.Parent) & " " & Left(t.Parent.Name, 5) & " " & (t.Parent.Name = ws.Parent.Name)',
           NEW + 'r = ws.Parent.Charts.Count & " " & ws.Parent.Charts(1).Name & " " & ws.Parent.Sheets("Mine").Name & " " & TypeName(ws.Parent.Sheets("Mine"))', NEW + 'r = ws.Parent.ActiveSheet.Name & " " & ActiveSheet.Name & " " & TypeName(ActiveSheet) & " " & TypeName(ActiveChart)', NEW + 'r = ws.ChartObjects.Count & " " & ws.Shapes.Count', NEW + 'r = ws.Parent.Worksheets.Count', NEW + 'r = t.HasTitle & " " & t.ChartType & " " & t.SeriesCollection.Count & " " & t.SeriesCollection(1).Formula', NEW + 'r = TypeName(t.ChartArea) & " " & t.HasLegend',
           NEW + 'r = ch.Name', NEW + 'r = TypeName(ch)', NEW + 'r = ch.ChartType', NEW + 'r = co.Name', NEW + 'r = TypeName(co)', NEW + 'r = ch.SeriesCollection.Count']
 # A second, and names that follow.
@@ -144,6 +144,18 @@ def batch(source: str, folder: str, first: int, last: int) -> list[str]:
     return [answer for index in range(first, last + 1) for answer in batch(source, folder, index, index)]
 
 
+COUNTER = '''Public Function Names() As String
+    Dim i As Long, s As String, wb As Workbook
+    For i = 1 To 3
+        Set wb = Workbooks.Add(xlWBATWorksheet)
+        s = s & wb.Name & " "
+        wb.Close False
+    Next
+    Names = s
+End Function
+'''
+
+
 def main() -> None:
     source = probe()
     answers: list[str] = []
@@ -152,6 +164,10 @@ def main() -> None:
             answers += batch(source, folder, first, min(first + 24, len(CASES) - 1))
         saved = [parts(Path(folder) / f'c{index}.xlsx') for index in range(len(CASES))]
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': source, 'cases': [[statement, answer, part] for statement, answer, part in zip(CASES, answers, saved, strict=True)]}
+    # A book made from xlWBATWorksheet is named by a count kept for the session, so this reads it in a session of its own.
+    with ExcelSession(HarnessConfig(lock_wait_s=600)) as excel:
+        record['book_names_source'], record['book_names'] = COUNTER, excel.run_vba(COUNTER, 'Names', (), timeout=60.0, line_numbers=False).value
+    print('book names', record['book_names'])
     OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
     for statement, answer, _ in record['cases']:
         print(statement[:110], '=>', answer)

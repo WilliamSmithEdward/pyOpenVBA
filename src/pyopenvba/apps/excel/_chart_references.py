@@ -27,9 +27,9 @@ Step = Callable[[], None]
 #: A point's label that has lost its unique id, and still has to be written.
 NO_ID = -2
 #: A reference where a chart part spells one.
-_PART_REFERENCE = re.compile(r'<(c:f|c15:f|c15:sqref)>(.*?)</\1>', re.DOTALL)
+_PART_REFERENCE = re.compile(r'<((?:\w+:)?f|c15:sqref)>(.*?)</\1>', re.DOTALL)
 #: What a chart part numbers by its place among the series' cells.
-_NUMBERED = re.compile(r'<c:(?:dPt|dLbl)>')
+_NUMBERED = re.compile(r'<(?:\w+:)?(?:dPt|dLbl)>')
 
 
 def renamed(formula: str, old: str, new: str) -> str:
@@ -152,9 +152,11 @@ def _part_step(state: ChartState, turned_text: Callable[[str], str]) -> Step | N
 def plan(book: Workbook, change: Change) -> list[Step]:
     """All that moves, worked out before anything does; what cannot be done is refused here."""
     steps: list[Step] = []
-    for sheet in [*book.sheets_, *(tab.sheet for tab in book.chart_sheets)]:
+    for sheet in book.sheets_:
         for state in sheet.chart_states.values():
             steps += _chart_plan(sheet, state, change)
+    for chart_sheet in book.chart_sheets:
+        steps += _chart_plan(chart_sheet.sheet, chart_sheet.state, change)
     return steps
 
 

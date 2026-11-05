@@ -40,6 +40,8 @@ STYLE = {
 }
 #: LineFormat.DashStyle and how the file writes it: its prstDash and the cap it takes.
 DASHES = {4: ("dash", None), 3: ("dot", "rnd")}
+#: DashStyle as each dash in a file reads, for those measured (tests/fixtures/shape_settings_kept.json).
+_DASH_READS = {4: "dash", 3: "dot", 7: "lgDash"}
 _INVALID = (-2147024809, "The specified value is out of range.")
 #: What Excel's mixed value reads as in a Single.
 _MIXED = -2147483648.0
@@ -209,6 +211,9 @@ class _Format(HeldPart):
             return self.loaded_style()
         if not shape.source and shape.geometry == "arc":
             return STYLE["line"]
+        if shape.kind == "picture" and not shape.source:
+            # What a picture in a file with none of its own has (tests/fixtures/shape_settings_kept.json). Sets stay refused in change().
+            return None, -2, None, 0, 0.0
         if shape.source or shape.kind not in STYLE:
             raise VBAUnsupportedError("The fill and line of this shape are not implemented")
         if self.owner.sheet.book.stylesheet.colors.theme != DEFAULT_THEME:
@@ -254,6 +259,9 @@ class _Format(HeldPart):
         self.style()
         if self.shape.kind == "freeform":
             raise _unmeasured("Changing the fill or line of a freeform")
+        if self.shape.kind == "picture" and not self.shape.source:
+            # A new picture's markup has nowhere that takes these yet, so a save would lose them.
+            raise _unmeasured("Changing the fill or line of a new picture")
         if self.shape.source and not any(self.shape is one for one in self.owner.sheet.shapes_):
             # A save writes the group's markup as it came, so the change would be lost.
             raise VBAUnsupportedError("Changing the fill or line of a shape in a group from a file is not implemented")
@@ -797,7 +805,12 @@ class LineFormat(_Format):
         look = self.look()
         if look.line_lost or (style[2] is None and look.line_dash is None):
             return VBAInt(-2, "Long")
-        return VBAInt(next((key for key, (name, _) in DASHES.items() if name == look.line_dash), 1), "Long")
+        if look.line_dash is None or look.line_dash == "solid":
+            return VBAInt(1, "Long")
+        found = next((key for key, name in _DASH_READS.items() if name == look.line_dash), None)
+        if found is None:
+            raise _unmeasured(f"A line's dash {look.line_dash}")
+        return VBAInt(found, "Long")
 
     @setter("DashStyle")
     def _dash_style(self, value: object) -> None:

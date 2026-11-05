@@ -31,7 +31,6 @@ RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/workbook_links.json').read_text(encoding='utf-8'))
 FILES: dict[str, dict[str, str]] = RECORD['files']
 #: The hidden name Excel makes for Formula2's @, as the name lists show it.
-SINGLE = '_xlfn.SINGLE==#NAME?|'
 #: The tests whose macros, as Excel ran them, name files by Windows paths, folder & "\\Dest.xlsx".
 #: Of a file Excel saved again, the parts the fixture keeps, and the file they were saved again from.
 RESAVED = {'PlainAgain.xlsx': 'Plain.xlsx', 'NamedAgain.xlsx': 'Named.xlsx', 'NamedThird.xlsx': 'NamedAgain.xlsx',
@@ -86,8 +85,8 @@ def _run(app: ExcelApplication, folder: Path, proc: str, *args: str) -> str:
 
 
 def _excels(key: str) -> list[str]:
-    """Excel's answer, a piece at a time, without the hidden name the model does not make."""
-    return RECORD[key].replace(SINGLE, '').split('|')
+    """Excel's answer, a piece at a time."""
+    return RECORD[key].split('|')
 
 
 def _saved(path: Path, folder: Path) -> dict[str, str]:
@@ -137,8 +136,6 @@ def test_link_sources_and_link_info(tmp_path: Path) -> None:
     assert got.split('|') == _excels('survey')
 
 
-@pytest.mark.xfail(strict=True, reason="Excel adds the hidden name _xlfn.SINGLE when it reads a formula Formula2 "
-                                       "shows with an @; the model does not")
 def test_the_hidden_name_excel_adds_for_formula2s_at(tmp_path: Path) -> None:
     assert _run(_app(tmp_path), tmp_path, 'SurveyLinks') == RECORD['survey']
 

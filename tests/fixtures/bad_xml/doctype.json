@@ -1,0 +1,14 @@
+{
+ "xl/worksheets/sheet1.xml|plain": "1004",
+ "xl/worksheets/sheet1.xml|entity": "1004",
+ "xl/workbook.xml|plain": "1004",
+ "xl/workbook.xml|entity": "1004",
+ "xl/styles.xml|plain": "1004",
+ "xl/styles.xml|entity": "1004",
+ "docProps/core.xml|plain": "1004",
+ "docProps/core.xml|entity": "1004",
+ "xl/theme/theme1.xml|plain": "0",
+ "xl/theme/theme1.xml|entity": "0",
+ "_rels/.rels|plain": "1004",
+ "_rels/.rels|entity": "1004"
+}

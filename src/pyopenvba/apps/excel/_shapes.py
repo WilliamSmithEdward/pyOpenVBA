@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, ClassVar, cast
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._held import HeldPart, shape_here
-from pyopenvba.interpreter._objects import VBACollection, member, method, setter
+from pyopenvba.interpreter._objects import BINDING, VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     NOTHING,
@@ -3611,8 +3611,11 @@ class ShapeFont2(_ShapeFontBase):
 
     @member
     def Creator(self) -> object:
-        # Live Excel raises this on it (tests/fixtures/shape_connectors.json).
-        raise error(-2147024809, "The parameter is incorrect.")
+        # On a connector, which holds no text, live Excel raises this (tests/fixtures/shape_connectors.json); on what holds it, it answers
+        # (tests/fixtures/typed_answers/late_types_FillFormat.json).
+        if self.characters.owner.shape.kind == "line":
+            raise error(-2147024809, "The parameter is incorrect.")
+        return VBAInt(1480803660, "Long")
 
     @member
     def Application(self) -> object:
@@ -4015,8 +4018,11 @@ class TextRange2(_ShapeText):
 
     @member
     def Creator(self) -> object:
-        # Live Excel raises this on it (tests/fixtures/shape_connectors.json).
-        raise error(-2147024809, "The parameter is incorrect.")
+        # On a connector, which holds no text, live Excel raises this (tests/fixtures/shape_connectors.json); on what holds it, it answers
+        # (tests/fixtures/typed_answers/late_types_FillFormat.json).
+        if self.owner.shape.kind == "line":
+            raise error(-2147024809, "The parameter is incorrect.")
+        return VBAInt(1480803660, "Long")
 
     @member
     def Application(self) -> object:
@@ -4397,7 +4403,9 @@ class ControlFormat(_Drawn):
         value_control(self.shape)
         refresh(self.sheet, self.shape)
         assert self.shape.control is not None
-        return VBAInt(self.shape.control.value, "Long")
+        found = self.shape.control.value
+        # Late it is a Double but for a check box off; typed, a Long (tests/fixtures/typed_answers/control_value_types.json).
+        return float(found) if BINDING.late and found != -4146 else VBAInt(found, "Long")
 
     @setter("Value")
     def _set_value(self, value: object) -> None:

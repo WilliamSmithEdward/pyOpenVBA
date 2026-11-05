@@ -1587,6 +1587,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
         if path.suffix.lower() in (".xls", ".xla", ".xlt"):
             raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
+        from pyopenvba.apps.excel._io import MalformedPartError
+
         format_code = remember_format(self.application, Format, Delimiter)
         read_only = ReadOnly is not MISSING and to_bool(ReadOnly)
         if is_text(path):
@@ -1597,6 +1599,13 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             return self._from_template(path)
         try:
             return self.open_file(path, read_only=read_only, format_code=format_code)
+        except MalformedPartError as failure:
+            # Tests/fixtures/bad_xml/bad_xml.json.
+            if failure.part == "[Content_Types].xml":
+                raise error(1004, f"Excel cannot open the file '{path.name}' because the file format or file extension "
+                                  "is not valid. Verify that the file has not been corrupted and that the file extension "
+                                  "matches the format of the file.") from None
+            raise error(1004, "Method 'Open' of object 'Workbooks' failed") from None
         except PowerQueryError:
             import zipfile
 
@@ -1846,6 +1855,9 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: The hidden names the workbook's formulas have brought into Names (see _hidden_names).
+        self.hidden_names: set[str] = set()
+        self.hidden_entries: dict[str, NameEntry] = {}
         #: The chart sheets the file has, its tabs in order where it has any, and the chart sheet that is active (see
         #: _chart_sheets). sheets_ holds worksheets alone.
         self.chart_sheets: list[ChartSheet] = []
@@ -3713,8 +3725,8 @@ class Worksheet(ExcelObject):
             from pyopenvba.apps.excel._tables import edited
 
             edited(self, row, column)
+        self.dims.value_changed(row, column)
         cell = self.cells_.get((row, column))
-        self.dims.contents_changed(row, cell)
         calculator = self.book.calculator
         if cell is not None:
             calculator.remember(self.name, row, column, cell)
@@ -7905,6 +7917,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
             scope, bare = split_sheet(entry.name)
             return (collation(bare), 0 if scope else 1, collation(scope))
 
+        if self.sheet is None:
+            held = {entry.name.casefold() for entry in entries}
+            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
+                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
         return [DefinedName(entry) for entry in sorted(entries, key=order)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
@@ -7942,6 +7958,10 @@ class Names(VBACollection, ItemDefault, ExcelObject):
                 entry_scope, entry_bare = split_sheet(entry.name)
                 if _names.same_name(entry_bare, bare) and _names.same_sheet_name(entry_scope, scope):
                     return DefinedName(entry)
+        if self.sheet is None and bare.lower().startswith(("_xlfn.", "_xlpm.")):
+            for item in self.vba_items():
+                if isinstance(item, DefinedName) and item.entry.name.casefold() == bare.casefold():
+                    return item
         return None
 
     def find(self, name: str, *, scope: Worksheet | None = None) -> DefinedName | None:
@@ -8021,6 +8041,9 @@ class Names(VBACollection, ItemDefault, ExcelObject):
 
         added(entry, MacroType, ShortcutKey, Category, CategoryLocal)
         _names.changed(self.book, entry.name)
+        from pyopenvba.apps.excel._hidden_names import noted
+
+        noted(self.book, entry.refers_to, single=False)
         return DefinedName(entry)
 
 
@@ -8039,7 +8062,9 @@ class DefinedName(HeldPart, ExcelObject):
         self.entry = entry
 
     def held_gone(self) -> bool:
-        return not self.entry.emptied and not any(one is self.entry for one in self.entry.book.names_.entries)
+        book = self.entry.book
+        return not self.entry.emptied and not (any(one is self.entry for one in book.names_.entries)
+                                               or any(one is self.entry for one in book.hidden_entries.values()))
 
     @member
     def Name(self) -> object:

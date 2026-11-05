@@ -32,9 +32,24 @@ _CYCLE = 10
 _STYLED_UNREAD = ('plot', 'axis1', 'axis2')
 
 
+#: The colour modifiers a colour read here may carry, which come to an RGB colour by the shapes' rule.
+_MODS = frozenset({'lumMod', 'lumOff'})
+
+
+def _resolved(rgb: str | None, mods: tuple[tuple[str, int], ...]) -> tuple[str | None, tuple[tuple[str, int], ...]]:
+    """An RGB colour under lumMod and lumOff as the colour it comes to: shade and tint in linear light, lumMod and lumOff on HSL
+    lightness, as a shape's (tests/fixtures/loaded_chart_looks.json: E97132 under 60000 and 40000 reads 8694514)."""
+    from pyopenvba.apps.excel._shape_format import painted
+
+    if rgb is None or not mods or not {name for name, _ in mods} <= _MODS:
+        return rgb, mods
+    bgr = painted(rgb, mods)
+    return f'{bgr & 0xFF:02X}{(bgr >> 8) & 0xFF:02X}{(bgr >> 16) & 0xFF:02X}', ()
+
+
 def _plain(look: FillLine) -> bool:
-    """Whether a look holds only what a chart's reads answer."""
-    themed = (look.fill_scheme, look.line_scheme, look.fill_alpha, look.line_alpha, look.fill_pattern, look.extra, look.chart_effect)
+    """Whether a look holds only what a chart's reads answer: RGB colours, a fill's alpha as its transparency, no theme colour."""
+    themed = (look.fill_scheme, look.line_scheme, look.line_alpha, look.fill_pattern, look.extra, look.chart_effect)
     return all(item is None for item in themed) and not look.fill_mods and not look.line_mods and not look.effects
 
 
@@ -81,6 +96,8 @@ def _read(markup: str) -> FillLine | None:
         look = read_look('<xdr:spPr>' + markup + '</xdr:spPr>')
     except VBAUnsupportedError:
         return None
+    look.fill_rgb, look.fill_mods = _resolved(look.fill_rgb, look.fill_mods)
+    look.line_rgb, look.line_mods = _resolved(look.line_rgb, look.line_mods)
     return look if _plain(look) else None
 
 

@@ -1,0 +1,4026 @@
+{
+"measured_at": "2026-11-04T20:15:57.853731+00:00",
+"source": "Public Sub Setup(ws As Object)\n    Dim s As Object\n    ws.Range(\"A1\").Value = \"text\": ws.Range(\"A2\").Value = 2: ws.Range(\"A3\").Value = 3\n    Set s = ws.Shapes.AddShape(1, 10, 10, 100, 40): s.Name = \"Box\": s.TextFrame.Characters.Text = \"Boxed\"\n    Set s = ws.Shapes.AddTextbox(1, 120, 10, 100, 40): s.Name = \"Note\": s.TextFrame.Characters.Text = \"Noted\"\n    Set s = ws.Shapes.AddFormControl(1, 10, 60, 90, 20): s.Name = \"Tick\": s.ControlFormat.Value = 1: s.ControlFormat.LinkedCell = \"$C$1\"\n    Set s = ws.Shapes.AddFormControl(2, 10, 90, 90, 20): s.Name = \"Drop\": s.ControlFormat.ListFillRange = \"$A$1:$A$3\": s.ControlFormat.Value = 2\n    Set s = ws.Shapes.AddFormControl(6, 10, 120, 90, 50): s.Name = \"Pick\": s.ControlFormat.ListFillRange = \"$A$1:$A$3\": s.ControlFormat.Value = 1\n    Set s = ws.Shapes.AddFormControl(9, 110, 60, 20, 50): s.Name = \"Spin\": s.ControlFormat.Value = 3\nEnd Sub\nPrivate Function Show(v As Variant) As String\n    If IsObject(v) Then\n        Show = \"obj \" & TypeName(v)\n    ElseIf IsArray(v) Then\n        Show = TypeName(v)\n    ElseIf IsNull(v) Or IsEmpty(v) Then\n        Show = TypeName(v)\n    ElseIf IsError(v) Then\n        Show = \"Error \" & CStr(v)\n    Else\n        Show = TypeName(v) & \" \" & CStr(v)\n    End If\nEnd Function\nPublic Function TypedFontcell(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.Font, v As Variant\n    Set o = ws.Range(\"A1\").Font\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Background\n    Case 1\n        v = o.Bold\n    Case 2\n        v = o.Color\n    Case 3\n        v = o.ColorIndex\n    Case 4\n        v = o.Creator\n    Case 5\n        v = o.FontStyle\n    Case 6\n        v = o.Italic\n    Case 7\n        v = o.Name\n    Case 8\n        v = o.Size\n    Case 9\n        v = o.Strikethrough\n    Case 10\n        v = o.Subscript\n    Case 11\n        v = o.Superscript\n    Case 12\n        v = o.ThemeColor\n    Case 13\n        v = o.ThemeFont\n    Case 14\n        v = o.TintAndShade\n    Case 15\n        v = o.Underline\n    End Select\n    If Err.Number Then\n        TypedFontcell = \"E\" & Err.Number\n    Else\n        TypedFontcell = Show(v)\n    End If\nEnd Function\n\nPublic Function LateFontcell(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Range(\"A1\").Font\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Background\n    Case 1\n        v = o.Bold\n    Case 2\n        v = o.Color\n    Case 3\n        v = o.ColorIndex\n    Case 4\n        v = o.Creator\n    Case 5\n        v = o.FontStyle\n    Case 6\n        v = o.Italic\n    Case 7\n        v = o.Name\n    Case 8\n        v = o.Size\n    Case 9\n        v = o.Strikethrough\n    Case 10\n        v = o.Subscript\n    Case 11\n        v = o.Superscript\n    Case 12\n        v = o.ThemeColor\n    Case 13\n        v = o.ThemeFont\n    Case 14\n        v = o.TintAndShade\n    Case 15\n        v = o.Underline\n    End Select\n    If Err.Number Then\n        LateFontcell = \"E\" & Err.Number\n    Else\n        LateFontcell = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedFontbox(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.Font, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame.Characters.Font\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Background\n    Case 1\n        v = o.Bold\n    Case 2\n        v = o.Color\n    Case 3\n        v = o.ColorIndex\n    Case 4\n        v = o.Creator\n    Case 5\n        v = o.FontStyle\n    Case 6\n        v = o.Italic\n    Case 7\n        v = o.Name\n    Case 8\n        v = o.Size\n    Case 9\n        v = o.Strikethrough\n    Case 10\n        v = o.Subscript\n    Case 11\n        v = o.Superscript\n    Case 12\n        v = o.ThemeColor\n    Case 13\n        v = o.ThemeFont\n    Case 14\n        v = o.TintAndShade\n    Case 15\n        v = o.Underline\n    End Select\n    If Err.Number Then\n        TypedFontbox = \"E\" & Err.Number\n    Else\n        TypedFontbox = Show(v)\n    End If\nEnd Function\n\nPublic Function LateFontbox(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame.Characters.Font\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Background\n    Case 1\n        v = o.Bold\n    Case 2\n        v = o.Color\n    Case 3\n        v = o.ColorIndex\n    Case 4\n        v = o.Creator\n    Case 5\n        v = o.FontStyle\n    Case 6\n        v = o.Italic\n    Case 7\n        v = o.Name\n    Case 8\n        v = o.Size\n    Case 9\n        v = o.Strikethrough\n    Case 10\n        v = o.Subscript\n    Case 11\n        v = o.Superscript\n    Case 12\n        v = o.ThemeColor\n    Case 13\n        v = o.ThemeFont\n    Case 14\n        v = o.TintAndShade\n    Case 15\n        v = o.Underline\n    End Select\n    If Err.Number Then\n        LateFontbox = \"E\" & Err.Number\n    Else\n        LateFontbox = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedShapebox(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.Shape, v As Variant\n    Set o = ws.Shapes(\"Box\")\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AlternativeText\n    Case 1\n        v = o.AutoShapeType\n    Case 2\n        v = o.BackgroundStyle\n    Case 3\n        v = o.BlackWhiteMode\n    Case 4\n        v = o.Child\n    Case 5\n        v = o.ConnectionSiteCount\n    Case 6\n        v = o.Connector\n    Case 7\n        v = o.Creator\n    Case 8\n        v = o.Decorative\n    Case 9\n        v = o.FormControlType\n    Case 10\n        v = o.GraphicStyle\n    Case 11\n        v = o.HasChart\n    Case 12\n        v = o.HasSmartArt\n    Case 13\n        v = o.Height\n    Case 14\n        v = o.HorizontalFlip\n    Case 15\n        v = o.ID\n    Case 16\n        v = o.Left\n    Case 17\n        v = o.LockAspectRatio\n    Case 18\n        v = o.Locked\n    Case 19\n        v = o.Name\n    Case 20\n        v = o.OnAction\n    Case 21\n        v = o.Placement\n    Case 22\n        v = o.Rotation\n    Case 23\n        v = o.ShapeStyle\n    Case 24\n        v = o.Title\n    Case 25\n        v = o.Top\n    Case 26\n        v = o.Type\n    Case 27\n        v = o.VerticalFlip\n    Case 28\n        v = o.Vertices\n    Case 29\n        v = o.Visible\n    Case 30\n        v = o.Width\n    Case 31\n        v = o.ZOrderPosition\n    End Select\n    If Err.Number Then\n        TypedShapebox = \"E\" & Err.Number\n    Else\n        TypedShapebox = Show(v)\n    End If\nEnd Function\n\nPublic Function LateShapebox(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\")\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AlternativeText\n    Case 1\n        v = o.AutoShapeType\n    Case 2\n        v = o.BackgroundStyle\n    Case 3\n        v = o.BlackWhiteMode\n    Case 4\n        v = o.Child\n    Case 5\n        v = o.ConnectionSiteCount\n    Case 6\n        v = o.Connector\n    Case 7\n        v = o.Creator\n    Case 8\n        v = o.Decorative\n    Case 9\n        v = o.FormControlType\n    Case 10\n        v = o.GraphicStyle\n    Case 11\n        v = o.HasChart\n    Case 12\n        v = o.HasSmartArt\n    Case 13\n        v = o.Height\n    Case 14\n        v = o.HorizontalFlip\n    Case 15\n        v = o.ID\n    Case 16\n        v = o.Left\n    Case 17\n        v = o.LockAspectRatio\n    Case 18\n        v = o.Locked\n    Case 19\n        v = o.Name\n    Case 20\n        v = o.OnAction\n    Case 21\n        v = o.Placement\n    Case 22\n        v = o.Rotation\n    Case 23\n        v = o.ShapeStyle\n    Case 24\n        v = o.Title\n    Case 25\n        v = o.Top\n    Case 26\n        v = o.Type\n    Case 27\n        v = o.VerticalFlip\n    Case 28\n        v = o.Vertices\n    Case 29\n        v = o.Visible\n    Case 30\n        v = o.Width\n    Case 31\n        v = o.ZOrderPosition\n    End Select\n    If Err.Number Then\n        LateShapebox = \"E\" & Err.Number\n    Else\n        LateShapebox = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedShapenote(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.Shape, v As Variant\n    Set o = ws.Shapes(\"Note\")\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AlternativeText\n    Case 1\n        v = o.AutoShapeType\n    Case 2\n        v = o.BackgroundStyle\n    Case 3\n        v = o.BlackWhiteMode\n    Case 4\n        v = o.Child\n    Case 5\n        v = o.ConnectionSiteCount\n    Case 6\n        v = o.Connector\n    Case 7\n        v = o.Creator\n    Case 8\n        v = o.Decorative\n    Case 9\n        v = o.FormControlType\n    Case 10\n        v = o.GraphicStyle\n    Case 11\n        v = o.HasChart\n    Case 12\n        v = o.HasSmartArt\n    Case 13\n        v = o.Height\n    Case 14\n        v = o.HorizontalFlip\n    Case 15\n        v = o.ID\n    Case 16\n        v = o.Left\n    Case 17\n        v = o.LockAspectRatio\n    Case 18\n        v = o.Locked\n    Case 19\n        v = o.Name\n    Case 20\n        v = o.OnAction\n    Case 21\n        v = o.Placement\n    Case 22\n        v = o.Rotation\n    Case 23\n        v = o.ShapeStyle\n    Case 24\n        v = o.Title\n    Case 25\n        v = o.Top\n    Case 26\n        v = o.Type\n    Case 27\n        v = o.VerticalFlip\n    Case 28\n        v = o.Vertices\n    Case 29\n        v = o.Visible\n    Case 30\n        v = o.Width\n    Case 31\n        v = o.ZOrderPosition\n    End Select\n    If Err.Number Then\n        TypedShapenote = \"E\" & Err.Number\n    Else\n        TypedShapenote = Show(v)\n    End If\nEnd Function\n\nPublic Function LateShapenote(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Note\")\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AlternativeText\n    Case 1\n        v = o.AutoShapeType\n    Case 2\n        v = o.BackgroundStyle\n    Case 3\n        v = o.BlackWhiteMode\n    Case 4\n        v = o.Child\n    Case 5\n        v = o.ConnectionSiteCount\n    Case 6\n        v = o.Connector\n    Case 7\n        v = o.Creator\n    Case 8\n        v = o.Decorative\n    Case 9\n        v = o.FormControlType\n    Case 10\n        v = o.GraphicStyle\n    Case 11\n        v = o.HasChart\n    Case 12\n        v = o.HasSmartArt\n    Case 13\n        v = o.Height\n    Case 14\n        v = o.HorizontalFlip\n    Case 15\n        v = o.ID\n    Case 16\n        v = o.Left\n    Case 17\n        v = o.LockAspectRatio\n    Case 18\n        v = o.Locked\n    Case 19\n        v = o.Name\n    Case 20\n        v = o.OnAction\n    Case 21\n        v = o.Placement\n    Case 22\n        v = o.Rotation\n    Case 23\n        v = o.ShapeStyle\n    Case 24\n        v = o.Title\n    Case 25\n        v = o.Top\n    Case 26\n        v = o.Type\n    Case 27\n        v = o.VerticalFlip\n    Case 28\n        v = o.Vertices\n    Case 29\n        v = o.Visible\n    Case 30\n        v = o.Width\n    Case 31\n        v = o.ZOrderPosition\n    End Select\n    If Err.Number Then\n        LateShapenote = \"E\" & Err.Number\n    Else\n        LateShapenote = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedShapetick(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.Shape, v As Variant\n    Set o = ws.Shapes(\"Tick\")\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AlternativeText\n    Case 1\n        v = o.AutoShapeType\n    Case 2\n        v = o.BackgroundStyle\n    Case 3\n        v = o.BlackWhiteMode\n    Case 4\n        v = o.Child\n    Case 5\n        v = o.ConnectionSiteCount\n    Case 6\n        v = o.Connector\n    Case 7\n        v = o.Creator\n    Case 8\n        v = o.Decorative\n    Case 9\n        v = o.FormControlType\n    Case 10\n        v = o.GraphicStyle\n    Case 11\n        v = o.HasChart\n    Case 12\n        v = o.HasSmartArt\n    Case 13\n        v = o.Height\n    Case 14\n        v = o.HorizontalFlip\n    Case 15\n        v = o.ID\n    Case 16\n        v = o.Left\n    Case 17\n        v = o.LockAspectRatio\n    Case 18\n        v = o.Locked\n    Case 19\n        v = o.Name\n    Case 20\n        v = o.OnAction\n    Case 21\n        v = o.Placement\n    Case 22\n        v = o.Rotation\n    Case 23\n        v = o.ShapeStyle\n    Case 24\n        v = o.Title\n    Case 25\n        v = o.Top\n    Case 26\n        v = o.Type\n    Case 27\n        v = o.VerticalFlip\n    Case 28\n        v = o.Vertices\n    Case 29\n        v = o.Visible\n    Case 30\n        v = o.Width\n    Case 31\n        v = o.ZOrderPosition\n    End Select\n    If Err.Number Then\n        TypedShapetick = \"E\" & Err.Number\n    Else\n        TypedShapetick = Show(v)\n    End If\nEnd Function\n\nPublic Function LateShapetick(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Tick\")\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AlternativeText\n    Case 1\n        v = o.AutoShapeType\n    Case 2\n        v = o.BackgroundStyle\n    Case 3\n        v = o.BlackWhiteMode\n    Case 4\n        v = o.Child\n    Case 5\n        v = o.ConnectionSiteCount\n    Case 6\n        v = o.Connector\n    Case 7\n        v = o.Creator\n    Case 8\n        v = o.Decorative\n    Case 9\n        v = o.FormControlType\n    Case 10\n        v = o.GraphicStyle\n    Case 11\n        v = o.HasChart\n    Case 12\n        v = o.HasSmartArt\n    Case 13\n        v = o.Height\n    Case 14\n        v = o.HorizontalFlip\n    Case 15\n        v = o.ID\n    Case 16\n        v = o.Left\n    Case 17\n        v = o.LockAspectRatio\n    Case 18\n        v = o.Locked\n    Case 19\n        v = o.Name\n    Case 20\n        v = o.OnAction\n    Case 21\n        v = o.Placement\n    Case 22\n        v = o.Rotation\n    Case 23\n        v = o.ShapeStyle\n    Case 24\n        v = o.Title\n    Case 25\n        v = o.Top\n    Case 26\n        v = o.Type\n    Case 27\n        v = o.VerticalFlip\n    Case 28\n        v = o.Vertices\n    Case 29\n        v = o.Visible\n    Case 30\n        v = o.Width\n    Case 31\n        v = o.ZOrderPosition\n    End Select\n    If Err.Number Then\n        LateShapetick = \"E\" & Err.Number\n    Else\n        LateShapetick = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedControlFormattick(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.ControlFormat, v As Variant\n    Set o = ws.Shapes(\"Tick\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        TypedControlFormattick = \"E\" & Err.Number\n    Else\n        TypedControlFormattick = Show(v)\n    End If\nEnd Function\n\nPublic Function LateControlFormattick(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Tick\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        LateControlFormattick = \"E\" & Err.Number\n    Else\n        LateControlFormattick = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedControlFormatdrop(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.ControlFormat, v As Variant\n    Set o = ws.Shapes(\"Drop\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        TypedControlFormatdrop = \"E\" & Err.Number\n    Else\n        TypedControlFormatdrop = Show(v)\n    End If\nEnd Function\n\nPublic Function LateControlFormatdrop(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Drop\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        LateControlFormatdrop = \"E\" & Err.Number\n    Else\n        LateControlFormatdrop = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedControlFormatpick(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.ControlFormat, v As Variant\n    Set o = ws.Shapes(\"Pick\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        TypedControlFormatpick = \"E\" & Err.Number\n    Else\n        TypedControlFormatpick = Show(v)\n    End If\nEnd Function\n\nPublic Function LateControlFormatpick(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Pick\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        LateControlFormatpick = \"E\" & Err.Number\n    Else\n        LateControlFormatpick = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedControlFormatspin(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.ControlFormat, v As Variant\n    Set o = ws.Shapes(\"Spin\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        TypedControlFormatspin = \"E\" & Err.Number\n    Else\n        TypedControlFormatspin = Show(v)\n    End If\nEnd Function\n\nPublic Function LateControlFormatspin(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Spin\").ControlFormat\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.Creator\n    Case 1\n        v = o.DropDownLines\n    Case 2\n        v = o.Enabled\n    Case 3\n        v = o.LargeChange\n    Case 4\n        v = o.LinkedCell\n    Case 5\n        v = o.ListCount\n    Case 6\n        v = o.ListFillRange\n    Case 7\n        v = o.ListIndex\n    Case 8\n        v = o.LockedText\n    Case 9\n        v = o.Max\n    Case 10\n        v = o.Min\n    Case 11\n        v = o.MultiSelect\n    Case 12\n        v = o.PrintObject\n    Case 13\n        v = o.SmallChange\n    Case 14\n        v = o.Value\n    End Select\n    If Err.Number Then\n        LateControlFormatspin = \"E\" & Err.Number\n    Else\n        LateControlFormatspin = Show(v)\n    End If\nEnd Function\n\nPublic Function TypedTextFramebox(ws As Object, ByVal which As Long) As String\n    Dim o As Excel.TextFrame, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AutoMargins\n    Case 1\n        v = o.AutoSize\n    Case 2\n        v = o.Creator\n    Case 3\n        v = o.HorizontalAlignment\n    Case 4\n        v = o.HorizontalOverflow\n    Case 5\n        v = o.MarginBottom\n    Case 6\n        v = o.MarginLeft\n    Case 7\n        v = o.MarginRight\n    Case 8\n        v = o.MarginTop\n    Case 9\n        v = o.Orientation\n    Case 10\n        v = o.ReadingOrder\n    Case 11\n        v = o.VerticalAlignment\n    Case 12\n        v = o.VerticalOverflow\n    End Select\n    If Err.Number Then\n        TypedTextFramebox = \"E\" & Err.Number\n    Else\n        TypedTextFramebox = Show(v)\n    End If\nEnd Function\n\nPublic Function LateTextFramebox(ws As Object, ByVal which As Long) As String\n    Dim o As Object, v As Variant\n    Set o = ws.Shapes(\"Box\").TextFrame\n    On Error Resume Next\n    Select Case which\n    Case 0\n        v = o.AutoMargins\n    Case 1\n        v = o.AutoSize\n    Case 2\n        v = o.Creator\n    Case 3\n        v = o.HorizontalAlignment\n    Case 4\n        v = o.HorizontalOverflow\n    Case 5\n        v = o.MarginBottom\n    Case 6\n        v = o.MarginLeft\n    Case 7\n        v = o.MarginRight\n    Case 8\n        v = o.MarginTop\n    Case 9\n        v = o.Orientation\n    Case 10\n        v = o.ReadingOrder\n    Case 11\n        v = o.VerticalAlignment\n    Case 12\n        v = o.VerticalOverflow\n    End Select\n    If Err.Number Then\n        LateTextFramebox = \"E\" & Err.Number\n    Else\n        LateTextFramebox = Show(v)\n    End If\nEnd Function\n\n\nPublic Sub Prepared()\n    Setup ActiveWorkbook.Worksheets(1)\nEnd Sub\n\nPublic Function InModel(ByVal routine As String, ByVal which As Long) As String\n    InModel = Application.Run(routine, ActiveWorkbook.Worksheets(1), which)\nEnd Function\n",
+"cases": [
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Background",
+"routine": "TypedFontcell",
+"which": 0,
+"excel": "Null",
+"model": "Null"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Bold",
+"routine": "TypedFontcell",
+"which": 1,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Color",
+"routine": "TypedFontcell",
+"which": 2,
+"excel": "Double 0",
+"model": "Double 0"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "ColorIndex",
+"routine": "TypedFontcell",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedFontcell",
+"which": 4,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "FontStyle",
+"routine": "TypedFontcell",
+"which": 5,
+"excel": "String Regular",
+"model": "String Regular"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Italic",
+"routine": "TypedFontcell",
+"which": 6,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Name",
+"routine": "TypedFontcell",
+"which": 7,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Size",
+"routine": "TypedFontcell",
+"which": 8,
+"excel": "Double 11",
+"model": "Double 11"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Strikethrough",
+"routine": "TypedFontcell",
+"which": 9,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Subscript",
+"routine": "TypedFontcell",
+"which": 10,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Superscript",
+"routine": "TypedFontcell",
+"which": 11,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "ThemeColor",
+"routine": "TypedFontcell",
+"which": 12,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "ThemeFont",
+"routine": "TypedFontcell",
+"which": 13,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "TintAndShade",
+"routine": "TypedFontcell",
+"which": 14,
+"excel": "Double 0",
+"model": "Double 0"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Typed",
+"member": "Underline",
+"routine": "TypedFontcell",
+"which": 15,
+"excel": "Long -4142",
+"model": "Long -4142"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Background",
+"routine": "LateFontcell",
+"which": 0,
+"excel": "Null",
+"model": "Null"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Bold",
+"routine": "LateFontcell",
+"which": 1,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Color",
+"routine": "LateFontcell",
+"which": 2,
+"excel": "Double 0",
+"model": "Double 0"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "ColorIndex",
+"routine": "LateFontcell",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateFontcell",
+"which": 4,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "FontStyle",
+"routine": "LateFontcell",
+"which": 5,
+"excel": "String Regular",
+"model": "String Regular"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Italic",
+"routine": "LateFontcell",
+"which": 6,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Name",
+"routine": "LateFontcell",
+"which": 7,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Size",
+"routine": "LateFontcell",
+"which": 8,
+"excel": "Double 11",
+"model": "Double 11"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Strikethrough",
+"routine": "LateFontcell",
+"which": 9,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Subscript",
+"routine": "LateFontcell",
+"which": 10,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Superscript",
+"routine": "LateFontcell",
+"which": 11,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "ThemeColor",
+"routine": "LateFontcell",
+"which": 12,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "ThemeFont",
+"routine": "LateFontcell",
+"which": 13,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "TintAndShade",
+"routine": "LateFontcell",
+"which": 14,
+"excel": "Double 0",
+"model": "Double 0"
+},
+{
+"class": "Font",
+"on": "cell",
+"binding": "Late",
+"member": "Underline",
+"routine": "LateFontcell",
+"which": 15,
+"excel": "Long -4142",
+"model": "Long -4142"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Background",
+"routine": "TypedFontbox",
+"which": 0,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Bold",
+"routine": "TypedFontbox",
+"which": 1,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Color",
+"routine": "TypedFontbox",
+"which": 2,
+"excel": "Long 16777215",
+"model": "Long 16777215"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "ColorIndex",
+"routine": "TypedFontbox",
+"which": 3,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedFontbox",
+"which": 4,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "FontStyle",
+"routine": "TypedFontbox",
+"which": 5,
+"excel": "String Regular",
+"model": "String Regular"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Italic",
+"routine": "TypedFontbox",
+"which": 6,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Name",
+"routine": "TypedFontbox",
+"which": 7,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Size",
+"routine": "TypedFontbox",
+"which": 8,
+"excel": "Double 11",
+"model": "Long 11"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Strikethrough",
+"routine": "TypedFontbox",
+"which": 9,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Subscript",
+"routine": "TypedFontbox",
+"which": 10,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Superscript",
+"routine": "TypedFontbox",
+"which": 11,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "ThemeColor",
+"routine": "TypedFontbox",
+"which": 12,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "ThemeFont",
+"routine": "TypedFontbox",
+"which": 13,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "TintAndShade",
+"routine": "TypedFontbox",
+"which": 14,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Typed",
+"member": "Underline",
+"routine": "TypedFontbox",
+"which": 15,
+"excel": "Long -4142",
+"model": "Long -4142"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Background",
+"routine": "LateFontbox",
+"which": 0,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Bold",
+"routine": "LateFontbox",
+"which": 1,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Color",
+"routine": "LateFontbox",
+"which": 2,
+"excel": "Long 16777215",
+"model": "Long 16777215"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "ColorIndex",
+"routine": "LateFontbox",
+"which": 3,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateFontbox",
+"which": 4,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "FontStyle",
+"routine": "LateFontbox",
+"which": 5,
+"excel": "String Regular",
+"model": "String Regular"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Italic",
+"routine": "LateFontbox",
+"which": 6,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Name",
+"routine": "LateFontbox",
+"which": 7,
+"excel": "String Aptos Narrow",
+"model": "String Aptos Narrow"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Size",
+"routine": "LateFontbox",
+"which": 8,
+"excel": "Double 11",
+"model": "Long 11"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Strikethrough",
+"routine": "LateFontbox",
+"which": 9,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Subscript",
+"routine": "LateFontbox",
+"which": 10,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Superscript",
+"routine": "LateFontbox",
+"which": 11,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "ThemeColor",
+"routine": "LateFontbox",
+"which": 12,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "ThemeFont",
+"routine": "LateFontbox",
+"which": 13,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "TintAndShade",
+"routine": "LateFontbox",
+"which": 14,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Font",
+"on": "box",
+"binding": "Late",
+"member": "Underline",
+"routine": "LateFontbox",
+"which": 15,
+"excel": "Long -4142",
+"model": "Long -4142"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "AlternativeText",
+"routine": "TypedShapebox",
+"which": 0,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "AutoShapeType",
+"routine": "TypedShapebox",
+"which": 1,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "BackgroundStyle",
+"routine": "TypedShapebox",
+"which": 2,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "BlackWhiteMode",
+"routine": "TypedShapebox",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Child",
+"routine": "TypedShapebox",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "ConnectionSiteCount",
+"routine": "TypedShapebox",
+"which": 5,
+"excel": "Long 4",
+"model": "Long 4"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Connector",
+"routine": "TypedShapebox",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedShapebox",
+"which": 7,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Decorative",
+"routine": "TypedShapebox",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "FormControlType",
+"routine": "TypedShapebox",
+"which": 9,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "GraphicStyle",
+"routine": "TypedShapebox",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "HasChart",
+"routine": "TypedShapebox",
+"which": 11,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "HasSmartArt",
+"routine": "TypedShapebox",
+"which": 12,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Height",
+"routine": "TypedShapebox",
+"which": 13,
+"excel": "Single 40",
+"model": "Single 40"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "HorizontalFlip",
+"routine": "TypedShapebox",
+"which": 14,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "ID",
+"routine": "TypedShapebox",
+"which": 15,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Left",
+"routine": "TypedShapebox",
+"which": 16,
+"excel": "Single 10",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "LockAspectRatio",
+"routine": "TypedShapebox",
+"which": 17,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Locked",
+"routine": "TypedShapebox",
+"which": 18,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Name",
+"routine": "TypedShapebox",
+"which": 19,
+"excel": "String Box",
+"model": "String Box"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "OnAction",
+"routine": "TypedShapebox",
+"which": 20,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Placement",
+"routine": "TypedShapebox",
+"which": 21,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Rotation",
+"routine": "TypedShapebox",
+"which": 22,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "ShapeStyle",
+"routine": "TypedShapebox",
+"which": 23,
+"excel": "Long 9",
+"model": "Long 9"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Title",
+"routine": "TypedShapebox",
+"which": 24,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Top",
+"routine": "TypedShapebox",
+"which": 25,
+"excel": "Single 10",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Type",
+"routine": "TypedShapebox",
+"which": 26,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "VerticalFlip",
+"routine": "TypedShapebox",
+"which": 27,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Vertices",
+"routine": "TypedShapebox",
+"which": 28,
+"excel": "Empty",
+"model": "reports the Nodes and Vertices of this shape is real Excel"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Visible",
+"routine": "TypedShapebox",
+"which": 29,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "Width",
+"routine": "TypedShapebox",
+"which": 30,
+"excel": "Single 100",
+"model": "Single 100"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Typed",
+"member": "ZOrderPosition",
+"routine": "TypedShapebox",
+"which": 31,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "AlternativeText",
+"routine": "LateShapebox",
+"which": 0,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "AutoShapeType",
+"routine": "LateShapebox",
+"which": 1,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "BackgroundStyle",
+"routine": "LateShapebox",
+"which": 2,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "BlackWhiteMode",
+"routine": "LateShapebox",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Child",
+"routine": "LateShapebox",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "ConnectionSiteCount",
+"routine": "LateShapebox",
+"which": 5,
+"excel": "Long 4",
+"model": "Long 4"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Connector",
+"routine": "LateShapebox",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateShapebox",
+"which": 7,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Decorative",
+"routine": "LateShapebox",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "FormControlType",
+"routine": "LateShapebox",
+"which": 9,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "GraphicStyle",
+"routine": "LateShapebox",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "HasChart",
+"routine": "LateShapebox",
+"which": 11,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "HasSmartArt",
+"routine": "LateShapebox",
+"which": 12,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Height",
+"routine": "LateShapebox",
+"which": 13,
+"excel": "Single 40",
+"model": "Single 40"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "HorizontalFlip",
+"routine": "LateShapebox",
+"which": 14,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "ID",
+"routine": "LateShapebox",
+"which": 15,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Left",
+"routine": "LateShapebox",
+"which": 16,
+"excel": "Single 10",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "LockAspectRatio",
+"routine": "LateShapebox",
+"which": 17,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Locked",
+"routine": "LateShapebox",
+"which": 18,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Name",
+"routine": "LateShapebox",
+"which": 19,
+"excel": "String Box",
+"model": "String Box"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "OnAction",
+"routine": "LateShapebox",
+"which": 20,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Placement",
+"routine": "LateShapebox",
+"which": 21,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Rotation",
+"routine": "LateShapebox",
+"which": 22,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "ShapeStyle",
+"routine": "LateShapebox",
+"which": 23,
+"excel": "Long 9",
+"model": "Long 9"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Title",
+"routine": "LateShapebox",
+"which": 24,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Top",
+"routine": "LateShapebox",
+"which": 25,
+"excel": "Single 10",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Type",
+"routine": "LateShapebox",
+"which": 26,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "VerticalFlip",
+"routine": "LateShapebox",
+"which": 27,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Vertices",
+"routine": "LateShapebox",
+"which": 28,
+"excel": "Empty",
+"model": "reports the Nodes and Vertices of this shape is real Excel"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Visible",
+"routine": "LateShapebox",
+"which": 29,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "Width",
+"routine": "LateShapebox",
+"which": 30,
+"excel": "Single 100",
+"model": "Single 100"
+},
+{
+"class": "Shape",
+"on": "box",
+"binding": "Late",
+"member": "ZOrderPosition",
+"routine": "LateShapebox",
+"which": 31,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "AlternativeText",
+"routine": "TypedShapenote",
+"which": 0,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "AutoShapeType",
+"routine": "TypedShapenote",
+"which": 1,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "BackgroundStyle",
+"routine": "TypedShapenote",
+"which": 2,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "BlackWhiteMode",
+"routine": "TypedShapenote",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Child",
+"routine": "TypedShapenote",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "ConnectionSiteCount",
+"routine": "TypedShapenote",
+"which": 5,
+"excel": "Long 4",
+"model": "Long 4"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Connector",
+"routine": "TypedShapenote",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedShapenote",
+"which": 7,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Decorative",
+"routine": "TypedShapenote",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "FormControlType",
+"routine": "TypedShapenote",
+"which": 9,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "GraphicStyle",
+"routine": "TypedShapenote",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "HasChart",
+"routine": "TypedShapenote",
+"which": 11,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "HasSmartArt",
+"routine": "TypedShapenote",
+"which": 12,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Height",
+"routine": "TypedShapenote",
+"which": 13,
+"excel": "Single 40",
+"model": "Single 40"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "HorizontalFlip",
+"routine": "TypedShapenote",
+"which": 14,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "ID",
+"routine": "TypedShapenote",
+"which": 15,
+"excel": "Long 3",
+"model": "Long 3"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Left",
+"routine": "TypedShapenote",
+"which": 16,
+"excel": "Single 120",
+"model": "Single 120"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "LockAspectRatio",
+"routine": "TypedShapenote",
+"which": 17,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Locked",
+"routine": "TypedShapenote",
+"which": 18,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Name",
+"routine": "TypedShapenote",
+"which": 19,
+"excel": "String Note",
+"model": "String Note"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "OnAction",
+"routine": "TypedShapenote",
+"which": 20,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Placement",
+"routine": "TypedShapenote",
+"which": 21,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Rotation",
+"routine": "TypedShapenote",
+"which": 22,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "ShapeStyle",
+"routine": "TypedShapenote",
+"which": 23,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Title",
+"routine": "TypedShapenote",
+"which": 24,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Top",
+"routine": "TypedShapenote",
+"which": 25,
+"excel": "Single 10",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Type",
+"routine": "TypedShapenote",
+"which": 26,
+"excel": "Long 17",
+"model": "Long 17"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "VerticalFlip",
+"routine": "TypedShapenote",
+"which": 27,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Vertices",
+"routine": "TypedShapenote",
+"which": 28,
+"excel": "Empty",
+"model": "reports the Nodes and Vertices of this shape is real Excel"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Visible",
+"routine": "TypedShapenote",
+"which": 29,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "Width",
+"routine": "TypedShapenote",
+"which": 30,
+"excel": "Single 100",
+"model": "Single 100"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Typed",
+"member": "ZOrderPosition",
+"routine": "TypedShapenote",
+"which": 31,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "AlternativeText",
+"routine": "LateShapenote",
+"which": 0,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "AutoShapeType",
+"routine": "LateShapenote",
+"which": 1,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "BackgroundStyle",
+"routine": "LateShapenote",
+"which": 2,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "BlackWhiteMode",
+"routine": "LateShapenote",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Child",
+"routine": "LateShapenote",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "ConnectionSiteCount",
+"routine": "LateShapenote",
+"which": 5,
+"excel": "Long 4",
+"model": "Long 4"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Connector",
+"routine": "LateShapenote",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateShapenote",
+"which": 7,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Decorative",
+"routine": "LateShapenote",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "FormControlType",
+"routine": "LateShapenote",
+"which": 9,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "GraphicStyle",
+"routine": "LateShapenote",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "HasChart",
+"routine": "LateShapenote",
+"which": 11,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "HasSmartArt",
+"routine": "LateShapenote",
+"which": 12,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Height",
+"routine": "LateShapenote",
+"which": 13,
+"excel": "Single 40",
+"model": "Single 40"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "HorizontalFlip",
+"routine": "LateShapenote",
+"which": 14,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "ID",
+"routine": "LateShapenote",
+"which": 15,
+"excel": "Long 3",
+"model": "Long 3"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Left",
+"routine": "LateShapenote",
+"which": 16,
+"excel": "Single 120",
+"model": "Single 120"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "LockAspectRatio",
+"routine": "LateShapenote",
+"which": 17,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Locked",
+"routine": "LateShapenote",
+"which": 18,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Name",
+"routine": "LateShapenote",
+"which": 19,
+"excel": "String Note",
+"model": "String Note"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "OnAction",
+"routine": "LateShapenote",
+"which": 20,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Placement",
+"routine": "LateShapenote",
+"which": 21,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Rotation",
+"routine": "LateShapenote",
+"which": 22,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "ShapeStyle",
+"routine": "LateShapenote",
+"which": 23,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Title",
+"routine": "LateShapenote",
+"which": 24,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Top",
+"routine": "LateShapenote",
+"which": 25,
+"excel": "Single 10",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Type",
+"routine": "LateShapenote",
+"which": 26,
+"excel": "Long 17",
+"model": "Long 17"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "VerticalFlip",
+"routine": "LateShapenote",
+"which": 27,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Vertices",
+"routine": "LateShapenote",
+"which": 28,
+"excel": "Empty",
+"model": "reports the Nodes and Vertices of this shape is real Excel"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Visible",
+"routine": "LateShapenote",
+"which": 29,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "Width",
+"routine": "LateShapenote",
+"which": 30,
+"excel": "Single 100",
+"model": "Single 100"
+},
+{
+"class": "Shape",
+"on": "note",
+"binding": "Late",
+"member": "ZOrderPosition",
+"routine": "LateShapenote",
+"which": 31,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "AlternativeText",
+"routine": "TypedShapetick",
+"which": 0,
+"excel": "String Check Box 1",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "AutoShapeType",
+"routine": "TypedShapetick",
+"which": 1,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "BackgroundStyle",
+"routine": "TypedShapetick",
+"which": 2,
+"excel": "Long 0",
+"model": "reports BackgroundStyle of this shape is real Excel that p"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "BlackWhiteMode",
+"routine": "TypedShapetick",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Child",
+"routine": "TypedShapetick",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "ConnectionSiteCount",
+"routine": "TypedShapetick",
+"which": 5,
+"excel": "Long 4",
+"model": "reports ConnectionSiteCount of this shape is real Excel th"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Connector",
+"routine": "TypedShapetick",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedShapetick",
+"which": 7,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Decorative",
+"routine": "TypedShapetick",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "FormControlType",
+"routine": "TypedShapetick",
+"which": 9,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "GraphicStyle",
+"routine": "TypedShapetick",
+"which": 10,
+"excel": "Long 0",
+"model": "reports GraphicStyle of this shape is real Excel that pyOp"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "HasChart",
+"routine": "TypedShapetick",
+"which": 11,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "HasSmartArt",
+"routine": "TypedShapetick",
+"which": 12,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Height",
+"routine": "TypedShapetick",
+"which": 13,
+"excel": "Single 19.5",
+"model": "Single 20"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "HorizontalFlip",
+"routine": "TypedShapetick",
+"which": 14,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "ID",
+"routine": "TypedShapetick",
+"which": 15,
+"excel": "Long 1025",
+"model": "Long 1025"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Left",
+"routine": "TypedShapetick",
+"which": 16,
+"excel": "Single 9.75",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "LockAspectRatio",
+"routine": "TypedShapetick",
+"which": 17,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Locked",
+"routine": "TypedShapetick",
+"which": 18,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Name",
+"routine": "TypedShapetick",
+"which": 19,
+"excel": "String Tick",
+"model": "String Tick"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "OnAction",
+"routine": "TypedShapetick",
+"which": 20,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Placement",
+"routine": "TypedShapetick",
+"which": 21,
+"excel": "Long 2",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Rotation",
+"routine": "TypedShapetick",
+"which": 22,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "ShapeStyle",
+"routine": "TypedShapetick",
+"which": 23,
+"excel": "Long 0",
+"model": "reports ShapeStyle of this shape is real Excel that pyOpen"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Title",
+"routine": "TypedShapetick",
+"which": 24,
+"excel": "E445",
+"model": "E445"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Top",
+"routine": "TypedShapetick",
+"which": 25,
+"excel": "Single 60",
+"model": "Single 60"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Type",
+"routine": "TypedShapetick",
+"which": 26,
+"excel": "Long 8",
+"model": "Long 8"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "VerticalFlip",
+"routine": "TypedShapetick",
+"which": 27,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Vertices",
+"routine": "TypedShapetick",
+"which": 28,
+"excel": "E-2147024891",
+"model": "reports the Nodes and Vertices of this shape is real Excel"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Visible",
+"routine": "TypedShapetick",
+"which": 29,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "Width",
+"routine": "TypedShapetick",
+"which": 30,
+"excel": "Single 90",
+"model": "Single 90"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Typed",
+"member": "ZOrderPosition",
+"routine": "TypedShapetick",
+"which": 31,
+"excel": "Long 3",
+"model": "Long 3"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "AlternativeText",
+"routine": "LateShapetick",
+"which": 0,
+"excel": "String Check Box 1",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "AutoShapeType",
+"routine": "LateShapetick",
+"which": 1,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "BackgroundStyle",
+"routine": "LateShapetick",
+"which": 2,
+"excel": "Long 0",
+"model": "reports BackgroundStyle of this shape is real Excel that p"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "BlackWhiteMode",
+"routine": "LateShapetick",
+"which": 3,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Child",
+"routine": "LateShapetick",
+"which": 4,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "ConnectionSiteCount",
+"routine": "LateShapetick",
+"which": 5,
+"excel": "Long 4",
+"model": "reports ConnectionSiteCount of this shape is real Excel th"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Connector",
+"routine": "LateShapetick",
+"which": 6,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateShapetick",
+"which": 7,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Decorative",
+"routine": "LateShapetick",
+"which": 8,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "FormControlType",
+"routine": "LateShapetick",
+"which": 9,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "GraphicStyle",
+"routine": "LateShapetick",
+"which": 10,
+"excel": "Long 0",
+"model": "reports GraphicStyle of this shape is real Excel that pyOp"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "HasChart",
+"routine": "LateShapetick",
+"which": 11,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "HasSmartArt",
+"routine": "LateShapetick",
+"which": 12,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Height",
+"routine": "LateShapetick",
+"which": 13,
+"excel": "Single 19.5",
+"model": "Single 20"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "HorizontalFlip",
+"routine": "LateShapetick",
+"which": 14,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "ID",
+"routine": "LateShapetick",
+"which": 15,
+"excel": "Long 1025",
+"model": "Long 1025"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Left",
+"routine": "LateShapetick",
+"which": 16,
+"excel": "Single 9.75",
+"model": "Single 10"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "LockAspectRatio",
+"routine": "LateShapetick",
+"which": 17,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Locked",
+"routine": "LateShapetick",
+"which": 18,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Name",
+"routine": "LateShapetick",
+"which": 19,
+"excel": "String Tick",
+"model": "String Tick"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "OnAction",
+"routine": "LateShapetick",
+"which": 20,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Placement",
+"routine": "LateShapetick",
+"which": 21,
+"excel": "Long 2",
+"model": "Long 1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Rotation",
+"routine": "LateShapetick",
+"which": 22,
+"excel": "Single 0",
+"model": "Single 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "ShapeStyle",
+"routine": "LateShapetick",
+"which": 23,
+"excel": "Long 0",
+"model": "reports ShapeStyle of this shape is real Excel that pyOpen"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Title",
+"routine": "LateShapetick",
+"which": 24,
+"excel": "E445",
+"model": "E445"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Top",
+"routine": "LateShapetick",
+"which": 25,
+"excel": "Single 60",
+"model": "Single 60"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Type",
+"routine": "LateShapetick",
+"which": 26,
+"excel": "Long 8",
+"model": "Long 8"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "VerticalFlip",
+"routine": "LateShapetick",
+"which": 27,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Vertices",
+"routine": "LateShapetick",
+"which": 28,
+"excel": "E-2147024891",
+"model": "reports the Nodes and Vertices of this shape is real Excel"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Visible",
+"routine": "LateShapetick",
+"which": 29,
+"excel": "Long -1",
+"model": "Long -1"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "Width",
+"routine": "LateShapetick",
+"which": 30,
+"excel": "Single 90",
+"model": "Single 90"
+},
+{
+"class": "Shape",
+"on": "tick",
+"binding": "Late",
+"member": "ZOrderPosition",
+"routine": "LateShapetick",
+"which": 31,
+"excel": "Long 3",
+"model": "Long 3"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedControlFormattick",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "DropDownLines",
+"routine": "TypedControlFormattick",
+"which": 1,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "Enabled",
+"routine": "TypedControlFormattick",
+"which": 2,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "LargeChange",
+"routine": "TypedControlFormattick",
+"which": 3,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "LinkedCell",
+"routine": "TypedControlFormattick",
+"which": 4,
+"excel": "String $C$1",
+"model": "String $C$1"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "ListCount",
+"routine": "TypedControlFormattick",
+"which": 5,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "ListFillRange",
+"routine": "TypedControlFormattick",
+"which": 6,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "ListIndex",
+"routine": "TypedControlFormattick",
+"which": 7,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "LockedText",
+"routine": "TypedControlFormattick",
+"which": 8,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "Max",
+"routine": "TypedControlFormattick",
+"which": 9,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "Min",
+"routine": "TypedControlFormattick",
+"which": 10,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "MultiSelect",
+"routine": "TypedControlFormattick",
+"which": 11,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "PrintObject",
+"routine": "TypedControlFormattick",
+"which": 12,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "SmallChange",
+"routine": "TypedControlFormattick",
+"which": 13,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Typed",
+"member": "Value",
+"routine": "TypedControlFormattick",
+"which": 14,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateControlFormattick",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "DropDownLines",
+"routine": "LateControlFormattick",
+"which": 1,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "Enabled",
+"routine": "LateControlFormattick",
+"which": 2,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "LargeChange",
+"routine": "LateControlFormattick",
+"which": 3,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "LinkedCell",
+"routine": "LateControlFormattick",
+"which": 4,
+"excel": "String $C$1",
+"model": "String $C$1"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "ListCount",
+"routine": "LateControlFormattick",
+"which": 5,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "ListFillRange",
+"routine": "LateControlFormattick",
+"which": 6,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "ListIndex",
+"routine": "LateControlFormattick",
+"which": 7,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "LockedText",
+"routine": "LateControlFormattick",
+"which": 8,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "Max",
+"routine": "LateControlFormattick",
+"which": 9,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "Min",
+"routine": "LateControlFormattick",
+"which": 10,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "MultiSelect",
+"routine": "LateControlFormattick",
+"which": 11,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "PrintObject",
+"routine": "LateControlFormattick",
+"which": 12,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "SmallChange",
+"routine": "LateControlFormattick",
+"which": 13,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "tick",
+"binding": "Late",
+"member": "Value",
+"routine": "LateControlFormattick",
+"which": 14,
+"excel": "Double 1",
+"model": "Double 1"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedControlFormatdrop",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "DropDownLines",
+"routine": "TypedControlFormatdrop",
+"which": 1,
+"excel": "Long 8",
+"model": "Long 8"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "Enabled",
+"routine": "TypedControlFormatdrop",
+"which": 2,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "LargeChange",
+"routine": "TypedControlFormatdrop",
+"which": 3,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "LinkedCell",
+"routine": "TypedControlFormatdrop",
+"which": 4,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "ListCount",
+"routine": "TypedControlFormatdrop",
+"which": 5,
+"excel": "Long 3",
+"model": "Long 3"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "ListFillRange",
+"routine": "TypedControlFormatdrop",
+"which": 6,
+"excel": "String $A$1:$A$3",
+"model": "String $A$1:$A$3"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "ListIndex",
+"routine": "TypedControlFormatdrop",
+"which": 7,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "LockedText",
+"routine": "TypedControlFormatdrop",
+"which": 8,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "Max",
+"routine": "TypedControlFormatdrop",
+"which": 9,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "Min",
+"routine": "TypedControlFormatdrop",
+"which": 10,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "MultiSelect",
+"routine": "TypedControlFormatdrop",
+"which": 11,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "PrintObject",
+"routine": "TypedControlFormatdrop",
+"which": 12,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "SmallChange",
+"routine": "TypedControlFormatdrop",
+"which": 13,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Typed",
+"member": "Value",
+"routine": "TypedControlFormatdrop",
+"which": 14,
+"excel": "Long 2",
+"model": "Long 2"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateControlFormatdrop",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "DropDownLines",
+"routine": "LateControlFormatdrop",
+"which": 1,
+"excel": "Double 8",
+"model": "Long 8"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "Enabled",
+"routine": "LateControlFormatdrop",
+"which": 2,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "LargeChange",
+"routine": "LateControlFormatdrop",
+"which": 3,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "LinkedCell",
+"routine": "LateControlFormatdrop",
+"which": 4,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "ListCount",
+"routine": "LateControlFormatdrop",
+"which": 5,
+"excel": "Double 3",
+"model": "Long 3"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "ListFillRange",
+"routine": "LateControlFormatdrop",
+"which": 6,
+"excel": "String $A$1:$A$3",
+"model": "String $A$1:$A$3"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "ListIndex",
+"routine": "LateControlFormatdrop",
+"which": 7,
+"excel": "Double 2",
+"model": "Double 2"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "LockedText",
+"routine": "LateControlFormatdrop",
+"which": 8,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "Max",
+"routine": "LateControlFormatdrop",
+"which": 9,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "Min",
+"routine": "LateControlFormatdrop",
+"which": 10,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "MultiSelect",
+"routine": "LateControlFormatdrop",
+"which": 11,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "PrintObject",
+"routine": "LateControlFormatdrop",
+"which": 12,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "SmallChange",
+"routine": "LateControlFormatdrop",
+"which": 13,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "drop",
+"binding": "Late",
+"member": "Value",
+"routine": "LateControlFormatdrop",
+"which": 14,
+"excel": "Double 2",
+"model": "Double 2"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedControlFormatpick",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "DropDownLines",
+"routine": "TypedControlFormatpick",
+"which": 1,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "Enabled",
+"routine": "TypedControlFormatpick",
+"which": 2,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "LargeChange",
+"routine": "TypedControlFormatpick",
+"which": 3,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "LinkedCell",
+"routine": "TypedControlFormatpick",
+"which": 4,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "ListCount",
+"routine": "TypedControlFormatpick",
+"which": 5,
+"excel": "Long 3",
+"model": "Long 3"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "ListFillRange",
+"routine": "TypedControlFormatpick",
+"which": 6,
+"excel": "String $A$1:$A$3",
+"model": "String $A$1:$A$3"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "ListIndex",
+"routine": "TypedControlFormatpick",
+"which": 7,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "LockedText",
+"routine": "TypedControlFormatpick",
+"which": 8,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "Max",
+"routine": "TypedControlFormatpick",
+"which": 9,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "Min",
+"routine": "TypedControlFormatpick",
+"which": 10,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "MultiSelect",
+"routine": "TypedControlFormatpick",
+"which": 11,
+"excel": "Long -4142",
+"model": "Long -4142"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "PrintObject",
+"routine": "TypedControlFormatpick",
+"which": 12,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "SmallChange",
+"routine": "TypedControlFormatpick",
+"which": 13,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Typed",
+"member": "Value",
+"routine": "TypedControlFormatpick",
+"which": 14,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateControlFormatpick",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "DropDownLines",
+"routine": "LateControlFormatpick",
+"which": 1,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "Enabled",
+"routine": "LateControlFormatpick",
+"which": 2,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "LargeChange",
+"routine": "LateControlFormatpick",
+"which": 3,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "LinkedCell",
+"routine": "LateControlFormatpick",
+"which": 4,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "ListCount",
+"routine": "LateControlFormatpick",
+"which": 5,
+"excel": "Double 3",
+"model": "Long 3"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "ListFillRange",
+"routine": "LateControlFormatpick",
+"which": 6,
+"excel": "String $A$1:$A$3",
+"model": "String $A$1:$A$3"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "ListIndex",
+"routine": "LateControlFormatpick",
+"which": 7,
+"excel": "Double 1",
+"model": "Double 1"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "LockedText",
+"routine": "LateControlFormatpick",
+"which": 8,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "Max",
+"routine": "LateControlFormatpick",
+"which": 9,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "Min",
+"routine": "LateControlFormatpick",
+"which": 10,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "MultiSelect",
+"routine": "LateControlFormatpick",
+"which": 11,
+"excel": "Long -4142",
+"model": "Long -4142"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "PrintObject",
+"routine": "LateControlFormatpick",
+"which": 12,
+"excel": "Boolean True",
+"model": "Boolean True"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "SmallChange",
+"routine": "LateControlFormatpick",
+"which": 13,
+"excel": "E438",
+"model": "reports numeric bounds require a spinner or scroll bar"
+},
+{
+"class": "ControlFormat",
+"on": "pick",
+"binding": "Late",
+"member": "Value",
+"routine": "LateControlFormatpick",
+"which": 14,
+"excel": "Double 1",
+"model": "Double 1"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedControlFormatspin",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "DropDownLines",
+"routine": "TypedControlFormatspin",
+"which": 1,
+"excel": "E438",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "Enabled",
+"routine": "TypedControlFormatspin",
+"which": 2,
+"excel": "Boolean True",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "LargeChange",
+"routine": "TypedControlFormatspin",
+"which": 3,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "LinkedCell",
+"routine": "TypedControlFormatspin",
+"which": 4,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "ListCount",
+"routine": "TypedControlFormatspin",
+"which": 5,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "ListFillRange",
+"routine": "TypedControlFormatspin",
+"which": 6,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "ListIndex",
+"routine": "TypedControlFormatspin",
+"which": 7,
+"excel": "E438",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "LockedText",
+"routine": "TypedControlFormatspin",
+"which": 8,
+"excel": "E438",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "Max",
+"routine": "TypedControlFormatspin",
+"which": 9,
+"excel": "Long 30000",
+"model": "Long 30000"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "Min",
+"routine": "TypedControlFormatspin",
+"which": 10,
+"excel": "Long 0",
+"model": "Long 0"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "MultiSelect",
+"routine": "TypedControlFormatspin",
+"which": 11,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "PrintObject",
+"routine": "TypedControlFormatspin",
+"which": 12,
+"excel": "Boolean True",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "SmallChange",
+"routine": "TypedControlFormatspin",
+"which": 13,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Typed",
+"member": "Value",
+"routine": "TypedControlFormatspin",
+"which": 14,
+"excel": "Long 3",
+"model": "Long 3"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateControlFormatspin",
+"which": 0,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "DropDownLines",
+"routine": "LateControlFormatspin",
+"which": 1,
+"excel": "E438",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "Enabled",
+"routine": "LateControlFormatspin",
+"which": 2,
+"excel": "Boolean True",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "LargeChange",
+"routine": "LateControlFormatspin",
+"which": 3,
+"excel": "E438",
+"model": "E438"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "LinkedCell",
+"routine": "LateControlFormatspin",
+"which": 4,
+"excel": "String ",
+"model": "String "
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "ListCount",
+"routine": "LateControlFormatspin",
+"which": 5,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "ListFillRange",
+"routine": "LateControlFormatspin",
+"which": 6,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "ListIndex",
+"routine": "LateControlFormatspin",
+"which": 7,
+"excel": "E438",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "LockedText",
+"routine": "LateControlFormatspin",
+"which": 8,
+"excel": "E438",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "Max",
+"routine": "LateControlFormatspin",
+"which": 9,
+"excel": "Double 30000",
+"model": "Long 30000"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "Min",
+"routine": "LateControlFormatspin",
+"which": 10,
+"excel": "Double 0",
+"model": "Long 0"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "MultiSelect",
+"routine": "LateControlFormatspin",
+"which": 11,
+"excel": "E438",
+"model": "reports this operation requires a dropdown or list box"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "PrintObject",
+"routine": "LateControlFormatspin",
+"which": 12,
+"excel": "Boolean True",
+"model": "reports This setting of a Spin control is not implemented"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "SmallChange",
+"routine": "LateControlFormatspin",
+"which": 13,
+"excel": "Double 1",
+"model": "Long 1"
+},
+{
+"class": "ControlFormat",
+"on": "spin",
+"binding": "Late",
+"member": "Value",
+"routine": "LateControlFormatspin",
+"which": 14,
+"excel": "Double 3",
+"model": "Double 3"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "AutoMargins",
+"routine": "TypedTextFramebox",
+"which": 0,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "AutoSize",
+"routine": "TypedTextFramebox",
+"which": 1,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "Creator",
+"routine": "TypedTextFramebox",
+"which": 2,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "HorizontalAlignment",
+"routine": "TypedTextFramebox",
+"which": 3,
+"excel": "Long -4131",
+"model": "Long -4131"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "HorizontalOverflow",
+"routine": "TypedTextFramebox",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "MarginBottom",
+"routine": "TypedTextFramebox",
+"which": 5,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "MarginLeft",
+"routine": "TypedTextFramebox",
+"which": 6,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "MarginRight",
+"routine": "TypedTextFramebox",
+"which": 7,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "MarginTop",
+"routine": "TypedTextFramebox",
+"which": 8,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "Orientation",
+"routine": "TypedTextFramebox",
+"which": 9,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "ReadingOrder",
+"routine": "TypedTextFramebox",
+"which": 10,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "VerticalAlignment",
+"routine": "TypedTextFramebox",
+"which": 11,
+"excel": "Long -4160",
+"model": "Long -4160"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Typed",
+"member": "VerticalOverflow",
+"routine": "TypedTextFramebox",
+"which": 12,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "AutoMargins",
+"routine": "LateTextFramebox",
+"which": 0,
+"excel": "E1004",
+"model": "E1004"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "AutoSize",
+"routine": "LateTextFramebox",
+"which": 1,
+"excel": "Boolean False",
+"model": "Boolean False"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "Creator",
+"routine": "LateTextFramebox",
+"which": 2,
+"excel": "Long 1480803660",
+"model": "Long 1480803660"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "HorizontalAlignment",
+"routine": "LateTextFramebox",
+"which": 3,
+"excel": "Long -4131",
+"model": "Long -4131"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "HorizontalOverflow",
+"routine": "LateTextFramebox",
+"which": 4,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "MarginBottom",
+"routine": "LateTextFramebox",
+"which": 5,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "MarginLeft",
+"routine": "LateTextFramebox",
+"which": 6,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "MarginRight",
+"routine": "LateTextFramebox",
+"which": 7,
+"excel": "Single 7.2",
+"model": "Single 7.2"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "MarginTop",
+"routine": "LateTextFramebox",
+"which": 8,
+"excel": "Single 3.6",
+"model": "Single 3.6"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "Orientation",
+"routine": "LateTextFramebox",
+"which": 9,
+"excel": "Long 1",
+"model": "Long 1"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "ReadingOrder",
+"routine": "LateTextFramebox",
+"which": 10,
+"excel": "Long -2",
+"model": "Long -2"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "VerticalAlignment",
+"routine": "LateTextFramebox",
+"which": 11,
+"excel": "Long -4160",
+"model": "Long -4160"
+},
+{
+"class": "TextFrame",
+"on": "box",
+"binding": "Late",
+"member": "VerticalOverflow",
+"routine": "LateTextFramebox",
+"which": 12,
+"excel": "Long 1",
+"model": "Long 1"
+}
+]
+}

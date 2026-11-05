@@ -1,0 +1,190 @@
+{
+ "measured_at": "2026-11-04T20:00:25.869258+00:00",
+ "cases": [
+  {
+   "name": "sum",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "rows",
+   "typed": "Double:10|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "columns",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "row",
+   "typed": "Double:5|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "column",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "row_range",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "areas",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "isref",
+   "typed": "Boolean:True|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "sheet",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "sheets",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "cell_address",
+   "typed": "String:$A$5|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "cell_row",
+   "typed": "Double:5|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "cell_contents",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "cell_type",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "formulatext",
+   "typed": "String:=FORMULATEXT(A5)|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "isformula",
+   "typed": "Boolean:True|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "index",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "index_self",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "offset",
+   "typed": "Double:6|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "offset_self",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "indirect",
+   "typed": "Double:4|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "indirect_self",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "counta",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "countblank",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "isblank",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "n",
+   "typed": "Double:0|$A$5",
+   "drifted": ""
+  },
+  {
+   "name": "rows_in_sum",
+   "typed": "Double:11|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "rows_of_sum",
+   "typed": "Double:10|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "if_rows",
+   "typed": "Double:10|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "if_false_branch",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "choose_unused",
+   "typed": "Double:7|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "iferror_unused",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "let_unused",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "lookup",
+   "typed": "Double:3|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "vlookup_self",
+   "typed": "Double:3|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "columns_range_op",
+   "typed": "Double:1|Nothing",
+   "drifted": ""
+  },
+  {
+   "name": "sumproduct_rows",
+   "typed": "Double:55|Nothing",
+   "drifted": ""
+  }
+ ]
+}

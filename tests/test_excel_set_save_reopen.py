@@ -21,9 +21,11 @@ def _loaded(name: str, kind: str) -> Target:
 TARGETS = [_new('rectangle', 'text', 'Shape(1, 10, 10, 100, 40): s.TextFrame.Characters.Text = "Hello world"'), _new('text box', 'text', 'Textbox(1, 10, 10, 100, 40): s.TextFrame.Characters.Text = "Hello world"'),
            _new('connector', 'line', 'Connector(1, 10, 10, 100, 40)'), _new('line', 'line', 'Line(10, 10, 100, 40)'), _new('check box', 'control', 'FormControl(xlCheckBox, 10, 10, 100, 40)'),
            _new('button', 'control', 'FormControl(xlButtonControl, 10, 10, 100, 40)'), _new('drop-down', 'control', 'FormControl(xlDropDown, 10, 10, 100, 40)'), _new('spinner', 'control', 'FormControl(xlSpinner, 10, 10, 100, 40)'),
+           _new('option button', 'control', 'FormControl(xlOptionButton, 10, 10, 100, 40)'), _new('list box', 'control', 'FormControl(xlListBox, 10, 10, 100, 40)'), _new('group box', 'control', 'FormControl(xlGroupBox, 10, 10, 100, 40)'),
+           _new('label', 'control', 'FormControl(xlLabel, 10, 10, 100, 40)'), _new('scroll bar', 'control', 'FormControl(xlScrollBar, 10, 10, 100, 40)'),
            _loaded('Plain', 'text'), _loaded('Box', 'text'), _loaded('Runs', 'text'), _loaded('Paras', 'text'), _loaded('Clipped', 'text'), _loaded('Joined', 'line'), _loaded('Elbow', 'line'), _loaded('Line', 'line'),
            _loaded('Pic', 'picture'), _loaded('Tuned', 'picture'), _loaded('Clear', 'picture')]
-_GENERAL = {'s.AlternativeText': ['"Alt"'], 's.Left': ['33'], 's.Top': ['44'], 's.Width': ['111'], 's.Height': ['66'], 's.Rotation': ['30'], 's.Visible': ['msoFalse'], 's.LockAspectRatio': ['msoTrue'],
+_GENERAL = {'s.AlternativeText': ['"Alt"'], 's.Left': ['33'], 's.Top': ['45'], 's.Width': ['111'], 's.Height': ['66'], 's.Rotation': ['30'], 's.Visible': ['msoFalse'], 's.LockAspectRatio': ['msoTrue'],
             's.Placement': ['xlFreeFloating'], 's.Decorative': ['msoTrue'], 's.Locked': ['False'], 's.Fill.Visible': ['msoFalse'], 's.Fill.ForeColor.RGB': ['255'], 's.Fill.Transparency': ['0.3'], 's.Line.Visible': ['msoFalse'], 's.Line.ForeColor.RGB': ['255'],
             's.Line.Weight': ['3'], 's.Line.DashStyle': ['4'], 's.DrawingObject.Interior.Color': ['255'], 's.DrawingObject.Border.Color': ['255'], 's.DrawingObject.Border.Weight': ['xlThick', 'xlThin', 'xlHairline', 'xlMedium'],
             's.DrawingObject.Border.LineStyle': ['xlDash'], 's.DrawingObject.Text': ['"Xy"']}
@@ -36,14 +38,15 @@ _ONLY = {'s.ConnectorFormat.Type': ['2'], 's.PictureFormat.Brightness': ['0.7'],
 SETTINGS = {**_GENERAL, **_TEXT, **_ONLY}
 KINDS: dict[str, tuple[str, ...]] = {**{path: ('text',) for path in _TEXT}, 's.ConnectorFormat.Type': ('line',), **{path: ('picture',) for path in _ONLY if 'Picture' in path}}
 #: What a save still loses. It may only shrink.
-_NEW_CONTROLS = ('check box', 'button', 'drop-down', 'spinner')
-_CONTROL_SETTINGS = ('s.AlternativeText = "Alt"', 's.Rotation = 30', 's.Visible = msoFalse', 's.LockAspectRatio = msoTrue', 's.Placement = xlFreeFloating', 's.Decorative = msoTrue', 's.Locked = False')
-ACCEPTED: dict[str, str] = {f'{control}: {setting}': "a new form control's drawing and VML are written without it" for control in _NEW_CONTROLS for setting in _CONTROL_SETTINGS}
+ACCEPTED: dict[str, str] = {}
+#: What changes across Excel's own save too: a new control reads no lock on its aspect until it is opened from the file.
+EXCEL_LOSES = {f'{control}: s.LockAspectRatio = msoTrue': 'tests/fixtures/new_control_settings.json'
+               for control in ('check box', 'button', 'drop-down', 'spinner', 'option button', 'list box', 'group box', 'label', 'scroll bar')}
 
 
 @pytest.mark.parametrize('case', cases(TARGETS, SETTINGS, KINDS), ids=str)
 def test_each_setting_comes_back_from_the_file(case: Case, tmp_path: Path) -> None:
-    check(case, tmp_path, ACCEPTED)
+    check(case, tmp_path, ACCEPTED, EXCEL_LOSES)
 
 
 

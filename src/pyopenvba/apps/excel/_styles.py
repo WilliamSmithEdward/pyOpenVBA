@@ -22,6 +22,7 @@ Colours follow what live Excel answers (tests/fixtures/range_format.json):
 
 from __future__ import annotations
 
+import dataclasses
 import re
 from collections.abc import Callable, Iterable
 from copy import deepcopy
@@ -656,11 +657,22 @@ def font_xml(font: Font) -> str:
     return "".join(parts)
 
 
+def _without_automatic_tint(color: Color) -> Color:
+    if color.tint and (color.kind == "auto" or (color.kind == "indexed" and color.value in (SYSTEM_FOREGROUND, SYSTEM_BACKGROUND))):
+        return dataclasses.replace(color, tint=0)
+    return color
+
+
 def fill_xml(fill: Fill) -> str:
     if fill.gradient:
         return fill.gradient
     if fill.pattern == "none":
         return '<fill><patternFill patternType="none"/></fill>'
+    # An automatic cell colour's shade lasts only until the save, though a pattern colour's stays (tests/fixtures/format_properties.json).
+    if fill.pattern == "solid":
+        fill = dataclasses.replace(fill, foreground=_without_automatic_tint(fill.foreground))
+    else:
+        fill = dataclasses.replace(fill, background=_without_automatic_tint(fill.background))
     foreground = fill.foreground != FOREGROUND
     background = fill.background != BACKGROUND
     if fill.bare:

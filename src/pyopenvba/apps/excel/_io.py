@@ -665,13 +665,14 @@ def _read_shapes(sheet: Worksheet, package: OpcFile, sheet_xml: str) -> None:
     are in that part, and a form control's own settings are in the
     ``ctrlProps`` part the sheet points at separately.
     """
+    from pyopenvba.apps.excel._prefixed_parts import drawing_spelled
     from pyopenvba.shapes._xlsx import control_text, read_control_settings, read_controls, read_drawing
 
     part = _sheet_relationship(package, sheet.part_name, "drawing")
     if not part or not package.has(part):
         return
     sheet.drawing_part = part
-    sheet.drawing_xml = package.read(part).decode("utf-8", errors="replace")
+    sheet.drawing_xml = drawing_spelled(package.read(part).decode("utf-8", errors="replace"))
     # Anchors are read against the model's own rows and columns, the ones
     # a save writes them against, so a shape nobody moved stays put.
     sheet.shapes_ = read_drawing(sheet.drawing_xml, sheet.drawing_grid())

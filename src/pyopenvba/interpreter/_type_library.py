@@ -250,13 +250,15 @@ def reads_double_late(found: LibraryClass, member: str) -> bool:
 
 
 _CUTS_LATE = frozenset({'_Application', '_Worksheet'})
+#: Members of those that round and take True as -1 bound late, as VBA does (tests/fixtures/application_identity.json).
+_ROUNDS_LATE = frozenset({('_Application', 'featureinstall')})
 
 
 def late_number(found: LibraryClass, member: str, value: object) -> object:
     """What a numeric property of Application or Worksheet makes of a Variant bound late: True is 1, not -1, and a Long takes a fraction's
     whole part where VBA would round it. A chart or a tab rounds as VBA does (tests/fixtures/vba_late_fractions.json)."""
     puts = next((form for form in found.members.get(member.lower(), ()) if form[0] == 4), None)
-    if puts is None or not puts[4] or found.name not in _CUTS_LATE:
+    if puts is None or not puts[4] or found.name not in _CUTS_LATE or (found.name, member.lower()) in _ROUNDS_LATE:
         return value
     kind = puts[4][-1].split(':')[-1]
     if kind not in ('Long', 'Double', 'Integer', 'Single'):

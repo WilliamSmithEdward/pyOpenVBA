@@ -21,7 +21,9 @@ _spec.loader.exec_module(ROUNDS)
 
 RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8')) for path in sorted((ROOT / 'tests/fixtures/table_pivot_rounds').glob('round_*.json'))]
 USED_UP = {51101: 'ListObjects(text) went by DisplayName, not Name (tests/fixtures/table_name_lookup.json); its Author answers were '
-                  'read with the model\'s own user name, not the measuring user\'s'}
+                  'read with the model\'s own user name, not the measuring user\'s',
+           51102: 'FormatCondition.Parent was AppliesTo, not the range FormatConditions was taken from '
+                  '(tests/fixtures/format_condition_parent.json)'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

@@ -719,7 +719,12 @@ class RuleObject(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.AppliesTo()
+        """The range FormatConditions was taken from, not the rule's AppliesTo: D3's, C1:E9's or the sheet's for a rule on
+        D1:D5, of every kind; reached otherwise, as the object Add gives back, AppliesTo (tests/fixtures/
+        format_condition_parent.json)."""
+        if self.through is None:
+            return self.AppliesTo()
+        return Range(self.sheet, [Area(a.top, a.left, a.bottom, a.right, self.sheet.name) for a in self.through])
 
 
     def touched(self) -> None:

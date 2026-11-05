@@ -412,10 +412,21 @@ lacks next to the type library: a read-write property with no setter,
 or a method missing some of Excel's parameters. A member with an
 interface gap cannot be VERIFIED. `tests/test_excel_checklist.py` works
 that column out again from the classes, and fails a VERIFIED row whose
-own code can reach a reported gap, unless
+code can reach a reported gap, through its own class or through plain
+functions anywhere in the package, unless
 `tests/fixtures/verified_gaps_accepted.json` gives a reason a reviewer
-can check. A row covers the member wherever a macro reaches it: a Font
+can check. That list holds size limits and a filtered sheet whose rows are
+hidden by default. A row covers the member wherever a macro reaches it: a Font
 row covers a chart's font as well as a cell's.
+
+What VERIFIED claims is limited. It says the row's calls matched live Excel
+over rounds of new values, with the model's answers written down first, and
+that the scan finds no unaccepted gap. It does not say no difference exists:
+a round samples values, and it can miss a case. The scan is a floor as well.
+It cannot see a method of another object, a function passed along as a
+callback, code the interpreter runs, or a value turned away with some other
+error. So a VERIFIED member can still report a gap that way, though a report
+is not a wrong answer. A row that fails any of this goes back to PARTIAL.
 
 A property given a number goes through Excel's own numbering for it, and a
 block of cells is tried one cell at a time, what the others did staying done

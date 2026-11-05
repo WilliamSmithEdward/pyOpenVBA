@@ -1262,7 +1262,7 @@ class Interpreter:
         return self.steps.limit
 
     @step_limit.setter
-    def step_limit(self, value: int | None) -> None:
+    def step_limit(self, value: object) -> None:
         if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
             raise ValueError(f"step_limit must be a whole number of at least 1, or None for no limit, not {value!r}")
         self.steps.limit = value

@@ -33,6 +33,10 @@ Public Function HowMany() As Long
     HowMany = Done
 End Function
 
+Public Function FirstCell() As Variant
+    FirstCell = Range("A1").Value
+End Function
+
 Public Function ErrNumber() As Long
     ErrNumber = Err.Number
 End Function
@@ -57,7 +61,7 @@ def test_an_endless_loop_stops_and_on_error_cannot_trap_it() -> None:
     with pytest.raises(VBAStepLimitError, match='step_limit=1000'):
         app.run('H.Forever')
     # What ran before it is kept, not rolled back, and it is no run-time error, so Err was not set.
-    assert app.application.vba_get('ActiveSheet').vba_get('Range', ['A1']).vba_get('Value') == 'before'
+    assert app.run('H.FirstCell') == 'before'
     assert app.run('H.ErrNumber') == 0
 
 
@@ -92,7 +96,7 @@ End Function
     with pytest.raises(VBAStepLimitError):
         app.run('Callers.ByEvaluate')
     # Each alone was well inside it.
-    assert app.run('H.Spin', 300) > 0
+    assert app.run('H.Spin', 300) == app.run('H.HowMany')
 
 
 def test_a_python_callback_that_runs_vba_inside_a_run_draws_on_the_same_budget() -> None:

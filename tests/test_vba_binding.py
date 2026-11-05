@@ -178,3 +178,15 @@ def test_a_property_set_answers_by_how_it_was_bound(line: str, expected: int) ->
     app.add_workbook()
     app.add_module(f'Function Probe() As Long\nDim ws As Worksheet, wo As Object\nSet ws = ActiveSheet: Set wo = ws\nOn Error Resume Next\n{line}\nProbe = Err.Number\nEnd Function', name='Harness')
     assert app.run('Harness.Probe') == expected
+
+
+@pytest.mark.parametrize(('declared', 'refused'), [('CheckBoxes', True), ('DropDowns', True), ('ListBoxes', True), ('OptionButtons', True), ('Arcs', False), ('Buttons', False), ('Comments', False)])
+def test_a_typed_index_is_a_call_of_the_default_member(declared: str, refused: bool) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(f'Function Probe() As String\nDim o As {declared}\nIf False Then\nProbe = o(1).Name\nEnd If\nProbe = "compiled"\nEnd Function', name='Harness')
+    if refused:
+        with pytest.raises(VBACompileError, match='Wrong number of arguments'):
+            app.run('Harness.Probe')
+    else:
+        assert app.run('Harness.Probe') == 'compiled'

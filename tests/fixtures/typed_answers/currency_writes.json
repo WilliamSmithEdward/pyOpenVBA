@@ -1,0 +1,65 @@
+{
+ "measured_at": "2026-11-04T19:59:13.839385+00:00",
+ "cases": [
+  {
+   "name": "Value-10.1234",
+   "typed": "Double:10.12|$#,##0.00_);($#,##0.00)",
+   "drifted": ""
+  },
+  {
+   "name": "Value-1.005",
+   "typed": "Double:1.01|$#,##0.00_);($#,##0.00)",
+   "drifted": ""
+  },
+  {
+   "name": "Value-1.015",
+   "typed": "Double:1.02|$#,##0.00_);($#,##0.00)",
+   "drifted": ""
+  },
+  {
+   "name": "Value-1.025",
+   "typed": "Double:1.03|$#,##0.00_);($#,##0.00)",
+   "drifted": ""
+  },
+  {
+   "name": "Value--1.005",
+   "typed": "Double:-1.01|$#,##0.00_);($#,##0.00)",
+   "drifted": ""
+  },
+  {
+   "name": "Value-2.675",
+   "typed": "Double:2.68|$#,##0.00_);($#,##0.00)",
+   "drifted": ""
+  },
+  {
+   "name": "Value2-10.1234",
+   "typed": "Double:10.1234|General",
+   "drifted": ""
+  },
+  {
+   "name": "Value2-1.005",
+   "typed": "Double:1.005|General",
+   "drifted": ""
+  },
+  {
+   "name": "Value2-1.015",
+   "typed": "Double:1.015|General",
+   "drifted": ""
+  },
+  {
+   "name": "Value2-1.025",
+   "typed": "Double:1.025|General",
+   "drifted": ""
+  },
+  {
+   "name": "Value2--1.005",
+   "typed": "Double:-1.005|General",
+   "drifted": ""
+  },
+  {
+   "name": "Value2-2.675",
+   "typed": "Double:2.675|General",
+   "drifted": ""
+  }
+ ]
+}

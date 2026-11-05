@@ -1717,11 +1717,9 @@ def test_excel_reads_the_filtered_edits_this_made(tmp_path: Path) -> None:
     """Every edit tests/fixtures/autofilter_edits.json measured, made by the model, saved and opened in Excel."""
     import json
 
-    from test_excel_autofilter_edits import UNSUPPORTED
-
     harness = pytest.importorskip("pyvbaharness")
     record = json.loads((Path(__file__).parent / "fixtures" / "autofilter_edits.json").read_text(encoding="utf-8"))
-    layouts = [layout for layout in record["layouts"] if layout["name"] not in UNSUPPORTED]
+    layouts = record["layouts"]
     build = ["Public Sub Build()", "Dim wb As Object, ws As Object", "Set wb = ActiveWorkbook"]
     # Every sheet is named before any layout runs, a copy's destination beside its sheet as the copy would add it:
     # the model renames no sheet once a formula holds a qualified error, which some layouts leave.

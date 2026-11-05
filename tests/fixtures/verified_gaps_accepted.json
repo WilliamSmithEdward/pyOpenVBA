@@ -1,1 +1,3 @@
-{}
+{
+  "writing to or formatting more than 1,048,576 cells at once is not implemented": "One write over more than a full column's cells. Whole columns and rows of one value go another way. The gap is reported and nothing is written."
+}

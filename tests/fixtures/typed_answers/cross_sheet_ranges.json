@@ -1,0 +1,85 @@
+{
+ "measured_at": "2026-11-04T20:00:34.907850+00:00",
+ "cases": [
+  {
+   "name": "range_both_cells_other_sheet",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "range_one_cell_other_sheet",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "range_first_cell_other_sheet",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "range_one_range_other_sheet",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "range_own_sheet",
+   "typed": "Long:0|ws|$A$1:$B$2",
+   "drifted": ""
+  },
+  {
+   "name": "range_text_other_sheet",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "range_text_own_sheet",
+   "typed": "Long:0|ws|$A$1:$B$2",
+   "drifted": ""
+  },
+  {
+   "name": "range_name_other_sheet",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "range_name_own_sheet",
+   "typed": "Long:0|w2|$C$4",
+   "drifted": ""
+  },
+  {
+   "name": "application_range_other_sheet",
+   "typed": "Long:0|w2|$A$1:$B$2",
+   "drifted": ""
+  },
+  {
+   "name": "application_range_mixed",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "application_range_text_other_sheet",
+   "typed": "Long:0|w2|$B$3",
+   "drifted": ""
+  },
+  {
+   "name": "union_two_sheets",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "union_one_sheet",
+   "typed": "Long:0|ws|$A$1,$C$3",
+   "drifted": ""
+  },
+  {
+   "name": "intersect_two_sheets",
+   "typed": "Long:1004",
+   "drifted": ""
+  },
+  {
+   "name": "intersect_one_sheet",
+   "typed": "Long:0|ws|$B$2",
+   "drifted": ""
+  }
+ ]
+}

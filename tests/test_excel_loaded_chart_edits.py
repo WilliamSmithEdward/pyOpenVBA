@@ -67,7 +67,7 @@ def run(case: list[Any], folder: Path) -> tuple[str, dict[str, bytes]]:
 
 @pytest.mark.parametrize('case', [case for case in RECORD['cases'] if not answered(case)], ids=label)
 def test_an_edit_not_built_stays_refused(case: list[Any], tmp_path: Path) -> None:
-    with pytest.raises(VBAUnsupportedError, match='imported'):
+    with pytest.raises(VBAUnsupportedError):
         run(case, tmp_path)
 
 

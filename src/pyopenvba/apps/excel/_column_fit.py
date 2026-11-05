@@ -114,7 +114,7 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
     A value its format cannot show, a date before 1900 say, fills the column with #. A number shown by General
     loses decimals, then goes to scientific notation, then shows 0 where it rounds to that, as the column narrows,
     the format's other text kept; any other number, a date, a logical or an error fills the column with # once it
-    no longer fits, as does a General number nothing else fits. Text shows whole, unless a section with a ``*``
+    no longer fits, as does a General number nothing else fits, a constant one # however narrow the column. Text shows whole, unless a section with a ``*``
     fill lays it out, and then fills with # as a number would. A fill repeats its character as often as it fits,
     to 255 characters in all, each ``_x`` and ``?`` counted a space wide. What a cell has to show its text in is
     its column's width but 5 pixels and the pad a big font adds, an indent level's 9 and, for italic, a pixel for
@@ -169,7 +169,8 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
                                   f"8 to 72pt")
     room = pixels - 5 - font_pad(table) - _steps(font)
     space = room - _INDENT * alignment.indent
-    hashes = "#" * max(0, room // table["#"])
+    # Too narrow for one, a constant still shows one and a formula shows nothing, in every font (tests/fixtures/font_round_arial.json against tests/fixtures/autofit_sizes.json).
+    hashes = "#" * max(0 if cell.formula else 1, room // table["#"])
     if shown is None:
         return hashes if undisplayable or _glyphs(table, text) > space else text
     laid, fill_at = shown.text, shown.fill_at
@@ -178,7 +179,7 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
         piece = laid[start:end]
         spare = space - _glyphs(table, laid[:start] + laid[end:])
         if _shown_width(table, piece) > spare:
-            found = _general_within(shown.general_value, piece, spare, table)
+            found = _general_within(shown.general_value, piece, spare, table, bool(cell.formula))
             if found is None:
                 return hashes
             if fill_at >= end:
@@ -232,11 +233,11 @@ def _significant(text: str) -> int:
     return len(digits)
 
 
-def _general_within(value: float, full: str, space: int, table: dict[str, int]) -> str | None:
+def _general_within(value: float, full: str, space: int, table: dict[str, int], formula: bool) -> str | None:
     """The General number that fits ``space`` pixels: of the most decimals of it that keep a digit that is not 0,
     and the most digits of it in scientific notation, the one showing more digits, the decimals where they show as
     many; but 0 where no decimals fit, it rounds to 0 and there is no room for five digits, however narrow a
-    scientific one's characters (tests/fixtures/autofit_sizes.json, 1E-04); None where nothing fits."""
+    scientific one's characters, a formula's only with room for a digit (tests/fixtures/autofit_sizes.json, 1E-04); None where nothing fits."""
     fixed = None
     if "E" not in full:
         decimals = len(full.partition(".")[2])
@@ -244,7 +245,7 @@ def _general_within(value: float, full: str, space: int, table: dict[str, int]) 
                       if _significant(shown) and _shown_width(table, shown) <= space), None)
     zero = _fixed(value, 0)
     room = (space - (table["-"] if value < 0 else 0)) // table["0"]
-    if fixed is None and zero.lstrip("-") == "0" and 1 <= room < _SHORTEST_SCIENTIFIC:
+    if fixed is None and zero.lstrip("-") == "0" and (1 if formula else room) <= room < _SHORTEST_SCIENTIFIC:
         return zero
     scientific = next((shown for places in range(9, -1, -1) for shown in [_scientific(value, places)]
                        if _shown_width(table, shown) <= space), None)

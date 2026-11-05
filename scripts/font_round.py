@@ -113,8 +113,8 @@ Public Function Justified(ByVal text As String, ByVal font As String, ByVal size
     ws.Columns(1).ColumnWidth = width
     ws.Range("A1").Value = text
     Dress ws.Range("A1"), font, size, False, False, 0
-    ws.Range("A1:A12").Justify
-    For i = 1 To 12
+    ws.Range("A1:A40").Justify
+    For i = 1 To 40
         r = r & "|" & ws.Cells(i, 1).Value
     Next
     Justified = r
@@ -167,14 +167,15 @@ STYLES = ((False, False), (True, False), (False, True), (True, True))
 
 
 def items(font: str) -> list[list[object]]:
-    """Every question of this font's round, as a procedure and its arguments. Different for each font."""
-    chooser = random.Random(font)
+    """Every question of this font's round, as a procedure and its arguments. Different for each font and round."""
+    chooser = random.Random(font + ROUND)
+    sizes = SIZES if not ROUND else (8.0, 9.5, 10.0, 10.5, 12.5, 13.0, 13.5, 15.0, 18.0, 20.0, 22.0, 28.0, 48.0)
     found: list[list[object]] = []
 
     def text(most: int = 7) -> str:
         return ' '.join(chooser.choices(WORDS, k=chooser.randint(1, most)))
 
-    for size in SIZES:
+    for size in sizes:
         for bold, italic in STYLES:
             for _ in range(5):
                 found.append(['Fit', text(4), font, size, bold, italic, chooser.choice((0, 0, 1, 3))])
@@ -184,10 +185,10 @@ def items(font: str) -> list[list[object]]:
             found.append(['Wrapped', f'{text(3)}~{text(4)}', font, size, bold, italic, 0, widths])
             pixels = sorted(chooser.sample(range(24, 500), 10))
             found.append(['Lined', text(), font, size, bold, italic, ','.join(str(pixel * .75) for pixel in pixels)])
-            for value, shape in ((1234567.891, 'General'), (0.000123456, 'General'), (98765.4321, '#,##0.00'), (45123.0, 'yyyy-mm-dd'), (12.5, '0.00%')):
-                found.append(['Shown', value, shape, font, size, bold, italic, ','.join(str(one) for one in (0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18))])
+            for value, shape in ((1234567.891, 'General'), (0.000123456, 'General'), (-0.000123456, 'General'), (98765.4321, '#,##0.00'), (45123.0, 'yyyy-mm-dd'), (12.5, '0.00%')):
+                found.append(['Shown', value, shape, font, size, bold, italic, ','.join(str(one) for one in (0.09, 0.25, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 18))])
     for size in (9.0, 11.0, 14.0):
-        for width in (8.0, 14.0, 30.0):
+        for width in (40.0, 70.0, 120.0):
             found.append(['Justified', ' '.join(chooser.choices(WORDS, k=14)), font, size, width])
         for bold in (False, True):
             found.append(['Pivoted', font, size, bold])
@@ -197,7 +198,7 @@ def items(font: str) -> list[list[object]]:
 
 
 def _stem(font: str) -> Path:
-    return FIXTURES / f"font_round_{font.lower().replace(' ', '_')}"
+    return FIXTURES / f"font_round_{font.lower().replace(' ', '_')}{ROUND}"
 
 
 def predict(font: str) -> None:
@@ -220,6 +221,10 @@ def predict(font: str) -> None:
     path = Path(f'{_stem(font)}_predictions.json')
     path.write_text(json.dumps({'font': font, 'cases': cases}, indent=0), encoding='utf-8', newline='\n')
     print(len(cases), 'questions,', refused, 'refused')
+
+
+#: The round, from the third argument: nothing for the first, "2" for the second.
+ROUND = sys.argv[3] if len(sys.argv) > 3 else ''
 
 
 def _check(excel: object, stage: str) -> None:
@@ -265,7 +270,7 @@ def score(font: str) -> None:
             row[1] += 1
             wrong.append((case['call'], case['model'], answer))
     print(f'{len(answers)} of {len(cases)} asked; right, wrong, refused by procedure:', tally)
-    for one in wrong[:int(sys.argv[3]) if len(sys.argv) > 3 else 12]:
+    for one in wrong[:12]:
         print(str(one)[:400])
     reasons = sorted({str(case['refused'])[:90] for case in cases if case['refused']})
     print(reasons)

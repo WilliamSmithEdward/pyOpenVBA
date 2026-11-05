@@ -1850,6 +1850,8 @@ class Workbook(ExcelObject):
         #: _chart_sheets). sheets_ holds worksheets alone.
         self.chart_sheets: list[ChartSheet] = []
         self.file_tabs: list[Worksheet | ChartSheet] = []
+        #: The number of the last chart sheet that took one, or a name of its own (see _chart_sheets.new_name).
+        self.chart_sheets_named = 0
         self.active_chart_sheet: ChartSheet | None = None
         #: Chart sheets a macro deleted, whose parts the next save removes.
         self.deleted_chart_sheets: list[ChartSheet] = []
@@ -2542,6 +2544,13 @@ class Workbook(ExcelObject):
     def Activate(self) -> object:
         self.application.activate_book(self)
         return EMPTY
+
+    @method
+    def NewWindow(self) -> object:
+        """Another window on the workbook, at the front (see _window_states)."""
+        from pyopenvba.apps.excel._windows import new_window
+
+        return new_window(self)
 
     # -- protection (see _protection)
 
@@ -3629,6 +3638,8 @@ class Worksheet(ExcelObject):
         self.notes: dict[tuple[int, int], Note] = {}
         #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
         self.held_kinds: set[str] = set()
+        #: The chart sheet this sheet carries the chart of, which no tab shows (see _chart_sheets).
+        self.chart_sheet: ChartSheet | None = None
         #: The sheet's query tables, the newest first (see _query_tables).
         self.query_tables: list[Any] = []
         #: The PNG SetBackgroundPicture gave the sheet, None for none; True once it changed, so a save writes it.

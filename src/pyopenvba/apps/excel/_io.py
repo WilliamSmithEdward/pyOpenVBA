@@ -29,7 +29,7 @@ from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
 from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _encode_string
-from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
+from pyopenvba.exceptions import PyOpenVBAError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.formula._parse import without_dangling_references
@@ -113,6 +113,30 @@ class WorkbookFileError(PyOpenVBAError):
 
 
 # --- reading ------------------------------------------------------------------------
+
+
+#: A column of a table named on its own: Tab[a], not Tab[@a] or Tab[[#All],[a]].
+_WHOLE_COLUMN = re.compile(r"\[[^\[\]#@,:]+\]")
+
+
+def _read_columns_as_this_row(book: Workbook) -> None:
+    """A file can hold a table's column where one value is wanted, as =@Tab[a] saves: loaded, it reads as this row's cell,
+    =Tab[@a] (tests/fixtures/formula_reads.json). A sheet nobody writes to keeps its bytes all the same."""
+    from pyopenvba.apps.excel._model import written_formula
+
+    if not any(sheet.tables for sheet in book.sheets_):
+        return
+    for sheet in book.sheets_:
+        for (row, column), cell in sheet.cells_.items():
+            formula = cell.formula
+            if not formula or cell.dynamic or "[" not in formula or not _WHOLE_COLUMN.search(formula):
+                continue
+            try:
+                read = written_formula(sheet, formula, row, column)
+            except (VBARuntimeError, VBAUnsupportedError):
+                continue
+            if read != formula and read.replace("[@", "[") == formula:
+                cell.formula = read
 
 
 def load_workbook(application: Application, path: Path) -> Workbook:
@@ -256,6 +280,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     read_calculation(book, workbook_xml)
     # Excel's numbering of new sheets starts again in an opened file (tests/fixtures/new_sheet_names.json).
     book.sheet_name_counter = 0
+    _read_columns_as_this_row(book)
     return book
 
 
@@ -1119,6 +1144,7 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
     from pyopenvba.apps.excel import _charts_file
 
     for chart_sheet in book.chart_sheets:
+        chart_sheet.write_changes(package)
         _charts_file.refresh(chart_sheet.sheet, package)
         if package.read(chart_sheet.part_name).decode("utf-8", errors="replace") != chart_sheet.saved_xml():
             package.write(chart_sheet.part_name, chart_sheet.saved_xml().encode("utf-8"))
@@ -1127,6 +1153,10 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         sheet.dims.settle_shapes()
         _charts_file.refresh(sheet, package)
         if not sheet.drawing_dirty:
+            continue
+        if not sheet.drawing_part and not sheet.shapes_:
+            # Its only chart moved away before it was ever written (tests/fixtures/chart_location.json).
+            sheet.drawing_dirty = False
             continue
         part = sheet.drawing_part or _new_drawing(book, package, sheet)
         if not part:
@@ -1624,6 +1654,8 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         package = _fresh_package(fresh_suffix if fresh_suffix is not None else target.suffix.lower())
         book.package = package
         _match_sheets_to_package(book, package)
+        if book.chart_sheets:
+            _sync_sheets(book, package)
     else:
         _sync_sheets(book, package)
         removed_sheets = _remove_deleted_sheets(book, package)
@@ -2156,10 +2188,14 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
         reserved[match.group()] = ("" if position is None else
                                   "<definedName" + patch_attribute(fragment, "localSheetId", str(position))
                                   + ">" + body + "</definedName>")
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
+
     tags: list[str] = []
     for sheet in book.tabs():
         attrs = dict(existing.get(sheet.part_name, {}))
-        if not attrs:
+        if not attrs and isinstance(sheet, ChartSheet):
+            attrs = {"name": sheet.name, "sheetId": str(sheet.sheet_id), "r:id": sheet.write_parts(package)}
+        elif not attrs:
             number = 1
             while package.has(f"xl/worksheets/sheet{number}.xml"):
                 number += 1

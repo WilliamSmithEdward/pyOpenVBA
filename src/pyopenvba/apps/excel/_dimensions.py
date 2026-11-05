@@ -596,6 +596,20 @@ class SheetDimensions:
             return
         self.invalidate_growth()
 
+    def contents_changed(self, row: int, cell: Cell | None) -> None:
+        """A cell's contents changed and its format did not. A plain cell shows the Normal font, which grows no row, so a
+        write to a row nothing has grown, beside no edged row, leaves what was worked out as it was: the whole sheet need not
+        be gone through again for each cell a macro writes down a column."""
+        self._touched.add(row)
+        if (self._grown_valid and (cell is None or (cell.style is None and cell.runs is None))
+                and row not in self._grown and row not in self._unmeasured
+                and all(self._flags.get(near, self._default_flags) == self._default_flags for near in (row - 1, row, row + 1))
+                and (row not in self.rows or self.rows[row].style is None)
+                and not any(record.style is not None for record in self.columns.values())
+                and not self.sheet.merged_areas and self.normal_known()):
+            return
+        self.invalidate_growth()
+
     def column_fonts_changed(self) -> None:
         """A column's format changed, which every row without a format of its own shows."""
         self._columns_touched = True

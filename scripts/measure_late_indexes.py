@@ -2,7 +2,7 @@
 
 Typed, VBA reads the property and hands the index to what it answered. Late, the object is asked with the argument: some members
 refuse with 450, some with 451, some with 438, and some index what they answer, which no declaration says. Each line reads
-o.Member(1) under On Error, into a Variant. Only property gets are asked, nothing is set, and no member that shows a window or
+o.Member(1) under On Error, into an object or a Variant by what it is declared to answer. Only property gets are asked, nothing is set, and no member that shows a window or
 touches mail is read.
 
     python scripts/measure_late_indexes.py
@@ -42,8 +42,9 @@ def mail_members() -> frozenset[str]:
     return frozenset(found)
 
 
+SCALARS = frozenset({'Byte', 'Integer', 'Long', 'LongLong', 'LongPtr', 'Single', 'Double', 'Currency', 'Date', 'Boolean', 'String', 'Variant', ''})
 HELPERS = '''Function Probe() As String
-Dim ws As Object, o As Object, s As String, v As Variant, e As Long
+Dim ws As Object, o As Object, w As Object, s As String, v As Variant, e As Long
 Set ws = Worksheets.Add
 ws.Range("A1:B2").Value = 5
 Set o = TARGET
@@ -62,7 +63,10 @@ def members_of(class_name: str) -> list[str]:
 
 
 def macro(class_name: str, members: list[str]) -> str:
-    body = ''.join(f'v = Empty\nv = o.{member}(1)\ne = Err.Number\nErr.Clear\ns = s & e & "|"\n' for member in members)
+    # What answers an object is read with Set: a Let would go on to its default member, and IconSets(1) would look refused for its IconSet wanting an index.
+    found = find_class('excel', class_name)
+    assert found is not None
+    body = ''.join((f'Set w = Nothing\nSet w = o.{member}(1)\n' if found.result(member) not in SCALARS else f'v = Empty\nv = o.{member}(1)\n') + 'e = Err.Number\nErr.Clear\ns = s & e & "|"\n' for member in members)
     return (HELPERS.replace('TARGET', TARGETS[class_name]) + body
             + 'On Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n')
 

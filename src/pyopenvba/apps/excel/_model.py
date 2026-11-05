@@ -2555,6 +2555,13 @@ class Workbook(ExcelObject):
         self.application.activate_book(self)
         return EMPTY
 
+    @method
+    def NewWindow(self) -> object:
+        """Another window on the workbook, at the front (see _window_states)."""
+        from pyopenvba.apps.excel._windows import new_window
+
+        return new_window(self)
+
     # -- protection (see _protection)
 
     @method

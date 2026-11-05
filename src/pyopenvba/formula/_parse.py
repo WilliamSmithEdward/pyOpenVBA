@@ -620,6 +620,8 @@ class Parser:
     def spilled(self, node: Node) -> Node:
         """``node`` and a ``#`` after it, what spilled from a cell: A1#."""
         while self.token.kind == "op" and self.token.text == "#":
+            if isinstance(node, Literal):
+                raise FormulaError(f"nothing spills from a value in {self.source!r}")
             self.advance()
             node = self.placed(Unary(op="#", operand=node), self.start(node))
         return node

@@ -56,9 +56,6 @@ from pyopenvba.formula._values import ExcelError, number_text
 #: The largest number a formula can hold written out.
 LARGEST: Final = 9.99999999999999e307
 _CORNER: Final = re.compile(r"(\$?)([A-Za-z]{1,3})?(\$?)([0-9]{1,7})?")
-#: What Excel reads in a formula that the model does not: the dynamic-array operators.
-_UNMODELLED: Final = re.compile(r"#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|SPILL!|CALC!|GETTING_DATA)",
-                                re.IGNORECASE)
 #: A string, or a sheet's name in apostrophes, where any character may stand.
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
 #: A cell, points and more after them, as one name: Excel writes it in apostrophes (tests/fixtures/value_gaps.json).
@@ -218,13 +215,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
     if "\t" in re.sub(r"\[[^\]]*\]", "", _QUOTED.sub('""', body)):
         # In a string, a sheet's name or a table's column it may stand; anywhere else Excel refuses it.
         raise FormulaError("a tab stands outside a string")
-    try:
-        tokens = tokenize(body, spaces=True)
-    except FormulaError:
-        unmodelled = _UNMODELLED.search(re.sub(r"\[[^\]]*\]", "", _QUOTED.sub('""', body)))
-        if unmodelled is not None:
-            raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented") from None
-        raise
+    tokens = tokenize(body, spaces=True)
     if not at and any(token.kind == "op" and token.text == "@" for token in tokens):
         # Written through Range.Formula an @ goes, but for one on a single cell; an array formula keeps each it is given
         # (tests/fixtures/formula_reads.json).

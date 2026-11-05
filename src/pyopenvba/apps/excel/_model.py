@@ -8635,8 +8635,10 @@ def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 
 
     try:
         return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
-    except UnmodelledFormulaError as exc:
-        raise VBAUnsupportedError(str(exc)) from None
+    except UnmodelledFormulaError:
+        # Excel takes it with no dialog when alerts are off: an open workbook's cells, a closed one's read from its file, and #REF! of
+        # one not there. A formula naming a workbook the file already links to goes another way (see _external_links).
+        raise VBAUnsupportedError("a formula naming a workbook the file does not link to is not implemented") from None
     except FormulaError:
         raise error(1004, "Application-defined or object-defined error") from None
 

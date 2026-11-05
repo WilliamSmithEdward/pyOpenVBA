@@ -1,0 +1,505 @@
+{
+ "measured_at": "2026-11-04T20:00:13.101535+00:00",
+ "cases": [
+  {
+   "name": "plain",
+   "typed": "=Totals!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "plain_digits",
+   "typed": "=Data2!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "underscore_first",
+   "typed": "=_x!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "underscore_digit",
+   "typed": "=x_1!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "full_stop",
+   "typed": "=x.y!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "space",
+   "typed": "='Data 1'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "digit_first",
+   "typed": "='1Data'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "hyphen",
+   "typed": "='Ab-c'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "dollar",
+   "typed": "='a$b'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "hash_first",
+   "typed": "='#x'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "apostrophe",
+   "typed": "='O''Neil'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "accented",
+   "typed": "=Donn\u00e9es!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cell",
+   "typed": "='Q4'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cell_first",
+   "typed": "='A1'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "last_cell",
+   "typed": "='XFD1048576'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "past_last_column",
+   "typed": "=XFE1!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "four_letters",
+   "typed": "=AAAA1!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "past_last_row",
+   "typed": "=A1048577!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cell_like_word",
+   "typed": "=LOG10!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cell_then_letter",
+   "typed": "=A1B!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "letters",
+   "typed": "=AB!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r1c1",
+   "typed": "='R1C1'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_alone",
+   "typed": "='R'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_alone",
+   "typed": "='C'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rc",
+   "typed": "='RC'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_digits",
+   "typed": "='R2'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_digits",
+   "typed": "='C3'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_c_digits",
+   "typed": "='R2C'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "lower_r1c1",
+   "typed": "='r1c1'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "true",
+   "typed": "='TRUE'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "false",
+   "typed": "='false'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "function_name",
+   "typed": "=SUM!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "error_like",
+   "typed": "=NA!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cell_like_not_a_function",
+   "typed": "='LOH10'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cell_like_lower",
+   "typed": "='q4'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rc_digit",
+   "typed": "='RC1'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r1c1_then_letter",
+   "typed": "='R1C1A'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "full_stop_first",
+   "typed": "='.x'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "full_stop_last",
+   "typed": "=x.!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "comma",
+   "typed": "='x,y'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "plus",
+   "typed": "='x+y'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "ampersand",
+   "typed": "='x&y'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "parenthesis",
+   "typed": "='x(y)'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "accented_first",
+   "typed": "=\u00c9t\u00e9!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cjk",
+   "typed": "=\u6570\u636e!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "digits_only",
+   "typed": "='2020'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "digit_full_stop",
+   "typed": "='1.5'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "letter_digit_full_stop",
+   "typed": "=x1.5!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_letter",
+   "typed": "=Rx!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_letter",
+   "typed": "=Cx!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_digit_letter",
+   "typed": "='R1x'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_digit_letter",
+   "typed": "='C1A'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rc_letter",
+   "typed": "=RCx!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r1c_underscore",
+   "typed": "='R1C1_'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rc_digit_letter",
+   "typed": "='RC1x'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_zero",
+   "typed": "=R0!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_zero",
+   "typed": "=C0!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "past_last_r1c1_row",
+   "typed": "=R1048577!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "past_last_r1c1_column",
+   "typed": "='C16385'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "last_r1c1_cell",
+   "typed": "='R1048576C16384'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rr",
+   "typed": "=RR!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "cc",
+   "typed": "=CC!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "row_zero",
+   "typed": "=A0!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "leading_zero_row",
+   "typed": "='A01'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "two_letter_cell",
+   "typed": "='AB12'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_past_zzz",
+   "typed": "='C18279'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_65536",
+   "typed": "='C65536'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_65537",
+   "typed": "='C65537'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_large",
+   "typed": "='C999999'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r1c_letter",
+   "typed": "='R1Cx'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r1c0",
+   "typed": "='R1C0'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r1c_past_last_column",
+   "typed": "='R1C16385'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rc0",
+   "typed": "=RC0!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_leading_zero",
+   "typed": "='R01'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_digits_full_stop",
+   "typed": "=R1.x!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_digit_underscore",
+   "typed": "='C1_'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_digit_full_stop_last",
+   "typed": "=R1.!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_digit_full_stop",
+   "typed": "=C1.x!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r1c1_full_stop",
+   "typed": "='R1C1.x'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rc_digit_full_stop",
+   "typed": "=RC1.x!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "r_digits_decimal",
+   "typed": "=R1.5!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_last_row_number",
+   "typed": "='C1048576'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "c_past_last_row_number",
+   "typed": "=C1048577!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "rc_past_last_row_number",
+   "typed": "=RC1048577!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "log100",
+   "typed": "=LOG100!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "log1000",
+   "typed": "=LOG1000!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "log10_letter",
+   "typed": "=LOG10X!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "letter_log10",
+   "typed": "=XLOG10!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "log9",
+   "typed": "='LOG9'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "copyright_first",
+   "typed": "='\u00a9x'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "copyright_last",
+   "typed": "='x\u00a9'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "euro_first",
+   "typed": "='\u20acx'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "euro_last",
+   "typed": "=x\u20ac!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "umlaut_digit",
+   "typed": "=\u00dc1!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "omega_word",
+   "typed": "=\u03a9mega!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "full_width_letters",
+   "typed": "=\uff21\uff22!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "full_width_digit",
+   "typed": "=\uff11!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "no_break_space",
+   "typed": "='x\u00a0y'!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "en_dash",
+   "typed": "=x\u2013y!A1|Double:7",
+   "drifted": ""
+  },
+  {
+   "name": "em_space_first",
+   "typed": "='\u2003x'!A1|Double:7",
+   "drifted": ""
+  }
+ ]
+}

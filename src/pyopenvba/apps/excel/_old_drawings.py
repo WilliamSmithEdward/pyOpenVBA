@@ -7,17 +7,19 @@ drawing; setting those reports itself until what they write is measured.
 """
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._old_controls import OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
+from pyopenvba.apps.excel._styles import Color
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, TextFrame, _image_points  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_number, to_text
-from pyopenvba.shapes._values import Shape
+from pyopenvba.shapes._values import FillLine, Shape
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -25,6 +27,8 @@ if TYPE_CHECKING:
 _NOT_THERE = (1004, 'Unable to get the property')
 _XL_NONE = -4142
 _XL_DASH = -4115
+#: What each XlBorderWeight writes, in EMU.
+_BORDER_WIDTHS = {1: 1, 2: 9525, -4138: 17145, 4: 24765}
 _LINE_STYLES = {'lgDash': _XL_DASH}
 #: MsoTextOrientation, which the shape's TextFrame takes, to XlOrientation, for those measured.
 _ORIENTATIONS = {1: -4128, 2: -4171}
@@ -57,12 +61,22 @@ class _Paint(HeldPart):
     def _format(self) -> VBAObject:
         return _object(self.owner.drawn.vba_get('Line' if self.slot else 'Fill', []))
 
+    def _look(self) -> FillLine:
+        """What the shape holds of its own, read from its markup if it came from a file."""
+        return getattr(self._format(), 'look')()
+
     def _refuse_picture(self) -> None:
         if self.owner.shape.kind == 'picture':
             raise VBAUnsupportedError("Setting the fill or line of a picture through its old object is not implemented")
 
+    def _bare_picture(self) -> bool:
+        """A picture with no fill or line of its own, as this part goes."""
+        look = self._look()
+        own = (look.line_rgb or look.line_scheme or look.line_width) if self.slot else (look.fill_rgb or look.fill_scheme)
+        return self.owner.shape.kind == 'picture' and not own
+
     def _shown(self) -> bool:
-        return self.owner.shape.kind != 'picture' and bool(to_number(self._format().vba_get('Visible', [])))
+        return not self._bare_picture() and bool(to_number(self._format().vba_get('Visible', [])))
 
     def _set_colour(self, name: str, value: object) -> None:
         self._refuse_picture()
@@ -74,10 +88,10 @@ class _Paint(HeldPart):
 
     @member
     def Color(self) -> object:
-        if self.owner.shape.kind == 'picture':
+        if self._bare_picture():
             return VBAInt(16777215, 'Long')
-        look = self.owner.shape.fill_line
-        if not self.slot and not (look is not None and look.fill_rgb is not None):
+        look = self._look()
+        if not self.slot and look.fill_rgb is None and look.fill_scheme is None:
             # The style's fill, or white where it has none, whether or not it is hidden.
             return VBAInt({'shape': 8544277}.get(_style_of(self.owner.shape), 16777215), 'Long')
         return _object(self._format().vba_get('ForeColor', [])).vba_get('RGB', [])
@@ -88,10 +102,18 @@ class _Paint(HeldPart):
 
     @member
     def ColorIndex(self) -> object:
-        look = self.owner.shape.fill_line
-        own = None if look is None else (look.line_rgb if self.slot else look.fill_rgb)
-        if self.owner.shape.kind == 'picture' or (own is None and not self._shown()):
+        look = self._look()
+        own = look.line_rgb if self.slot else look.fill_rgb
+        if self._bare_picture() or (own is None and not self._shown()):
             return VBAInt(_XL_NONE, 'Long')
+        colour = int(to_number(self.vba_get('Color', [])))
+        if self.owner.shape.kind == 'picture':
+            # Its colour reads as the nearest in the palette (tests/fixtures/shape_settings_kept.json).
+            colors = self.owner.sheet.book.stylesheet.colors
+            return VBAInt(colors.tab_index(Color('rgb', f'FF{colour & 255:02X}{colour >> 8 & 255:02X}{colour >> 16 & 255:02X}')), 'Long')
+        scheme = look.line_scheme if self.slot else look.fill_scheme
+        if own is None and scheme and colour != getattr(self._format(), 'style')()[2 if self.slot else 0]:
+            raise VBAUnsupportedError("The ColorIndex of a drawing's theme colour is not implemented")
         if own is None:
             return VBAInt(_STYLE_INDEXES[_style_of(self.owner.shape)][self.slot], 'Long')
         return _colour_index(self.owner, int(to_number(self.vba_get('Color', []))))
@@ -115,8 +137,8 @@ class Interior(_Paint):
     @member
     def Pattern(self) -> object:
         # Hiding the fill leaves it: only a style with no fill reads none.
-        look = self.owner.shape.fill_line
-        given = look is not None and look.fill_rgb is not None
+        look = self._look()
+        given = look.fill_rgb is not None or look.fill_scheme is not None
         return VBAInt(1 if given or _style_of(self.owner.shape) in ('shape', 'textBox') else _XL_NONE, 'Long')
 
     @setter('Pattern')
@@ -141,8 +163,10 @@ class Border(_Paint):
     def LineStyle(self) -> object:
         if not self._shown():
             return VBAInt(_XL_NONE, 'Long')
-        look = self.owner.shape.fill_line
-        return VBAInt(_LINE_STYLES.get('' if look is None or look.line_dash is None else look.line_dash, 1), 'Long')
+        dash = self._look().line_dash
+        if dash is not None and dash not in _LINE_STYLES:
+            raise VBAUnsupportedError("This LineStyle of a drawing's old object is not implemented")
+        return VBAInt(1 if dash is None else _LINE_STYLES[dash], 'Long')
 
     @setter('LineStyle')
     def _line_style(self, value: object) -> None:
@@ -157,20 +181,30 @@ class Border(_Paint):
 
     @member
     def Weight(self) -> object:
-        if self.owner.shape.kind == 'picture':
+        if self._bare_picture():
             return VBAInt(1, 'Long')
-        look = self.owner.shape.fill_line
-        if look is not None and look.line_width == 24765:
+        width = float(to_number(self._format().vba_get('Weight', [])))
+        if width <= 0:
+            # No line shows.
+            return VBAInt(2 if self.owner.shape.kind == 'textBox' else -4138, 'Long')
+        # By the line's width, with the widths between these steps not measured (tests/fixtures/shape_settings_kept.json).
+        if width < 0.001:
+            return VBAInt(1, 'Long')
+        if 0.25 <= width <= 1:
+            return VBAInt(2, 'Long')
+        if 1.25 <= width <= 1.5:
+            return VBAInt(-4138, 'Long')
+        if width >= 1.95:
             return VBAInt(4, 'Long')
-        return VBAInt(2 if self.owner.shape.kind == 'textBox' else -4138, 'Long')
+        raise VBAUnsupportedError(f"The Weight of a drawing's line {width} points wide is not implemented")
 
     @setter('Weight')
     def _weight(self, value: object) -> None:
-        # xlThick is the one measured.
-        if int(to_number(value)) != 4:
+        width = _BORDER_WIDTHS.get(int(to_number(value)))
+        if width is None:
             raise VBAUnsupportedError("This Weight of a drawing's old object is not implemented")
         self._refuse_picture()
-        getattr(self._format(), 'change')().line_width = 24765
+        getattr(self._format(), 'change')().line_width = width
 
 
 class OldDrawing(OldObject):
@@ -314,7 +348,9 @@ class _Texted(_Filled):
 
     @member
     def Formula(self) -> object:
-        return ''
+        # From a file Excel reads the link back with a space after it (tests/fixtures/old_collection_members.json).
+        found = re.search(r'\btextlink="([^"]+)"', self.shape.source)
+        return f'{found.group(1)} ' if found else ''
 
     @setter('Formula')
     def _formula(self, value: object) -> None:
@@ -375,6 +411,14 @@ class Line(OldDrawing):
 
     def holds(self, shape: Shape) -> bool:
         return _is_collected_line(shape)
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        # An elbow or a curve has an Interior, as none shows (tests/fixtures/shape_settings_kept.json); a straight line has none.
+        if name.lower() == 'interior' and self.shape.geometry not in ('line', 'straightConnector1'):
+            from pyopenvba.apps.excel._text_paragraphs import NoEffect
+
+            return NoEffect(self, 'Interior', {'Color': VBAInt(0, 'Long'), 'ColorIndex': VBAInt(_XL_NONE, 'Long'), 'Pattern': VBAInt(_XL_NONE, 'Long')})
+        return super().vba_get(name, args, named)
 
     @member
     def ArrowHeadStyle(self) -> object:
@@ -450,10 +494,14 @@ def drawing_of(sheet: Worksheet, shape: Shape) -> OldDrawing:
 
 
 class _Drawings(OldControls):
-    """One kind of a sheet's drawings. Reading a member of its items from the collection fails, though setting one reaches them all."""
+    """One kind of a sheet's drawings. Reading a member of its items from several fails, though setting one reaches them all."""
 
     vba_type_name = ''
     item: ClassVar[type[OldDrawing]]
+    parts = frozenset({'Border', 'Font', 'Interior'})
+    spread_alone = False
+    several = {'addindent': False, 'autoscalefont': False}
+    doubled = frozenset()
 
     def holds(self, shape: Shape) -> bool:
         return self.item.holds(self.item.__new__(self.item), shape)
@@ -465,10 +513,22 @@ class _Drawings(OldControls):
         found = _object(self.sheet.vba_get('Shapes', [])).vba_call(stem, list(arguments))
         return drawing_of(self.sheet, getattr(found, 'shape'))
 
-    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        if name.lower() in {key.lower() for key in self._vba_members}:
-            return super().vba_get(name, args, named)
+    def nothing_held(self, name: str) -> object:
         raise error(*_NOT_THERE)
+
+    def read_part(self, part: str, name: str) -> object:
+        if part == 'Font' and name.lower() == 'colorindex':
+            raise error(-2147467259, 'Automation error')
+        if part in ('Font', 'Characters'):
+            raise error(*_NOT_THERE)
+        # An Interior's Pattern fails with its colours, whatever the patterns are.
+        asked = ['ColorIndex', name] if part == 'Interior' and name.lower() == 'pattern' else [name]
+        answers: list[object] = []
+        for each in asked:
+            answers = [_object(_object(one).vba_get(part, [])).vba_get(each, []) for one in self.vba_items()]
+            if len({str(one) for one in answers}) > 1:
+                raise error(-2147467259, 'Automation error')
+        return answers[0]
 
 
 class _BoxAdded(_Drawings):
@@ -501,6 +561,8 @@ class TextBoxes(_BoxAdded):
 
 class Rectangles(_BoxAdded):
     vba_type_name = 'Rectangles'
+    parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
+    several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
     item = Rectangle
 
 
@@ -523,6 +585,8 @@ class Arcs(_Drawings):
 
 class Lines(_Drawings):
     vba_type_name = 'Lines'
+    parts = frozenset({'Border'})
+    several = {}
     item = Line
 
     @method
@@ -534,6 +598,8 @@ class Lines(_Drawings):
 
 class Pictures(_Drawings):
     vba_type_name = 'Pictures'
+    parts = frozenset({'Border', 'Interior'})
+    several = {}
     item = Picture
 
     @method
@@ -565,6 +631,14 @@ class Pictures(_Drawings):
 
 
 class DrawingObjects(_Drawings):
+    parts = frozenset()
+    several = {}
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        if name.lower() in {key.lower() for key in self._vba_members}:
+            return super().vba_get(name, args, named)
+        raise error(*_NOT_THERE)
+
     """All of a sheet's drawings and controls, each as its old object."""
 
     vba_type_name = 'DrawingObjects'

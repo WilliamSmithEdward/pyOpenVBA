@@ -3,7 +3,7 @@ stand, their number format and separator, what each kind of chart takes, and the
 labels went raises."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from pyopenvba.apps.excel._chart_format import unmeasured
 from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, LabelLook, TextLook
@@ -129,6 +129,14 @@ def apply_to_point(point: Point, look: LabelLook, leader_lines: object) -> None:
         own.label_own.separator = look.separator
 
 
+def _own_type(series: Any) -> int:
+    """The type a series' labels go by: its own in a combo chart (see _chart_combos), and otherwise the chart's."""
+    from pyopenvba.apps.excel._chart_combos import is_combo, series_type
+
+    state = series.chart.state
+    return series_type(state, series.entry) if is_combo(state) else state.chart_type
+
+
 class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
     vba_type_name = 'DataLabels'
 
@@ -168,7 +176,7 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
         return look
 
     def chart_type(self) -> int:
-        return self.series.chart.state.chart_type
+        return _own_type(self.series)
 
     def vba_items(self) -> list[object]:
         self.look()
@@ -348,7 +356,9 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
 
     @member
     def Font(self) -> object:
-        return self.series.chart.font_of(self, "labels", labels=self.look())
+        # A chart a file holds reads its labels' font, though not the rest of them yet.
+        chart = self.series.chart
+        return chart.font_of(self, "labels", labels=self.series.entry.label_look if chart.state.original else self.look())
 
     # -- what new labels read
 
@@ -690,7 +700,7 @@ class DataLabel(ElementProperties, Created):
 
     def _only_on(self, field: str, kinds: set[int], value: object) -> None:
         self._alive()
-        kind = self.series.chart.state.chart_type
+        kind = _own_type(self.series)
         if to_bool(value) and kind not in kinds:
             if kind in (5, 51, 57):
                 raise error(-2147024809, "The parameter is incorrect.")
@@ -715,7 +725,7 @@ class DataLabel(ElementProperties, Created):
         self._showing("Position")
         own = self.own().position
         look = self.series.entry.label_look.position
-        kind = self.series.chart.state.chart_type
+        kind = _own_type(self.series)
         if own is None and look is None and kind not in DEFAULT_POSITIONS:
             raise VBAUnsupportedError("DataLabel.Position on this chart type is not implemented")
         return VBAInt(own if own is not None else look if look is not None else DEFAULT_POSITIONS[kind], "Long")
@@ -724,7 +734,7 @@ class DataLabel(ElementProperties, Created):
     def _position(self, value: object) -> None:
         self._showing("Position")
         wanted = int(to_integer(value, "Long"))
-        kind = self.series.chart.state.chart_type
+        kind = _own_type(self.series)
         if kind not in _POINT_POSITIONS:
             raise VBAUnsupportedError("DataLabel.Position on this chart type is not implemented")
         if wanted not in _POINT_POSITIONS[kind]:
@@ -906,7 +916,7 @@ class DataLabel(ElementProperties, Created):
     @method
     def Select(self) -> object:
         self._showing()
-        if self.series.chart.state.chart_type == 5:
+        if _own_type(self.series) == 5:
             # On a pie it brings the chart a title (tests/fixtures/data_label.json).
             raise unmeasured("Selecting a pie's label")
         from pyopenvba.apps.excel._charts import select_element

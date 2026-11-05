@@ -7,7 +7,9 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import error
+from pyopenvba.shapes._read_look import read_links
 from pyopenvba.shapes._values import EMU_PER_POINT, ConnectorLink, Shape
+from pyopenvba.shapes._xlsx import shape_as_loaded
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -113,10 +115,43 @@ def _target(sheet: Worksheet, link: ConnectorLink) -> Shape | None:
     return next((one for one in sheet.shapes_ if one.shape_id == link.target), None)
 
 
+def _read_links(sheet: Worksheet) -> None:
+    """Connectors in the file, the first time they are asked after: each end holds the shape it names, where the site stands
+    now. A file can name a shape or site that is not there, and Excel reads that end as not connected."""
+    for line in sheet.shapes_:
+        if line.kind != "line" or not line.source or line.links_read:
+            continue
+        line.links_read = True
+        begin, end = read_links(line.source)
+        line.begin_link, line.end_link = (None if link is None else _loaded_link(sheet, link) for link in (begin, end))
+        if line.begin_link is not None or line.end_link is not None:
+            was = shape_as_loaded(line) or line
+            line.link_place = (was.left, was.top, was.flip_h, was.flip_v, was.rotation)
+
+
+def _loaded_link(sheet: Worksheet, link: ConnectorLink) -> ConnectorLink | None:
+    """An end as the file holds it: where its site stood at load, so that a shape moved since is followed."""
+    target = _target(sheet, link)
+    if target is None:
+        return None
+    was = shape_as_loaded(target) or target
+    return ConnectorLink(target.shape_id, link.site, _standing(was, link.site), target.geometry)
+
+
+def _standing(target: Shape, site: int) -> tuple[float, float]:
+    """Where a site stands; for a geometry whose sites are not known, where the shape does, so that moving it is noticed."""
+    if target.geometry or "rect" in _SITES and target.kind in ("shape", "textBox"):
+        sites = _SITES.get(target.geometry or "rect")
+        if sites is not None and site <= len(sites):
+            return site_point(target, site)
+    return (target.left + target.width / 2, target.top + target.height / 2)
+
+
 def follow(sheet: Worksheet) -> None:
     """Bring each connector up to date after a change on the sheet. Moving, flipping or turning the connector itself lets go
     of both its shapes; deleting a shape or changing its type lets go of that end. Where a shape's site has moved, a connector
     held at both ends goes from site to site, and one held at one end moves with it, keeping its size."""
+    _read_links(sheet)
     for line in sheet.shapes_:
         if line.begin_link is None and line.end_link is None:
             continue
@@ -131,8 +166,9 @@ def follow(sheet: Worksheet) -> None:
                 line.link_lost = line.link_lost or (link is not None and target is None)
                 current.append(None)
                 continue
-            fresh = _link(target, link.site)
+            fresh = ConnectorLink(target.shape_id, link.site, _standing(target, link.site), target.geometry)
             if fresh.point != link.point:
+                _sites(target)
                 moved = (fresh.point[0] - link.point[0], fresh.point[1] - link.point[1])
             current.append(fresh)
         begin, end = current

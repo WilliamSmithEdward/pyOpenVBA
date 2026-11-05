@@ -1,0 +1,800 @@
+{
+ "measured_at": "2026-11-04T23:42:43.076293+00:00",
+ "source": "Private Function L(w As Object) As String\n    L = w.Caption & \"#\" & w.WindowNumber & \"#\" & w.Index\nEnd Function\n\nPublic Function RowWorkbook(wb As Workbook, ByVal name As String, ByVal folder As String, ByVal before As Long, ByVal books As Long) As String\n    Dim s As String, n As String, w As Object, r As Variant, i As Long\n    On Error GoTo failed\n    Select Case name\n    Case \"captions\"\n        wb.NewWindow\n        s = wb.Windows.Count & \"|\" & Application.Windows.Count - before & \"|\" & L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & L(ActiveWindow) & \"|\" & wb.Name\n    Case \"returned\"\n        Set w = wb.NewWindow\n        s = TypeName(w) & \"|\" & L(w) & \"|\" & (w Is ActiveWindow) & \"|\" & TypeName(w.Parent) & \"|\" & w.Parent.Name\n    Case \"from_window\"\n        Set w = wb.Windows(1).NewWindow\n        s = wb.Windows.Count & \"|\" & L(w)\n    Case \"three\"\n        wb.NewWindow\n        wb.NewWindow\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & L(wb.Windows(3))\n    Case \"own_caption\"\n        wb.Windows(1).Caption = \"Mine\"\n        wb.NewWindow\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2))\n    Case \"caption_set_after\"\n        wb.NewWindow\n        wb.Windows(2).Caption = \"Mine\"\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & wb.Name\n    Case \"lookup\"\n        wb.NewWindow\n        n = wb.Name\n        s = Application.Windows(n & \"  -  1\").WindowNumber & \"|\" & wb.Windows(n & \"  -  2\").WindowNumber\n    Case \"lookup_plain\"\n        wb.NewWindow\n        s = wb.Windows(wb.Name).WindowNumber\n    Case \"lookup_after_close\"\n        wb.NewWindow\n        wb.Windows(1).Close\n        s = wb.Windows(wb.Name).WindowNumber\n    Case \"sheet_copied\"\n        wb.Sheets(\"B\").Activate\n        wb.NewWindow\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"sheet_own\"\n        wb.NewWindow\n        wb.Sheets(\"B\").Activate\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name & \"|\" & wb.ActiveSheet.Name & \"|\" & L(ActiveWindow)\n    Case \"sheet_after_switch\"\n        wb.NewWindow\n        wb.Sheets(\"B\").Activate\n        wb.Windows(2).Activate\n        s = wb.ActiveSheet.Name & \"|\" & L(ActiveWindow) & \"|\" & wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"selection_copied\"\n        wb.Sheets(\"A\").Range(\"C3\").Select\n        wb.NewWindow\n        s = wb.Windows(1).RangeSelection.Address & \"|\" & wb.Windows(2).RangeSelection.Address\n    Case \"selection_own\"\n        wb.NewWindow\n        wb.Sheets(\"A\").Range(\"D4\").Select\n        s = wb.Windows(1).RangeSelection.Address & \"|\" & wb.Windows(2).RangeSelection.Address & \"|\" & Selection.Address & \"|\" & ActiveCell.Address\n    Case \"zoom_copied\"\n        wb.Windows(1).Zoom = 150\n        wb.NewWindow\n        s = wb.Windows(1).Zoom & \"|\" & wb.Windows(2).Zoom\n    Case \"zoom_own\"\n        wb.NewWindow\n        wb.Windows(1).Zoom = 80\n        s = wb.Windows(1).Zoom & \"|\" & wb.Windows(2).Zoom\n    Case \"gridlines_own\"\n        wb.NewWindow\n        wb.Windows(1).DisplayGridlines = False\n        s = wb.Windows(1).DisplayGridlines & \"|\" & wb.Windows(2).DisplayGridlines\n    Case \"headings_copied\"\n        wb.Windows(1).DisplayHeadings = False\n        wb.NewWindow\n        s = wb.Windows(1).DisplayHeadings & \"|\" & wb.Windows(2).DisplayHeadings\n    Case \"tabs_own\"\n        wb.NewWindow\n        wb.Windows(1).DisplayWorkbookTabs = False\n        s = wb.Windows(1).DisplayWorkbookTabs & \"|\" & wb.Windows(2).DisplayWorkbookTabs\n    Case \"freeze_copied\"\n        wb.Sheets(\"A\").Range(\"B2\").Select\n        ActiveWindow.FreezePanes = True\n        wb.NewWindow\n        s = wb.Windows(1).FreezePanes & \"|\" & wb.Windows(2).FreezePanes\n    Case \"views_of_sheet\"\n        wb.NewWindow\n        s = wb.Windows(1).SheetViews.Count & \"|\" & wb.Windows(2).SheetViews.Count\n    Case \"close_front\"\n        wb.NewWindow\n        r = wb.Windows(1).Close\n        s = r & \"|\" & wb.Windows.Count & \"|\" & L(wb.Windows(1)) & \"|\" & Workbooks.Count - books\n    Case \"close_back\"\n        wb.NewWindow\n        r = wb.Windows(2).Close\n        s = r & \"|\" & wb.Windows.Count & \"|\" & L(wb.Windows(1))\n    Case \"close_middle\"\n        wb.NewWindow\n        wb.NewWindow\n        wb.Windows(2).Close\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2))\n    Case \"close_number_one\"\n        wb.NewWindow\n        wb.NewWindow\n        For i = 1 To 3\n        If wb.Windows(i).WindowNumber = 1 Then Exit For\n        Next\n        wb.Windows(i).Close\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2))\n    Case \"number_after_close\"\n        wb.NewWindow\n        wb.NewWindow\n        wb.Windows(2).Close\n        Set w = wb.NewWindow\n        s = L(w) & \"|\" & L(wb.Windows(2)) & \"|\" & L(wb.Windows(3))\n    Case \"held_after_close\"\n        Set w = wb.NewWindow\n        wb.Windows(2).Close\n        wb.NewWindow\n        wb.Windows(1).Close\n        s = w.WindowNumber\n    Case \"last_closes_book\"\n        wb.NewWindow\n        wb.Windows(1).Close\n        wb.Windows(1).Close\n        s = Workbooks.Count - books\n    Case \"workbook_close\"\n        wb.NewWindow\n        wb.Close False\n        s = Workbooks.Count - books & \"|\" & Application.Windows.Count - before\n    Case \"activate_next\"\n        wb.NewWindow\n        r = ActiveWindow.ActivateNext\n        s = r & \"|\" & L(ActiveWindow) & \"|\" & L(Application.Windows(1))\n    Case \"activate_previous\"\n        wb.NewWindow\n        wb.NewWindow\n        r = ActiveWindow.ActivatePrevious\n        s = r & \"|\" & L(ActiveWindow) & \"|\" & L(wb.Windows(1))\n    Case \"hidden_copied\"\n        wb.Windows(1).Visible = False\n        Set w = wb.NewWindow\n        s = wb.Windows.Count & \"|\" & w.Visible & \"|\" & L(w)\n    Case \"hidden_other\"\n        wb.NewWindow\n        wb.Windows(2).Visible = False\n        s = wb.Windows(1).Visible & \"|\" & wb.Windows(2).Visible & \"|\" & L(ActiveWindow)\n    Case \"protected\"\n        wb.Protect Windows:=True\n        wb.NewWindow\n        s = wb.Windows.Count\n    Case \"protect_with_two\"\n        wb.NewWindow\n        wb.Protect Windows:=True\n        s = wb.Windows.Count & \"|\" & wb.ProtectWindows\n    Case \"argument\"\n        wb.NewWindow 1\n        s = wb.Windows.Count\n    Case \"rename_by_save\"\n        wb.NewWindow\n        wb.SaveAs folder & \"\\Named.xlsx\", xlOpenXMLWorkbook\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & wb.Windows.Count\n    Case \"saved_reopen\"\n        wb.Sheets(\"B\").Activate\n        wb.NewWindow\n        wb.Sheets(\"A\").Activate\n        wb.SaveAs folder & \"\\Two.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\Two.xlsx\", 0)\n        s = wb.Windows.Count & \"|\" & L(wb.Windows(1)) & \"|\" & wb.Windows(1).ActiveSheet.Name\n    Case \"saved_then_second_reopen\"\n        wb.NewWindow\n        wb.SaveAs folder & \"\\Two.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\Two.xlsx\", 0)\n        s = wb.Windows.Count & \"|\" & L(wb.Windows(wb.Windows.Count)) & \"|\" & wb.Windows(wb.Windows.Count).ActiveSheet.Name\n    Case \"new_sheet_elsewhere\"\n        wb.NewWindow\n        wb.Sheets.Add\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"chart_sheet_shown\"\n        wb.Charts.Add\n        wb.NewWindow\n        s = TypeName(wb.Windows(1).ActiveSheet) & \"|\" & TypeName(wb.Windows(2).ActiveSheet) & \"|\" & wb.Windows.Count\n    Case \"chart_sheet_own\"\n        wb.NewWindow\n        wb.Charts.Add\n        s = TypeName(wb.Windows(1).ActiveSheet) & \"|\" & TypeName(wb.Windows(2).ActiveSheet) & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"chart_sheet_deleted\"\n        wb.Charts.Add\n        wb.NewWindow\n        wb.ActiveSheet.Delete\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"sheet_deleted\"\n        wb.NewWindow\n        wb.Sheets(\"B\").Activate\n        wb.Sheets(\"B\").Delete\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    End Select\n    RowWorkbook = s\n    Exit Function\nfailed:\n    RowWorkbook = \"E\" & Err.Number\nEnd Function\nPublic Function RowObject(wb As Object, ByVal name As String, ByVal folder As String, ByVal before As Long, ByVal books As Long) As String\n    Dim s As String, n As String, w As Object, r As Variant, i As Long\n    On Error GoTo failed\n    Select Case name\n    Case \"captions\"\n        wb.NewWindow\n        s = wb.Windows.Count & \"|\" & Application.Windows.Count - before & \"|\" & L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & L(ActiveWindow) & \"|\" & wb.Name\n    Case \"returned\"\n        Set w = wb.NewWindow\n        s = TypeName(w) & \"|\" & L(w) & \"|\" & (w Is ActiveWindow) & \"|\" & TypeName(w.Parent) & \"|\" & w.Parent.Name\n    Case \"from_window\"\n        Set w = wb.Windows(1).NewWindow\n        s = wb.Windows.Count & \"|\" & L(w)\n    Case \"three\"\n        wb.NewWindow\n        wb.NewWindow\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & L(wb.Windows(3))\n    Case \"own_caption\"\n        wb.Windows(1).Caption = \"Mine\"\n        wb.NewWindow\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2))\n    Case \"caption_set_after\"\n        wb.NewWindow\n        wb.Windows(2).Caption = \"Mine\"\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & wb.Name\n    Case \"lookup\"\n        wb.NewWindow\n        n = wb.Name\n        s = Application.Windows(n & \"  -  1\").WindowNumber & \"|\" & wb.Windows(n & \"  -  2\").WindowNumber\n    Case \"lookup_plain\"\n        wb.NewWindow\n        s = wb.Windows(wb.Name).WindowNumber\n    Case \"lookup_after_close\"\n        wb.NewWindow\n        wb.Windows(1).Close\n        s = wb.Windows(wb.Name).WindowNumber\n    Case \"sheet_copied\"\n        wb.Sheets(\"B\").Activate\n        wb.NewWindow\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"sheet_own\"\n        wb.NewWindow\n        wb.Sheets(\"B\").Activate\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name & \"|\" & wb.ActiveSheet.Name & \"|\" & L(ActiveWindow)\n    Case \"sheet_after_switch\"\n        wb.NewWindow\n        wb.Sheets(\"B\").Activate\n        wb.Windows(2).Activate\n        s = wb.ActiveSheet.Name & \"|\" & L(ActiveWindow) & \"|\" & wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"selection_copied\"\n        wb.Sheets(\"A\").Range(\"C3\").Select\n        wb.NewWindow\n        s = wb.Windows(1).RangeSelection.Address & \"|\" & wb.Windows(2).RangeSelection.Address\n    Case \"selection_own\"\n        wb.NewWindow\n        wb.Sheets(\"A\").Range(\"D4\").Select\n        s = wb.Windows(1).RangeSelection.Address & \"|\" & wb.Windows(2).RangeSelection.Address & \"|\" & Selection.Address & \"|\" & ActiveCell.Address\n    Case \"zoom_copied\"\n        wb.Windows(1).Zoom = 150\n        wb.NewWindow\n        s = wb.Windows(1).Zoom & \"|\" & wb.Windows(2).Zoom\n    Case \"zoom_own\"\n        wb.NewWindow\n        wb.Windows(1).Zoom = 80\n        s = wb.Windows(1).Zoom & \"|\" & wb.Windows(2).Zoom\n    Case \"gridlines_own\"\n        wb.NewWindow\n        wb.Windows(1).DisplayGridlines = False\n        s = wb.Windows(1).DisplayGridlines & \"|\" & wb.Windows(2).DisplayGridlines\n    Case \"headings_copied\"\n        wb.Windows(1).DisplayHeadings = False\n        wb.NewWindow\n        s = wb.Windows(1).DisplayHeadings & \"|\" & wb.Windows(2).DisplayHeadings\n    Case \"tabs_own\"\n        wb.NewWindow\n        wb.Windows(1).DisplayWorkbookTabs = False\n        s = wb.Windows(1).DisplayWorkbookTabs & \"|\" & wb.Windows(2).DisplayWorkbookTabs\n    Case \"freeze_copied\"\n        wb.Sheets(\"A\").Range(\"B2\").Select\n        ActiveWindow.FreezePanes = True\n        wb.NewWindow\n        s = wb.Windows(1).FreezePanes & \"|\" & wb.Windows(2).FreezePanes\n    Case \"views_of_sheet\"\n        wb.NewWindow\n        s = wb.Windows(1).SheetViews.Count & \"|\" & wb.Windows(2).SheetViews.Count\n    Case \"close_front\"\n        wb.NewWindow\n        r = wb.Windows(1).Close\n        s = r & \"|\" & wb.Windows.Count & \"|\" & L(wb.Windows(1)) & \"|\" & Workbooks.Count - books\n    Case \"close_back\"\n        wb.NewWindow\n        r = wb.Windows(2).Close\n        s = r & \"|\" & wb.Windows.Count & \"|\" & L(wb.Windows(1))\n    Case \"close_middle\"\n        wb.NewWindow\n        wb.NewWindow\n        wb.Windows(2).Close\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2))\n    Case \"close_number_one\"\n        wb.NewWindow\n        wb.NewWindow\n        For i = 1 To 3\n        If wb.Windows(i).WindowNumber = 1 Then Exit For\n        Next\n        wb.Windows(i).Close\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2))\n    Case \"number_after_close\"\n        wb.NewWindow\n        wb.NewWindow\n        wb.Windows(2).Close\n        Set w = wb.NewWindow\n        s = L(w) & \"|\" & L(wb.Windows(2)) & \"|\" & L(wb.Windows(3))\n    Case \"held_after_close\"\n        Set w = wb.NewWindow\n        wb.Windows(2).Close\n        wb.NewWindow\n        wb.Windows(1).Close\n        s = w.WindowNumber\n    Case \"last_closes_book\"\n        wb.NewWindow\n        wb.Windows(1).Close\n        wb.Windows(1).Close\n        s = Workbooks.Count - books\n    Case \"workbook_close\"\n        wb.NewWindow\n        wb.Close False\n        s = Workbooks.Count - books & \"|\" & Application.Windows.Count - before\n    Case \"activate_next\"\n        wb.NewWindow\n        r = ActiveWindow.ActivateNext\n        s = r & \"|\" & L(ActiveWindow) & \"|\" & L(Application.Windows(1))\n    Case \"activate_previous\"\n        wb.NewWindow\n        wb.NewWindow\n        r = ActiveWindow.ActivatePrevious\n        s = r & \"|\" & L(ActiveWindow) & \"|\" & L(wb.Windows(1))\n    Case \"hidden_copied\"\n        wb.Windows(1).Visible = False\n        Set w = wb.NewWindow\n        s = wb.Windows.Count & \"|\" & w.Visible & \"|\" & L(w)\n    Case \"hidden_other\"\n        wb.NewWindow\n        wb.Windows(2).Visible = False\n        s = wb.Windows(1).Visible & \"|\" & wb.Windows(2).Visible & \"|\" & L(ActiveWindow)\n    Case \"protected\"\n        wb.Protect Windows:=True\n        wb.NewWindow\n        s = wb.Windows.Count\n    Case \"protect_with_two\"\n        wb.NewWindow\n        wb.Protect Windows:=True\n        s = wb.Windows.Count & \"|\" & wb.ProtectWindows\n    Case \"argument\"\n        wb.NewWindow 1\n        s = wb.Windows.Count\n    Case \"rename_by_save\"\n        wb.NewWindow\n        wb.SaveAs folder & \"\\Named.xlsx\", xlOpenXMLWorkbook\n        s = L(wb.Windows(1)) & \"|\" & L(wb.Windows(2)) & \"|\" & wb.Windows.Count\n    Case \"saved_reopen\"\n        wb.Sheets(\"B\").Activate\n        wb.NewWindow\n        wb.Sheets(\"A\").Activate\n        wb.SaveAs folder & \"\\Two.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\Two.xlsx\", 0)\n        s = wb.Windows.Count & \"|\" & L(wb.Windows(1)) & \"|\" & wb.Windows(1).ActiveSheet.Name\n    Case \"saved_then_second_reopen\"\n        wb.NewWindow\n        wb.SaveAs folder & \"\\Two.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\Two.xlsx\", 0)\n        s = wb.Windows.Count & \"|\" & L(wb.Windows(wb.Windows.Count)) & \"|\" & wb.Windows(wb.Windows.Count).ActiveSheet.Name\n    Case \"new_sheet_elsewhere\"\n        wb.NewWindow\n        wb.Sheets.Add\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"chart_sheet_shown\"\n        wb.Charts.Add\n        wb.NewWindow\n        s = TypeName(wb.Windows(1).ActiveSheet) & \"|\" & TypeName(wb.Windows(2).ActiveSheet) & \"|\" & wb.Windows.Count\n    Case \"chart_sheet_own\"\n        wb.NewWindow\n        wb.Charts.Add\n        s = TypeName(wb.Windows(1).ActiveSheet) & \"|\" & TypeName(wb.Windows(2).ActiveSheet) & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"chart_sheet_deleted\"\n        wb.Charts.Add\n        wb.NewWindow\n        wb.ActiveSheet.Delete\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    Case \"sheet_deleted\"\n        wb.NewWindow\n        wb.Sheets(\"B\").Activate\n        wb.Sheets(\"B\").Delete\n        s = wb.Windows(1).ActiveSheet.Name & \"|\" & wb.Windows(2).ActiveSheet.Name\n    End Select\n    RowObject = s\n    Exit Function\nfailed:\n    RowObject = \"E\" & Err.Number\nEnd Function\n\nPublic Function InModel(ByVal name As String, ByVal binding As String, ByVal folder As String) As String\n    Dim wb As Workbook, before As Long, books As Long\n    Application.DisplayAlerts = False\n    before = Application.Windows.Count\n    books = Workbooks.Count\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets(1).Name = \"A\"\n    wb.Worksheets.Add(After:=wb.Worksheets(1)).Name = \"B\"\n    wb.Worksheets(\"A\").Activate\n    If binding = \"Workbook\" Then\n        InModel = RowWorkbook(wb, name, folder, before, books)\n    Else\n        InModel = RowObject(wb, name, folder, before, books)\n    End If\nEnd Function\n",
+ "cases": [
+  {
+   "name": "captions",
+   "binding": "Workbook",
+   "excel": "2|2|Book  -  2#2#1|Book  -  1#1#2|Book  -  2#2#1|Book",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "captions",
+   "binding": "Object",
+   "excel": "2|2|Book  -  2#2#1|Book  -  1#1#2|Book  -  2#2#1|Book",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "returned",
+   "binding": "Workbook",
+   "excel": "Window|Book  -  2#2#1|False|Workbook|Book",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "returned",
+   "binding": "Object",
+   "excel": "Window|Book  -  2#2#1|False|Workbook|Book",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "from_window",
+   "binding": "Workbook",
+   "excel": "2|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "from_window",
+   "binding": "Object",
+   "excel": "2|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "three",
+   "binding": "Workbook",
+   "excel": "Book  -  3#3#1|Book  -  1#1#2|Book  -  2#2#3",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "three",
+   "binding": "Object",
+   "excel": "Book  -  3#3#1|Book  -  1#1#2|Book  -  2#2#3",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "own_caption",
+   "binding": "Workbook",
+   "excel": "Book  -  1#2#1|Mine#1#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "own_caption",
+   "binding": "Object",
+   "excel": "Book  -  1#2#1|Mine#1#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "caption_set_after",
+   "binding": "Workbook",
+   "excel": "Book  -  2#2#1|Mine#1#2|Book",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "caption_set_after",
+   "binding": "Object",
+   "excel": "Book  -  2#2#1|Mine#1#2|Book",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "lookup",
+   "binding": "Workbook",
+   "excel": "1|2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "lookup",
+   "binding": "Object",
+   "excel": "1|2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "lookup_plain",
+   "binding": "Workbook",
+   "excel": "E9",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "lookup_plain",
+   "binding": "Object",
+   "excel": "E9",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "lookup_after_close",
+   "binding": "Workbook",
+   "excel": "1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "lookup_after_close",
+   "binding": "Object",
+   "excel": "1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_copied",
+   "binding": "Workbook",
+   "excel": "B|B",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_copied",
+   "binding": "Object",
+   "excel": "B|B",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_own",
+   "binding": "Workbook",
+   "excel": "B|A|B|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_own",
+   "binding": "Object",
+   "excel": "B|A|B|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_after_switch",
+   "binding": "Workbook",
+   "excel": "A|Book  -  1#1#1|A|B",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_after_switch",
+   "binding": "Object",
+   "excel": "A|Book  -  1#1#1|A|B",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "selection_copied",
+   "binding": "Workbook",
+   "excel": "$A$1|$C$3",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "selection_copied",
+   "binding": "Object",
+   "excel": "$A$1|$C$3",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "selection_own",
+   "binding": "Workbook",
+   "excel": "$D$4|$A$1|$D$4|$D$4",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "selection_own",
+   "binding": "Object",
+   "excel": "$D$4|$A$1|$D$4|$D$4",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "zoom_copied",
+   "binding": "Workbook",
+   "excel": "100|150",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "zoom_copied",
+   "binding": "Object",
+   "excel": "100|150",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "zoom_own",
+   "binding": "Workbook",
+   "excel": "80|100",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "zoom_own",
+   "binding": "Object",
+   "excel": "80|100",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "gridlines_own",
+   "binding": "Workbook",
+   "excel": "False|True",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "gridlines_own",
+   "binding": "Object",
+   "excel": "False|True",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "headings_copied",
+   "binding": "Workbook",
+   "excel": "True|False",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "headings_copied",
+   "binding": "Object",
+   "excel": "True|False",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "tabs_own",
+   "binding": "Workbook",
+   "excel": "False|True",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "tabs_own",
+   "binding": "Object",
+   "excel": "False|True",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "freeze_copied",
+   "binding": "Workbook",
+   "excel": "False|True",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "freeze_copied",
+   "binding": "Object",
+   "excel": "False|True",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "views_of_sheet",
+   "binding": "Workbook",
+   "excel": "2|2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "views_of_sheet",
+   "binding": "Object",
+   "excel": "2|2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_front",
+   "binding": "Workbook",
+   "excel": "True|1|Book#1#1|1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_front",
+   "binding": "Object",
+   "excel": "True|1|Book#1#1|1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_back",
+   "binding": "Workbook",
+   "excel": "True|1|Book#1#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_back",
+   "binding": "Object",
+   "excel": "True|1|Book#1#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_middle",
+   "binding": "Workbook",
+   "excel": "Book  -  2#2#1|Book  -  1#1#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_middle",
+   "binding": "Object",
+   "excel": "Book  -  2#2#1|Book  -  1#1#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_number_one",
+   "binding": "Workbook",
+   "excel": "Book  -  2#2#1|Book  -  1#1#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "close_number_one",
+   "binding": "Object",
+   "excel": "Book  -  2#2#1|Book  -  1#1#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "number_after_close",
+   "binding": "Workbook",
+   "excel": "Book  -  3#3#1|Book  -  1#1#2|Book  -  2#2#3",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "number_after_close",
+   "binding": "Object",
+   "excel": "Book  -  3#3#1|Book  -  1#1#2|Book  -  2#2#3",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "held_after_close",
+   "binding": "Workbook",
+   "excel": "1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "held_after_close",
+   "binding": "Object",
+   "excel": "1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "last_closes_book",
+   "binding": "Workbook",
+   "excel": "0",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "last_closes_book",
+   "binding": "Object",
+   "excel": "0",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "workbook_close",
+   "binding": "Workbook",
+   "excel": "0|0",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "workbook_close",
+   "binding": "Object",
+   "excel": "0|0",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "activate_next",
+   "binding": "Workbook",
+   "excel": "True|Book  -  1#1#1|Book  -  1#1#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "activate_next",
+   "binding": "Object",
+   "excel": "True|Book  -  1#1#1|Book  -  1#1#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "activate_previous",
+   "binding": "Workbook",
+   "excel": "True|<HOME>#1#1|Book  -  3#3#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "activate_previous",
+   "binding": "Object",
+   "excel": "True|<HOME>#1#1|Book  -  3#3#2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "hidden_copied",
+   "binding": "Workbook",
+   "excel": "2|True|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "hidden_copied",
+   "binding": "Object",
+   "excel": "2|True|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "hidden_other",
+   "binding": "Workbook",
+   "excel": "True|False|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "hidden_other",
+   "binding": "Object",
+   "excel": "True|False|Book  -  2#2#1",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "protected",
+   "binding": "Workbook",
+   "excel": "2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "protected",
+   "binding": "Object",
+   "excel": "2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "protect_with_two",
+   "binding": "Workbook",
+   "excel": "2|False",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "protect_with_two",
+   "binding": "Object",
+   "excel": "2|False",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "argument",
+   "binding": "Workbook",
+   "excel": "E438",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "argument",
+   "binding": "Object",
+   "excel": "E450",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "rename_by_save",
+   "binding": "Workbook",
+   "excel": "Named.xlsx  -  2#2#1|Named.xlsx  -  1#1#2|2",
+   "files": {
+    "Named.xlsx": {
+     "book": [
+      "<workbookView xWindow=\"2730\" yWindow=\"2730\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{744F76C0-48E0-4FB2-BEAA-EDB3ABB204D1}\"/>",
+      "<workbookView xWindow=\"3075\" yWindow=\"3075\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{2DA04698-49A0-4633-A82C-A4566F91AF0E}\"/>"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+      "<sheetView tabSelected=\"1\" workbookViewId=\"1\"/>"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "<sheetView workbookViewId=\"0\"/>",
+      "<sheetView workbookViewId=\"1\"/>"
+     ]
+    }
+   },
+   "excel_reads_own": "Named.xlsx  -  2#2#A|Named.xlsx  -  1#1#A|",
+   "excel_reads_model": "Named.xlsx  -  2#2#A|Named.xlsx  -  1#1#A|"
+  },
+  {
+   "name": "rename_by_save",
+   "binding": "Object",
+   "excel": "Named.xlsx  -  2#2#1|Named.xlsx  -  1#1#2|2",
+   "files": {
+    "Named.xlsx": {
+     "book": [
+      "<workbookView xWindow=\"390\" yWindow=\"390\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{685909D7-5CB6-483F-B39B-298E249A03F4}\"/>",
+      "<workbookView xWindow=\"735\" yWindow=\"735\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{8E9944C9-8793-4CB5-AF1A-F28E4B8C7A8A}\"/>"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+      "<sheetView tabSelected=\"1\" workbookViewId=\"1\"/>"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "<sheetView workbookViewId=\"0\"/>",
+      "<sheetView workbookViewId=\"1\"/>"
+     ]
+    }
+   },
+   "excel_reads_own": "Named.xlsx  -  2#2#A|Named.xlsx  -  1#1#A|",
+   "excel_reads_model": "Named.xlsx  -  2#2#A|Named.xlsx  -  1#1#A|"
+  },
+  {
+   "name": "saved_reopen",
+   "binding": "Workbook",
+   "excel": "2|Two.xlsx  -  1#1#1|A",
+   "files": {
+    "Two.xlsx": {
+     "book": [
+      "<workbookView xWindow=\"2730\" yWindow=\"2730\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{67E3455D-2154-4EF8-A9EB-D9A5E37B2C59}\"/>",
+      "<workbookView xWindow=\"3075\" yWindow=\"3075\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{E97893BE-7CAF-432A-AC68-C9935497F42B}\"/>"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+      "<sheetView tabSelected=\"1\" workbookViewId=\"1\"/>"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "<sheetView workbookViewId=\"0\"/>",
+      "<sheetView workbookViewId=\"1\"/>"
+     ]
+    }
+   },
+   "excel_reads_own": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|",
+   "excel_reads_model": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|"
+  },
+  {
+   "name": "saved_reopen",
+   "binding": "Object",
+   "excel": "2|Two.xlsx  -  1#1#1|A",
+   "files": {
+    "Two.xlsx": {
+     "book": [
+      "<workbookView xWindow=\"1560\" yWindow=\"1560\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{A8F0C8CA-72E0-4F94-B77E-EA320785DB44}\"/>",
+      "<workbookView xWindow=\"1905\" yWindow=\"1905\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{D54547D1-B983-4482-9731-1FBA8FBB0A4D}\"/>"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+      "<sheetView tabSelected=\"1\" workbookViewId=\"1\"/>"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "<sheetView workbookViewId=\"0\"/>",
+      "<sheetView workbookViewId=\"1\"/>"
+     ]
+    }
+   },
+   "excel_reads_own": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|",
+   "excel_reads_model": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|"
+  },
+  {
+   "name": "saved_then_second_reopen",
+   "binding": "Workbook",
+   "excel": "2|Two.xlsx  -  2#2#2|A",
+   "files": {
+    "Two.xlsx": {
+     "book": [
+      "<workbookView xWindow=\"2730\" yWindow=\"2730\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{2EC2948F-F68B-4E6A-94FB-2FCE8860CABE}\"/>",
+      "<workbookView xWindow=\"3075\" yWindow=\"3075\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{30C21CE8-5414-48DC-83F6-BE0AFDDE52E1}\"/>"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+      "<sheetView tabSelected=\"1\" workbookViewId=\"1\"/>"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "<sheetView workbookViewId=\"0\"/>",
+      "<sheetView workbookViewId=\"1\"/>"
+     ]
+    }
+   },
+   "excel_reads_own": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|",
+   "excel_reads_model": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|"
+  },
+  {
+   "name": "saved_then_second_reopen",
+   "binding": "Object",
+   "excel": "2|Two.xlsx  -  2#2#2|A",
+   "files": {
+    "Two.xlsx": {
+     "book": [
+      "<workbookView xWindow=\"1950\" yWindow=\"1950\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{9AD9A413-F5EC-41F5-9FCE-1C2AC068E96E}\"/>",
+      "<workbookView xWindow=\"2295\" yWindow=\"2295\" windowWidth=\"7200\" windowHeight=\"4425\" xr2:uid=\"{010EC68A-7C26-4C7E-B8DF-4F7A4C9F7952}\"/>"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+      "<sheetView tabSelected=\"1\" workbookViewId=\"1\"/>"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "<sheetView workbookViewId=\"0\"/>",
+      "<sheetView workbookViewId=\"1\"/>"
+     ]
+    }
+   },
+   "excel_reads_own": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|",
+   "excel_reads_model": "Two.xlsx  -  2#2#A|Two.xlsx  -  1#1#A|"
+  },
+  {
+   "name": "new_sheet_elsewhere",
+   "binding": "Workbook",
+   "excel": "Book|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "new_sheet_elsewhere",
+   "binding": "Object",
+   "excel": "Book|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "chart_sheet_shown",
+   "binding": "Workbook",
+   "excel": "Chart|Chart|2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "chart_sheet_shown",
+   "binding": "Object",
+   "excel": "Chart|Chart|2",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "chart_sheet_own",
+   "binding": "Workbook",
+   "excel": "Chart|Worksheet|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "chart_sheet_own",
+   "binding": "Object",
+   "excel": "Chart|Worksheet|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "chart_sheet_deleted",
+   "binding": "Workbook",
+   "excel": "A|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "chart_sheet_deleted",
+   "binding": "Object",
+   "excel": "A|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_deleted",
+   "binding": "Workbook",
+   "excel": "A|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  },
+  {
+   "name": "sheet_deleted",
+   "binding": "Object",
+   "excel": "A|A",
+   "files": {},
+   "excel_reads_own": "",
+   "excel_reads_model": ""
+  }
+ ]
+}

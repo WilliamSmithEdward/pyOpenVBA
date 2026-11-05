@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import replace
 from pyopenvba.apps.excel._chart_references import NO_ID
 from xml.parsers import expat
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING, NoReturn, cast
 
 from pyopenvba._xml import attributes, escape as escape_attribute, escape_text, unescape
 from pyopenvba._relationships import in_office_order
@@ -25,6 +25,9 @@ from pyopenvba.apps.excel._charts import (DATA_TABLE_LOOK, MAX_CHART_POINTS, CHA
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           categories_gone, category_levels, linked_title, lost, referenced_values,
                                           settle_hidden, shown_cells, shown_type, visible_places)
+from pyopenvba.apps.excel._chart_combos import is_combo, regrouped, series_type
+from pyopenvba.apps.excel._chart_fonts import read_look as read_font
+from pyopenvba.apps.excel._chart_xml import group_markup, plain_label_text
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.apps.excel._chart_line_format import group_line_markup
@@ -34,6 +37,7 @@ from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_te
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._chart_xml import ChartKind
     from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -164,6 +168,103 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             xml = package.read(part).decode('utf-8')
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
 
+def _axis_elements(plot: ET.Element) -> list[ET.Element]:
+    return [child for child in plot if child.tag.rpartition('}')[2] in ('catAx', 'valAx', 'dateAx')]
+
+
+def _ids(element: ET.Element) -> set[str]:
+    return {node.get('val', '') for node in element.findall('c:axId', NS)}
+
+
+def _group_axis(group: ET.Element, plot: ET.Element) -> int:
+    """Which axes a group of a loaded combo chart is on: the part lists the primary axes first."""
+    return 1 if _ids(group) == {own for one in _axis_elements(plot)[:2] for own in _ids(one)} else 2
+
+
+def _combo_groups(plots: list[ET.Element], plot: ET.Element) -> list[ET.Element]:
+    """The primary groups first, where every group is of the kinds a combo chart holds, on axes the part defines; else none."""
+    axes = _axis_elements(plot)
+    kinds = [group.tag.rpartition('}')[2] for group in plots]
+    if len(axes) not in (2, 4) or not set(kinds) <= {'barChart', 'lineChart', 'areaChart'}:
+        return []
+    if any(group.tag.endswith('barChart') and (group.find('c:barDir', NS) is None or group.find('c:barDir', NS).get('val') != 'col') for group in plots):  # type: ignore[union-attr]
+        return []
+    pairs = [{own for one in axes[at:at + 2] for own in _ids(one)} for at in range(0, len(axes), 2)]
+    if any(_ids(group) not in pairs for group in plots):
+        return []
+    found = sorted(plots, key=lambda group: _group_axis(group, plot))
+    return found if _group_axis(found[0], plot) == 1 else []
+
+
+def _type_of(group: ET.Element, marked: bool) -> int:
+    from pyopenvba.apps.excel._chart_combos import own_type_of
+
+    grouping = group.find('c:grouping', NS)
+    return own_type_of(group.tag.rpartition('}')[2], grouping.get('val', '') if grouping is not None else '', marked)
+
+
+def own_group(item: SeriesState, group: ET.Element, plot: ET.Element) -> None:
+    """A loaded series' type and axes, from the group it is in."""
+    item.own_type = _type_of(group, item.marker != MARKER_NONE)
+    item.axis_group = _group_axis(group, plot)
+
+
+def read_group_settings(result: ChartState, plots: list[ET.Element], plot: ET.Element) -> None:
+    from pyopenvba.apps.excel._chart_combos import family_of_type, settle
+
+    for group in plots:
+        held = ChartState()
+        _read_group(held, group)
+        family = family_of_type(_type_of(group, False))
+        result.group_settings[_group_axis(group, plot), family] = {
+            'gap_width': held.gap_width, 'overlap': held.overlap, 'drop_lines': held.drop_lines, 'hi_lo_lines': held.hi_lo_lines,
+            'up_down_bars': held.up_down_bars, 'series_lines': held.series_lines, 'vary': held.vary}
+    settle(result)
+
+
+def read_secondary_axes(result: ChartState, root: ET.Element, plot: ET.Element, plots: list[ET.Element]) -> None:
+    """The secondary axes of a loaded combo chart, read as the primary are."""
+    from pyopenvba.apps.excel._chart_axes_file import read as read_axes
+
+    second = next((group for group in plots if _group_axis(group, plot) == 2), None)
+    if second is None:
+        return
+    held = ChartState(chart_type=result.chart_type)
+    read_axes(held, root, plot, second)
+    if not held.axes_readable or not result.axes_readable:
+        result.axes_readable = False
+        return
+    for entry in held.axes.values():
+        entry.group = 2
+    category = next(one for one in _axis_elements(plot)[2:] if one.tag.endswith('catAx') or one.tag.endswith('dateAx'))
+    # A value axis left to cross at the far side says so on a category axis that shows, or nothing where it does not.
+    crossing = category.find('c:crosses', NS)
+    held.axes[2].far_side = crossing is None or (crossing.get('val') == 'max' and held.axes[1].present)
+    result.secondary_axes = held.axes
+
+
+def _read_fonts(result: ChartState, root: ET.Element) -> None:
+    """What the part says of each element's text, as Font reads it (tests/fixtures/chart_fonts_saved.json)."""
+    found = {'area': root, 'title': root.find('c:chart/c:title', NS), 'legend': root.find('c:chart/c:legend', NS)}
+    plot = root.find('c:chart/c:plotArea', NS)
+    if plot is not None:
+        table = plot.find('c:dTable', NS)
+        found['dataTable'] = table
+        axes = _axis_elements(plot)
+        for element in axes[:2]:
+            kind = 2 if element.tag.endswith('valAx') else 1
+            found[f'tick{kind}'] = element
+            found[f'title{kind}'] = element.find('c:title', NS)
+        for element in axes[2:]:
+            kind = 2 if element.tag.endswith('valAx') else 1
+            found[f'tick{kind}s'] = element
+            found[f'title{kind}s'] = element.find('c:title', NS)
+    for key, owner in found.items():
+        look = None if owner is None else read_font(owner, NS)
+        if look is not None:
+            result.element_fonts[key] = look
+
+
 def read_display(result: ChartState, root: ET.Element) -> None:
     """The chart's display options as Excel reads them: an element left out, or written with no val, reads as
     DisplayBlanksAs 2, PlotVisibleOnly and ShowDataLabelsOverMaximum True, DisplayValueNotAvailableAsBlank False."""
@@ -211,6 +312,7 @@ def read_chart(xml: str, part: str) -> ChartState:
                     and deleted.get('val', '1') in ('1', 'true')):
                 result.legend_deleted.append(int(index.get('val', '')))
     read_display(result, root)
+    _read_fonts(result, root)
     # A part that leaves roundedCorners out has rounded corners, as the file format's default says.
     rounded = root.find('c:roundedCorners', NS)
     result.rounded = rounded is None or rounded.get('val', '1') in ('1', 'true')
@@ -221,7 +323,7 @@ def read_chart(xml: str, part: str) -> ChartState:
         return result
     result.data_table = plot.find('c:dTable', NS) is not None
     plots = [entry for entry in plot if entry.tag.rpartition('}')[2].endswith('Chart')]
-    if len(plots) != 1:
+    if not plots or (len(plots) != 1 and not _combo_groups(plots, plot)):
         return result
     entry = plots[0]
     kind = entry.tag.rpartition('}')[2]
@@ -252,7 +354,10 @@ def read_chart(xml: str, part: str) -> ChartState:
         result.chart_type = {'pieChart': 5, 'doughnutChart': -4120, 'areaChart': 1}[kind]
     from pyopenvba.apps.excel._chart_axes_file import read as read_axes
 
-    read_axes(result, root, plot, entry)
+    first_primary = _combo_groups(plots, plot)[0] if len(plots) > 1 else entry
+    read_axes(result, root, plot, first_primary)
+    if len(plots) > 1:
+        read_secondary_axes(result, root, plot, plots)
     def integer(series: ET.Element, name: str, fallback: int) -> int:
         node = series.find('c:' + name, NS)
         if node is None:
@@ -265,7 +370,8 @@ def read_chart(xml: str, part: str) -> ChartState:
             raise VBAUnsupportedError('Chart series identity/order exceeds the supported integer range')
         return value
 
-    stored_series = entry.findall('c:ser', NS)
+    owners = {id(series): group for group in plots for series in group.findall('c:ser', NS)}
+    stored_series = [series for group in plots for series in group.findall('c:ser', NS)]
     ordered = [(integer(series, 'order', index), integer(series, 'idx', index), series)
                for index, series in enumerate(stored_series)]
     if len({item[0] for item in ordered}) != len(ordered) or len({item[1] for item in ordered}) != len(ordered):
@@ -275,7 +381,7 @@ def read_chart(xml: str, part: str) -> ChartState:
         item.error_bars = read_error_bars(series, NS)
         item.trendlines = read_trendlines(series, NS)
         name_ref = series.find('c:tx/c:strRef/c:f', NS)
-        item.name_reference = name_ref.text or '' if name_ref is not None else ''
+        item.name_reference = _as_excel_reads(name_ref.text or '') if name_ref is not None else ''
         name = series.find('c:tx/c:v', NS)
         item.name = name.text if name is not None else None
         cat = series.find('c:cat', NS)
@@ -287,10 +393,14 @@ def read_chart(xml: str, part: str) -> ChartState:
         item.category_reference, item.categories = _data(cat)
         item.value_reference, item.values = _data(val)
         smooth = series.find('c:smooth', NS)
-        item.smooth = smooth is not None and smooth.get('val', '1') in ('1', 'true')
+        # A line left without it means its default, on (tests/fixtures/tool_drawings.json).
+        item.smooth = (smooth.get('val', '1') in ('1', 'true') if smooth is not None
+                       else owners[id(series)].tag.endswith('}lineChart'))
         symbol = series.find('c:marker/c:symbol', NS)
+        owner = owners[id(series)]
+        owner_kind = owner.tag.rpartition('}')[2]
         if symbol is None:
-            item.marker = MARKER_AUTOMATIC if kind in ('lineChart', 'scatterChart') else MARKER_NONE
+            item.marker = MARKER_AUTOMATIC if owner_kind in ('lineChart', 'scatterChart') else MARKER_NONE
         else:
             spelled = {name: number for number, name in MARKER_SYMBOLS.items() if name}
             item.marker = spelled.get(symbol.get('val', ''), MARKER_UNREAD)
@@ -304,21 +414,28 @@ def read_chart(xml: str, part: str) -> ChartState:
             item.marker_fore = _marker_colour(line) if line is not None else None
         labels = series.find('c:dLbls', NS)
         if labels is not None:
+            item.label_look.font = read_font(labels, NS)
             shown = labels.find('c:showVal', NS)
             item.data_labels = shown is not None and shown.get('val', '1') in ('1', 'true')
             leaders = labels.find('c:showLeaderLines', NS)
             item.leader_lines = leaders is not None and leaders.get('val', '1') in ('1', 'true')
         else:
             # A pie's own leader lines, which its series follow until they have labels of their own.
-            leaders = entry.find('c:dLbls/c:showLeaderLines', NS)
+            leaders = owner.find('c:dLbls/c:showLeaderLines', NS)
             if leaders is not None:
                 item.leader_lines = leaders.get('val', '1') in ('1', 'true')
         invert = series.find('c:invertIfNegative', NS)
-        item.invert_if_negative = invert is not None and invert.get('val', '1') in ('1', 'true')
+        # Excel always writes it on bars; another writer leaving it out means its default, on (tests/fixtures/tool_drawings.json).
+        item.invert_if_negative = (invert.get('val', '1') in ('1', 'true') if invert is not None
+                                   else owner_kind in ('barChart', 'bar3DChart'))
         explosion = series.find('c:explosion', NS)
         if explosion is not None and re.fullmatch(r'[0-9]{1,9}', explosion.get('val', '')):
             item.explosion = int(explosion.get('val', ''))
+        if len(plots) > 1:
+            own_group(item, owner, plot)
         result.series.append(item)
+    if len(plots) > 1:
+        read_group_settings(result, plots, plot)
     if result.series and result.series[0].value_reference:
         try:
             area = parse_reference(result.series[0].value_reference)[0]
@@ -342,12 +459,23 @@ def _marker_colour(node: ET.Element) -> str | None:
     return value.upper() if colour is not None and len(colour) == 0 and re.fullmatch(r'[0-9A-Fa-f]{6}', value) else '?'
 
 
+def _as_excel_reads(reference: str) -> str:
+    """One block of a sheet's cells as Excel reads it from a file spelled otherwise: absolute, and its sheet bare where a plain name
+    needs no apostrophes (tests/fixtures/tool_drawings.json). Anything else stays as written."""
+    found = re.fullmatch(r"(?:'([A-Za-z_][\w.]*)'|([^'!]+)|('(?:[^']|'')+'))!\$?([A-Z]{1,3})\$?(\d+)(?::\$?([A-Z]{1,3})\$?(\d+))?", reference)
+    if found is None:
+        return reference
+    plain, bare, needing, column, row, far_column, far_row = found.groups()
+    sheet = plain if plain is not None and not re.fullmatch(r'[A-Za-z]{1,3}\d+', plain) else needing or bare or f"'{plain}'"
+    return f'{sheet}!${column}${row}' + (f':${far_column}${far_row}' if far_column else '')
+
+
 def _data(node: ET.Element | None) -> tuple[str, list[object]]:
     if node is None:
         return '', []
     formula = node.find('.//c:f', NS)
     if formula is not None:
-        return formula.text or '', []
+        return _as_excel_reads(formula.text or ''), []
     numeric = node.find('c:numLit', NS) is not None
     values: list[object] = []
     for point in node.findall('.//c:pt', NS):
@@ -381,9 +509,9 @@ def _read_group(result: ChartState, group: ET.Element) -> None:
         text = node.get('val', '') if node is not None else ''
         return int(text) if re.fullmatch(r'-?[0-9]{1,3}', text) else None
 
+    # Left out it means its default, on (tests/fixtures/tool_drawings.json).
     vary = group.find('c:varyColors', NS)
-    if vary is not None:
-        result.vary = vary.get('val', '1') in ('1', 'true')
+    result.vary = vary is None or vary.get('val', '1') in ('1', 'true')
     gap, overlap, first, hole = number('gapWidth'), number('overlap'), number('firstSliceAng'), number('holeSize')
     result.gap_width = gap if gap is not None else result.gap_width
     result.overlap = overlap if overlap is not None else result.overlap
@@ -711,28 +839,31 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
                                category_levels=levels,
                                category_format=source_format(sheet, item.category_reference),
+                               kind=cast('ChartKind', CHART_TYPES[series_type(chart.state, item)]) if is_combo(chart.state) else None,
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
                                smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion,
                                scatter_line=item.scatter_line,
-                               look=shadowed(series_look(item, CHART_TYPES.get(shown_type(chart.state), ''), series.position(),
+                               look=shadowed(series_look(item, CHART_TYPES.get(series_type(chart.state, item), ''), series.position(),
                                                          sheet.book.stylesheet.colors.theme) or
                                              (_NO_LINE if chart.state.series and item.shadow is not None and not item.scatter_line
                                               and CHART_TYPES.get(shown_type(chart.state)) == 'scatter' else ''),
                                              item.shadow),
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
                                points=points_markup(_shown_points(sheet, chart.state, item),
-                                                    CHART_TYPES.get(shown_type(chart.state), ''),
+                                                    CHART_TYPES.get(series_type(chart.state, item), ''),
                                                     series.position(), sheet.book.stylesheet.colors.theme),
                                point_labels=point_labels_markup(_shown_points(sheet, chart.state, item)),
                                labels=item.data_labels, leader_lines=item.leader_lines, label_look=item.label_look,
-                               error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(shown_type(chart.state), ''),
+                               error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(series_type(chart.state, item), ''),
                                                             lambda element, given: _bar_values(sheet, element, given)),
                                trendlines=trendlines_markup(item.trendlines)))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
     state = chart.state
+    if (is_combo(state) or state.plot_sequence) and (state.full_series or state.out_of_sight):
+        raise VBAUnsupportedError('Saving a combo chart with series filtered or out of sight is not implemented')
     title = ''
     if state.title is not None:
         look = state.title_look
@@ -813,6 +944,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         look = element_markup(DATA_TABLE_LOOK, state.element_looks.get(DATA_TABLE_LOOK))
         table = table.replace('</c:dTable>', look + text_properties(state.element_fonts.get('dataTable')) + '</c:dTable>')
         xml = xml.replace('</c:plotArea>', table + '</c:plotArea>', 1)
+    if 'area' in state.element_fonts:
+        xml = plain_label_text(xml)
     # The plot area's look follows all of that, and the chart area's follows the chart
     # (tests/fixtures/chart_element_format.json).
     xml = xml.replace('</c:plotArea>', element_markup('plot', state.element_looks.get('plot')) + '</c:plotArea>', 1)
@@ -834,8 +967,13 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         # (tests/fixtures/chart_object_reads.json).
         look = CHART_SHADOW if state.shadow else '<c:spPr><a:effectLst/></c:spPr>'
         xml = xml.replace('</c:chart><c:printSettings>', '</c:chart>' + look + '<c:printSettings>', 1)
+    if is_combo(state) or (state.plot_sequence and state.series):
+        first_second = next((entry for entry, item in zip(data, state.series, strict=True) if item.axis_group == 2), None)
+        xml = regrouped(xml, state, group_markup, _grouped, first_second.value_format if first_second is not None else 'General')
     if is_styled(state.chart_style):
         xml = dressed(xml, state, sheet.book.stylesheet.colors.theme)
+        if 'area' in state.element_fonts:
+            xml = re.sub(r'(<c:dLbls>.*?</c:dLbls>)', lambda hit: hit.group(1).replace(' lIns="38100" tIns="19050" rIns="38100" bIns="19050"', '').replace('><a:spAutoFit/></a:bodyPr>', '/>'), xml, flags=re.S)
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)
@@ -918,7 +1056,7 @@ def _write_style_parts(package: OpcFile, chart: ChartState) -> None:
     from pyopenvba.apps.excel._chart_styled import is_styled
 
     if not is_styled(chart.chart_style):
-        _remove_style_parts(package, chart.part)
+        remove_style_parts(package, chart.part)
         return
     style, colours = _style_part_names(chart.part)
     package.write(style, style_part(chart.chart_style).encode('utf-8'))
@@ -933,7 +1071,7 @@ def _write_style_parts(package: OpcFile, chart: ChartState) -> None:
         '</Relationships>').encode('utf-8'))
 
 
-def _remove_style_parts(package: OpcFile, part: str) -> None:
+def remove_style_parts(package: OpcFile, part: str) -> None:
     for name in _style_part_names(part):
         if package.has(name):
             package.remove(name)
@@ -946,7 +1084,7 @@ def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
                 if any(shape.shape_id == identifier and shape.kind == 'chart' for shape in owner.shapes_)}
     retired = set(sheet.deleted_chart_parts)
     for part in retired - retained:
-        _remove_style_parts(package, part)
+        remove_style_parts(package, part)
         package.remove(part)
         package.remove(rels_part(part))
         drop_content_type(package, part)

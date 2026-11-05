@@ -1,0 +1,95 @@
+{
+ "measured_at": "2026-11-04T17:15:02.823963+00:00",
+ "tally": {
+  "title: on": {
+   "True/False -25000": 8,
+   "True/True 30000": 2
+  },
+  "title: off": {
+   "False/True 30000": 3,
+   "False/False 0": 7
+  },
+  "title: on off": {
+   "False/False 0": 6,
+   "False/True 30000": 4
+  },
+  "title: superscript": {
+   "False/True ": 10
+  },
+  "legend: on": {
+   "True/True 30000": 6,
+   "True/False -25000": 4
+  },
+  "legend: off": {
+   "False/False 0": 4,
+   "False/True 30000": 6
+  },
+  "legend: on off": {
+   "False/True 30000": 8,
+   "False/False 0": 2
+  },
+  "legend: superscript": {
+   "False/True ": 10
+  },
+  "ticks: on": {
+   "True/True 30000": 8,
+   "True/False -25000": 2
+  },
+  "ticks: off": {
+   "False/True 30000": 5,
+   "False/False 0": 5
+  },
+  "ticks: on off": {
+   "False/True 30000": 7,
+   "False/False 0": 3
+  },
+  "ticks: superscript": {
+   "False/True ": 10
+  },
+  "labels: on": {
+   "True/True 30000": 6,
+   "True/False -25000": 4
+  },
+  "labels: off": {
+   "False/False 0": 4,
+   "False/True 30000": 6
+  },
+  "labels: on off": {
+   "False/True 30000": 8,
+   "False/False 0": 2
+  },
+  "labels: superscript": {
+   "False/True ": 10
+  },
+  "area: on": {
+   "True/False -25000": 3,
+   "True/True 30000": 7
+  },
+  "area: off": {
+   "False/True 30000": 6,
+   "False/False 0": 4
+  },
+  "area: on off": {
+   "False/True 30000": 6,
+   "False/False 0": 4
+  },
+  "area: superscript": {
+   "False/True ": 10
+  },
+  "axis title: on": {
+   "True/False -25000": 3,
+   "True/True 30000": 7
+  },
+  "axis title: off": {
+   "False/False 0": 3,
+   "False/True 30000": 7
+  },
+  "axis title: on off": {
+   "False/False 0": 4,
+   "False/True 30000": 6
+  },
+  "axis title: superscript": {
+   "False/True ": 10
+  }
+ }
+}

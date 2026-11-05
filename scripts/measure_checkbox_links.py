@@ -2,8 +2,6 @@
 import json
 from pathlib import Path
 
-from pyvbaharness import ExcelSession
-
 ROOT = Path(__file__).resolve().parent.parent
 PROBES = {
     "set_off": "sh.ControlFormat.Value = -4146",
@@ -39,22 +37,28 @@ PROBES = {
 }
 
 
+def report_source(statement: str) -> str:
+    return (
+        'Public Function Report() As String\nDim sh As Object, n As Long\n'
+        'Do While ActiveSheet.Shapes.Count > 0\nActiveSheet.Shapes(1).Delete\nLoop\n'
+        'Range("H1").ClearContents\n'
+        'Set sh = ActiveSheet.Shapes.AddFormControl(1, 0, 0, 90, 20)\n'
+        'sh.ControlFormat.LinkedCell = "$H$1"\nOn Error Resume Next\n'
+        + statement + '\nn = Err.Number\nOn Error GoTo 0\n'
+        'Report = CStr(n) & "|" & CStr(sh.ControlFormat.Value) & "|" & _\n'
+        'TypeName(Range("H1").Value) & "|" & CStr(Range("H1").Value)\nEnd Function\n'
+    )
+
+
 def main() -> None:
+    # Here, as the replay reads report_source where no Excel is.
+    from pyvbaharness import ExcelSession
+
     records = []
     with ExcelSession() as excel:
         excel.new_document()
         for name, statement in PROBES.items():
-            code = (
-                'Public Function Report() As String\nDim sh As Object, n As Long\n'
-                'Do While ActiveSheet.Shapes.Count > 0\nActiveSheet.Shapes(1).Delete\nLoop\n'
-                'Range("H1").ClearContents\n'
-                'Set sh = ActiveSheet.Shapes.AddFormControl(1, 0, 0, 90, 20)\n'
-                'sh.ControlFormat.LinkedCell = "$H$1"\nOn Error Resume Next\n'
-                + statement + '\nn = Err.Number\nOn Error GoTo 0\n'
-                'Report = CStr(n) & "|" & CStr(sh.ControlFormat.Value) & "|" & _\n'
-                'TypeName(Range("H1").Value) & "|" & CStr(Range("H1").Value)\nEnd Function\n'
-            )
-            result = excel.run_vba(code, "Report", timeout=120.0)
+            result = excel.run_vba(report_source(statement), "Report", timeout=120.0)
             assert result.ok, f"{result.outcome}: {result.message}"
             records.append({"name": name, "statement": statement, "reported": str(result.value)})
     target = ROOT / "tests/fixtures/shapes/checkbox_links.json"

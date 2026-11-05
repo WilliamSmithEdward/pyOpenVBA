@@ -4,6 +4,7 @@ entries in the style part say, where a new chart of the old kind leaves them to 
 
 from __future__ import annotations
 
+from dataclasses import replace
 import colorsys
 import re
 from functools import lru_cache
@@ -182,6 +183,12 @@ def _paragraph_font(style: int, name: str, font: TextLook | None) -> str:
         fields['b'] = '1' if font.bold else '0'
     if font is not None and font.italic is not None:
         fields['i'] = '1' if font.italic else '0'
+    if font is not None and font.underline is not None:
+        fields['u'] = font.underline
+    if font is not None and font.strike is not None:
+        fields['strike'] = font.strike
+    if font is not None and font.baseline is not None:
+        fields['baseline'] = str(font.baseline)
     spelled = ' '.join(f'{key}="{fields.get(key, plain)}"' for key, plain in _TEXT_FIELDS if fields.get(key, plain))
     colour = (
         f'<a:srgbClr val="{font.rgb}"/>' if font is not None and font.rgb is not None else _text_colour(style, name)
@@ -344,8 +351,8 @@ def _fixed(spelled: str, theme: tuple[str, ...]) -> str:
     return re.sub(r'<a:schemeClr val="(\w+)"(?:(/)>|>(.*?)</a:schemeClr>)', one, spelled, flags=re.S)
 
 
-def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...]) -> str:
-    """Data labels' box and text, and their leader lines."""
+def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...], font: TextLook | None = None) -> str:
+    """Data labels' box and text, with the chart area's font where it has one, and their leader lines."""
 
     def dressed_one(found: re.Match[str]) -> str:
         labels = found.group(0)
@@ -357,7 +364,7 @@ def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...])
                 count=1,
                 flags=re.S,
             )
-            text = _painted(_text(style, 'dataLabel', _label_body(style)), _accent(index))
+            text = _painted(_text(style, 'dataLabel', _label_body(style), font), _accent(index))
             labels = labels.replace('</c:spPr>', '</c:spPr>' + text, 1)
         return labels.replace(
             '<c15:showLeaderLines val="1"/></c:ext>',
@@ -395,10 +402,19 @@ def _group_labels(xml: str, state: ChartState) -> str:
     )
 
 
+def written_order(state: ChartState) -> list[SeriesState]:
+    """A combo chart's series as the file has them, empty for a chart that has them in order."""
+    from pyopenvba.apps.excel._chart_combos import groups, is_combo
+
+    if is_combo(state):
+        return [item for group in groups(state) for item in group.members]
+    return list(state.plot_sequence or [])
+
+
 def _dressed_series(xml: str, state: ChartState, theme: tuple[str, ...]) -> str:
     """Each series with its look, what was set of it first."""
     style = state.chart_style
-    every: list[SeriesState] = state.full_series or state.series
+    every: list[SeriesState] = written_order(state) or state.full_series or state.series
     found = list(re.finditer(r'<c:ser>.*?</c:ser>', xml, re.S))
     for match, entry in reversed(list(zip(found, every, strict=False))):
         series = match.group(0)
@@ -429,7 +445,7 @@ def _dressed_series(xml: str, state: ChartState, theme: tuple[str, ...]) -> str:
             # Labels the style gave and a macro took away.
             rest = re.sub(r'(?=<c:(?:cat|xVal|val|yVal)>)', '<c:dLbls><c:delete val="1"/></c:dLbls>', rest, count=1)
         series = _dressed_points(series[: head.end()] + look + rest, style, index, kind in _SERIES_KINDS[2:4])
-        series = _dressed_labels(series, style, index, theme)
+        series = _dressed_labels(series, style, index, theme, state.element_fonts.get('area'))
         series = series.replace(
             '<c:trendline><c:trendlineType',
             '<c:trendline>' + _painted(_stroke(style, 'trendline'), _accent(index)) + '<c:trendlineType',
@@ -459,11 +475,12 @@ def _dressed_title(title: str, style: int, name: str, font: TextLook | None, rot
 
 def _dressed_axes(xml: str, state: ChartState) -> str:
     style = state.chart_style
-    kinds = iter((1, 2))
+    kinds = iter(((1, False), (2, False), (2, True), (1, True)))
 
     def dressed_one(found: re.Match[str]) -> str:
         axis = found.group(0)
-        kind = next(kinds)
+        # A secondary axis's font is its own (see _chart_axes.AxisState.tag).
+        kind, secondary = next(kinds)
         name = 'categoryAxis' if kind == 1 else 'valueAxis'
         if state.made_scatter and kind == 1 and '<c:xVal><c:numRef>' not in xml:
             # A new scatter chart's horizontal axis has no number format to follow until its values are numbers.
@@ -480,7 +497,7 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
                 hit.group(0),
                 style,
                 'axisTitle',
-                state.element_fonts.get(f'title{kind}'),
+                state.element_fonts.get(f'title{kind}s' if secondary else f'title{kind}'),
                 _UPRIGHT if (kind == 2) != ('<c:barDir val="bar"/>' in xml) else _LEVEL,
             ),
             axis,
@@ -494,7 +511,7 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
         if mine == _LAYOUT_NO_LINE:
             mine = ''
         axis = re.sub(r'<c:txPr>(?:(?!<c:txPr>).)*?</c:txPr>(?=<c:crossAx)', '', axis, count=1, flags=re.S)
-        font = state.element_fonts.get(f'tick{kind}')
+        font = state.element_fonts.get(f'tick{kind}s' if secondary else f'tick{kind}')
         if '<c:delete val="1"/>' in axis:
             return axis
         look = _box(style, name, mine) + _text(style, name, _body(_TURNED), font)
@@ -503,8 +520,25 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
     return re.sub(r'<c:(valAx|catAx|dateAx)>.*?</c:\1>', dressed_one, xml, flags=re.S)
 
 
+def _spelled_out(state: ChartState) -> ChartState:
+    """A chart with a style writes every element's text in full, so the chart area's font is on each that has not its own, a title's
+    size at 1.2 times the area's (tests/fixtures/chart_font_gaps.json)."""
+    area = state.element_fonts.get('area')
+    if area is None:
+        return state
+    fonts = dict(state.element_fonts)
+    for key in ('title', 'legend', 'tick1', 'tick2', 'title1', 'title2', 'tick1s', 'tick2s', 'title1s', 'title2s', 'dataTable'):
+        own = fonts.get(key) or TextLook()
+        merged = replace(area, **{name: value for name, value in vars(own).items() if value is not None})
+        if key == 'title' and own.size is None and area.size is not None:
+            merged.size = round(area.size * 1.2, 2)
+        fonts[key] = merged
+    return replace(state, element_fonts=fonts)
+
+
 def dressed(xml: str, state: ChartState, theme: tuple[str, ...]) -> str:
     """The chart part of a chart of a style from 201, its elements given what the style says."""
+    state = _spelled_out(state)
     style = state.chart_style
     xml = re.sub(
         r'(?<=<c:chart>)<c:title>.*?</c:title>',
@@ -558,6 +592,11 @@ def dressed(xml: str, state: ChartState, theme: tuple[str, ...]) -> str:
     made = xml[: area.start()] + _box(style, 'chartArea', area.group(1) or '') + text + xml[area.end() :]
     # The elements that are no series' take the first colour for the style's placeholder.
     return _painted(made, _accent(0))
+
+
+def theme_colour(spelled: str, theme: tuple[str, ...]) -> str:
+    """A scheme colour a file spells, as the colour it comes to in the theme."""
+    return _rgb(spelled, theme)
 
 
 def _rgb(spelled: str, theme: tuple[str, ...]) -> str:

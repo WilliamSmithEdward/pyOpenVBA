@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import re
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel import _events
@@ -44,6 +45,7 @@ from pyopenvba.interpreter._values import (ERR_SUBSCRIPT_OUT_OF_RANGE, EMPTY, MI
                                            to_bool, to_integer)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
     from pyopenvba._a1 import Area
     from pyopenvba.apps.excel._model import NameEntry, Workbook
 
@@ -246,7 +248,7 @@ def survivor(book: Workbook, going: list[Worksheet]) -> Worksheet | None:
     return later[0] if later else (staying[-1] if staying else None)
 
 
-def set_visible(book: Workbook, sheets: list[Worksheet], value: object, refusal: str) -> None:
+def set_visible(book: Workbook, tabs: Sequence[Worksheet | ChartSheet], value: object, refusal: str) -> None:
     """Hide or show ``sheets``; hiding every visible sheet is error 1004, and hiding the active one makes another
     active. 1 shows them as xlSheetVisible does, and what Excel does not name is 1004 (tests/fixtures/settable_audit.json)."""
     from pyopenvba.apps.excel._protection import HIDING, refuse_structure
@@ -258,9 +260,16 @@ def set_visible(book: Workbook, sheets: list[Worksheet], value: object, refusal:
     if state not in (VISIBLE, 0, 2):
         raise error(1004, refusal)
     if state == VISIBLE:
-        for sheet in sheets:
-            sheet.visible = state
+        for tab in tabs:
+            tab.visible = state
         return
+    if book.chart_sheets:
+        from pyopenvba.apps.excel._chart_sheets import hide
+
+        hide(book, tabs, state, refusal)
+        return
+    # Without a chart sheet in the workbook, every tab is a worksheet.
+    sheets = [tab for tab in tabs if isinstance(tab, Worksheet)]
     after = survivor(book, sheets)
     if after is None or not any(sheet.visible == VISIBLE and not any(one is sheet for one in sheets)
                                 for sheet in book.sheets_):
@@ -413,7 +422,7 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
     staying = [sheet for sheet in book.sheets_ if not any(one is sheet for one in going)]
     if not staying:
         raise error(1004, refusal)
-    if not any(sheet.visible == VISIBLE for sheet in staying):
+    if not any(sheet.visible == VISIBLE for sheet in staying) and not any(chart.visible == VISIBLE for chart in book.chart_sheets):
         # tests/fixtures/sheet_groups.json, delete_last_visible.
         raise error(1004, "A workbook must contain at least one visible worksheet.")
     names = {sheet.name.casefold() for sheet in going}
@@ -422,17 +431,24 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
     _refused_carriers(book, names, staying)
     after = survivor(book, going)
     was_active = book.active_sheet
+    next_tab = None
+    if book.chart_sheets:
+        from pyopenvba.apps.excel._chart_sheets import next_visible
+
+        next_tab = next_visible(book, list(going))
     for sheet in reversed(going):
         _events.before_delete(sheet)
     _events.sheet_left(sheets[0])
     # The tabs after a deleted sheet move up, and the file's active tab and first tab with them, which left as they were
     # open the file on another sheet or, past the last, have Excel refuse it (tests/fixtures/deleted_local_names.json).
-    before_first = sum(1 for sheet in going if book.sheets_.index(sheet) < book.view.first_sheet)
-    book.view.first_sheet = max(0, min(book.view.first_sheet - before_first, len(staying) - 1))
+    before_first = sum(1 for sheet in going if book.tabs().index(sheet) < book.view.first_sheet)
+    book.view.first_sheet = max(0, min(book.view.first_sheet - before_first, len(book.tabs()) - len(going) - 1))
     book.view.changed = True
     for sheet in going:
         remove_document(sheet)
         book.sheets_.remove(sheet)
+        if book.chart_sheets:
+            book.file_tabs.remove(sheet)
     # Local names belong to the removed sheets, independently of RefersTo; retaining them would make the writer
     # silently globalize their scope.
     retained = [entry for entry in book.names_.entries if split(entry.name)[0].casefold() not in names]
@@ -442,8 +458,10 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
         _keep_names_still_read(book, leaving, names)
         changed(book)
     rewrite_formulas(book, lambda text: gone_references(text, names, order, tables))
-    if after is not None:
+    if after is not None and any(one is after for one in book.sheets_):
         book.active_sheet_index = book.sheets_.index(after)
+    if next_tab is not None and not isinstance(next_tab, Worksheet):
+        book.active_chart_sheet = next_tab
     book.selected_sheets = []
     book.saved = False
     for sheet in going:

@@ -39,8 +39,14 @@ def category(returned: str) -> str:
     return 'class'
 
 
+#: No live probe calls or reads these, even under If False: they could send real mail.
+NEVER_ASKED = frozenset({'sendmail', 'sendforreview', 'replywithchanges', 'endreview', 'route', 'routeworkbook', 'routingslip', 'hasroutingslip', 'hasmailer', 'mailer',
+                         'mailenvelope', 'sendfaxoverinternet', 'maillogon', 'maillogoff', 'mailsession', 'mailsystem', 'followhyperlink', 'follow',
+                         'printout', 'printpreview'})
+
+
 def forms(found: LibraryClass) -> dict[str, list[list[object]]]:
-    return {name: entries for name, entries in sorted(found.members.items()) if not name.startswith('_')}
+    return {name: entries for name, entries in sorted(found.members.items()) if not name.startswith('_') and name not in NEVER_ASKED}
 
 
 def lines_for(variable: str, found: LibraryClass) -> dict[str, str]:

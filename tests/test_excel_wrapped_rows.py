@@ -203,7 +203,7 @@ _ONE_CELL = 'For i = 1 To 3: ws.Cells(i, 1).Value = "{0}": Next'
 _WHOLE_COLUMN = 'ws.Range("A1").Resize(3, 1).Value = "{0}"'
 
 
-def _after_write(statements: str) -> list[object]:
+def _after_write(statements: str) -> list[str]:
     """Row 1 to 3's heights after these, with every height worked out before each write so that a write may leave what was worked out."""
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

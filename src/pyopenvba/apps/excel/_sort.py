@@ -689,6 +689,8 @@ class SortState:
         self.original: tuple[object, ...] = (None, GUESS, False, TOP_TO_BOTTOM, 1, ())
         #: The SortFields every Sort of the sheet hands out, which its fields name as their Parent.
         self.collection: SortFields | None = None
+        #: The range as the first Apply left it, after which Apply leaves the range as it is.
+        self.applied: Range | None = None
 
 
 def settings_signature(state: SortState) -> tuple[object, ...]:
@@ -1053,34 +1055,50 @@ class SortObject(ExcelObject):
     def _set_sort_method(self, value: object) -> None:
         self.state.method = _setting(value, (1, 2))
 
+    def _settled(self, area: Area) -> Area:
+        """The range Apply sorts. The first Apply after SetRange pulls it back to the used cells and leaves it so; a later
+        one sorts it as it is. A SetRange after an Apply gives a range not measured (tests/fixtures/sort_rounds.json)."""
+        state = self.state
+        if state.applied is not None and state.applied is not state.area:
+            raise VBAUnsupportedError("applying a sort again after setting its range anew is not implemented")
+        if state.applied is None:
+            area = _within_used(self.sheet, area)
+            state.area = state.applied = Range(self.sheet, [area])
+        return area
+
     @method
     def Apply(self) -> object:
         state = self.state
-        if state.area is None or not state.fields:
-            # With no range or no field Excel sorts nothing, and says nothing (tests/fixtures/sort_colour/).
+        if state.area is None:
+            # With no range Excel sorts nothing, and says nothing (tests/fixtures/sort_colour/).
             return EMPTY
         target = state.area
         if len(target.areas) != 1:
             raise VBAUnsupportedError("sorting several areas is not implemented")
         area = target.first
+        if not state.fields:
+            # Nothing sorts, but the range is settled as when there are fields (tests/fixtures/sort_rounds.json).
+            self._settled(area)
+            return EMPTY
         across = state.orientation == LEFT_TO_RIGHT
+        # Sorting left to right the header setting counts for nothing (tests/fixtures/sort_rounds.json).
+        header = state.header == YES and not across
         if any((field.key.first.rows if across else field.key.first.columns) > 1 for field in state.fields):
             # A key is one column, or one row sorting left to right (tests/fixtures/sort_rounds.json).
             raise error(1004, "The sort reference is not valid")
-        if state.header == YES and (area.columns if across else area.rows) <= 1:
+        if header and area.rows <= 1:
             # The header is all there is: nothing sorts, and where a key stands is not looked at
             # (tests/fixtures/sort_rounds.json).
             return EMPTY
-        keys = [replace(_key(target, field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
-                        on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom)
-                for field in state.fields if field.subfield is EMPTY]
+        keys = [(field, replace(_key(target, field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
+                                on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom))
+                for field in state.fields]
+        area = self._settled(area)
         # A field on a data type's field orders plain values not at all, so with only those nothing moves
         # (tests/fixtures/sort_fields.json, tests/fixtures/sort_rounds.json).
-        area = _within_used(target.sheet, area)
-        state.area = Range(target.sheet, [area])
-        keys = [key for key in keys if key.index < (area.rows if across else area.columns)]
-        if keys:
-            sort_area(target.sheet, area, keys, header=state.header == YES, match_case=state.match_case, across=across)
+        kept = [key for field, key in keys if field.subfield is EMPTY and key.index < (area.rows if across else area.columns)]
+        if kept:
+            sort_area(target.sheet, area, kept, header=header, match_case=state.match_case, across=across)
         from pyopenvba.apps.excel._events import recalculated
 
         recalculated(target.sheet.book)
@@ -1112,6 +1130,10 @@ class AutoFilterSort(SortObject):
         super()._check_alive()
         if self.owner.current() is not self.filter:
             raise VBAUnsupportedError("the sort settings of an AutoFilter since removed are not implemented")
+
+    def _settled(self, area: Area) -> Area:
+        """The filter's range stays as it is."""
+        return area
 
     @member
     def Parent(self) -> object:

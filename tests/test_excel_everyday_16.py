@@ -30,10 +30,11 @@ def width_dependent(asked: str, answer: str) -> bool:
 @pytest.mark.parametrize('binding', ['late', 'typed'])
 @pytest.mark.parametrize('probe', PROBES, ids=[probe['name'] for probe in PROBES])
 def test_an_everyday_macro(probe: dict[str, Any], binding: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # The macro saves under TEMP: a folder of this test's own, on every system, so that runs side by side cannot open, save and
+    # kill each other's files, and off Windows, which does not set it, there is one at all.
+    monkeypatch.setenv('TEMP', str(tmp_path))
     gaps = GAPS
     if sys.platform != 'win32':
-        # The macro saves under TEMP, which only Windows sets.
-        monkeypatch.setenv('TEMP', str(tmp_path))
         gaps = (*GAPS, *SPELLED_BY_WINDOWS)
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

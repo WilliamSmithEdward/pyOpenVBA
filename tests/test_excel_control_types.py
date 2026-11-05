@@ -84,7 +84,8 @@ def test_python_creates_form_control(tmp_path: Path, number: int, kind: str) -> 
     app.save(path)
     copy = ExcelApplication.open(path, with_vba=False).sheet(1).shape("Created")
     assert copy.control is not None and copy.control.kind == kind and copy.control.value != 999
-    assert (copy.left, copy.top, copy.text) == (12, 20, "Caption")
+    # A control's edge in the file falls back to a pixel at 96 DPI (tests/fixtures/new_control_settings.json).
+    assert (copy.left, copy.top, copy.text) == (12, 19.5, "Caption")
 
 
 def test_python_control_creation_validates_before_mutation() -> None:

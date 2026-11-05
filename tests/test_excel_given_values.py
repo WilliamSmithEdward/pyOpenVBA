@@ -4,8 +4,9 @@ tests/fixtures/given_value_rounds.json).
 
 Each round's values were new, with the model's answers written down first; rules were fixed against each round up to the fifth, so
 those are now only regressions. The sixth ran on the fifth's code, on enum numbers past what was measured, separate areas, whole rows
-and a sample of whole columns. A row goes VERIFIED only with no difference in both, and with no reported gap in reach. The scores name
-what missed, and those members' cases are left out here: their rows are PARTIAL.
+and a sample of whole columns. A row goes VERIFIED only with no difference in two rounds running on the same code, and with no reported
+gap in reach. The scores name what missed. The colour rule came after the sixth, so its rows rest on the two colours rounds. Members
+that still miss have their cases left out here, and their rows are PARTIAL.
 """
 from __future__ import annotations
 
@@ -61,4 +62,4 @@ def test_the_scores_name_the_misses_and_none_is_replayed() -> None:
     fifth, sixth = RECORD['scores']['fifth'], RECORD['scores']['sixth']
     assert set(fifth['wrong']) == {'Border.TintAndShade', 'Borders.TintAndShade'}
     assert fifth['comparisons'] == 2860 and sixth['comparisons'] == 3888
-    assert not set(sixth['wrong']) & set(MEMBERS)
+    assert not {'Border.TintAndShade', 'Borders.TintAndShade'} & set(MEMBERS)

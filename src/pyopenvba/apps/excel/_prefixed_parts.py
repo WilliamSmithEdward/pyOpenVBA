@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from pyopenvba.powerquery._opc import OpcFile
 
 MAIN = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+DRAWING = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
 #: The parts Excel saves in its own spelling, by their root element.
 RESPELLED = frozenset({"workbook", "worksheet", "styleSheet", "sst", "table", "comments", "calcChain", "metadata",
                        "connections", "queryTable", "pivotTableDefinition", "pivotCacheDefinition"})
@@ -77,6 +78,27 @@ def unprefixed(text: str) -> str:
         pieces += [text[at:start], replacement]
         at = end
     return "".join(pieces) + text[at:]
+
+
+def drawing_spelled(text: str) -> str:
+    """A drawing with its own elements under xdr:, as the shape readers look for them. Excel reads the namespace under any prefix,
+    or as the default as openpyxl writes it (tests/fixtures/tool_drawings.json). A part that binds it more than once, or binds the
+    default again further in, is left as it is."""
+    root = re.search(r"<(?:([A-Za-z_][\w.-]*):)?wsDr\b([^>]*)>", text)
+    if root is None or root.group(1) == "xdr":
+        return text
+    prefix = root.group(1)
+    declaration = f'xmlns{":" + prefix if prefix else ""}="{DRAWING}"'
+    if declaration not in root.group(2) or text.count(f'"{DRAWING}"') != 1 or (not prefix and len(re.findall(r"\sxmlns\s*=", text)) != 1):
+        return text
+
+    def spelled(found: re.Match[str]) -> str:
+        if found.group("name") is None or found.group("prefix") != prefix:
+            return found.group(0)
+        attributes = found.group("attributes").replace(declaration, f'xmlns:xdr="{DRAWING}"', 1)
+        return f'<{found.group("close")}xdr:{found.group("name")}{attributes}>'
+
+    return _MARKUP.sub(spelled, text)
 
 
 def respell(package: OpcFile) -> None:

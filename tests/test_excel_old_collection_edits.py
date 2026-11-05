@@ -69,9 +69,7 @@ def test_each_change_as_excel_answered(case: dict[str, Any]) -> None:
             found = str(app.run('Probe.ReadHere', case['collection'], place + 1, read))
         except VBAUnsupportedError:
             continue
-        # Late these are Doubles on a list; the model follows the typed binding.
-        typed = wanted.replace('Double', 'Long') if READS[read] == 'Value' and case['collection'] in ('DropDowns', 'ListBoxes') else wanted
-        assert plain(found) == plain(typed), (place + 1, READS[read])
+        assert plain(found) == plain(wanted), (place + 1, READS[read])
 
 
 @pytest.mark.parametrize('case', [one for one in CASES if one['excel_reads_model']], ids=lambda one: f'{one["collection"]} {one["first"]} {one["change"]}')

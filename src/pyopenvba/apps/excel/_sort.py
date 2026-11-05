@@ -1090,6 +1090,10 @@ class SortObject(ExcelObject):
             # The header is all there is: nothing sorts, and where a key stands is not looked at
             # (tests/fixtures/sort_rounds.json).
             return EMPTY
+        if any(field.option not in (0, 1) for field in state.fields):
+            # A data option the property takes past xlSortTextAsNumbers can stop Apply with a dialog of Excel's own,
+            # which a macro cannot answer (tests/fixtures/sort_rounds.json).
+            raise VBAUnsupportedError("sorting with a DataOption other than xlSortNormal or xlSortTextAsNumbers is not implemented")
         keys = [(field, replace(_key(target, field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
                                 on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom))
                 for field in state.fields]

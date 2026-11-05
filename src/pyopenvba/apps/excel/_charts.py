@@ -174,6 +174,13 @@ class ChartState:
     title_deleted: bool = False
     #: A loaded chart's title element, kept once taken away for its look when a title comes back.
     title_taken: str = ''
+    #: So with its legend element, and each axis's gridlines by the axis and whether major.
+    legend_taken: str = ''
+    gridlines_taken: dict[tuple[int, bool], str] = field(default_factory=lambda: {})
+    #: Whether a loaded chart has a style part: what it gains takes that style's look, which is not read here.
+    style_part: bool = False
+    #: Whether a loaded legend has a layout of its own, which makes its position custom.
+    legend_manual: bool = False
     legend: bool = True
     #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
     legend_position: str = 'r'
@@ -2645,6 +2652,11 @@ class Chart(ElementProperties, HeldPart):
 
     @setter('HasLegend')
     def _legend(self, value: object) -> None:
+        from pyopenvba.apps.excel._chart_loaded import set_legend
+
+        if self.state.original:
+            set_legend(self, to_bool(value))
+            return
         self.admit_change()
         wanted = to_bool(value)
         self.keeps_look('legend', wanted)
@@ -3017,6 +3029,8 @@ class Legend(ElementProperties, Created):
 
     @member
     def Position(self) -> object:
+        if self.shown().legend_manual:
+            return VBAInt(-4161, 'Long')
         spelled = self.shown().legend_position
         return VBAInt(next(number for number, name in LEGEND_POSITIONS.items() if name == spelled), 'Long')
 
@@ -3025,6 +3039,12 @@ class Legend(ElementProperties, Created):
         wanted = LEGEND_POSITIONS.get(int(to_integer(value, 'Long')))
         if wanted is None:
             raise error(-2147467259, 'Automation error\nUnspecified error')
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import place_legend
+
+            self.shown()
+            place_legend(self.chart, wanted)
+            return
         self.change().legend_position = wanted
 
     @member

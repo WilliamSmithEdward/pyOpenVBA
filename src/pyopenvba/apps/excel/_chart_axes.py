@@ -210,7 +210,11 @@ class Axis(ElementProperties, Created):
 
     def change(self) -> None:
         self.read()
-        self.chart.admit_change()
+        if self.chart.state.original:
+            # What is built for a loaded chart goes through its own markup; the rest is refused where it would mark the chart changed.
+            self.chart.admit_read()
+        else:
+            self.chart.admit_change()
 
     def scale(self, field: str = "") -> None:
         self.read()
@@ -413,12 +417,18 @@ class Axis(ElementProperties, Created):
             raise VBAUnsupportedError("Nonfinite chart scales are not implemented")
         if field == "major" and wanted <= 0:
             raise error(440, "Automation error")
-        self.chart.changed()
+        loaded = bool(self.chart.state.original) and field != "major"
+        if not loaded:
+            self.chart.changed()
         setattr(self.entry, field, wanted)
         if field == "minimum" and self.entry.maximum is not None and wanted >= self.entry.maximum:
             self.entry.maximum = None
         elif field == "maximum" and self.entry.minimum is not None and wanted <= self.entry.minimum:
             self.entry.minimum = None
+        if loaded:
+            from pyopenvba.apps.excel._chart_loaded import rescale
+
+            rescale(self.chart, self.entry)
 
     def automatic(self, field: str) -> bool:
         self.scale()
@@ -432,9 +442,15 @@ class Axis(ElementProperties, Created):
         self.change()
         if not wanted and getattr(self.entry, field) is None:
             raise VBAUnsupportedError("Freezing an effective automatic chart scale requires native layout")
-        self.chart.changed()
+        loaded = bool(self.chart.state.original) and field != "major"
+        if not loaded:
+            self.chart.changed()
         if wanted:
             setattr(self.entry, field, None)
+        if loaded:
+            from pyopenvba.apps.excel._chart_loaded import rescale
+
+            rescale(self.chart, self.entry)
 
     @member
     def MinimumScale(self) -> object:
@@ -535,8 +551,13 @@ class Axis(ElementProperties, Created):
     def _major_gridlines(self, value: object) -> None:
         self.change()
         wanted = to_bool(value)
-        self.chart.keeps_look(f"grid{self.entry.tag}", wanted)
-        self.chart.changed()
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import set_gridlines
+
+            set_gridlines(self.chart, self.entry, True, wanted)
+        else:
+            self.chart.keeps_look(f"grid{self.entry.tag}", wanted)
+            self.chart.changed()
         self.entry.major_gridlines = wanted
 
     @member
@@ -548,7 +569,12 @@ class Axis(ElementProperties, Created):
     def _minor_gridlines(self, value: object) -> None:
         self.change()
         wanted = to_bool(value)
-        self.chart.changed()
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import set_gridlines
+
+            set_gridlines(self.chart, self.entry, False, wanted)
+        else:
+            self.chart.changed()
         self.entry.minor_gridlines = wanted
 
     @member

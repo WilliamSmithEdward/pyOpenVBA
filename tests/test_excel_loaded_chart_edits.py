@@ -26,10 +26,16 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_edits.json').read_text(encoding='utf-8'))
 #: What the model answers on any loaded chart: no edit, and the title activating may earn.
-ANSWERED = ('nothing', 'activate')
+ANSWERED = ('nothing', 'activate', 'legend position read')
 #: What is built for a chart Excel wrote. A chart it did not write refuses these, being rewritten whole by Excel's save.
 BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title delete', 'HasTitle False then True', 'HasTitle True False True',
-         'title gone then read', 'title gone then activate', 'new title text read', 'title delete then True')
+         'title gone then read', 'title gone then activate', 'new title text read', 'title delete then True',
+         'HasLegend False', 'HasLegend True', 'legend position', 'HasLegend False then True', 'legend gone position', 'legend back position',
+         'legend position bottom', 'legend position same', 'legend moved position read',
+         'axis maximum', 'axis minimum', 'axis both', 'axis maximum twice', 'axis maximum auto', 'axis maximum auto read',
+         'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off')
+#: Built, but not for a chart with a style: new gridlines take the style's look, which is not read.
+NEEDS_NO_STYLE = ('category gridlines', 'minor gridlines', 'minor gridlines off')
 NOT_EXCELS = 'loaded_chart_openpyxl.xlsx'
 
 
@@ -42,6 +48,8 @@ def label(case: list[Any]) -> str:
 
 
 def answered(case: list[Any]) -> bool:
+    if what(case) in NEEDS_NO_STYLE and 'dressed' in case[0]:
+        return False
     return what(case) in ANSWERED or (what(case) in BUILT and case[0] != NOT_EXCELS)
 
 
@@ -58,7 +66,7 @@ def run(case: list[Any], folder: Path) -> tuple[str, dict[str, bytes]]:
 
 @pytest.mark.parametrize('case', [case for case in RECORD['cases'] if not answered(case)], ids=label)
 def test_an_edit_not_built_stays_refused(case: list[Any], tmp_path: Path) -> None:
-    with pytest.raises(VBAUnsupportedError, match='imported chart'):
+    with pytest.raises(VBAUnsupportedError, match='imported'):
         run(case, tmp_path)
 
 

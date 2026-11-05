@@ -6,6 +6,7 @@ import datetime as _dt
 import io
 import json
 import os
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -155,6 +156,20 @@ def test_a_link_out_of_the_folder_is_refused(tmp_path: Path) -> None:
     except OSError:
         pytest.skip('this system lets no one make a link')
     assert not is_inside(folder / 'link' / 'x.pdf', (str(folder),))
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='a junction is a Windows link')
+def test_a_junction_out_of_the_folder_is_refused(tmp_path: Path) -> None:
+    """A junction needs no privilege, so this runs wherever Windows does, unlike the link above."""
+    folder, away = tmp_path / 'out', tmp_path / 'away'
+    folder.mkdir()
+    away.mkdir()
+    if sys.platform == 'win32':
+        import _winapi
+
+        _winapi.CreateJunction(str(away), str(folder / 'joined'))
+    assert not is_inside(folder / 'joined' / 'x.pdf', (str(folder),))
+    assert is_inside(folder / 'joined' / 'x.pdf', (str(away),))
 
 
 @pytest.mark.parametrize('name', ['"..\\away.pdf"', 'folder & "\\..\\away.pdf"', '"rel.pdf"', '""'])

@@ -1487,6 +1487,12 @@ class ChartArea(Created):
         self.chart = chart
 
     @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
+
+    @member
     def Parent(self) -> object:
         self.chart.admit_read()
         return self.chart
@@ -1588,6 +1594,12 @@ class PlotArea(ElementProperties, Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
 
     @member
     def Parent(self) -> object:
@@ -2899,6 +2911,12 @@ class ChartTitle(ElementProperties, TitleMembers):
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
 
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
+
     def title_look(self) -> TitleLook:
         self.chart.admit_read()
         return self.chart.state.title_look
@@ -3018,6 +3036,12 @@ class Legend(ElementProperties, Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
 
     def shown(self) -> ChartState:
         self.chart.admit_read()
@@ -4751,9 +4775,9 @@ class Series(PictureMembers, Created):
 
     @member
     def Interior(self) -> object:
-        from pyopenvba.apps.excel._chart_points import OldInterior
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
 
-        return OldInterior(self)
+        return ChartInterior(self, self.chart)
 
     @method
     def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,

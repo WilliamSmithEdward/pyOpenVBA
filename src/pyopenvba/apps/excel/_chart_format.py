@@ -808,6 +808,17 @@ def _windowed(key: str) -> bool:
     return key in ("area", "plot")
 
 
+def _shows_window(key: str, chart: object) -> bool:
+    """Whether the element's automatic fill is the window's colour: a chart area's, and a plot area's but on a chart with a style
+    of 201 or later, whose plot area has no automatic fill (tests/fixtures/chart_interior.json)."""
+    from pyopenvba.apps.excel._chart_styled import is_styled
+
+    if key != "plot":
+        return _windowed(key)
+    state = getattr(chart, "state")
+    return not (is_styled(state.chart_style) or state.style_part)
+
+
 def _grey(key: str) -> bool:
     return key == "area" or key.startswith(("axis", "grid"))
 
@@ -1148,7 +1159,7 @@ class ElementColor(Created):
         owner = self.owner
         if isinstance(owner, ElementLine):
             return owner.absent()
-        return not _windowed(owner.key) and not owner.spelled() and not owner.hidden()
+        return not _shows_window(owner.key, owner.owner.chart) and not owner.spelled() and not owner.hidden()
 
     @member
     def RGB(self) -> object:
@@ -1161,7 +1172,7 @@ class ElementColor(Created):
                 return VBAInt(0, "Long")
             if look.fill_rgb is not None:
                 return VBAInt(bgr(look.fill_rgb), "Long")
-            if _windowed(owner.key) or owner.hidden():
+            if _shows_window(owner.key, owner.owner.chart) or owner.hidden():
                 return VBAInt(_WHITE, "Long")
             theme = owner.owner.chart.sheet.book.stylesheet.colors.theme
             return VBAInt(bgr(theme[4]), "Long")

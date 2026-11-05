@@ -1,7 +1,6 @@
 """What Excel reads of a loaded chart's looks, through a typed Chart and a late-bound Object (scripts/measure_loaded_chart_looks.py,
 tests/fixtures/loaded_chart_looks.json). Until the model reads a loaded chart's spPr and txPr, each read gives Excel's answer or is
-refused: a wrong read of a loaded chart is worse than a refusal. The one gap left is named: Interior on a chart element, which the model
-answers 438 on any chart, loaded or new."""
+refused: a wrong read of a loaded chart is worse than a refusal."""
 
 from __future__ import annotations
 
@@ -16,8 +15,6 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_looks.json').read_text(encoding='utf-8'))
-#: Interior on these elements is not a member of the model's yet, on any chart.
-NO_INTERIOR = ('ChartArea.Interior.', 'PlotArea.Interior.', 'Legend.Interior.', 'ChartTitle.Interior.')
 
 
 def source(reads: list[str], kind: str) -> str:
@@ -35,7 +32,7 @@ def test_each_look_read_is_excels_or_refused(name: str, binding: str) -> None:
     reads: list[str] = RECORD['reads']
     wanted: list[str] = RECORD['answers'][name][binding]
     app = ExcelApplication.open(FIXTURES / name, with_vba=False)
-    asked = [(read, want) for read, want in zip(reads, wanted) if want != 'does not compile' and not read.startswith(NO_INTERIOR)]
+    asked = [(read, want) for read, want in zip(reads, wanted) if want != 'does not compile']
     app.add_module(source([read for read, _ in asked], 'Chart' if binding == 'typed' else 'Object'), name='P')
     wrong: list[str] = []
     for number, (read, want) in enumerate(asked):

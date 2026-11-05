@@ -103,7 +103,11 @@ def test_a_python_callback_that_runs_vba_inside_a_run_draws_on_the_same_budget()
     """What a host hands VBA to call back, here a callback DoEvents pumps, is part of the run it was called in."""
     app = _app(1000)
     app.add_module('Public Sub Pumping()\n    Spin 300\n    DoEvents\n    Spin 300\nEnd Sub\n', name='P')
-    app.interpreter.pumped.append(lambda: app.run('H.Spin', 600))
+
+    def callback() -> None:
+        app.run('H.Spin', 600)
+
+    app.interpreter.pumped.append(callback)
     with pytest.raises(VBAStepLimitError):
         app.run('P.Pumping')
 

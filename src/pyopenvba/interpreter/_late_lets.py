@@ -111,5 +111,8 @@ LATE_CALLS: dict[str, dict[str, int]] = {
     'range.sort': {'null': 0, 'bool': 0},
 }
 
-#: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json).
-LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook'})
+#: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json,
+#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json).
+LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook', 'workbook.fileformat',
+                          'dropdown.listcount', 'dropdown.listindex', 'dropdown.value', 'dropdown.dropdownlines',
+                          'listbox.listcount', 'listbox.listindex', 'listbox.value'})

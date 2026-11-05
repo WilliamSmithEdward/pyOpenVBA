@@ -12,7 +12,7 @@ from pyopenvba.interpreter._flow import Program
 from pyopenvba.interpreter._financial import SIGNATURES as FINANCIAL_SIGNATURES
 from pyopenvba.interpreter._intrinsics import INTRINSICS
 from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
-from pyopenvba.interpreter._type_library import CallShape, LibraryClass, LibraryType, find_class, let_refusal, refusal
+from pyopenvba.interpreter._type_library import CallShape, LibraryClass, LibraryType, find_class, indexed_refusal, let_refusal, refusal
 from pyopenvba.interpreter._values import type_name
 
 if TYPE_CHECKING:
@@ -168,6 +168,13 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
         program.early_bound_members[id(expression)] = found.name
         return library_info(found.result(key))
 
+    def shape_of(args: Sequence[A.Argument]) -> CallShape:
+        given = [argument for argument in args if not argument.name]
+        while given and given[-1].omitted:
+            given.pop()
+        return CallShape(len(given), tuple(argument.name for argument in args if argument.name),
+                         frozenset(at for at, argument in enumerate(given) if isinstance(argument.value, A.Literal)))
+
     def check_library_call(expression: A.Expr | None, args: Sequence[A.Argument], use: str) -> None:
         """Refuse what VBA's compiler refuses of a member call bound early, which the type library decides."""
         name = program.early_bound_members.get(id(expression)) if isinstance(expression, A.Member) else None
@@ -179,12 +186,7 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             return
         if expression.bracketed and strip_suffix(expression.name).lower() not in found.members and found.evaluates:
             return
-        given = [argument for argument in args if not argument.name]
-        while given and given[-1].omitted:
-            given.pop()
-        shape = CallShape(len(given), tuple(argument.name for argument in args if argument.name),
-                          frozenset(at for at, argument in enumerate(given) if isinstance(argument.value, A.Literal)))
-        said = refusal(library, found, strip_suffix(expression.name), use, shape)
+        said = refusal(library, found, strip_suffix(expression.name), use, shape_of(args))
         if said is not None:
             fail(said, expression.line)
 
@@ -371,6 +373,11 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 held = library_class(info[0], info[2])
                 if held is not None:
                     program.early_bound_members[id(value.target)] = held.name
+                    # A variable of the class, not a name its library answers: Range("A1") is no default member's call.
+                    if not isinstance(info[0], LibraryType) and library is not None and strip_suffix(value.target.name).lower() in local:
+                        said = indexed_refusal(library, held, shape_of(value.args))
+                        if said is not None:
+                            fail(said, value.line)
             check_call(value.target, value.args, context, explicit=True)
             if info is not None and info[1] and value.args:
                 return info[0], False, info[2]

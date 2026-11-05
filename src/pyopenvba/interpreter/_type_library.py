@@ -165,6 +165,13 @@ def refusal(library: str, found: LibraryClass, member: str, use: str, shape: Cal
     return None
 
 
+def indexed_refusal(library: str, held: LibraryClass, shape: CallShape) -> str | None:
+    """What the compiler says of v(1) on a variable of this class, which is a call of its default member. A class with none leaves
+    it to run time. Dim o As CheckBoxes: o(1) does not compile, as CheckBoxes' default takes nothing, where o.Item(1) does
+    (tests/fixtures/old_collection_members.json, on the branch that measured it)."""
+    return _arguments(library, held.reading(held.default), shape, through=True) if held.default else None
+
+
 def let_refusal(held: LibraryClass) -> str | None:
     """What the compiler says of a Let into something of this class, which goes to its default member if it has one."""
     if not held.default:

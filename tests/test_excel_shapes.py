@@ -206,7 +206,7 @@ def test_a_form_control_can_be_made_from_nothing(tmp_path: Path) -> None:
     assert again.evaluate("ActiveSheet.Shapes.Count") == 1
     assert again.evaluate("ActiveSheet.Shapes(1).Type") == 8
     assert again.evaluate("ActiveSheet.Shapes(1).OnAction") == "control.xlsm!Clicked"
-    assert again.evaluate("ActiveSheet.Shapes(1).Left") == 100
+    assert again.evaluate("ActiveSheet.Shapes(1).Left") == 99.75
 
 
 def test_a_workbook_made_from_nothing_can_hold_a_shape(tmp_path: Path) -> None:

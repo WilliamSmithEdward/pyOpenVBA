@@ -255,7 +255,13 @@ class EngineBook:
                     and area.left <= block.right:
                 # An array formula's other cells are there once it is worked out.
                 self.calculator.value_of(area.sheet, top, left)
-        for row, column in sorted(key for key in owner.cells_ if area.contains(*key)):
+        stored = owner.cells_
+        # Looked up where the area is smaller than what the sheet holds, and picked from what it holds where it is not:
+        # reading A1:A3 is not a walk of the sheet.
+        for row, column in (((row, column) for row in range(area.top, area.bottom + 1) for column in range(area.left, area.right + 1)
+                             if (row, column) in stored)
+                            if (area.bottom - area.top + 1) * (area.right - area.left + 1) <= len(stored)
+                            else sorted(key for key in stored if area.contains(*key))):
             value = self.cell(area.sheet, row, column)
             if not isinstance(value, Empty):
                 yield row, column, value

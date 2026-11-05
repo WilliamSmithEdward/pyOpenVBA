@@ -604,8 +604,10 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
     # Left out, MatchCase is the last sort's on the sheet, and the sort goes by it (tests/fixtures/excel_fits.json).
     last = target.sheet.sort_state.match_case if target.sheet.sort_state is not None else False
     matching = last if match_case is MISSING else switch(match_case, refusal)
+    # The range left on the sheet ends at the used cells, as Apply's does (tests/fixtures/sort_rounds.json).
+    settled = _within_used(target.sheet, area)
     sort_area(target.sheet, area, resolved, header=has_header, match_case=matching, across=across)
-    _left_on_the_sheet(target.sheet, area, keys, has_header=has_header, match_case=matching, way=way)
+    _left_on_the_sheet(target.sheet, settled, keys, has_header=has_header, match_case=matching, way=way)
     return True
 
 

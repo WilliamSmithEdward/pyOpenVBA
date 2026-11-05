@@ -37,7 +37,26 @@ FORMAT = {'s.StopIfTrue': ['True'], 's.Priority': ['1'], 's.NumberFormat': ['"0.
           's.Text': ['"xyz"'], 's.TextOperator': ['1', '3']}
 FORMAT_KINDS = {'s.Text': ('text',), 's.TextOperator': ('text',)}
 
-CASES: list[Case] = cases(LINKS, LINK) + cases(NOTES, NOTE) + cases(NAMES, NAME) + cases(FORMATS, FORMAT, FORMAT_KINDS)
+#: Held in a variable across an edit that moves it, then set through the variable: the set must land where the object now is. One held
+#: across an edit that takes it away is set too: that set raises 424 and claims nothing, so there is nothing a save could lose.
+TABLE_DATA = 'ws.Range("B2:C2").Value = Array("x", "y"): ws.Range("B3:C4").Value = 1'
+HELD = [Target('range held moved', 'Set s = ws.Range("C3"): ws.Rows(1).Insert: ws.Columns(1).Insert', 'Set s = ws.Range("D4")', kind='range'),
+        Target('range held moved file', 'Set s = ws.Range("C3"): ws.Rows(1).Insert', 'Set s = ws.Range("C4")', BOOK, kind='range'),
+        Target('range held gone', 'Set s = ws.Range("C3"): ws.Rows(3).Delete', 'Set s = ws.Range("C3")', kind='range'),
+        Target('table held moved', f'{TABLE_DATA}: Set s = ws.ListObjects.Add(1, ws.Range("B2:C4"), , 1): ws.Rows(1).Insert: ws.Columns(1).Insert', 'Set s = ws.ListObjects(1)', kind='table'),
+        Target('table held gone', f'{TABLE_DATA}: Set s = ws.ListObjects.Add(1, ws.Range("B2:C4"), , 1): ws.Rows("2:4").Delete', 'Set s = ws.ListObjects(1)', kind='table'),
+        Target('shape held moved', 'Set s = ws.Shapes.AddShape(1, 100, 100, 50, 50): ws.Columns(1).Insert: ws.Rows(1).Insert', 'Set s = ws.Shapes(1)', kind='shape'),
+        Target('note held moved', 'Set s = ws.Range("C3").AddComment("Held"): ws.Rows(1).Insert', 'Set s = ws.Range("C4").Comment', kind='note'),
+        Target('link held moved', 'Set s = ws.Hyperlinks.Add(ws.Range("C3"), "http://example.com/x"): ws.Columns(1).Insert', 'Set s = ws.Range("D3").Hyperlinks(1)', kind='link')]
+HELD_SETTINGS = {'s.Value': ['7', '"text"'], 's.NumberFormat': ['"0.0%"'], 's.Interior.ColorIndex': ['6'], 's.HorizontalAlignment': ['-4108'],
+                 's.Name': ['"Kept"'], 's.ShowTotals': ['True'], 's.TableStyle': ['"TableStyleLight9"'], 's.Rotation': ['30'], 's.AlternativeText': ['"Alt"'],
+                 's.Visible': ['True'], 's.ScreenTip': ['"Tip"'], 's.TextToDisplay': ['"Other"']}
+HELD_KINDS = {'s.Value': ('range',), 's.NumberFormat': ('range',), 's.Interior.ColorIndex': ('range',), 's.HorizontalAlignment': ('range',),
+              's.Name': ('table', 'shape'), 's.ShowTotals': ('table',), 's.TableStyle': ('table',), 's.Rotation': ('shape',), 's.AlternativeText': ('table', 'shape'),
+              's.Visible': ('note',), 's.ScreenTip': ('link',), 's.TextToDisplay': ('link',)}
+
+CASES: list[Case] = (cases(LINKS, LINK) + cases(NOTES, NOTE) + cases(NAMES, NAME) + cases(FORMATS, FORMAT, FORMAT_KINDS)
+                     + cases(HELD, HELD_SETTINGS, HELD_KINDS))
 #: What the file does not keep yet.
 ACCEPTED: dict[str, str] = {}
 _MACRO_NAMES = json.loads((FIXTURES / 'name_macro.json').read_text(encoding='utf-8'))['names']

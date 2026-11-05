@@ -2463,7 +2463,8 @@ class Interpreter:
             library = getattr(self.host, "vba_type_library", None)
             found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
             if found is not None and reads_double_late(found, strip_suffix(expression.name)):
-                return float(_dispatch_get(target, expression.name, [], {}))  # type: ignore[arg-type]
+                answer = _dispatch_get(target, expression.name, [], {})
+                return float(answer) if isinstance(answer, int | float) and not isinstance(answer, bool) else answer  # type: ignore[arg-type]
         return _dispatch_get(target, expression.name, [], {})
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:

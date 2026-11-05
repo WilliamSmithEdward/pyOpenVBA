@@ -161,6 +161,10 @@ STANDARD: Final[tuple[tuple[str, int, str, int, str | None, str, str], ...]] = (
 #: the first time a link or the HYPERLINK function needs it (tests/fixtures/hyperlinks/links.xlsx).
 _LINK_FONT: Final = ('<font><u/><sz val="11"/><color theme="10"/><name val="{minor}"/><family val="2"/>'
                      '<scheme val="minor"/></font>')
+#: The two styles a workbook opened from a file with a link on a sheet lists, by name in lower case: its title, builtinId
+#: and font. A link made in the session brings the first only (tests/fixtures/tool_books/tool_books.json).
+_LINK_STYLES: Final = {"hyperlink": ("Hyperlink", 8, _LINK_FONT),
+                       "followed hyperlink": ("Followed Hyperlink", 9, _LINK_FONT.replace('theme="10"', 'theme="11"'))}
 #: The standard styles' places in Excel's order, Normal being 0, by name in lower case.
 _RANKS: Final = {name.casefold(): rank for rank, (name, *_) in enumerate(STANDARD, start=1)}
 #: The outline styles Range.ApplyOutlineStyles gives summary rows and columns, by name in lower case: builtinId 1
@@ -171,7 +175,7 @@ OUTLINE: Final = {f"{kind}level_{level}": (f"{kind.title()}Level_{level}", built
                                            else None)
                   for kind, builtin in (("row", 1), ("col", 2)) for level in range(1, 8)}
 #: The theme typefaces Excel writes with family 2, the only ones a built-in style is written in here.
-_SWISS: Final = frozenset({"Aptos", "Aptos Narrow", "Aptos Display", "Calibri", "Calibri Light"})
+_SWISS: Final = frozenset({"Aptos", "Aptos Narrow", "Aptos Display", "Calibri", "Calibri Light", "Cambria"})
 
 
 def _body_font(stylesheet: S.Stylesheet) -> S.Font | None:
@@ -231,7 +235,16 @@ def find(book: Workbook, name: str) -> int | None:
     if found is not None:
         return found
     entry = _built_in(stylesheet, name)
+    if entry is None and book.opened_with_links and name.casefold() in _LINK_STYLES:
+        entry = _link_style(stylesheet, *_LINK_STYLES[name.casefold()])
     return None if entry is None else stylesheet.add_cell_style(entry)
+
+
+def _link_style(stylesheet: S.Stylesheet, title: str, builtin: int, font: str) -> S.CellStyle:
+    value = S.parse_font(font.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
+    own = S.Style(number_format=stylesheet.number_formats[0], font=value, fill=S.parse_fill(_NO_FILL),
+                  border=S.parse_border(_NO_BORDER))
+    return S.CellStyle(own, frozenset({"font"}), name=title, builtin=builtin)
 
 
 def _listed(book: Workbook) -> list[str]:
@@ -246,6 +259,10 @@ def _listed(book: Workbook) -> list[str]:
     for name, builtin, *_ in STANDARD:
         if builtin not in held:
             names.setdefault(text_key(name, False), name)
+    if book.opened_with_links:
+        for name, builtin, _ in _LINK_STYLES.values():
+            if builtin not in held:
+                names.setdefault(text_key(name, False), name)
     return [names[key] for key in sorted(names)]
 
 
@@ -322,10 +339,7 @@ def give_link_style(target: Range) -> None:
     stylesheet = target.sheet.book.stylesheet
     place = stylesheet.named("Hyperlink")
     if place is None:
-        font = S.parse_font(_LINK_FONT.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
-        own = S.Style(number_format=stylesheet.number_formats[0], font=font, fill=S.parse_fill(_NO_FILL),
-                      border=S.parse_border(_NO_BORDER))
-        place = stylesheet.add_cell_style(S.CellStyle(own, frozenset({"font"}), name="Hyperlink", builtin=8))
+        place = stylesheet.add_cell_style(_link_style(stylesheet, *_LINK_STYLES["hyperlink"]))
     found, entry = place, stylesheet.cell_styles[place]
     restyle(target, lambda style: given(stylesheet, style, found, entry))
 

@@ -1153,7 +1153,7 @@ class Window(ExcelObject):
 
     @member
     def Zoom(self) -> object:
-        return VBAInt(self.view().zoom, "Long")
+        return float(self.view().zoom)
 
     @setter("Zoom")
     def _set_zoom(self, value: object) -> None:

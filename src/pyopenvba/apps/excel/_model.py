@@ -1846,6 +1846,8 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: Whether a sheet of the file it was opened from held a link, which lists two more styles (_cell_styles._LINK_STYLES).
+        self.opened_with_links = False
         #: The chart sheets the file has, its tabs in order where it has any, and the chart sheet that is active (see
         #: _chart_sheets). sheets_ holds worksheets alone.
         self.chart_sheets: list[ChartSheet] = []

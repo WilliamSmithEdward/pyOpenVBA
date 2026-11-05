@@ -110,7 +110,7 @@ class SheetGrid:
         column, seen = 0, 0.0
         while True:
             width = self.column_widths.get(column, self.default_column)
-            if seen + width > across or width <= 0:
+            if seen + width > across:
                 return column, emu(max(across - seen, 0.0))
             seen += width
             column += 1
@@ -122,7 +122,7 @@ class SheetGrid:
         row, seen = 0, 0.0
         while True:
             height = self.row_heights.get(row, self.default_row)
-            if seen + height > down or height <= 0:
+            if seen + height > down:
                 return row, emu(max(down - seen, 0.0))
             seen += height
             row += 1

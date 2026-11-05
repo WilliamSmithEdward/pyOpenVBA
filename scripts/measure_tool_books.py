@@ -60,13 +60,22 @@ READS: list[str] = [
     'ws.Shapes.Count', 'ws.ChartObjects.Count', 'ws.ChartObjects(1).Chart.ChartType', 'ws.ChartObjects(1).Chart.HasTitle', 'ws.ChartObjects(1).Chart.ChartTitle.Text', 'ws.ChartObjects(1).Chart.HasLegend',
     'ws.ChartObjects(1).Chart.SeriesCollection.Count', 'ws.ChartObjects(1).Chart.SeriesCollection(1).Formula', 'ws.ChartObjects(1).Chart.SeriesCollection(1).Name', 'ws.ChartObjects(1).TopLeftCell.Address',
     'ws.Shapes(2).Type', 'ws.Pictures.Count', 'ws.Shapes(2).TopLeftCell.Address',
+    'ws.Range("A4").Comment.Shape.Name', 'ws.Range("A4").Comment.Shape.Left', 'ws.Range("A4").Comment.Shape.Top', 'ws.Range("A4").Comment.Shape.Width', 'ws.Range("A4").Comment.Shape.Height', 'ws.Range("A4").Comment.Shape.TopLeftCell.Address', 'ws.Range("A4").Comment.Shape.BottomRightCell.Address',
+    'wb.Styles("Title").Font.Name', 'wb.Styles("Title").Font.Size', 'wb.Styles("Title").Font.Color', 'wb.Styles("Heading 1").Font.Name', 'wb.Styles("Heading 1").Font.Size', 'wb.Styles("Accent1").Font.Color', 'wb.Styles("Good").Font.Color',
+    'ws.PageSetup.Order', 'ws.PageSetup.PaperSize', 'ws.PageSetup.Zoom', 'ws.PageSetup.LeftMargin', 'ws.PageSetup.TopMargin', 'ws.PageSetup.FirstPageNumber', 'wb.Windows(1).SplitColumn', 'wb.Windows(1).ScrollRow', 'wb.Windows(1).ScrollColumn', 'wb.Windows(1).TabRatio', 'wb.Windows(1).GridlineColor',
+    'wb.Styles("Accent1").Interior.Color', 'wb.Styles("Accent2").Interior.Color', 'wb.Styles("Accent3").Interior.Color', 'wb.Styles("Accent4").Interior.Color', 'wb.Styles("Accent5").Interior.Color', 'wb.Styles("Accent6").Interior.Color',
+    # A note, a table, a conditional format and validation on one sheet
+    'other.Comments.Count', 'other.Range("F2").Comment.Text', 'other.Range("F2").Comment.Shape.TopLeftCell.Address', 'other.Range("E2").FormatConditions.Count', 'other.Range("E2").FormatConditions(1).AppliesTo.Address', 'other.Range("E2").FormatConditions(1).Formula1',
+    'other.Range("G2").Validation.Type', 'other.Range("G2").Validation.Formula1', 'other.Range("D6").Hyperlinks.Count', 'other.Range("D6").Hyperlinks(1).Address', 'other.Range("D3").Value', 'other.UsedRange.Address',
     # Window
-    'wb.ActiveSheet.Name', 'wb.Windows(1).FreezePanes', 'wb.Windows(1).SplitRow', 'wb.Windows(1).Zoom', 'wb.Windows(1).DisplayGridlines', 'wb.Date1904', 'Application.Calculation',
+    'wb.ActiveSheet.Name', 'wb.Windows(1).FreezePanes', 'wb.Windows(1).Zoom', 'wb.Windows(1).DisplayGridlines', 'wb.Date1904', 'Application.Calculation',
     # The file
     'wb.BuiltinDocumentProperties("Title").Value', 'wb.BuiltinDocumentProperties("Author").Value', 'wb.FileFormat', 'wb.HasVBProject', 'wb.Saved',
 ]
 #: What is done before a save, both ways.
-EDITS: dict[str, str] = {"far_cell": 'ws.Range("Z99").Value = 7', "changes_a_read_cell": 'ws.Range("B2").Value = 100', "row_inserted": "ws.Rows(1).Insert"}
+EDITS: dict[str, str] = {"far_cell": 'ws.Range("Z99").Value = 7', "changes_a_read_cell": 'ws.Range("B2").Value = 100', "row_inserted": "ws.Rows(1).Insert",
+                         "column_inserted": "ws.Columns(1).Insert", "row_deleted": "ws.Rows(9).Delete", "row_inserted_by_a_table": "other.Rows(1).Insert",
+                         "column_inserted_by_a_table": "other.Columns(1).Insert", "new_note_and_link": 'ws.Range("Q1").AddComment "Later": other.Hyperlinks.Add other.Range("H1"), "http://example.org/"'}
 SETUP = '''    Set wb = Workbooks.Open(file, UpdateLinks:=0)
     Set ws = wb.Worksheets("Data")
     Set other = wb.Worksheets("Other")
@@ -189,6 +198,12 @@ def by_openpyxl(file: Path, picture: Path) -> None:
     table = Table(displayName="Tbl", ref="D1:E4")
     table.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2", showRowStripes=True)
     other.add_table(table)
+    other["F2"].comment = Comment("By the table", "Author")
+    other.conditional_formatting.add("E2:E4", CellIsRule(operator="greaterThan", formula=["2"], fill=PatternFill(bgColor="FF00FF00", fill_type="solid")))
+    beside = DataValidation(type="list", formula1='"p,q"', allow_blank=True)
+    beside.add("G2")
+    other.add_data_validation(beside)
+    other["D6"].hyperlink = "http://example.net/"
     ws.conditional_formatting.add("B2:B6", CellIsRule(operator="greaterThan", formula=["30"], fill=PatternFill(bgColor="FFFF0000", fill_type="solid")))
     ws.conditional_formatting.add("L2:L6", ColorScaleRule(start_type="min", start_color="FFFF0000", end_type="max", end_color="FF00FF00"))
     ws.conditional_formatting.add("M2:M6", DataBarRule(start_type="min", end_type="max", color="FF0000FF"))
@@ -255,6 +270,10 @@ def by_xlsxwriter(file: Path, picture: Path) -> None:
     wb.define_name("Other!Own", "=Other!$A$1")
     other.add_table("D1:E4", {"name": "Tbl", "style": "Table Style Medium 2", "columns": [{"header": "Key"}, {"header": "Val"}],
                               "data": [[letter, value] for letter, value in zip("pqr", (2, 3, 4))]})
+    other.write_comment("F2", "By the table", {"author": "Author"})
+    other.conditional_format("E2:E4", {"type": "cell", "criteria": ">", "value": 2, "format": wb.add_format({"bg_color": "#00FF00"})})
+    other.data_validation("G2", {"validate": "list", "source": ["p", "q"]})
+    other.write_url("D6", "http://example.net/", string="n")
     ws.conditional_format("B2:B6", {"type": "cell", "criteria": ">", "value": 30, "format": wb.add_format({"bg_color": "#FF0000"})})
     ws.conditional_format("L2:L6", {"type": "2_color_scale", "min_color": "#FF0000", "max_color": "#00FF00"})
     ws.conditional_format("M2:M6", {"type": "data_bar", "bar_color": "#0000FF"})

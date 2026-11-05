@@ -112,4 +112,5 @@ LATE_CALLS: dict[str, dict[str, int]] = {
 }
 
 #: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json).
-LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook'})
+LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook', 'pagesetup.order', 'pagesetup.orientation',
+                          'pagesetup.papersize', 'window.gridlinecolor', 'window.scrollcolumn', 'window.scrollrow', 'window.splitrow', 'workbook.fileformat'})

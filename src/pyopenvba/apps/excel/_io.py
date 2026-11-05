@@ -29,6 +29,7 @@ from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
 from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _encode_string
+from pyopenvba.integrity import xml_problem
 from pyopenvba.exceptions import PyOpenVBAError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
@@ -112,7 +113,26 @@ class WorkbookFileError(PyOpenVBAError):
     """Raised when a workbook's parts cannot be read or written."""
 
 
+class MalformedPartError(WorkbookFileError):
+    """A part of the package is not well-formed XML, which Workbooks.Open answers as Excel does."""
+
+    def __init__(self, part: str, reason: str) -> None:
+        super().__init__(f"{part} is not well-formed XML: {reason}")
+        self.part = part
+
+
 # --- reading ------------------------------------------------------------------------
+
+
+def _refuse_malformed(package: OpcFile) -> None:
+    """Excel opens no workbook with a part that is not well-formed XML, but for its theme, which it goes without
+    (tests/fixtures/bad_xml/bad_xml.json)."""
+    for part in package.names():
+        if not part.endswith((".xml", ".rels")) or re.fullmatch(r"xl/theme/theme\d+\.xml", part):
+            continue
+        problem = xml_problem(package.read(part))
+        if problem is not None:
+            raise MalformedPartError(part, problem)
 
 
 #: A column of a table named on its own: Tab[a], not Tab[@a] or Tab[[#All],[a]].
@@ -154,6 +174,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             "its VBA project is readable through ExcelFile"
         )
     package = OpcFile.parse(path.read_bytes())
+    _refuse_malformed(package)
     from pyopenvba.apps.excel._prefixed_parts import respell
 
     # A part spelling SpreadsheetML's namespace under a prefix is read, and saved, as Excel spells it.
@@ -281,6 +302,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     # Excel's numbering of new sheets starts again in an opened file (tests/fixtures/new_sheet_names.json).
     book.sheet_name_counter = 0
     _read_columns_as_this_row(book)
+    from pyopenvba.apps.excel._hidden_names import read_from_file
+
+    read_from_file(book)
     return book
 
 

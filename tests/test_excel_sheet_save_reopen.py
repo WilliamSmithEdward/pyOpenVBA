@@ -36,9 +36,10 @@ ITEMS = ([Target(f'{name} new', f'ws.Range("A20").Value = "a": ws.Range("A21").V
          + [Target(f'{name} file', f'Set s = ws.{name}(1)', f'Set s = ws.{name}(1)', BOOK) for name in (*ADDS, 'Pictures')])
 CASES: list[Case] = cases(SHEETS, SHEET) + cases(ITEMS, ITEM)
 #: What the file does not keep yet.
-ACCEPTED = {f'{name} new: s.Top = 31': 'Set on a new control it reads as set, and from the file at the pixel its box snapped to, 30.75; the set does not snap yet'
+ACCEPTED = {f'{name} new: s.Top = 31': 'In Excel the old object reads the snapped 30.75 straight after the set, and Shape.Top reads 31 (tests/fixtures/sheet_session_settings.json, controls); here the old object reads 31 until a save'
             for name in ('Buttons', 'CheckBoxes', 'OptionButtons', 'DropDowns', 'ListBoxes')}
-_MEASURED = json.loads((FIXTURES / 'sheet_session_settings.json').read_text(encoding='utf-8'))['cases']
+_RECORD = json.loads((FIXTURES / 'sheet_session_settings.json').read_text(encoding='utf-8'))
+_MEASURED = _RECORD['cases']
 #: What Excel's own save loses too, hidden and shown, so a model keeping it would be wrong.
 EXCEL_LOSES = {f'{target.name}: s.{one["member"]} = {one["value"]}': 'tests/fixtures/sheet_session_settings.json' for one in _MEASURED if not one['shown'] for target in SHEETS}
 
@@ -51,3 +52,4 @@ def test_each_setting_comes_back(case: Case, tmp_path: Path) -> None:
 def test_excel_lost_each_of_them_either_way() -> None:
     assert len(_MEASURED) == 12
     assert all(one['before'] != one['after'] for one in _MEASURED)
+    assert {(one['before'], one['after']) for one in _RECORD['controls']} == {('30.75', '30.75')}

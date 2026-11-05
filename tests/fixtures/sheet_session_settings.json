@@ -1,5 +1,5 @@
 {
- "measured_at": "2026-11-05T03:43:10.722855+00:00",
+ "measured_at": "2026-11-05T04:23:06.730799+00:00",
  "cases": [
   {
    "member": "ScrollArea",
@@ -84,6 +84,33 @@
    "shown": true,
    "before": "Boolean True E0",
    "after": "Boolean False E0"
+  }
+ ],
+ "controls": [
+  {
+   "collection": "Buttons",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "CheckBoxes",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "OptionButtons",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "DropDowns",
+   "before": "30.75",
+   "after": "30.75"
+  },
+  {
+   "collection": "ListBoxes",
+   "before": "30.75",
+   "after": "30.75"
   }
  ]
 }

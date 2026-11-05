@@ -27,10 +27,22 @@ def source() -> str:
     return text + '    End Select\n    On Error GoTo 0\n    wb.Close False\n    Application.Visible = was\n    Tried = a & "|" & b\nEnd Function\n'
 
 
+#: Top on a new control, read through its old object, which the sweep saw read 31 from the model's set and 30.75 from its save. Rival rules: Excel reads 31 until a save, so it changes there too; or it
+#: reads the snapped 30.75 straight away, so the model is wrong. It is the second, though Shape.Top reads 31 after the same set.
+CONTROLS = {'Buttons': '10, 10, 100, 40', 'CheckBoxes': '10, 10, 100, 20', 'OptionButtons': '10, 10, 100, 20', 'DropDowns': '10, 10, 100, 20', 'ListBoxes': '10, 10, 100, 60'}
+
+
+def control_source(name: str, box: str) -> str:
+    return (f'Public Function Tried(ByVal path As String) As String\n    Dim wb As Workbook, s As Object, a As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n'
+            f'    Set s = wb.Worksheets(1).{name}.Add({box})\n    s.Top = 31\n    a = s.Top\n    wb.SaveAs path, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(path, 0)\n'
+            f'    Tried = wb.Worksheets(1).StandardHeight & "|" & a & "|" & wb.Worksheets(1).{name}(1).Top\n    wb.Close False\nEnd Function\n')
+
+
 def main() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
     cases: list[dict[str, object]] = []
+    controls: list[dict[str, object]] = []
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as held, ExcelSession(HarnessConfig(exclusive=False)) as excel:
         excel.new_document()
         for shown in (False, True):
@@ -40,7 +52,14 @@ def main() -> None:
                 before, _, after = str(done.value).partition('|')
                 cases.append({'member': member, 'value': value, 'shown': shown, 'before': before, 'after': after})
                 print(member, shown, before, '|', after, flush=True)
-    OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'cases': cases}, indent=1) + '\n', encoding='utf-8')
+        for name, box in CONTROLS.items():
+            done = excel.run_vba(control_source(name, box), 'Tried', (str(Path(held) / f'{name}.xlsx'),), timeout=40.0, line_numbers=False)
+            assert done.ok, done
+            height, before, after = str(done.value).split('|')
+            assert height == '15', f'StandardHeight {height}: geometry would not be at 96 DPI'
+            controls.append({'collection': name, 'before': before, 'after': after})
+            print(name, before, '|', after, flush=True)
+    OUT.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'cases': cases, 'controls': controls}, indent=1) + '\n', encoding='utf-8')
 
 
 if __name__ == '__main__':

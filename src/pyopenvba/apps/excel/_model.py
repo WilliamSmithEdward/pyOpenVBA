@@ -16,6 +16,7 @@ Font, Interior, Borders, alignment -- lives in
 from __future__ import annotations
 
 import datetime as _dt
+import os
 import re
 import weakref
 from itertools import islice
@@ -23,7 +24,7 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
@@ -1705,8 +1706,11 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         from pyopenvba.apps.excel._projects import attach_project, load_project
         from pyopenvba.apps.excel._text_files import is_text, open_text
 
-        path = path.resolve()
-        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == path), None)
+        # A workbook keeps the folder as it was given, an 8.3 name included (tests/test_excel_short_paths.py), with its own name
+        # as the disk spells it (tests/fixtures/case_saves.json). Whether it is already open goes by the file it really is.
+        really = path.resolve()
+        path = Path(os.path.abspath(path)).parent / really.name
+        existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == really), None)
         if existing is not None:
             self.application.activate_book(existing)
             return existing
@@ -1805,6 +1809,12 @@ def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., N
 
 
 class Workbook(ExcelObject):
+    def _check_alive(self) -> None:
+        # A closed book is 424 through an Object and an automation error through a Workbook (tests/fixtures/excel_fits.json).
+        if self.closed:
+            raise error(424 if BINDING.late else -2147221080, "Object required" if BINDING.late else "Automation error")
+        super()._check_alive()
+
     """One workbook: its sheets, its names, and where it came from."""
 
     vba_type_name = "Workbook"
@@ -2730,7 +2740,7 @@ class Workbook(ExcelObject):
                 save_workbook(self, target)
         except OSError as failure:
             raise error(1004, str(failure)) from failure
-        self.path = str(target.resolve().parent)
+        self.path = str(Path(os.path.abspath(target)).parent)
         self.name = target.name
         if text and file_format is not None:
             saved_as_text(self, file_format, sheet)
@@ -4228,7 +4238,8 @@ class Worksheet(ExcelObject):
 
         refuse(self, "ShowAllData method of Worksheet class failed")
         show_all_data(self)
-        return EMPTY
+        # Through an Object it answers True (tests/fixtures/excel_everyday_16.json); typed it is a Sub and has no answer to read.
+        return True
 
     # -- methods
 
@@ -4672,6 +4683,10 @@ def _formula_of_long_text(found: object) -> object:
     return found
 
 
+#: What _array_item answers past an array's size.
+NOT_IN_ARRAY: Final = object()
+
+
 class Range(ExcelObject):
     """A rectangle of cells, or several of them."""
 
@@ -5023,11 +5038,11 @@ class Range(ExcelObject):
 
     @member
     def Formula2(self) -> object:
-        return self._read_formulas(r1c1=False, at=True)
+        return self._read_formula2s(r1c1=False)
 
     @member
     def Formula2R1C1(self) -> object:
-        return self._read_formulas(r1c1=True, at=True)
+        return self._read_formula2s(r1c1=True)
 
     @setter("Formula2")
     def _set_formula2(self, value: object) -> None:
@@ -5245,12 +5260,19 @@ class Range(ExcelObject):
         except FormulaError:
             raise VBAUnsupportedError(f"Formula2 of {formula} is not implemented") from None
 
-    def _read_formulas(self, *, r1c1: bool, at: bool = False) -> object:
+    def _read_formula2s(self, *, r1c1: bool) -> object:
+        """The formulas as Formula2 reads them: with an @ where it cuts cells to one value."""
+        def with_at(text: str, whole: bool) -> str:
+            return self._formula2(text, whole=whole)
+
+        return self._read_formulas(r1c1=r1c1, rewrite=with_at)
+
+    def _read_formulas(self, *, r1c1: bool, rewrite: Callable[[str, bool], str] | None = None) -> object:
         from pyopenvba.apps.excel._data_tables import table_at
 
         # Separate areas read as the first (tests/fixtures/range_area_reads.json).
         if len(self.areas) > 1:
-            return self._first_area()._read_formulas(r1c1=r1c1, at=at)
+            return self._first_area()._read_formulas(r1c1=r1c1, rewrite=rewrite)
 
         def read(row: int, column: int) -> object:
             table = table_at(self.sheet, row, column) if self.sheet.data_tables else None
@@ -5266,9 +5288,9 @@ class Range(ExcelObject):
                 return ""
             if cell.formula:
                 text = shown_formula(self.sheet, row, column, cell.formula)
-                if at and not cell.dynamic:
+                if rewrite is not None and not cell.dynamic:
                     # A dynamic-array formula is kept as Formula2 writes it, with no @ to add.
-                    text = self._formula2(text, whole=found is not None)
+                    text = rewrite(text, found is not None)
                 # A call of SINGLE is shown as an @, even where the @ would hold less than SINGLE does.
                 text = at_shown(text)
                 # R1C1 can spell a formula longer than Excel's 8192 characters, and reads only that many
@@ -5521,6 +5543,7 @@ class Range(ExcelObject):
             self._share(placed, first[0])
 
     def _write_formula_array(self, array: VBAArray, *, r1c1: bool) -> None:
+        from pyopenvba.apps.excel._visible import visible_areas
         from pyopenvba.formula._values import NA
 
         if array.dimensions not in (1, 2):
@@ -5531,22 +5554,17 @@ class Range(ExcelObject):
         source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
         # Validate the existing write-size limit before changing any area.
         self.writable_positions()
-        for area in self._array_areas(array):
+        for place, area in enumerate(visible_areas(self) or self.areas):
             for row in range(area.top, area.bottom + 1):
                 for column in range(area.left, area.right + 1):
                     if not _merges.writable(self.sheet, row, column):
                         continue
                     down, across = row - area.top, column - area.left
-                    source_row = 0 if source_rows == 1 else down
-                    source_column = 0 if source_columns == 1 else across
-                    if source_row >= source_rows or source_column >= source_columns:
+                    item = self._array_item(array, down, across, swapped=place % 2 == 1)
+                    if item is NOT_IN_ARRAY:
                         self._put(row, column, NA)
                         continue
-                    indices = [array.bounds[-1][0] + source_column]
-                    if array.dimensions == 2:
-                        indices.insert(0, array.bounds[0][0] + source_row)
-                    item = array.get(indices)
-                    if item is NULL:
+                    if item is NULL or isinstance(item, VBAArray):
                         item = EMPTY
                     if isinstance(item, VBAErrorValue):
                         from pyopenvba.apps.excel._calc import from_vba
@@ -6884,9 +6902,9 @@ class Range(ExcelObject):
         if len(self.areas) != 1 or len(Destination.areas) != 1:
             raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
         area, target = self.first, Destination.first
-        repeat = target.rows % area.rows == 0 and target.columns % area.columns == 0
-        rows = target.rows if repeat else area.rows
-        columns = target.columns if repeat else area.columns
+        from pyopenvba.apps.excel._clipboard import tiled_size
+
+        rows, columns = tiled_size(target.rows, target.columns, area.rows, area.columns)
         bottom, right = target.top + rows - 1, target.left + columns - 1
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
@@ -7608,46 +7626,46 @@ class Range(ExcelObject):
                 self._type_into(row, column, value, raw=raw)
 
     def _write_array(self, array: VBAArray, *, raw: bool = False) -> None:
-        """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item."""
-        areas = self._array_areas(array)
-        for area in areas:
-            if array.dimensions == 1:
-                # A flat array is one row, laid across and repeated down
-                # every row of the range, which is what Excel does with it.
-                items = array.elements()
-                for offset, item in enumerate(items):
-                    column = area.left + offset
-                    if column > area.right:
-                        break
-                    for row in range(area.top, area.bottom + 1):
-                        self._put(row, column, item, raw=raw)
-                continue
-            rows, columns = array.bounds[0], array.bounds[1]
-            for row_index in range(rows[0], rows[1] + 1):
-                for column_index in range(columns[0], columns[1] + 1):
-                    row = area.top + row_index - rows[0]
-                    column = area.left + column_index - columns[0]
-                    if row > area.bottom or column > area.right:
-                        continue
-                    self._put(row, column, array.get([row_index, column_index]), raw=raw)
+        """An array written to each area -- each visible area, on a filtered sheet -- from the array's first item. A row or
+        column of one repeats across the area; past the array's size each cell is #N/A (tests/fixtures/array_areas.json)."""
+        from pyopenvba.apps.excel._visible import visible_areas
+        from pyopenvba.formula._values import NA
+
+        if not array.size:
+            return
+        for place, area in enumerate(visible_areas(self) or self.areas):
+            if area.rows * area.columns > 1048576:
+                raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
+            for row in range(area.rows):
+                for column in range(area.columns):
+                    item = self._array_item(array, row, column, swapped=place % 2 == 1)
+                    if item is NULL or isinstance(item, VBAArray):
+                        # Nothing a cell can hold.
+                        item = EMPTY
+                    self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
         self.sheet.touched()
 
-    def _array_areas(self, array: VBAArray) -> list[Area]:
-        """The areas an array is written to, each from the array's start.
-
-        Excel reads a two-dimensional array for the second of several
-        areas at another stride -- {11,12;21,22;...;61,62} written to
-        A2:B2, A4:B4 and A6:B6 leaves 11 and 31 in A4:B4 -- so areas wider
-        than one column report themselves; one column wide, each takes the
-        array's first column.
-        """
-        from pyopenvba.apps.excel._visible import visible_areas
-
-        areas = visible_areas(self) or self.areas
-        if len(areas) > 1 and array.dimensions == 2 and any(area.columns > 1 for area in areas):
-            raise VBAUnsupportedError("writing a two-dimensional array to several areas wider than one column is "
-                                      "not implemented")
-        return areas
+    def _array_item(self, array: VBAArray, row: int, column: int, *, swapped: bool) -> object:
+        """The item for a cell of an area. A flat array is one row, repeated down. Excel reads a two-dimensional array for every
+        second area with its sizes the other way about, down the columns as they are stored: {11,12;21,22;...;61,62} written to
+        A2:B2, A4:B4 and A6:B6 leaves 11 and 31 in A4:B4."""
+        if array.dimensions == 1:
+            items = array.elements()
+            at = 0 if len(items) == 1 else column
+            return items[at] if at < len(items) else NOT_IN_ARRAY
+        (low, high), (left, right) = array.bounds[0], array.bounds[1]
+        height, width = high - low + 1, right - left + 1
+        if swapped:
+            # Sizes the other way about, and items as stored, a column at a time.
+            down, across = 0 if width == 1 else row, 0 if height == 1 else column
+            if down >= width or across >= height:
+                return NOT_IN_ARRAY
+            stored = down + across * width
+            return array.get([low + stored % height, left + stored // height])
+        down, across = 0 if height == 1 else row, 0 if width == 1 else column
+        if down >= height or across >= width:
+            return NOT_IN_ARRAY
+        return array.get([low + down, left + across])
 
     def _put(self, row: int, column: int, value: object, *, raw: bool = False, r1c1: bool = False) -> None:
         """Write one cell as Value does; ``r1c1`` for a formula already turned from R1C1 into A1."""

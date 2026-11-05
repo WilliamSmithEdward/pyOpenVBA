@@ -109,7 +109,8 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
         entry = AxisState(
             kind,
             own,
-            present=deleted is None or deleted.attrib.get("val") in ("0", "false"),
+            # Left out, c:delete means its default, deleted (tests/fixtures/tool_drawings.json).
+            present=deleted is not None and deleted.attrib.get("val") in ("0", "false"),
             numeric=numeric,
             reverse=reverse == "maxMin",
         )

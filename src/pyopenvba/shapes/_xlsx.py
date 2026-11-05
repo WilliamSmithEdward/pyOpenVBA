@@ -516,10 +516,11 @@ def control_drawing(shape: Shape, grid: SheetGrid | None = None) -> str:
     its transform empty: where the control is comes from the anchor.
     """
     grid = grid or SheetGrid()
+    edit_as = f' editAs="{shape.edit_as}"' if shape.edit_as else ""
     return (
         '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
         '<mc:Choice xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" Requires="a14">'
-        f"<xdr:twoCellAnchor{f' editAs="{shape.edit_as}"' if shape.edit_as else ''}>"
+        f"<xdr:twoCellAnchor{edit_as}>"
         f"{_corner_markup('from', grid, _on_pixel(shape.left), _on_pixel(shape.top))}"
         f"{_corner_markup('to', grid, _on_pixel(shape.left + shape.width), _on_pixel(shape.top + shape.height))}"
         '<xdr:sp macro="" textlink="">'
@@ -1808,15 +1809,19 @@ def _moved(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None = None)
     it was.  Both corners are worked out from the grid, because an
     offset that runs past its own cell is clamped rather than carried.
     """
-    del was
     out = dml.with_transform(markup, shape)
     span = dml.element_span(out, "xdr:from")
     finish = dml.element_span(out, "xdr:to")
-    if span is None or finish is None:
+    if span is None:
         return out
     grid = grid or SheetGrid()
     left, top, width, height = _turned_box(shape)
     start = _corner_markup("from", grid, left, top)
+    if finish is None:
+        # A one-cell anchor has only this corner, and its size apart (tests/fixtures/tool_drawings.json).
+        if (shape.width, shape.height) != (was.width, was.height):
+            raise VBAUnsupportedError("Resizing a shape on a one-cell anchor is not implemented")
+        return out[: span[0]] + start + out[span[1] :]
     end = _corner_markup("to", grid, left + width, top + height)
     return out[: span[0]] + start + out[span[1] : finish[0]] + end + out[finish[1] :]
 

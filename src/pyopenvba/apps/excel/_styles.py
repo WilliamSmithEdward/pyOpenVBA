@@ -22,6 +22,7 @@ Colours follow what live Excel answers (tests/fixtures/range_format.json):
 
 from __future__ import annotations
 
+import dataclasses
 import re
 from collections.abc import Callable, Iterable
 from copy import deepcopy
@@ -329,10 +330,14 @@ class Colors:
         return min(range(1, len(entries) + 1), key=distance)
 
     def nearest(self, rrggbb: str) -> int:
-        """The palette slot nearest by summed channel distance, the first on a tie."""
+        """The palette slot nearest by summed channel distance, the first on a tie; a grey goes only to a grey
+        (tests/fixtures/color_index_nearest.json)."""
         wanted = [int(rrggbb[i:i + 2], 16) for i in (0, 2, 4)]
+        grey = len(set(wanted)) == 1
         best, found = 1 << 30, 1
         for index, entry in enumerate(self.indexed[8:64], start=1):
+            if grey and not entry[:2] == entry[2:4] == entry[4:6]:
+                continue
             distance = sum(abs(int(entry[i * 2:i * 2 + 2], 16) - wanted[i]) for i in range(3))
             if distance < best:
                 best, found = distance, index
@@ -652,11 +657,22 @@ def font_xml(font: Font) -> str:
     return "".join(parts)
 
 
+def _without_automatic_tint(color: Color) -> Color:
+    if color.tint and (color.kind == "auto" or (color.kind == "indexed" and color.value in (SYSTEM_FOREGROUND, SYSTEM_BACKGROUND))):
+        return dataclasses.replace(color, tint=0)
+    return color
+
+
 def fill_xml(fill: Fill) -> str:
     if fill.gradient:
         return fill.gradient
     if fill.pattern == "none":
         return '<fill><patternFill patternType="none"/></fill>'
+    # An automatic cell colour's shade lasts only until the save, though a pattern colour's stays (tests/fixtures/format_properties.json).
+    if fill.pattern == "solid":
+        fill = dataclasses.replace(fill, foreground=_without_automatic_tint(fill.foreground))
+    else:
+        fill = dataclasses.replace(fill, background=_without_automatic_tint(fill.background))
     foreground = fill.foreground != FOREGROUND
     background = fill.background != BACKGROUND
     if fill.bare:

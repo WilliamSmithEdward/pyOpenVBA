@@ -356,7 +356,9 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
 
     @member
     def Font(self) -> object:
-        return self.series.chart.font_of(self, "labels", labels=self.look())
+        # A chart a file holds reads its labels' font, though not the rest of them yet.
+        chart = self.series.chart
+        return chart.font_of(self, "labels", labels=self.series.entry.label_look if chart.state.original else self.look())
 
     # -- what new labels read
 

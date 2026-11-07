@@ -1,0 +1,55 @@
+{
+ "measured_at": "2026-11-04T22:21:00.516953+00:00",
+ "cases": [
+  {
+   "owner": "Worksheet",
+   "cancel": false,
+   "answer": "Boolean True"
+  },
+  {
+   "owner": "Worksheet",
+   "cancel": true,
+   "answer": "Boolean False"
+  },
+  {
+   "owner": "Workbook",
+   "cancel": false,
+   "answer": "Boolean True"
+  },
+  {
+   "owner": "Workbook",
+   "cancel": true,
+   "answer": "Boolean False"
+  },
+  {
+   "owner": "Range",
+   "cancel": false,
+   "answer": "Boolean True"
+  },
+  {
+   "owner": "Range",
+   "cancel": true,
+   "answer": "Boolean False"
+  },
+  {
+   "owner": "Chart",
+   "cancel": false,
+   "answer": "Boolean True"
+  },
+  {
+   "owner": "Chart",
+   "cancel": true,
+   "answer": "Boolean False"
+  },
+  {
+   "owner": "Sheets",
+   "cancel": false,
+   "answer": "Boolean True"
+  },
+  {
+   "owner": "Sheets",
+   "cancel": true,
+   "answer": "Boolean False"
+  }
+ ]
+}

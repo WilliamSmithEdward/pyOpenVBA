@@ -1713,8 +1713,8 @@ def logical_not(value: object) -> object:
     if isinstance(value, VBAArray):
         # Not of an array complements its descriptor's address, so the idiom
         # (Not a) = -1 finds an unallocated one (native probe); an allocated
-        # one answers 0 here, which keeps Not Not a nonzero.
-        return VBAInt(-1 if not value.bounds else 0, "Long")
+        # one answers 0 here, which keeps Not Not a nonzero. The address is 64 bits wide: TypeName(Not a) is LongLong.
+        return VBAInt(-1 if not value.bounds else 0, "LongLong")
     kind = _whole_width(value, value)
     result = ~int(to_integer(value, "LongLong"))
     # A Byte has no sign bit: Not CByte(12) is 243 (native probes).

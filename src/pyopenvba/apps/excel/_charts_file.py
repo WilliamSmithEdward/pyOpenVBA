@@ -167,6 +167,8 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
         if part and package.has(part):
             xml = package.read(part).decode('utf-8')
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
+            rels = rels_part(part)
+            sheet.chart_states[shape.shape_id].style_part = package.has(rels) and REL_CHART_STYLE in package.read(rels).decode('utf-8')
 
 def _axis_elements(plot: ET.Element) -> list[ET.Element]:
     return [child for child in plot if child.tag.rpartition('}')[2] in ('catAx', 'valAx', 'dateAx')]
@@ -298,6 +300,7 @@ def read_chart(xml: str, part: str) -> ChartState:
     result.title_deleted = title is None and (deleted is None or deleted.get('val', '1') in ('1', 'true'))
     legend = root.find('c:chart/c:legend', NS)
     result.legend = legend is not None
+    result.legend_manual = legend is not None and legend.find('c:layout/c:manualLayout', NS) is not None
     if legend is not None:
         position = legend.find('c:legendPos', NS)
         if position is not None and position.get('val', 'r') in ('b', 't', 'l', 'r', 'tr'):

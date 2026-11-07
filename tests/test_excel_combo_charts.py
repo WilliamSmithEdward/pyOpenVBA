@@ -99,7 +99,7 @@ def test_an_excel_saved_chart_is_not_changed_and_saves_as_it_came(tmp_path: Path
                 assert before.read(name) == after.read(name)
 
 
-@pytest.mark.parametrize('edit', ['ch.SeriesCollection(1).ChartType = xlLine', 'ch.SeriesCollection(1).AxisGroup = xlSecondary', 'ch.Axes(2, 2).HasTitle = False', 'ch.ChartGroups(1).GapWidth = 33'])
+@pytest.mark.parametrize('edit', ['ch.SeriesCollection(1).ChartType = xlLine', 'ch.SeriesCollection(1).AxisGroup = xlSecondary', 'ch.Axes(2, 2).HasTitle = False', 'ch.Axes(2, 2).MaximumScale = 50', 'ch.Axes(2, 2).MinimumScaleIsAuto = True', 'ch.Axes(2, 2).HasMajorGridlines = True', 'ch.ChartGroups(1).GapWidth = 33'])
 def test_editing_an_excel_saved_chart_reports_itself(tmp_path: Path, edit: str) -> None:
     _, copy = _opened(tmp_path)
     app = ExcelApplication.open(copy, with_vba=False)

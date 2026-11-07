@@ -19,6 +19,11 @@ if TYPE_CHECKING:
     from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
 
 
+_FIXED_TYPES = frozenset({'Byte', 'Integer', 'Long', 'LongLong', 'LongPtr', 'Single', 'Double', 'Currency', 'Date', 'Boolean'})
+#: Declared to answer one of those, where Date and Now answer a Variant and Len(Date) compiles (tests/fixtures/vba_everyday_17.json).
+_FIXED_INTRINSICS = frozenset({'cbool', 'cbyte', 'ccur', 'cdate', 'cdbl', 'cint', 'clng', 'clnglng', 'clngptr', 'csng', 'timer'})
+
+
 def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedure: A.Procedure,
                         program: Program) -> None:
     scope = module.program_scope
@@ -30,6 +35,7 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
     body = list(nodes(procedure.body))
     program.late_bound_members.clear()
     program.early_bound_members.clear()
+    program.stored_len_arguments.clear()
     library: str | None = getattr(interpreter.host, 'vba_type_library', None)
     local = {name: info for owner in interpreter.modules.values() if not owner.is_class and owner is not module
              for name, info in variables(owner).items() if name in owner.public_variables}
@@ -330,6 +336,49 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
     resolved: dict[tuple[int, Info | None, bool, bool], Info | None] = {}
     with_subjects: set[int] = set()
 
+    def has_fixed_type(expression: A.Expr | None, context: Info | None) -> bool:
+        """Whether the compiler knows this expression as a number, a date or a Boolean. What it cannot tell, it is not said to be."""
+        if isinstance(expression, A.Literal):
+            return type_name(expression.value) in _FIXED_TYPES
+        if isinstance(expression, A.Unary):
+            return has_fixed_type(expression.operand, context)
+        if isinstance(expression, A.Binary):
+            return expression.op != '&' and has_fixed_type(expression.left, context) and has_fixed_type(expression.right, context)
+        if isinstance(expression, A.Index) and isinstance(expression.target, A.Name):
+            key = strip_suffix(expression.target.name).lower()
+            if key in _FIXED_INTRINSICS and name_info(key, declare=False) is None:
+                return True
+        if isinstance(expression, A.Name) and strip_suffix(expression.name).lower() in _FIXED_INTRINSICS:
+            return name_info(expression.name, declare=False) is None
+        if isinstance(expression, (A.Name, A.Member, A.Index)):
+            info = visit(expression, context, callee=isinstance(expression, A.Name))
+            if isinstance(expression, A.Member) and id(expression) not in program.early_bound_members:
+                return False
+            return info is not None and not info[1] and info[0] in _FIXED_TYPES
+        return False
+
+    def check_len(argument: A.Expr | None, context: Info | None, line: int) -> None:
+        """Len(n) reads a variable's storage, and with no variable to read a number is refused: Len(5), Len(n + 1), Len(ws.Index)
+        (tests/fixtures/vba_everyday_17.json). A Variant's answer goes by its text at run time, so Len(v + 1) compiles."""
+        if isinstance(argument, A.Literal) and type_name(argument.value) == 'Nothing':
+            fail('Invalid use of object', line)
+        if isinstance(argument, A.Name):
+            key = strip_suffix(argument.name).lower()
+            if key == 'me' and not module.is_class:
+                fail('Invalid use of Me keyword', line)
+            if key in local:
+                return
+        if isinstance(argument, (A.Index, A.Member)):
+            info = visit(argument, context)
+            indexed = isinstance(argument, A.Index) and isinstance(argument.target, A.Name) and strip_suffix(argument.target.name).lower() in local
+            field = isinstance(argument, A.Member) and id(argument) not in program.early_bound_members
+            if (indexed or field) and info is not None and not info[1]:
+                if info[0] in _FIXED_TYPES:
+                    program.stored_len_arguments[id(argument)] = str(info[0])
+                return
+        if has_fixed_type(argument, context):
+            fail('Variable required - can\'t assign to this expression', line)
+
     def visit(value: object, context: Info | None = None, *, callee: bool = False, lvalue: bool = False) -> Info | None:
         if isinstance(value, A.Expr):
             key = id(value), context, callee, lvalue
@@ -367,6 +416,9 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             with_subject = id(value) in with_subjects
             info = visit(value.target, context, callee=True)
             visit(value.args, context)
+            if (info is None and isinstance(value.target, A.Name) and strip_suffix(value.target.name).lower() in ('len', 'lenb')
+                    and len(value.args) == 1):
+                check_len(value.args[0].value, context, value.line)
             if not callee and not lvalue and not with_subject:
                 check_library_call(value.target, value.args, 'value')
             if isinstance(value.target, A.Name) and info is not None and not info[1]:

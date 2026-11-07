@@ -34,7 +34,7 @@ import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba._a1 import Area, parse_area
@@ -65,8 +65,9 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivots import PivotTable
     from pyopenvba.apps.excel._sort import SortState
 
-#: ListObjects.Add's SourceType for a range of the sheet, and its answers to whether the range has headers.
-SOURCE_RANGE = 1
+#: ListObjects.Add's SourceType for a range of the sheet and for a database, and its answers to whether the range has
+#: headers.
+SOURCE_RANGE, SOURCE_EXTERNAL = 1, 0
 GUESS, YES, NO = 0, 1, 2
 DEFAULT_STYLE = "TableStyleMedium2"
 
@@ -146,6 +147,8 @@ class Table:
     xml: str = ""
     changed: bool = False
     view: ListObject | None = dataclass_field(default=None, repr=False)
+    #: The query table of a table over a database, read from a file (see _query_databases.ListQueryTable).
+    query: Any = dataclass_field(default=None, repr=False)
     sort_state: SortState | None = dataclass_field(default=None, repr=False)
 
     @property
@@ -212,7 +215,10 @@ def _read_filter(table: Table, element: str) -> None:
     if found is None:
         return
     block = Area(found.area.top, found.area.left, found.area.bottom, found.area.right)
-    if block != table.area:
+    # Excel writes the filter's block without the totals row, and reading it back answers the whole table
+    # (tests/fixtures/table_filter_range.json).
+    short = Area(table.area.top, table.area.left, table.area.bottom - 1, table.area.right) if table.totals else None
+    if block != table.area and block != short:
         table.filter_ref = (block, table.area)
     hidden = ' hiddenButton="1"'
     if found.fields and all(index in found.fields and hidden in found.fields[index].attributes
@@ -263,8 +269,21 @@ def base_table_xml(table: Table) -> str:
                     table.area.right).address(absolute=False)
     auto_filter = _filter_element(table, filtered, None)
     names = [one.name for one in all_tables(table.sheet)]
-    columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column, names)
-                      for column in table.columns)
+    query = table.query
+    if query is not None:
+        # A table over a database, as Excel writes one ListObjects.Add made: each column named uniquely by its id and tied
+        # to its field, and an insert row before the first refresh (tests/fixtures/list_query_add.json).
+        fields = list(query.field_ids)
+        if len(fields) != len(table.columns):
+            raise VBAUnsupportedError("saving a table over a database whose fields are not its columns is not implemented")
+        columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" uniqueName="{column.id}" '
+                                          f'name="" queryTableFieldId="{field}"/>', column, names)
+                          for column, field in zip(table.columns, fields, strict=True))
+        typed = ' tableType="queryTable"' + (' insertRow="1"' if query.placeholder else "")
+    else:
+        typed = ""
+        columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column,
+                                          names) for column in table.columns)
     counts = _totals_counts(table)
     style = (f'<tableStyleInfo{_style_name(table)} showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
@@ -272,7 +291,7 @@ def base_table_xml(table: Table) -> str:
     comment = f' comment="{_column_attribute(table.comment)}"' if table.comment else ""
     return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
             f'<table {_NAMESPACES} id="{table.id}" xr:uid="{table.uid}" name="{escape(table.own_name or table.name)}" '
-            f'displayName="{escape(table.name)}"{comment} ref="{reference}"{header}{counts}>{auto_filter}'
+            f'displayName="{escape(table.name)}"{comment} ref="{reference}"{typed}{header}{counts}>{auto_filter}'
             f'<tableColumns count="{len(table.columns)}">{columns}</tableColumns>{style}'
             f'{_described(table, "")}</table>')
 
@@ -917,21 +936,31 @@ class ListObjects(VBACollection, ItemDefault, ExcelObject):
             XlListObjectHasHeaders: object = MISSING, Destination: object = MISSING,
             TableStyleName: object = MISSING) -> object:
         kind = SOURCE_RANGE if SourceType is MISSING else int(to_integer(SourceType, "Long"))
+        if kind == SOURCE_EXTERNAL:
+            # Over a database: the headers argument changes nothing, and with no Destination it is error 5
+            # (tests/fixtures/list_query_add.json).
+            if LinkSource is not MISSING or TableStyleName is not MISSING:
+                raise VBAUnsupportedError("ListObjects.Add(xlSrcExternal) with LinkSource or TableStyleName is not "
+                                          "implemented")
+            if Destination is MISSING:
+                raise error(5, "Invalid procedure call or argument")
+            from pyopenvba.apps.excel._query_databases import add_list
+
+            return view(add_list(self.sheet, Source, Destination, self._default_style()))
         if kind != SOURCE_RANGE or not isinstance(Source, Range):
             raise VBAUnsupportedError("ListObjects.Add from anything but a range of the sheet is not implemented")
         if Source.sheet is not self.sheet:
             raise error(1004, "The table's range must be on this sheet")
         headers = GUESS if XlListObjectHasHeaders is MISSING else int(to_integer(XlListObjectHasHeaders, "Long"))
-        if TableStyleName is MISSING:
-            # The workbook's default table style (Workbook.DefaultTableStyle, tests/fixtures/workbook_settings.json).
-            found = self.sheet.book.stylesheet.table_style_default("table")
-            if found is None:
-                raise VBAUnsupportedError("ListObjects.Add in a workbook with no default table style is not "
-                                          "implemented")
-            style = found
-        else:
-            style = to_text(TableStyleName)
+        style = self._default_style() if TableStyleName is MISSING else to_text(TableStyleName)
         return view(add(self.sheet, Source, headers, style))
+
+    def _default_style(self) -> str:
+        """The workbook's default table style (Workbook.DefaultTableStyle, tests/fixtures/workbook_settings.json)."""
+        found = self.sheet.book.stylesheet.table_style_default("table")
+        if found is None:
+            raise VBAUnsupportedError("ListObjects.Add in a workbook with no default table style is not implemented")
+        return found
 
 
 def _table_gone(table: Table, sheet: Worksheet) -> bool:
@@ -983,7 +1012,8 @@ class ListObject(HeldPart, ExcelObject):
 
     @member(default=True)
     def _Default(self) -> object:
-        return self.table.name
+        """Name, the name given, not DisplayName (tests/fixtures/list_object_default.json)."""
+        return self.table.own_name or self.table.name
 
     @member
     def Name(self) -> object:
@@ -1080,16 +1110,31 @@ class ListObject(HeldPart, ExcelObject):
     def Delete(self) -> object:
         from pyopenvba.apps.excel._table_edits import delete_table
 
+        query = self._query_going()
         self.table.deleted = True
         delete_table(self.table)
+        if query is not None:
+            query.dropped()
         return EMPTY
 
     @method
     def Unlist(self) -> object:
         from pyopenvba.apps.excel._table_unlist import unlist
 
+        query = self._query_going()
         unlist(self.table)
+        if query is not None:
+            query.dropped()
         return EMPTY
+
+    def _query_going(self) -> Any:
+        """A table over a database takes its query table, connection and name with it (tests/fixtures/list_query_add.json);
+        the query table, where the model can let it go, else None for a table of the sheet's own cells."""
+        if self.table.query is None:
+            return None
+        from pyopenvba.apps.excel._query_databases import droppable
+
+        return droppable(self.table)
 
     @member
     def ShowTotals(self) -> object:
@@ -1209,7 +1254,9 @@ class ListObject(HeldPart, ExcelObject):
 
     @member
     def SourceType(self) -> object:
-        """xlSrcRange for a table of the sheet's own cells."""
+        """xlSrcRange for a table of the sheet's own cells, xlSrcQuery for one over a database (tests/fixtures/query_refresh_loaded.json)."""
+        if self.table.query is not None:
+            return VBAInt(3, "Long")
         if self.table.kind:
             raise VBAUnsupportedError(f"SourceType of a table of type {self.table.kind!r} is not implemented")
         return VBAInt(SOURCE_RANGE, "Long")
@@ -1243,10 +1290,16 @@ class ListObject(HeldPart, ExcelObject):
 
     @method
     def Refresh(self) -> object:
+        """Over a database, its query table refreshed, as QueryTable.Refresh is (tests/fixtures/list_query_add.json)."""
+        if self.table.query is not None:
+            self.table.query.vba_call("Refresh", [])
+            return EMPTY
         raise error(1004, "Application-defined or object-defined error")
 
     @member
     def QueryTable(self) -> object:
+        if self.table.query is not None:
+            return self.table.query
         raise error(1004, "Application-defined or object-defined error")
 
     @member

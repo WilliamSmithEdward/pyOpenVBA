@@ -278,6 +278,31 @@ def resize(table: Table, area: Area) -> None:
     _changed(table)
 
 
+def reshape(table: Table, area: Area, columns: list[TableColumn]) -> None:
+    """The table over another block from the same corner with these columns, as a refresh of its query lays them out (see
+    _query_databases.ListQueryTable); references to a column it no longer has become #REF!."""
+    from pyopenvba.apps.excel._table_filters import resized
+    from pyopenvba.apps.excel._table_sort import guard_edit
+
+    if (area.top, area.left) != (table.area.top, table.area.left):
+        raise VBAUnsupportedError("moving a table's corner is not implemented")
+    if any(other is not table and other.area.top <= area.bottom and area.top <= other.area.bottom
+           and other.area.left <= area.right and area.left <= other.area.right for other in table.sheet.tables):
+        raise error(1004, "A table cannot overlap another table.")
+    if [one.name for one in columns] != [one.name for one in table.columns]:
+        guard_edit(table, 'changing columns of')
+        if table.filter is not None and table.filter.fields:
+            raise VBAUnsupportedError("changing the columns of a filtered table is not implemented")
+    else:
+        resized(table, area)
+    lost = {one.name.lower() for one in table.columns} - {one.name.lower() for one in columns}
+    table.columns = columns
+    table.area = Area(area.top, area.left, area.bottom, area.right)
+    if lost:
+        _lose_columns(table, lost)
+    _changed(table)
+
+
 def delete_table(table: Table) -> None:
     """ListObject.Delete: the table's cells cleared, formats and all, and every reference to it #REF!."""
     from pyopenvba.apps.excel._table_sort import guard_edit

@@ -390,7 +390,7 @@ def displayed(value: object, code: str, *, epoch_1904: bool = False, locale: Loc
         text = general_text(number)
         return Display(text, general=(0, len(text)), general_value=number)
     section, magnitude, signed = _choose(numeric, number)
-    laid = _numeric(section, magnitude, signed, epoch_1904=epoch_1904, locale=locale)
+    laid = _shaped(_numeric(section, magnitude, signed, epoch_1904=epoch_1904, locale=locale), section.language)
     out: list[str] = []
     fill_at: int | None = None
     edges: list[int] = []
@@ -407,6 +407,31 @@ def displayed(value: object, code: str, *, epoch_1904: bool = False, locale: Loc
     general = (edges[0], edges[1]) if len(edges) >= 2 else None
     return Display("".join(out), _pads(section) + "0" * laid.count(_DIGIT_SPACE), fill, fill_at or 0, general,
                    (magnitude if signed else abs(magnitude)) if general is not None else 0.0)
+
+
+#: The digit shapes a [$-...] bracket's top byte names, by code, and the zero of the digits each shows: Arabic-Indic
+#: (2) and extended Arabic-Indic (3), Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamil, Telugu, Kannada,
+#: Malayalam, Thai, Lao, Tibetan, Myanmar, Khmer (0x12) and Mongolian (0x13), which typing a number in those
+#: digits brings (tests/fixtures/typing_native_rounds/).
+DIGIT_SHAPES: dict[int, int] = {0x02: 0x0660, 0x03: 0x06F0, 0x04: 0x0966, 0x05: 0x09E6, 0x06: 0x0A66, 0x07: 0x0AE6,
+                                0x08: 0x0B66, 0x09: 0x0BE6, 0x0A: 0x0C66, 0x0B: 0x0CE6, 0x0C: 0x0D66, 0x0D: 0x0E50,
+                                0x0E: 0x0ED0, 0x0F: 0x0F20, 0x10: 0x1040, 0x12: 0x17E0, 0x13: 0x1810}
+
+
+def _shaped(laid: str, language: str) -> str:
+    """A number or a moment laid out through a section whose [$-...] bracket names a digit shape, its digits shown in
+    that script, as Excel shows them; laid out as it is otherwise."""
+    if len(language) <= 6:
+        return laid
+    try:
+        zero = DIGIT_SHAPES.get(int(language, 16) >> 24)
+    except ValueError:
+        return laid
+    if zero is None:
+        return laid
+    # Tamil shows its zero as 0, the way it was written before Unicode had a Tamil zero.
+    low = "1" if zero == 0x0BE6 else "0"
+    return "".join(chr(zero + ord(char) - 0x30) if low <= char <= "9" else char for char in laid)
 
 
 def keeps_text(code: str) -> bool:

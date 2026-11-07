@@ -1,0 +1,3823 @@
+{
+"measured_at": "2026-11-07T02:30:00.497111+00:00",
+"cases": [
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "base",
+"call": "r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "gif",
+"call": "r = o.Export(folder & \"\\a.gif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.gif gif"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "jpg",
+"call": "r = o.Export(folder & \"\\a.jpg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpg jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "jpeg",
+"call": "r = o.Export(folder & \"\\a.jpeg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpeg jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "bmp",
+"call": "r = o.Export(folder & \"\\a.bmp\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.bmp bmp"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "tif",
+"call": "r = o.Export(folder & \"\\a.tif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.tif other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "no_extension",
+"call": "r = o.Export(folder & \"\\a\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "pdf",
+"call": "r = o.Export(folder & \"\\a.pdf\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.pdf other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "upper",
+"call": "r = o.Export(folder & \"\\A.PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"A.PNG png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "statement",
+"call": "o.Export folder & \"\\a.png\"",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_png",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_gif",
+"call": "r = o.Export(folder & \"\\a.png\", \"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png gif"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_jpg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_jpeg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPEG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_bmp",
+"call": "r = o.Export(folder & \"\\a.png\", \"BMP\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png bmp"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_lower",
+"call": "r = o.Export(folder & \"\\a.png\", \"png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_bogus",
+"call": "r = o.Export(folder & \"\\a.png\", \"bogus\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_empty",
+"call": "r = o.Export(folder & \"\\a.png\", \"\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_null",
+"call": "r = o.Export(folder & \"\\a.png\", Null)",
+"excel": "E-2147352571~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_number",
+"call": "r = o.Export(folder & \"\\a.png\", 5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "filter_named",
+"call": "r = o.Export(Filename:=folder & \"\\a.png\", FilterName:=\"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png gif"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "interactive_false",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", False)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_empty",
+"call": "r = o.Export(\"\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_null",
+"call": "r = o.Export(Null)",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_number",
+"call": "r = o.Export(5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"5 other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_relative",
+"call": "r = o.Export(\"rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"rel.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_relative_folder",
+"call": "r = o.Export(\"sub\\rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"sub/rel.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_dotdot",
+"call": "r = o.Export(\"sub\\..\\up.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"up.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_no_folder",
+"call": "r = o.Export(folder & \"\\nothere\\a.png\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_is_folder",
+"call": "r = o.Export(folder)",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_read_only",
+"call": "r = o.Export(folder & \"\\ro.png\")",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_bad_character",
+"call": "r = o.Export(folder & \"\\a?b.png\")",
+"excel": "E-2147286917~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_long",
+"call": "r = o.Export(folder & \"\\\" & String(300, \"a\") & \".png\")",
+"excel": "E-2147024809~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "name_existing",
+"call": "r = o.Export(folder & \"\\there.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"there.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "base",
+"call": "r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "gif",
+"call": "r = o.Export(folder & \"\\a.gif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.gif gif"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "jpg",
+"call": "r = o.Export(folder & \"\\a.jpg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpg jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "jpeg",
+"call": "r = o.Export(folder & \"\\a.jpeg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpeg jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "bmp",
+"call": "r = o.Export(folder & \"\\a.bmp\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.bmp bmp"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "tif",
+"call": "r = o.Export(folder & \"\\a.tif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.tif other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "no_extension",
+"call": "r = o.Export(folder & \"\\a\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "pdf",
+"call": "r = o.Export(folder & \"\\a.pdf\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.pdf other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "upper",
+"call": "r = o.Export(folder & \"\\A.PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"A.PNG png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "statement",
+"call": "o.Export folder & \"\\a.png\"",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_png",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_gif",
+"call": "r = o.Export(folder & \"\\a.png\", \"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png gif"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_jpg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_jpeg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPEG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png jpeg"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_bmp",
+"call": "r = o.Export(folder & \"\\a.png\", \"BMP\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png bmp"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_lower",
+"call": "r = o.Export(folder & \"\\a.png\", \"png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_bogus",
+"call": "r = o.Export(folder & \"\\a.png\", \"bogus\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_empty",
+"call": "r = o.Export(folder & \"\\a.png\", \"\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_null",
+"call": "r = o.Export(folder & \"\\a.png\", Null)",
+"excel": "E-2147352571~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_number",
+"call": "r = o.Export(folder & \"\\a.png\", 5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "filter_named",
+"call": "r = o.Export(Filename:=folder & \"\\a.png\", FilterName:=\"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png gif"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "interactive_false",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", False)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_empty",
+"call": "r = o.Export(\"\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_null",
+"call": "r = o.Export(Null)",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_number",
+"call": "r = o.Export(5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"5 other:"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_relative",
+"call": "r = o.Export(\"rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"rel.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_relative_folder",
+"call": "r = o.Export(\"sub\\rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"sub/rel.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_dotdot",
+"call": "r = o.Export(\"sub\\..\\up.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"up.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_no_folder",
+"call": "r = o.Export(folder & \"\\nothere\\a.png\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_is_folder",
+"call": "r = o.Export(folder)",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_read_only",
+"call": "r = o.Export(folder & \"\\ro.png\")",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_bad_character",
+"call": "r = o.Export(folder & \"\\a?b.png\")",
+"excel": "E-2147286917~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_long",
+"call": "r = o.Export(folder & \"\\\" & String(300, \"a\") & \".png\")",
+"excel": "E-2147024809~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_existing",
+"call": "r = o.Export(folder & \"\\there.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"there.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "name_omitted",
+"call": "r = o.Export()",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "bogus",
+"call": "r = o.Export(folder & \"\\a.png\", Bogus:=1)",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "base",
+"call": "r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "gif",
+"call": "r = o.Export(folder & \"\\a.gif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.gif other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "jpg",
+"call": "r = o.Export(folder & \"\\a.jpg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpg other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "jpeg",
+"call": "r = o.Export(folder & \"\\a.jpeg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpeg other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "bmp",
+"call": "r = o.Export(folder & \"\\a.bmp\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.bmp other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "tif",
+"call": "r = o.Export(folder & \"\\a.tif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.tif other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "no_extension",
+"call": "r = o.Export(folder & \"\\a\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "pdf",
+"call": "r = o.Export(folder & \"\\a.pdf\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.pdf other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "upper",
+"call": "r = o.Export(folder & \"\\A.PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"A.PNG other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "statement",
+"call": "o.Export folder & \"\\a.png\"",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_png",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_gif",
+"call": "r = o.Export(folder & \"\\a.png\", \"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_jpg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_jpeg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPEG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_bmp",
+"call": "r = o.Export(folder & \"\\a.png\", \"BMP\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_lower",
+"call": "r = o.Export(folder & \"\\a.png\", \"png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_bogus",
+"call": "r = o.Export(folder & \"\\a.png\", \"bogus\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_empty",
+"call": "r = o.Export(folder & \"\\a.png\", \"\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_null",
+"call": "r = o.Export(folder & \"\\a.png\", Null)",
+"excel": "E-2147352571~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_number",
+"call": "r = o.Export(folder & \"\\a.png\", 5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "filter_named",
+"call": "r = o.Export(Filename:=folder & \"\\a.png\", FilterName:=\"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "interactive_false",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", False)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_empty",
+"call": "r = o.Export(\"\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_null",
+"call": "r = o.Export(Null)",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_number",
+"call": "r = o.Export(5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"5 other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_relative",
+"call": "r = o.Export(\"rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"rel.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_relative_folder",
+"call": "r = o.Export(\"sub\\rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"sub/rel.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_dotdot",
+"call": "r = o.Export(\"sub\\..\\up.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"up.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_no_folder",
+"call": "r = o.Export(folder & \"\\nothere\\a.png\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_is_folder",
+"call": "r = o.Export(folder)",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_read_only",
+"call": "r = o.Export(folder & \"\\ro.png\")",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_bad_character",
+"call": "r = o.Export(folder & \"\\a?b.png\")",
+"excel": "E-2147286917~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_long",
+"call": "r = o.Export(folder & \"\\\" & String(300, \"a\") & \".png\")",
+"excel": "E-2147024809~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "name_existing",
+"call": "r = o.Export(folder & \"\\there.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"there.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "base",
+"call": "r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "gif",
+"call": "r = o.Export(folder & \"\\a.gif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.gif other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "jpg",
+"call": "r = o.Export(folder & \"\\a.jpg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpg other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "jpeg",
+"call": "r = o.Export(folder & \"\\a.jpeg\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.jpeg other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "bmp",
+"call": "r = o.Export(folder & \"\\a.bmp\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.bmp other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "tif",
+"call": "r = o.Export(folder & \"\\a.tif\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.tif other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "no_extension",
+"call": "r = o.Export(folder & \"\\a\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "pdf",
+"call": "r = o.Export(folder & \"\\a.pdf\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.pdf other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "upper",
+"call": "r = o.Export(folder & \"\\A.PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"A.PNG other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "statement",
+"call": "o.Export folder & \"\\a.png\"",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_png",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_gif",
+"call": "r = o.Export(folder & \"\\a.png\", \"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_jpg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_jpeg",
+"call": "r = o.Export(folder & \"\\a.png\", \"JPEG\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_bmp",
+"call": "r = o.Export(folder & \"\\a.png\", \"BMP\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_lower",
+"call": "r = o.Export(folder & \"\\a.png\", \"png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_bogus",
+"call": "r = o.Export(folder & \"\\a.png\", \"bogus\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_empty",
+"call": "r = o.Export(folder & \"\\a.png\", \"\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_null",
+"call": "r = o.Export(folder & \"\\a.png\", Null)",
+"excel": "E-2147352571~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_number",
+"call": "r = o.Export(folder & \"\\a.png\", 5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "filter_named",
+"call": "r = o.Export(Filename:=folder & \"\\a.png\", FilterName:=\"GIF\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "interactive_false",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", False)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_empty",
+"call": "r = o.Export(\"\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_null",
+"call": "r = o.Export(Null)",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_number",
+"call": "r = o.Export(5)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"5 other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_relative",
+"call": "r = o.Export(\"rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"rel.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_relative_folder",
+"call": "r = o.Export(\"sub\\rel.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"sub/rel.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_dotdot",
+"call": "r = o.Export(\"sub\\..\\up.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"up.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_no_folder",
+"call": "r = o.Export(folder & \"\\nothere\\a.png\")",
+"excel": "E-2147287037~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_is_folder",
+"call": "r = o.Export(folder)",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_read_only",
+"call": "r = o.Export(folder & \"\\ro.png\")",
+"excel": "E-2147287035~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_bad_character",
+"call": "r = o.Export(folder & \"\\a?b.png\")",
+"excel": "E-2147286917~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_long",
+"call": "r = o.Export(folder & \"\\\" & String(300, \"a\") & \".png\")",
+"excel": "E-2147024809~The specified dimension is not valid for the current chart type.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_existing",
+"call": "r = o.Export(folder & \"\\there.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"there.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "name_omitted",
+"call": "r = o.Export()",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "bogus",
+"call": "r = o.Export(folder & \"\\a.png\", Bogus:=1)",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "size_screen",
+"call": "o.CopyPicture xlScreen, xlPicture, xlScreen",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "size_printer",
+"call": "o.CopyPicture xlScreen, xlPicture, xlPrinter",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "size_3",
+"call": "o.CopyPicture xlScreen, xlPicture, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Typed",
+"row": "size_text",
+"call": "o.CopyPicture xlScreen, xlPicture, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "size_screen",
+"call": "o.CopyPicture xlScreen, xlPicture, xlScreen",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "size_printer",
+"call": "o.CopyPicture xlScreen, xlPicture, xlPrinter",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "size_3",
+"call": "o.CopyPicture xlScreen, xlPicture, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "size_text",
+"call": "o.CopyPicture xlScreen, xlPicture, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "returns",
+"call": "r = o.CopyPicture()",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Chart",
+"binding": "Late",
+"row": "bogus",
+"call": "o.CopyPicture Bogus:=1",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "size_screen",
+"call": "o.CopyPicture xlScreen, xlPicture, xlScreen",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "size_printer",
+"call": "o.CopyPicture xlScreen, xlPicture, xlPrinter",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "size_3",
+"call": "o.CopyPicture xlScreen, xlPicture, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Typed",
+"row": "size_text",
+"call": "o.CopyPicture xlScreen, xlPicture, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "size_screen",
+"call": "o.CopyPicture xlScreen, xlPicture, xlScreen",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "size_printer",
+"call": "o.CopyPicture xlScreen, xlPicture, xlPrinter",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "size_3",
+"call": "o.CopyPicture xlScreen, xlPicture, 3",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "size_text",
+"call": "o.CopyPicture xlScreen, xlPicture, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "returns",
+"call": "r = o.CopyPicture()",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Frame",
+"binding": "Late",
+"row": "bogus",
+"call": "o.CopyPicture Bogus:=1",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Typed",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E1004~CopyPicture method of Range class failed~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "size_screen",
+"call": "o.CopyPicture xlScreen, xlPicture, xlScreen",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "size_printer",
+"call": "o.CopyPicture xlScreen, xlPicture, xlPrinter",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "size_3",
+"call": "o.CopyPicture xlScreen, xlPicture, 3",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "size_text",
+"call": "o.CopyPicture xlScreen, xlPicture, \"x\"",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "returns",
+"call": "r = o.CopyPicture()",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Range",
+"binding": "Late",
+"row": "bogus",
+"call": "o.CopyPicture Bogus:=1",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Typed",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "size_screen",
+"call": "o.CopyPicture xlScreen, xlPicture, xlScreen",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "size_printer",
+"call": "o.CopyPicture xlScreen, xlPicture, xlPrinter",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "size_3",
+"call": "o.CopyPicture xlScreen, xlPicture, 3",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "size_text",
+"call": "o.CopyPicture xlScreen, xlPicture, \"x\"",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "returns",
+"call": "r = o.CopyPicture()",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "Shape",
+"binding": "Late",
+"row": "bogus",
+"call": "o.CopyPicture Bogus:=1",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E94~Invalid use of Null~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Typed",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "none",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "screen_picture",
+"call": "o.CopyPicture xlScreen, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "printer_picture",
+"call": "o.CopyPicture xlPrinter, xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "screen_bitmap",
+"call": "o.CopyPicture xlScreen, xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "printer_bitmap",
+"call": "o.CopyPicture xlPrinter, xlBitmap",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "named",
+"call": "o.CopyPicture Appearance:=xlScreen, Format:=xlBitmap",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "appearance_3",
+"call": "o.CopyPicture 3, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "appearance_0",
+"call": "o.CopyPicture 0, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "appearance_negative",
+"call": "o.CopyPicture -1, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "appearance_text",
+"call": "o.CopyPicture \"x\", xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "appearance_digits",
+"call": "o.CopyPicture \"2\", xlPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "appearance_null",
+"call": "o.CopyPicture Null, xlPicture",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "appearance_true",
+"call": "o.CopyPicture True, xlPicture",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "format_3",
+"call": "o.CopyPicture xlScreen, 3",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "format_0",
+"call": "o.CopyPicture xlScreen, 0",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "format_negative",
+"call": "o.CopyPicture xlScreen, -1",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "format_text",
+"call": "o.CopyPicture xlScreen, \"x\"",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "format_null",
+"call": "o.CopyPicture xlScreen, Null",
+"excel": "E13~Type mismatch~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "format_true",
+"call": "o.CopyPicture xlScreen, True",
+"excel": "E5~Invalid procedure call or argument~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "size_screen",
+"call": "o.CopyPicture xlScreen, xlPicture, xlScreen",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "size_printer",
+"call": "o.CopyPicture xlScreen, xlPicture, xlPrinter",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "size_3",
+"call": "o.CopyPicture xlScreen, xlPicture, 3",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "size_text",
+"call": "o.CopyPicture xlScreen, xlPicture, \"x\"",
+"excel": "E450~Wrong number of arguments or invalid property assignment~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "returns",
+"call": "r = o.CopyPicture()",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "CopyPicture",
+"owner": "ChartObject",
+"binding": "Late",
+"row": "bogus",
+"call": "o.CopyPicture Bogus:=1",
+"excel": "E1004~Application-defined or object-defined error~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Typed",
+"row": "export_empty_chart",
+"call": "r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Late",
+"row": "export_empty_chart",
+"call": "r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Typed",
+"row": "export_hidden_chart",
+"call": "o.Visible = xlSheetHidden\n    r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Late",
+"row": "export_hidden_chart",
+"call": "o.Visible = xlSheetHidden\n    r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Typed",
+"row": "export_frame_hidden_sheet",
+"call": "wb.Worksheets(\"One\").Visible = xlSheetHidden\n    r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Late",
+"row": "export_frame_hidden_sheet",
+"call": "wb.Worksheets(\"One\").Visible = xlSheetHidden\n    r = o.Export(folder & \"\\a.png\")",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Typed",
+"row": "export_saved_flag",
+"call": "wb.Saved = True\n    r = o.Export(folder & \"\\a.png\")\n    s = \"saved=\" & wb.Saved",
+"excel": "E0~~saved=True|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Late",
+"row": "export_saved_flag",
+"call": "wb.Saved = True\n    r = o.Export(folder & \"\\a.png\")\n    s = \"saved=\" & wb.Saved",
+"excel": "E0~~saved=True|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Typed",
+"row": "export_not_active",
+"call": "wb.Worksheets(\"Two\").Activate\n    r = o.Export(folder & \"\\a.png\")\n    s = \"active=\" & wb.ActiveSheet.Name",
+"excel": "E0~~active=Two|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Late",
+"row": "export_not_active",
+"call": "wb.Worksheets(\"Two\").Activate\n    r = o.Export(folder & \"\\a.png\")\n    s = \"active=\" & wb.ActiveSheet.Name",
+"excel": "E0~~active=Two|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Typed",
+"row": "picture_range_hidden_rows",
+"call": "wb.Worksheets(\"One\").Rows(\"1:3\").Hidden = True\n    o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Late",
+"row": "picture_range_hidden_rows",
+"call": "wb.Worksheets(\"One\").Rows(\"1:3\").Hidden = True\n    o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Typed",
+"row": "picture_range_empty",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Late",
+"row": "picture_range_empty",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Typed",
+"row": "picture_range_column",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Late",
+"row": "picture_range_column",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Typed",
+"row": "picture_range_areas",
+"call": "o.CopyPicture",
+"excel": "E1004~This action won't work on multiple selections.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Late",
+"row": "picture_range_areas",
+"call": "o.CopyPicture",
+"excel": "E1004~This action won't work on multiple selections.~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Typed",
+"row": "picture_range_inactive_sheet",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Late",
+"row": "picture_range_inactive_sheet",
+"call": "o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Shape",
+"binding": "Typed",
+"row": "picture_shape_hidden",
+"call": "o.Visible = msoFalse\n    o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "state",
+"owner": "Shape",
+"binding": "Late",
+"row": "picture_shape_hidden",
+"call": "o.Visible = msoFalse\n    o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=1004:0:Range",
+"files": []
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Typed",
+"row": "picture_hidden_chart",
+"call": "o.Visible = xlSheetHidden\n    o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Chart",
+"binding": "Late",
+"row": "picture_hidden_chart",
+"call": "o.Visible = xlSheetHidden\n    o.CopyPicture",
+"excel": "E0~~|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Typed",
+"row": "picture_saved_flag",
+"call": "wb.Saved = True\n    o.CopyPicture\n    s = \"saved=\" & wb.Saved",
+"excel": "E0~~saved=True|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "state",
+"owner": "Range",
+"binding": "Late",
+"row": "picture_saved_flag",
+"call": "wb.Saved = True\n    o.CopyPicture\n    s = \"saved=\" & wb.Saved",
+"excel": "E0~~saved=True|r=Empty:|mode=0|paste=0:1:Picture:13",
+"files": []
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Typed",
+"row": "interactive_true",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", True)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Chart",
+"binding": "Late",
+"row": "interactive_true",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", True)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png png"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Typed",
+"row": "interactive_true",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", True)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+},
+{
+"member": "Export",
+"owner": "Frame",
+"binding": "Late",
+"row": "interactive_true",
+"call": "r = o.Export(folder & \"\\a.png\", \"PNG\", True)",
+"excel": "E0~~|r=Boolean:True|mode=0|paste=1004:0:Range",
+"files": [
+"a.png other:"
+]
+}
+]
+}

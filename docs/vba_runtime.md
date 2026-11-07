@@ -147,15 +147,16 @@ app.set_hook("ExportAsFixedFormat", export, folders=["C:/reports"])
 app.set_hook("PrintOut", my_print_function)
 ```
 
-`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat`, `PrintOut` or `Refresh`; any other name raises `ValueError`, and `None` removes the function.
+`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat`, `PrintOut`, `Export` (`Chart.Export`), `CopyPicture` or `Refresh`;
+any other name raises `ValueError`, and `None` removes the function.
 
 The model answers what it measured itself: a macro's argument errors, then `BeforePrint`, then the file. Only then does it call the function with a
 `HookRequest`:
 
 | Field | Holds |
 | --- | --- |
-| `member` | `ExportAsFixedFormat` or `PrintOut` |
-| `owner` | The class it was called on: `Worksheet`, `Workbook`, `Range`, `Chart` or `Sheets` |
+| `member` | `ExportAsFixedFormat`, `PrintOut`, `Export` or `CopyPicture` |
+| `owner` | The class it was called on: `Worksheet`, `Workbook`, `Range`, `Chart`, `Sheets`, `Shape` or `ChartObject` |
 | `target`, `workbook` | The live objects |
 | `arguments` | Only what the macro gave, under Excel's names, read-only |
 | `path` | The file to write, past the gate and with Excel's name rules applied, or `None` |
@@ -187,6 +188,24 @@ files reports itself, as `SaveCopyAs` elsewhere does.
 
 `PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
 printer's name were never run in Excel, so what the function does with them is unmeasured.
+
+### Pictures
+
+`Chart.Export`, on a chart sheet or a chart in a frame, and `CopyPicture`, on a `Range`, a `Shape`, a `ChartObject` and a chart, are two more members with a
+function (measured in `tests/fixtures/output_pictures.json`):
+
+- `Export`: `path` is the name the macro gave, a relative one in the current folder, with nothing added. `FilterName`, or else the name's extension, says
+  what to draw: `PNG`, `GIF`, `JPG`, `JPEG` or `BMP`, in any case. For any other, or none, Excel writes an empty file and answers `True`, and the model does
+  the same without calling the function, through the same gate. A missing folder, a folder, a read-only file, a bad character and a path too long each
+  give Excel's own error first.
+- A chart in a frame: in a fresh Excel started by automation, Excel exports every chart in a frame as an empty file until some chart object has been
+  activated or selected in that session, and draws every one after (`tests/fixtures/frame_drawn.json`). That is a state of Excel's drawing across the
+  session, not of the chart: a person's Excel has nearly always had a chart clicked already. The model does not copy it, and calls the function for a
+  chart in a frame as it does for a chart sheet.
+- `CopyPicture`: `path` is `None`. Each class checks `Appearance` and `Format` its own way, as Excel does: a chart takes any number, the rest only
+  `xlScreen` or `xlPrinter` and `xlPicture` or `xlBitmap`, and a bitmap as printed only on a chart. A `Range` of several areas is 1004, and a hidden shape
+  copies nothing and does not call the function. Like a `PrintOut` with no file, it runs under the sandbox: registering it is the grant. Afterwards
+  `CutCopyMode` reads 0, and pasting the picture reports itself, as the model has no picture to make a shape of, until cells or a chart are copied again.
 
 ### Linked files
 
@@ -266,12 +285,54 @@ entry, with a budget of its own.
 **Passwords.** The function gets the connection string whole, since it needs it to connect. Everywhere the model shows one, in
 `ExternalSource`'s repr and in its errors, a password is `****`: any key with `password` or `pwd` in it, such as `Pwd`, `Password` or
 `Jet OLEDB:Database Password`. A function's own error text stays in `__cause__` alone, as it may echo the string. As Excel does, once a refresh
-has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then.
+has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then. What Excel drops goes by the key, not by
+the value: `Password=""` goes though it is empty, and `Jet OLEDB:New Database Password=""`, which ACE's own string holds, stays.
 
-Known differences: Excel reads back and saves the provider's own fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest,
-where the model keeps the one the macro set, so the file differs there; the uid Excel writes on each part is not written. Not built: a
-ListObject over a database, `Workbook.RefreshAll` over such a table, a refresh that changes the number of columns, and query tables over a
-database in a file opened again, whose sheet's `QueryTables` stays refused. A text file's query table is the model's own, with no function.
+**A file opened again.** A book Excel saved with a query table over a database, on a sheet or as a ListObject's, opens with it, measured
+against Excel's own saves over an Access file and a CSV file (tests/fixtures/query_refresh_loaded.json). The model keeps what the file says of
+the connection it did not make: the provider's fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest, the command, the
+connection's name and number, and every setting. The function gets that string, and an untouched save writes Excel's parts as they came. A
+ListObject's `QueryTable` is not in the sheet's `QueryTables`; its `Name` and `FieldNames` are 1004, `PreserveColumnInfo` is True, its names
+are not bold, and a refresh resizes the ListObject. Excel opens what the model saved and refreshes it itself
+(tests/fixtures/query_refresh_loaded_saved.json). A file whose query tables or connections say anything the model would not write back the
+same keeps them all refused, its parts saved as they came.
+
+**A ListObject over a database.** `ListObjects.Add(xlSrcExternal, Array(connection), , , Destination)` makes a table of one column at the
+destination under `ExternalData_1: Getting Data ...`, named `Table_ExternalData_1`, with a hidden `ExternalData_1` over its block and a
+connection named `Connection`, measured against Excel over an Access file (tests/fixtures/list_query_add.json). The source may be the string
+alone; the headers argument changes nothing; with no `Destination` it is error 5. Before its first refresh its `CommandText` is error 7 and a
+refresh is 1004; its `CommandType` is xlCmdDefault, and xlCmdTable takes a table's name. `ListObject.Refresh` refreshes it. A refresh gives the
+table its fields' columns: columns it has keep their order and their ids, new fields follow, and one it no longer has goes. A first refresh moves
+only what is in the new columns' way, right in their rows; a later one inserts or deletes columns beside the table, and what is below moves in the
+table's columns. `Unlist` and `Delete` take the query table, its connection and its name with the table, and a save of a book Excel saved
+leaves no part of them. A save writes the table, its query table and its connection as Excel does, ids and all, before the first refresh too,
+and Excel opens what the model saved and refreshes it itself (tests/fixtures/list_query_add_saved.json).
+
+**RefreshAll.** `Workbook.RefreshAll` refreshes each table over a database a refresh has run on, a sheet's or a ListObject's, with its command
+as it is now, and a ListObject's never refreshed where it has a command; a sheet's never refreshed, and a ListObject's with no command, it
+passes over without an error, as it does one whose `EnableRefresh` is False or whose connection's `RefreshWithRefreshAll` is False. A table
+whose `BackgroundQuery` is True waits for the macro to end, `Refreshing` True meanwhile, as its own `Refresh` does
+(tests/fixtures/refresh_all_database.json). A source that has gone puts up the provider's prompt in Excel, which is not modelled.
+
+Known differences: Excel reads back and saves the provider's own fuller string where the macro set a shorter one; the model keeps the one the
+macro set, so the file differs there. The uid Excel writes on each part is not written for a part the model writes again. Not built:
+`Workbook.RefreshAll` over tables on text files and on databases together, or with pivot tables; `ListObjects.Add` over cells in use, which Excel moves by a rule one case does not settle; a refresh
+that changes both the columns and the rows of a ListObject with cells to its right, or the columns of one a file gave; a ListObject's query
+table with row numbers, without field names or with another `RefreshStyle`; a refresh of one a file holds that was saved before its first
+refresh; and saving one beside a sheet's own query tables. A text file's query table is the model's own, with no function.
+
+### Not supported
+
+These reach outside the engine and have no function to stand in for them, and none is planned. Each reports itself where it would reach out.
+
+- `FollowHyperlink` and `Hyperlink.Follow`: they open a browser, a mail program or a file with whatever handles it.
+- `Shell`: it starts a program.
+- `CheckSpelling`, on the application, a range, a sheet or a chart: it uses Office's proofing tools and puts up their form.
+- `Speak`, and the `Speech` members: they use the computer's speech output.
+- `GetPhonetic`: it asks a Japanese input method for a reading. The model answers the empty text Excel gives without one, as measured, and makes no
+  reading.
+- `SendMail`, `MailEnvelope`, `MailLogon`, `MailLogoff` and the other mail members: they send mail, or sign in to a mail system. `Mailer` answers
+  as Excel does on Windows, which has no mailer.
 
 ## Dialogs
 

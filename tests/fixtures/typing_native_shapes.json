@@ -1,0 +1,1467 @@
+{
+ "cases": [
+  {
+   "shape": "12",
+   "zero": "0660",
+   "text": "١٢",
+   "excel": "Double 12 [$-2000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1,2",
+   "zero": "0660",
+   "text": "١,٢",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12,345",
+   "zero": "0660",
+   "text": "١٢,٣٤٥",
+   "excel": "Double 12345 [$-2000401]#,##0",
+   "excel_ascii": "Double 12345 #,##0"
+  },
+  {
+   "shape": "1/2",
+   "zero": "0660",
+   "text": "١/٢",
+   "excel": "Date 1/2/2026 [$-2000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0660",
+   "text": "١/٢/٢٠٢٠",
+   "excel": "Date 1/2/2020 [$-2000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12/31/1999",
+   "zero": "0660",
+   "text": "١٢/٣١/١٩٩٩",
+   "excel": "Date 12/31/1999 [$-2000000]mm/dd/yyyy",
+   "excel_ascii": "Date 12/31/1999 m/d/yyyy"
+  },
+  {
+   "shape": "1:2",
+   "zero": "0660",
+   "text": "١:٢",
+   "excel": "Double 4.30555555555556E-02 [$-2000000]h:mm",
+   "excel_ascii": "Double 4.30555555555556E-02 h:mm"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0660",
+   "text": "١٢:٣٠ PM",
+   "excel": "Double 0.520833333333333 [$-2000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1:02:03",
+   "zero": "0660",
+   "text": "١:٠٢:٠٣",
+   "excel": "Double 4.30902777777778E-02 [$-2000000]h:mm:ss",
+   "excel_ascii": "Double 4.30902777777778E-02 h:mm:ss"
+  },
+  {
+   "shape": "1%",
+   "zero": "0660",
+   "text": "١%",
+   "excel": "Double 0.01 [$-2000401]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "(12)",
+   "zero": "0660",
+   "text": "(١٢)",
+   "excel": "Double -12 [$-2000401]0",
+   "excel_ascii": "Double -12 General"
+  },
+  {
+   "shape": "$12",
+   "zero": "0660",
+   "text": "$١٢",
+   "excel": "Double 12 [$$-2000401] #,##0.00_);[Red]([$$-2000401]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0660",
+   "text": "١e٣",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": " 12",
+   "zero": "0660",
+   "text": " ١٢",
+   "excel": "Double 12 [$-2000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "12 ",
+   "zero": "0660",
+   "text": "١٢ ",
+   "excel": "Double 12 [$-2000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1 1/2",
+   "zero": "0660",
+   "text": "١ ١/٢",
+   "excel": "Double 1.5 # ?/?",
+   "excel_ascii": "Double 1.5 # ?/?"
+  },
+  {
+   "shape": "12-Jan",
+   "zero": "0660",
+   "text": "١٢-Jan",
+   "excel": "Date 1/12/2026 [$-2000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "Jan 12",
+   "zero": "0660",
+   "text": "Jan ١٢",
+   "excel": "Date 1/12/2026 [$-2000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "-1.5",
+   "zero": "0660",
+   "text": "-١.٥",
+   "excel": "Double -1.5 [$-2000401]0.#",
+   "excel_ascii": "Double -1.5 General"
+  },
+  {
+   "shape": "+12",
+   "zero": "0660",
+   "text": "+١٢",
+   "excel": "Double 12 [$-2000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1.2.3",
+   "zero": "0660",
+   "text": "١.٢.٣",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12a",
+   "zero": "0660",
+   "text": "١٢a",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "a12",
+   "zero": "0660",
+   "text": "a١٢",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "1/2/2020 3:04",
+   "zero": "0660",
+   "text": "١/٢/٢٠٢٠ ٣:٠٤",
+   "excel": "Date 1/2/2020 3:04:00 AM [$-2000000]m/d/yyyy h:mm",
+   "excel_ascii": "Date 1/2/2020 3:04:00 AM m/d/yyyy h:mm"
+  },
+  {
+   "shape": "0012",
+   "zero": "0660",
+   "text": "٠٠١٢",
+   "excel": "Double 12 [$-2000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1234567890123456789",
+   "zero": "0660",
+   "text": "١٢٣٤٥٦٧٨٩٠١٢٣٤٥٦٧٨٩",
+   "excel": "Double 1.23456789012345E+18 [$-2000401]0.#####E+00",
+   "excel_ascii": "Double 1.23456789012345E+18 General"
+  },
+  {
+   "shape": ".5",
+   "zero": "0660",
+   "text": ".٥",
+   "excel": "Double 0.5 [$-2000401]0.#",
+   "excel_ascii": "Double 0.5 General"
+  },
+  {
+   "shape": "1-2",
+   "zero": "0660",
+   "text": "١-٢",
+   "excel": "Date 1/2/2026 [$-2000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "12",
+   "zero": "06F0",
+   "text": "۱۲",
+   "excel": "Double 12 [$-3000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1,2",
+   "zero": "06F0",
+   "text": "۱,۲",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12,345",
+   "zero": "06F0",
+   "text": "۱۲,۳۴۵",
+   "excel": "Double 12345 [$-3000401]#,##0",
+   "excel_ascii": "Double 12345 #,##0"
+  },
+  {
+   "shape": "1/2",
+   "zero": "06F0",
+   "text": "۱/۲",
+   "excel": "Date 1/2/2026 [$-3000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "06F0",
+   "text": "۱/۲/۲۰۲۰",
+   "excel": "Date 1/2/2020 [$-3000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12/31/1999",
+   "zero": "06F0",
+   "text": "۱۲/۳۱/۱۹۹۹",
+   "excel": "Date 12/31/1999 [$-3000000]mm/dd/yyyy",
+   "excel_ascii": "Date 12/31/1999 m/d/yyyy"
+  },
+  {
+   "shape": "1:2",
+   "zero": "06F0",
+   "text": "۱:۲",
+   "excel": "Double 4.30555555555556E-02 [$-3000000]h:mm",
+   "excel_ascii": "Double 4.30555555555556E-02 h:mm"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "06F0",
+   "text": "۱۲:۳۰ PM",
+   "excel": "Double 0.520833333333333 [$-3000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1:02:03",
+   "zero": "06F0",
+   "text": "۱:۰۲:۰۳",
+   "excel": "Double 4.30902777777778E-02 [$-3000000]h:mm:ss",
+   "excel_ascii": "Double 4.30902777777778E-02 h:mm:ss"
+  },
+  {
+   "shape": "1%",
+   "zero": "06F0",
+   "text": "۱%",
+   "excel": "Double 0.01 [$-3000401]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "(12)",
+   "zero": "06F0",
+   "text": "(۱۲)",
+   "excel": "Double -12 [$-3000401]0",
+   "excel_ascii": "Double -12 General"
+  },
+  {
+   "shape": "$12",
+   "zero": "06F0",
+   "text": "$۱۲",
+   "excel": "Double 12 [$$-3000401] #,##0.00_);[Red]([$$-3000401]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "06F0",
+   "text": "۱e۳",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": " 12",
+   "zero": "06F0",
+   "text": " ۱۲",
+   "excel": "Double 12 [$-3000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "12 ",
+   "zero": "06F0",
+   "text": "۱۲ ",
+   "excel": "Double 12 [$-3000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1 1/2",
+   "zero": "06F0",
+   "text": "۱ ۱/۲",
+   "excel": "Double 1.5 # ?/?",
+   "excel_ascii": "Double 1.5 # ?/?"
+  },
+  {
+   "shape": "12-Jan",
+   "zero": "06F0",
+   "text": "۱۲-Jan",
+   "excel": "Date 1/12/2026 [$-3000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "Jan 12",
+   "zero": "06F0",
+   "text": "Jan ۱۲",
+   "excel": "Date 1/12/2026 [$-3000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "-1.5",
+   "zero": "06F0",
+   "text": "-۱.۵",
+   "excel": "Double -1.5 [$-3000401]0.#",
+   "excel_ascii": "Double -1.5 General"
+  },
+  {
+   "shape": "+12",
+   "zero": "06F0",
+   "text": "+۱۲",
+   "excel": "Double 12 [$-3000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1.2.3",
+   "zero": "06F0",
+   "text": "۱.۲.۳",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12a",
+   "zero": "06F0",
+   "text": "۱۲a",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "a12",
+   "zero": "06F0",
+   "text": "a۱۲",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "1/2/2020 3:04",
+   "zero": "06F0",
+   "text": "۱/۲/۲۰۲۰ ۳:۰۴",
+   "excel": "Date 1/2/2020 3:04:00 AM [$-3000000]m/d/yyyy h:mm",
+   "excel_ascii": "Date 1/2/2020 3:04:00 AM m/d/yyyy h:mm"
+  },
+  {
+   "shape": "0012",
+   "zero": "06F0",
+   "text": "۰۰۱۲",
+   "excel": "Double 12 [$-3000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1234567890123456789",
+   "zero": "06F0",
+   "text": "۱۲۳۴۵۶۷۸۹۰۱۲۳۴۵۶۷۸۹",
+   "excel": "Double 1.23456789012345E+18 [$-3000401]0.#####E+00",
+   "excel_ascii": "Double 1.23456789012345E+18 General"
+  },
+  {
+   "shape": ".5",
+   "zero": "06F0",
+   "text": ".۵",
+   "excel": "Double 0.5 [$-3000401]0.#",
+   "excel_ascii": "Double 0.5 General"
+  },
+  {
+   "shape": "1-2",
+   "zero": "06F0",
+   "text": "۱-۲",
+   "excel": "Date 1/2/2026 [$-3000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "12",
+   "zero": "0966",
+   "text": "१२",
+   "excel": "Double 12 [$-4000439]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1,2",
+   "zero": "0966",
+   "text": "१,२",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12,345",
+   "zero": "0966",
+   "text": "१२,३४५",
+   "excel": "Double 12345 [$-4000439]#,##0",
+   "excel_ascii": "Double 12345 #,##0"
+  },
+  {
+   "shape": "1/2",
+   "zero": "0966",
+   "text": "१/२",
+   "excel": "Date 1/2/2026 [$-4000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0966",
+   "text": "१/२/२०२०",
+   "excel": "Date 1/2/2020 [$-4000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12/31/1999",
+   "zero": "0966",
+   "text": "१२/३१/१९९९",
+   "excel": "Date 12/31/1999 [$-4000000]mm/dd/yyyy",
+   "excel_ascii": "Date 12/31/1999 m/d/yyyy"
+  },
+  {
+   "shape": "1:2",
+   "zero": "0966",
+   "text": "१:२",
+   "excel": "Double 4.30555555555556E-02 [$-4000000]h:mm",
+   "excel_ascii": "Double 4.30555555555556E-02 h:mm"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0966",
+   "text": "१२:३० PM",
+   "excel": "Double 0.520833333333333 [$-4000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1:02:03",
+   "zero": "0966",
+   "text": "१:०२:०३",
+   "excel": "Double 4.30902777777778E-02 [$-4000000]h:mm:ss",
+   "excel_ascii": "Double 4.30902777777778E-02 h:mm:ss"
+  },
+  {
+   "shape": "1%",
+   "zero": "0966",
+   "text": "१%",
+   "excel": "Double 0.01 [$-4000439]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "(12)",
+   "zero": "0966",
+   "text": "(१२)",
+   "excel": "Double -12 [$-4000439]0",
+   "excel_ascii": "Double -12 General"
+  },
+  {
+   "shape": "$12",
+   "zero": "0966",
+   "text": "$१२",
+   "excel": "Double 12 [$$-4000439] #,##0.00_);[Red]([$$-4000439]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0966",
+   "text": "१e३",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": " 12",
+   "zero": "0966",
+   "text": " १२",
+   "excel": "Double 12 [$-4000439]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "12 ",
+   "zero": "0966",
+   "text": "१२ ",
+   "excel": "Double 12 [$-4000439]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1 1/2",
+   "zero": "0966",
+   "text": "१ १/२",
+   "excel": "Double 1.5 # ?/?",
+   "excel_ascii": "Double 1.5 # ?/?"
+  },
+  {
+   "shape": "12-Jan",
+   "zero": "0966",
+   "text": "१२-Jan",
+   "excel": "Date 1/12/2026 [$-4000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "Jan 12",
+   "zero": "0966",
+   "text": "Jan १२",
+   "excel": "Date 1/12/2026 [$-4000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "-1.5",
+   "zero": "0966",
+   "text": "-१.५",
+   "excel": "Double -1.5 [$-4000439]0.#",
+   "excel_ascii": "Double -1.5 General"
+  },
+  {
+   "shape": "+12",
+   "zero": "0966",
+   "text": "+१२",
+   "excel": "Double 12 [$-4000439]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1.2.3",
+   "zero": "0966",
+   "text": "१.२.३",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12a",
+   "zero": "0966",
+   "text": "१२a",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "a12",
+   "zero": "0966",
+   "text": "a१२",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "1/2/2020 3:04",
+   "zero": "0966",
+   "text": "१/२/२०२० ३:०४",
+   "excel": "Date 1/2/2020 3:04:00 AM [$-4000000]m/d/yyyy h:mm",
+   "excel_ascii": "Date 1/2/2020 3:04:00 AM m/d/yyyy h:mm"
+  },
+  {
+   "shape": "0012",
+   "zero": "0966",
+   "text": "००१२",
+   "excel": "Double 12 [$-4000439]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1234567890123456789",
+   "zero": "0966",
+   "text": "१२३४५६७८९०१२३४५६७८९",
+   "excel": "Double 1.23456789012345E+18 [$-4000439]0.#####E+00",
+   "excel_ascii": "Double 1.23456789012345E+18 General"
+  },
+  {
+   "shape": ".5",
+   "zero": "0966",
+   "text": ".५",
+   "excel": "Double 0.5 [$-4000439]0.#",
+   "excel_ascii": "Double 0.5 General"
+  },
+  {
+   "shape": "1-2",
+   "zero": "0966",
+   "text": "१-२",
+   "excel": "Date 1/2/2026 [$-4000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "12",
+   "zero": "09E6",
+   "text": "১২",
+   "excel": "Double 12 [$-5000445]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1,2",
+   "zero": "09E6",
+   "text": "১,২",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12,345",
+   "zero": "09E6",
+   "text": "১২,৩৪৫",
+   "excel": "Double 12345 [$-5000445]#,##0",
+   "excel_ascii": "Double 12345 #,##0"
+  },
+  {
+   "shape": "1/2",
+   "zero": "09E6",
+   "text": "১/২",
+   "excel": "Date 1/2/2026 [$-5000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "09E6",
+   "text": "১/২/২০২০",
+   "excel": "Date 1/2/2020 [$-5000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12/31/1999",
+   "zero": "09E6",
+   "text": "১২/৩১/১৯৯৯",
+   "excel": "Date 12/31/1999 [$-5000000]mm/dd/yyyy",
+   "excel_ascii": "Date 12/31/1999 m/d/yyyy"
+  },
+  {
+   "shape": "1:2",
+   "zero": "09E6",
+   "text": "১:২",
+   "excel": "Double 4.30555555555556E-02 [$-5000000]h:mm",
+   "excel_ascii": "Double 4.30555555555556E-02 h:mm"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "09E6",
+   "text": "১২:৩০ PM",
+   "excel": "Double 0.520833333333333 [$-5000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1:02:03",
+   "zero": "09E6",
+   "text": "১:০২:০৩",
+   "excel": "Double 4.30902777777778E-02 [$-5000000]h:mm:ss",
+   "excel_ascii": "Double 4.30902777777778E-02 h:mm:ss"
+  },
+  {
+   "shape": "1%",
+   "zero": "09E6",
+   "text": "১%",
+   "excel": "Double 0.01 [$-5000445]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "(12)",
+   "zero": "09E6",
+   "text": "(১২)",
+   "excel": "Double -12 [$-5000445]0",
+   "excel_ascii": "Double -12 General"
+  },
+  {
+   "shape": "$12",
+   "zero": "09E6",
+   "text": "$১২",
+   "excel": "Double 12 [$$-5000445] #,##0.00_);[Red]([$$-5000445]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "09E6",
+   "text": "১e৩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": " 12",
+   "zero": "09E6",
+   "text": " ১২",
+   "excel": "Double 12 [$-5000445]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "12 ",
+   "zero": "09E6",
+   "text": "১২ ",
+   "excel": "Double 12 [$-5000445]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1 1/2",
+   "zero": "09E6",
+   "text": "১ ১/২",
+   "excel": "Double 1.5 # ?/?",
+   "excel_ascii": "Double 1.5 # ?/?"
+  },
+  {
+   "shape": "12-Jan",
+   "zero": "09E6",
+   "text": "১২-Jan",
+   "excel": "Date 1/12/2026 [$-5000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "Jan 12",
+   "zero": "09E6",
+   "text": "Jan ১২",
+   "excel": "Date 1/12/2026 [$-5000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "-1.5",
+   "zero": "09E6",
+   "text": "-১.৫",
+   "excel": "Double -1.5 [$-5000445]0.#",
+   "excel_ascii": "Double -1.5 General"
+  },
+  {
+   "shape": "+12",
+   "zero": "09E6",
+   "text": "+১২",
+   "excel": "Double 12 [$-5000445]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1.2.3",
+   "zero": "09E6",
+   "text": "১.২.৩",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12a",
+   "zero": "09E6",
+   "text": "১২a",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "a12",
+   "zero": "09E6",
+   "text": "a১২",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "1/2/2020 3:04",
+   "zero": "09E6",
+   "text": "১/২/২০২০ ৩:০৪",
+   "excel": "Date 1/2/2020 3:04:00 AM [$-5000000]m/d/yyyy h:mm",
+   "excel_ascii": "Date 1/2/2020 3:04:00 AM m/d/yyyy h:mm"
+  },
+  {
+   "shape": "0012",
+   "zero": "09E6",
+   "text": "০০১২",
+   "excel": "Double 12 [$-5000445]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1234567890123456789",
+   "zero": "09E6",
+   "text": "১২৩৪৫৬৭৮৯০১২৩৪৫৬৭৮৯",
+   "excel": "Double 1.23456789012345E+18 [$-5000445]0.#####E+00",
+   "excel_ascii": "Double 1.23456789012345E+18 General"
+  },
+  {
+   "shape": ".5",
+   "zero": "09E6",
+   "text": ".৫",
+   "excel": "Double 0.5 [$-5000445]0.#",
+   "excel_ascii": "Double 0.5 General"
+  },
+  {
+   "shape": "1-2",
+   "zero": "09E6",
+   "text": "১-২",
+   "excel": "Date 1/2/2026 [$-5000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "12",
+   "zero": "0E50",
+   "text": "๑๒",
+   "excel": "Double 12 [$-D00041E]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1,2",
+   "zero": "0E50",
+   "text": "๑,๒",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12,345",
+   "zero": "0E50",
+   "text": "๑๒,๓๔๕",
+   "excel": "Double 12345 [$-D00041E]#,##0",
+   "excel_ascii": "Double 12345 #,##0"
+  },
+  {
+   "shape": "1/2",
+   "zero": "0E50",
+   "text": "๑/๒",
+   "excel": "Date 1/2/2026 [$-D000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0E50",
+   "text": "๑/๒/๒๐๒๐",
+   "excel": "Date 1/2/2020 [$-D000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12/31/1999",
+   "zero": "0E50",
+   "text": "๑๒/๓๑/๑๙๙๙",
+   "excel": "Date 12/31/1999 [$-D000000]mm/dd/yyyy",
+   "excel_ascii": "Date 12/31/1999 m/d/yyyy"
+  },
+  {
+   "shape": "1:2",
+   "zero": "0E50",
+   "text": "๑:๒",
+   "excel": "Double 4.30555555555556E-02 [$-D000000]h:mm",
+   "excel_ascii": "Double 4.30555555555556E-02 h:mm"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0E50",
+   "text": "๑๒:๓๐ PM",
+   "excel": "Double 0.520833333333333 [$-D000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1:02:03",
+   "zero": "0E50",
+   "text": "๑:๐๒:๐๓",
+   "excel": "Double 4.30902777777778E-02 [$-D000000]h:mm:ss",
+   "excel_ascii": "Double 4.30902777777778E-02 h:mm:ss"
+  },
+  {
+   "shape": "1%",
+   "zero": "0E50",
+   "text": "๑%",
+   "excel": "Double 0.01 [$-D00041E]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "(12)",
+   "zero": "0E50",
+   "text": "(๑๒)",
+   "excel": "Double -12 [$-D00041E]0",
+   "excel_ascii": "Double -12 General"
+  },
+  {
+   "shape": "$12",
+   "zero": "0E50",
+   "text": "$๑๒",
+   "excel": "Double 12 [$$-D00041E] #,##0.00_);[Red]([$$-D00041E]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0E50",
+   "text": "๑e๓",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": " 12",
+   "zero": "0E50",
+   "text": " ๑๒",
+   "excel": "Double 12 [$-D00041E]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "12 ",
+   "zero": "0E50",
+   "text": "๑๒ ",
+   "excel": "Double 12 [$-D00041E]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1 1/2",
+   "zero": "0E50",
+   "text": "๑ ๑/๒",
+   "excel": "Double 1.5 # ?/?",
+   "excel_ascii": "Double 1.5 # ?/?"
+  },
+  {
+   "shape": "12-Jan",
+   "zero": "0E50",
+   "text": "๑๒-Jan",
+   "excel": "Date 1/12/2026 [$-D000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "Jan 12",
+   "zero": "0E50",
+   "text": "Jan ๑๒",
+   "excel": "Date 1/12/2026 [$-D000000]dd-mmm",
+   "excel_ascii": "Date 1/12/2026 d-mmm"
+  },
+  {
+   "shape": "-1.5",
+   "zero": "0E50",
+   "text": "-๑.๕",
+   "excel": "Double -1.5 [$-D00041E]0.#",
+   "excel_ascii": "Double -1.5 General"
+  },
+  {
+   "shape": "+12",
+   "zero": "0E50",
+   "text": "+๑๒",
+   "excel": "Double 12 [$-D00041E]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1.2.3",
+   "zero": "0E50",
+   "text": "๑.๒.๓",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "12a",
+   "zero": "0E50",
+   "text": "๑๒a",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "a12",
+   "zero": "0E50",
+   "text": "a๑๒",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": "1/2/2020 3:04",
+   "zero": "0E50",
+   "text": "๑/๒/๒๐๒๐ ๓:๐๔",
+   "excel": "Date 1/2/2020 3:04:00 AM [$-D000000]m/d/yyyy h:mm",
+   "excel_ascii": "Date 1/2/2020 3:04:00 AM m/d/yyyy h:mm"
+  },
+  {
+   "shape": "0012",
+   "zero": "0E50",
+   "text": "๐๐๑๒",
+   "excel": "Double 12 [$-D00041E]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1234567890123456789",
+   "zero": "0E50",
+   "text": "๑๒๓๔๕๖๗๘๙๐๑๒๓๔๕๖๗๘๙",
+   "excel": "Double 1.23456789012345E+18 [$-D00041E]0.#####E+00",
+   "excel_ascii": "Double 1.23456789012345E+18 General"
+  },
+  {
+   "shape": ".5",
+   "zero": "0E50",
+   "text": ".๕",
+   "excel": "Double 0.5 [$-D00041E]0.#",
+   "excel_ascii": "Double 0.5 General"
+  },
+  {
+   "shape": "1-2",
+   "zero": "0E50",
+   "text": "๑-๒",
+   "excel": "Date 1/2/2026 [$-D000000]dd-mmm",
+   "excel_ascii": "Date 1/2/2026 d-mmm"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0A66",
+   "text": "੧/੨/੨੦੨੦",
+   "excel": "Date 1/2/2020 [$-6000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0A66",
+   "text": "੧੨:੩੦ PM",
+   "excel": "Double 0.520833333333333 [$-6000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0A66",
+   "text": "੧%",
+   "excel": "Double 0.01 [$-6000446]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0A66",
+   "text": "$੧੨",
+   "excel": "Double 12 [$$-6000446] #,##0.00_);[Red]([$$-6000446]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0A66",
+   "text": "੧e੩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0AE6",
+   "text": "૧/૨/૨૦૨૦",
+   "excel": "Date 1/2/2020 [$-7000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0AE6",
+   "text": "૧૨:૩૦ PM",
+   "excel": "Double 0.520833333333333 [$-7000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0AE6",
+   "text": "૧%",
+   "excel": "Double 0.01 [$-7000447]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0AE6",
+   "text": "$૧૨",
+   "excel": "Double 12 [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0AE6",
+   "text": "૧e૩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0B66",
+   "text": "୧/୨/୨୦୨୦",
+   "excel": "Date 1/2/2020 [$-8000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0B66",
+   "text": "୧୨:୩୦ PM",
+   "excel": "Double 0.520833333333333 [$-8000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0B66",
+   "text": "୧%",
+   "excel": "Double 0.01 [$-8000448]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0B66",
+   "text": "$୧୨",
+   "excel": "Double 12 [$$-8000448] #,##0.00_);[Red]([$$-8000448]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0B66",
+   "text": "୧e୩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0BE6",
+   "text": "௧/௨/௨௦௨௦",
+   "excel": "Date 1/2/2020 [$-9000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0BE6",
+   "text": "௧௨:௩௦ PM",
+   "excel": "Double 0.520833333333333 [$-9000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0BE6",
+   "text": "௧%",
+   "excel": "Double 0.01 [$-9000449]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0BE6",
+   "text": "$௧௨",
+   "excel": "Double 12 [$$-9000449] #,##0.00_);[Red]([$$-9000449]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0BE6",
+   "text": "௧e௩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0C66",
+   "text": "౧/౨/౨౦౨౦",
+   "excel": "Date 1/2/2020 [$-A000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0C66",
+   "text": "౧౨:౩౦ PM",
+   "excel": "Double 0.520833333333333 [$-A000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0C66",
+   "text": "౧%",
+   "excel": "Double 0.01 [$-A00044A]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0C66",
+   "text": "$౧౨",
+   "excel": "Double 12 [$$-A00044A] #,##0.00_);[Red]([$$-A00044A]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0C66",
+   "text": "౧e౩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0CE6",
+   "text": "೧/೨/೨೦೨೦",
+   "excel": "Date 1/2/2020 [$-B000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0CE6",
+   "text": "೧೨:೩೦ PM",
+   "excel": "Double 0.520833333333333 [$-B000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0CE6",
+   "text": "೧%",
+   "excel": "Double 0.01 [$-B00044B]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0CE6",
+   "text": "$೧೨",
+   "excel": "Double 12 [$$-B00044B] #,##0.00_);[Red]([$$-B00044B]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0CE6",
+   "text": "೧e೩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0D66",
+   "text": "൧/൨/൨൦൨൦",
+   "excel": "Date 1/2/2020 [$-C000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0D66",
+   "text": "൧൨:൩൦ PM",
+   "excel": "Double 0.520833333333333 [$-C000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0D66",
+   "text": "൧%",
+   "excel": "Double 0.01 [$-C00044C]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0D66",
+   "text": "$൧൨",
+   "excel": "Double 12 [$$-C00044C] #,##0.00_);[Red]([$$-C00044C]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0D66",
+   "text": "൧e൩",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0ED0",
+   "text": "໑/໒/໒໐໒໐",
+   "excel": "Date 1/2/2020 [$-E000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0ED0",
+   "text": "໑໒:໓໐ PM",
+   "excel": "Double 0.520833333333333 [$-E000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0ED0",
+   "text": "໑%",
+   "excel": "Double 0.01 [$-E000454]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0ED0",
+   "text": "$໑໒",
+   "excel": "Double 12 [$$-E000454] #,##0.00_);[Red]([$$-E000454]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0ED0",
+   "text": "໑e໓",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "0F20",
+   "text": "༡/༢/༢༠༢༠",
+   "excel": "Date 1/2/2020 [$-F000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "0F20",
+   "text": "༡༢:༣༠ PM",
+   "excel": "Double 0.520833333333333 [$-F000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "0F20",
+   "text": "༡%",
+   "excel": "Double 0.01 [$-F000451]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "0F20",
+   "text": "$༡༢",
+   "excel": "Double 12 [$$-F000451] #,##0.00_);[Red]([$$-F000451]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0F20",
+   "text": "༡e༣",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "1040",
+   "text": "၁/၂/၂၀၂၀",
+   "excel": "Date 1/2/2020 [$-10000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "1040",
+   "text": "၁၂:၃၀ PM",
+   "excel": "Double 0.520833333333333 [$-10000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "1040",
+   "text": "၁%",
+   "excel": "Double 0.01 [$-10000455]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "1040",
+   "text": "$၁၂",
+   "excel": "Double 12 [$$-10000455] #,##0.00_);[Red]([$$-10000455]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "1040",
+   "text": "၁e၃",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "17E0",
+   "text": "១/២/២០២០",
+   "excel": "Date 1/2/2020 [$-12000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "17E0",
+   "text": "១២:៣០ PM",
+   "excel": "Double 0.520833333333333 [$-12000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "17E0",
+   "text": "១%",
+   "excel": "Double 0.01 [$-12000453]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "17E0",
+   "text": "$១២",
+   "excel": "Double 12 [$$-12000453] #,##0.00_);[Red]([$$-12000453]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "17E0",
+   "text": "១e៣",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "1810",
+   "text": "᠑/᠒/᠒᠐᠒᠐",
+   "excel": "Date 1/2/2020 [$-13000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "12:30 PM",
+   "zero": "1810",
+   "text": "᠑᠒:᠓᠐ PM",
+   "excel": "Double 0.520833333333333 [$-13000000]h:mm AM/PM",
+   "excel_ascii": "Double 0.520833333333333 h:mm AM/PM"
+  },
+  {
+   "shape": "1%",
+   "zero": "1810",
+   "text": "᠑%",
+   "excel": "Double 0.01 [$-13000450]0.00%",
+   "excel_ascii": "Double 0.01 0%"
+  },
+  {
+   "shape": "$12",
+   "zero": "1810",
+   "text": "$᠑᠒",
+   "excel": "Double 12 [$$-13000450] #,##0.00_);[Red]([$$-13000450]#,##0.00)",
+   "excel_ascii": "Currency 12 $#,##0_);[Red]($#,##0)"
+  },
+  {
+   "shape": "1e3",
+   "zero": "1810",
+   "text": "᠑e᠓",
+   "excel": "Double 1000 0.00E+00",
+   "excel_ascii": "Double 1000 0.00E+00"
+  },
+  {
+   "shape": "12",
+   "zero": "mixed",
+   "text": "1٢",
+   "excel": "Double 12 [$-2000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "12",
+   "zero": "mixed",
+   "text": "١2",
+   "excel": "Double 12 [$-2000401]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "12",
+   "zero": "mixed",
+   "text": "١๒",
+   "excel": "Double 12 [$-D00041E]0",
+   "excel_ascii": "Double 12 General"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "mixed",
+   "text": "١/2/๒๐๒๐",
+   "excel": "Date 1/2/2020 [$-D000000]mm/dd/yyyy",
+   "excel_ascii": "Date 1/2/2020 m/d/yyyy"
+  },
+  {
+   "shape": "1.5",
+   "zero": "mixed",
+   "text": "١.५",
+   "excel": "Double 1.5 [$-4000439]0.#",
+   "excel_ascii": "Double 1.5 General"
+  },
+  {
+   "shape": null,
+   "zero": "arabic signs",
+   "text": "١٫٢",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": null,
+   "zero": "arabic signs",
+   "text": "١٢٬٣٤٥",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": null,
+   "zero": "arabic signs",
+   "text": "١٢٪",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  },
+  {
+   "shape": null,
+   "zero": "arabic signs",
+   "text": "1٫2",
+   "excel": "String  General",
+   "excel_ascii": "String  General"
+  }
+ ]
+}

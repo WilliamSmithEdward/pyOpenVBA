@@ -1,0 +1,100 @@
+{
+ "cases": [
+  {
+   "name": "NoSuchStyle",
+   "typed": false,
+   "model": "0 | TableStyle NoSuchStyle E0",
+   "excel": "450 | TableStyle TableStyleMedium2 E0"
+  },
+  {
+   "name": "NoSuchStyle",
+   "typed": true,
+   "model": "0 | TableStyle NoSuchStyle E0",
+   "excel": "450 | TableStyle TableStyleMedium2 E0"
+  },
+  {
+   "name": "Mine",
+   "typed": false,
+   "model": "0 | TableStyle Mine E0",
+   "excel": "0 | TableStyle Mine E0"
+  },
+  {
+   "name": "Mine",
+   "typed": true,
+   "model": "0 | TableStyle Mine E0",
+   "excel": "0 | TableStyle Mine E0"
+  },
+  {
+   "name": "MINE",
+   "typed": false,
+   "model": "0 | TableStyle MINE E0",
+   "excel": "0 | TableStyle Mine E0"
+  },
+  {
+   "name": "MINE",
+   "typed": true,
+   "model": "0 | TableStyle MINE E0",
+   "excel": "0 | TableStyle Mine E0"
+  },
+  {
+   "name": "mine ",
+   "typed": false,
+   "model": "0 | TableStyle mine  E0",
+   "excel": "450 | TableStyle TableStyleMedium2 E0"
+  },
+  {
+   "name": "mine ",
+   "typed": true,
+   "model": "0 | TableStyle mine  E0",
+   "excel": "450 | TableStyle TableStyleMedium2 E0"
+  },
+  {
+   "name": "TableStyleLight2",
+   "typed": false,
+   "model": "0 | TableStyle TableStyleLight2 E0",
+   "excel": "0 | TableStyle TableStyleLight2 E0"
+  },
+  {
+   "name": "TableStyleLight2",
+   "typed": true,
+   "model": "0 | TableStyle TableStyleLight2 E0",
+   "excel": "0 | TableStyle TableStyleLight2 E0"
+  },
+  {
+   "name": "tablestylelight2",
+   "typed": false,
+   "model": "0 | TableStyle TableStyleLight2 E0",
+   "excel": "0 | TableStyle TableStyleLight2 E0"
+  },
+  {
+   "name": "tablestylelight2",
+   "typed": true,
+   "model": "0 | TableStyle TableStyleLight2 E0",
+   "excel": "0 | TableStyle TableStyleLight2 E0"
+  },
+  {
+   "name": "",
+   "typed": false,
+   "model": "",
+   "excel": ""
+  },
+  {
+   "name": "",
+   "typed": true,
+   "model": "",
+   "excel": ""
+  },
+  {
+   "name": "PivotStyleLight16",
+   "typed": false,
+   "model": "0 | TableStyle PivotStyleLight16 E0",
+   "excel": "0 | TableStyle PivotStyleLight16 E0"
+  },
+  {
+   "name": "PivotStyleLight16",
+   "typed": true,
+   "model": "0 | TableStyle PivotStyleLight16 E0",
+   "excel": "0 | TableStyle PivotStyleLight16 E0"
+  }
+ ]
+}

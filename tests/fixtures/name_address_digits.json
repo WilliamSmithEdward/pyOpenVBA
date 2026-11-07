@@ -1,0 +1,8644 @@
+{
+ "cases": [
+  {
+   "point": "U+0660",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0660",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0660",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0661",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0661",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0661",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0662",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0662",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0662",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0663",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0663",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0663",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0664",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0664",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0664",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0665",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0665",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0665",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0666",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0666",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0666",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0667",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0667",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0667",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0668",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0668",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0668",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0669",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0669",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0669",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F0",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F0",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F0",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F1",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F1",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F1",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F2",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F2",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F2",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F3",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F3",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F3",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F4",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F4",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F4",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F5",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F5",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F5",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F6",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+06F9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+06F9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C0",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C0",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C0",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C1",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C1",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C1",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C2",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C2",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C2",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C3",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C3",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C3",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C4",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C4",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C4",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C5",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C5",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C5",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C7",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C8",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+07C9",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+07C9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0966",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0966",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0966",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0967",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0967",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0967",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0968",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0968",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0968",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0969",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0969",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0969",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+096A",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096A",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096A",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+096B",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096B",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096B",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+096C",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096C",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096C",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+096D",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096D",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096D",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+096E",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096E",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096E",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+096F",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096F",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+096F",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09E6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09E7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09E8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09E9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09E9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09EA",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EA",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EA",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09EB",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EB",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EB",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09EC",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EC",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EC",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09ED",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09ED",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09ED",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09EE",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EE",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EE",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+09EF",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EF",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+09EF",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A66",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A66",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A66",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A67",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A67",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A67",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A68",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A68",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A68",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A69",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A69",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A69",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A6A",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6A",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6A",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A6B",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6B",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6B",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A6C",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6C",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6C",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A6D",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6D",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6D",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A6E",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6E",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6E",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0A6F",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6F",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0A6F",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AE6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AE7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AE8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AE9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AE9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AEA",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEA",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEA",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AEB",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEB",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEB",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AEC",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEC",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEC",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AED",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AED",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AED",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AEE",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEE",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEE",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0AEF",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEF",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0AEF",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B66",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B66",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B66",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B67",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B67",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B67",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B68",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B68",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B68",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B69",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B69",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B69",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B6A",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6A",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6A",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B6B",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6B",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6B",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B6C",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6C",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6C",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B6D",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6D",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6D",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B6E",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6E",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6E",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0B6F",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6F",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0B6F",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BE6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BE7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BE8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BE9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BE9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BEA",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEA",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEA",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BEB",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEB",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEB",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BEC",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEC",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEC",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BED",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BED",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BED",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BEE",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEE",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEE",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0BEF",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEF",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0BEF",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C66",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C66",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C66",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C67",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C67",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C67",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C68",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C68",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C68",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C69",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C69",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C69",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C6A",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6A",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6A",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C6B",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6B",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6B",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C6C",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6C",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6C",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C6D",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6D",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6D",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C6E",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6E",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6E",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0C6F",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6F",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0C6F",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CE6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CE7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CE8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CE9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CE9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CEA",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEA",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEA",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CEB",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEB",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEB",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CEC",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEC",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEC",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CED",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CED",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CED",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CEE",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEE",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEE",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0CEF",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEF",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0CEF",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D66",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D66",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D66",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D67",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D67",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D67",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D68",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D68",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D68",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D69",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D69",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D69",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D6A",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6A",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6A",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D6B",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6B",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6B",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D6C",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6C",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6C",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D6D",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6D",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6D",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D6E",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6E",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6E",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0D6F",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6F",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0D6F",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE6",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE6",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE6",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE7",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE7",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE8",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE8",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE9",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DE9",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEA",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEA",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEA",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEB",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEB",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEB",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEC",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEC",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEC",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DED",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DED",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DED",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEE",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEE",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEE",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEF",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEF",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0DEF",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E50",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E50",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E50",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E51",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E51",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E51",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E52",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E52",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E52",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E53",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E53",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E53",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E54",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E54",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E54",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E55",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E55",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E55",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E56",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E56",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E56",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E57",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E57",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E57",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E58",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E58",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E58",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0E59",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E59",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0E59",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED0",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED0",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED0",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED1",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED1",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED1",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED2",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED2",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED2",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED3",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED3",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED3",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED4",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED4",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED4",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED5",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED5",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED5",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED6",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0ED9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0ED9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F20",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F20",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F20",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F21",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F21",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F21",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F22",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F22",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F22",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F23",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F23",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F23",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F24",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F24",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F24",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F25",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F25",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F25",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F26",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F26",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F26",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F27",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F27",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F27",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F28",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F28",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F28",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+0F29",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F29",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+0F29",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1040",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1040",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1040",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1041",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1041",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1041",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1042",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1042",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1042",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1043",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1043",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1043",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1044",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1044",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1044",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1045",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1045",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1045",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1046",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1046",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1046",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1047",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1047",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1047",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1048",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1048",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1048",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1049",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1049",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1049",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1090",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1090",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1090",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1091",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1091",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1091",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1092",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1092",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1092",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1093",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1093",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1093",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1094",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1094",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1094",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1095",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1095",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1095",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1096",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1096",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1096",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1097",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1097",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1097",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1098",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1098",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1098",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1099",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1099",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1099",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E0",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E0",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E0",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E1",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E1",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E1",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E2",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E2",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E2",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E3",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E3",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E3",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E4",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E4",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E4",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E5",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E5",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E5",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E6",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+17E9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+17E9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1810",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1810",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1810",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1811",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1811",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1811",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1812",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1812",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1812",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1813",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1813",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1813",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1814",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1814",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1814",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1815",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1815",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1815",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1816",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1816",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1816",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1817",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1817",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1817",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1818",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1818",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1818",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1819",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1819",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1819",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1946",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1946",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1946",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1947",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1947",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1947",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1948",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1948",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1948",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1949",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1949",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1949",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+194A",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194A",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194A",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+194B",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194B",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194B",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+194C",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194C",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194C",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+194D",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194D",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194D",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+194E",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194E",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194E",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+194F",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194F",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+194F",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D0",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D0",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D0",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D1",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D1",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D1",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D2",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D2",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D2",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D3",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D3",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D3",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D4",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D4",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D4",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D5",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D5",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D5",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D7",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D8",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+19D9",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+19D9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A80",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A80",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A80",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A81",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A81",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A81",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A82",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A82",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A82",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A83",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A83",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A83",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A84",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A84",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A84",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A85",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A85",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A85",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A86",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A86",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A86",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A87",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A87",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A87",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A88",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A88",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A88",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A89",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A89",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A89",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A90",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A90",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A90",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A91",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A91",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A91",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A92",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A92",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A92",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A93",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A93",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A93",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A94",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A94",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A94",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A95",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A95",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A95",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A96",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A96",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A96",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A97",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A97",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A97",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A98",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A98",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A98",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A99",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A99",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1A99",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B50",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B50",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B50",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B51",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B51",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B51",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B52",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B52",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B52",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B53",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B53",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B53",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B54",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B54",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B54",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B55",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B55",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B55",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B56",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B56",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B56",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B57",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B57",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B57",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B58",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B58",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B58",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1B59",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B59",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1B59",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB0",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB0",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB0",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB1",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB1",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB1",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB2",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB2",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB2",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB3",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB3",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB3",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB4",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB4",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB4",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB5",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB5",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB5",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB7",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB8",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1BB9",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1BB9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C40",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C40",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C40",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C41",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C41",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C41",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C42",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C42",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C42",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C43",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C43",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C43",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C44",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C44",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C44",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C45",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C45",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C45",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C46",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C46",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C46",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C47",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C47",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C47",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C48",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C48",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C48",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C49",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C49",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C49",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C50",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C50",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C50",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C51",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C51",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C51",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C52",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C52",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C52",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C53",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C53",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C53",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C54",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C54",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C54",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C55",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C55",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C55",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C56",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C56",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C56",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C57",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C57",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C57",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C58",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C58",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C58",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+1C59",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C59",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+1C59",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A620",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A620",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A620",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A621",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A621",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A621",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A622",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A622",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A622",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A623",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A623",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A623",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A624",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A624",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A624",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A625",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A625",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A625",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A626",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A626",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A626",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A627",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A627",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A627",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A628",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A628",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A628",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A629",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A629",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A629",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D0",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D0",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D0",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D1",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D1",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D1",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D2",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D2",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D2",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D3",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D3",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D3",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D4",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D4",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D4",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D5",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D5",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D5",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D6",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D6",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D6",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D7",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D7",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D7",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D8",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D8",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D8",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A8D9",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D9",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A8D9",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A900",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A900",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A900",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A901",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A901",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A901",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A902",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A902",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A902",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A903",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A903",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A903",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A904",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A904",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A904",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A905",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A905",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A905",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A906",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A906",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A906",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A907",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A907",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A907",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A908",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A908",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A908",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A909",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A909",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+A909",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D0",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D0",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D0",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D1",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D1",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D1",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D2",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D2",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D2",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D3",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D3",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D3",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D4",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D4",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D4",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D5",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D5",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D5",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D6",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D6",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D6",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D7",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D7",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D8",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D8",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D9",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9D9",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F0",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F0",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F0",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F1",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F1",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F1",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F2",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F2",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F2",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F3",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F3",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F3",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F4",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F4",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F4",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F5",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F5",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F5",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F6",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F6",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F6",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F7",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F7",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F8",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F8",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F9",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+A9F9",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA50",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA50",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA50",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA51",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA51",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA51",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA52",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA52",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA52",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA53",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA53",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA53",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA54",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA54",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA54",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA55",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA55",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA55",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA56",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA56",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA56",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA57",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA57",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA57",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA58",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA58",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA58",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+AA59",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA59",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+AA59",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF0",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF0",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF0",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF1",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF1",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF1",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF2",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF2",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF2",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF3",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF3",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF3",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF4",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF4",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF4",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF5",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF5",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF5",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF6",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF6",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF6",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF7",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF7",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF7",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF8",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF8",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF8",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF9",
+   "prefix": "a",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF9",
+   "prefix": "xfe",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0
+  },
+  {
+   "point": "U+ABF9",
+   "prefix": "xfz",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF10",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF10",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF10",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF11",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF11",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF11",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF12",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF12",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF12",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF13",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF13",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF13",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF14",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF14",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF14",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF15",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF15",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF15",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF16",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF16",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF16",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF17",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF17",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF17",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF18",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF18",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF18",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  },
+  {
+   "point": "U+FF19",
+   "prefix": "a",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF19",
+   "prefix": "xfe",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 1004,
+   "rule_b": 1004
+  },
+  {
+   "point": "U+FF19",
+   "prefix": "xfz",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0
+  }
+ ]
+}

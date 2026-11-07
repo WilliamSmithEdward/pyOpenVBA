@@ -1,0 +1,56 @@
+"""Cell shifts on a sheet whose AutoFilter has criteria, replayed against Excel's answers (scripts/measure_filter_shifts.py):
+the four first looks the rules were read from, and each held-out round, its predictions written before Excel was asked.
+
+A Delete with no Shift on a filtered sheet, with DisplayAlerts on, stopped on Excel's prompt to delete the whole rows in
+one run and not in a fresh Excel (filter_shifts_c.json keeps both): the model refuses it, as nothing answers that prompt yet.
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBAUnsupportedError
+
+FIXTURES = Path(__file__).parent / 'fixtures'
+ROUNDS = tuple(stem for stem in ('filter_shifts', 'filter_shifts_b', 'filter_shifts_c', 'filter_shifts_d', 'filter_shifts_e', 'filter_shifts_f',
+                                  'filter_shifts2', 'filter_shifts3')
+               if (FIXTURES / f'{stem}.json').exists())
+ASKS_FIRST = 'where Excel asks first'
+
+
+def _cases() -> list[tuple[str, list[Any], str, str]]:
+    found: list[tuple[str, list[Any], str, str]] = []
+    for stem in ROUNDS:
+        record = json.loads((FIXTURES / f'{stem}.json').read_text('utf-8'))
+        found += [(stem, call, answer, record['source']) for call, answer in zip(record['cases'], record['answers'], strict=True)]
+    return found
+
+
+CASES = _cases()
+
+
+@pytest.mark.parametrize('stem, call, answer, source', CASES, ids=[f'{one[0]}-{number}' for number, one in enumerate(CASES)])
+def test_each_shift_leaves_the_sheet_as_excel_did(stem: str, call: list[Any], answer: str, source: str, tmp_path: Path,
+                                                  monkeypatch: pytest.MonkeyPatch) -> None:
+    del stem
+    # The probe saves and opens the book in TEMP: a folder of its own for each case, as workers run side by side.
+    monkeypatch.setenv('TEMP', str(tmp_path))
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(source, name='Probe')
+    if call[1].startswith('delete') and call[1].endswith(' auto') and call[0] not in ('plain', 'hidden'):
+        with pytest.raises(VBAUnsupportedError, match=ASKS_FIRST):
+            app.run('Probe.Go', *call)
+        return
+    assert str(app.run('Probe.Go', *call)) == answer
+
+
+def test_the_only_stops_were_excel_prompts() -> None:
+    for stem in ROUNDS:
+        record = json.loads((FIXTURES / f'{stem}.json').read_text('utf-8'))
+        for call, answer in zip(record['cases'], record['answers']):
+            assert not answer.startswith(('ERROR', 'CRASH')) or ('modal' in answer and call[1].endswith(' auto') and call[1].startswith('delete')), (stem, call)

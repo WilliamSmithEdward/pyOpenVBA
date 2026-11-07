@@ -1,0 +1,1764 @@
+{
+"cases": [
+{
+"call": [
+2,
+3,
+false,
+"",
+"E1:I30",
+true
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+2,
+3,
+false,
+"",
+"E1:I30",
+false
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+4,
+3,
+true,
+"",
+"C2:C11",
+true
+],
+"model": "err=0 mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12"
+},
+{
+"call": [
+4,
+3,
+true,
+"",
+"C2:C11",
+false
+],
+"model": "err=0 mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12"
+},
+{
+"call": [
+4,
+4,
+true,
+"J3",
+"A1:C12",
+true
+],
+"model": null
+},
+{
+"call": [
+4,
+4,
+true,
+"J3",
+"A1:C12",
+false
+],
+"model": null
+},
+{
+"call": [
+3,
+2,
+false,
+"G3",
+"E1:E30",
+true
+],
+"model": "err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12"
+},
+{
+"call": [
+3,
+2,
+false,
+"G3",
+"E1:E30",
+false
+],
+"model": "err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12"
+},
+{
+"call": [
+1,
+5,
+false,
+"",
+"G1:J11",
+true
+],
+"model": "err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12"
+},
+{
+"call": [
+1,
+5,
+false,
+"",
+"G1:J11",
+false
+],
+"model": "err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12"
+},
+{
+"call": [
+4,
+6,
+false,
+"A20",
+"H2:L12",
+true
+],
+"model": "err=0 mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$I$12 ~ mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$I$12"
+},
+{
+"call": [
+4,
+6,
+false,
+"A20",
+"H2:L12",
+false
+],
+"model": "err=0 mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$I$12 ~ mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$I$12"
+},
+{
+"call": [
+6,
+5,
+true,
+"",
+"K1:L12",
+true
+],
+"model": "err=0 mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$J$12 ~ mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$J$12"
+},
+{
+"call": [
+6,
+5,
+true,
+"",
+"K1:L12",
+false
+],
+"model": "err=0 mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$J$12 ~ mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$J$12"
+},
+{
+"call": [
+5,
+2,
+false,
+"",
+"B2:C12",
+true
+],
+"model": "err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12"
+},
+{
+"call": [
+5,
+2,
+false,
+"",
+"B2:C12",
+false
+],
+"model": "err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"A20",
+"C1:D11",
+true
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"A20",
+"C1:D11",
+false
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+3,
+1,
+false,
+"",
+"D2:D12",
+true
+],
+"model": "err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12"
+},
+{
+"call": [
+3,
+1,
+false,
+"",
+"D2:D12",
+false
+],
+"model": "err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12"
+},
+{
+"call": [
+6,
+5,
+false,
+"",
+"D1:E30",
+true
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12"
+},
+{
+"call": [
+6,
+5,
+false,
+"",
+"D1:E30",
+false
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12"
+},
+{
+"call": [
+1,
+4,
+false,
+"G3",
+"F1:H11",
+true
+],
+"model": "err=0 mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12"
+},
+{
+"call": [
+1,
+4,
+false,
+"G3",
+"F1:H11",
+false
+],
+"model": "err=0 mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12"
+},
+{
+"call": [
+6,
+1,
+false,
+"I3",
+"B2:B11",
+true
+],
+"model": "err=0 mode=True range=F1:F12 count=1 db==Sheet1!$F$1:$F$12 ~ mode=True range=F1:F12 count=1 db==Sheet1!$F$1:$F$12"
+},
+{
+"call": [
+6,
+1,
+false,
+"I3",
+"B2:B11",
+false
+],
+"model": "err=0 mode=True range=F1:F12 count=1 db==Sheet1!$F$1:$F$12 ~ mode=True range=F1:F12 count=1 db==Sheet1!$F$1:$F$12"
+},
+{
+"call": [
+3,
+2,
+true,
+"",
+"B1:B12",
+true
+],
+"model": null
+},
+{
+"call": [
+3,
+2,
+true,
+"",
+"B1:B12",
+false
+],
+"model": null
+},
+{
+"call": [
+5,
+2,
+false,
+"A20",
+"G1:G12",
+true
+],
+"model": "err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12"
+},
+{
+"call": [
+5,
+2,
+false,
+"A20",
+"G1:G12",
+false
+],
+"model": "err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12"
+},
+{
+"call": [
+4,
+3,
+false,
+"A20",
+"C2:C12",
+true
+],
+"model": "err=0 mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12"
+},
+{
+"call": [
+4,
+3,
+false,
+"A20",
+"C2:C12",
+false
+],
+"model": "err=0 mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12"
+},
+{
+"call": [
+2,
+4,
+true,
+"A20",
+"C2:D30",
+true
+],
+"model": "err=0 mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12"
+},
+{
+"call": [
+2,
+4,
+true,
+"A20",
+"C2:D30",
+false
+],
+"model": "err=0 mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12"
+},
+{
+"call": [
+5,
+5,
+false,
+"",
+"F1:G30",
+true
+],
+"model": "err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+5,
+5,
+false,
+"",
+"F1:G30",
+false
+],
+"model": "err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+1,
+6,
+false,
+"I3",
+"A1:C12",
+true
+],
+"model": "err=0 mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+1,
+6,
+false,
+"I3",
+"A1:C12",
+false
+],
+"model": "err=0 mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+2,
+6,
+false,
+"",
+"G1:G30",
+true
+],
+"model": "err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$F$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$F$12"
+},
+{
+"call": [
+2,
+6,
+false,
+"",
+"G1:G30",
+false
+],
+"model": "err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$F$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$F$12"
+},
+{
+"call": [
+5,
+5,
+true,
+"",
+"F1:G12",
+true
+],
+"model": "err=0 mode=True range=E1:I12 count=5 f1=>0 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:I12 count=5 f1=>0 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+5,
+5,
+true,
+"",
+"F1:G12",
+false
+],
+"model": "err=0 mode=True range=E1:I12 count=5 f1=>0 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:I12 count=5 f1=>0 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+1,
+3,
+false,
+"",
+"B1:B30",
+true
+],
+"model": "err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+1,
+3,
+false,
+"",
+"B1:B30",
+false
+],
+"model": "err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+4,
+2,
+false,
+"",
+"F1:I12",
+true
+],
+"model": "err=0 mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+4,
+2,
+false,
+"",
+"F1:I12",
+false
+],
+"model": "err=0 mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+3,
+4,
+false,
+"A20",
+"A1:D12",
+true
+],
+"model": "err=0 mode=True range=C1:F12 count=4 db==Sheet1!$A$1:$B$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+3,
+4,
+false,
+"A20",
+"A1:D12",
+false
+],
+"model": "err=0 mode=True range=C1:F12 count=4 db==Sheet1!$A$1:$B$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+3,
+1,
+true,
+"",
+"A1:C11",
+true
+],
+"model": null
+},
+{
+"call": [
+3,
+1,
+true,
+"",
+"A1:C11",
+false
+],
+"model": null
+},
+{
+"call": [
+5,
+3,
+false,
+"",
+"B1:B11",
+true
+],
+"model": "err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+5,
+3,
+false,
+"",
+"B1:B11",
+false
+],
+"model": "err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+5,
+5,
+false,
+"",
+"G1:G12",
+true
+],
+"model": "err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$H$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$H$12"
+},
+{
+"call": [
+5,
+5,
+false,
+"",
+"G1:G12",
+false
+],
+"model": "err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$H$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$H$12"
+},
+{
+"call": [
+4,
+1,
+true,
+"",
+"E1:G12",
+true
+],
+"model": "err=0 mode=True range=D1:D12 count=1 f1=>0 db==Sheet1!$D$1:$D$12 ~ mode=True range=D1:D12 count=1 f1=>0 db==Sheet1!$D$1:$D$12"
+},
+{
+"call": [
+4,
+1,
+true,
+"",
+"E1:G12",
+false
+],
+"model": "err=0 mode=True range=D1:D12 count=1 f1=>0 db==Sheet1!$D$1:$D$12 ~ mode=True range=D1:D12 count=1 f1=>0 db==Sheet1!$D$1:$D$12"
+},
+{
+"call": [
+6,
+3,
+false,
+"",
+"I1:I12",
+true
+],
+"model": "err=0 mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12 ~ mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12"
+},
+{
+"call": [
+6,
+3,
+false,
+"",
+"I1:I12",
+false
+],
+"model": "err=0 mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12 ~ mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12"
+},
+{
+"call": [
+3,
+4,
+false,
+"",
+"B2:B11",
+true
+],
+"model": "err=0 mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+3,
+4,
+false,
+"",
+"B2:B11",
+false
+],
+"model": "err=0 mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+6,
+4,
+false,
+"",
+"B1:D30",
+true
+],
+"model": "err=0 mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+6,
+4,
+false,
+"",
+"B1:D30",
+false
+],
+"model": "err=0 mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"",
+"B2:C13",
+true
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"",
+"B2:C13",
+false
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+3,
+1,
+false,
+"",
+"E1:F12",
+true
+],
+"model": "err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12"
+},
+{
+"call": [
+3,
+1,
+false,
+"",
+"E1:F12",
+false
+],
+"model": "err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12"
+},
+{
+"call": [
+1,
+5,
+true,
+"",
+"A1:B12",
+true
+],
+"model": "err=0 mode=True range=A1:E12 count=5 f1=>0 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:E12 count=5 f1=>0 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+1,
+5,
+true,
+"",
+"A1:B12",
+false
+],
+"model": "err=0 mode=True range=A1:E12 count=5 f1=>0 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:E12 count=5 f1=>0 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+4,
+5,
+false,
+"",
+"C2:E30",
+true
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12"
+},
+{
+"call": [
+4,
+5,
+false,
+"",
+"C2:E30",
+false
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"",
+"B1:D13",
+true
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"",
+"B1:D13",
+false
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+4,
+4,
+false,
+"",
+"D1:D13",
+true
+],
+"model": "err=0 mode=True range=D1:G12 count=4 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:G12 count=4 db==Sheet1!$D$1:$F$12"
+},
+{
+"call": [
+4,
+4,
+false,
+"",
+"D1:D13",
+false
+],
+"model": "err=0 mode=True range=D1:G12 count=4 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:G12 count=4 db==Sheet1!$D$1:$F$12"
+},
+{
+"call": [
+4,
+4,
+true,
+"",
+"H1:J12",
+true
+],
+"model": "err=0 mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$G$12 ~ mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$G$12"
+},
+{
+"call": [
+4,
+4,
+true,
+"",
+"H1:J12",
+false
+],
+"model": "err=0 mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$G$12 ~ mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$G$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"D3",
+"B1:B30",
+true
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"D3",
+"B1:B30",
+false
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+2,
+6,
+true,
+"",
+"A1:A12",
+true
+],
+"model": null
+},
+{
+"call": [
+2,
+6,
+true,
+"",
+"A1:A12",
+false
+],
+"model": null
+},
+{
+"call": [
+1,
+2,
+false,
+"A20",
+"D1:F12",
+true
+],
+"model": "err=0 mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+1,
+2,
+false,
+"A20",
+"D1:F12",
+false
+],
+"model": "err=0 mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+2,
+2,
+true,
+"A20",
+"A1:B30",
+true
+],
+"model": "err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$A$1:$A$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+2,
+2,
+true,
+"A20",
+"A1:B30",
+false
+],
+"model": "err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$A$1:$A$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+5,
+1,
+false,
+"A20",
+"C1:C12",
+true
+],
+"model": "err=0 mode=True range=D1:D12 count=1 db==Sheet1!$D$1:$D$12 ~ mode=True range=D1:D12 count=1 db==Sheet1!$D$1:$D$12"
+},
+{
+"call": [
+5,
+1,
+false,
+"A20",
+"C1:C12",
+false
+],
+"model": "err=0 mode=True range=D1:D12 count=1 db==Sheet1!$D$1:$D$12 ~ mode=True range=D1:D12 count=1 db==Sheet1!$D$1:$D$12"
+},
+{
+"call": [
+4,
+1,
+true,
+"G3",
+"C1:C12",
+true
+],
+"model": null
+},
+{
+"call": [
+4,
+1,
+true,
+"G3",
+"C1:C12",
+false
+],
+"model": null
+},
+{
+"call": [
+6,
+6,
+false,
+"A20",
+"M1:M30",
+true
+],
+"model": "err=0 mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12 ~ mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12"
+},
+{
+"call": [
+6,
+6,
+false,
+"A20",
+"M1:M30",
+false
+],
+"model": "err=0 mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12 ~ mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12"
+},
+{
+"call": [
+4,
+2,
+true,
+"",
+"A1:A11",
+true
+],
+"model": "err=0 mode=True range=D1:E12 count=2 f1=>0 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 f1=>0 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+4,
+2,
+true,
+"",
+"A1:A11",
+false
+],
+"model": "err=0 mode=True range=D1:E12 count=2 f1=>0 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 f1=>0 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+1,
+3,
+true,
+"A20",
+"B1:B11",
+true
+],
+"model": "err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+1,
+3,
+true,
+"A20",
+"B1:B11",
+false
+],
+"model": "err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+1,
+5,
+false,
+"A20",
+"B1:B12",
+true
+],
+"model": "err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$D$12"
+},
+{
+"call": [
+1,
+5,
+false,
+"A20",
+"B1:B12",
+false
+],
+"model": "err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$D$12"
+},
+{
+"call": [
+2,
+6,
+false,
+"",
+"I2:L11",
+true
+],
+"model": "err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12"
+},
+{
+"call": [
+2,
+6,
+false,
+"",
+"I2:L11",
+false
+],
+"model": "err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12"
+},
+{
+"call": [
+2,
+1,
+false,
+"",
+"A1:A11",
+true
+],
+"model": "err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12"
+},
+{
+"call": [
+2,
+1,
+false,
+"",
+"A1:A11",
+false
+],
+"model": "err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12"
+},
+{
+"call": [
+4,
+1,
+false,
+"G3",
+"A1:D12",
+true
+],
+"model": "err=0 mode=False db= ~ mode=False db="
+},
+{
+"call": [
+4,
+1,
+false,
+"G3",
+"A1:D12",
+false
+],
+"model": "err=0 mode=False db= ~ mode=False db="
+},
+{
+"call": [
+1,
+2,
+false,
+"",
+"C1:F12",
+true
+],
+"model": "err=0 mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+1,
+2,
+false,
+"",
+"C1:F12",
+false
+],
+"model": "err=0 mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+2,
+4,
+true,
+"H3",
+"F2:F30",
+true
+],
+"model": "err=0 mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12"
+},
+{
+"call": [
+2,
+4,
+true,
+"H3",
+"F2:F30",
+false
+],
+"model": "err=0 mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 f1=>0 db==Sheet1!$B$1:$E$12"
+},
+{
+"call": [
+4,
+5,
+false,
+"",
+"F1:H12",
+true
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+4,
+5,
+false,
+"",
+"F1:H12",
+false
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+6,
+4,
+false,
+"A20",
+"G2:H12",
+true
+],
+"model": "err=0 mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12"
+},
+{
+"call": [
+6,
+4,
+false,
+"A20",
+"G2:H12",
+false
+],
+"model": "err=0 mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12"
+},
+{
+"call": [
+6,
+1,
+true,
+"",
+"A1:A12",
+true
+],
+"model": null
+},
+{
+"call": [
+6,
+1,
+true,
+"",
+"A1:A12",
+false
+],
+"model": null
+},
+{
+"call": [
+4,
+5,
+false,
+"K3",
+"F1:F12",
+true
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$G$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$G$12"
+},
+{
+"call": [
+4,
+5,
+false,
+"K3",
+"F1:F12",
+false
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$G$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$G$12"
+},
+{
+"call": [
+6,
+2,
+false,
+"",
+"B1:C30",
+true
+],
+"model": "err=0 mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+6,
+2,
+false,
+"",
+"B1:C30",
+false
+],
+"model": "err=0 mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12"
+},
+{
+"call": [
+5,
+3,
+true,
+"",
+"A1:B11",
+true
+],
+"model": "err=0 mode=True range=E1:G12 count=3 f1=>0 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:G12 count=3 f1=>0 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+5,
+3,
+true,
+"",
+"A1:B11",
+false
+],
+"model": "err=0 mode=True range=E1:G12 count=3 f1=>0 db==Sheet1!$E$1:$G$12 ~ mode=True range=E1:G12 count=3 f1=>0 db==Sheet1!$E$1:$G$12"
+},
+{
+"call": [
+1,
+3,
+true,
+"F3",
+"A1:A12",
+true
+],
+"model": "err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+1,
+3,
+true,
+"F3",
+"A1:A12",
+false
+],
+"model": "err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+1,
+2,
+true,
+"",
+"C1:C12",
+true
+],
+"model": "err=0 mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+1,
+2,
+true,
+"",
+"C1:C12",
+false
+],
+"model": "err=0 mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12"
+},
+{
+"call": [
+2,
+2,
+true,
+"F3",
+"C1:E12",
+true
+],
+"model": "err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$B$12"
+},
+{
+"call": [
+2,
+2,
+true,
+"F3",
+"C1:E12",
+false
+],
+"model": "err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$B$12"
+},
+{
+"call": [
+3,
+2,
+true,
+"",
+"F1:I13",
+true
+],
+"model": "err=0 mode=True range=C1:D12 count=2 f1=>0 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 f1=>0 db==Sheet1!$C$1:$D$12"
+},
+{
+"call": [
+3,
+2,
+true,
+"",
+"F1:I13",
+false
+],
+"model": "err=0 mode=True range=C1:D12 count=2 f1=>0 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 f1=>0 db==Sheet1!$C$1:$D$12"
+},
+{
+"call": [
+5,
+2,
+false,
+"",
+"B1:C13",
+true
+],
+"model": "err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12"
+},
+{
+"call": [
+5,
+2,
+false,
+"",
+"B1:C13",
+false
+],
+"model": "err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12"
+},
+{
+"call": [
+2,
+6,
+true,
+"A20",
+"C2:C30",
+true
+],
+"model": "err=0 mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12"
+},
+{
+"call": [
+2,
+6,
+true,
+"A20",
+"C2:C30",
+false
+],
+"model": "err=0 mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12"
+},
+{
+"call": [
+2,
+5,
+true,
+"",
+"B2:C12",
+true
+],
+"model": "err=0 mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$F$12 ~ mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$F$12"
+},
+{
+"call": [
+2,
+5,
+true,
+"",
+"B2:C12",
+false
+],
+"model": "err=0 mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$F$12 ~ mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$F$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"A20",
+"B2:B12",
+true
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+1,
+1,
+false,
+"A20",
+"B2:B12",
+false
+],
+"model": "err=0 mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:A12 count=1 db==Sheet1!$A$1:$A$12"
+},
+{
+"call": [
+3,
+4,
+true,
+"I3",
+"E2:E11",
+true
+],
+"model": "err=0 mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+3,
+4,
+true,
+"I3",
+"E2:E11",
+false
+],
+"model": "err=0 mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+3,
+1,
+false,
+"A20",
+"A1:C12",
+true
+],
+"model": "err=0 mode=False db= ~ mode=False db="
+},
+{
+"call": [
+3,
+1,
+false,
+"A20",
+"A1:C12",
+false
+],
+"model": "err=0 mode=False db= ~ mode=False db="
+},
+{
+"call": [
+1,
+5,
+false,
+"",
+"A1:B12",
+true
+],
+"model": "err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+1,
+5,
+false,
+"",
+"A1:B12",
+false
+],
+"model": "err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+2,
+3,
+false,
+"",
+"F1:F11",
+true
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+2,
+3,
+false,
+"",
+"F1:F11",
+false
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+1,
+3,
+false,
+"",
+"D1:E11",
+true
+],
+"model": "err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+1,
+3,
+false,
+"",
+"D1:E11",
+false
+],
+"model": "err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12"
+},
+{
+"call": [
+5,
+6,
+true,
+"M3",
+"D1:E12",
+true
+],
+"model": "err=0 mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$D$1:$H$12 ~ mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$D$1:$H$12"
+},
+{
+"call": [
+5,
+6,
+true,
+"M3",
+"D1:E12",
+false
+],
+"model": "err=0 mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$D$1:$H$12 ~ mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$D$1:$H$12"
+},
+{
+"call": [
+4,
+5,
+false,
+"K3",
+"C1:D12",
+true
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$C$1:$F$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+4,
+5,
+false,
+"K3",
+"C1:D12",
+false
+],
+"model": "err=0 mode=True range=D1:H12 count=5 db==Sheet1!$C$1:$F$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$C$1:$F$12"
+},
+{
+"call": [
+2,
+3,
+false,
+"",
+"E1:E12",
+true
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+2,
+3,
+false,
+"",
+"E1:E12",
+false
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+6,
+1,
+true,
+"",
+"F1:F11",
+true
+],
+"model": null
+},
+{
+"call": [
+6,
+1,
+true,
+"",
+"F1:F11",
+false
+],
+"model": null
+},
+{
+"call": [
+3,
+3,
+false,
+"H3",
+"B1:B30",
+true
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+3,
+3,
+false,
+"H3",
+"B1:B30",
+false
+],
+"model": "err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12"
+},
+{
+"call": [
+2,
+2,
+false,
+"",
+"D1:E12",
+true
+],
+"model": "err=0 mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12"
+},
+{
+"call": [
+2,
+2,
+false,
+"",
+"D1:E12",
+false
+],
+"model": "err=0 mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12"
+},
+{
+"call": [
+5,
+6,
+true,
+"M3",
+"B1:C12",
+true
+],
+"model": null
+},
+{
+"call": [
+5,
+6,
+true,
+"M3",
+"B1:C12",
+false
+],
+"model": null
+},
+{
+"call": [
+5,
+6,
+true,
+"M3",
+"F1:F13",
+true
+],
+"model": "err=0 mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$E$1:$I$12"
+},
+{
+"call": [
+5,
+6,
+true,
+"M3",
+"F1:F13",
+false
+],
+"model": "err=0 mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:J12 count=6 f1=>0 db==Sheet1!$E$1:$I$12"
+}
+]
+}

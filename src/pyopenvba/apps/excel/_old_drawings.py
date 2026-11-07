@@ -548,6 +548,7 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
+    spread_reads = frozenset({'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -560,6 +561,7 @@ class TextBoxes(_BoxAdded):
 
 
 class Rectangles(_BoxAdded):
+    spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -567,12 +569,14 @@ class Rectangles(_BoxAdded):
 
 
 class Ovals(_BoxAdded):
+    spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
     vba_type_name = 'Ovals'
     item = Oval
     shape_type = 9
 
 
 class Arcs(_Drawings):
+    spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
     vba_type_name = 'Arcs'
     item = Arc
 
@@ -584,6 +588,7 @@ class Arcs(_Drawings):
 
 
 class Lines(_Drawings):
+    spread_reads = frozenset({'Border', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
     vba_type_name = 'Lines'
     parts = frozenset({'Border'})
     several = {}
@@ -597,6 +602,7 @@ class Lines(_Drawings):
 
 
 class Pictures(_Drawings):
+    spread_reads = frozenset({'Border', 'Enabled', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
     vba_type_name = 'Pictures'
     parts = frozenset({'Border', 'Interior'})
     several = {}
@@ -633,10 +639,22 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings):
     parts = frozenset()
     several = {}
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'DisplayVerticalScrollBar', 'Font', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Placement', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        if name.lower() in {key.lower() for key in self._vba_members}:
+        """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest
+        (tests/fixtures/old_collection_reads.json). Visible is not followed yet."""
+        lower = name.lower()
+        if lower in {key.lower() for key in self._vba_members} and lower not in {key.lower() for key in self.spread_reads}:
             return super().vba_get(name, args, named)
+        if lower in ('border', 'characters', 'font', 'interior'):
+            raise error(438, "Object doesn't support this property or method")
+        if lower == 'shaperange':
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        if lower == 'readingorder' and self.vba_items():
+            return VBAInt(27, 'Long')
+        if lower == 'visible':
+            raise VBAUnsupportedError('DrawingObjects.Visible, which follows no one item, is not implemented')
         raise error(*_NOT_THERE)
 
     """All of a sheet's drawings and controls, each as its old object."""

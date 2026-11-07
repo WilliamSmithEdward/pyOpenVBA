@@ -8,8 +8,9 @@ the sheet as any name does. Only a table refreshed at least once reaches the fil
 Refused rather than guessed: any source but a text file, a file with bytes past ASCII, setting PostText or a URL
 Connection (each stops Excel outright), TextFilePromptOnRefresh, and a table's width changing between refreshes. Column
 widths are left alone: Excel's AdjustColumnWidth follows a rule the 144-DPI measurements did not settle. A workbook loaded
-with query tables is read back when every connection it has is a text file the model would write back the same; any other
-stays refused by the sheet's QueryTables, with its parts saved as they came (see _empty_collections).
+with query tables is read back when every connection it has is a text file or a database the model would write back the same,
+ListObjects' over a database among them (see _query_databases); any other stays refused by the sheet's QueryTables, with its parts
+saved as they came (see _empty_collections).
 
 Each table has a connection from the moment it is added, named after its file with the lowest free number
 (scripts/measure_query_table_connections.py, tests/fixtures/query_table_connections.json). Deleting a table refreshed at
@@ -40,6 +41,7 @@ from pyopenvba.interpreter._values import (EMPTY, MISSING, NOTHING, VBAArray, VB
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Workbook, Worksheet
+    from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -102,14 +104,7 @@ class QueryTables(VBACollection, ItemDefault, Created):
         return items[position - 1]
 
     def _next_name(self) -> str:
-        """ExternalData_ with the first number no table or defined name on the sheet has, a deleted table's name staying
-        with its cells (tests/fixtures/query_tables_saved.json)."""
-        taken = {table.name.lower() for table in self.sheet.query_tables}
-        taken |= {split_sheet(entry.name)[1].lower() for entry in self.sheet.book.names_.entries if split_sheet(entry.name)[0].lower() == self.sheet.name.lower()}
-        number = 1
-        while f'externaldata_{number}' in taken:
-            number += 1
-        return f'ExternalData_{number}'
+        return next_name(self.sheet)
 
     @member
     def Parent(self) -> object:
@@ -167,7 +162,7 @@ class TextLink:
 def links(book: Workbook) -> list[TextLink]:
     """The workbook's links, after whatever has happened to their tables: gone with a table refreshed at least once,
     left behind by one never refreshed."""
-    tables = [table for sheet in book.sheets_ for table in sheet.query_tables]
+    tables = [table for sheet in book.sheets_ for table in sheet.query_tables] + listed(book)
     kept: list[TextLink] = []
     for link in book.text_links:
         holders = [table for table in tables if table.link is link]
@@ -180,6 +175,22 @@ def links(book: Workbook) -> list[TextLink]:
         kept.append(link)
     book.text_links[:] = kept
     return kept
+
+
+def listed(book: Workbook) -> list[QueryTable]:
+    """The query tables of ListObjects, which the sheets' QueryTables do not list."""
+    return [table.query for sheet in book.sheets_ for table in sheet.tables if table.query is not None and not table.deleted]
+
+
+def next_name(sheet: Worksheet) -> str:
+    """ExternalData_ with the first number no table or defined name on the sheet has, a deleted table's name staying with its cells
+    (tests/fixtures/query_tables_saved.json); a ListObject's query table takes one the same way (tests/fixtures/list_query_add.json)."""
+    taken = {table.name.lower() for table in sheet.query_tables}
+    taken |= {split_sheet(entry.name)[1].lower() for entry in sheet.book.names_.entries if split_sheet(entry.name)[0].lower() == sheet.name.lower()}
+    number = 1
+    while f'externaldata_{number}' in taken:
+        number += 1
+    return f'ExternalData_{number}'
 
 
 def free_name(book: Workbook, base: str) -> str:
@@ -196,17 +207,30 @@ def free_name(book: Workbook, base: str) -> str:
 
 def refresh_all(book: Workbook) -> None:
     """Workbook.RefreshAll over the tables: each refreshed before, with its connection there, not left out, refreshing
-    allowed and its file still there, the rest passed over without a word."""
-    tables = [table for sheet in book.sheets_ for table in sheet.query_tables
-              if table.refreshed and not table.link.deleted and not table.link.excluded and table.setting('EnableRefresh', True)]
+    allowed and its file still there, the rest passed over without a word. Over a database a ListObject's table never refreshed
+    is refreshed too where it has a command, and each table refreshes as its Refresh does, in the background where BackgroundQuery
+    says so (tests/fixtures/refresh_all_database.json)."""
+    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable, ListQueryTable
+
+    def wanted(table: QueryTable) -> bool:
+        if isinstance(table, ListQueryTable) and table.placeholder and table.command_text is None:
+            return False
+        return (table.refreshed or isinstance(table, ListQueryTable)) and not table.link.deleted and not table.link.excluded \
+            and bool(table.setting('EnableRefresh', True))
+
+    tables = [table for sheet in book.sheets_ for table in [*sheet.query_tables, *(one.query for one in sheet.tables if one.query is not None)]
+              if wanted(table)]
     if not tables:
         return
     if book.queries_.entries or any(sheet.pivot_tables for sheet in book.sheets_):
         raise VBAUnsupportedError('Workbook.RefreshAll over query tables and queries or pivot tables together is not implemented')
-    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable
-
-    if any(isinstance(table, DatabaseQueryTable) for table in tables):
-        raise VBAUnsupportedError('Workbook.RefreshAll over a query table on a database is not implemented')
+    databases = [table for table in tables if isinstance(table, DatabaseQueryTable)]
+    if databases:
+        if len(databases) != len(tables):
+            raise VBAUnsupportedError('Workbook.RefreshAll over query tables on text files and on databases together is not implemented')
+        for table in databases:
+            table.vba_call('Refresh', [])
+        return
     book.application.outside('Workbook.RefreshAll over a query table')
     for table in tables:
         if Path(table.source).is_file():
@@ -812,7 +836,11 @@ def _table_markup(table: QueryTable, number: int) -> str:
         attributes += ' preserveFormatting="0"'
     if not get('AdjustColumnWidth', True):
         attributes += ' adjustColumnWidth="0"'
-    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable
+    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable, ListQueryTable
+
+    if isinstance(table, ListQueryTable) and table.placeholder:
+        # A ListObject's never refreshed (tests/fixtures/list_query_add.json).
+        attributes += ' intermediate="1"'
 
     head = (f'{_DECLARATION}<queryTable xmlns="{_MAIN}"{attributes} connectionId="{number}" autoFormatId="0" applyNumberFormats="0" '
             'applyBorderFormats="0" applyFontFormats="1" applyPatternFormats="1" applyAlignmentFormats="0" applyWidthHeightFormats="0"')
@@ -839,9 +867,11 @@ def _left_behind(book: Workbook) -> list[TextLink]:
 
 def _signature(book: Workbook) -> list[str]:
     tables = _tables(book)
+    lists = listed(book)
     behind = _left_behind(book)
-    numbers = _connection_names(tables, behind)
+    numbers = _connection_names(tables + lists, behind)
     return sorted([f'{table.sheet.part_name}|{_table_markup(table, numbers[id(table)][0])}|{_connection_markup(table, *numbers[id(table)])}' for table in tables]
+                  + [f'list|{_connection_markup(table, *numbers[id(table)])}' for table in lists]
                   + [_left_behind_markup(link, numbers[id(link)][0]) for link in behind])
 
 
@@ -863,8 +893,8 @@ _TABLE_FLAGS = {'headers': ('FieldNames', False), 'rowNumbers': ('RowNumbers', T
 _TEXT_FLAGS = {'tab': ('TextFileTabDelimiter', False), 'space': ('TextFileSpaceDelimiter', True), 'comma': ('TextFileCommaDelimiter', True), 'semicolon': ('TextFileSemicolonDelimiter', True), 'consecutive': ('TextFileConsecutiveDelimiter', True)}
 
 
-def _settings_read(table: Any, connection: Any, text: Any) -> dict[str, object] | None:
-    """The settings the parts say, None where they say what the model does not hold."""
+def _settings_read(table: Any, connection: Any, text: Any | None) -> dict[str, object] | None:
+    """The settings the parts say, None where they say what the model does not hold. A database's table has no text settings."""
     found: dict[str, object] = {}
     for attribute, (name, value) in _TABLE_FLAGS.items():
         if table.get(attribute) is not None:
@@ -874,6 +904,10 @@ def _settings_read(table: Any, connection: Any, text: Any) -> dict[str, object] 
         if table.get('growShrinkType') not in growth:
             return None
         found['RefreshStyle'] = growth[table.get('growShrinkType')]
+    if connection.get('savePassword') == '1':
+        found['SavePassword'] = True
+    if text is None:
+        return found
     for attribute, (name, value) in _TEXT_FLAGS.items():
         if text.get(attribute) is not None:
             found[name] = value
@@ -920,58 +954,93 @@ def _settings_read(table: Any, connection: Any, text: Any) -> dict[str, object] 
 
 
 def read(book: Workbook, package: OpcFile, relationships: Callable[[OpcFile, str], dict[str, tuple[str, str]]], resolved: Callable[[str], str]) -> None:
-    """The query tables a file holds, in a workbook all of whose connections are text files the model can write back as
-    they are. Anything else stays held, as the sheet's QueryTables refuses it and its parts are saved untouched."""
+    """The query tables a file holds, in a workbook all of whose connections are text files or databases the model can write back as
+    they are, ListObjects' over a database among them. Anything else stays held, as the sheet's QueryTables refuses it and its parts
+    are saved untouched."""
     from pyopenvba.apps.excel._charts_file import xml_tree
 
     sheets = [sheet for sheet in book.sheets_ if 'queryTable' in sheet.held_kinds]
-    if not sheets or not package.has(CONNECTIONS_PART):
+    listed = [table for sheet in book.sheets_ for table in sheet.tables if table.kind == 'queryTable' and table.part]
+    if not sheets and not listed or not package.has(CONNECTIONS_PART):
         return
     connections = xml_tree(package.read(CONNECTIONS_PART))
     by_id = {entry.get('id'): entry for entry in connections.findall(f'{_NS}connection')}
     made: list[tuple[Worksheet, QueryTable]] = []
+    lists: list[tuple[Table, QueryTable]] = []
     used: set[str | None] = set()
     read_links: dict[str | None, TextLink] = {}
+
+    def take(sheet: Worksheet, root: Any, owner: Table | None) -> QueryTable | None:
+        """The table one queryTable part says, None where the model does not hold all it says."""
+        entry = by_id.get(root.get('connectionId'))
+        text = None if entry is None else entry.find(f'{_NS}textPr')
+        database = entry is not None and entry.find(f'{_NS}dbPr') is not None
+        if entry is None or not database and (owner is not None or text is None or entry.get('type') != '6' or text.get('sourceFile') is None):
+            return None
+        settings = _settings_read(root, entry, text)
+        name = root.get('name')
+        if settings is None or name is None:
+            return None
+        scoped = f'{quote_sheet(sheet.name)}!{_name_of(name)}'.lower()
+        place = next((one for one in book.names_.entries if one.name.lower() == scoped), None)
+        if place is None:
+            return None
+        area = parse_area(place.refers_to.removeprefix('=').rpartition('!')[2].replace('$', ''), sheet=sheet.name)
+        if owner is not None and (area.top, area.left, area.bottom, area.right) != (owner.area.top, owner.area.left, owner.area.bottom, owner.area.right):
+            return None
+        number = root.get('connectionId')
+        if database:
+            from pyopenvba.apps.excel._query_databases import loaded
+
+            found = loaded(sheet, root, entry, _cell(sheet, area), name, owner)
+            if found is None:
+                return None
+            table: QueryTable = found
+            table.size = (area.bottom - area.top + 1, area.right - area.left + 1)
+        else:
+            assert text is not None
+            table = QueryTable(sheet, text.get('sourceFile', ''), _cell(sheet, area), name, connection=entry.get('name', ''))
+        table.settings.update(settings)
+        table.refreshed = True
+        if number in read_links:
+            table.link = read_links[number]
+        read_links[number] = table.link
+        table.link.description = table.link.read_description = entry.get('description', '')
+        table.link.deleted = entry.get('deleted') == '1'
+        table.link.excluded = any(found.get('excludeFromRefreshAll') == '1' for found in entry.iter() if found.tag.endswith('}connection'))
+        # Written back from the model it must say what the file says, or the model does not hold it all.
+        if _canonical(xml_tree(_table_markup(table, int(number or 0)).encode('utf-8'))) != _canonical(root):
+            return None
+        written = _connection_markup(table, int(number or 0), table.link.name)
+        if _canonical(xml_tree(f'<connections xmlns="{_MAIN}">{written}</connections>')[0]) != _canonical(entry):
+            return None
+        used.add(number)
+        if owner is not None:
+            setattr(table, 'connection_id', int(number or 0))
+        return table
+
     for sheet in sheets:
         for kind, target in relationships(package, sheet.part_name).values():
             if kind != 'queryTable':
                 continue
-            root = xml_tree(package.read(resolved(target)))
-            entry = by_id.get(root.get('connectionId'))
-            text = None if entry is None else entry.find(f'{_NS}textPr')
-            if entry is None or text is None or entry.get('type') != '6' or text.get('sourceFile') is None:
+            table = take(sheet, xml_tree(package.read(resolved(target))), None)
+            if table is None:
                 return
-            settings = _settings_read(root, entry, text)
-            name = root.get('name')
-            if settings is None or name is None:
-                return
-            scoped = f'{quote_sheet(sheet.name)}!{_name_of(name)}'.lower()
-            place = next((one for one in book.names_.entries if one.name.lower() == scoped), None)
-            if place is None:
-                return
-            area = parse_area(place.refers_to.removeprefix('=').rpartition('!')[2].replace('$', ''), sheet=sheet.name)
-            number = root.get('connectionId')
-            table = QueryTable(sheet, text.get('sourceFile', ''), _cell(sheet, area), name, connection=entry.get('name', ''))
-            table.settings.update(settings)
-            table.refreshed = True
-            if number in read_links:
-                table.link = read_links[number]
-            read_links[number] = table.link
-            table.link.description = table.link.read_description = entry.get('description', '')
-            table.link.deleted = entry.get('deleted') == '1'
-            table.link.excluded = any(found.get('excludeFromRefreshAll') == '1' for found in entry.iter() if found.tag.endswith('}connection'))
-            # Written back from the model it must say what the file says, or the model does not hold it all.
-            if _canonical(xml_tree(_table_markup(table, int(number or 0)).encode('utf-8'))) != _canonical(root):
-                return
-            written = _connection_markup(table, int(number or 0), table.link.name)
-            if _canonical(xml_tree(f'<connections xmlns="{_MAIN}">{written}</connections>')[0]) != _canonical(entry):
-                return
-            used.add(number)
             made.append((sheet, table))
+    for owner in listed:
+        targets = [target for kind, target in relationships(package, owner.part).values() if kind == 'queryTable']
+        if len(targets) != 1:
+            return
+        table = take(owner.sheet, xml_tree(package.read(resolved(targets[0]))), owner)
+        if table is None:
+            return
+        lists.append((owner, table))
     if used != set(by_id):
         return
     for sheet, table in made:
         sheet.query_tables.append(table)
+    for owner, table in lists:
+        owner.query = table
     book.text_links.extend(read_links.values())
     for sheet in sheets:
         sheet.held_kinds.discard('queryTable')
@@ -1004,13 +1073,25 @@ def write(book: Workbook, package: OpcFile, add_relationship: Callable[..., str]
                 text = package.read(types).decode('utf-8')
                 package.write(types, re.sub(rf'<Override PartName="/{re.escape(part)}"[^>]*/>', '', text).encode('utf-8'))
     tables = _tables(book)
+    lists = listed(book)
     behind = _left_behind(book)
-    numbers = _connection_names(tables, behind)
+    numbers = _connection_names(tables + lists, behind)
     rels = 'xl/_rels/workbook.xml.rels'
     deleted = {table.link.name.casefold() for table in tables if table.link.deleted}
     if any(link.name.casefold() in deleted and not link.deleted for link in links(book)):
         raise VBAUnsupportedError("Saving a query table whose deleted connection's name a newer table took is not implemented: Excel ties the two together")
-    if not tables and not behind:
+    if lists and (tables or behind):
+        raise VBAUnsupportedError("Saving a ListObject's query table beside a sheet's query tables is not implemented")
+    # A ListObject's query table from a file keeps the part the file gave it, which names its connection by number; one
+    # ListObjects.Add made has its part written here.
+    from pyopenvba.apps.excel._query_databases import ListQueryTable
+
+    made = [table for table in lists if isinstance(table, ListQueryTable) and table.made]
+    if any(numbers[id(table)][0] != getattr(table, 'connection_id', None) for table in lists if table not in made):
+        raise VBAUnsupportedError("Saving a ListObject's query table whose connection would be numbered again is not implemented")
+    if any(table.placeholder and table.command_text is not None for table in made):
+        raise VBAUnsupportedError("Saving a ListObject over a database given a command but never refreshed is not implemented")
+    if not tables and not behind and not lists:
         if package.has(CONNECTIONS_PART):
             package.remove(CONNECTIONS_PART)
             text = package.read(types).decode('utf-8')
@@ -1024,17 +1105,29 @@ def write(book: Workbook, package: OpcFile, add_relationship: Callable[..., str]
         add_override(package, part, QUERY_TABLE_TYPE)
         add_relationship(package, table.sheet.part_name, f'../queryTables/queryTable{number}.xml', QUERY_TABLE_RELATIONSHIP)
         package.write(part, _table_markup(table, numbers[id(table)][0]).encode('utf-8'))
+    for table in made:
+        owner = table.table
+        if not owner.part:
+            raise VBAUnsupportedError("Saving a ListObject's query table on a sheet the model does not write is not implemented")
+        if not table.part or not package.has(table.part):
+            number = 1
+            while package.has(f'xl/queryTables/queryTable{number}.xml'):
+                number += 1
+            table.part = f'xl/queryTables/queryTable{number}.xml'
+            add_override(package, table.part, QUERY_TABLE_TYPE)
+            add_relationship(package, owner.part, f'../queryTables/queryTable{number}.xml', QUERY_TABLE_RELATIONSHIP)
+        package.write(table.part, _table_markup(table, numbers[id(table)][0]).encode('utf-8'))
     if not package.has(CONNECTIONS_PART):
         add_override(package, CONNECTIONS_PART, CONNECTIONS_TYPE)
         text = package.read(rels).decode('utf-8')
         used = {int(found) for found in re.findall(r'Id="rId(\d+)"', text)}
         relationship = f'<Relationship Id="rId{max(used, default=0) + 1}" Type="{CONNECTIONS_RELATIONSHIP}" Target="connections.xml"/>'
         package.write(rels, text.replace('</Relationships>', relationship + '</Relationships>').encode('utf-8'))
-    written = {numbers[id(table)][0]: _connection_markup(table, *numbers[id(table)]) for table in tables}
+    written = {numbers[id(table)][0]: _connection_markup(table, *numbers[id(table)]) for table in tables + lists}
     written |= {numbers[id(link)][0]: _left_behind_markup(link, numbers[id(link)][0]) for link in behind}
     entries = [written[number] for number in sorted(written)]
     package.write(CONNECTIONS_PART, (f'{_DECLARATION}<connections xmlns="{_MAIN}">{"".join(entries)}</connections>').encode('utf-8'))
     book.query_baseline = _signature(book)
 
 
-__all__ = ['QueryTable', 'QueryTables', 'TextLink', 'connections_stale', 'free_name', 'links', 'read', 'refresh_all', 'write']
+__all__ = ['QueryTable', 'QueryTables', 'TextLink', 'connections_stale', 'free_name', 'links', 'listed', 'next_name', 'read', 'refresh_all', 'write']

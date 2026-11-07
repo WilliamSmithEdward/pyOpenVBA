@@ -412,6 +412,8 @@ class Application(ExcelObject):
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
         self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
+        #: What CopyPicture put on the clipboard, for as long as the clipboard holds it: the clipboard as it was left (see _output).
+        self.copied_picture: tuple[object] | None = None
         self.user_name = "pyOpenVBA"
         #: What Shape.PickUp kept for Shape.Apply, which outlives the workbook.
         self.picked_up_shape: object = None
@@ -1730,7 +1732,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             book = reader(path)
         else:
             book = open_text(self.application, path, format_code) if text else load_workbook(self.application, path)
-        book.read_only = read_only
+        # A workbook file the system will not let this process write, as one with its read-only attribute set, opens read-only
+        # (tests/fixtures/workbook_status_reads.json). A text file is not measured.
+        book.read_only = read_only or (not text and not os.access(path, os.W_OK))
         self.books.append(book)
         try:
             if with_vba and not text:
@@ -1834,7 +1838,7 @@ class Workbook(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
-        "SheetPivotTableUpdate", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
+        "SheetPivotTableUpdate", "SheetPivotTableChangeSync", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
         "WindowActivate", "WindowDeactivate", "WindowResize"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
@@ -1853,6 +1857,10 @@ class Workbook(ExcelObject):
         #: (_workbook_settings), which a save writes.
         self.workbook_pr: dict[str, str] = {}
         self.workbook_pr_changed: set[str] = set()
+        #: SetPasswordEncryptionOptions' provider, algorithm, key length and file properties, which the four reads answer.
+        self.encryption_options: tuple[str, str, int, bool] = ("", "", 0, True)
+        #: ChartDataPointTrack: True for a new book, and what the file says for one opened (_date_system).
+        self.chart_data_point_track = True
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
         #: Whether a sheet of the file it was opened from held a link, which lists two more styles (_cell_styles._LINK_STYLES).
@@ -2104,7 +2112,9 @@ class Workbook(ExcelObject):
 
     @member
     def CreateBackup(self) -> object:
-        return False
+        """What the file says, as workbookPr's backupFile: a book Excel saved with CreateBackup reads True when opened again
+        (tests/fixtures/workbook_reads.json)."""
+        return self.workbook_pr.get("backupFile") in ("1", "true")
 
     @setter("CreateBackup")
     def _set_create_backup(self, value: object) -> None:
@@ -2167,7 +2177,7 @@ class Workbook(ExcelObject):
 
     @member
     def ChartDataPointTrack(self) -> object:
-        return True
+        return self.chart_data_point_track
 
     @setter("ChartDataPointTrack")
     def _set_chart_data_point_track(self, value: object) -> None:
@@ -2321,6 +2331,11 @@ class Workbook(ExcelObject):
     def CodeName(self) -> object:
         return self.code_name
 
+    @member(name="_CodeName")
+    def hidden_code_name(self) -> object:
+        """The hidden twin of CodeName (tests/fixtures/workbook_reads.json)."""
+        return self.code_name
+
     @member
     def FullName(self) -> object:
         return str(Path(self.path) / self.name) if self.path else self.name
@@ -2344,19 +2359,29 @@ class Workbook(ExcelObject):
 
     @member
     def PasswordEncryptionProvider(self) -> object:
-        return ""
+        return self.encryption_options[0]
 
     @member
     def PasswordEncryptionAlgorithm(self) -> object:
-        return ""
+        return self.encryption_options[1]
 
     @member
     def PasswordEncryptionKeyLength(self) -> object:
-        return VBAInt(0, "Long")
+        return VBAInt(self.encryption_options[2], "Long")
 
     @member
     def PasswordEncryptionFileProperties(self) -> object:
-        return True
+        return self.encryption_options[3]
+
+    @method
+    def SetPasswordEncryptionOptions(self, PasswordEncryptionProvider: object = MISSING, PasswordEncryptionAlgorithm: object = MISSING,
+                                     PasswordEncryptionKeyLength: object = MISSING,
+                                     PasswordEncryptionFileProperties: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_more import encryption_options
+
+        self.encryption_options = encryption_options(self.encryption_options, PasswordEncryptionProvider, PasswordEncryptionAlgorithm,
+                                                     PasswordEncryptionKeyLength, PasswordEncryptionFileProperties)
+        return EMPTY
 
     @member
     def ExternalCodeServiceTimeout(self) -> object:
@@ -3062,16 +3087,29 @@ class Workbook(ExcelObject):
 
     @member
     def DisplayDrawingObjects(self) -> object:
-        """xlDisplayShapes is a Long; anything else reads as a Double, its 32 bits unsigned
-        (tests/fixtures/settable_audit.json)."""
+        """Typed, a Long. Bound late, xlDisplayShapes is a Long and anything else reads as a Double, its 32 bits unsigned
+        (tests/fixtures/settable_audit.json, tests/fixtures/workbook_reads.json)."""
+        from pyopenvba.interpreter._objects import BINDING
+
         if self.drawing_objects == -4104:
             return VBAInt(-4104, "Long")
-        return float(self.drawing_objects & 0xFFFFFFFF)
+        unsigned = self.drawing_objects & 0xFFFFFFFF
+        if BINDING.late:
+            return float(unsigned)
+        # Typed, the 32 bits read back as a Long, so one past 2147483647, as True's -1 is, overflows
+        # (tests/fixtures/workbook_setters_heldout/round1_excel.json).
+        if unsigned > 2 ** 31 - 1:
+            raise error(6, "Overflow")
+        return VBAInt(unsigned, "Long")
 
     @setter("DisplayDrawingObjects")
     def _set_drawing_objects(self, value: object) -> None:
         """A Long as VBA passes it, 1 being xlDisplayShapes again; the workbook is no longer saved."""
-        number = int(to_integer(value, "Long"))
+        from pyopenvba.apps.excel._workbook_options import drawing_objects_of
+
+        number = drawing_objects_of(value)
+        if number is None:
+            return
         self.drawing_objects = -4104 if number == 1 else number
         self.saved = False
 
@@ -3213,7 +3251,11 @@ class Workbook(ExcelObject):
     @setter("PrecisionAsDisplayed")
     def _set_precision_as_displayed(self, value: object) -> None:
         """True rounds every number as its format shows it, now and from then on (see _precision)."""
-        wanted = to_bool(value)
+        from pyopenvba.apps.excel._workbook_settings import file_flag
+
+        wanted = file_flag("PrecisionAsDisplayed", value)
+        if wanted is None:
+            return
         if wanted and not self.precision_as_displayed:
             from pyopenvba.apps.excel._precision import turned_on
 
@@ -3508,7 +3550,7 @@ class Worksheet(ExcelObject):
     vba_type_name = "Worksheet"
     #: The events the model raises in the sheet's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
-        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "BeforeDelete",
+        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "PivotTableChangeSync", "BeforeDelete",
         "FollowHyperlink"})
     #: True once Delete took the sheet out of its workbook.
     deleted = False
@@ -4881,6 +4923,10 @@ class Range(ExcelObject):
 
         value = _not_null(value)
         _within_length(value)
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_cells import refuse_value_write
+
+            refuse_value_write(self)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):
@@ -6731,6 +6777,14 @@ class Range(ExcelObject):
                                    given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
                                           OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
+    @method
+    def CopyPicture(self, Appearance: object = MISSING, Format: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import copy_picture, given_arguments
+
+        if len(self.areas) > 1:
+            raise error(1004, "This action won't work on multiple selections.")
+        return copy_picture(self, 'Range', self.sheet.book, given_arguments(Appearance=Appearance, Format=Format))
+
     def _within(self, area: Area) -> bool:
         return any(one.top <= area.top and one.left <= area.left and one.bottom >= area.bottom and one.right >= area.right for one in self.areas)
 
@@ -6773,6 +6827,11 @@ class Range(ExcelObject):
         shift = given(Shift)
         lines = all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas)
         if shift is MISSING:
+            if filtered and not lines and self.sheet.book.application.display_alerts:
+                # Excel asks whether to delete the whole rows first (tests/fixtures/filter_shifts_c.json); the
+                # answer it takes with DisplayAlerts off is what follows.
+                raise VBAUnsupportedError("Range.Delete with no Shift on a filtered sheet with DisplayAlerts on, where "
+                                          "Excel asks first, is not implemented")
             up = filtered or self.first.rows <= self.first.columns
         else:
             # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on
@@ -6939,6 +6998,9 @@ class Range(ExcelObject):
             if which not in (-4121, -4161, 1, 2):
                 raise error(1004, refusal)
             down = which in (-4121, 2)
+        from pyopenvba.apps.excel._autofilter import insert_admitted
+
+        insert_admitted(self.sheet, area, down=down)
         self.shifting_cells(area, vertical=down, delete=False)
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)
@@ -7724,6 +7786,8 @@ class Range(ExcelObject):
             raise error(13, "Type mismatch")
         if not array.size:
             return
+        source_rows = array.bounds[0][1] - array.bounds[0][0] + 1 if array.dimensions == 2 else 1
+        source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
         for place, area in enumerate(visible_areas(self) or self.areas):
             if area.rows * area.columns > 1048576:
                 raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
@@ -7733,7 +7797,20 @@ class Range(ExcelObject):
                     if item is NULL or isinstance(item, VBAArray):
                         # Nothing a cell can hold.
                         item = EMPTY
-                    self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
+                    if isinstance(item, str) and _is_formula(item):
+                        # A formula repeated down a row of one, or across a column of one, moves with each cell, as
+                        # Formula's does (tests/fixtures/value2_rounds.json).
+                        try:
+                            item = shift_text(item, row if source_rows == 1 else 0, column if source_columns == 1 else 0)
+                        except ValueError:
+                            raise error(7, "Out of memory") from None
+                    try:
+                        self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
+                    except VBARuntimeError as failure:
+                        if failure.number != 1004 or not isinstance(item, str):
+                            raise
+                        # A formula Excel cannot read, in an array, is error 7 (tests/fixtures/value2_rounds.json).
+                        raise error(7, "Out of memory") from None
         self.sheet.touched()
 
     def _array_item(self, array: VBAArray, row: int, column: int, *, swapped: bool) -> object:
@@ -7974,22 +8051,32 @@ class Names(VBACollection, ItemDefault, ExcelObject):
     def Application(self) -> object:
         return self.book.application
 
-    def vba_items(self) -> list[object]:
+    def _listed(self) -> list[NameEntry]:
+        """The names the collection holds, in no order: a sheet's its own, the workbook's every name and the hidden ones."""
         from pyopenvba._a1 import split_sheet
 
         self._check_alive()
         entries = [entry for entry in self.entries if self.sheet is None or split_sheet(entry.name)[0].casefold() == self.sheet.name.casefold()]
+        if self.sheet is None:
+            held = {entry.name.casefold() for entry in entries}
+            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
+                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
+        return entries
+
+    def vba_items(self) -> list[object]:
+        from pyopenvba._a1 import split_sheet
         from pyopenvba.apps.excel._names import collation
 
         def order(entry: NameEntry) -> tuple[object, ...]:
             scope, bare = split_sheet(entry.name)
             return (collation(bare), 0 if scope else 1, collation(scope))
 
-        if self.sheet is None:
-            held = {entry.name.casefold() for entry in entries}
-            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
-                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
-        return [DefinedName(entry) for entry in sorted(entries, key=order)]
+        return [DefinedName(entry) for entry in sorted(self._listed(), key=order)]
+
+    @member
+    def Count(self) -> object:
+        """How many names there are, which needs no order, so names in any script count (tests/fixtures/names_count_scripts.json)."""
+        return VBAInt(len(self._listed()), "Long")
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         self.book.names_fetched = True
@@ -8657,7 +8744,7 @@ class _BookNames:
                 # Another workbook's name, Alpha.xlsx!Rate: as that workbook spells it, if its link has it.
                 number = linked[1:-1]
                 held = self.book.linked_books.get(int(number)) if number.isdigit() else None
-                if held is not None and held.made and not held.sheets and not held.extra_sheets:
+                if held is not None and held.made and not held.sheets:
                     # A workbook whose file was not there: the name as written, which the link keeps with nothing it refers to (see _new_links).
                     return next((own for own in held.names if own.casefold() == name.casefold()), None) or held.names.setdefault(name, '') or name
                 return None if held is None else next((own for own in held.names if own.casefold() == name.casefold()), None)
@@ -8845,9 +8932,11 @@ def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 
     try:
         return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
     except UnmodelledFormulaError:
-        # Excel takes it with no dialog when alerts are off: an open workbook's cells, a closed one's read from its file, and #REF! of
-        # one not there. A formula naming a workbook the file already links to goes another way (see _external_links).
-        raise VBAUnsupportedError("a formula naming a workbook the file does not link to is not implemented") from None
+        # No input reaches this today: a formula naming another workbook makes its link (see _new_links), and the
+        # parser refuses a structured token run into a ref, name or structured token first, as 1004 (21 shapes tried
+        # after tests/fixtures/book_refs.json). It stays as a guard: a sync of the formula code may bring a raise back,
+        # which would otherwise answer a trappable 1004 where the honest answer is that it is not modelled.
+        raise VBAUnsupportedError("a formula the model cannot spell is not implemented") from None
     except FormulaError:
         raise error(1004, "Application-defined or object-defined error") from None
 

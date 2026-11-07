@@ -225,8 +225,9 @@ def _x_search(
         expression = regular_expression(context, target, None)
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
         return next((index for index in order if not isinstance(values[index], CellError) and expression.search(context.text(values[index]))), None)
-    if isinstance(target, Empty):
-        # Nothing to look for: only a blank is the same, and nothing is near it.
+    if isinstance(target, Empty) and search not in (2, -2):
+        # Nothing to look for: only a blank is the same, and nothing is near it. In halves a blank is the largest value
+        # there is (tests/fixtures/xlookup_rounds.json).
         if mode != 0:
             return None
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
@@ -267,21 +268,27 @@ def _x_order(value: Scalar, target: Scalar) -> int:
 
 
 def _x_binary(values: list[Scalar], target: Scalar, mode: int, *, descending: bool) -> int | None:
-    """A plain binary search, in order or not, past blanks: where it stops, the next one
-    down or up is whichever its bounds left on that side."""
-    positions = [index for index, value in enumerate(values) if not isinstance(value, Empty)]
+    """A binary search, in order or not, halving at the lower middle. A blank is the largest value. A match is kept and the
+    search goes on toward the start, or toward the end searching from the bottom, so the one kept is the last met. Where it
+    stops, the next one down or up is whichever its bounds left on that side (tests/fixtures/xlookup_rounds.json)."""
+    positions = list(range(len(values)))
     low, high = 0, len(positions) - 1
+    found: int | None = None
     while low <= high:
         middle = (low + high) // 2
         order = _x_order(values[positions[middle]], target)
         if order == 0:
-            return positions[middle]
-        if (order > 0) != descending:
+            found = positions[middle]
+            if descending:
+                low = middle + 1
+            else:
+                high = middle - 1
+        elif (order > 0) != descending:
             high = middle - 1
         else:
             low = middle + 1
-    if mode == 0:
-        return None
+    if found is not None or mode == 0:
+        return found
     # Ascending, what is above stands at low and below at high; descending, the other way about.
     place = high if (mode == -1) != descending else low
     return positions[place] if 0 <= place < len(positions) else None

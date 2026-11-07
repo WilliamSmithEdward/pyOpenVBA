@@ -1081,6 +1081,10 @@ def _held_rows_and_columns(sheet: Worksheet) -> tuple[set[int], int, int]:
     """The rows holding a cell or a row record, and the first and last columns holding a cell, as an edge set on
     several areas sees them: a cell with a line holds the cells to its left, its right and below it too."""
     rows = set(sheet.dims.rows)
+    for row, record in sheet.dims.rows.items():
+        border = record.style.border if record.style is not None else None
+        if border is not None and row < MAX_ROWS and any(side.style for side in (border.left, border.top, border.bottom, border.right)):
+            rows.add(row + 1)
     columns: list[int] = []
     for row, column in sheet.cells_:
         rows.add(row)
@@ -1432,13 +1436,11 @@ class Border(ExcelObject):
         for before, area in zip(parts, parts[1:]):
             outline = {edge: _one_line([effective_side(sheet, row, column, edge) for row, column in _edge_places(before, edge)])
                        for edge in ("left", "top", "bottom", "right")}
-            if not any(side.style for side in outline.values()):
-                continue
             rows, left, right = _held_rows_and_columns(sheet)
             across = area.right < left or area.left > right
             down = not any(area.top <= row <= area.bottom for row in rows)
             for edge, taken in (("top", across), ("bottom", across), ("left", down), ("right", down)):
-                if taken and outline[edge].style:
+                if taken:
                     for row, column in _edge_places(area, edge):
                         change_side(sheet, row, column, _INDEX_OF_EDGE[edge], _exactly(outline[edge]))
         found = [effective_side(sheet, row, column, name) for row, column in places]

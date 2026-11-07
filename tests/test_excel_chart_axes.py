@@ -102,8 +102,10 @@ def test_manual_values_auto_flags_and_exact_numeric_persistence(tmp_path: Path) 
     assert [loaded.MinimumScale(), loaded.MaximumScale(), loaded.MajorUnit()] == [0, 40, 10]
     assert loaded.ReversePlotOrder() is True
     assert loaded.AxisTitle().Text() == 'Value & "margin" <2026>'
+    loaded.vba_set("MinimumScale", -1)
+    assert loaded.MinimumScale() == -1
     with pytest.raises(VBAUnsupportedError, match="imported"):
-        loaded.vba_set("MinimumScale", -1)
+        loaded.vba_set("MajorUnit", 5)
 
 
 @pytest.mark.parametrize("name", ["MinimumScale", "MaximumScale", "MajorUnit"])

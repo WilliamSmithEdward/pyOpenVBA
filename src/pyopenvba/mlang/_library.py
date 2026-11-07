@@ -110,7 +110,9 @@ def m_hash_table(*args: object) -> object:
     elif isinstance(columns, MType) and is_list(columns.detail):
         names = [as_text(one) for one in as_list(columns.detail)]
     elif isinstance(columns, (int, float)):
-        names = [f"Column{index + 1}" for index in range(int(as_number(columns)))]
+        wanted = _whole(columns)
+        _not_vast(wanted, "A table")
+        names = [f"Column{index + 1}" for index in range(wanted)]
     out: list[list[object]] = []
     for row in as_list(rows):
         out.append(list(as_list(row)))
@@ -121,16 +123,22 @@ def m_hash_table(*args: object) -> object:
 
 @m("#date", 3, 3)
 def m_hash_date(year: object, month: object, day: object) -> object:
+    numbers = _whole(year), _whole(month), _whole(day)
+    if not _dt.MINYEAR <= numbers[0] <= _dt.MAXYEAR:
+        raise MError("Expression.Error", _DATE_OUT_OF_RANGE)
     try:
-        return _dt.date(int(as_number(year)), int(as_number(month)), int(as_number(day)))
+        return _dt.date(*numbers)
     except ValueError as failure:
         raise MError("Expression.Error", str(failure)) from None
 
 
 @m("#time", 3, 3)
 def m_hash_time(hour: object, minute: object, second: object) -> object:
-    whole = int(as_number(second))
-    return _dt.time(int(as_number(hour)), int(as_number(minute)), whole)
+    hours, minutes, seconds = _whole(hour), _whole(minute), as_number(second)
+    # A fraction of a second is not measured, so passes, as the whole second it was before.
+    if not (math.isfinite(seconds) and 0 <= seconds < 60 and 0 <= hours <= 23 and 0 <= minutes <= 59):
+        raise MError("Expression.Error", _TIME_OUT_OF_RANGE)
+    return _dt.time(hours, minutes, int(seconds))
 
 
 @m("#datetime", 6, 6)
@@ -147,22 +155,39 @@ def m_hash_datetimezone(*args: object) -> object:
 
 @m("#duration", 4, 4)
 def m_hash_duration(days: object, hours: object, minutes: object, seconds: object) -> object:
-    return Duration(as_number(days), as_number(hours), as_number(minutes), as_number(seconds))
+    whole_days = as_number(days)
+    # Power Query holds the days in 32 bits: #duration(1e12, 0, 0, 0) is its Expression.Error. A fraction of a day is not measured, so passes.
+    if not (math.isfinite(whole_days) and -2 ** 31 <= whole_days < 2 ** 31):
+        raise MError("Expression.Error", _OUT_OF_RANGE.format(bits=32))
+    return Duration(whole_days, as_number(hours), as_number(minutes), as_number(seconds))
 
 
-#: What Power Query says of a count or a list's end past a 32-bit integer (tests/fixtures/m_vast_lists.json).
-_OUT_OF_INT32: Final = "The number is out of range of a 32 bit integer value."
+#: What Power Query says when it cannot take a number as an integer (tests/fixtures/m_vast_lists.json, m_number_arguments.json).
+_OUT_OF_RANGE: Final = "The number is out of range of a {bits} bit integer value."
+#: What Power Query says of a time past the day, as #time(25, 0, 0) (tests/fixtures/m_number_arguments.json).
+_TIME_OUT_OF_RANGE: Final = "The Time operation failed because the resulting value falls outside the range of allowed values."
+#: What Power Query says of a date past 9999 or before 1 (tests/fixtures/m_number_arguments.json).
+_DATE_OUT_OF_RANGE: Final = "The Date operation failed because the resulting value falls outside the range of allowed values."
 #: The most items this engine builds of a list or table. Power Query built 10 million in seconds and builds a larger one lazily, as an item at a
 #: time, where this engine would build it whole, so past this one is refused before any work rather than left to run on.
 MOST_ITEMS: Final = 10_000_000
 
 
-def _int32(value: object) -> int:
-    """A count or an end as a 32-bit integer, as {1..x} and Table.Repeat take it, or Power Query's Expression.Error."""
+def _whole(value: object, bits: int = 32) -> int:
+    """A number as Power Query takes a count, a position or an end: a whole number within a signed integer of so many bits. Anything else,
+    1.5 as much as 1e12 or infinity, is Power Query's Expression.Error, never a number cut to fit."""
     number = as_number(value)
-    if not (math.isfinite(number) and -2 ** 31 <= number <= 2 ** 31 - 1):
-        raise MError("Expression.Error", _OUT_OF_INT32)
+    if not (math.isfinite(number) and number == math.floor(number) and -2 ** (bits - 1) <= number < 2 ** (bits - 1)):
+        raise MError("Expression.Error", _OUT_OF_RANGE.format(bits=bits))
     return int(number)
+
+
+def _count(value: object, name: str = "count") -> int:
+    """A count or a start that may not be negative, named as Power Query names the argument in its error."""
+    number = _whole(value)
+    if number < 0:
+        raise MError("Expression.Error", f"The '{name}' argument is out of range.")
+    return number
 
 
 def _not_vast(items: float, what: str) -> None:
@@ -180,8 +205,8 @@ def m_hash_range(first: object, last: object) -> object:
     """
     if isinstance(first, str) and isinstance(last, str):
         return [chr(one) for one in range(ord(first), ord(last) + 1)]
-    start = _int32(first)
-    stop = _int32(last)
+    start = _whole(first)
+    stop = _whole(last)
     _not_vast(stop - start + 1, "A list range")
     return [number_out(float(one)) for one in range(start, stop + 1)]
 
@@ -324,7 +349,18 @@ def m_number_to_text(value: object, *rest: object) -> object:
         return as_text(number_out(number))
     from pyopenvba.access._format import format_value
 
-    return format_value(number, as_text(pattern))
+    if not isinstance(pattern, str):
+        raise MError("Expression.Error", f"We cannot convert the value {_spelled(pattern)} to type Text.")
+    return format_value(number, pattern)
+
+
+def _spelled(value: object) -> str:
+    """A value as Power Query names it in an error: 5, #infinity, -#infinity or #nan for a number."""
+    if isinstance(value, float) and math.isinf(value):
+        return "#infinity" if value > 0 else "-#infinity"
+    if isinstance(value, float) and math.isnan(value):
+        return "#nan"
+    return as_text(number_out(as_number(value))) if isinstance(value, (int, float)) and not isinstance(value, bool) else as_text(value)
 
 
 @m("Logical.From", 1, 1)
@@ -351,8 +387,7 @@ def m_date_from(value: object, *rest: object) -> object:
         return value
     if isinstance(value, str):
         return _parse_date(value).date()
-    number = as_number(value)
-    return (_dt.datetime(1899, 12, 30) + _dt.timedelta(days=number)).date()
+    return _from_serial(as_number(value), "Date").date()
 
 
 @m("DateTime.From", 1, 2)
@@ -365,7 +400,16 @@ def m_datetime_from(value: object, *rest: object) -> object:
         return _dt.datetime(value.year, value.month, value.day)
     if isinstance(value, str):
         return _parse_date(value)
-    return _dt.datetime(1899, 12, 30) + _dt.timedelta(days=as_number(value))
+    return _from_serial(as_number(value), "DateTime")
+
+
+def _from_serial(number: float, what: str) -> _dt.datetime:
+    """A day number from 30 December 1899, as Date.From and DateTime.From read one; past year 9999 it is Power Query's DataFormat.Error."""
+    try:
+        moment = _dt.datetime(1899, 12, 30) + _dt.timedelta(days=number)
+    except (OverflowError, ValueError):
+        raise MError("DataFormat.Error", f"We couldn't convert to {what}.") from None
+    return moment
 
 
 @m("Time.From", 1, 2)
@@ -378,7 +422,10 @@ def m_time_from(value: object, *rest: object) -> object:
         return value
     if isinstance(value, str):
         return _parse_date(value).time()
-    fraction = as_number(value) % 1
+    number = as_number(value)
+    if not math.isfinite(number):
+        raise MError("DataFormat.Error", "We couldn't convert to Time.")
+    fraction = number % 1
     return (_dt.datetime(2000, 1, 1) + _dt.timedelta(days=fraction)).time()
 
 
@@ -449,7 +496,9 @@ def m_date_day_of_week(value: object, *rest: object) -> object:
     if value is None:
         return None
     start = _optional(rest, 0, 0)
-    offset = int(as_number(start)) if isinstance(start, (int, float)) else 0
+    offset = _whole(start) if isinstance(start, (int, float)) else 0
+    if not 0 <= offset <= 6:
+        raise MError("Expression.Error", "The Day value provided is invalid.")
     return (_as_date(value).weekday() + 1 - offset) % 7
 
 
@@ -457,7 +506,10 @@ def m_date_day_of_week(value: object, *rest: object) -> object:
 def m_date_add_days(value: object, count: object) -> object:
     if value is None:
         return None
-    moved = _as_date(value) + _dt.timedelta(days=int(as_number(count)))
+    try:
+        moved = _as_date(value) + _dt.timedelta(days=_whole(count))
+    except OverflowError:
+        raise MError("Expression.Error", _DATE_OUT_OF_RANGE) from None
     return _dt.datetime.combine(moved, value.time()) if isinstance(value, _dt.datetime) else moved
 
 
@@ -465,16 +517,19 @@ def m_date_add_days(value: object, count: object) -> object:
 def m_date_add_months(value: object, count: object) -> object:
     if value is None:
         return None
-    when = _as_date(value)
-    total = when.year * 12 + when.month - 1 + int(as_number(count))
-    year, month = divmod(total, 12)
-    day = min(when.day, _days_in_month(year, month + 1))
-    return _dt.date(year, month + 1, day)
+    return _moved_months(_as_date(value), _whole(count))
+
+
+def _moved_months(when: _dt.date, months: int) -> _dt.date:
+    year, month = divmod(when.year * 12 + when.month - 1 + months, 12)
+    if not _dt.MINYEAR <= year <= _dt.MAXYEAR:
+        raise MError("Expression.Error", _DATE_OUT_OF_RANGE)
+    return _dt.date(year, month + 1, min(when.day, _days_in_month(year, month + 1)))
 
 
 @m("Date.AddYears", 2, 2)
 def m_date_add_years(value: object, count: object) -> object:
-    return m_date_add_months(value, int(as_number(count)) * 12)
+    return None if value is None else _moved_months(_as_date(value), _whole(count) * 12)
 
 
 @m("Date.StartOfMonth", 1, 1)
@@ -507,6 +562,7 @@ def m_datetime_to_text(value: object, *rest: object) -> object:
     if value is None:
         return None
     pattern = _optional(rest, 0)
+    _not_a_number(value, "DateTime")
     when = m_datetime_from(value)
     if not isinstance(when, _dt.datetime):
         raise MError("Expression.Error", f"We cannot read a {type_name(value)} as a datetime.")
@@ -523,6 +579,7 @@ def m_time_to_text(value: object, *rest: object) -> object:
     if value is None:
         return None
     pattern = _optional(rest, 0)
+    _not_a_number(value, "Time")
     when = m_time_from(value)
     if not isinstance(when, _dt.time):
         raise MError("Expression.Error", f"We cannot read a {type_name(value)} as a time.")
@@ -531,6 +588,12 @@ def m_time_to_text(value: object, *rest: object) -> object:
     from pyopenvba.access._format import format_value
 
     return format_value(_dt.datetime(1899, 12, 30, when.hour, when.minute, when.second), as_text(pattern))
+
+
+def _not_a_number(value: object, what: str) -> None:
+    """DateTime.ToText and its kin take no number: Power Query answers "We cannot convert the value #infinity to type DateTime."."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        raise MError("Expression.Error", f"We cannot convert the value {_spelled(value)} to type {what}.")
 
 
 def _days_in_month(year: int, month: int) -> int:
@@ -551,7 +614,7 @@ def m_number_round(value: object, *rest: object) -> object:
 
     from decimal import ROUND_HALF_DOWN, ROUND_HALF_UP
 
-    digits = int(as_number(_optional(rest, 0, 0)))
+    places = as_number(_optional(rest, 0, 0))
     mode = _optional(rest, 1, "ToEven")
     how = {
         "ToEven": ROUND_HALF_EVEN,
@@ -560,23 +623,44 @@ def m_number_round(value: object, *rest: object) -> object:
         "Up": ROUND_HALF_UP,
         "Down": ROUND_HALF_DOWN,
     }.get(as_text(mode), ROUND_HALF_EVEN)
-    quantum = Decimal(1).scaleb(-digits)
-    rounded = Decimal(repr(as_number(value))).quantize(quantum, rounding=how)
-    return Scaled(float(rounded), places_of(value))
+    number = as_number(value)
+    # Power Query leaves the number as it is for digits that are no whole number: Number.Round(1.2345, 2.5) is 1.2345, and 1.8e308 digits are
+    # no change (tests/fixtures/m_number_arguments.json).
+    if not (math.isfinite(number) and math.isfinite(places) and places == math.floor(places)):
+        return number_out(number)
+    return Scaled(_rounded(number, int(places), how), places_of(value))
+
+
+def _rounded(number: float, digits: int, how: str) -> float:
+    """A finite number rounded at so many decimal places, exactly. A Double has at most 1074 places after the point, so more is no change, and
+    one under 1.8e308 rounded at 309 places before the point is 0."""
+    from decimal import Decimal, localcontext
+
+    if digits > 1074:
+        return number
+    if digits < -309:
+        return 0.0
+    with localcontext() as context:
+        context.prec, context.Emax, context.Emin = 2500, 2500, -2500
+        return float(Decimal(repr(number)).quantize(Decimal(1).scaleb(-digits), rounding=how))
 
 
 @m("Number.RoundDown", 1, 2)
 def m_number_round_down(value: object, *rest: object) -> object:
-    digits = int(as_number(_optional(rest, 0, 0)))
-    scale = 10.0**digits
-    return number_out(math.floor(as_number(value) * scale) / scale)
+    from decimal import ROUND_FLOOR
+
+    digits = _whole(_optional(rest, 0, 0))
+    number = as_number(value)
+    return number_out(_rounded(number, digits, ROUND_FLOOR) if math.isfinite(number) else number)
 
 
 @m("Number.RoundUp", 1, 2)
 def m_number_round_up(value: object, *rest: object) -> object:
-    digits = int(as_number(_optional(rest, 0, 0)))
-    scale = 10.0**digits
-    return number_out(math.ceil(as_number(value) * scale) / scale)
+    from decimal import ROUND_CEILING
+
+    digits = _whole(_optional(rest, 0, 0))
+    number = as_number(value)
+    return number_out(_rounded(number, digits, ROUND_CEILING) if math.isfinite(number) else number)
 
 
 @m("Number.Abs", 1, 1)
@@ -586,24 +670,39 @@ def m_number_abs(value: object) -> object:
 
 @m("Number.IntegerDivide", 2, 3)
 def m_number_integer_divide(left: object, right: object, *rest: object) -> object:
-    second = as_number(right)
-    if second == 0:
-        raise MError("Expression.Error", "cannot divide by zero")
-    return number_out(math.trunc(as_number(left) / second))
+    first, second = as_number(left), as_number(right)
+    # NaN by zero and of infinity, as Power Query answers (tests/fixtures/m_number_arguments.json).
+    if second == 0 or not math.isfinite(first) or math.isnan(second):
+        return number_out(math.nan)
+    return number_out(math.trunc(first / second))
 
 
 @m("Number.Mod", 2, 3)
 def m_number_mod(left: object, right: object, *rest: object) -> object:
-    second = as_number(right)
-    if second == 0:
-        raise MError("Expression.Error", "cannot divide by zero")
-    first = as_number(left)
+    first, second = as_number(left), as_number(right)
+    if second == 0 or not math.isfinite(first) or math.isnan(second):
+        return number_out(math.nan)
+    if math.isinf(second):
+        return number_out(first)
     return number_out(first - second * math.trunc(first / second))
 
 
 @m("Number.Power", 2, 2)
 def m_number_power(left: object, right: object) -> object:
-    return number_out(as_number(left) ** as_number(right))
+    """A Double's power, as Power Query answers it: infinity past the largest Double and for zero to a negative power, NaN for a negative
+    number to a fraction, and NaN for zero to the zero, which Power Query answers (tests/fixtures/m_number_arguments.json)."""
+    base, exponent = as_number(left), as_number(right)
+    if base == 0 and exponent == 0:
+        return number_out(math.nan)
+    odd = math.isfinite(exponent) and exponent == math.floor(exponent) and exponent % 2 == 1
+    if base == 0 and exponent < 0:
+        return number_out(math.copysign(math.inf, base) if odd else math.inf)
+    try:
+        return number_out(math.pow(base, exponent))
+    except OverflowError:
+        return number_out(-math.inf if base < 0 and odd else math.inf)
+    except ValueError:
+        return number_out(math.nan)
 
 
 @m("Number.Sqrt", 1, 1)
@@ -615,12 +714,15 @@ def m_number_sqrt(value: object) -> object:
 
 @m("Number.IsEven", 1, 1)
 def m_number_is_even(value: object) -> object:
-    return int(as_number(value)) % 2 == 0
+    number = as_number(value)
+    # No whole number is even or odd: Number.IsEven(1.5) and Number.IsOdd of infinity are false (tests/fixtures/m_number_arguments.json).
+    return math.isfinite(number) and number == math.floor(number) and int(number) % 2 == 0
 
 
 @m("Number.IsOdd", 1, 1)
 def m_number_is_odd(value: object) -> object:
-    return int(as_number(value)) % 2 == 1
+    number = as_number(value)
+    return math.isfinite(number) and number == math.floor(number) and int(number) % 2 == 1
 
 
 # --- Text ----------------------------------------------------------------------------------------
@@ -669,7 +771,7 @@ def m_text_trim_end(value: object, *rest: object) -> object:
 
 @m("Text.Start", 2, 2)
 def m_text_start(value: object, count: object) -> object:
-    return None if value is None else as_text(value)[: int(as_number(count))]
+    return None if value is None else as_text(value)[: _count(count)]
 
 
 @m("Text.End", 2, 2)
@@ -677,7 +779,7 @@ def m_text_end(value: object, count: object) -> object:
     if value is None:
         return None
     body = as_text(value)
-    wanted = int(as_number(count))
+    wanted = _count(count)
     return body[max(0, len(body) - wanted) :] if wanted else ""
 
 
@@ -686,11 +788,11 @@ def m_text_middle(value: object, start: object, *rest: object) -> object:
     if value is None:
         return None
     body = as_text(value)
-    at = int(as_number(start))
+    at = _count(start, "start")
     count = _optional(rest, 0)
     if count is None:
         return body[at:]
-    return body[at : at + int(as_number(count))]
+    return body[at : at + _count(count)]
 
 
 @m("Text.Range", 2, 3)
@@ -736,25 +838,27 @@ def m_text_combine(values: object, *rest: object) -> object:
 
 @m("Text.Repeat", 2, 2)
 def m_text_repeat(value: object, count: object) -> object:
-    return as_text(value) * int(as_number(count))
+    return as_text(value) * _count(count)
 
 
 @m("Text.PadStart", 2, 3)
 def m_text_pad_start(value: object, width: object, *rest: object) -> object:
     filler = as_text(_optional(rest, 0, " "))
-    return as_text(value).rjust(int(as_number(width)), filler[0] if filler else " ")
+    return as_text(value).rjust(_count(width), filler[0] if filler else " ")
 
 
 @m("Text.PadEnd", 2, 3)
 def m_text_pad_end(value: object, width: object, *rest: object) -> object:
     filler = as_text(_optional(rest, 0, " "))
-    return as_text(value).ljust(int(as_number(width)), filler[0] if filler else " ")
+    return as_text(value).ljust(_count(width), filler[0] if filler else " ")
 
 
 @m("Text.Insert", 3, 3)
 def m_text_insert(value: object, at: object, inserted: object) -> object:
     body = as_text(value)
-    position = int(as_number(at))
+    position = _whole(at)
+    if not 0 <= position <= len(body):
+        raise MError("Expression.Error", "The 'offset' argument is out of range.")
     return body[:position] + as_text(inserted) + body[position:]
 
 
@@ -856,22 +960,23 @@ def m_list_first_n(values: object, count: object) -> object:
                 break
             kept.append(one)
         return kept
-    return items[: int(as_number(count))]
+    return items[: _count(count)]
 
 
 @m("List.Skip", 1, 2)
 def m_list_skip(values: object, *rest: object) -> object:
     items = as_list(values)
     count = _optional(rest, 0, 1)
-    return items[int(as_number(count)) :]
+    return items[_count(count, "countOrCondition") :]
 
 
 @m("List.Range", 2, 3)
 def m_list_range(values: object, start: object, *rest: object) -> object:
     items = as_list(values)
-    at = int(as_number(start))
+    # Power Query names the start countOrCondition in its error, as List.Skip does (tests/fixtures/m_number_arguments.json).
+    at = _count(start, "countOrCondition")
     count = _optional(rest, 0)
-    return items[at:] if count is None else items[at : at + int(as_number(count))]
+    return items[at:] if count is None else items[at : at + _count(count)]
 
 
 @m("List.Distinct", 1, 2)
@@ -939,8 +1044,11 @@ def m_list_numbers(start: object, count: object, *rest: object) -> object:
     first = as_number(start)
     # No 32-bit check here: Power Query answers List.First(List.Numbers(1, 1e12)) at once (tests/fixtures/m_vast_lists.json).
     wanted = as_number(count)
+    if wanted < 0:
+        raise MError("Expression.Error", "The 'count' argument is out of range.")
     _not_vast(wanted if not math.isnan(wanted) else 0, "List.Numbers")
-    return [number_out(first + step * index) for index in range(int(wanted))]
+    # A fraction counts up: List.Numbers(1, 2.5) has three items (tests/fixtures/m_number_arguments.json).
+    return [number_out(first + step * index) for index in range(math.ceil(wanted) if not math.isnan(wanted) else 0)]
 
 
 @m("List.Zip", 1, 1)
@@ -1267,8 +1375,8 @@ def m_table_select_rows(table: object, condition: object) -> object:
 @m("Table.RemoveRows", 2, 3)
 def m_table_remove_rows(table: object, start: object, *rest: object) -> object:
     source = as_table(table)
-    at = int(as_number(start))
-    count = int(as_number(_optional(rest, 0, 1)))
+    at = _whole(start)
+    count = _whole(_optional(rest, 0, 1))
     rows = [row for index, row in enumerate(source.rows) if not at <= index < at + count]
     return Table(list(source.columns), rows)
 
@@ -1283,29 +1391,37 @@ def m_table_first_n(table: object, count: object) -> object:
                 break
             kept.append([row.get(name) for name in source.columns])
         return Table(list(source.columns), kept)
-    return Table(list(source.columns), [list(row) for row in source.rows[: int(as_number(count))]])
+    return Table(list(source.columns), [list(row) for row in source.rows[: _rows(count)]])
+
+
+def _rows(value: object) -> int:
+    """A count of rows as Table.FirstN and Table.Skip take one: a whole number in 64 bits, and not negative."""
+    number = _whole(value, 64)
+    if number < 0:
+        raise MError("Expression.Error", "We expected a CountOrCondition value.")
+    return number
 
 
 @m("Table.LastN", 2, 2)
 def m_table_last_n(table: object, count: object) -> object:
     source = as_table(table)
-    wanted = int(as_number(count))
+    wanted = _whole(count, 64)
     return Table(list(source.columns), [list(row) for row in source.rows[max(0, source.height - wanted) :]])
 
 
 @m("Table.Skip", 1, 2)
 def m_table_skip(table: object, *rest: object) -> object:
     source = as_table(table)
-    count = int(as_number(_optional(rest, 0, 1)))
+    count = _rows(_optional(rest, 0, 1))
     return Table(list(source.columns), [list(row) for row in source.rows[count:]])
 
 
 @m("Table.Range", 2, 3)
 def m_table_range(table: object, start: object, *rest: object) -> object:
     source = as_table(table)
-    at = int(as_number(start))
+    at = _whole(start, 64)
     count = _optional(rest, 0)
-    rows = source.rows[at:] if count is None else source.rows[at : at + int(as_number(count))]
+    rows = source.rows[at:] if count is None else source.rows[at : at + _whole(count, 64)]
     return Table(list(source.columns), [list(row) for row in rows])
 
 
@@ -1369,9 +1485,10 @@ def m_table_add_column(table: object, name: object, generator: object, *rest: ob
 @m("Table.AddIndexColumn", 2, 5)
 def m_table_add_index_column(table: object, name: object, *rest: object) -> object:
     source = as_table(table)
-    start = int(as_number(_optional(rest, 0, 0)))
-    step = int(as_number(_optional(rest, 1, 1)))
-    rows = [[*row, start + index * step] for index, row in enumerate(source.rows)]
+    # Any number starts and steps: 1.5 starts at 1.5, and infinity is infinity (tests/fixtures/m_number_arguments.json).
+    start = as_number(_optional(rest, 0, 0))
+    step = as_number(_optional(rest, 1, 1))
+    rows = [[*row, number_out(start + index * step if index else start)] for index, row in enumerate(source.rows)]
     return Table([*source.columns, as_text(name)], rows)
 
 
@@ -1724,7 +1841,14 @@ def m_json_document(source: object, *rest: object) -> object:
     import json
 
     text = source.decode("utf-8-sig") if isinstance(source, bytes) else as_text(source)
-    return _from_json(json.loads(text))
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError as failure:
+        # Power Query's words for "[1" and for "abc"; other failures take the second, which is not measured for each kind.
+        unclosed = text.lstrip().startswith("[") and failure.pos >= len(text.rstrip())
+        raise MError("DataFormat.Error", "We found an invalid array in the JSON input." if unclosed
+                     else "We found an unexpected character in the JSON input.") from None
+    return _from_json(parsed)
 
 
 def _from_json(value: object) -> object:
@@ -1798,24 +1922,31 @@ def m_duration_from(value: object, *rest: object) -> object:
     return None if value is None else _as_duration(value)
 
 
+def _a_duration(value: object) -> Duration:
+    """What Duration.Days and its kin take: a duration. Power Query answers Duration.Days(5) with "We cannot convert the value 5 to type
+    Duration.", where Duration.From reads a number as days (tests/fixtures/m_number_arguments.json)."""
+    _not_a_number(value, "Duration")
+    return _as_duration(value)
+
+
 @m("Duration.Days", 1, 1)
 def m_duration_days(value: object) -> object:
-    return None if value is None else number_out(float(int(_as_duration(value).days)))
+    return None if value is None else number_out(float(int(_a_duration(value).days)))
 
 
 @m("Duration.Hours", 1, 1)
 def m_duration_hours(value: object) -> object:
-    return None if value is None else number_out(float(int(_as_duration(value).hours)))
+    return None if value is None else number_out(float(int(_a_duration(value).hours)))
 
 
 @m("Duration.Minutes", 1, 1)
 def m_duration_minutes(value: object) -> object:
-    return None if value is None else number_out(float(int(_as_duration(value).minutes)))
+    return None if value is None else number_out(float(int(_a_duration(value).minutes)))
 
 
 @m("Duration.Seconds", 1, 1)
 def m_duration_seconds(value: object) -> object:
-    return None if value is None else number_out(float(int(_as_duration(value).seconds)))
+    return None if value is None else number_out(float(int(_a_duration(value).seconds)))
 
 
 @m("Duration.TotalDays", 1, 1)
@@ -1840,7 +1971,7 @@ def m_duration_total_seconds(value: object) -> object:
 
 @m("Duration.ToText", 1, 2)
 def m_duration_to_text(value: object, *rest: object) -> object:
-    return None if value is None else duration_text(_as_duration(value))
+    return None if value is None else duration_text(_a_duration(value))
 
 
 # --- characters and whole numbers --------------------------------------------------------
@@ -1848,7 +1979,12 @@ def m_duration_to_text(value: object, *rest: object) -> object:
 
 @m("Character.FromNumber", 1, 1)
 def m_character_from_number(value: object) -> object:
-    return None if value is None else chr(int(as_number(value)))
+    if value is None:
+        return None
+    code = _whole(value)
+    if not 0 <= code <= 0x10FFFF or 0xD800 <= code <= 0xDFFF:
+        raise MError("Expression.Error", "We couldn't convert to Character.")
+    return chr(code)
 
 
 @m("Character.ToNumber", 1, 1)
@@ -1867,7 +2003,7 @@ def m_int64_from(value: object, *rest: object) -> object:
     if value is None:
         return None
     rounded = m_number_round(_to_number(value), 0, _optional(rest, 1, "ToEven"))
-    return int(as_number(rounded))
+    return _whole(rounded, 64)
 
 
 @m("Text.BetweenDelimiters", 3, 5)
@@ -1950,7 +2086,8 @@ def m_list_standard_deviation(values: object) -> object:
     if len(numbers) == 1:
         return 0
     mean = math.fsum(numbers) / len(numbers)
-    spread = math.fsum((one - mean) ** 2 for one in numbers) / (len(numbers) - 1)
+    # A product, not a power: past the largest Double it is infinity, as Power Query answers, where ** raises.
+    spread = math.fsum((one - mean) * (one - mean) for one in numbers) / (len(numbers) - 1)
     return number_out(math.sqrt(spread))
 
 
@@ -1990,7 +2127,7 @@ def m_table_reverse_rows(table: object) -> object:
 @m("Table.Repeat", 2, 2)
 def m_table_repeat(table: object, count: object) -> object:
     source = as_table(table)
-    times = _int32(count)
+    times = _whole(count)
     _not_vast(times * len(source.rows), "Table.Repeat")
     return Table(list(source.columns), [list(row) for _ in range(times) for row in source.rows])
 

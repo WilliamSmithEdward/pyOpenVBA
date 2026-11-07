@@ -1,0 +1,29 @@
+{
+ "measured_at": "2026-11-07T12:24:23.985693+00:00",
+ "events": [
+  "ModelChange",
+  "PivotTableCloseConnection",
+  "PivotTableOpenConnection",
+  "RowsetComplete",
+  "SheetPivotTableAfterValueChange",
+  "SheetPivotTableBeforeAllocateChanges",
+  "SheetPivotTableBeforeCommitChanges",
+  "SheetPivotTableBeforeDiscardChanges",
+  "SheetPivotTableChangeSync",
+  "SheetPivotTableUpdate",
+  "SheetTableUpdate"
+ ],
+ "answers": {
+  "pivot_refresh": "e0~Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|",
+  "pivot_source_refresh": "e0~Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|",
+  "pivot_field_move": "e0~Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|",
+  "pivot_value_edit": "e1004 Application-defined or object-defined error~Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|",
+  "pivot_create": "e0~Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|",
+  "pivot_add_data": "e0~Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|",
+  "pivot_function": "e0~Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|",
+  "pivot_clear": "e0~Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|",
+  "model_add": "e0~ModelChange|",
+  "model_pivot": "e0~ModelChange|PivotTableOpenConnection|Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|Sheet:PivotTableUpdate|SheetPivotTableUpdate|App:SheetPivotTableUpdate|Sheet:PivotTableChangeSync|SheetPivotTableChangeSync|",
+  "model_table": "e0~ModelChange|ModelChange|SheetTableUpdate|"
+ }
+}

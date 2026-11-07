@@ -28,7 +28,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 ROUNDS = tuple(stem for stem in ('advanced_filter_shifts', 'advanced_filter_shifts_b', 'advanced_filter_shifts_c', 'advanced_filter_shifts_d',
                                   'advanced_filter_shifts_e', 'advanced_filter_shifts_f', 'advanced_filter_shifts_g', 'advanced_filter_shifts_h',
-                                  'advanced_filter_shifts2', 'advanced_filter_shifts3', 'advanced_filter_shifts4', 'advanced_filter_shifts5')
+                                  'advanced_filter_shifts2', 'advanced_filter_shifts3', 'advanced_filter_shifts4', 'advanced_filter_shifts5',
+                                  'advanced_filter_shifts_plain1', 'advanced_filter_shifts_plainapart1')
                if (FIXTURES / f'{stem}.json').exists())
 REFUSALS = ('where Excel asks first', 'unmatched criteria headers')
 

@@ -10,6 +10,7 @@ Typed, a member the collection's type does not have is a compile error, which st
 checklist lists on that collection. Each row runs in a module of its own.
 
     python scripts/measure_old_collection_lets.py [seconds]
+    python scripts/measure_old_collection_lets.py subsets
 
 writes tests/fixtures/old_collection_lets.json, which tests/test_excel_old_collection_lets.py replays. It keeps its place in a file
 under TEMP, so a run that stops can go on.
@@ -113,6 +114,61 @@ def row_source(case: dict[str, str]) -> str:
     return (DRIVER.replace('{read}', read).replace('{declared}', declared).replace('{c}', collection).replace('{m}', member).replace('{v}', case['value']))
 
 
+#: Each kind's two items, as DrawingObjects picks them by name: a set on all the sheet's drawings split by kind, to find which kind makes the
+#: whole set answer an error that the kind's own collection does not.
+KINDS = {'Arcs': 'Arc', 'Buttons': 'Button', 'CheckBoxes': 'CheckBox', 'DropDowns': 'DropDown', 'Lines': 'Line', 'ListBoxes': 'ListBox',
+         'OptionButtons': 'OptionButton', 'Ovals': 'Oval', 'Pictures': 'Picture', 'Rectangles': 'Rectangle', 'TextBoxes': 'TextBox'}
+SUBSET = r'''Public Function Row(ByVal path As String, ByVal saved As String) As String
+    Dim wb As Workbook, ws As Object, o As Object, e As Long, s As String, x As Object
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Open(path, 0)
+    Set ws = wb.Worksheets(1)
+    Set o = ws.DrawingObjects(Array(ws.{c}(1).Name, ws.{c}(2).Name))
+    On Error Resume Next
+    o.{m} = {v}
+    e = Err.Number
+    Err.Clear
+    For Each x In o
+        Err.Clear
+        s = s & ";" & TypeName(x.{m}) & " " & CStr(x.{m})
+        If Err.Number Then s = s & "E" & Err.Number
+    Next
+    On Error GoTo 0
+    wb.Close False
+    Row = "E" & e & "|" & Mid(s, 2)
+End Function
+'''
+
+
+def subsets() -> None:
+    """Each property set on the sheet's drawings picked down to one kind, late, its answer and the items' reads after: tests/fixtures/old_collection_subsets.json."""
+    from pyvbaharness import ExcelSession, HarnessConfig, HarnessError
+
+    out = ROOT / 'tests/fixtures/old_collection_subsets.json'
+    found: list[dict[str, str]] = []
+    session = ExcelSession(HarnessConfig(exclusive=False))
+    session.new_document()
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as held:
+        for member, value in VALUES.items():
+            for collection in KINDS:
+                book = Path(held) / 'book.xlsx'
+                book.write_bytes(BOOK.read_bytes())
+                source = SUBSET.replace('{c}', collection).replace('{m}', member).replace('{v}', value)
+                try:
+                    ran = session.run_vba(source, 'Row', (str(book), ''), timeout=45.0, line_numbers=False)
+                    answer = str(ran.value) if ran.ok and not ran.dialogs else f'failed {ran.outcome}'
+                except HarnessError as failed:
+                    session.close()
+                    time.sleep(5)
+                    session = ExcelSession(HarnessConfig(exclusive=False))
+                    session.new_document()
+                    answer = f'failed harness {str(failed)[:60]}'
+                found.append({'member': member, 'value': value, 'kind': collection, 'excel': answer})
+                print(member, collection, answer[:120], flush=True)
+    session.close()
+    out.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'source': SUBSET, 'cases': found}, indent=0) + '\n', encoding='utf-8')
+
+
 def main() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig, HarnessError
 
@@ -155,4 +211,7 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    if sys.argv[1:] == ["subsets"]:
+        subsets()
+    else:
+        main()

@@ -99,7 +99,7 @@ def _values(app: ExcelApplication) -> dict[str, object]:
     made['array'] = app.interpreter.run('WalkSetup.Awkward', [1])
     made['unallocated'] = app.interpreter.run('WalkSetup.Awkward', [2])
     made['date'] = app.interpreter.run('WalkSetup.Awkward', [3])
-    made['object'] = app.application.vba_get('ActiveSheet').vba_get('Range', ['A1'])  # pyright: ignore[reportAttributeAccessIssue]
+    made['object'] = _follow(app, [('ActiveSheet', []), ('Range', ['A1'])])
     return made
 
 

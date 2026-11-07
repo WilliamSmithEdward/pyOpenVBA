@@ -27,9 +27,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'chart_turns_and_label_fonts.json').read_text(encoding='utf-8'))
 LOADED = 'loaded_chart_plain.xlsx'
-#: Refused on the loaded book: label edits there are not built, nor turns to these types.
-REFUSED = ('label text then font', 'label font then text', 'label font only', 'label text then bold', 'type area', 'type area stacked',
-           'type pie', 'type doughnut', 'type area and back', 'series type line', 'series type line markers')
+#: Refused on the loaded book: label edits there are not built.
+REFUSED = ('label text then font', 'label font then text', 'label font only', 'label text then bold')
 _UNIQUE = re.compile(r'(uniqueId val="\{[0-9A-F]{8})-[0-9A-F-]+')
 _AXIS = re.compile(r'(<c:(?:axId|crossAx) val=")\d+')
 

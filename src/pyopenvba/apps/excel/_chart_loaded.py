@@ -452,7 +452,7 @@ _SER = re.compile(r'<c:ser><c:idx val="(\d+)"/>.*?</c:ser>', re.DOTALL)
 #: (tests/fixtures/loaded_chart_structure_edits.json).
 PLOT_EDITS = frozenset({
     'SeriesCollection.NewSeries', 'Series.Delete', 'Chart.SetSourceData', 'Chart.PlotBy', 'Series.Values', 'Series.XValues',
-    'Series.Formula', 'Chart.ChartType'})
+    'Series.Formula', 'Chart.ChartType', 'Series.ChartType'})
 
 
 def _plot_now(chart: Chart) -> str:

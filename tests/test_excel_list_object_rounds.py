@@ -20,7 +20,10 @@ _spec.loader.exec_module(LISTS)
 
 RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8')) for path in sorted((ROOT / 'tests/fixtures/list_object_rounds').glob('round_*.json'))]
 USED_UP = {53101: "a table's default member answered DisplayName, not Name (tests/fixtures/list_object_default.json)",
-           53102: 'the same default member'}
+           53102: 'the same default member',
+           53103: "TableStyle set to an unknown name on a book with a style of its own took the name, where Excel raises 450 "
+                  '(tests/fixtures/table_style_own.json)',
+           53104: 'the same TableStyle set'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

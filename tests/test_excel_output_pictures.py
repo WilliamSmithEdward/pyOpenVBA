@@ -157,7 +157,7 @@ def test_a_hidden_shape_copies_nothing_and_its_function_is_not_called(tmp_path: 
 
 def test_a_paste_of_the_picture_reports_itself_until_cells_are_copied(tmp_path: Path) -> None:
     app, folder = _book(tmp_path)
-    app.set_hook('CopyPicture', lambda request: None)
+    app.set_hook('CopyPicture', _drawn)
     with pytest.raises(VBAUnsupportedError, match='picture'):
         _macro(app, '    wb.Worksheets("One").Range("A1:B3").CopyPicture\n    wb.Worksheets("Two").Activate\n    wb.Worksheets("Two").Paste wb.Worksheets("Two").Range("D1")', folder)
     got = _macro(app, '    wb.Worksheets("One").Range("A1:B3").CopyPicture\n    wb.Worksheets("One").Range("A2").Copy\n'

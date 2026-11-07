@@ -145,8 +145,10 @@ class SeriesState:
     format_look: FillLine | None = None
     #: Whether a loaded series' look was read from its file: none of its own on a chart with no style part, or one the reads answer.
     look_read: bool = False
-    #: Whether a loaded series holds a look for one of its points, which is not read, so its points' reads are refused.
+    #: Whether a loaded series holds a look or labels its points take, which are not read, so its points' reads are refused.
     points_unread: bool = False
+    #: Whether a loaded series holds a label of one of its points, which its DataLabels answer from but is not read.
+    labels_unread: bool = False
     #: What was set of its points, by their index from 0 (tests/fixtures/series_points.json).
     points: dict[int, PointState] = field(default_factory=lambda: {})
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
@@ -4812,6 +4814,9 @@ class Series(PictureMembers, Created):
         from pyopenvba.apps.excel._chart_data_labels import DataLabels
 
         self.position()
+        if self.chart.state.original and self.entry.labels_unread:
+            # Excel answers from the point's label (tests/fixtures/loaded_chart_labels.json).
+            raise VBAUnsupportedError("The data labels of an imported chart's series with a point's label are not implemented")
         if not self.has_labels():
             raise error(-2147467259, 'Automation error\nUnspecified error')
         labels = DataLabels(self, self.entry.label_generation)

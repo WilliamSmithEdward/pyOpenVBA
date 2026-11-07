@@ -118,6 +118,16 @@ def read_looks(state: ChartState, package: OpcFile, part: str) -> None:
     """Each loaded series' and element's look that can be read, and so answered; the rest stays unread, and refused."""
     from pyopenvba.apps.excel._chart_styled import _accent, _box, _painted, _point_box, _stroke  # pyright: ignore[reportPrivateUsage]
 
+    # What a series holds for its points, which is not read: these keep its points', and its labels', reads refused whatever else is
+    # read (tests/fixtures/loaded_chart_labels.json).
+    found = _SERIES.findall(state.original)
+    if len(found) == len(state.series):
+        for entry, markup in zip(state.series, found):
+            entry.points_unread = '<c:dPt>' in markup or '<c:dLbls>' in markup
+            entry.labels_unread = '<c:dLbl>' in markup
+    else:
+        for entry in state.series:
+            entry.points_unread = entry.labels_unread = True
     style = None
     if state.style_part:
         style = _style(state, package, part)
@@ -129,11 +139,9 @@ def read_looks(state: ChartState, package: OpcFile, part: str) -> None:
         return _painted(_box(style, name), _accent(0)) if style is not None else ''
 
     xml = state.original
-    found = _SERIES.findall(xml)
     orders = [int(hit.group(1)) if (hit := _ORDER.search(one)) else -1 for one in found]
     if len(found) == len(state.series) and sorted(orders) == orders:
         for index, (entry, markup) in enumerate(zip(state.series, found)):
-            entry.points_unread = '<c:dPt>' in markup
             expected = _point_box(style, index) if style is not None else ''
             own = _own(_SERIES_PARTS.sub('', markup), expected)
             if own == '':

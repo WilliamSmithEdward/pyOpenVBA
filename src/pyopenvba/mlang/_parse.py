@@ -12,6 +12,7 @@ carried rather than acted on, so a formula that has one still parses.
 
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass, field
 from typing import Final
@@ -518,8 +519,13 @@ class Parser:
         if kind == "number":
             self.advance()
             text = token.text
-            value = float(int(text, 16)) if text[:2].lower() == "0x" else float(text)
-            return Literal(value=int(value) if value.is_integer() else value)
+            if text[:2].lower() == "0x":
+                # An unsigned 64-bit integer, exact and wrapping past 2**64, never a Double: 0x20000000000001 stays
+                # 9007199254740993, and a literal of 300 digits is its low 64 bits (tests/fixtures/m_number_limits.json).
+                return Literal(value=int(text, 16) % 2 ** 64)
+            value = float(text)
+            # Past the largest Double a literal is infinity, which stays a float rather than a whole number.
+            return Literal(value=int(value) if value.is_integer() and math.isfinite(value) else value)
         if kind == "text":
             self.advance()
             return Literal(value=text_value(token.text))

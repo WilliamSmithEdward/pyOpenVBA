@@ -168,6 +168,10 @@ class Slot:
         if self.array_of == "Byte" and isinstance(value, str):
             # A String assigned to a Byte array is its UTF-16LE bytes (native probe).
             value = text_bytes(value)
+        elif isinstance(value, VBAObject) and not of_declared_class(value, self.declared):
+            # A variable of a class takes only an object of that class, and keeps what it held: Set c = Worksheets(1) with
+            # c As Collection is 13, as is Set ws = ws.Parent (tests/fixtures/typed_set.json).
+            raise error(ERR_TYPE_MISMATCH)
         elif (isinstance(value, VBAArray) and self.array_of and value.element_type != self.array_of
               and default_for(self.array_of) is not NOTHING):
             # An array of another type does not go into a typed dynamic array: b() As Long
@@ -1452,6 +1456,10 @@ class Interpreter:
                         declared,
                     )
                 continue
+            held = self._by_value(given)
+            if isinstance(held, VBAObject) and not of_declared_class(held, declared):
+                # A parameter of a class takes only that class, ByVal or ByRef (tests/fixtures/typed_set.json).
+                raise error(ERR_TYPE_MISMATCH)
             if isinstance(given, Slot) and not parameter.by_val:
                 for array in given.borrow_arrays():
                     array.borrowed_elements += 1
@@ -3327,15 +3335,29 @@ def _is_type(value: object, wanted: str) -> bool:
         return False
     if isinstance(value, InterfaceView):
         value = value.instance
-    if isinstance(value, UserClassInstance) and any(
-            name.lower() == wanted.rpartition(".")[2].lower() for name in value.module.parsed.implements):
+    # Excel.Worksheet is Worksheet: the library's name says where the class is, not what it is.
+    bare = wanted.rpartition(".")[2].lower()
+    if isinstance(value, UserClassInstance) and any(name.lower() == bare for name in value.module.parsed.implements):
         # TypeOf x Is IShape for a class that Implements IShape (native probes).
         return True
     if isinstance(value, VBAObject):
-        if value.vba_type_name.lower() == wanted.lower():
+        if value.vba_type_name.lower() in (wanted.lower(), bare):
             return True
-        return any(base.__name__.lower() == wanted.lower() for base in type(value).__mro__)
-    return type_name(value).lower() == wanted.lower()
+        return any(base.__name__.lower() in (wanted.lower(), bare) for base in type(value).__mro__)
+    return type_name(value).lower() in (wanted.lower(), bare)
+
+
+#: What a variable declared as one of these takes is not an object of a class.
+_NOT_A_CLASS = frozenset({"", "variant", "object", "byte", "integer", "long", "longlong", "longptr", "single", "double", "currency", "decimal",
+                          "date", "string", "boolean", "any"})
+
+
+def of_declared_class(value: VBAObject, declared: str) -> bool:
+    """Whether a variable declared ``declared`` takes this object by Set: any object, where it is no class's name."""
+    key = declared.lower()
+    if key in _NOT_A_CLASS or key.startswith("string *"):
+        return True
+    return _is_type(value, declared)
 
 
 #: Each MsgBox button set's buttons, by what each answers, in order: vbOKOnly to vbRetryCancel.

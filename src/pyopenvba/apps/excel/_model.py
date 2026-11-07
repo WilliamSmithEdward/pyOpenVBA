@@ -1732,7 +1732,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             book = reader(path)
         else:
             book = open_text(self.application, path, format_code) if text else load_workbook(self.application, path)
-        book.read_only = read_only
+        # A workbook file the system will not let this process write, as one with its read-only attribute set, opens read-only
+        # (tests/fixtures/workbook_status_reads.json). A text file is not measured.
+        book.read_only = read_only or (not text and not os.access(path, os.W_OK))
         self.books.append(book)
         try:
             if with_vba and not text:
@@ -1836,7 +1838,7 @@ class Workbook(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
-        "SheetPivotTableUpdate", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
+        "SheetPivotTableUpdate", "SheetPivotTableChangeSync", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
         "WindowActivate", "WindowDeactivate", "WindowResize"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
@@ -1855,6 +1857,10 @@ class Workbook(ExcelObject):
         #: (_workbook_settings), which a save writes.
         self.workbook_pr: dict[str, str] = {}
         self.workbook_pr_changed: set[str] = set()
+        #: SetPasswordEncryptionOptions' provider, algorithm, key length and file properties, which the four reads answer.
+        self.encryption_options: tuple[str, str, int, bool] = ("", "", 0, True)
+        #: ChartDataPointTrack: True for a new book, and what the file says for one opened (_date_system).
+        self.chart_data_point_track = True
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
         #: Whether a sheet of the file it was opened from held a link, which lists two more styles (_cell_styles._LINK_STYLES).
@@ -2106,7 +2112,9 @@ class Workbook(ExcelObject):
 
     @member
     def CreateBackup(self) -> object:
-        return False
+        """What the file says, as workbookPr's backupFile: a book Excel saved with CreateBackup reads True when opened again
+        (tests/fixtures/workbook_reads.json)."""
+        return self.workbook_pr.get("backupFile") in ("1", "true")
 
     @setter("CreateBackup")
     def _set_create_backup(self, value: object) -> None:
@@ -2169,7 +2177,7 @@ class Workbook(ExcelObject):
 
     @member
     def ChartDataPointTrack(self) -> object:
-        return True
+        return self.chart_data_point_track
 
     @setter("ChartDataPointTrack")
     def _set_chart_data_point_track(self, value: object) -> None:
@@ -2323,6 +2331,11 @@ class Workbook(ExcelObject):
     def CodeName(self) -> object:
         return self.code_name
 
+    @member(name="_CodeName")
+    def hidden_code_name(self) -> object:
+        """The hidden twin of CodeName (tests/fixtures/workbook_reads.json)."""
+        return self.code_name
+
     @member
     def FullName(self) -> object:
         return str(Path(self.path) / self.name) if self.path else self.name
@@ -2346,19 +2359,29 @@ class Workbook(ExcelObject):
 
     @member
     def PasswordEncryptionProvider(self) -> object:
-        return ""
+        return self.encryption_options[0]
 
     @member
     def PasswordEncryptionAlgorithm(self) -> object:
-        return ""
+        return self.encryption_options[1]
 
     @member
     def PasswordEncryptionKeyLength(self) -> object:
-        return VBAInt(0, "Long")
+        return VBAInt(self.encryption_options[2], "Long")
 
     @member
     def PasswordEncryptionFileProperties(self) -> object:
-        return True
+        return self.encryption_options[3]
+
+    @method
+    def SetPasswordEncryptionOptions(self, PasswordEncryptionProvider: object = MISSING, PasswordEncryptionAlgorithm: object = MISSING,
+                                     PasswordEncryptionKeyLength: object = MISSING,
+                                     PasswordEncryptionFileProperties: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_more import encryption_options
+
+        self.encryption_options = encryption_options(self.encryption_options, PasswordEncryptionProvider, PasswordEncryptionAlgorithm,
+                                                     PasswordEncryptionKeyLength, PasswordEncryptionFileProperties)
+        return EMPTY
 
     @member
     def ExternalCodeServiceTimeout(self) -> object:
@@ -3064,16 +3087,29 @@ class Workbook(ExcelObject):
 
     @member
     def DisplayDrawingObjects(self) -> object:
-        """xlDisplayShapes is a Long; anything else reads as a Double, its 32 bits unsigned
-        (tests/fixtures/settable_audit.json)."""
+        """Typed, a Long. Bound late, xlDisplayShapes is a Long and anything else reads as a Double, its 32 bits unsigned
+        (tests/fixtures/settable_audit.json, tests/fixtures/workbook_reads.json)."""
+        from pyopenvba.interpreter._objects import BINDING
+
         if self.drawing_objects == -4104:
             return VBAInt(-4104, "Long")
-        return float(self.drawing_objects & 0xFFFFFFFF)
+        unsigned = self.drawing_objects & 0xFFFFFFFF
+        if BINDING.late:
+            return float(unsigned)
+        # Typed, the 32 bits read back as a Long, so one past 2147483647, as True's -1 is, overflows
+        # (tests/fixtures/workbook_setters_heldout/round1_excel.json).
+        if unsigned > 2 ** 31 - 1:
+            raise error(6, "Overflow")
+        return VBAInt(unsigned, "Long")
 
     @setter("DisplayDrawingObjects")
     def _set_drawing_objects(self, value: object) -> None:
         """A Long as VBA passes it, 1 being xlDisplayShapes again; the workbook is no longer saved."""
-        number = int(to_integer(value, "Long"))
+        from pyopenvba.apps.excel._workbook_options import drawing_objects_of
+
+        number = drawing_objects_of(value)
+        if number is None:
+            return
         self.drawing_objects = -4104 if number == 1 else number
         self.saved = False
 
@@ -3215,7 +3251,11 @@ class Workbook(ExcelObject):
     @setter("PrecisionAsDisplayed")
     def _set_precision_as_displayed(self, value: object) -> None:
         """True rounds every number as its format shows it, now and from then on (see _precision)."""
-        wanted = to_bool(value)
+        from pyopenvba.apps.excel._workbook_settings import file_flag
+
+        wanted = file_flag("PrecisionAsDisplayed", value)
+        if wanted is None:
+            return
         if wanted and not self.precision_as_displayed:
             from pyopenvba.apps.excel._precision import turned_on
 
@@ -3510,7 +3550,7 @@ class Worksheet(ExcelObject):
     vba_type_name = "Worksheet"
     #: The events the model raises in the sheet's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
-        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "BeforeDelete",
+        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "PivotTableChangeSync", "BeforeDelete",
         "FollowHyperlink"})
     #: True once Delete took the sheet out of its workbook.
     deleted = False
@@ -4883,6 +4923,10 @@ class Range(ExcelObject):
 
         value = _not_null(value)
         _within_length(value)
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_cells import refuse_value_write
+
+            refuse_value_write(self)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):

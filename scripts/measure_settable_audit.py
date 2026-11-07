@@ -11,6 +11,10 @@ writes tests/fixtures/settable_audit.json, which scripts/compare_settable_audit.
 replay. AutoSaveOn is left out, as it can reach the cloud, and Colors, which takes an index. WorkIdentity is no longer set: no live
 probe touches it, with rights, encryption and signing (tests/test_probes_leave_crypto_alone.py). The fixture keeps what an earlier run
 recorded for it: do not remeasure it.
+
+EnvelopeVisible, Password, WritePassword and EncryptionProvider are no longer set: no live probe sets a user-level setting it does not put
+back, a mail envelope, the cloud save, a password or an encryption provider (tests/test_probes_leave_user_settings_alone.py,
+tests/test_probes_leave_crypto_alone.py). The fixture keeps what an earlier run recorded for them: do not remeasure them.
 """
 from __future__ import annotations
 
@@ -42,15 +46,14 @@ WORKBOOK = {
     "CompatibilityVersion": NUMBER, "ConflictResolution": NUMBER, "Date1904": BOOLEAN,
     "DefaultPivotTableStyle": VARIANT, "DefaultSlicerStyle": VARIANT, "DefaultTableStyle": VARIANT,
     "DefaultTimelineStyle": VARIANT, "DisplayDrawingObjects": NUMBER + ["-4104", "-4142"], "DisplayInkComments": BOOLEAN,
-    "DoNotPromptForConvert": BOOLEAN, "EnableAutoRecover": BOOLEAN, "EnvelopeVisible": BOOLEAN,
+    "DoNotPromptForConvert": BOOLEAN, "EnableAutoRecover": BOOLEAN,
     "ExternalCodeServiceTimeout": NUMBER, "Final": BOOLEAN, "ForceFullCalculation": BOOLEAN,
     "HighlightChangesOnScreen": BOOLEAN, "InactiveListBorderVisible": BOOLEAN, "IsAddin": BOOLEAN, "KeepChangeHistory": BOOLEAN,
-    "ListChangesOnNewSheet": BOOLEAN, "Password": TEXT, "PersonalViewListSettings": BOOLEAN,
+    "ListChangesOnNewSheet": BOOLEAN, "PersonalViewListSettings": BOOLEAN,
     "PersonalViewPrintSettings": BOOLEAN, "PrecisionAsDisplayed": BOOLEAN, "ReadOnlyRecommended": BOOLEAN,
     "RemovePersonalInformation": BOOLEAN, "Saved": BOOLEAN, "SaveLinkValues": BOOLEAN, "ShowConflictHistory": BOOLEAN,
     "ShowPivotChartActiveFields": BOOLEAN, "ShowPivotTableFieldList": BOOLEAN, "TemplateRemoveExtData": BOOLEAN,
-    "UpdateLinks": NUMBER, "UpdateRemoteReferences": BOOLEAN, "WritePassword": TEXT,
-    "EncryptionProvider": TEXT,
+    "UpdateLinks": NUMBER, "UpdateRemoteReferences": BOOLEAN,
 }
 APPLICATION = {
     "ScreenUpdating": BOOLEAN, "DisplayAlerts": BOOLEAN, "EnableEvents": BOOLEAN,

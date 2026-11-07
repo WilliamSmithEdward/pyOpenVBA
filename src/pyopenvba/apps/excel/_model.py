@@ -1141,6 +1141,18 @@ class Application(ExcelObject):
         return self._profile('AutoCorrect')
 
     @member
+    def LanguageSettings(self) -> object:
+        from pyopenvba.apps.excel._application_more import LanguageSettings
+
+        return LanguageSettings(self)
+
+    @member
+    def VBE(self) -> object:
+        from pyopenvba.apps.excel._vbide import editor
+
+        return editor(self)
+
+    @member
     def DefaultWebOptions(self) -> object:
         return self._profile('DefaultWebOptions')
 

@@ -21,7 +21,7 @@ from pyopenvba.apps.excel._chart_format import (
     unmeasured,
 )
 from pyopenvba._xml import escape as escape_attribute, escape_text
-from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, UNIQUE_END, LabelLook, default_run
+from pyopenvba.apps.excel._chart_xml import LABEL_BODY, LABEL_POSITIONS, UNIQUE_END, LabelLook, default_run
 from pyopenvba.apps.excel._charts import (
     AUTOMATIC_MARKERS,
     CHART_TYPES,
@@ -113,15 +113,27 @@ def points_markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, .
     return written
 
 
+def typed_font(own: PointLabel) -> bool:
+    """Whether a label is typed text with a font and no other look of its text: the font Excel writes in the text
+    (tests/fixtures/chart_turns_and_label_fonts.json). A turned, aligned or right-to-left one was not measured so."""
+    return (bool(own.text) and own.font is not None and default_run(own.font) != "<a:defRPr/>" and own.orientation == -4128
+            and own.horizontal == -4108 and own.reading == -5002)
+
+
 def _label_body(point: PointState, entry: SeriesState) -> str:
     """What a point's dLbl says after its idx: its text, number format, look, place and flags, in the file's order."""
     own = point.label_own
     tx = ""
+    in_text = typed_font(own)
     if own.text is not None:
         run = '<a:endParaRPr lang="en-US"/>'
         if own.text:
             run = f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(own.text)}</a:t></a:r>'
         tx = f"<c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p>{run}</a:p></c:rich></c:tx>"
+        if in_text:
+            # A typed label's font goes in its text, whichever was set first (tests/fixtures/chart_turns_and_label_fonts.json).
+            tx = (f"<c:tx><c:rich>{LABEL_BODY}<a:lstStyle/><a:p><a:pPr>{default_run(own.font)}</a:pPr>{run}</a:p>"
+                  "</c:rich></c:tx>")
     number = "" if own.number_format is None else (
         f'<c:numFmt formatCode="{escape_attribute(to_file(own.number_format))}" sourceLinked="0"/>')
     look = ""
@@ -138,10 +150,12 @@ def _label_body(point: PointState, entry: SeriesState) -> str:
         paragraph = "" if own.horizontal == -4108 else f' algn="{ {-4131: "l", -4152: "r"}[own.horizontal] }"'
         if own.reading == -5004:
             paragraph += ' rtl="1"'
-        look = (f"<c:spPr>{fill}<a:ln><a:noFill/></a:ln>{effects}</c:spPr><c:txPr>"
-                f'<a:bodyPr{rotated} wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
-                f"<a:spAutoFit/></a:bodyPr><a:lstStyle/><a:p><a:pPr{paragraph}>{default_run(own.font)}</a:pPr>"
-                '<a:endParaRPr lang="en-US"/></a:p></c:txPr>')
+        look = f"<c:spPr>{fill}<a:ln><a:noFill/></a:ln>{effects}</c:spPr>"
+        if not in_text:
+            look += ("<c:txPr>"
+                     f'<a:bodyPr{rotated} wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
+                     f"<a:spAutoFit/></a:bodyPr><a:lstStyle/><a:p><a:pPr{paragraph}>{default_run(own.font)}</a:pPr>"
+                     '<a:endParaRPr lang="en-US"/></a:p></c:txPr>')
     place = "" if own.position is None else f'<c:dLblPos val="{LABEL_POSITIONS[own.position]}"/>'
     series = entry.label_look
     base = {"value": series.value, "category": series.category, "series": series.series,

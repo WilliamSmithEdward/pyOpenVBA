@@ -313,10 +313,9 @@ class SheetDimensions:
         self.opened_shapes: set[int] = set()
         #: Every row an opened file lists a row element for, whatever it says.
         self.listed_rows: set[int] = set()
-        #: The format the used block takes as the sheet's own, which a column needs another of to count: the one the
-        #: last whole-sheet format left, or the one an opened file's column XFD has; None for neither. In the session a
-        #: column XFD formatted alone counts like any other (tests/fixtures/used_range.json).
-        self.sheet_format: Style | None = None
+        #: Whether the sheet came from a file, whose column XFD holds the sheet's format for the used block (see
+        #: used_columns).
+        self.opened = False
         #: Rows their fonts make another height than the standard row, or
         #: give another descent: row -> (quarter pixels, descent in twips).
         self._grown: dict[int, tuple[int, int]] = {}
@@ -1309,12 +1308,20 @@ class SheetDimensions:
         found = set(self.kept_columns)
         found.update(column for column, record in self.columns.items()
                      if record.hidden and record.custom and record.width)
-        sheet_format = self.sheet_format
-        if sheet_format is None:
-            found.update(column for column, record in self.columns.items() if record.style is not None)
-        else:
-            found.update(column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet_format)
+        found.update(self.formatted_columns() if self.opened else self._apart_from_most())
         return sorted(found)
+
+    def _apart_from_most(self) -> list[int]:
+        """Columns apart from the sheet's format, for a sheet made in the session. With no format on column XFD the
+        formatted columns count. XFD's format is the sheet's while column XFC shares it, as Columns("B:XFD") leaves
+        column A alone to count; a column XFD formatted apart from XFC counts like any other, against XFC's format
+        (tests/fixtures/used_range.json, tests/fixtures/clear_rows_formats.json, tests/fixtures/row_formats.json)."""
+        last = self.column_style(MAX_COLUMNS)
+        if last is None:
+            return [column for column, record in self.columns.items() if record.style is not None]
+        before = self.column_style(MAX_COLUMNS - 1)
+        sheet_format = last if before == last else before
+        return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet_format]
 
     def formatted_columns(self) -> list[int]:
         """Columns whose format is not the sheet's own, which the last column's is.

@@ -169,6 +169,14 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
             rels = rels_part(part)
             sheet.chart_states[shape.shape_id].style_part = package.has(rels) and REL_CHART_STYLE in package.read(rels).decode('utf-8')
+            _mark_point_labels(sheet.chart_states[shape.shape_id])
+
+def _mark_point_labels(state: ChartState) -> None:
+    """Each loaded series holding a label of one of its points, which is not read; where the series cannot be told apart, every one."""
+    found = re.findall(r'<c:ser>.*?</c:ser>', state.original, re.DOTALL)
+    for index, entry in enumerate(state.series):
+        entry.labels_unread = len(found) != len(state.series) or '<c:dLbl>' in found[index]
+
 
 def _axis_elements(plot: ET.Element) -> list[ET.Element]:
     return [child for child in plot if child.tag.rpartition('}')[2] in ('catAx', 'valAx', 'dateAx')]

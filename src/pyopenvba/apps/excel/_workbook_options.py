@@ -47,7 +47,6 @@ def read(book: Workbook, workbook: XmlElement) -> None:
         book.save_link_values = _true(properties.get("saveExternalLinkValues"), True)
         book.check_compatibility = _true(properties.get("checkCompatibility"), False)
         book.drawing_objects = _OBJECTS.get(properties.get("showObjects", "all"), -4104)
-        book.drawing_objects_named = book.drawing_objects
         book.ink_comments = _true(properties.get("showInkAnnotation"), True)
         book.remove_personal = _true(properties.get("filterPrivacy"), False)
     sharing = workbook.find(_MAIN + "fileSharing")
@@ -111,10 +110,9 @@ def drawing_objects_of(value: object) -> int | None:
 def _with_properties(book: Workbook, text: str) -> str:
     found = re.search(r"<workbookPr\b[^>]*?/?>", text)
     tag = found.group(0) if found is not None else "<workbookPr/>"
-    # A value no showObjects names is saved as the last one it named, and 0 as the default
-    # (tests/fixtures/workbook_setters_heldout/round1_excel.json).
-    kept = book.drawing_objects if book.drawing_objects in _OBJECTS.values() else -4104 if book.drawing_objects == 0 \
-        else book.drawing_objects_named
+    # A value no showObjects names is saved by its low two bits: 3 as none, 2 as placeholders, anything else as all, so True's -1 and
+    # 2147483647 save as xlHide and 4, 0 or a date's serial as xlDisplayShapes (tests/fixtures/workbook_setters_heldout/).
+    kept = book.drawing_objects if book.drawing_objects in _OBJECTS.values() else {3: 3, 2: 2}.get(book.drawing_objects & 3, -4104)
     shown = next(name for name, value in _OBJECTS.items() if value == kept)
     wanted = {"saveExternalLinkValues": None if book.save_link_values else "0",
               "updateLinks": {2: "never", 3: "always"}.get(book.update_links),

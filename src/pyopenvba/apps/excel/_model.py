@@ -1902,9 +1902,6 @@ class Workbook(ExcelObject):
         #: DisplayDrawingObjects, DisplayInkComments, RemovePersonalInformation, ReadOnlyRecommended and
         #: EnableAutoRecover, as the file has them (see _workbook_options).
         self.drawing_objects = -4104
-        #: The last DisplayDrawingObjects a save can name (xlDisplayShapes, xlPlaceholders, xlHide), which a save writes for any
-        #: other value but 0 (_workbook_options).
-        self.drawing_objects_named = -4104
         self.ink_comments = True
         self.remove_personal = False
         self.read_only_recommended = False
@@ -3112,8 +3109,6 @@ class Workbook(ExcelObject):
         if number is None:
             return
         self.drawing_objects = -4104 if number == 1 else number
-        if self.drawing_objects in (-4104, 2, 3):
-            self.drawing_objects_named = self.drawing_objects
         self.saved = False
 
     @member

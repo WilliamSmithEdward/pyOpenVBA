@@ -20,11 +20,12 @@ assert _SPEC is not None and _SPEC.loader is not None
 MEASURE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(MEASURE)
 #: Each round's predictions, as their digest was recorded before Excel answered (.git/excel-coordination/BOARD.md).
-DIGESTS = {'round1': 'd2992aded0f70a1eda855da749bc67be4003dea7241c17ed912e76c31a5b8fe4'}
+DIGESTS = {'round1': 'd2992aded0f70a1eda855da749bc67be4003dea7241c17ed912e76c31a5b8fe4',
+           'round2': 'f47b8541af04de39f3dd25b45b0fdd47290d454146a26471a7ef19c81ba6e79f'}
 #: Round1 missed 38 of 480: DisplayDrawingObjects past the three values a file names (refused on save), bound late (true, fractions,
 #: past a Long, text and ranges), Null on three flags (refused openly, where Excel says 94 typed and 13 late), and text, a Currency, a
 #: Date and a range bound late on Date1904, PrecisionAsDisplayed and SaveLinkValues, which Excel refuses with 1004.
-MISSES = {'round1': 38}
+MISSES = {'round1': 38, 'round2': 7}
 #: A Range given late to these, which Excel refuses with 1004: the model hands the setter the range's value, so it takes it. Fixing that is
 #: a change to how every late set receives an object, not to these settings.
 GAPS = frozenset({'Date1904', 'DisplayDrawingObjects', 'PrecisionAsDisplayed', 'SaveLinkValues'})

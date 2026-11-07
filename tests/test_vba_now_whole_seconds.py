@@ -1,12 +1,33 @@
-"""Now and Time are whole seconds, as Excel's are: measured live, five samples of each a fraction of a second apart held no fraction, and oleaut32's
-SystemTimeToVariantTime and VarDateFromUdate drop milliseconds. Timer keeps its fraction, as VBA's does."""
+"""Now and Time are whole seconds, as Excel's are (scripts/measure_now_whole_seconds.py): read into a Date and into a Variant seven times, a
+fraction of a second apart, none lay past its whole second, and Second(Now) was whole. oleaut32's SystemTimeToVariantTime and VarDateFromUdate drop
+milliseconds the same way. Timer keeps its fraction, as VBA's does."""
 from __future__ import annotations
 
 import datetime as dt
+import importlib.util
+import json
+from pathlib import Path
+from typing import Any
 
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+
+ROOT = Path(__file__).resolve().parents[1]
+_SPEC = importlib.util.spec_from_file_location('measure_now_whole_seconds', ROOT / 'scripts/measure_now_whole_seconds.py')
+assert _SPEC is not None and _SPEC.loader is not None
+MEASURE: Any = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(MEASURE)
+RECORD = json.loads((ROOT / 'tests/fixtures/now_whole_seconds.json').read_text(encoding='utf-8'))
+
+
+@pytest.mark.parametrize('declared', ['Date', 'Variant'])
+def test_on_the_running_clock_now_and_time_answer_as_excel_did(declared: str) -> None:
+    """On the real clock, as the live run was: a model that kept the clock's microseconds answers them here."""
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(MEASURE.macro(declared), name='H')
+    assert app.run('H.Probe') == RECORD['answers'][declared]
 
 
 def _app(when: dt.datetime) -> ExcelApplication:

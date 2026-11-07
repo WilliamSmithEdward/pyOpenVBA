@@ -64,6 +64,7 @@ def lines_of(text: str, column: int, extent: Extent, pad: int) -> int:
     return found
 
 
-def row_pixels_for(lines: int, line: int) -> int:
-    """How tall so many lines make a row, each as tall as the font alone makes one. A font shorter than the standard row adds a pixel, and a row stops at 546 pixels, 409.5 points."""
-    return min(lines * line + (1 if line < 20 else 0), 546)
+def row_pixels_for(lines: int, line: int, descent: int) -> int:
+    """How tall lines of a font make a row: the font alone on a row for each, less what a descent short of 5 pixels leaves, to Excel's tallest row
+    (tests/fixtures/font_round_arial.json, tests/fixtures/font_round_times_new_roman.json)."""
+    return min(lines * line + max(0, 5 - descent), 546)

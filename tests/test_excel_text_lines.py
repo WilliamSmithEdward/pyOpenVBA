@@ -1,4 +1,4 @@
-"""TextRange2.Lines against Excel: the rounds written down before it was asked (scripts/predict_shape_lines.py, scripts/predict_shape_lines2.py), and the member (scripts/measure_shape_lines_members.py)."""
+"""TextRange2.Lines against Excel: the rounds written down before it was asked (scripts/predict_shape_lines.py, scripts/predict_shape_lines2.py, scripts/predict_shape_lines3.py), and the member (scripts/measure_shape_lines_members.py)."""
 from __future__ import annotations
 
 import json
@@ -17,13 +17,13 @@ def _load(name: str) -> dict[str, Any]:
     return json.loads((FIXTURES / f'{name}.json').read_text('utf-8'))
 
 
-FIRST, SECOND, MEMBERS, EVENTS = _load('shape_lines'), _load('shape_lines2'), _load('shape_lines_members'), _load('wrapped_events')
+FIRST, SECOND, THIRD, MEMBERS, EVENTS = _load('shape_lines'), _load('shape_lines2'), _load('shape_lines3'), _load('shape_lines_members'), _load('wrapped_events')
 LAYOUT = 'LAYOUT'
 #: What is not measured to leave the rule as it is.
 REFUSED = ('.Rotation = 90', '.Rotation = 33', '.Orientation', '.Column.Number', '.LeftIndent', '.FirstLineIndent', '.RightIndent', '.IndentLevel', '.Bullet.Visible', '.Font.Spacing', '.Allcaps', '.Smallcaps', '.Superscript', 'Characters(1, 9).Font.Size', 'Characters(11, 5).Font',
-           'Font.Name = "Arial"', 'Font.Name = "No Such Font"', '.Font.Name = "+m', 'vbTab', 'ChrW(8212)', 'ChrW(20013)', 'ChrW(160)', 'ChrW(173)', '.AutoShapeType', 'T.Characters(5, 0)', '.InsertBefore', '.InsertAfter " abc"', 'AutoSize = 1', 'AddLabel')
-#: The same of shapes in a file: other shapes, an upright or set-upright text, and fonts that differ or have no table.
-REFUSED_LOADED = ('Oval', 'Upward', 'Runs', 'Fonts', 'Paint', 'Paras', 'Broken', 'Clipped', 'Whole')
+           'Font.Name = "No Such Font"', '.Font.Name = "+m', 'vbTab', 'ChrW(8212)', 'ChrW(20013)', 'ChrW(160)', 'ChrW(173)', '.AutoShapeType', 'T.Characters(5, 0)', '.InsertBefore', '.InsertAfter " abc"', 'AutoSize = 1', 'AddLabel')
+#: The same of shapes in a file: other shapes, an upright or set-upright text, and fonts that differ.
+REFUSED_LOADED = ('Oval', 'Upward', 'Runs', 'Fonts', 'Paint', 'Paras', 'Broken', 'Clipped')
 
 
 def _source(setup: str, read: str) -> str:
@@ -53,13 +53,13 @@ def _replay(data: dict[str, Any], case: dict[str, Any]) -> list[tuple[str, str, 
     return rows
 
 
-@pytest.mark.parametrize('data, case', [(data, case) for data in (FIRST, SECOND) for case in data['cases']], ids=lambda value: value['text'][:24] + '-' + value['font'] + str(value['size']) if 'text' in value else 'round')
+@pytest.mark.parametrize('data, case', [(data, case) for data in (FIRST, SECOND, THIRD) for case in data['cases']], ids=lambda value: value['text'][:24] + '-' + value['font'] + str(value['size']) if 'text' in value else 'round')
 def test_each_text_breaks_where_excel_broke_it(data: dict[str, Any], case: dict[str, Any]) -> None:
     assert _replay(data, case) == [(one['width'], one['type'], one['count_type'], one['count'], one['lines']) for one in case['answers']]
 
 
 def test_the_rounds_were_measured_at_96_dpi() -> None:
-    assert FIRST['standard_height'] == SECOND['standard_height'] == MEMBERS['standard_height'] == '15'
+    assert FIRST['standard_height'] == SECOND['standard_height'] == THIRD['standard_height'] == MEMBERS['standard_height'] == '15'
 
 
 @pytest.mark.parametrize('text', EVENTS['shapes'])

@@ -258,10 +258,11 @@ class Point(ElementProperties, PictureMembers, Created):
     def own(self) -> PointState | None:
         return self.series.entry.points.get(self.series.point_key(self.index))
 
-    def held(self, labels: str = "") -> PointState:
-        """The point's state, made if it had none. ``labels`` names the member when what changes is its data label."""
-        if labels:
-            self.series.chart.labels_changed(self.series.entry, labels)
+    def held(self, part: str = "", member: str = "") -> PointState:
+        """The point's state, made if it had none. ``part`` names what of its series changes, its look (points) or its
+        data label (labels), and ``member`` what changes it, for a loaded chart (see _chart_loaded)."""
+        if part:
+            self.series.chart.part_changed(self.series.entry, part, member)
         else:
             self.series.chart.changed()
         point = self.series.entry.points.setdefault(self.series.point_key(self.index), PointState())
@@ -367,7 +368,7 @@ class Point(ElementProperties, PictureMembers, Created):
         wanted = to_bool(value)
         self.kind()
         entry = self.series.entry
-        point = self.held("Point.HasDataLabel")
+        point = self.held("labels", "Point.HasDataLabel")
         if wanted and entry.data_labels:
             # Back to what its series' labels give, whatever it had of its own.
             point.label, point.label_own = None, PointLabel()
@@ -712,9 +713,9 @@ class _OfPoint:
         if self.owner.point.kind() not in (*FILLED, *_LINES):
             raise unmeasured("Setting the look of a point of this kind of chart")
 
-    def change(self) -> FillLine:
+    def change(self, member: str = "") -> FillLine:
         self.admit()
-        point = self.owner.point.held()
+        point = self.owner.point.held("points", member and f"Point.Format.{member}")
         self.owner.point.numbered(point)
         if point.look is None:
             point.look = FillLine()
@@ -790,9 +791,9 @@ class PointLine(_OfPoint, SeriesLine):
         if self.owner.point.kind() not in _LINES:
             super().settable(what)
 
-    def change(self) -> FillLine:
-        look = super().change()
-        point = self.owner.point.held()
+    def change(self, member: str = "") -> FillLine:
+        look = super().change(member)
+        point = self.owner.point.held("points", member and f"Point.Format.{member}")
         if self.owner.point.kind() in _LINES and point.marker_fore is not None:
             point.marker_solid = point.marker_fore != "none"
             point.marker_fore = None

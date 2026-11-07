@@ -112,7 +112,8 @@ def test_the_function_hears_what_excel_was_given(tmp_path: Path) -> None:
     app.set_hook('CopyPicture', heard.append)
     _macro(app, '    wb.Charts("Plot").Export folder & "\\a.gif", FilterName:="GIF"\n    wb.Worksheets("One").Shapes("Box").CopyPicture xlPrinter, xlPicture', folder)
     export, picture = heard
-    assert (export.member, export.owner, export.path, dict(export.arguments)) == ('Export', 'Chart', folder / 'a.gif', {'Filename': str(folder / 'a.gif'), 'FilterName': 'GIF'})
+    # The arguments are the macro's own text, its backslash kept on every system; path is where the file goes.
+    assert (export.member, export.owner, export.path, dict(export.arguments)) == ('Export', 'Chart', folder / 'a.gif', {'Filename': f'{folder}\\a.gif', 'FilterName': 'GIF'})
     assert (picture.member, picture.owner, picture.path, dict(picture.arguments)) == ('CopyPicture', 'Shape', None, {'Appearance': 2, 'Format': -4147})
 
 

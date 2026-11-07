@@ -30,5 +30,5 @@ def test_each_case_answers_as_excel_did(declared: str) -> None:
     app.add_module(MEASURE.macro(declared), name='H')
     found = str(app.run('H.Probe')).split(MEASURE.SEPARATOR)
     differ = {case for case, mine, theirs in zip(CASES, found, RECORD['excel'][declared]) if mine != theirs}
-    expected = {(setting, 'ws.Range("A1:B1")') for setting in GAPS} if declared == 'Object' else set()
+    expected: set[tuple[str, str]] = {(setting, 'ws.Range("A1:B1")') for setting in GAPS} if declared == 'Object' else set()
     assert differ == expected

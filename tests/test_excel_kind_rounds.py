@@ -1,11 +1,8 @@
 """Held-out rounds over the conditional format kinds, colour scale criteria, icon sets, AutoFilter and its Filters, pivot cells,
 their row items, pivot filters, slicers and threaded comments, replayed on the model as it stands (scripts/measure_kind_rounds.py,
 tests/fixtures/kind_rounds/). As in tests/test_excel_table_pivot_rounds.py, each round was predicted before live Excel answered, and
-USED_UP names the rounds the model was fixed against.
-
-TYPED_SET holds the typed calls Excel refused with 13 because the insert before them moved a rule of another kind under the range,
-so the Set into a variable of the asked class fails. The model refuses such a Set once vba-typed-set is merged; until then they
-are expected to differ, and strictly, so the marks come off when it lands."""
+USED_UP names the rounds the model was fixed against. Some typed calls are refused with 13: the insert before them moved a rule of
+another kind under the range, so the Set into a variable of the asked class fails (#578)."""
 from __future__ import annotations
 
 import importlib.util
@@ -26,9 +23,8 @@ _spec.loader.exec_module(KINDS)
 RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8')) for path in sorted((ROOT / 'tests/fixtures/kind_rounds').glob('round_*.json'))]
 USED_UP = {52101: "an IconSet reached through its condition answered Parent with the workbook's IconSets, not the condition "
                   '(tests/fixtures/icon_set_parent.json)',
-           52102: 'the same IconSet Parent'}
+           52102: "the same IconSet Parent; both were measured before #578, which refuses a typed Set of another class"}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
-TYPED_SET = {(seed, at) for seed, at, case in CASES if case['typed'] == 'reach E13' and case['model_typed'] != 'reach E13'}
 
 
 def _ids(cases: list[tuple[int, int, dict[str, str]]]) -> list[str]:
@@ -41,9 +37,7 @@ def test_each_late_call_as_excel_answered(seed: int, at: int, case: dict[str, st
 
 
 @pytest.mark.parametrize(('seed', 'at', 'case'), CASES, ids=_ids(CASES))
-def test_each_typed_call_as_excel_answered(seed: int, at: int, case: dict[str, str], request: pytest.FixtureRequest) -> None:
-    if (seed, at) in TYPED_SET:
-        request.applymarker(pytest.mark.xfail(strict=True, reason='a Set of another class into a typed variable: vba-typed-set'))
+def test_each_typed_call_as_excel_answered(seed: int, at: int, case: dict[str, str]) -> None:
     assert KINDS.base.model_answer(case, True, seed, KINDS.KINDS) == case['typed']
 
 

@@ -8,8 +8,8 @@ place, and the formula names that sheet. A file not there leaves the link with t
 at #REF!. A workbook never saved is linked by its name. The values stay once the workbook closes, and a link no formula
 reads any more goes. Measured by scripts/measure_book_refs.py (tests/fixtures/book_refs.json).
 
-A file on disk is read past the interpreter's gate, as UpdateLink and ChangeLink read one, so the sandbox refuses it
-before anything is looked for (see _link_edits.loaded).
+A file on disk is read past the gate UpdateLink and ChangeLink read one through, so the sandbox refuses it unless a host granted
+its folder with allow_link_reads, before anything is looked for (see _hooks.link_gate).
 """
 from __future__ import annotations
 

@@ -172,7 +172,12 @@ def test_a_junction_out_of_the_folder_is_refused(tmp_path: Path) -> None:
     assert is_inside(folder / 'joined' / 'x.pdf', (str(away),))
 
 
-@pytest.mark.parametrize('name', ['"..\\away.pdf"', 'folder & "\\..\\away.pdf"', '"rel.pdf"', '""'])
+#: Off Windows a backslash is a character of a name: "/..\\away.pdf" after the folder is one file inside it unless the gate turns it round
+#: first, as the write does. Each of these must be refused on every system (the second last is that shape, the last with .. twice).
+OUTSIDE = ['"..\\away.pdf"', 'folder & "\\..\\away.pdf"', '"rel.pdf"', '""', 'folder & "/..\\away.pdf"', 'folder & "/sub\\..\\..\\away.pdf"']
+
+
+@pytest.mark.parametrize('name', OUTSIDE)
 def test_under_the_sandbox_the_function_hears_of_no_path_outside(tmp_path: Path, name: str) -> None:
     folder = tmp_path / 'out'
     folder.mkdir()

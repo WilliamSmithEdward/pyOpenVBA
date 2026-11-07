@@ -95,30 +95,44 @@ def test_a_name_alone_is_not_looked_for_under_the_sandbox() -> None:
     assert app.workbook.linked_books == {}
 
 
-@pytest.mark.parametrize(('target', 'here', 'folder'), [
+#: Each link's target, its workbook's folder, the folder the link gives, and the path its file is checked and opened by: the full name, which keeps
+#: Excel's backslash before the file as LinkSources shows it, turned once into the system's path (_hooks.final_path).
+SPELLINGS = [
     # Off Windows: a link saved relative to its workbook, read back in a POSIX folder, stays a POSIX folder (cases 15 and 25 on Linux).
-    ('Sub/Deep.xlsx', '/tmp/x', '/tmp/x/Sub'),
-    ('../Alpha.xlsx', '/tmp/x/Sub', '/tmp/x'),
-    ('Alpha.xlsx', '/tmp/x', '/tmp/x'),
-    ('/tmp/y/Alpha.xlsx', '/tmp/x', '/tmp/y'),
+    ('Sub/Deep.xlsx', '/tmp/x', '/tmp/x/Sub', '/tmp/x/Sub/Deep.xlsx'),
+    ('../Alpha.xlsx', '/tmp/x/Sub', '/tmp/x', '/tmp/x/Alpha.xlsx'),
+    ('Alpha.xlsx', '/tmp/x', '/tmp/x', '/tmp/x/Alpha.xlsx'),
+    ('/tmp/y/Alpha.xlsx', '/tmp/x', '/tmp/y', '/tmp/y/Alpha.xlsx'),
     # On Windows the same links, as before.
-    ('Sub/Deep.xlsx', 'C:\\x', 'C:\\x\\Sub'),
-    ('../Alpha.xlsx', 'C:\\x\\Sub', 'C:\\x'),
-    ('Alpha.xlsx', 'C:\\x', 'C:\\x'),
-    ('/Users/y/Alpha.xlsx', 'C:\\x', 'C:\\Users\\y'),
-    ('file:///C:\\y\\Alpha.xlsx', 'C:\\x', 'C:\\y'),
-])
+    ('Sub/Deep.xlsx', 'C:\\x', 'C:\\x\\Sub', 'C:\\x\\Sub\\Deep.xlsx'),
+    ('../Alpha.xlsx', 'C:\\x\\Sub', 'C:\\x', 'C:\\x\\Alpha.xlsx'),
+    ('Alpha.xlsx', 'C:\\x', 'C:\\x', 'C:\\x\\Alpha.xlsx'),
+    ('/Users/y/Alpha.xlsx', 'C:\\x', 'C:\\Users\\y', 'C:\\Users\\y\\Alpha.xlsx'),
+    ('file:///C:\\y\\Alpha.xlsx', 'C:\\x', 'C:\\y', 'C:\\y\\Alpha.xlsx'),
+]
+
+
+@pytest.mark.parametrize(('target', 'here', 'folder', 'whole'), SPELLINGS)
 @pytest.mark.parametrize('system', ['nt', 'posix'])
-def test_a_link_s_folder_keeps_the_spelling_of_its_workbook_s(target: str, here: str, folder: str, system: str, monkeypatch: pytest.MonkeyPatch) -> None:
-    """The answer goes by the spellings alone, so it is the same as if each system ran it."""
+def test_a_link_s_folder_and_full_name_keep_the_spelling_of_its_workbook_s(target: str, here: str, folder: str, whole: str, system: str,
+                                                                            monkeypatch: pytest.MonkeyPatch) -> None:
+    """The answers go by the spellings alone, so they are the same as if each system ran them. The full name keeps Excel's backslash, as a macro
+    reads the file's name after the last \\; on Linux /tmp/x\\Alpha.xlsx is opened, and checked, as /tmp/x/Alpha.xlsx."""
     import ntpath
     import posixpath
 
     from pyopenvba.apps.excel._external_links import LinkedBook
+    from pyopenvba.apps.excel._hooks import final_path
 
+    real = os.name
     linked = LinkedBook(1, target, ('Sheet1',), ({},), {})
     with monkeypatch.context() as patched:
         patched.setattr(os, 'name', system)
         patched.setattr(os, 'path', ntpath if system == 'nt' else posixpath)
-        found = linked.folder(here)
-    assert found == folder
+        found, named = linked.folder(here), linked.path(here)
+    assert (found, named) == (folder, f'{folder}\\{linked.file}')
+    # How a path is opened is the system's own, so it is checked where the system really runs, for its own spellings: Windows here and in its
+    # CI job, POSIX on Linux and macOS.
+    if (real == 'posix') == here.startswith('/') and system == real:
+        # The system's own resolving of what is spelled, so a folder that is itself a link counts: macOS's /tmp is /private/tmp.
+        assert final_path(named) == os.path.realpath(whole)

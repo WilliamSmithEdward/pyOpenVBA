@@ -502,6 +502,16 @@ class ExcelApplication(NamedRangeAPI):
 
         set_hook(self.interpreter.hooks, name, function, folders)
 
+    def allow_link_reads(self, folders: object) -> None:
+        """Let a macro under the sandbox read linked workbooks' files that lie in ``folders``: UpdateLink, ChangeLink, a link's
+        status, and a formula naming a closed workbook. Each call replaces the folders, and ``()`` takes them all away. A path is
+        resolved first, links and .. followed, as set_hook's folders are. A formula naming a workbook by its file alone looks in
+        the current folder, which a sandboxed macro cannot change: the folder this process was in when the application was made.
+        Docs: docs/vba_runtime.md, Hooks."""
+        from pyopenvba.apps.excel._hooks import set_link_folders
+
+        set_link_folders(self.interpreter, folders)
+
     @property
     def console(self) -> list[str]:
         """Everything Debug.Print wrote."""

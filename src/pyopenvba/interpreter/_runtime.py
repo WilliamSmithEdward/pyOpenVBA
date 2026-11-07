@@ -1142,6 +1142,8 @@ class Interpreter:
         #: What ExcelApplication.set_hook registered, and the members whose functions are running (see apps/excel/_hooks).
         self.hooks: dict[str, object] = {}
         self.hooks_running: list[str] = []
+        #: The folders a sandboxed macro may read linked workbooks in (ExcelApplication.allow_link_reads).
+        self.link_folders: tuple[str, ...] = ()
         self.frozen_now: Any = None
         #: The Regional format the project runs under: what CStr, Format and CDate write and read.
         self.locale: _locale.Locale = _locale.EN_US

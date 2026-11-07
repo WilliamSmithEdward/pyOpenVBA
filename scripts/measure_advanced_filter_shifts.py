@@ -199,6 +199,16 @@ CASES_E: list[list[object]] = [[kind, edit, typed] for kind in KINDS_E for edit 
 KINDS_F = ('fmtnear', 'fmtlow', 'textnear', 'textlow')
 EDITS_F = ('delete Z12:Z16 auto', 'delete F20:Y20 auto', 'delete Z2:Z3 auto')
 CASES_F: list[list[object]] = [[kind, edit, typed] for kind in KINDS_F for edit in EDITS_F for typed in (True, False)]
+#: The seventh look: which way an Insert with no Shift goes where nothing lies below or right of the range.
+KINDS_G = ('plain', 'fmtlow')
+EDITS_G = ('insert H12:J13 auto', 'insert Y20 auto', 'insert Y19:Y20 auto', 'insert F20:Y20 auto', 'insert F19:Y19 auto',
+           'insert Z12 auto', 'insert Y12 auto', 'insert E20 auto', 'insert E19:F19 auto', 'insert Z1:Z20 auto',
+           'insert Z12:Z16 auto', 'insert Z19:Z20 auto')
+CASES_G: list[list[object]] = [[kind, edit, typed] for kind in KINDS_G for edit in EDITS_G for typed in (True, False)]
+#: The eighth look: whether a range's own cells count as lying below it, for a Delete and an Insert with no Shift.
+EDITS_H = ('delete E20 auto', 'delete E20:G20 auto', 'delete D20:E20 auto', 'insert E20:G20 auto', 'insert F20 auto',
+           'insert D20:E20 auto', 'delete E19:F19 auto', 'delete D20 auto', 'insert D20 auto', 'delete E20:E21 auto')
+CASES_H: list[list[object]] = [['plain', edit, typed] for edit in EDITS_H for typed in (True, False)]
 
 
 def main() -> None:
@@ -207,7 +217,7 @@ def main() -> None:
 
     stem = 'advanced_filter_shifts' + (sys.argv[1] if len(sys.argv) > 1 else '')
     predicted = FIXTURES / f'{stem}_predictions.json'
-    cases: list[dict[str, Any]] = json.loads(predicted.read_text('utf-8'))['cases'] if predicted.exists() else [{'call': one} for one in {'_b': CASES_B, '_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F}.get(stem[len('advanced_filter_shifts'):], CASES)]
+    cases: list[dict[str, Any]] = json.loads(predicted.read_text('utf-8'))['cases'] if predicted.exists() else [{'call': one} for one in {'_b': CASES_B, '_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F, '_g': CASES_G, '_h': CASES_H}.get(stem[len('advanced_filter_shifts'):], CASES)]
     answers: list[str] = []
     crashes: list[list[object]] = []
     number = 0
@@ -289,7 +299,7 @@ def model_answer(case: list[object]) -> str | None:
 
 
 def predict(round_: str) -> None:
-    found = [{'call': case, 'model': model_answer(case)} for case in {'_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F}.get(round_) or held_out(round_)]
+    found = [{'call': case, 'model': model_answer(case)} for case in {'_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F, '_g': CASES_G, '_h': CASES_H}.get(round_) or held_out(round_)]
     (FIXTURES / f'advanced_filter_shifts{round_}_predictions.json').write_text(json.dumps({'cases': found}, indent=0),
                                                                                encoding='utf-8', newline='\n')
     print(len(found), 'predicted,', sum(one['model'] is None for one in found), 'refused')

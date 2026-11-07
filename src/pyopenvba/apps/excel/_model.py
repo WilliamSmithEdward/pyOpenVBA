@@ -6866,12 +6866,16 @@ class Range(ExcelObject):
         _events.after_edit(where, calculate_first=True)
         return True
 
-    def _pulls_up(self, area: Area) -> bool:
+    def _pulls_up(self, area: Area, *, inserting: bool = False) -> bool:
         """Which way a Delete with no Shift pulls cells: a range no taller than it is wide pulls them up, unless nothing
         lies below it in its columns, and a taller one pulls them left, unless nothing lies to its right in its rows;
-        then the other way (tests/fixtures/advanced_filter_shifts_d.json, _e)."""
+        then the other way (tests/fixtures/advanced_filter_shifts_d.json, _e). A cell with only a format counts
+        (_f). ``inserting`` asks it for an Insert of a range no taller than it is wide, which pushes cells down
+        where something lies in its columns from its top row, its own cells included, and right where nothing does
+        (_g)."""
         if area.rows <= area.columns:
-            return any(row > area.bottom and area.left <= column <= area.right and not cell.is_blank()
+            first = area.top if inserting else area.bottom + 1
+            return any(row >= first and area.left <= column <= area.right and not cell.is_blank()
                        for (row, column), cell in self.sheet.cells_.items())
         return not any(column > area.right and area.top <= row <= area.bottom and not cell.is_blank()
                        for (row, column), cell in self.sheet.cells_.items())
@@ -6939,8 +6943,8 @@ class Range(ExcelObject):
         """Insert, which pushes cells down or right.
 
         With no Shift a range taller than it is wide pushes cells right and
-        any other range pushes them down; _editing has how references
-        follow. On a filtered sheet, as _visible has it, whole rows go in
+        any other range pushes them down, or right where nothing lies in
+        its columns from its top row down (_pulls_up); _editing has how references follow. On a filtered sheet, as _visible has it, whole rows go in
         as many as the range shows, at its top, and inserting cells is
         error 1004.
         """
@@ -6997,8 +7001,9 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._editing import shift_cells
 
         if Shift is MISSING:
-            # With no Shift a range taller than it is wide pushes cells right, any other range down.
-            down = area.rows <= area.columns
+            # With no Shift a range taller than it is wide pushes cells right, and any other range down where
+            # something lies in its columns from its top row, right where nothing does (_pulls_up).
+            down = area.rows <= area.columns and self._pulls_up(area, inserting=True)
         else:
             # By name or by Excel's own number, 3 and 4 taking in whole rows or columns; anything else is 1004
             # (tests/fixtures/range_methods_moves.json).

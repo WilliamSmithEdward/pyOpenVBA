@@ -948,6 +948,10 @@ class Stylesheet:
                              palette if len(palette) >= 64 else ())
         #: The theme's heading and body typefaces, which Excel's built-in cell styles are written in.
         self.theme_fonts = parse_theme_fonts(theme_xml) if theme_xml else DEFAULT_THEME_FONTS
+        #: The typefaces and theme colours the built-in styles Excel adds are made in: the theme's, except in a file with no
+        #: theme part, whose built-in styles take Excel's 2007 theme as fixed colours (see _io.read_stylesheet).
+        self.built_in_fonts = self.theme_fonts
+        self.built_in_colours: tuple[str, ...] | None = None
         #: Every format by id, as Range.NumberFormat spells it; the file's own spelling is read through from_file.
         self.number_formats: dict[int, str] = dict(BUILTIN)
         #: The numFmt elements the file spells out, by the id Excel gives each on opening.

@@ -393,7 +393,9 @@ def _template_style_parts() -> tuple[str, str]:
     return (template.read("xl/styles.xml").decode("utf-8"), template.read("xl/theme/theme1.xml").decode("utf-8"))
 
 
-#: What a file with no theme part reads as: Excel's 2007 theme, not the one a new workbook has now (tests/fixtures/tool_books/spellings.json).
+#: Excel's 2007 theme. A file with no theme part takes the theme a new workbook has now for its colours, but the built-in
+#: styles Excel adds to it take this theme's typefaces and its colours as fixed ones (tests/fixtures/tool_books/spellings.json,
+#: tests/fixtures/no_theme.json).
 _NO_THEME = ('<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:themeElements><a:clrScheme name="Office">'
              '<a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>'
              '<a:dk2><a:srgbClr val="1F497D"/></a:dk2><a:lt2><a:srgbClr val="EEECE1"/></a:lt2><a:accent1><a:srgbClr val="4F81BD"/></a:accent1>'
@@ -415,7 +417,14 @@ def read_stylesheet(package: OpcFile | None) -> Stylesheet:
         if re.fullmatch(r"xl/theme/theme\d+\.xml", part):
             theme = package.read(part).decode("utf-8", errors="replace")
             break
-    return Stylesheet(styles or _template_style_parts()[0], theme or _NO_THEME)
+    if theme:
+        return Stylesheet(styles or _template_style_parts()[0], theme)
+    from pyopenvba.apps.excel._styles import parse_theme, parse_theme_fonts
+
+    found = Stylesheet(styles or _template_style_parts()[0], _template_style_parts()[1])
+    found.built_in_fonts = parse_theme_fonts(_NO_THEME)
+    found.built_in_colours = parse_theme(_NO_THEME)
+    return found
 
 
 def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Stylesheet,

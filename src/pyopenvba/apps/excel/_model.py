@@ -7724,6 +7724,8 @@ class Range(ExcelObject):
             raise error(13, "Type mismatch")
         if not array.size:
             return
+        source_rows = array.bounds[0][1] - array.bounds[0][0] + 1 if array.dimensions == 2 else 1
+        source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
         for place, area in enumerate(visible_areas(self) or self.areas):
             if area.rows * area.columns > 1048576:
                 raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
@@ -7733,7 +7735,20 @@ class Range(ExcelObject):
                     if item is NULL or isinstance(item, VBAArray):
                         # Nothing a cell can hold.
                         item = EMPTY
-                    self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
+                    if isinstance(item, str) and _is_formula(item):
+                        # A formula repeated down a row of one, or across a column of one, moves with each cell, as
+                        # Formula's does (tests/fixtures/value2_rounds.json).
+                        try:
+                            item = shift_text(item, row if source_rows == 1 else 0, column if source_columns == 1 else 0)
+                        except ValueError:
+                            raise error(7, "Out of memory") from None
+                    try:
+                        self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
+                    except VBARuntimeError as failure:
+                        if failure.number != 1004 or not isinstance(item, str):
+                            raise
+                        # A formula Excel cannot read, in an array, is error 7 (tests/fixtures/value2_rounds.json).
+                        raise error(7, "Out of memory") from None
         self.sheet.touched()
 
     def _array_item(self, array: VBAArray, row: int, column: int, *, swapped: bool) -> object:
@@ -8845,9 +8860,11 @@ def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 
     try:
         return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
     except UnmodelledFormulaError:
-        # Excel takes it with no dialog when alerts are off: an open workbook's cells, a closed one's read from its file, and #REF! of
-        # one not there. A formula naming a workbook the file already links to goes another way (see _external_links).
-        raise VBAUnsupportedError("a formula naming a workbook the file does not link to is not implemented") from None
+        # No input reaches this today: a formula naming another workbook makes its link (see _new_links), and the
+        # parser refuses a structured token run into a ref, name or structured token first, as 1004 (21 shapes tried
+        # after tests/fixtures/book_refs.json). It stays as a guard: a sync of the formula code may bring a raise back,
+        # which would otherwise answer a trappable 1004 where the honest answer is that it is not modelled.
+        raise VBAUnsupportedError("a formula the model cannot spell is not implemented") from None
     except FormulaError:
         raise error(1004, "Application-defined or object-defined error") from None
 

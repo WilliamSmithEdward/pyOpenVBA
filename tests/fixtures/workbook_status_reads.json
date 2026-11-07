@@ -1,0 +1,22 @@
+{
+ "predicted": {
+  "Workbook": [
+   "new 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "saved 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "read-write 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "to read-only e0 Boolean:True",
+   "read-only Boolean:True",
+   "read-only saved as Boolean:False",
+   "attribute Boolean:False"
+  ],
+  "Object": [
+   "new 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "saved 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "read-write 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "to read-only e0 Boolean:True",
+   "read-only Boolean:True",
+   "read-only saved as Boolean:False",
+   "attribute Boolean:False"
+  ]
+ }
+}

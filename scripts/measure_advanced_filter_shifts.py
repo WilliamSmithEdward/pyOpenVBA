@@ -342,7 +342,10 @@ def held_out_plain(round_: str) -> list[list[object]]:
     chooser = random.Random('advanced-filter-shifts-plain' + round_)
     base = {(row, column) for row in range(1, 13) for column in (1, 2, 3)}
     base |= {(row, 5) for row in range(1, 21)} | {(row, 26) for row in range(1, 21)}
-    share = {name: 14 for name in BRANCHES}
+    # A "_plainapart" round takes only the branches where the rule leaves the range's shape, and only edits where the
+    # way the shape points would move something it does not: the edits that tell the rule from the shape.
+    apart = round_.startswith('_plainapart')
+    share = {name: (32 if 'clear' in name else 0) if apart else 14 for name in BRANCHES}
     cases: list[list[object]] = []
     while any(share.values()):
         values = [(chooser.randint(1, 30), chooser.randint(4, 31)) for _ in range(chooser.choice((0, 1, 2, 3)))]
@@ -354,9 +357,15 @@ def held_out_plain(round_: str) -> list[list[object]]:
             rows = columns + 1
         bottom, right = top + rows - 1, min(32, left + columns - 1)
         verb = chooser.choice(('delete', 'insert'))
-        taken = branch(verb, top, left, bottom, right, base | set(values) | set(fills))
+        cells = base | set(values) | set(fills)
+        taken = branch(verb, top, left, bottom, right, cells)
         if not share[taken]:
             continue
+        if apart:
+            below = any(row > bottom and left <= column <= right for row, column in cells)
+            beside = any(column > right and top <= row <= bottom for row, column in cells)
+            if not (below if taken == 'delete tall clear' else beside):
+                continue
         share[taken] -= 1
         kind = 'put ' + '|'.join(_letters(column) + str(row) for row, column in values)
         if fills:

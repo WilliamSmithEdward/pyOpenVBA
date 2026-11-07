@@ -149,6 +149,8 @@ class SeriesState:
     points_unread: bool = False
     #: Whether a loaded series holds a label of one of its points, which its DataLabels answer from but is not read.
     labels_unread: bool = False
+    #: Whether a loaded series' own data labels were read whole from its dLbls (tests/fixtures/loaded_chart_labels.json).
+    labels_read: bool = False
     #: What was set of its points, by their index from 0 (tests/fixtures/series_points.json).
     points: dict[int, PointState] = field(default_factory=lambda: {})
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an

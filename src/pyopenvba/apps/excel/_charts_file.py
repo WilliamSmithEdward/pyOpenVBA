@@ -38,7 +38,7 @@ from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_te
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._chart_xml import ChartKind
+    from pyopenvba.apps.excel._chart_xml import ChartKind, LabelLook
     from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -171,6 +171,45 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             rels = rels_part(part)
             sheet.chart_states[shape.shape_id].style_part = package.has(rels) and REL_CHART_STYLE in package.read(rels).decode('utf-8')
             read_looks(sheet.chart_states[shape.shape_id], package, part)
+
+#: What a series' dLbls holds that its labels are read from, by the tag; a point's dLbl is the points' own.
+_LABEL_FLAGS = {'showLegendKey': 'legend_key', 'showVal': 'value', 'showCatName': 'category', 'showSerName': 'series',
+                'showPercent': 'percent', 'showBubbleSize': 'bubble'}
+_LABEL_TAGS = frozenset({*_LABEL_FLAGS, 'numFmt', 'spPr', 'txPr', 'dLblPos', 'separator', 'showLeaderLines', 'extLst', 'dLbl'})
+
+
+def _read_labels(look: LabelLook, labels: ET.Element) -> bool:
+    """A series' own data labels, as _series_labels writes them: what they show, their number format, place, separator and box.
+    False where the dLbls holds what is not read here, which leaves its labels' reads refused."""
+    from pyopenvba.apps.excel._number_format import from_file
+
+    if any(child.tag.rpartition('}')[2] not in _LABEL_TAGS for child in labels):
+        return False
+    for tag, name in _LABEL_FLAGS.items():
+        found = labels.find(f'c:{tag}', NS)
+        if found is None:
+            return False
+        setattr(look, name, found.get('val', '1') in ('1', 'true'))
+    number = labels.find('c:numFmt', NS)
+    if number is not None:
+        linked = number.get('sourceLinked', '0') in ('1', 'true')
+        look.linked, look.number_format = linked, None if linked else from_file(number.get('formatCode', 'General'))
+    place = labels.find('c:dLblPos', NS)
+    if place is not None:
+        spelled = {name: number for number, name in LABEL_POSITIONS.items()}
+        if place.get('val') not in spelled:
+            return False
+        look.position = spelled[place.get('val', '')]
+    separator = labels.find('c:separator', NS)
+    look.separator = None if separator is None else separator.text or ''
+    box = labels.find('c:spPr', NS)
+    if box is not None:
+        fills = [child.tag.rpartition('}')[2] for child in box if child.tag.rpartition('}')[2] in ('noFill', 'solidFill', 'gradFill', 'pattFill')]
+        line = box.find('a:ln', NS)
+        if fills != ['noFill'] or line is None or line.find('a:noFill', NS) is None:
+            return False
+    return True
+
 
 def _axis_elements(plot: ET.Element) -> list[ET.Element]:
     return [child for child in plot if child.tag.rpartition('}')[2] in ('catAx', 'valAx', 'dateAx')]
@@ -425,6 +464,7 @@ def read_chart(xml: str, part: str) -> ChartState:
             item.data_labels = shown is not None and shown.get('val', '1') in ('1', 'true')
             leaders = labels.find('c:showLeaderLines', NS)
             item.leader_lines = leaders is not None and leaders.get('val', '1') in ('1', 'true')
+            item.labels_read = _read_labels(item.label_look, labels)
         else:
             # A pie's own leader lines, which its series follow until they have labels of their own.
             leaders = owner.find('c:dLbls/c:showLeaderLines', NS)

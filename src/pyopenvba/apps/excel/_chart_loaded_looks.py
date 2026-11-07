@@ -123,7 +123,7 @@ def read_looks(state: ChartState, package: OpcFile, part: str) -> None:
     found = _SERIES.findall(state.original)
     if len(found) == len(state.series):
         for entry, markup in zip(state.series, found):
-            entry.points_unread = '<c:dPt>' in markup or '<c:dLbls>' in markup
+            entry.points_unread = '<c:dPt>' in markup or '<c:dLbl>' in markup or ('<c:dLbls>' in markup and not entry.labels_read)
             entry.labels_unread = '<c:dLbl>' in markup
     else:
         for entry in state.series:

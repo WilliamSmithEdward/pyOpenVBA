@@ -207,17 +207,30 @@ def free_name(book: Workbook, base: str) -> str:
 
 def refresh_all(book: Workbook) -> None:
     """Workbook.RefreshAll over the tables: each refreshed before, with its connection there, not left out, refreshing
-    allowed and its file still there, the rest passed over without a word."""
-    tables = [table for sheet in book.sheets_ for table in sheet.query_tables
-              if table.refreshed and not table.link.deleted and not table.link.excluded and table.setting('EnableRefresh', True)]
+    allowed and its file still there, the rest passed over without a word. Over a database a ListObject's table never refreshed
+    is refreshed too where it has a command, and each table refreshes as its Refresh does, in the background where BackgroundQuery
+    says so (tests/fixtures/refresh_all_database.json)."""
+    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable, ListQueryTable
+
+    def wanted(table: QueryTable) -> bool:
+        if isinstance(table, ListQueryTable) and table.placeholder and table.command_text is None:
+            return False
+        return (table.refreshed or isinstance(table, ListQueryTable)) and not table.link.deleted and not table.link.excluded \
+            and bool(table.setting('EnableRefresh', True))
+
+    tables = [table for sheet in book.sheets_ for table in [*sheet.query_tables, *(one.query for one in sheet.tables if one.query is not None)]
+              if wanted(table)]
     if not tables:
         return
     if book.queries_.entries or any(sheet.pivot_tables for sheet in book.sheets_):
         raise VBAUnsupportedError('Workbook.RefreshAll over query tables and queries or pivot tables together is not implemented')
-    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable
-
-    if any(isinstance(table, DatabaseQueryTable) for table in tables):
-        raise VBAUnsupportedError('Workbook.RefreshAll over a query table on a database is not implemented')
+    databases = [table for table in tables if isinstance(table, DatabaseQueryTable)]
+    if databases:
+        if len(databases) != len(tables):
+            raise VBAUnsupportedError('Workbook.RefreshAll over query tables on text files and on databases together is not implemented')
+        for table in databases:
+            table.vba_call('Refresh', [])
+        return
     book.application.outside('Workbook.RefreshAll over a query table')
     for table in tables:
         if Path(table.source).is_file():

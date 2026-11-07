@@ -289,9 +289,15 @@ table's columns. `Unlist` and `Delete` take the query table, its connection and 
 leaves no part of them. A save writes the table, its query table and its connection as Excel does, ids and all, before the first refresh too,
 and Excel opens what the model saved and refreshes it itself (tests/fixtures/list_query_add_saved.json).
 
+**RefreshAll.** `Workbook.RefreshAll` refreshes each table over a database a refresh has run on, a sheet's or a ListObject's, with its command
+as it is now, and a ListObject's never refreshed where it has a command; a sheet's never refreshed, and a ListObject's with no command, it
+passes over without an error, as it does one whose `EnableRefresh` is False or whose connection's `RefreshWithRefreshAll` is False. A table
+whose `BackgroundQuery` is True waits for the macro to end, `Refreshing` True meanwhile, as its own `Refresh` does
+(tests/fixtures/refresh_all_database.json). A source that has gone puts up the provider's prompt in Excel, which is not modelled.
+
 Known differences: Excel reads back and saves the provider's own fuller string where the macro set a shorter one; the model keeps the one the
 macro set, so the file differs there. The uid Excel writes on each part is not written for a part the model writes again. Not built:
-`Workbook.RefreshAll` over such a table; `ListObjects.Add` over cells in use, which Excel moves by a rule one case does not settle; a refresh
+`Workbook.RefreshAll` over tables on text files and on databases together, or with pivot tables; `ListObjects.Add` over cells in use, which Excel moves by a rule one case does not settle; a refresh
 that changes both the columns and the rows of a ListObject with cells to its right, or the columns of one a file gave; a ListObject's query
 table with row numbers, without field names or with another `RefreshStyle`; a refresh of one a file holds that was saved before its first
 refresh; and saving one beside a sheet's own query tables. A text file's query table is the model's own, with no function.

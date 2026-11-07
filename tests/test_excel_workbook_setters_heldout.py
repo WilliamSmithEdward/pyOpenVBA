@@ -29,10 +29,6 @@ DIGESTS = {'round1': 'd2992aded0f70a1eda855da749bc67be4003dea7241c17ed912e76c31a
 #: past a Long, text and ranges), Null on three flags (refused openly, where Excel says 94 typed and 13 late), and text, a Currency, a
 #: Date and a range bound late on Date1904, PrecisionAsDisplayed and SaveLinkValues, which Excel refuses with 1004.
 MISSES = {'round1': 38, 'round2': 7, 'round3': 5, 'round4': 4, 'round5': 4}
-#: A Range given late to these, which Excel refuses with 1004: the model hands the setter the range's value, so it takes it. Fixing that is
-#: a change to how every late set receives an object, not to these settings.
-GAPS = frozenset({'Date1904', 'DisplayDrawingObjects', 'PrecisionAsDisplayed', 'SaveLinkValues'})
-RANGE = 'ws.Range("A1,C1")'
 ROUNDS = sorted(path.name.removesuffix('_excel.json') for path in FOLDER.glob('*_excel.json'))
 
 
@@ -69,8 +65,4 @@ def test_every_case_answers_as_excel_did(round_name: str, declared: str, tmp_pat
         found += str(app.run('H.Probe', str(folder))).split(MEASURE.SEPARATOR)
     differ = [(case['setting'], case['value'], case['first'], mine, theirs)
               for case, mine, theirs in zip(every, found, excel['answers'][declared]) if mine != theirs]
-    known = [one for one in differ if declared == 'Object' and one[1] == RANGE and one[0] in GAPS]
-    assert [one for one in differ if one not in known] == []
-    # Each named gap still differs, so one that closes leaves GAPS.
-    if declared == 'Object':
-        assert {one[0] for one in known} == {case['setting'] for case in every if case['value'] == RANGE and case['setting'] in GAPS}
+    assert differ == []

@@ -25,7 +25,7 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
-from pyopenvba.interpreter._files import native_path, spelled
+from pyopenvba.interpreter._files import final_path, is_inside
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
@@ -34,8 +34,6 @@ if TYPE_CHECKING:
 
 #: The members with a hook. Each is added here when it is built, so that a name mistyped raises rather than never being called.
 HOOK_NAMES = frozenset({'ExportAsFixedFormat', 'PrintOut', 'Export', 'CopyPicture', 'Refresh'})
-#: Names Windows gives to devices rather than files, whatever follows the dot.
-_DEVICES = frozenset({'CON', 'PRN', 'AUX', 'NUL', 'CONIN$', 'CONOUT$', *(f'COM{at}' for at in range(1, 10)), *(f'LPT{at}' for at in range(1, 10))})
 
 
 @dataclass(frozen=True)
@@ -77,6 +75,10 @@ class HookRequest:
     path: Path | None = None
     #: For Refresh: the source to fetch rows from, as the macro named it.
     source: ExternalSource | None = None
+    #: The procedure making the call, "Module1.SaveReport", and what the host itself started the run with: the macro it ran, or the event that
+    #: fired. A macro names its own procedures, so a rule about what the user started goes by ``entry``.
+    caller: str = ''
+    entry: str = ''
 
     def saved_bytes(self) -> bytes:
         """What SaveCopyAs would write now, for a tool that converts files. Nothing about the workbook changes: not Saved, not its name or its path, and no event runs. A workbook never
@@ -115,26 +117,6 @@ def hook_of(application: Application, member: str) -> Hook | None:
     found = application.interpreter.hooks.get(member) if application.interpreter is not None else None
     return found if isinstance(found, Hook) else None
 
-
-def final_path(path: str) -> str:
-    """The file a macro's path names, as this system opens it: a backslash a separator off Windows too, each part in the case the disk
-    spells it, then links and .. resolved. The gate checks this and the read or write uses this, so nothing turns the path round between
-    them: off Windows a backslash is a character of a name, and "grant/..\\away" checked as given is one file inside grant that a read
-    turning its backslashes round would find outside."""
-    return os.path.realpath(spelled(native_path(path)))
-
-
-def _real(path: str) -> Path:
-    return Path(final_path(path))
-
-
-def is_inside(path: Path | str, folders: tuple[str, ...]) -> bool:
-    """Whether a file lies in one of the folders once links and .. are resolved. Parts compare whole, so C:\\out2 is not in C:\\out; a UNC or device path has an anchor of its own, so it
-    is in nothing but a folder of that kind; and the names by which Windows reaches a device or a file's other streams are in nothing."""
-    real = _real(os.fspath(path))
-    if os.name == 'nt' and (':' in real.name or real.name.split('.')[0].rstrip(' ').upper() in _DEVICES):
-        return False
-    return any(real != base and real.is_relative_to(base) for base in (_real(one) for one in folders))
 
 
 def gate(application: Application, hook: Hook, member: str, path: Path) -> None:
@@ -201,7 +183,9 @@ def call(application: Application, hook: Hook, member: str, owner: str, target: 
         raise VBAUnsupportedError(f'{member} called from its own hook is not implemented')
     running.append(member)
     try:
-        return hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path, source))
+        # By keyword: every field after path has a default, so a positional call would fill the wrong one without a complaint.
+        return hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path, source=source,
+                                         caller=interpreter.current_where(), entry=interpreter.steps.entry))
     except VBAError:
         raise
     except Exception as failed:

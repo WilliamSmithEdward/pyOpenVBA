@@ -18,6 +18,7 @@ import shutil
 import stat
 import weakref
 from dataclasses import dataclass
+from pathlib import Path
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Final
 
@@ -918,3 +919,28 @@ class FileTable:
             raise error(ERR_INVALID)
         entries = list(os.environ.items())
         return "" if place > len(entries) else "=".join(entries[place - 1])
+
+
+#: Names Windows gives to devices rather than files, whatever follows the dot.
+_DEVICES = frozenset({'CON', 'PRN', 'AUX', 'NUL', 'CONIN$', 'CONOUT$', *(f'COM{at}' for at in range(1, 10)), *(f'LPT{at}' for at in range(1, 10))})
+
+
+def _real(path: str) -> Path:
+    return Path(os.path.realpath(spelled(path)))
+
+
+def final_path(path: str) -> str:
+    """The file a macro's path names, as this system opens it: a backslash a separator off Windows too, each part in the case the disk
+    spells it, then links and .. resolved. A gate checks this and the read, write or open uses this, so nothing turns the path round between
+    them: off Windows a backslash is a character of a name, and "grant/..\\away" checked as given is one file inside grant that a read
+    turning its backslashes round would find outside."""
+    return os.path.realpath(on_disk(path))
+
+
+def is_inside(path: Path | str, folders: tuple[str, ...]) -> bool:
+    """Whether a file lies in one of the folders once links and .. are resolved. Parts compare whole, so C:\\out2 is not in C:\\out; a UNC or device path has an anchor of its own, so it
+    is in nothing but a folder of that kind; and the names by which Windows reaches a device or a file's other streams are in nothing."""
+    real = Path(final_path(os.fspath(path)))
+    if os.name == 'nt' and (':' in real.name or real.name.split('.')[0].rstrip(' ').upper() in _DEVICES):
+        return False
+    return any(real != base and real.is_relative_to(base) for base in (_real(one) for one in folders))

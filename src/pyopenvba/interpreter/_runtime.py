@@ -258,6 +258,10 @@ class EventSlot(Slot):
         self.name = name
 
     def set(self, value: object) -> None:
+        from pyopenvba.interpreter._com_hook import HostObject
+
+        if isinstance(value, HostObject):
+            raise VBAUnsupportedError(f"WithEvents on {value.vba_type_name}, an object the host supplies, is not implemented")
         super().set(value)
         owner = self.owner()
         if owner is not None:
@@ -1075,6 +1079,12 @@ class Assignable:
     takes_objects: bool = False
     #: What the property makes of a value given by Let, an object still whole, before anything else does.
     given: Callable[[object], object] | None = None
+    #: For a member: the object it belongs to, the library its class is looked up in when an object is given by Let, the member, and
+    #: whether the call is bound late.
+    owner: object = None
+    library: str | None = None
+    member: str = ''
+    bound_late: bool = False
 
 
 @dataclass(slots=True)
@@ -1102,14 +1112,16 @@ class EachLoop:
 
 
 class StepBudget:
-    """What is left of a run's steps: one for a host and every interpreter of its projects."""
+    """One run from the host: what started it and what is left of its steps, shared by every interpreter of the host's projects."""
 
-    __slots__ = ("left", "limit", "running")
+    __slots__ = ("entry", "left", "limit", "running")
 
     def __init__(self) -> None:
         self.limit: int | None = None
         self.left = 0
         self.running = False
+        #: What the host started the run with, "Module1.Main" or "ThisWorkbook.Workbook_Open"; "" between runs.
+        self.entry = ""
 
 
 class Interpreter:
@@ -1135,6 +1147,8 @@ class Interpreter:
         self.sandbox = True
         #: How many steps a run of VBA may take, shared with every interpreter of the host's projects (see step_limit).
         self.steps = StepBudget()
+        #: The COM classes the host supplies, by ProgID in lower case, with the folders a file may be in (see set_com_class).
+        self.com_classes: dict[str, tuple[Callable[..., object], tuple[str, ...]]] = {}
         #: Every dialog the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
@@ -1242,12 +1256,27 @@ class Interpreter:
                                  where=self.current_where())
         return self.answers.pop(0)
 
-    def create_com(self, class_name: str) -> object:
+    def set_com_class(self, prog_id: str, factory: Callable[..., object] | None, *, folders: object = ()) -> None:
+        """What CreateObject and GetObject make for ``prog_id``: the factory's answer to a ComRequest. None takes it away. ``folders`` are those
+        a GetObject of a file may name while the sandbox is on. See _com_hook."""
+        from pyopenvba.interpreter._com_hook import set_com_class
+
+        set_com_class(self, prog_id, factory, folders)
+
+    def create_com(self, class_name: str, server: str = "") -> object:
+        from pyopenvba.interpreter._com_hook import CANNOT_CREATE, from_factory
         from pyopenvba.interpreter._scripting import in_memory
 
+        made = from_factory(self, class_name, "create", server=server)
+        if made is not None:
+            return made
         found = in_memory(class_name, program=True, interpreter=self)
         if found is not None:
             return found
+        if not class_name or class_name != class_name.strip():
+            # No ProgID is blank or has spaces round it, so this is Excel's answer for a class that does not exist
+            # (tests/fixtures/com_objects.json).
+            raise error(CANNOT_CREATE, "ActiveX component can't create object")
         made = self.host.create(class_name)
         if made is not UNRESOLVED:
             return made
@@ -1255,6 +1284,41 @@ class Interpreter:
         raise VBAUnsupportedError(
             f"CreateObject({class_name!r}) needs a real COM server, which pyOpenVBA does not start"
         )
+
+    def get_com(self, path: object, class_name: object) -> object:
+        """GetObject: with a path of "" a new object, as CreateObject; with no path the class's running object; with a file what the host's
+        factory makes of it. pyOpenVBA never looks at what is running on the machine (tests/fixtures/com_objects.json)."""
+        from pyopenvba.interpreter._com_hook import CANNOT_CREATE, from_factory
+        from pyopenvba.interpreter._values import to_text
+
+        name = "" if class_name is MISSING else to_text(class_name)
+        if path is not MISSING and to_text(path) == "":
+            return self.create_com(name)
+        if path is not MISSING:
+            if class_name is MISSING:
+                raise VBAUnsupportedError("GetObject of a file with no class is not implemented: Windows would choose the program")
+            return self._get_file(to_text(path), name)
+        made = from_factory(self, name, "get")
+        if made is not None:
+            return made
+        running = self.host.running(name)
+        if running is not UNRESOLVED:
+            return running
+        if not name or name != name.strip():
+            raise error(CANNOT_CREATE, "ActiveX component can't create object")
+        self.outside(f"GetObject(, {name!r})")
+        # With the sandbox off, nothing runs here for it to find, as it does not on a machine with none of the class running.
+        raise error(CANNOT_CREATE, "ActiveX component can't create object")
+
+    def _get_file(self, path: str, name: str) -> object:
+        from pyopenvba.interpreter._com_hook import from_factory, gated
+
+        if name.lower() not in self.com_classes:
+            self.outside(f"GetObject({path!r}, {name!r})")
+            raise VBAUnsupportedError(f"GetObject of a file needs a class the host supplies: {name!r} is not one")
+        made = from_factory(self, name, "get", path=gated(self, name, path))
+        assert made is not None
+        return made
 
     def current_where(self) -> str:
         if not self.frames:
@@ -1331,14 +1395,14 @@ class Interpreter:
     ) -> object:
         """Call one procedure and give back what it returns."""
         steps = self.steps
-        if steps.limit is not None and not steps.running:
+        if not steps.running:
             # The host's entry into VBA: whatever it sets off draws on one budget, however many interpreters it passes
-            # through, and the next entry starts afresh.
-            steps.running, steps.left = True, steps.limit
+            # through, is part of the run it started, and the next entry starts afresh.
+            steps.running, steps.left, steps.entry = True, steps.limit or 0, f"{module.name}.{procedure.name}"
             try:
                 return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
             finally:
-                steps.running = False
+                steps.running, steps.entry = False, ""
         if not self.frames and _locale.current() is not self.locale:
             # The outermost call runs everything under the project's locale.
             with _locale.active(self.locale):
@@ -1832,17 +1896,27 @@ class Interpreter:
                     "Variant", ""):
                 raise error(ERR_TYPE_MISMATCH, "Set needs an object on the right")
             raise error(424, "Object required")
-        if statement.kind == "let" and value is NOTHING:
+        if statement.kind == "let" and value is NOTHING and not isinstance(statement.target, A.Member):
             # Nothing has no value to let: v = Range("A1:B1").Style, whose cells differ, is error 91.
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
         if statement.kind == "let" and target.given is not None:
             value = target.given(value)
+        if statement.kind == "let" and isinstance(statement.target, A.Member) and (isinstance(value, VBAObject) or value is NOTHING):
+            value = _object_let_value(target, value)
         if statement.kind == "let" and isinstance(value, VBAObject):
             # Some objects, and some properties, take an object itself by Let; anything else hands over the
             # object's default member.
             if not ((value.vba_let_as_object or target.takes_objects) and isinstance(statement.target, A.Member)):
-                value = value.vba_value()
+                try:
+                    value = value.vba_value()
+                except VBARuntimeError:
+                    # A Variant that held Nothing is Empty after the Let fails (tests/fixtures/com_objects.json).
+                    if isinstance(statement.target, A.Name):
+                        slot = self.lookup(statement.target.name, frame, want_slot=True)
+                        if isinstance(slot, Slot) and slot.declared in ("", "Variant") and slot.get() is NOTHING:
+                            slot.set(EMPTY)
+                    raise
         target.put(value, statement.kind == "set")
 
     def _let_default(self, held: VBAObject, value: object, found: LibraryClass) -> None:
@@ -2876,6 +2950,7 @@ class Interpreter:
                 declared=slot.declared if slot is not None else 'Variant',
                 takes_objects=bool(spec is not None and getattr(spec.setter, '_vba_let_objects', False)),
                 given=(lambda value: target.vba_given(strip_suffix(name), value)) if isinstance(target, VBAObject) else None,
+                owner=target, library=library, member=strip_suffix(name), bound_late=BINDING.late,
             )
         if isinstance(expression, A.Index):
             return self._index_target(expression, frame)
@@ -3197,6 +3272,14 @@ class HostBridge:
     def constant(self, name: str) -> object:
         return UNRESOLVED
 
+    def document(self) -> object:
+        """The Workbook, Document or Presentation whose project runs, for a hook's request; None where there is none."""
+        return None
+
+    def running(self, class_name: str) -> object:
+        """GetObject(, class): the host's own object of that class where the host is one, else UNRESOLVED."""
+        return UNRESOLVED
+
     def create(self, type_name_: str) -> object:
         return UNRESOLVED
 
@@ -3263,6 +3346,78 @@ def _dispatch_get(target: object, name: str, args: list[object], named: dict[str
     if target is NOTHING:
         raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     raise error(424, f"{type_name(target)} has no member named {name}")
+
+
+#: Members that make a reference of a Range given by Let, not its value: Name.RefersTo given Range("A1") is =Sheet1!$A$1
+#: (tests/fixtures/late_object_lets_2.json). An object given to one is refused openly until each is measured.
+_TAKES_REFERENCES = frozenset({'refersto', 'referstolocal', 'referstor1c1', 'referstor1c1local'})
+
+
+def _object_let_value(target: Assignable, value: object) -> object:
+    """An object given by Let to a member, before the member sees it. Excel hands the object itself to a member bound late, and to one typed
+    whose declared type is a Variant or an object; only a typed member of a value type gets the object's default value from VBA. A member
+    given the object answers by its own rule, which goes by the member, not its type: Workbook.Date1904 refuses a Font with 1004 and
+    Workbook.CheckCompatibility with 13, though both are Booleans. So an object with a value, a one-cell Range or a Name, gives that value,
+    as every measured member takes it, and one with none, Nothing, or a Range of several cells is refused openly where the member gets the
+    object (tests/fixtures/late_object_lets.json, tests/fixtures/late_object_lets_2.json)."""
+    owner = target.owner
+    found = (find_class(target.library, owner.vba_type_name)
+             if target.library is not None and isinstance(owner, VBAObject) and not isinstance(owner, UserClassInstance) else None)
+    if found is None or target.takes_objects or (isinstance(value, VBAObject) and value.vba_let_as_object):
+        if value is NOTHING:
+            raise error(ERR_OBJECT_VARIABLE_NOT_SET)
+        return value
+    from pyopenvba.interpreter._late_object_lets import LATE_OBJECT_LETS
+
+    declared = found.result(target.member) or ''
+    measured = LATE_OBJECT_LETS['late' if target.bound_late else 'typed'].get(f"{found.name.lstrip('_').lower()}.{target.member.lower()}", {})
+    if not target.bound_late and declared not in ('Variant', 'Object', ''):
+        # Typed into a value type: VBA reads the default member, as before, but for what was measured, as a Range of several cells,
+        # whose array no value type takes (13).
+        if value is NOTHING:
+            raise error(ERR_OBJECT_VARIABLE_NOT_SET)
+        areas = getattr(value, 'areas', None)
+        kind = 'areas' if areas is not None and len(areas) > 1 else 'cells' if areas is not None and sum(
+            area.rows * area.columns for area in areas) > 1 else ''
+        if measured.get(kind):
+            raise error(measured[kind])
+        return value
+    what = 'Nothing' if value is NOTHING else type_name(value)
+    refusal = f"{found.name.lstrip('_')}.{target.member} given {what} by Let is not measured: what a member makes of an object is its own"
+    given: object = None
+    if value is NOTHING:
+        kind = 'nothing'
+    elif isinstance(value, VBACollection):
+        kind = 'collection'
+    else:
+        assert isinstance(value, VBAObject)
+        areas = getattr(value, 'areas', None)
+        if areas is not None and len(areas) > 1:
+            kind = 'areas'
+        elif areas is not None and sum(area.rows * area.columns for area in areas) > 1:
+            kind = 'cells'
+        else:
+            kind = 'value'
+            try:
+                given = value.vba_value() if value.vba_default_member() is not None else None
+            except VBARuntimeError:
+                given = None
+            if given is None:
+                kind = 'novalue'
+    if kind in measured:
+        if not measured[kind]:
+            # Measured to take the object's value, as VBA reads it.
+            assert isinstance(value, VBAObject)
+            return value.vba_value()
+        raise error(measured[kind])
+    if kind in ('cells', 'areas') and target.member.lower() not in _TAKES_REFERENCES:
+        # A Range of several cells hands over its value, an array or its first cell's, as every settable member of Range, Font,
+        # Interior, Border, Borders, Style and Characters was measured to take it (tests/fixtures/given_value_rounds.json).
+        assert isinstance(value, VBAObject)
+        return value.vba_value()
+    if kind != 'value' or target.member.lower() in _TAKES_REFERENCES:
+        raise VBAUnsupportedError(refusal)
+    return given
 
 
 def _set_member(target: object, name: str, value: object, by_ref: bool, late: LibraryClass | None) -> None:

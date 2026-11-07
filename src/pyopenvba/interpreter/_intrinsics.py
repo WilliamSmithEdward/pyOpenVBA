@@ -94,7 +94,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "macid": "is a Mac file type",
     "imestatus": "reports the input method editor",
     "command": "reads the command line Office was started with",
-    "getobject": "attaches to a running application",
     "qbcolor": "is not implemented yet",
     "partition": "is not implemented yet",
 }
@@ -1634,7 +1633,12 @@ def vba_doevents(interpreter: Interpreter) -> object:
 
 @intrinsic("CreateObject", "Class", "ServerName", minimum=1)
 def vba_createobject(interpreter: Interpreter, class_name: object, server: object) -> object:
-    return interpreter.create_com(to_text(class_name))
+    return interpreter.create_com(to_text(class_name), "" if server is MISSING else to_text(server))
+
+
+@intrinsic("GetObject", "PathName", "Class")
+def vba_getobject(interpreter: Interpreter, path: object, class_name: object) -> object:
+    return interpreter.get_com(path, class_name)
 
 
 # --- finance ------------------------------------------------------------------------------------

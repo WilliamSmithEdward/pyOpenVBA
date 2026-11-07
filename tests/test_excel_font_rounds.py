@@ -11,7 +11,7 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = ('arial', 'times_new_roman', 'arial2', 'arial3', 'times_new_roman3', 'aptos_narrow3', 'calibri3')
+ROUNDS = ('arial', 'times_new_roman', 'arial2', 'arial3', 'times_new_roman3', 'aptos_narrow3', 'calibri3', 'arial4', 'times_new_roman4', 'aptos_narrow4', 'calibri4')
 #: Why the model may refuse a question here, each for a reason of its own.
 REFUSALS = ('AutoFit of a column whose text wraps, is indented or is turned', 'Justify on a line about as wide as its column', 'Justify of more lines than its range has rows',
             'changing the Normal font to', 'wrapped italic text')

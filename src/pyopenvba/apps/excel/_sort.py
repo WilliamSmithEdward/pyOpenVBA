@@ -10,7 +10,10 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
   400 strings Excel sorted as Windows' CompareStringEx orders them).
   ``text_key`` builds Windows' own sort key from each character's
   weights, baked in _sort_weights for Latin and its extensions, combining
-  marks, Greek, Cyrillic, punctuation, symbols and control characters:
+  marks, Greek, Cyrillic, punctuation, symbols and control characters, and
+  in _sort_weights_scripts for Hebrew, Arabic, Thai and Hangul, which live
+  Excel sorted, filtered, deduplicated and named by the same keys
+  (scripts/measure_sort_scripts.py, tests/fixtures/sort_scripts.json):
   spaces and marks before digits, digits before letters, accents after
   the letters they sit on, case ignored unless MatchCase asks for lower
   case first, and hyphens, apostrophes, dashes and control characters
@@ -232,8 +235,8 @@ def text_key(text: str, match_case: bool, locale: Locale | None = None) -> bytes
         else:
             kana = None
         if found is None:
-            raise VBAUnsupportedError("sorting text with characters beyond Latin, Greek and Cyrillic, their marks "
-                                      "and punctuation is not implemented" if locale is None else
+            raise VBAUnsupportedError("sorting text with characters beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai "
+                                      "and Hangul, their marks and punctuation is not implemented" if locale is None else
                                       "sorting text with these characters is not implemented")
         units, accent, ignoring, matching, skipped = found
         previous = units

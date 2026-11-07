@@ -165,7 +165,7 @@ def test_kana_and_ideographs_weigh_as_windows_weighs_them(locale: str) -> None:
 
 def test_ideographs_weigh_by_the_locale_and_names_weigh_none() -> None:
     """ja-JP weighs the common ideographs in Japanese order, en-US in Unicode's; names, compared without a locale,
-    still report text beyond Latin, Greek and Cyrillic."""
+    still report text beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai and Hangul."""
     assert ordering_key("亜", False, JA_JP) < ordering_key("一", False, JA_JP)
     assert ordering_key("一", False, EN_US) < ordering_key("亜", False, EN_US)
     with pytest.raises(VBAUnsupportedError):

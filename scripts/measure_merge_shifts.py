@@ -20,6 +20,7 @@ import os
 import random
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -123,7 +124,7 @@ def _drive() -> None:
             user32.SendMessageTimeoutW(hwnd, message, 0, 0, 2, 1000, ctypes.byref(result))
         return result.value
 
-    answered: set[int] = set()
+    answered: dict[int, float] = {}  # a form pressed, and when: pressed again if it is still up two seconds on
 
     def answer_office_form(hwnd: int) -> None:
         import comtypes
@@ -134,7 +135,7 @@ def _drive() -> None:
         from comtypes.gen.UIAutomationClient import (CUIAutomation, IUIAutomation, IUIAutomationInvokePattern,
                                                      IUIAutomationLegacyIAccessiblePattern)
 
-        if hwnd in answered:
+        if hwnd in answered and time.monotonic() - answered[hwnd] < 2.0:
             return
         automation = comtypes.client.CreateObject(CUIAutomation, interface=IUIAutomation)
         found = automation.ElementFromHandle(hwnd).FindAll(4, automation.CreateTrueCondition())  # TreeScope_Descendants
@@ -154,7 +155,7 @@ def _drive() -> None:
             file.write(' / '.join(text.replace('\r', ' ').replace('\n', ' ') for text in texts)
                        + f' | buttons={[(name, default) for name, default, _ in buttons]} pressed={wanted}:{chosen[0] if chosen else None}\n')
         if chosen is not None:
-            answered.add(hwnd)
+            answered[hwnd] = time.monotonic()
             chosen[2].GetCurrentPattern(10000).QueryInterface(IUIAutomationInvokePattern).Invoke()
 
     def scan(self: watcher.DialogWatcher) -> None:
@@ -245,6 +246,10 @@ def _ask(cases: list[list[object]]) -> tuple[list[str], list[str]]:
                 action.write_text(str(case[4]), encoding='ascii')
                 start = log.stat().st_size
                 result = excel.run_vba(SOURCE, 'Go', tuple(case[:4]), timeout=60.0, line_numbers=False)
+                if result.outcome == 'timeout':
+                    # Now and then a pressed OK never hands the call back, though the same case answers alone; it is
+                    # asked once more, and the log keeps both prompts.
+                    result = excel.run_vba(SOURCE, 'Go', tuple(case[:4]), timeout=60.0, line_numbers=False)
                 answers.append(str(result.value) if result.ok else f'ERROR {str(result)[:200]}')
                 with log.open(encoding='utf-8') as file:
                     file.seek(start)

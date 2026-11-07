@@ -34,9 +34,13 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'legend position bottom', 'legend position same', 'legend moved position read',
          'axis maximum', 'axis minimum', 'axis both', 'axis maximum twice', 'axis maximum auto', 'axis maximum auto read',
          'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off',
-         'series name', 'series name formula', 'series name cell')
+         'series name', 'series name formula', 'series name cell',
+         'title text', 'title text marks', 'title text two lines', 'title text cr', 'title text empty', 'title text spaces', 'title text twice',
+         'title caption', 'title text then gone', 'title text read after back', 'title formula',
+         'axis title', 'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
 #: Built, but not for a chart with a style: new gridlines take the style's look, which is not read.
-NEEDS_NO_STYLE = ('category gridlines', 'minor gridlines', 'minor gridlines off')
+NEEDS_NO_STYLE = ('category gridlines', 'minor gridlines', 'minor gridlines off', 'axis title', 'axis title on', 'axis title text read',
+                  'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
 NOT_EXCELS = 'loaded_chart_openpyxl.xlsx'
 
 
@@ -73,7 +77,8 @@ def test_an_edit_not_built_stays_refused(case: list[Any], tmp_path: Path) -> Non
 
 @pytest.mark.parametrize('case', [case for case in RECORD['cases'] if answered(case)], ids=label)
 def test_what_is_answered_is_excels_answer(case: list[Any], tmp_path: Path) -> None:
-    assert run(case, tmp_path)[0] == case[2]
+    # The harness gives a carriage return in Excel's answer as a line feed, so ours is read the same way.
+    assert run(case, tmp_path)[0].replace('\r', '\n') == case[2]
 
 
 @pytest.mark.parametrize('case', [case for case in RECORD['cases'] if answered(case) and case[0] != NOT_EXCELS], ids=label)

@@ -897,9 +897,11 @@ class ListObjects(VBACollection, ItemDefault, ExcelObject):
         return [view(table) for table in self.sheet.tables]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
+        """By Name, in any case, not DisplayName: a table named "Tb7" or "a b" is found by that and not by the Tb7_ or a_b it
+        shows (tests/fixtures/table_name_lookup.json)."""
         if isinstance(index, str):
             for table in self.sheet.tables:
-                if table.name.lower() == index.lower():
+                if (table.own_name or table.name).lower() == index.lower():
                     return view(table)
             raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
         return super().vba_lookup(index, items)

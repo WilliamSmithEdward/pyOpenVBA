@@ -10,7 +10,7 @@ from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter._compile import Info, nodes, variables
 from pyopenvba.interpreter._flow import Program
 from pyopenvba.interpreter._financial import SIGNATURES as FINANCIAL_SIGNATURES
-from pyopenvba.interpreter._intrinsics import INTRINSICS
+from pyopenvba.interpreter._intrinsics import INTRINSIC_MINIMUMS, INTRINSICS
 from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
 from pyopenvba.interpreter._type_library import CallShape, LibraryClass, LibraryType, find_class, indexed_refusal, let_refusal, refusal
 from pyopenvba.interpreter._values import type_name
@@ -419,6 +419,11 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             if (info is None and isinstance(value.target, A.Name) and strip_suffix(value.target.name).lower() in ('len', 'lenb')
                     and len(value.args) == 1):
                 check_len(value.args[0].value, context, value.line)
+            if info is None and isinstance(value.target, A.Name):
+                required = INTRINSIC_MINIMUMS.get(strip_suffix(value.target.name).lower(), 0)
+                if any(argument.value is None and not argument.name for argument in value.args[:required]):
+                    # A built-in function's required argument left empty: Mid("abc", , 2) (tests/fixtures/trailing_arguments.json).
+                    fail('Argument not optional', value.line)
             if not callee and not lvalue and not with_subject:
                 check_library_call(value.target, value.args, 'value')
             if isinstance(value.target, A.Name) and info is not None and not info[1]:
@@ -452,6 +457,13 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 target = target.target
             visit(target, context, callee=True, lvalue=True)
             visit(value.value, context)
+            if (value.kind == 'set' and isinstance(value.value, A.Literal) and type_name(value.value.value) != 'Nothing'
+                    and isinstance(target, A.Name) and not arguments):
+                # Set v = 5: a value is no object. Into a Variant VBA says Object required, into an Object Type mismatch
+                # (tests/fixtures/typed_set.json).
+                declared = local.get(strip_suffix(target.name).lower())
+                if declared is not None and not declared[1] and str(declared[0]).lower() in ('variant', 'object', ''):
+                    fail('Object required' if str(declared[0]).lower() in ('variant', '') else 'Type mismatch', target.line)
             if value.kind == 'let':
                 check_library_call(target, arguments, 'assign')
                 if isinstance(target, A.Name) and not arguments:

@@ -89,6 +89,7 @@ def shift_planned(sheet: Worksheet, band: tuple[int, int], *, vertical: bool, st
     and one the moving cells cut through is unmerged, its value staying with its cell; Excel asks first unless
     DisplayAlerts is off (tests/fixtures/merge_structure_edits.json)."""
     planned: list[Area] = []
+    asked = False
     for area in sheet.merged_areas:
         low, high = (area.left, area.right) if vertical else (area.top, area.bottom)
         reach = area.bottom if vertical else area.right
@@ -98,10 +99,29 @@ def shift_planned(sheet: Worksheet, band: tuple[int, int], *, vertical: bool, st
             moved = _mapped(area, rows=vertical, start=start, count=count, delete=delete)
             if moved is not None:
                 planned.append(moved)
-        elif sheet.book.application.display_alerts:
-            raise VBAUnsupportedError("A cell shift that unmerges merged cells with DisplayAlerts on, where Excel "
-                                      "asks first, is not implemented")
+        elif sheet.book.application.display_alerts and not asked:
+            asked = True
+            _ask_to_unmerge(sheet, delete=delete)
     return planned
+
+
+#: Excel's prompt before a shift unmerges merged cells (tests/fixtures/merge_shifts.json), two spaces and all.
+UNMERGE_PROMPT = "This operation will cause some merged cells to unmerge.  Do you wish to continue?"
+
+
+def _ask_to_unmerge(sheet: Worksheet, *, delete: bool) -> None:
+    """Excel asks once, OK and Cancel with OK the default, before anything moves. OK goes on as with DisplayAlerts off;
+    Cancel is 1004 and leaves the sheet as it was. The answer comes from answer_dialogs, as MsgBox's does: 1 for OK, 2 for
+    Cancel, and with none queued the default."""
+    from pyopenvba.exceptions import VBADialogError
+    from pyopenvba.interpreter._values import to_integer
+
+    interpreter = sheet.book.application.interpreter
+    answer = 1 if interpreter is None else to_integer(interpreter.show_message(UNMERGE_PROMPT, 1, "Microsoft Excel"))
+    if answer == 2:
+        raise error(1004, ("Delete" if delete else "Insert") + " method of Range class failed")
+    if answer != 1:
+        raise VBADialogError(f"Excel's prompt to unmerge cells takes 1 for OK or 2 for Cancel, not {answer!r}")
 
 
 def replaced(sheet: Worksheet, planned: list[Area]) -> None:

@@ -1086,6 +1086,12 @@ def _held_rows_and_columns(sheet: Worksheet) -> tuple[set[int], int, int]:
         if border is not None and row < MAX_ROWS and any(side.style for side in (border.left, border.top, border.bottom, border.right)):
             rows.add(row + 1)
     columns: list[int] = []
+    for column, record in sheet.dims.columns.items():
+        if record.style is not None:
+            columns.append(column)
+            border = record.style.border
+            if any(side.style for side in (border.left, border.top, border.bottom, border.right)):
+                columns += [max(column - 1, 1), min(column + 1, MAX_COLUMNS)]
     for row, column in sheet.cells_:
         rows.add(row)
         columns.append(column)

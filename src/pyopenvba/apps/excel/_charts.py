@@ -172,6 +172,15 @@ class ChartState:
     title_look: TitleLook = field(default_factory=TitleLook)
     #: Set by ChartTitle.Delete, which Excel records as autoTitleDeleted.
     title_deleted: bool = False
+    #: A loaded chart's title element, kept once taken away for its look when a title comes back.
+    title_taken: str = ''
+    #: So with its legend element, and each axis's gridlines by the axis and whether major.
+    legend_taken: str = ''
+    gridlines_taken: dict[tuple[int, bool], str] = field(default_factory=lambda: {})
+    #: Whether a loaded chart has a style part: what it gains takes that style's look, which is not read here.
+    style_part: bool = False
+    #: Whether a loaded legend has a layout of its own, which makes its position custom.
+    legend_manual: bool = False
     legend: bool = True
     #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
     legend_position: str = 'r'
@@ -1907,6 +1916,30 @@ class Chart(ElementProperties, HeldPart):
     held_free = frozenset({'application', 'creator'})
     held_past_sheet = True
 
+    def _book(self) -> Any:
+        found = getattr(self, 'book', None)
+        return found if found is not None else self.sheet.book
+
+    @method
+    def PrintOut(self, From: object = MISSING, To: object = MISSING, Copies: object = MISSING,  # noqa: N803
+                 Preview: object = MISSING, ActivePrinter: object = MISSING, PrintToFile: object = MISSING,  # noqa: N803
+                 Collate: object = MISSING, PrToFileName: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, print_out
+
+        return print_out(self, 'Chart', self._book(), None, given_arguments(From=From, To=To, Copies=Copies, Preview=Preview, ActivePrinter=ActivePrinter,
+                                                                   PrintToFile=PrintToFile, Collate=Collate, PrToFileName=PrToFileName))
+
+    @method
+    def ExportAsFixedFormat(self, Type: object = MISSING, Filename: object = MISSING, Quality: object = MISSING, IncludeDocProperties: object = MISSING,  # noqa: N803
+                            IgnorePrintAreas: object = MISSING, From: object = MISSING, To: object = MISSING, OpenAfterPublish: object = MISSING,  # noqa: N803
+                            FixedFormatExtClassPtr: object = MISSING, WorkIdentity: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import given_arguments, export_fixed_format
+
+        return export_fixed_format(self, 'Chart', self._book(), None,
+                                   given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
+                                          OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity),
+                                   in_frame=getattr(self, 'book', None) is None)
+
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape
         self.state = state(sheet, shape)
@@ -2532,8 +2565,12 @@ class Chart(ElementProperties, HeldPart):
 
     @setter('HasTitle')
     def _has_title(self, value: object) -> None:
+        from pyopenvba.apps.excel._chart_loaded import give_title, take_title_away
         from pyopenvba.apps.excel._chart_styled import is_styled
 
+        if self.state.original:
+            (give_title if to_bool(value) else take_title_away)(self)
+            return
         self.admit_change()
         wanted = to_bool(value)
         self.keeps_look('title', wanted)
@@ -2639,6 +2676,11 @@ class Chart(ElementProperties, HeldPart):
 
     @setter('HasLegend')
     def _legend(self, value: object) -> None:
+        from pyopenvba.apps.excel._chart_loaded import set_legend
+
+        if self.state.original:
+            set_legend(self, to_bool(value))
+            return
         self.admit_change()
         wanted = to_bool(value)
         self.keeps_look('legend', wanted)
@@ -2937,6 +2979,9 @@ class ChartTitle(ElementProperties, TitleMembers):
                 return state.title
             # The automatic title of a chart that draws one series is that series' name.
             return Series(self.chart, state.series[0]).Name()
+        if state.original and state.title == '' and not state.title_typed:
+            # A loaded chart's automatic title, with no one series to name it (tests/fixtures/loaded_chart_edits.json).
+            return 'Chart Title'
         return state.title or ''
 
     @setter('Text')
@@ -2949,6 +2994,11 @@ class ChartTitle(ElementProperties, TitleMembers):
 
     @method
     def Delete(self) -> object:
+        from pyopenvba.apps.excel._chart_loaded import take_title_away
+
+        if self.chart.state.original:
+            take_title_away(self.chart)
+            return EMPTY
         self.chart.admit_change()
         self.chart.keeps_look('title')
         self.chart.changed()
@@ -3003,6 +3053,8 @@ class Legend(ElementProperties, Created):
 
     @member
     def Position(self) -> object:
+        if self.shown().legend_manual:
+            return VBAInt(-4161, 'Long')
         spelled = self.shown().legend_position
         return VBAInt(next(number for number, name in LEGEND_POSITIONS.items() if name == spelled), 'Long')
 
@@ -3011,6 +3063,12 @@ class Legend(ElementProperties, Created):
         wanted = LEGEND_POSITIONS.get(int(to_integer(value, 'Long')))
         if wanted is None:
             raise error(-2147467259, 'Automation error\nUnspecified error')
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import place_legend
+
+            self.shown()
+            place_legend(self.chart, wanted)
+            return
         self.change().legend_position = wanted
 
     @member
@@ -4461,14 +4519,25 @@ class Series(PictureMembers, Created):
     @setter('Name')
     def _name(self, value: object) -> None:
         self.position()
-        self.chart.admit_change()
+        loaded = bool(self.chart.state.original)
+        if loaded:
+            from pyopenvba.apps.excel._chart_loaded import admit
+
+            admit(self.chart)
+        else:
+            self.chart.admit_change()
         text = to_text(value)
         if text.startswith('=') and len(text) > MAX_CHART_REFERENCE_TEXT:
             raise VBAUnsupportedError('Chart references exceed the supported text budget')
         self.position()
-        self.chart.changed()
+        if not loaded:
+            self.chart.changed()
         self.entry.name_reference = text[1:] if text.startswith('=') else ''
         self.entry.name = text if not self.entry.name_reference else ''
+        if loaded:
+            from pyopenvba.apps.excel._chart_loaded import name_series
+
+            name_series(self.chart, self.entry, self.entry.name_reference, text, to_text(self.Name()))
 
     @member
     def Values(self, Index: object = MISSING) -> object:  # noqa: N803 - it takes none, as Excel answers

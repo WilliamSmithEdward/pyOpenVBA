@@ -136,9 +136,14 @@ def touches(sheet: Worksheet, areas: list[Area]) -> bool:
 
 
 def _refuse_locked(sheet: Worksheet, links: list[Link]) -> None:
-    from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
+    from pyopenvba.apps.excel._protection import PROTECTED, locked
 
-    if links and enforced(sheet) is not None and any_locked(sheet, [link.area for link in links]):
+    # A range a macro may edit on a protected sheet does not let it take a link off a locked cell, and nor does protection
+    # for the user alone (tests/fixtures/protected_links.json).
+    protection = sheet.protection
+    if protection is not None and protection.contents and any(locked(sheet, row, column) for link in links
+                                           for row in range(link.area.top, link.area.bottom + 1)
+                                           for column in range(link.area.left, link.area.right + 1)):
         raise error(1004, PROTECTED)
 
 
@@ -214,15 +219,17 @@ def add(sheet: Worksheet, anchor: object, address: object, sub: object, tip: obj
             target.hyperlinks.append(link)
         else:
             target.hyperlinks[same] = link
-        _dress(target, link, address, shown)
+        _dress(target, link, address, shown, emptied=text is not MISSING)
     _changed(target)
     assert link is not None
     return Hyperlink(target, link)
 
 
-def _dress(sheet: Worksheet, link: Link, address: object, shown: str) -> None:
+def _dress(sheet: Worksheet, link: Link, address: object, shown: str, *, emptied: bool) -> None:
     """A new link's cells: the Hyperlink style on each, and on the first the text to show, or where it is empty
-    the link's name -- the address given, where that was a number or True or False."""
+    the link's name -- the address given, where that was a number or True or False. Text to show replaces nothing but text:
+    a number, a date, a logical, an error or a formula stays. Empty text given replaces text with the link's name
+    (tests/fixtures/protected_links.json)."""
     from pyopenvba.apps.excel import _merges
     from pyopenvba.apps.excel._cell_styles import give_link_style
 
@@ -231,9 +238,12 @@ def _dress(sheet: Worksheet, link: Link, address: object, shown: str) -> None:
     if not _merges.writable(sheet, row, column):
         return
     cell = sheet.cells_.get((row, column))
+    empty = cell is None or (cell.value is EMPTY and not cell.formula)
+    if not empty and (cell is None or cell.formula or not isinstance(cell.value, str)):
+        return
     if shown:
         value: object = shown
-    elif cell is None or (cell.value is EMPTY and not cell.formula):
+    elif empty or emptied:
         value = derived(link.address, link.sub) if isinstance(address, str) else address
     else:
         return
@@ -668,7 +678,11 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
 
 def clear_links(target: Range) -> None:
     """Range.ClearHyperlinks: the links the range holds go, their cells' formats as they are."""
+    from pyopenvba.apps.excel._protection import PROTECTED, any_locked, enforced
+
     links = links_of(target.sheet, list(target.areas))
-    _refuse_locked(target.sheet, links)
+    if enforced(target.sheet) is not None and any_locked(target.sheet, list(target.areas), edits=False):
+        # Locked cells refuse it, links or none, a range a macro may edit too, but for protection for the user alone (tests/fixtures/protected_links.json).
+        raise error(1004, PROTECTED)
     if links:
         _take(target.sheet, links, formats=False)

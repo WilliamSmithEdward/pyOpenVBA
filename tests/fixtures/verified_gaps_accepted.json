@@ -1,3 +1,4 @@
 {
-  "writing to or formatting more than 1,048,576 cells at once is not implemented": "One write over more than a full column's cells. Whole columns and rows of one value go another way. The gap is reported and nothing is written."
+  "formatting more than 1,048,576 cells at once, short of whole rows or columns, is not implemented": "One format over more than a full column's cells, short of whole rows or columns. Whole rows and columns go another way. The gap is reported and nothing is changed.",
+  "editing a filtered sheet whose rows are hidden by default is not implemented": "A sheet whose rows are hidden by default and which also has a filter. A macro has no plain way to make one, though a loaded file can carry it. The macro gets the report and no wrong answer."
 }

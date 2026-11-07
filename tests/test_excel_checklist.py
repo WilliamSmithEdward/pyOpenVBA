@@ -10,10 +10,15 @@ from __future__ import annotations
 
 import ast
 import csv
+import dataclasses
+import functools
+import importlib
 import inspect
 import json
 import re
+import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -67,6 +72,7 @@ from pyopenvba.apps.excel import (
     _workbook_more,
     _workbook_settings,
 )
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._inventory_data import MEMBERS
 from pyopenvba.interpreter._objects import MemberSpec, VBAObject
 
@@ -209,32 +215,74 @@ def test_the_interface_gaps_column_matches_the_classes(type_name: str) -> None:
     assert not wrong, "run scripts/build_excel_checklist.py, then review: " + "; ".join(wrong)
 
 
-def _gaps_in(function: object) -> tuple[list[str], list[str]]:
-    """The VBAUnsupportedError messages a function raises itself, and the names of the self.x(...) it calls."""
+@dataclasses.dataclass(frozen=True)
+class _Source:
+    """What one function's source says: the gaps it raises itself and the calls the scan can name."""
+
+    raised: list[str]
+    on_self: list[str]
+    named: list[str]
+    imported: dict[str, tuple[str, str]]
+
+
+@functools.cache
+def _source_of(function: object) -> _Source:
+    found = _Source([], [], [], {})
     try:
         source = inspect.getsource(inspect.unwrap(function))  # type: ignore[arg-type]
     except (OSError, TypeError):
-        return [], []
-    raised: list[str] = []
-    called: list[str] = []
+        return found
     for node in ast.walk(ast.parse("class _:\n" + source if source[0].isspace() else source)):
         if isinstance(node, ast.Raise) and isinstance(node.exc, ast.Call) and getattr(node.exc.func, "id", "") == "VBAUnsupportedError":
             first = node.exc.args[0]
-            raised.append(str(first.value) if isinstance(first, ast.Constant) else ast.unparse(first))
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and getattr(node.func.value, "id", "") == "self":
-            called.append(node.func.attr)
-    return raised, called
+            found.raised.append(str(first.value) if isinstance(first, ast.Constant) else ast.unparse(first))
+        elif isinstance(node, ast.ImportFrom) and node.module and _scanned_module(node.module):
+            found.imported.update({alias.asname or alias.name: (node.module, alias.name) for alias in node.names})
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            found.named.append(node.func.id)
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
+            if node.func.value.id == "self":
+                found.on_self.append(node.func.attr)
+            else:
+                found.named.append(f"{node.func.value.id}.{node.func.attr}")
+    return found
 
 
-def _reachable_gaps(cls: type[VBAObject], function: object, seen: set[object]) -> list[str]:
+def _scanned_module(name: str) -> bool:
+    return name == __name__ or name == "pyopenvba" or name.startswith("pyopenvba.")
+
+
+def _called(name: str, function: object, imported: dict[str, tuple[str, str]]) -> object:
+    """The plain function a name in `function` stands for: a global of its module, or a name imported inside it, or a function of a module either holds."""
+    head, _, attribute = name.partition(".")
+    if head in imported:
+        module, member = imported[head]
+        found = getattr(importlib.import_module(module), member, None)
+    else:
+        found = getattr(inspect.unwrap(function), "__globals__", {}).get(head)  # type: ignore[arg-type]
+    if attribute:
+        return getattr(found, attribute, None) if inspect.ismodule(found) and _scanned_module(found.__name__) else None
+    return found
+
+
+def _reachable_gaps(cls: type | None, function: object, seen: set[object]) -> list[str]:
+    """The gaps `function` raises or reaches: through self.x(...) on `cls`, and through plain functions anywhere in the package.
+
+    A floor, not a count. It cannot see a method of another object, a function passed along as a callback, code the interpreter
+    runs, a value turned away with some other error, or which of the gaps a given call can really arrive at."""
     if function is None or function in seen:
         return []
     seen.add(function)
-    raised, called = _gaps_in(function)
-    for name in called:
-        found = inspect.getattr_static(cls, name, None)
+    source = _source_of(function)
+    raised = list(source.raised)
+    for name in source.on_self:
+        found = inspect.getattr_static(cls, name, None) if cls is not None else None
         if inspect.isfunction(found):
             raised += _reachable_gaps(cls, found, seen)
+    for name in source.named:
+        found = _called(name, function, source.imported)
+        if inspect.isfunction(found) and _scanned_module(found.__module__):
+            raised += _reachable_gaps(None, found, seen)
     return raised
 
 
@@ -267,11 +315,108 @@ def test_a_verified_row_reaches_no_reported_gap_but_an_accepted_one() -> None:
     """An unsupported error is a reported gap, not a passing gate (docs/host_completeness.md). A gap a macro could not
     plausibly hit may stay under a VERIFIED row if tests/fixtures/verified_gaps_accepted.json gives the reason.
 
-    The scan reads source only: it follows self.x(...) calls within the row's own class, so a gap raised in a module's
-    function, in another class or by a value the interpreter turns away is not seen. A pass does not say there is none."""
+    The scan reads source only and is a floor: see _reachable_gaps for what it cannot see. A pass does not say there is none."""
     accepted = json.loads(ACCEPTED_GAPS.read_text(encoding="utf-8"))
     gaps = _verified_gaps()
     wrong = [f"{gap!r}: {sorted(gaps[gap])}" for gap in sorted(gaps) if gap not in accepted]
     assert not wrong, "PARTIAL these, or accept the gap with a reason: " + "; ".join(wrong)
     assert all(accepted.values()), "an accepted gap needs its reason"
     assert not set(accepted) - set(gaps), f"accepted but no VERIFIED row reaches it: {sorted(set(accepted) - set(gaps))}"
+
+
+def _planted_gap() -> None:
+    raise VBAUnsupportedError("planted in a function")
+
+
+def _planted_step() -> None:
+    _planted_gap()
+
+
+def _planted_loop() -> None:
+    _planted_loop_back()
+    raise VBAUnsupportedError("planted in a loop")
+
+
+def _planted_loop_back() -> None:
+    _planted_loop()
+
+
+def _call(function: Any) -> None:
+    function()
+
+
+class _PlantedOther:
+    def gap(self) -> None:
+        raise VBAUnsupportedError("planted on another object")
+
+
+class _Planted:
+    def own(self) -> None:
+        raise VBAUnsupportedError("planted on the class")
+
+    def through_self(self) -> None:
+        self.own()
+
+    def through_function(self) -> None:
+        _planted_step()
+
+    def through_function_import(self) -> None:
+        from test_excel_checklist import _planted_step as renamed  # pyright: ignore[reportMissingImports, reportUnknownVariableType, reportPrivateUsage]
+
+        renamed()
+
+    def through_module(self) -> None:
+        _THIS._planted_step()  # pyright: ignore[reportPrivateUsage]
+
+    def through_loop(self) -> None:
+        _planted_loop()
+
+    def on_another_object(self) -> None:
+        _PlantedOther().gap()
+
+    def as_a_callback(self) -> None:
+        list(map(_call, [_planted_gap]))
+
+    def nothing(self) -> None:
+        return None
+
+
+_THIS = sys.modules[__name__]
+
+
+@pytest.mark.parametrize(
+    ("method", "gaps"),
+    [
+        ("own", {"planted on the class"}),
+        ("through_self", {"planted on the class"}),
+        ("through_function", {"planted in a function"}),
+        ("through_function_import", {"planted in a function"}),
+        ("through_module", {"planted in a function"}),
+        ("through_loop", {"planted in a loop"}),
+        ("nothing", set[str]()),
+    ],
+)
+def test_the_scan_finds_a_planted_gap_by_every_way_it_follows(method: str, gaps: set[str]) -> None:
+    assert set(_reachable_gaps(_Planted, getattr(_Planted, method), set())) == gaps
+
+
+@pytest.mark.parametrize("method", ["on_another_object", "as_a_callback"])
+def test_the_scan_is_a_floor_and_misses_what_its_docstring_says(method: str) -> None:
+    """Should these start to be found, the docstring is out of date. A row may reach a gap this way and stay VERIFIED."""
+    assert _reachable_gaps(_Planted, getattr(_Planted, method), set()) == []
+
+
+@pytest.mark.parametrize(
+    ("object_name", "member", "gap", "through"),
+    [
+        ("Border", "Color", "editing a filtered sheet whose rows are hidden by default is not implemented", "a function of another module"),
+        ("Range", "Style", "giving a range a Style object of another workbook is not implemented", "the class's own code"),
+        ("HPageBreaks", "Count", "Automatic or partial page breaks are not implemented", "a function"),
+    ],
+)
+def test_the_scan_finds_real_gaps(object_name: str, member: str, gap: str, through: str) -> None:
+    cls = CLASSES[object_name]
+    spec = _registered(cls)[member.lower()]
+    seen: set[object] = set()
+    found = [one for function in (spec.getter, spec.setter, spec.ref_setter) for one in _reachable_gaps(cls, function, seen)]
+    assert gap in found, through

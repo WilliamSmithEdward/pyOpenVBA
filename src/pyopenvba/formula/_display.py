@@ -49,7 +49,6 @@ from decimal import ROUND_HALF_UP, Decimal, localcontext
 from fractions import Fraction
 from functools import lru_cache
 
-from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._locale import EN_US, JA_JP, Locale, era_of
 
 
@@ -501,9 +500,6 @@ def _numeric(section: _Section, value: float, signed: bool, *, epoch_1904: bool 
         return ("-" if signed and value < 0 and section.condition is None else "") + "".join(item.text if item.kind == "exponent" else _literal(item)
                                                                for item in section.items)
     if section.has("exponent"):
-        exponent = next(index for index, item in enumerate(section.items) if item.kind == "exponent")
-        if not any(item.kind == "digit" for item in section.items[:exponent]) and section.has("digit"):
-            raise VBAUnsupportedError("a number format with only text before its exponent, as 1E+0, is not implemented")
         text, zero = _scientific(section.items, abs(value))
     elif _slash(section.items) is not None:
         text, zero = _fraction(section.items, abs(value))
@@ -602,7 +598,11 @@ def _scientific(items: list[_Item], value: float) -> tuple[str, bool]:
     step = max(len(whole_places), 1)
     number = _significant(value)
     exponent, mantissa = 0, Decimal(0)
-    if number:
+    if number and not whole_places and not places:
+        # With nothing to show the number in, it rounds to a whole number of no places: below 5 in its first digit to
+        # nothing, which is an exponent of 1, else to a 1 two powers up (tests/fixtures/value_gaps.json).
+        exponent = number.adjusted() + 2 if number.scaleb(-number.adjusted()) >= 5 else 1
+    elif number:
         exponent = number.adjusted() // step * step
         mantissa = _rounded(number.scaleb(-exponent), len(places))
         if mantissa >= Decimal(10) ** step:

@@ -311,6 +311,8 @@ class SheetDimensions:
         #: Rows an opened file's borders or fonts drew taller with no row record in the file: Excel's used block leaves
         #: them out (see _io.load_workbook).
         self.opened_shapes: set[int] = set()
+        #: Every row an opened file lists a row element for, whatever it says.
+        self.listed_rows: set[int] = set()
         #: The format the used block takes as the sheet's own, which a column needs another of to count: the one the
         #: last whole-sheet format left, or the one an opened file's column XFD has; None for neither. In the session a
         #: column XFD formatted alone counts like any other (tests/fixtures/used_range.json).
@@ -407,6 +409,7 @@ class SheetDimensions:
             record.height = self.default_quarters()
         record.hidden = attrs.get("hidden") in ("1", "true")
         record.extra = {key: value for key, value in attrs.items() if key not in _ROW_OWN}
+        self.listed_rows.add(row)
         # When every row is hidden by default, a row the file lists is one it shows.
         if not record.empty() or self.zero_height:
             self.rows[row] = record

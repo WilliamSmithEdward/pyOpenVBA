@@ -312,7 +312,7 @@ def load_workbook(application: Application, path: Path, *, _passed: object = Non
     for sheet in book.sheets_:
         # Excel keeps no record for a row a file's borders or fonts draw taller until an edit there works the row out
         # again, so such a row counts toward the used block only through the file's own record (tests/fixtures/used_range.json).
-        sheet.dims.opened_shapes = sheet.dims.shaped_rows() - set(sheet.dims.rows)
+        sheet.dims.opened_shapes = sheet.dims.shaped_rows() - sheet.dims.listed_rows
         # A file's column XFD holds the sheet's format, as Excel reads it (see Dimensions.sheet_format).
         sheet.dims.sheet_format = sheet.dims.column_style(MAX_COLUMNS)
     return book

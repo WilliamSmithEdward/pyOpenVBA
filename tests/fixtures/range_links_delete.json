@@ -1,0 +1,76 @@
+{
+ "measured_at": "2026-11-05T20:37:46.113514+00:00",
+ "source": "Public Function Probe(ByVal path As String, ByVal which As Long, ByVal reopen As Boolean) As String\n    Dim wb As Object, ws As Object, h As Object, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Hyperlinks.Add ws.Range(\"D5\"), \"http://example.com/a\"\n    ws.Hyperlinks.Add ws.Range(\"D6\"), \"http://example.com/b\"\n    If reopen Then\n        wb.SaveAs path, xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(path)\n        Set ws = wb.Worksheets(1)\n    End If\n    On Error Resume Next\n    Select Case which\n    Case 0\n        Set h = ws.Range(\"Q2\").Hyperlinks\n    Case 1\n        Set h = ws.Range(\"Q:Q\").Hyperlinks\n    Case 2\n        Set h = ws.Range(\"D5:D6\").Hyperlinks: ws.Hyperlinks.Delete\n    Case 3\n        Set h = ws.Range(\"D5:D6\").Hyperlinks: ws.Range(\"D5\").Hyperlinks.Delete\n    Case 4\n        ws.Range(\"D5:D6\").Hyperlinks.Delete: Set h = ws.Range(\"D5:D6\").Hyperlinks\n    Case 5\n        Set h = ws.Range(\"D5\").Hyperlinks: ws.Columns(1).Insert\n    Case 6\n        ws.Columns(1).Insert: Set h = ws.Range(\"D5\").Hyperlinks\n    End Select\n    If Err.Number <> 0 Then s = \"before E\" & Err.Number & \"|\": Err.Clear\n    s = s & \"count \" & h.Count\n    h.Delete\n    s = s & \"|delete E\" & Err.Number\n    Err.Clear\n    s = s & \"|left \" & ws.Hyperlinks.Count\n    wb.Close False\n    Probe = s\nEnd Function\n",
+ "cases": [
+  {
+   "case": "never had one",
+   "reopen": false,
+   "answer": "count 0|delete E0|left 2"
+  },
+  {
+   "case": "never had one",
+   "reopen": true,
+   "answer": "count 0|delete E0|left 2"
+  },
+  {
+   "case": "never had one, whole column",
+   "reopen": false,
+   "answer": "count 0|delete E0|left 2"
+  },
+  {
+   "case": "never had one, whole column",
+   "reopen": true,
+   "answer": "count 0|delete E0|left 2"
+  },
+  {
+   "case": "held, all taken",
+   "reopen": false,
+   "answer": "count 2|delete E1004|left 0"
+  },
+  {
+   "case": "held, all taken",
+   "reopen": true,
+   "answer": "count 2|delete E1004|left 0"
+  },
+  {
+   "case": "held, one of two taken",
+   "reopen": false,
+   "answer": "count 2|delete E1004|left 0"
+  },
+  {
+   "case": "held, one of two taken",
+   "reopen": true,
+   "answer": "count 2|delete E1004|left 0"
+  },
+  {
+   "case": "taken, then asked",
+   "reopen": false,
+   "answer": "count 0|delete E0|left 0"
+  },
+  {
+   "case": "taken, then asked",
+   "reopen": true,
+   "answer": "count 0|delete E0|left 0"
+  },
+  {
+   "case": "held, moved away",
+   "reopen": false,
+   "answer": "count 1|delete E0|left 1"
+  },
+  {
+   "case": "held, moved away",
+   "reopen": true,
+   "answer": "count 1|delete E0|left 1"
+  },
+  {
+   "case": "asked after moving away",
+   "reopen": false,
+   "answer": "count 0|delete E0|left 2"
+  },
+  {
+   "case": "asked after moving away",
+   "reopen": true,
+   "answer": "count 0|delete E0|left 2"
+  }
+ ]
+}

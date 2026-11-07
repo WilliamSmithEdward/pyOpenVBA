@@ -76,7 +76,9 @@ class LinkedBook:
         return ntpath.normpath(ntpath.join(here, head)) if head else here.rstrip("\\")
 
     def path(self, here: str) -> str:
-        """The linked workbook's full name, as LinkSources gives it."""
+        """The linked workbook's full name, as LinkSources gives it: the file after a backslash, as Excel writes it, whatever the folder,
+        so a macro finds the file's name after the last \\. What reads the file turns this into the system's path once, at the gate
+        (_hooks.final_path), and opens that."""
         folder = self.folder(here)
         return f"{folder}\\{self.file}" if folder else self.file
 

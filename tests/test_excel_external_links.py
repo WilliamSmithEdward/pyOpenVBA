@@ -19,10 +19,7 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
-import pytest
-
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import ERRORS
 
 RECORD: dict[str, Any] = json.loads(
@@ -96,10 +93,14 @@ def test_saving_keeps_the_link(tmp_path: Path) -> None:
     assert reopened.sheet(1).formula('A2') == f"='{tmp_path}\\[Source.xlsx]Sheet1'!A2*B1"
 
 
-def test_a_new_link_is_not_made(tmp_path: Path) -> None:
+def test_a_formula_naming_a_missing_workbook_makes_a_link_after_the_file_s(tmp_path: Path) -> None:
+    """As Excel does for a workbook not there (tests/fixtures/book_refs.json): a link of its own, read as #REF!."""
     app = ExcelApplication.open(_dest(tmp_path))
-    with pytest.raises(VBAUnsupportedError):
-        app.sheet(1).set_value('E1', '=[Other.xlsx]Sheet1!A1')
+    before = len(app.workbook.linked_books)
+    app.sheet(1).set_value('E1', f"='{tmp_path}\\[Other.xlsx]Sheet1'!A1")
+    assert len(app.workbook.linked_books) == before + 1
+    assert app.sheet(1).formula('E1') == f"='{tmp_path}\\[Other.xlsx]Sheet1'!A1"
+    assert str(app.sheet(1).value('E1')) == 'Error 2023'
 
 
 #: pyOfficeEditor's link, as Excel wrote it but for the absolute path newer Excel records beside the relative one.

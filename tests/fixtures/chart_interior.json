@@ -1,0 +1,634 @@
+{
+ "measured_at": "2026-11-05T20:15:46.359194+00:00",
+ "source": "Public Function Probe(ByVal kind As String, ByVal element As Long, ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, c As Object, e As Object, s As String, x As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\n    ws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\n    ws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\n    If kind = \"styled\" Then\n        Set c = ws.Shapes.AddChart2(201, xlColumnClustered).Chart\n    Else\n        Set c = ws.ChartObjects.Add(48, 96, 240, 144).Chart\n    End If\n    c.SetSourceData ws.Range(\"A1:C3\")\n    c.HasTitle = True\n    Select Case element\n    Case 0: Set e = c.ChartArea\n    Case 1: Set e = c.PlotArea\n    Case 2: Set e = c.Legend\n    Case 3: Set e = c.ChartTitle\n    Case 4: Set e = c.SeriesCollection(1)\n    End Select\n    On Error Resume Next\n    Select Case which\n    Case 1: e.Interior.Color = RGB(255, 0, 0)\n    Case 2: e.Interior.Color = RGB(10, 20, 30)\n    Case 3: e.Interior.ColorIndex = 3\n    Case 4: e.Interior.ColorIndex = xlNone\n    Case 5: e.Interior.ColorIndex = xlAutomatic\n    Case 6: e.Interior.Pattern = xlSolid\n    Case 7: e.Interior.Pattern = xlNone\n    Case 8: e.Format.Fill.ForeColor.RGB = RGB(0, 0, 255)\n    Case 9: e.Format.Fill.Visible = msoFalse\n    End Select\n    s = Err.Number & \"|\"\n    Err.Clear\n    x = \"\"\n    x = TypeName(e.Interior.Color) & \" \" & e.Interior.Color\n    s = s & x & \" \" & Err.Number & \"|\"\n    Err.Clear\n    x = \"\"\n    x = TypeName(e.Interior.ColorIndex) & \" \" & e.Interior.ColorIndex\n    s = s & x & \" \" & Err.Number & \"|\"\n    Err.Clear\n    x = \"\"\n    x = TypeName(e.Interior.Pattern) & \" \" & e.Interior.Pattern\n    s = s & x & \" \" & Err.Number & \"|\"\n    Err.Clear\n    x = \"\"\n    x = TypeName(e.Interior.PatternColorIndex) & \" \" & e.Interior.PatternColorIndex\n    s = s & x & \" \" & Err.Number & \"|\"\n    Err.Clear\n    x = \"\"\n    x = TypeName(e.Interior.InvertIfNegative) & \" \" & e.Interior.InvertIfNegative\n    s = s & x & \" \" & Err.Number & \"|\"\n    Err.Clear\n    x = \"\"\n    x = TypeName(e.Format.Fill.Visible) & \" \" & e.Format.Fill.Visible\n    s = s & x & \" \" & Err.Number & \"|\"\n    Err.Clear\n    x = \"\"\n    x = TypeName(e.Format.Fill.ForeColor.RGB) & \" \" & e.Format.Fill.ForeColor.RGB\n    s = s & x & \" \" & Err.Number & \"|\"\n    On Error GoTo 0\n    wb.Close False\n    Probe = s\nEnd Function",
+ "elements": [
+  "ChartArea",
+  "PlotArea",
+  "Legend",
+  "ChartTitle",
+  "SeriesCollection(1)"
+ ],
+ "sets": [
+  "",
+  "Interior.Color = RGB(255, 0, 0)",
+  "Interior.Color = RGB(10, 20, 30)",
+  "Interior.ColorIndex = 3",
+  "Interior.ColorIndex = xlNone",
+  "Interior.ColorIndex = xlAutomatic",
+  "Interior.Pattern = xlSolid",
+  "Interior.Pattern = xlNone",
+  "Format.Fill.ForeColor.RGB = RGB(0, 0, 255)",
+  "Format.Fill.Visible = msoFalse"
+ ],
+ "reads": [
+  "Interior.Color",
+  "Interior.ColorIndex",
+  "Interior.Pattern",
+  "Interior.PatternColorIndex",
+  "Interior.InvertIfNegative",
+  "Format.Fill.Visible",
+  "Format.Fill.ForeColor.RGB"
+ ],
+ "cases": [
+  [
+   "plain",
+   0,
+   0,
+   "0|Long 16777215 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   0,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   0,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "plain",
+   0,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   0,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   0,
+   5,
+   "0|Long 16777215 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   0,
+   6,
+   "0|Long 16777215 0|Long 2 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   0,
+   7,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   0,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "plain",
+   0,
+   9,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   1,
+   0,
+   "0|Long 16777215 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   1,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   1,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "plain",
+   1,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   1,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   1,
+   5,
+   "0|Long 16777215 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   1,
+   6,
+   "0|Long 16777215 0|Long 2 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   1,
+   7,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   1,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "plain",
+   1,
+   9,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   2,
+   0,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "plain",
+   2,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   2,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "plain",
+   2,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   2,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   2,
+   5,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "plain",
+   2,
+   6,
+   "0|Long 0 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "plain",
+   2,
+   7,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   2,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "plain",
+   2,
+   9,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   3,
+   0,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "plain",
+   3,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   3,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "plain",
+   3,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   3,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   3,
+   5,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "plain",
+   3,
+   6,
+   "0|Long 0 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "plain",
+   3,
+   7,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   3,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "plain",
+   3,
+   9,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   4,
+   0,
+   "0|Long 8544277 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 8544277 0|"
+  ],
+  [
+   "plain",
+   4,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   4,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "plain",
+   4,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "plain",
+   4,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "plain",
+   4,
+   5,
+   "0|Long 8544277 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 8544277 0|"
+  ],
+  [
+   "plain",
+   4,
+   6,
+   "0|Long 8544277 0|Long 14 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 8544277 0|"
+  ],
+  [
+   "plain",
+   4,
+   7,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 8544277 0|"
+  ],
+  [
+   "plain",
+   4,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "plain",
+   4,
+   9,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 8544277 0|"
+  ],
+  [
+   "styled",
+   0,
+   0,
+   "0|Long 16777215 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   0,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   0,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "styled",
+   0,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   0,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   0,
+   5,
+   "0|Long 16777215 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   0,
+   6,
+   "0|Long 16777215 0|Long 2 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   0,
+   7,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   0,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "styled",
+   0,
+   9,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   1,
+   0,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   1,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   1,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "styled",
+   1,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   1,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   1,
+   5,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   1,
+   6,
+   "0|Long 0 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   1,
+   7,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   1,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "styled",
+   1,
+   9,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   2,
+   0,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   2,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   2,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "styled",
+   2,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   2,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   2,
+   5,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   2,
+   6,
+   "0|Long 0 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   2,
+   7,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   2,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "styled",
+   2,
+   9,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   3,
+   0,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   3,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   3,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "styled",
+   3,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   3,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   3,
+   5,
+   "0|Long -2 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   3,
+   6,
+   "0|Long 0 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 0 0|"
+  ],
+  [
+   "styled",
+   3,
+   7,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   3,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "styled",
+   3,
+   9,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   4,
+   0,
+   "0|Long 8544277 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 8544277 0|"
+  ],
+  [
+   "styled",
+   4,
+   1,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   4,
+   2,
+   "0|Long 1971210 0|Long 1 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 1971210 0|"
+  ],
+  [
+   "styled",
+   4,
+   3,
+   "0|Long 255 0|Long 3 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 255 0|"
+  ],
+  [
+   "styled",
+   4,
+   4,
+   "0|Long -2 0|Long -4142 0|Long -4142 0|Long -4142 0|Boolean False 0|Long 0 0|Long 16777215 0|"
+  ],
+  [
+   "styled",
+   4,
+   5,
+   "0|Long 8544277 0|Long -4105 0|Long -4105 0|Long -4105 0|Boolean False 0|Long -1 0|Long 8544277 0|"
+  ],
+  [
+   "styled",
+   4,
+   6,
+   "0|Long 8544277 0|Long 14 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 8544277 0|"
+  ],
+  [
+   "styled",
+   4,
+   7,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 8544277 0|"
+  ],
+  [
+   "styled",
+   4,
+   8,
+   "0|Long 16711680 0|Long 5 0|Long 1 0|Long 2 0|Boolean False 0|Long -1 0|Long 16711680 0|"
+  ],
+  [
+   "styled",
+   4,
+   9,
+   "0|Long -2 0|Long -4142 0|Long 1 0|Long 2 0|Boolean False 0|Long 0 0|Long 8544277 0|"
+  ]
+ ]
+}

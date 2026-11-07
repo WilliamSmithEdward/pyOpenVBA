@@ -25,11 +25,12 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
-from pyopenvba.interpreter._files import spelled
+from pyopenvba.interpreter._files import native_path, spelled
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Workbook
+    from pyopenvba.interpreter._runtime import Interpreter
 
 #: The members with a hook. Each is added here when it is built, so that a name mistyped raises rather than never being called.
 HOOK_NAMES = frozenset({'ExportAsFixedFormat', 'PrintOut'})
@@ -90,8 +91,16 @@ def hook_of(application: Application, member: str) -> Hook | None:
     return found if isinstance(found, Hook) else None
 
 
+def final_path(path: str) -> str:
+    """The file a macro's path names, as this system opens it: a backslash a separator off Windows too, each part in the case the disk
+    spells it, then links and .. resolved. The gate checks this and the read or write uses this, so nothing turns the path round between
+    them: off Windows a backslash is a character of a name, and "grant/..\\away" checked as given is one file inside grant that a read
+    turning its backslashes round would find outside."""
+    return os.path.realpath(spelled(native_path(path)))
+
+
 def _real(path: str) -> Path:
-    return Path(os.path.realpath(spelled(path)))
+    return Path(final_path(path))
 
 
 def is_inside(path: Path | str, folders: tuple[str, ...]) -> bool:
@@ -110,11 +119,51 @@ def gate(application: Application, hook: Hook, member: str, path: Path) -> None:
         return
     if not hook.folders:
         application.outside(f'{member} writing a file')
-    if not is_inside(path, hook.folders):
+    _refuse_outside(application, hook.folders, path, f'{member} may not write there: it is outside the folders named with set_hook')
+
+
+def _refuse_outside(application: Application, folders: tuple[str, ...], path: Path | str, message: str) -> None:
+    """Refuse a path that resolves outside ``folders``, saying nothing of the path: the macro learns nothing of what lies outside."""
+    if not is_inside(path, folders):
         from pyopenvba.exceptions import VBASandboxError
 
-        # Nothing of the path as resolved: the macro learns nothing of what lies outside.
-        raise VBASandboxError(f'{member} may not write there: it is outside the folders named with set_hook', where=interpreter.current_where())
+        interpreter = application.interpreter
+        raise VBASandboxError(message, where=interpreter.current_where() if interpreter is not None else "")
+
+
+def set_link_folders(interpreter: Interpreter, folders: object) -> None:
+    """The folders a sandboxed macro may read linked workbooks' files in (ExcelApplication.allow_link_reads); () for none."""
+    if isinstance(folders, (str, os.PathLike)):
+        raise TypeError('folders is a list of folders')
+    interpreter.link_folders = tuple(os.fspath(one) for one in folders)  # pyright: ignore[reportArgumentType, reportUnknownVariableType, reportUnknownArgumentType, reportGeneralTypeIssues]
+
+
+class LinkReadPassed:
+    """What link_gate hands back for a file it checked, the one thing load_workbook takes in place of its own gate: no other
+    code makes one, so nothing skips the gate on opening a workbook by accident."""
+
+    __slots__ = ()
+
+
+_PASSED = LinkReadPassed()
+
+
+def passed(token: object) -> bool:
+    return token is _PASSED
+
+
+def link_gate(application: Application, what: str, path: str | None = None) -> tuple[LinkReadPassed, str]:
+    """The sandbox's gate on reading a linked workbook's file. With no folders granted it is the interpreter's own gate, shut, before
+    anything on disk is looked at; with folders, a member passes, and each file it reads, ``path``, must lie in one. It gives back the
+    token that lets load_workbook read the file, and the file's final_path, the one string checked: the read opens that and nothing else."""
+    interpreter = application.interpreter
+    if interpreter is not None and interpreter.sandbox and interpreter.frames and not interpreter.link_folders:
+        application.outside(what)
+    final = '' if path is None else final_path(path)
+    if interpreter is not None and interpreter.sandbox and interpreter.frames and path is not None:
+        _refuse_outside(application, interpreter.link_folders, final,
+                        f'{what} may not read there: it is outside the folders named with allow_link_reads')
+    return _PASSED, final
 
 
 def call(application: Application, hook: Hook, member: str, owner: str, target: object, workbook: Workbook, arguments: dict[str, object], path: Path | None = None) -> None:

@@ -179,7 +179,7 @@ class _Part(Created):
     def state(self) -> ChartState:
         self.series.position()
         state = self.series.chart.state
-        if state.original:
+        if state.original and not self.series.entry.look_read:
             raise unmeasured("The look of a series in an imported chart")
         return state
 
@@ -808,6 +808,17 @@ def _windowed(key: str) -> bool:
     return key in ("area", "plot")
 
 
+def _shows_window(key: str, chart: object) -> bool:
+    """Whether the element's automatic fill is the window's colour: a chart area's, and a plot area's but on a chart with a style
+    of 201 or later, whose plot area has no automatic fill (tests/fixtures/chart_interior.json)."""
+    from pyopenvba.apps.excel._chart_styled import is_styled
+
+    if key != "plot":
+        return _windowed(key)
+    state = getattr(chart, "state")
+    return not (is_styled(state.chart_style) or state.style_part)
+
+
 def _grey(key: str) -> bool:
     return key == "area" or key.startswith(("axis", "grid"))
 
@@ -887,7 +898,7 @@ class _ElementPart(Created):
     def look(self) -> FillLine:
         chart = self.owner.chart
         chart.admit_read()
-        if chart.state.original:
+        if chart.state.original and self.key not in chart.state.looks_read:
             raise unmeasured("The look of a part of an imported chart")
         return chart.state.element_looks.get(self.key) or FillLine()
 
@@ -1148,7 +1159,7 @@ class ElementColor(Created):
         owner = self.owner
         if isinstance(owner, ElementLine):
             return owner.absent()
-        return not _windowed(owner.key) and not owner.spelled() and not owner.hidden()
+        return not _shows_window(owner.key, owner.owner.chart) and not owner.spelled() and not owner.hidden()
 
     @member
     def RGB(self) -> object:
@@ -1161,7 +1172,7 @@ class ElementColor(Created):
                 return VBAInt(0, "Long")
             if look.fill_rgb is not None:
                 return VBAInt(bgr(look.fill_rgb), "Long")
-            if _windowed(owner.key) or owner.hidden():
+            if _shows_window(owner.key, owner.owner.chart) or owner.hidden():
                 return VBAInt(_WHITE, "Long")
             theme = owner.owner.chart.sheet.book.stylesheet.colors.theme
             return VBAInt(bgr(theme[4]), "Long")
@@ -1193,6 +1204,9 @@ class ElementColor(Created):
             raise unmeasured("The theme colour of a chart element's back colour")
         if isinstance(self.owner, ElementFill):
             self.owner.usable()
+        else:
+            # A loaded chart's line is not read yet (tests/fixtures/loaded_chart_looks.json).
+            self.owner.look()
         return VBAInt(-2 if self.colourless() else 0, "Long")
 
     @member
@@ -1201,4 +1215,7 @@ class ElementColor(Created):
             raise unmeasured("The type of a chart element's back colour")
         if isinstance(self.owner, ElementFill):
             self.owner.usable()
+        else:
+            # A loaded chart's line is not read yet (tests/fixtures/loaded_chart_looks.json).
+            self.owner.look()
         return VBAInt(-2 if self.colourless() else 1, "Long")

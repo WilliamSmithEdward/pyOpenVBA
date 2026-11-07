@@ -55,7 +55,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from functools import cache, cmp_to_key
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba._opc_xml import bounded_child, opc_part
@@ -604,8 +604,10 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
     # Left out, MatchCase is the last sort's on the sheet, and the sort goes by it (tests/fixtures/excel_fits.json).
     last = target.sheet.sort_state.match_case if target.sheet.sort_state is not None else False
     matching = last if match_case is MISSING else switch(match_case, refusal)
+    # The range left on the sheet ends at the used cells, as Apply's does (tests/fixtures/sort_rounds.json).
+    settled = _within_used(target.sheet, area)
     sort_area(target.sheet, area, resolved, header=has_header, match_case=matching, across=across)
-    _left_on_the_sheet(target.sheet, area, keys, has_header=has_header, match_case=matching, way=way)
+    _left_on_the_sheet(target.sheet, settled, keys, has_header=has_header, match_case=matching, way=way)
     return True
 
 
@@ -689,6 +691,8 @@ class SortState:
         self.original: tuple[object, ...] = (None, GUESS, False, TOP_TO_BOTTOM, 1, ())
         #: The SortFields every Sort of the sheet hands out, which its fields name as their Parent.
         self.collection: SortFields | None = None
+        #: The range as the first Apply left it, after which Apply leaves the range as it is.
+        self.settled: Range | None = None
 
 
 def settings_signature(state: SortState) -> tuple[object, ...]:
@@ -952,6 +956,30 @@ def _loaded_state(sheet: Worksheet) -> SortState:
     return state
 
 
+def _within_used(sheet: Worksheet, area: Area) -> Area:
+    """The range Apply sorts and leaves set: its far corner pulled back to the sheet's last used row and column, and
+    a range wholly past them that last used cell (tests/fixtures/sort_rounds.json)."""
+    bounds = sheet.used_bounds()
+    if bounds is None:
+        return area
+    _, _, last_row, last_column = bounds
+    top, left, bottom, right = area.top, area.left, min(area.bottom, last_row), min(area.right, last_column)
+    if bottom < top:
+        top = bottom = last_row
+    if right < left:
+        left = right = last_column
+    return Area(top, left, bottom, right, area.sheet)
+
+
+def _setting(value: object, allowed: tuple[int, ...]) -> int:
+    """One of a Sort setting's own values, converted as a Long; any other is error 5 and the setting stays. Bound late,
+    Null is 13 where typed it is 94 (tests/fixtures/settable_audit.json)."""
+    wanted = int(to_integer(value, "Long"))
+    if wanted not in allowed:
+        raise error(5, "Invalid procedure call or argument")
+    return wanted
+
+
 class SortObject(ExcelObject):
     vba_type_name = "Sort"
 
@@ -1003,7 +1031,7 @@ class SortObject(ExcelObject):
 
     @setter("Header")
     def _set_header(self, value: object) -> None:
-        self.state.header = int(to_integer(value, "Long"))
+        self.state.header = _setting(value, (0, 1, 2))
 
     @member
     def MatchCase(self) -> object:
@@ -1019,7 +1047,7 @@ class SortObject(ExcelObject):
 
     @setter("Orientation")
     def _set_orientation(self, value: object) -> None:
-        self.state.orientation = int(to_integer(value, "Long"))
+        self.state.orientation = _setting(value, (1, 2))
 
     @member
     def SortMethod(self) -> object:
@@ -1027,25 +1055,56 @@ class SortObject(ExcelObject):
 
     @setter("SortMethod")
     def _set_sort_method(self, value: object) -> None:
-        self.state.method = int(to_integer(value, "Long"))
+        self.state.method = _setting(value, (1, 2))
+
+    def _settled(self, area: Area) -> Area:
+        """The range Apply sorts. The first Apply after SetRange pulls it back to the used cells and leaves it so; a later
+        one sorts it as it is. A SetRange after an Apply gives a range not measured (tests/fixtures/sort_rounds.json)."""
+        state = self.state
+        if state.settled is not None and state.settled is not state.area:
+            raise VBAUnsupportedError("applying a sort again after setting its range anew is not implemented")
+        if state.settled is None:
+            area = _within_used(self.sheet, area)
+            state.area = state.settled = Range(self.sheet, [area])
+        return area
 
     @method
     def Apply(self) -> object:
         state = self.state
-        if state.area is None or not state.fields:
-            # With no range or no field Excel sorts nothing, and says nothing (tests/fixtures/sort_colour/).
+        if state.area is None:
+            # With no range Excel sorts nothing, and says nothing (tests/fixtures/sort_colour/).
             return EMPTY
         target = state.area
         if len(target.areas) != 1:
             raise VBAUnsupportedError("sorting several areas is not implemented")
         area = target.first
+        if not state.fields:
+            # Nothing sorts, but the range is settled as when there are fields (tests/fixtures/sort_rounds.json).
+            self._settled(area)
+            return EMPTY
         across = state.orientation == LEFT_TO_RIGHT
-        keys = [replace(_key(target, field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
-                        on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom)
-                for field in state.fields if field.subfield is EMPTY]
-        if not keys:
-            raise VBAUnsupportedError("sorting with every field on a data type's field is not implemented")
-        sort_area(target.sheet, area, keys, header=state.header == YES, match_case=state.match_case, across=across)
+        # Sorting left to right the header setting counts for nothing (tests/fixtures/sort_rounds.json).
+        header = state.header == YES and not across
+        if any((field.key.first.rows if across else field.key.first.columns) > 1 for field in state.fields):
+            # A key is one column, or one row sorting left to right (tests/fixtures/sort_rounds.json).
+            raise error(1004, "The sort reference is not valid")
+        if header and area.rows <= 1:
+            # The header is all there is: nothing sorts, and where a key stands is not looked at
+            # (tests/fixtures/sort_rounds.json).
+            return EMPTY
+        if any(field.option not in (0, 1) for field in state.fields):
+            # A data option the property takes past xlSortTextAsNumbers can stop Apply with a dialog of Excel's own,
+            # which a macro cannot answer (tests/fixtures/sort_rounds.json).
+            raise VBAUnsupportedError("sorting with a DataOption other than xlSortNormal or xlSortTextAsNumbers is not implemented")
+        keys = [(field, replace(_key(target, field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
+                                on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom))
+                for field in state.fields]
+        area = self._settled(area)
+        # A field on a data type's field orders plain values not at all, so with only those nothing moves
+        # (tests/fixtures/sort_fields.json, tests/fixtures/sort_rounds.json).
+        kept = [key for field, key in keys if field.subfield is EMPTY and key.index < (area.rows if across else area.columns)]
+        if kept:
+            sort_area(target.sheet, area, kept, header=header, match_case=state.match_case, across=across)
         from pyopenvba.apps.excel._events import recalculated
 
         recalculated(target.sheet.book)
@@ -1077,6 +1136,10 @@ class AutoFilterSort(SortObject):
         super()._check_alive()
         if self.owner.current() is not self.filter:
             raise VBAUnsupportedError("the sort settings of an AutoFilter since removed are not implemented")
+
+    def _settled(self, area: Area) -> Area:
+        """The filter's range stays as it is."""
+        return area
 
     @member
     def Parent(self) -> object:
@@ -1180,9 +1243,11 @@ class SortFields(VBACollection, ItemDefault, ExcelObject):
     @method
     def Add2(self, Key: object = MISSING, SortOn: object = MISSING, Order: object = MISSING,
              CustomOrder: object = MISSING, DataOption: object = MISSING, SubField: object = MISSING) -> object:
+        field = self.Add(Key, SortOn, Order, CustomOrder, DataOption)
         if SubField is not MISSING:
-            raise VBAUnsupportedError("sorting by a data type's field is not implemented")
-        return self.Add(Key, SortOn, Order, CustomOrder, DataOption)
+            # Kept as text, as the SubField property keeps it (tests/fixtures/sort_rounds.json).
+            cast(SortField, field).subfield = to_text(SubField)
+        return field
 
 
 class SortField(ExcelObject):
@@ -1299,8 +1364,11 @@ class SortField(ExcelObject):
     @setter("SubField")
     def _set_subfield(self, value: object) -> None:
         """Kept as text; on cells of plain values the field then orders nothing, Apply sorting by the others
-        (tests/fixtures/sort_fields.json)."""
-        self.subfield = to_text(value)
+        (tests/fixtures/sort_fields.json). Only text is taken: anything else is error 5, however bound
+        (tests/fixtures/settable_audit.json)."""
+        if not isinstance(value, str):
+            raise error(5, "Invalid procedure call or argument")
+        self.subfield = value
 
     @member
     def Key(self) -> object:
@@ -1350,7 +1418,7 @@ class SortField(ExcelObject):
 
     @setter("Order")
     def _set_order(self, value: object) -> None:
-        self.order = int(to_integer(value, "Long"))
+        self.order = _setting(value, (ASCENDING, DESCENDING))
 
     @member
     def DataOption(self) -> object:
@@ -1358,7 +1426,7 @@ class SortField(ExcelObject):
 
     @setter("DataOption")
     def _set_data_option(self, value: object) -> None:
-        self.option = int(to_integer(value, "Long"))
+        self.option = _setting(value, (0, 1, 2))
 
 
 def _custom_items(text: str) -> tuple[str, ...]:

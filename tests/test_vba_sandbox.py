@@ -201,7 +201,10 @@ def _reaches(function: ast.AST) -> list[str]:
 
 
 def _gated(function: ast.AST) -> bool:
-    return any(isinstance(node, ast.Attribute) and node.attr == 'outside' for node in ast.walk(function))
+    """Whether the function goes through the gate: Interpreter.outside, or _hooks.link_gate, which is that gate unless the host
+    granted folders for linked files and then checks the path against them."""
+    return any(isinstance(node, ast.Attribute) and node.attr == 'outside'
+               or isinstance(node, ast.Name) and node.id == 'link_gate' for node in ast.walk(function))
 
 
 def test_nothing_reaches_outside_past_the_gate() -> None:

@@ -76,6 +76,8 @@ if TYPE_CHECKING:
 Intrinsic = Callable[["Interpreter", list[object], dict[str, object]], object]
 
 INTRINSICS: dict[str, Intrinsic] = {}
+#: How many of each built-in function's arguments a call must give, which the compiler checks of an empty one: Mid("abc", , 2).
+INTRINSIC_MINIMUMS: dict[str, int] = {}
 
 #: The names VBA defines that this does not implement, and the reason.
 UNIMPLEMENTED: Final[dict[str, str]] = {
@@ -130,6 +132,7 @@ def intrinsic(name: str, *parameters: str, minimum: int = 0) -> Callable[..., An
             return function(interpreter, *laid[: len(parameters)])
 
         INTRINSICS[name.lower()] = dispatch
+        INTRINSIC_MINIMUMS[name.lower()] = minimum
         return function
 
     return register
@@ -1102,7 +1105,8 @@ def vba_format_datetime(interpreter: Interpreter, value: object, named: object) 
 
 @intrinsic("Now")
 def vba_now(interpreter: Interpreter) -> object:
-    return VBADate.from_datetime(interpreter.clock())
+    # Whole seconds, as Excel's Now is: what the clock holds below a second is dropped, as oleaut32 drops it (tests/test_vba_now_whole_seconds.py).
+    return VBADate.from_datetime(interpreter.clock().replace(microsecond=0))
 
 
 @intrinsic("Date")
@@ -1112,7 +1116,7 @@ def vba_date(interpreter: Interpreter) -> object:
 
 @intrinsic("Time")
 def vba_time(interpreter: Interpreter) -> object:
-    return VBADate.from_datetime(interpreter.clock().time())
+    return VBADate.from_datetime(interpreter.clock().time().replace(microsecond=0))
 
 
 @intrinsic("Timer")

@@ -99,9 +99,29 @@ BOOKS = ['"=[Alpha.xlsx]Sheet1!A1"', '"=SUM([Alpha.xlsx]Sheet1!A1:A3)"', '"=[Alp
          '"=\'" & folder & "\\[Alpha.xlsx]Sheet1\'!A1"', '"=\'" & folder & "\\[Alpha.xlsx]Sheet1\'!A3+1"', '"=\'" & folder & "\\Alpha.xlsx\'!Rate"',
          '"=\'" & folder & "\\[Nope.xlsx]Sheet1\'!A1"', '"=\'" & folder & "\\Sub\\[Deep.xlsx]Sheet1\'!A1"', '"=[Other.xlsx]Elsewhere!A1"']
 TARGETS = ["A1", "B2", "A1:C1", "A1:A3", "B2:C3", "D4"]
+#: Zeros of the 17 digit sets Excel types as ASCII digits (Arabic-Indic, Thai, Devanagari and the rest), and text in
+#: ASCII digits to spell in them. Rounds from 14004 on write them, built with ChrW, as a module's source is ANSI.
+ZEROS = [0x0660, 0x06F0, 0x0966, 0x09E6, 0x0A66, 0x0AE6, 0x0B66, 0x0BE6, 0x0C66, 0x0CE6, 0x0D66, 0x0E50, 0x0ED0,
+         0x0F20, 0x1040, 0x17E0, 0x1810]
+NATIVE = ["7", "12", "-12", "0", "1.5", "12.25", "(3)", "$5", "$12.50", "50%", "1.5%", "1,234", "1,234.5", "1,2", "12:30",
+          "12:30:45 PM", "1/2", "1/2/2020", "2020-01-02", "Jan 5", "1e3", "3 1/2", "0012", " 5", "5:", "12a", "1-2-3"]
 
 
-def _value(r: random.Random) -> str:
+def _spelled(text: str, zero: int) -> str:
+    """The VBA expression for text with its ASCII digits written in the set whose zero is given."""
+    parts: list[str] = []
+    for c in text:
+        piece = f"ChrW({zero + int(c)})" if c.isdigit() else '"' + c.replace('"', '""') + '"'
+        if parts and piece.startswith('"') and parts[-1].startswith('"'):
+            parts[-1] = parts[-1][:-1] + piece[1:]
+        else:
+            parts.append(piece)
+    return " & ".join(parts)
+
+
+def _value(r: random.Random, native: bool = False) -> str:
+    if native and r.random() < 0.3:
+        return "(" + _spelled(r.choice(NATIVE), r.choice(ZEROS)) + ")"
     kind = r.random()
     if kind < 0.3:
         return r.choice(PLAIN)
@@ -112,14 +132,17 @@ def _value(r: random.Random) -> str:
     return r.choice(BOOKS)
 
 
-def make_case(r: random.Random) -> dict[str, Any]:
+def make_case(r: random.Random, native: bool = False) -> dict[str, Any]:
     target = r.choice(TARGETS)
     if r.random() < 0.3:
-        value = "Array(" + ", ".join(_value(r) for _ in range(r.randint(1, 4))) + ")"
+        value = "Array(" + ", ".join(_value(r, native) for _ in range(r.randint(1, 4))) + ")"
     else:
-        value = _value(r)
+        value = _value(r, native)
     opened = [name for name in ("Alpha.xlsx", "Other.xlsx") if r.random() < 0.3]
-    return {"target": target, "value": value, "opened": opened, "typed": r.random() < 0.5, "before": r.choice(["", "", '"x"', "5"])}
+    case = {"target": target, "value": value, "opened": opened, "typed": r.random() < 0.5, "before": r.choice(["", "", '"x"', "5"])}
+    if "ChrW" in value:
+        case["native"] = True
+    return case
 
 
 def case_source(case: dict[str, Any]) -> str:
@@ -136,7 +159,9 @@ def case_source(case: dict[str, Any]) -> str:
     if case["opened"]:
         lines += ["Shut h", 'v = Empty: v = r.Value2', 's = s & ";closed=" & Err.Number & ":" & Show(v) & ";" & Cells(r): Err.Clear']
     lines += ["Shut Nothing", "h.Close False", "Probe = s", "End Function", ""]
-    return HELPER + "\n".join(lines)
+    source = HELPER + "\n".join(lines)
+    # A cell typed from other digits reads its NumberFormat in place of its Text, which the model refuses for them.
+    return source.replace("& c.Text &", "& c.NumberFormat &") if case.get("native") else source
 
 
 def books(folder: Path) -> None:
@@ -184,7 +209,7 @@ def main() -> None:
     books(folder)
     if step == "predict":
         r = random.Random(seed)
-        cases = [make_case(r) for _ in range(int(sys.argv[3]) if len(sys.argv) > 3 else 300)]
+        cases = [make_case(r, seed >= 14004) for _ in range(int(sys.argv[3]) if len(sys.argv) > 3 else 300)]
         for case in cases:
             case["model"] = model(case, folder)
         file.write_text(json.dumps(cases, indent=0), encoding="utf-8")

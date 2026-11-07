@@ -117,15 +117,16 @@ app.set_hook("ExportAsFixedFormat", export, folders=["C:/reports"])
 app.set_hook("PrintOut", my_print_function)
 ```
 
-`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat` or `PrintOut`; any other name raises `ValueError`, and `None` removes the function.
+`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat`, `PrintOut`, `Export` (`Chart.Export`) or `CopyPicture`; any other name raises
+`ValueError`, and `None` removes the function.
 
 The model answers what it measured itself: a macro's argument errors, then `BeforePrint`, then the file. Only then does it call the function with a
 `HookRequest`:
 
 | Field | Holds |
 | --- | --- |
-| `member` | `ExportAsFixedFormat` or `PrintOut` |
-| `owner` | The class it was called on: `Worksheet`, `Workbook`, `Range`, `Chart` or `Sheets` |
+| `member` | `ExportAsFixedFormat`, `PrintOut`, `Export` or `CopyPicture` |
+| `owner` | The class it was called on: `Worksheet`, `Workbook`, `Range`, `Chart`, `Sheets`, `Shape` or `ChartObject` |
 | `target`, `workbook` | The live objects |
 | `arguments` | Only what the macro gave, under Excel's names, read-only |
 | `path` | The file to write, past the gate and with Excel's name rules applied, or `None` |
@@ -157,6 +158,34 @@ files reports itself, as `SaveCopyAs` elsewhere does.
 
 `PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
 printer's name were never run in Excel, so what the function does with them is unmeasured.
+
+### Pictures
+
+`Chart.Export`, on a chart sheet or a chart in a frame, and `CopyPicture`, on a `Range`, a `Shape`, a `ChartObject` and a chart, are two more members with a
+function (measured in `tests/fixtures/output_pictures.json`):
+
+- `Export`: `path` is the name the macro gave, a relative one in the current folder, with nothing added. `FilterName`, or else the name's extension, says
+  what to draw: `PNG`, `GIF`, `JPG`, `JPEG` or `BMP`, in any case. For any other, or none, Excel writes an empty file and answers `True`, and the model does
+  the same without calling the function, through the same gate. A missing folder, a folder, a read-only file, a bad character and a path too long each
+  give Excel's own error first. Excel writes an empty file for a chart in a frame it has not drawn since its workbook opened; the model draws nothing, so it
+  calls the function for that chart as it does for a chart sheet.
+- `CopyPicture`: `path` is `None`. Each class checks `Appearance` and `Format` its own way, as Excel does: a chart takes any number, the rest only
+  `xlScreen` or `xlPrinter` and `xlPicture` or `xlBitmap`, and a bitmap as printed only on a chart. A `Range` of several areas is 1004, and a hidden shape
+  copies nothing and does not call the function. Like a `PrintOut` with no file, it runs under the sandbox: registering it is the grant. Afterwards
+  `CutCopyMode` reads 0, and pasting the picture reports itself, as the model has no picture to make a shape of, until cells or a chart are copied again.
+
+### Not supported
+
+These reach outside the engine and have no function to stand in for them, and none is planned. Each reports itself where it would reach out.
+
+- `FollowHyperlink` and `Hyperlink.Follow`: they open a browser, a mail program or a file with whatever handles it.
+- `Shell`: it starts a program.
+- `CheckSpelling`, on the application, a range, a sheet or a chart: it uses Office's proofing tools and puts up their form.
+- `Speak`, and the `Speech` members: they use the computer's speech output.
+- `GetPhonetic`: it asks a Japanese input method for a reading. The model answers the empty text Excel gives without one, as measured, and makes no
+  reading.
+- `SendMail`, `MailEnvelope`, `MailLogon`, `MailLogoff` and the other mail members: they send mail, or sign in to a mail system. `Mailer` answers
+  as Excel does on Windows, which has no mailer.
 
 ## Dialogs
 

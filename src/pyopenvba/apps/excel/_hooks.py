@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Workbook
 
 #: The members with a hook. Each is added here when it is built, so that a name mistyped raises rather than never being called.
-HOOK_NAMES = frozenset({'ExportAsFixedFormat', 'PrintOut'})
+HOOK_NAMES = frozenset({'ExportAsFixedFormat', 'PrintOut', 'Export', 'CopyPicture'})
 #: Names Windows gives to devices rather than files, whatever follows the dot.
 _DEVICES = frozenset({'CON', 'PRN', 'AUX', 'NUL', 'CONIN$', 'CONOUT$', *(f'COM{at}' for at in range(1, 10)), *(f'LPT{at}' for at in range(1, 10))})
 

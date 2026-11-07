@@ -29,7 +29,13 @@ LATE_LETS: dict[str, dict[str, int]] = {
     'range.id': {'null': 13},
     'range.pagebreak': {'null': 0, 'bool': 0, 'text': 1004},
     'range.readingorder': {'text': 1004, 'null': 0, 'bool': 0},
+    'sort.header': {'five': 5, 'null': 13},
     'sort.matchcase': {'null': 13},
+    'sort.orientation': {'five': 5, 'null': 13},
+    'sort.sortmethod': {'five': 5, 'null': 13},
+    'sortfield.dataoption': {'five': 5, 'null': 13},
+    'sortfield.order': {'five': 5, 'null': 13},
+    'sortfield.subfield': {'five': 5},
     'validation.errormessage': {'null': 13},
     'validation.errortitle': {'null': 13},
     'validation.ignoreblank': {'null': 13},
@@ -518,9 +524,11 @@ LATE_INDEXES: dict[str, int] = {
 }
 
 #: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json,
-#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json, tests/fixtures/typed_answers/late_types_ControlFormat.json).
+#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json, tests/fixtures/typed_answers/late_types_ControlFormat.json,
+#: tests/fixtures/tool_books/tool_books.json).
 LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook', 'workbook.fileformat',
                           'dropdown.listcount', 'dropdown.listindex', 'dropdown.value', 'dropdown.dropdownlines',
                           'listbox.listcount', 'listbox.listindex', 'listbox.value', 'controlformat.dropdownlines',
                           'controlformat.listcount', 'controlformat.listindex', 'controlformat.max', 'controlformat.min',
-                          'controlformat.smallchange'})
+                          'controlformat.smallchange', 'pagesetup.order', 'pagesetup.orientation', 'pagesetup.papersize',
+                          'window.gridlinecolor', 'window.scrollcolumn', 'window.scrollrow', 'window.splitrow'})

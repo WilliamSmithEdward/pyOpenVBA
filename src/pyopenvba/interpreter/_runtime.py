@@ -2507,11 +2507,17 @@ class Interpreter:
             return _dispatch_get(target, "Evaluate", [expression.name], {})
         if BINDING.late:
             self._check_late_call(target, expression.name, [], {})
-            library = getattr(self.host, "vba_type_library", None)
-            found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
-            if found is not None and reads_double_late(found, strip_suffix(expression.name)):
-                return float(_dispatch_get(target, expression.name, [], {}))  # type: ignore[arg-type]
-        return _dispatch_get(target, expression.name, [], {})
+        return self._property_value(target, expression.name)
+
+    def _property_value(self, target: object, name: str) -> object:
+        """A property read with no arguments: through an Object, one the library declares Long that Excel answers as a
+        Double is a Double, however the read is reached, a ByRef argument's included (tests/fixtures/application_settings.json)."""
+        answer = _dispatch_get(target, name, [], {})
+        if not BINDING.late or isinstance(answer, bool) or not isinstance(answer, int | float):
+            return answer
+        library = getattr(self.host, "vba_type_library", None)
+        found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
+        return float(answer) if found is not None and reads_double_late(found, strip_suffix(name)) else answer
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
         if expression.target is None:
@@ -2741,7 +2747,9 @@ class Interpreter:
             elif wants_slot and isinstance(argument.value, A.Member):
                 owner = self._member_target(argument.value, frame)
                 slot = self.member_variable(owner, argument.value.name, frame)
-                value = slot if slot is not None else _dispatch_get(owner, argument.value.name, [], {})
+                if slot is None:
+                    self._note_binding(argument.value, frame)
+                value = slot if slot is not None else self._property_value(owner, argument.value.name)
             elif wants_slot and isinstance(argument.value, A.Index):
                 expression = argument.value
                 slot = None

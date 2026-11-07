@@ -230,3 +230,15 @@ name looking like a cell is not read as the cell.
     and the like as the error alone, as Excel reads what `=Gone!A1` becomes when
     the sheet goes, and `Evaluator` gives `#NAME?` for `[0]!Name`, this
     workbook's name with its sheet gone (`tests/fixtures/sheet_delete_refs.json`).
+20. **What would never return.** `MUNIT`, `SEQUENCE`, `RANDARRAY` and the Bessel
+    functions take the size of their work from an argument, so a number in a
+    workbook could hold the host for as long as it liked. They now stop first,
+    at Excel's measured limits (`tests/fixtures/excel_huge_numbers.json`): past
+    1048576 rows or at 1.6 billion cells `#VALUE!`, `MUNIT` at 100000 `#VALUE!`,
+    and a Bessel order of 1E+8 `#NUM!`. Excel built 25 million cells and answered
+    an order of 1E+7 within a second, which here would take minutes, so past 4
+    million cells, `MUNIT(2000)` and an order of 1E+5 a size raises
+    `UnsupportedFormulaError` instead. That is a limit of this engine, not of
+    Excel. One gap: a cell given
+    `=MUNIT(100000)` or `=SUM(SEQUENCE(100000,100000))` shows 0 in Excel and
+    `#VALUE!` here, where `WorksheetFunction` refuses both as 1004 either way.

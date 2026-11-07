@@ -40,8 +40,8 @@ def read(book: Workbook, raw: bytes) -> None:
     book.chart_data_point_track = bool(tracked) and tracked[0] in ('1', 'true')
     # CompatibilityVersion is the extLst's xlwcv:version setVersion, which Excel writes 2; a book a tool wrote has none and reads 1
     # (tests/fixtures/workbook_reads.json).
-    versions = [one.get('setVersion') for one in root.iter('{http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion}version')]
-    book.session_properties['CompatibilityVersion'] = int(versions[0]) if versions and (versions[0] or '').isdigit() else 1
+    versions = [one.get('setVersion') or '' for one in root.iter('{http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion}version')]
+    book.session_properties['CompatibilityVersion'] = int(versions[0]) if versions and versions[0].isdigit() else 1
 
 
 #: workbookPr's attributes in the order the schema, and Excel, writes them.

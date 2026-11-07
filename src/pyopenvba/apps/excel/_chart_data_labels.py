@@ -35,6 +35,9 @@ REFUSING = {51: {0}, 57: {0}, 1: {-4108}}
 _APPLIED = {2: (True, False, False), 4: (False, True, False), 3: (False, False, True), 5: (False, True, True),
             6: (True, False, False), -4142: (False, False, False)}
 _PIE = 5
+#: The member that sets each part shown.
+_FLAG_MEMBERS = {"value": "ShowValue", "category": "ShowCategoryName", "series": "ShowSeriesName", "legend_key": "ShowLegendKey",
+                 "percent": "ShowPercentage", "bubble": "ShowBubbleSize"}
 
 
 def _flag(value: object) -> bool | None:
@@ -169,11 +172,11 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
             raise error(-2147467261, 'Automation error\nInvalid pointer')
         return entry.label_look
 
-    def change(self) -> LabelLook:
+    def change(self, member: str = "") -> LabelLook:
         look = self.look()
         if not self.series.entry.data_labels:
             raise unmeasured("Changing the labels of a series whose labels are on some points alone")
-        self.series.chart.changed()
+        self.series.chart.labels_changed(self.series.entry, member and f"DataLabels.{member}")
         return look
 
     def chart_type(self) -> int:
@@ -221,7 +224,7 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
 
     def set_flag(self, field: str, value: object) -> None:
         wanted = to_bool(value)
-        setattr(self.change(), field, wanted)
+        setattr(self.change(_FLAG_MEMBERS[field]), field, wanted)
 
     @member
     def ShowValue(self) -> object:
@@ -300,7 +303,7 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
             raise error(-2147467259, 'Automation error\nUnspecified error')
         if wanted not in TAKEN.get(kind, set()) or wanted not in LABEL_POSITIONS:
             raise VBAUnsupportedError('This DataLabels.Position on this chart type is not implemented')
-        self.change().position = wanted
+        self.change('Position').position = wanted
 
     @member
     def NumberFormat(self) -> object:
@@ -312,7 +315,7 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
 
         self.look()
         code = normalized(to_text(value))
-        look = self.change()
+        look = self.change('NumberFormat')
         look.number_format, look.linked = code, False
 
     @member
@@ -353,7 +356,7 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
     def _separator(self, value: object) -> None:
         if not isinstance(value, str):
             raise VBAUnsupportedError('DataLabels.Separator set to a constant is not implemented')
-        self.change().separator = value
+        self.change('Separator').separator = value
 
     @member
     def Font(self) -> object:
@@ -436,10 +439,10 @@ class DataLabel(ElementProperties, Created):
         state = self.point_state()
         return state.label_own if state is not None else PointLabel()
 
-    def held(self) -> PointLabel:
+    def held(self, member: str = "") -> PointLabel:
         """Its state, made if it had none, with the unique id its dLbl takes."""
         chart = self.series.chart
-        chart.changed()
+        chart.labels_changed(self.series.entry, member and f"DataLabel.{member}")
         state = self.series.entry.points.setdefault(self.series.point_key(self.index - 1), PointState())
         if state.drawn_at < 0:
             state.drawn_at = self.index - 1
@@ -500,7 +503,7 @@ class DataLabel(ElementProperties, Created):
         wanted = to_bool(value)
         if wanted == self._flags()[field] and field not in self.own().shows and self.point_state() is None:
             return
-        own = self.held()
+        own = self.held(_FLAG_MEMBERS[field])
         own.shows[field] = wanted
         own.touched = True
         state = self.point_state()
@@ -582,7 +585,7 @@ class DataLabel(ElementProperties, Created):
     def _type(self, text: str) -> None:
         if self.own().plain_format is False:
             raise unmeasured("Typing a label's text once its look is set")
-        own = self.held()
+        own = self.held("Text")
         own.text, own.touched = text, True
 
     @member
@@ -744,7 +747,7 @@ class DataLabel(ElementProperties, Created):
             raise VBAUnsupportedError("DataLabel.Position on this chart type is not implemented")
         if wanted not in _POINT_POSITIONS[kind]:
             raise error(-2147467259, "Automation error\nUnspecified error")
-        own = self.held()
+        own = self.held("Position")
         own.position, own.touched = wanted, True
 
     @member

@@ -160,6 +160,8 @@ The model answers what it measured itself: a macro's argument errors, then `Befo
 | `arguments` | Only what the macro gave, under Excel's names, read-only |
 | `path` | The file to write, past the gate and with Excel's name rules applied, or `None` |
 | `saved_bytes()` | What `SaveCopyAs` would write now, changing nothing about the workbook |
+| `caller` | The procedure making the call, as `"Module1.Export"` |
+| `entry` | What the host itself started the run with: the macro it ran, or the event that fired, as `"ThisWorkbook.Workbook_Open"`. A macro names its own procedures, so a rule about what the user started goes by `entry`, not `caller` |
 
 Trust `path`, not `arguments`. Every value in `arguments` comes from the macro, which may be untrusted. `Copies` and `ActivePrinter` are yours to honour or not.
 `OpenAfterPublish` and `Preview` are values only: the model opens no viewer, prints nothing and shows nothing. Excel's names rule on `path`: a name left out goes to the
@@ -187,6 +189,82 @@ files reports itself, as `SaveCopyAs` elsewhere does.
 
 `PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
 printer's name were never run in Excel, so what the function does with them is unmeasured.
+
+## COM classes the host supplies
+
+pyOpenVBA starts no COM server and never looks at what is running on the machine. A macro's `CreateObject` and `GetObject` make what a factory the
+host registers makes, and nothing else reaches the system's COM unless that factory does it itself.
+
+```python
+from pyopenvba.interpreter._com_hook import ComRequest
+
+ALLOWED = {"scripting.filesystemobject": make_my_file_system}
+
+
+def factory(request: ComRequest) -> object:
+    make = ALLOWED.get(request.prog_id.lower())
+    return None if make is None else make(request)
+
+
+app = ExcelApplication.open("book.xlsm")
+app.set_com_class("Scripting.FileSystemObject", factory, folders=["C:/data"])
+```
+
+`set_com_class(prog_id, factory, folders=[...])` is on Excel, Word and PowerPoint. `None` in place of the factory takes the class away again. A
+registered name wins over pyOpenVBA's own class of that name, so a host can put its own `FileSystemObject` in, or keep a macro from ours with a factory
+that returns `None`.
+
+**The ProgID comes from the macro.** A factory that hands any name to the system's COM, `win32com.client.Dispatch(request.prog_id)` say, hands the macro
+the machine: a shell, mail, a database on any server. Allow-list the names, as above. What a registered object does is the host's: the model cannot gate
+calls inside it, so an object that reaches files or the network reaches them. A factory that attaches to running programs attaches whatever the user has
+open: their Excel, their mail.
+
+The factory is called with a `ComRequest`:
+
+| Field | Holds |
+| --- | --- |
+| `prog_id` | The name as the macro spelled it |
+| `kind` | `"create"` for `CreateObject` and `GetObject("", class)`; `"get"` for `GetObject(, class)` and `GetObject(path, class)` |
+| `server` | `CreateObject`'s `ServerName`, `""` when none was given. No server is reached by the model |
+| `path` | `GetObject`'s file, past the gate, or `None` |
+| `caller`, `entry` | As on `HookRequest` |
+| `document` | The Workbook, Document or Presentation whose project runs the call |
+
+It returns the object, or `None` for no such class, which the macro sees as 429. An object of the model crosses as it is. Any other Python object is
+wrapped, bound late: its public attributes are its members, matched without regard to case, a method called and anything else read or set. A missing
+member is 438, nothing that starts with an underscore is a member, `For Each` walks what `__iter__` gives, and `o(1)` is `__getitem__`. Every object its
+members answer is wrapped the same way, at every depth, so `fso.GetFolder(p).Files` works. `Set o = Nothing` calls nothing, and `WithEvents` on a wrapped
+object is refused. A host object that runs VBA, as a callback, draws on the step limit of the run that called it.
+
+Values cross both ways as this table says:
+
+| VBA | Python | Back to VBA |
+| --- | --- | --- |
+| String | `str` | String |
+| Byte, Integer, Long, LongLong | `int` | Long if it fits, else Double |
+| Single, Double | `float` | Double |
+| Currency, Decimal | `decimal.Decimal` | Currency |
+| Date | `datetime.datetime` | Date |
+| Boolean | `bool` | Boolean |
+| Empty, a missing argument | `None` | Empty |
+| Null | `pyopenvba.interpreter._values.NULL` | Null |
+| An array | `VBAArray`, keeping its bounds and dimensions | the same |
+| (none) | a `list` or `tuple` | a 0-based Variant array, which `For Each` walks into a Variant only, as VBA has it |
+
+What a factory or an object raises: a `VBAError` goes on as it is, so either can give any error number. Any other `Exception` is error 440, VBA's
+Automation error, with the original as `__cause__`.
+
+`GetObject("", class)` makes a new object, as `CreateObject` does. `GetObject(, class)` asks the factory with `kind="get"`; with none it is 429, as Excel
+answers for a class that is not running, except that in Excel `GetObject(, "Excel.Application")` is the Excel the macro runs in. `GetObject(path, class)`
+needs a registered class, and **under the sandbox** the file must lie in one of `folders`, by the same gate as `set_hook`'s; with no `folders`, no file
+passes. `GetObject(path)` with no class is refused, as Windows would choose the program.
+
+**With nothing registered**, behaviour is as before: pyOpenVBA's own `Scripting.Dictionary`, `VBScript.RegExp`, `ADODB.Stream`, `FileSystemObject`'s path
+functions and the HTTP objects answer, and anything else is `VBASandboxError` under the sandbox and `VBAUnsupportedError` without it. The model cannot know
+what a machine has, so it does not answer 429 for a name it does not know, except for a name no ProgID can be: blank, or with spaces round it.
+
+Measured live, bound late (`tests/fixtures/com_objects.json`): a class that does not exist is 429 however it is spelled, `Null` is 94, a Let of an object
+with no default member is 91 into an `Object` and 450 otherwise, and an unknown member is 438.
 
 ## Dialogs
 

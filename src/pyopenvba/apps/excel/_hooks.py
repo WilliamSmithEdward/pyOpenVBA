@@ -25,7 +25,7 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
-from pyopenvba.interpreter._files import spelled
+from pyopenvba.interpreter._files import is_inside
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
@@ -33,8 +33,6 @@ if TYPE_CHECKING:
 
 #: The members with a hook. Each is added here when it is built, so that a name mistyped raises rather than never being called.
 HOOK_NAMES = frozenset({'ExportAsFixedFormat', 'PrintOut'})
-#: Names Windows gives to devices rather than files, whatever follows the dot.
-_DEVICES = frozenset({'CON', 'PRN', 'AUX', 'NUL', 'CONIN$', 'CONOUT$', *(f'COM{at}' for at in range(1, 10)), *(f'LPT{at}' for at in range(1, 10))})
 
 
 @dataclass(frozen=True)
@@ -51,6 +49,10 @@ class HookRequest:
     workbook: Workbook
     arguments: Mapping[str, object]
     path: Path | None = None
+    #: The procedure making the call, "Module1.Export", and what the host itself started the run with: the macro it ran, or the event that
+    #: fired. A macro names its own procedures, so a rule about what the user started goes by ``entry``.
+    caller: str = ''
+    entry: str = ''
 
     def saved_bytes(self) -> bytes:
         """What SaveCopyAs would write now, for a tool that converts files. Nothing about the workbook changes: not Saved, not its name or its path, and no event runs. A workbook never
@@ -90,18 +92,6 @@ def hook_of(application: Application, member: str) -> Hook | None:
     return found if isinstance(found, Hook) else None
 
 
-def _real(path: str) -> Path:
-    return Path(os.path.realpath(spelled(path)))
-
-
-def is_inside(path: Path | str, folders: tuple[str, ...]) -> bool:
-    """Whether a file lies in one of the folders once links and .. are resolved. Parts compare whole, so C:\\out2 is not in C:\\out; a UNC or device path has an anchor of its own, so it
-    is in nothing but a folder of that kind; and the names by which Windows reaches a device or a file's other streams are in nothing."""
-    real = _real(os.fspath(path))
-    if os.name == 'nt' and (':' in real.name or real.name.split('.')[0].rstrip(' ').upper() in _DEVICES):
-        return False
-    return any(real != base and real.is_relative_to(base) for base in (_real(one) for one in folders))
-
 
 def gate(application: Application, hook: Hook, member: str, path: Path) -> None:
     """Refuse a macro's file before the function hears of it."""
@@ -126,7 +116,8 @@ def call(application: Application, hook: Hook, member: str, owner: str, target: 
         raise VBAUnsupportedError(f'{member} called from its own hook is not implemented')
     running.append(member)
     try:
-        hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path))
+        hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path, interpreter.current_where(),
+                                  interpreter.steps.entry))
     except VBAError:
         raise
     except Exception as failed:

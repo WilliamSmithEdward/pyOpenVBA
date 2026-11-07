@@ -21,8 +21,10 @@ from __future__ import annotations
 
 import datetime as _dt
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
 
+from pyopenvba.interpreter._com_hook import ComRequest
 from pyopenvba.apps.word._bridge import WordBridge
 from pyopenvba.apps.word._model import Application, Document, ShapeObject
 from pyopenvba.interpreter._runtime import Interpreter, ModuleRuntime
@@ -86,6 +88,14 @@ class WordApplication:
         document = self.application.documents_.vba_get("Add")
         assert isinstance(document, Document)
         return document
+
+    def set_com_class(self, prog_id: str, factory: Callable[[ComRequest], object] | None, *, folders: object = ()) -> None:
+        """What a macro's CreateObject and GetObject make for ``prog_id``: ``factory`` is called with a ComRequest and returns the object, or None
+        for no such class, error 429. None in place of a factory takes the class away again. A registered name wins over pyOpenVBA's own class of
+        the name, and registering it is the grant the sandbox lets through. ``folders`` are where a file GetObject names may be while the sandbox
+        is on. The name comes from the macro, so a factory must allow-list: one that passes any name to the system's COM hands the macro the
+        machine (docs/vba_runtime.md)."""
+        self.interpreter.set_com_class(prog_id, factory, folders=folders)  # type: ignore[arg-type]
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
         """Parse VBA and add it to the project this instance runs."""

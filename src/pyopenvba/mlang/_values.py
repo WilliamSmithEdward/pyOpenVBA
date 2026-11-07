@@ -310,6 +310,9 @@ def as_text(value: object) -> str:
     if isinstance(value, float) and math.isinf(value):
         # Text.From of infinity, as Power Query writes it (tests/fixtures/m_number_limits.json).
         return "\u221e" if value > 0 else "-\u221e"
+    if isinstance(value, float) and math.isnan(value):
+        # As Power Query writes it (tests/fixtures/m_number_arguments.json).
+        return "NaN"
     if isinstance(value, float) and value.is_integer():
         return str(int(value))
     if isinstance(value, (int, float)):

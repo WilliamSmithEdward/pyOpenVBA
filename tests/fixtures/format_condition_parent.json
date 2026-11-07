@@ -1,0 +1,106 @@
+{
+ "measured_at": "2026-11-05T20:19:13.348902+00:00",
+ "source": "\nPrivate Function Shown(ByVal v As Object) As String\n    On Error Resume Next\n    Shown = TypeName(v) & \":\" & v.Address(False, False)\n    If Err.Number <> 0 Then Shown = TypeName(v) & \":E\" & Err.Number\nEnd Function\n\nPublic Function Probe(ByVal path As String, ByVal which As Long, ByVal reopen As Boolean) As String\n    Dim wb As Object, ws As Object, fc As Object, made As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"D1:D5\").Value = 3\n    Select Case which\n    Case 7: Set made = ws.Range(\"D1:D5\").FormatConditions.AddTop10\n    Case 8: Set made = ws.Range(\"D1:D5\").FormatConditions.AddDatabar\n    Case 9: Set made = ws.Range(\"D1:D5\").FormatConditions.AddColorScale(3)\n    Case Else: Set made = ws.Range(\"D1:D5\").FormatConditions.Add(xlCellValue, xlGreater, \"=2\")\n    End Select\n    If reopen Then\n        wb.SaveAs path, xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(path)\n        Set ws = wb.Worksheets(1)\n        Set made = Nothing\n    End If\n    On Error Resume Next\n    Select Case which\n    Case 5\n        If made Is Nothing Then Probe = \"none\": wb.Close False: Exit Function\n        Set fc = made\n    Case 7, 8\n        Set fc = ws.Range(\"D3\").FormatConditions(1)\n    Case 9\n        Set fc = ws.Range(\"C1:E9\").FormatConditions(1)\n    Case 6\n        ws.Rows(1).Insert\n        Set fc = ws.Range(\"D1:D5\").FormatConditions(1)\n    Case Else\n        Select Case which\n        Case 0: Set fc = ws.Range(\"D1:D5\").FormatConditions(1)\n        Case 1: Set fc = ws.Range(\"D3\").FormatConditions(1)\n        Case 2: Set fc = ws.Range(\"C1:E9\").FormatConditions(1)\n        Case 3: Set fc = ws.Range(\"D4:D8\").FormatConditions(1)\n        Case 4: Set fc = ws.Cells.FormatConditions(1)\n        End Select\n    End Select\n    If Err.Number <> 0 Then Probe = \"reach E\" & Err.Number: Err.Clear: wb.Close False: Exit Function\n    Probe = Shown(fc.Parent) & \"|\" & Shown(fc.AppliesTo) & \"|E\" & Err.Number\n    wb.Close False\nEnd Function\n",
+ "cases": [
+  {
+   "how": "ws.Range(\"D1:D5\").FormatConditions(1)",
+   "reopen": false,
+   "answer": "Range:D1:D5|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Range(\"D1:D5\").FormatConditions(1)",
+   "reopen": true,
+   "answer": "Range:D1:D5|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Range(\"D3\").FormatConditions(1)",
+   "reopen": false,
+   "answer": "Range:D3|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Range(\"D3\").FormatConditions(1)",
+   "reopen": true,
+   "answer": "Range:D3|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Range(\"C1:E9\").FormatConditions(1)",
+   "reopen": false,
+   "answer": "Range:C1:E9|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Range(\"C1:E9\").FormatConditions(1)",
+   "reopen": true,
+   "answer": "Range:C1:E9|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Range(\"D4:D8\").FormatConditions(1)",
+   "reopen": false,
+   "answer": "Range:D4:D8|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Range(\"D4:D8\").FormatConditions(1)",
+   "reopen": true,
+   "answer": "Range:D4:D8|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Cells.FormatConditions(1)",
+   "reopen": false,
+   "answer": "Range:1:1048576|Range:D1:D5|E0"
+  },
+  {
+   "how": "ws.Cells.FormatConditions(1)",
+   "reopen": true,
+   "answer": "Range:1:1048576|Range:D1:D5|E0"
+  },
+  {
+   "how": "made",
+   "reopen": false,
+   "answer": "Range:D1:D5|Range:D1:D5|E0"
+  },
+  {
+   "how": "made",
+   "reopen": true,
+   "answer": "none"
+  },
+  {
+   "how": "inserted",
+   "reopen": false,
+   "answer": "Range:D1:D5|Range:D2:D6|E0"
+  },
+  {
+   "how": "inserted",
+   "reopen": true,
+   "answer": "Range:D1:D5|Range:D2:D6|E0"
+  },
+  {
+   "how": "top10 through D3",
+   "reopen": false,
+   "answer": "Range:D3|Range:D1:D5|E0"
+  },
+  {
+   "how": "top10 through D3",
+   "reopen": true,
+   "answer": "Range:D3|Range:D1:D5|E0"
+  },
+  {
+   "how": "databar through D3",
+   "reopen": false,
+   "answer": "Range:D3|Range:D1:D5|E0"
+  },
+  {
+   "how": "databar through D3",
+   "reopen": true,
+   "answer": "Range:D3|Range:D1:D5|E0"
+  },
+  {
+   "how": "colour scale through C1:E9",
+   "reopen": false,
+   "answer": "Range:C1:E9|Range:D1:D5|E0"
+  },
+  {
+   "how": "colour scale through C1:E9",
+   "reopen": true,
+   "answer": "Range:C1:E9|Range:D1:D5|E0"
+  }
+ ]
+}

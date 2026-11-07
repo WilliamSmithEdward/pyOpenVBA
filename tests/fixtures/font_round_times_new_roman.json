@@ -103,7 +103,7 @@
 "Double:31.29|Double:168|Double:23.25",
 "Double:5.71|Double:33.75|Double:20.25",
 "|||||#|##|##|###|####|####|#####|#####|#######|1250.00%|1250.00%",
-"ERROR RunResult(outcome='modal-blocked', duration_s=1.1873536999992211, value=None, output=[], error=None, message='Blocked by a modal dialog: Excel modal dialog', dialogs=[DialogRecord(title='Excel modal dialog', message='Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely.', texts=['A Excel dialog of class NUIDialog is blocking the run.', 'Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely.'], buttons=[], button_ids=[], classification='app-modal', action='blocked:opaque-modal-dialog', screenshot='C:\\\\Users\\\\William\\\\AppData\\\\Local\\\\pyvbaharness\\\\artifacts\\\\d5f919b1abf0\\\\dialog-20261104-162702-66654364.png')], screenshot='')",
+"ERROR RunResult(outcome='modal-blocked', duration_s=1.1873536999992211, value=None, output=[], error=None, message='Blocked by a modal dialog: Excel modal dialog', dialogs=[DialogRecord(title='Excel modal dialog', message='Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely.', texts=['A Excel dialog of class NUIDialog is blocking the run.', 'Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely.'], buttons=[], button_ids=[], classification='app-modal', action='blocked:opaque-modal-dialog', screenshot='<harness artifact>')], screenshot='<harness artifact>')",
 "Double:20.14|Double:109.5|Double:15",
 "Double:23.86|Double:129|Double:15",
 "|#|#|#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234567.9|1234567.891|1234567.891|1234567.891",

@@ -1261,9 +1261,9 @@ class Border(ExcelObject):
         parts = [area for area in visible_areas(self.target) or self.target.areas
                  if not _row_formats.border_area(sheet, area, self.index, change)]
         _within_limit(parts)
-        if self.index in EDGES:
-            # Every cell of the range takes the border part, its edge or not, so each counts toward UsedRange until a
-            # save (tests/fixtures/used_range.json).
+        if self.index in EDGES or self.index in (11, 12):
+            # Every cell of the range takes the border part, along the border or not, so each counts toward UsedRange
+            # until a save (tests/fixtures/used_range.json).
             for area in parts:
                 _touch_cells(sheet, area)
         for area in parts:

@@ -1424,7 +1424,10 @@ class Border(ExcelObject):
         with a line holds its neighbours to the left, to the right and below as well."""
         sheet, name = self.target.sheet, EDGES[self.index]
         places = [place for area in parts for place in _edge_places(area, name)]
-        if _leaves_lines(change) and own_side(sheet, *places[0], name).style:
+        # The first area's edge reads from its first place, or its last for a bottom or right edge.
+        first_places = _edge_places(parts[0], name)
+        reads = first_places[-1] if name in ("bottom", "right") else first_places[0]
+        if _leaves_lines(change) and effective_side(sheet, *reads, name).style:
             return
         for before, area in zip(parts, parts[1:]):
             outline = {edge: _one_line([effective_side(sheet, row, column, edge) for row, column in _edge_places(before, edge)])
@@ -1439,7 +1442,8 @@ class Border(ExcelObject):
                     for row, column in _edge_places(area, edge):
                         change_side(sheet, row, column, _INDEX_OF_EDGE[edge], _exactly(outline[edge]))
         found = [effective_side(sheet, row, column, name) for row, column in places]
-        new = S.NO_SIDE if _leaves_lines(change) else change(_row_formats.current_side(found))
+        current = found[0] if len(set(found)) == 1 else S.Side(effective_side(sheet, *reads, name).style or "thin", S.Color("auto"))
+        new = S.NO_SIDE if _leaves_lines(change) else change(current)
         for row, column in places:
             change_side(sheet, row, column, self.index, _exactly(new))
 

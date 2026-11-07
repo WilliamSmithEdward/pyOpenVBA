@@ -1013,10 +1013,14 @@ def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
     left = not shift.vertical and shift.delete and box.left < start + shift.count
     if left and moved is not None and moved[0] == box.top:
         return lambda: None
-    if found.fields:
+    if found.fields and shift.vertical:
+        # A sheet in filter mode takes no insert, and a delete up there takes whole rows (_model's Range.Delete), so
+        # only a table's edits come this way.
         raise VBAUnsupportedError("a cell shift that moves a filter with criteria is not implemented")
     if moved is None or header or left:
-        return lambda: _drop(sheet)
+        # With criteria its rows show as it goes (tests/fixtures/filter_shifts_d.json); a delete left wholly before
+        # it moves it, criteria and all.
+        return lambda: (found.show_all(sheet), _drop(sheet)) and None
     after = moved
 
     def follow() -> None:

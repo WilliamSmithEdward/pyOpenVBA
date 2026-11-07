@@ -11,6 +11,7 @@ the boundary, where the result lands on a sheet.
 
 from __future__ import annotations
 
+import math
 import datetime as _dt
 import decimal as _dec
 from dataclasses import dataclass, field
@@ -306,6 +307,9 @@ def as_text(value: object) -> str:
         return "true" if value else "false"
     if isinstance(value, Scaled) and value.places:
         return f"{float(value):.{value.places}f}"
+    if isinstance(value, float) and math.isinf(value):
+        # Text.From of infinity, as Power Query writes it (tests/fixtures/m_number_limits.json).
+        return "\u221e" if value > 0 else "-\u221e"
     if isinstance(value, float) and value.is_integer():
         return str(int(value))
     if isinstance(value, (int, float)):

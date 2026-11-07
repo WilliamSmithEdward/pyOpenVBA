@@ -134,4 +134,5 @@ def test_a_link_s_folder_and_full_name_keep_the_spelling_of_its_workbook_s(targe
     # How a path is opened is the system's own, so it is checked where the system really runs, for its own spellings: Windows here and in its
     # CI job, POSIX on Linux and macOS.
     if (real == 'posix') == here.startswith('/') and system == real:
-        assert final_path(named) == whole
+        # The system's own resolving of what is spelled, so a folder that is itself a link counts: macOS's /tmp is /private/tmp.
+        assert final_path(named) == os.path.realpath(whole)

@@ -32,9 +32,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area, split_sheet
+from pyopenvba.apps.excel._hooks import link_gate
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _parse as P
-from pyopenvba.interpreter._files import on_disk
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
@@ -217,8 +217,8 @@ def status(book: Workbook, linked: LinkedBook) -> int:
     status of a link whose workbook is closed, which may be out of date. A sheet the link lists that nothing
     reads, or the one Excel adds for its workbook's names, is not missed (tests/fixtures/workbook_links.json)."""
     _refuse_open(book, linked)
-    book.application.outside("A workbook link's status")
-    path = Path(on_disk(linked.path(book.path)))
+    _, final = link_gate(book.application, "A workbook link's status", linked.path(book.path))
+    path = Path(final)
     if not path.is_file():
         return _MISSING_FILE
     there = {sheet.casefold() for sheet in _sheet_names(path)}

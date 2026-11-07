@@ -156,7 +156,7 @@ PLAIN = '''Function Build(ByVal path As String) As String
     wb.Charts.Add(After:=wb.Worksheets(3)).SetSourceData ws.Range("A1:B4")
     wb.Styles.Add "Probe style"
     ws.Activate
-    wb.SaveAs path, xlOpenXMLWorkbook
+    wb.SaveAs path, FORMAT
     wb.Close SaveChanges:=False
     Application.DisplayAlerts = True
     Build = "built"
@@ -199,11 +199,16 @@ SETTINGS = '''Function Build(ByVal path As String) As String
     Build = "built"
 End Function
 '''
-#: Each round: the book Excel builds, the file type it is saved as, and whether the probe opens it read-only.
-ROUNDS = {'plain': (PLAIN, 'xlsx', True), 'settings': (SETTINGS, 'xlsm', False)}
+#: Each round: the book Excel builds (none for a book a tool wrote, already in tests/fixtures/tool_books), the file type it is saved as, and
+#: whether the probe opens it read-only. The plain book is saved as each of Excel's own formats.
+ROUNDS = {'plain': (PLAIN.replace('FORMAT', 'xlOpenXMLWorkbook'), 'xlsx', True), 'settings': (SETTINGS, 'xlsm', False),
+          'binary': (PLAIN.replace('FORMAT', 'xlExcel12'), 'xlsb', False), 'legacy': (PLAIN.replace('FORMAT', 'xlExcel8'), 'xls', True),
+          'openpyxl': (None, 'xlsx', True), 'xlsxwriter': (None, 'xlsx', False)}
 
 
 def book(round_name: str) -> Path:
+    if ROUNDS[round_name][0] is None:
+        return ROOT / f'tests/fixtures/tool_books/{round_name}.xlsx'
     return ROOT / f'tests/fixtures/workbook_reads_{round_name}.{ROUNDS[round_name][1]}'
 
 
@@ -226,10 +231,11 @@ def main() -> None:
                 if round_name in record['answers']:
                     continue
                 built_at, path = folder / f'Built.{extension}', folder / f'Probe.{extension}'
-                built = excel.run_vba(build, 'Build', (str(built_at),), timeout=120, line_numbers=False)
-                assert built.ok and built.value == 'built', (built.error, built.dialogs)
-                # Excel writes the save folder into the book; both sides read the copy without it.
-                copy_saved(built_at, book(round_name))
+                if build is not None:
+                    built = excel.run_vba(build, 'Build', (str(built_at),), timeout=120, line_numbers=False)
+                    assert built.ok and built.value == 'built', (built.error, built.dialogs)
+                    # Excel writes the save folder into the book; both sides read the copy without it.
+                    copy_saved(built_at, book(round_name))
                 shutil.copyfile(book(round_name), path)
                 answers: dict[str, list[str]] = {}
                 for declared in ('Workbook', 'Object'):

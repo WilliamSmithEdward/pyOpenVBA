@@ -26,6 +26,8 @@ RECORD: dict[str, Any] = json.loads((ROOT / 'tests/fixtures/workbook_reads.json'
 GAPS: dict[tuple[str, str], frozenset[str]] = {}
 #: Refused openly here, so left out of the model's macro for that round: the custom views a loaded book holds are not read.
 REFUSED: dict[str, frozenset[str]] = {'settings': frozenset({'CustomViews'})}
+#: Books the model does not open at all, so it refuses them openly: Excel's answers are kept for when it reads them.
+UNOPENED = frozenset({'binary', 'legacy'})
 
 
 def _model(round_name: str, declared: str, folder: Path) -> dict[str, str]:
@@ -47,7 +49,7 @@ def test_the_names_and_rounds_are_the_ones_measured() -> None:
 
 
 @pytest.mark.parametrize('declared', ['Workbook', 'Object'])
-@pytest.mark.parametrize('round_name', sorted(MEASURE.ROUNDS))
+@pytest.mark.parametrize('round_name', sorted(set(MEASURE.ROUNDS) - UNOPENED))
 def test_every_read_answers_as_excel_did(round_name: str, declared: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
     excel = dict(zip(RECORD['names'], RECORD['answers'][round_name][declared]))
@@ -74,3 +76,13 @@ def _model_reads(round_name: str, name: str, folder: Path) -> None:
     app.add_workbook()
     app.add_module(MEASURE.macro('Object', [name]), name='H')
     app.run('H.Probe', str(path), MEASURE.ROUNDS[round_name][2])
+
+
+@pytest.mark.parametrize('round_name', sorted(UNOPENED))
+def test_a_book_the_model_does_not_open_is_refused_openly(round_name: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from pyopenvba.apps.excel._io import WorkbookFileError
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises((VBAUnsupportedError, WorkbookFileError)):
+        _model(round_name, 'Object', tmp_path)

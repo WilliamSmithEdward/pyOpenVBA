@@ -61,8 +61,9 @@ class LinkedBook:
         """The folder the linked workbook is in, ``here`` being this workbook's own."""
         if self.pathless:
             return ""
-        # Off Windows this workbook's folder, and a full path a link a formula made keeps (see _new_links), are POSIX paths.
-        posix = here.startswith("/") or os.name != "nt"
+        # A POSIX path by its spelling: this workbook's folder from the root, or, for a workbook never saved, the system's own. A drive-less
+        # target under a Windows folder takes that folder's drive on any system.
+        posix = here.startswith("/") if here else os.name != "nt"
         if posix and self.target.startswith("/"):
             return posixpath.dirname(self.target)
         target = self.target.removeprefix("file:///").replace("/", "\\")

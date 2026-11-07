@@ -45,7 +45,7 @@ End Function
 
 def first_look() -> list[list[object]]:
     cases: list[list[object]] = []
-    for blank in ('', 'C1:C7', 'B1:B7', 'C2:C7', 'B2:C7'):
+    for blank in ('', 'C1:C7', 'B1:B7', 'C2:C7', 'B2:C7', 'A1', 'A1:B1', 'A1:B2', 'A1:B5'):
         for extra in ('', 'D8', 'E8', 'D1:D7;E8', 'D7;E8', 'C8', 'D3;E8', 'A8', 'B9', 'D1:D7;E8:E12', 'E1:E12', 'D1:D7', 'C8:C9;E10'):
             cases.append([blank, extra, True])
     return cases
@@ -56,7 +56,7 @@ def held_out(round_: str) -> list[list[object]]:
     cells = [f'{column}{row}' for column in 'ABCDEFG' for row in range(1, 15)]
     cases: list[list[object]] = []
     while len(cases) < 120:
-        blank = chooser.choice(('', '', 'C1:C7', 'B1:B7', 'A2:A7', 'C2:C7', 'B3:C7', 'A1:A7', 'C4'))
+        blank = chooser.choice(('', '', 'C1:C7', 'B1:B7', 'A2:A7', 'C2:C7', 'B3:C7', 'A1:A7', 'C4', 'A1', 'A1:B1', 'A1:B5', 'A1:A3'))
         extra = ';'.join(chooser.sample(cells, chooser.randint(0, 4)))
         for typed in (True, False):
             cases.append([blank, extra, typed])

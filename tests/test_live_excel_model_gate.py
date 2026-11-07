@@ -1717,11 +1717,9 @@ def test_excel_reads_the_filtered_edits_this_made(tmp_path: Path) -> None:
     """Every edit tests/fixtures/autofilter_edits.json measured, made by the model, saved and opened in Excel."""
     import json
 
-    from test_excel_autofilter_edits import UNSUPPORTED
-
     harness = pytest.importorskip("pyvbaharness")
     record = json.loads((Path(__file__).parent / "fixtures" / "autofilter_edits.json").read_text(encoding="utf-8"))
-    layouts = [layout for layout in record["layouts"] if layout["name"] not in UNSUPPORTED]
+    layouts = record["layouts"]
     build = ["Public Sub Build()", "Dim wb As Object, ws As Object", "Set wb = ActiveWorkbook"]
     # Every sheet is named before any layout runs, a copy's destination beside its sheet as the copy would add it:
     # the model renames no sheet once a formula holds a qualified error, which some layouts leave.
@@ -1793,7 +1791,7 @@ def test_excel_reads_the_colour_sorts_this_wrote(tmp_path: Path) -> None:
     reads each sheet, and sorts it again, as it did its own file."""
     import json
 
-    from test_excel_sort_colour import RANGE_SORT, saved_layouts
+    from test_excel_sort_colour import saved_layouts
 
     harness = pytest.importorskip("pyvbaharness")
     record = json.loads((Path(__file__).parent / "fixtures" / "sort_colour" / "sort_colour.json")
@@ -1811,9 +1809,8 @@ def test_excel_reads_the_colour_sorts_this_wrote(tmp_path: Path) -> None:
         assert result.ok, result.message
     read, again = (dict(one.split("^", 1) for one in part.split("|") if one) for part in str(result.value).split("#"))
     for layout in record["layouts"]:
-        if layout["name"] != RANGE_SORT:
-            assert read[layout["name"]] == layout["reopened"], layout["name"]
-            assert again[layout["name"]] == layout["applied_again"], layout["name"]
+        assert read[layout["name"]] == layout["reopened"], layout["name"]
+        assert again[layout["name"]] == layout["applied_again"], layout["name"]
 
 
 def test_excel_reads_the_colour_scales_this_wrote(tmp_path: Path) -> None:

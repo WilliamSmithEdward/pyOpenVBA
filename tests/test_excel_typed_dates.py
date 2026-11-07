@@ -10,24 +10,20 @@ those parts, which the rules were not fitted to. Each read -- TypeName and
 CStr of Value, CStr of Value2, NumberFormat and Text -- is compared
 exactly.
 
-Excel misreads two kinds of string into numbers no rule here gives: a
-space before a month's name and a time, in a string of nothing but
-numbers, month's names, AM or PM and separators; and digits after a point
-after AM or PM that end the string. The model refuses those, and every
-other string is replayed.
+Excel misreads two kinds of string into strange numbers, and the model reads
+them so too: a space before a month's name and a time, a place along; and
+digits after a point after AM or PM, which put AM or PM into the second.
 """
 
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication, _typing
-from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures" / "typed_dates.json").read_text(
     encoding="utf-8"))
@@ -47,20 +43,7 @@ End Function
 '''
 
 
-def _refused(case: dict[str, Any]) -> bool:
-    """Whether Excel misreads the string: a space, then a month's name and a time; or digits after AM or PM's point."""
-    text: str = case["text"]
-    words = [word.lower() for word in re.findall("[A-Za-z]+", text)]
-    halves = [word in ("a", "am", "p", "pm") for word in words]
-    months = [_typing.month_number(word) is not None for word in words]
-    dated = text.strip(" ").lstrip("/-")[:1].isalnum() and all(
-        half or month for half, month in zip(halves, months, strict=True))
-    spaced = text.startswith(" ") and dated and any(months) and (":" in text or any(halves))
-    return spaced or re.search(r" [AaPp][Mm]? ?\. ?\d+$", text.rstrip(" ")) is not None
-
-
-REFUSED = [case for case in CASES if _refused(case)]
-REPLAYED = [case for case in CASES if not _refused(case)]
+REPLAYED = CASES
 
 
 def _vba_text(text: str) -> str:
@@ -100,15 +83,3 @@ def answers() -> list[list[str]]:
 @pytest.mark.parametrize("index", range(len(REPLAYED)), ids=[repr(case["text"]) for case in REPLAYED])
 def test_a_typed_date_or_time_reads_as_excel_reads_it(answers: list[list[str]], index: int) -> None:
     assert answers[index] == REPLAYED[index]["answer"]
-
-
-@pytest.mark.parametrize("case", REFUSED, ids=[repr(case["text"]) for case in REFUSED])
-def test_a_string_excel_misreads_is_refused(case: dict[str, Any]) -> None:
-    with pytest.raises(VBAUnsupportedError):
-        _typing.typed(case["text"], case.get("format", "General"))
-
-
-def test_only_misread_strings_are_refused() -> None:
-    # Excel made numbers of most of them; the rest it kept as text, which the model does not tell apart.
-    numbers = [case for case in REFUSED if case["answer"][0] != "String"]
-    assert (len(REFUSED), len(numbers)) == (50, 36)

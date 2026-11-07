@@ -52,7 +52,7 @@ from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._deep import deep
-from pyopenvba.formula._parse import (ArrayLiteral, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node,
+from pyopenvba.formula._parse import (ArrayLiteral, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node, is_one_cell,
                                       Reference, Structured, Unary, parse, parse_placed, tokenize)
 from pyopenvba.formula._prefixes import at_kept, intersected
 
@@ -129,6 +129,11 @@ class UnreadFormula2Error(FormulaError):
     """A formula whose Formula2 the model does not work out."""
 
 
+def _is_at(node: Node | None) -> bool:
+    """Whether ``node`` is an @, or the call of SINGLE that is the same thing."""
+    return isinstance(node, Unary) and node.op == "@" or isinstance(node, Call) and function_key(node.name) == "SINGLE"
+
+
 @dataclass
 class _Walk:
     starts: dict[int, int]
@@ -144,6 +149,8 @@ class _Walk:
     body: str = ""
     merging: bool = False
     merged: set[int] = field(default_factory=lambda: set())
+    #: Whether a table's reference may stand here, as it may in what Range.Formula keeps (see :func:`written`).
+    tables: bool = False
     reference_handoff: int = 0
     array_evaluation: bool = False
 
@@ -156,8 +163,25 @@ class _Walk:
         return many
 
     def _takes(self, node: Node | None) -> bool:
-        """Whether a thing that can give several values takes an @ where one is wanted: all but a union."""
+        """Whether a thing that can give several values takes an @ where one is wanted: all but a union, or an intersection
+        with one cell, which is one value already, unless its other side is a name or a call that may give several
+        (tests/fixtures/value_gaps.json)."""
+        if isinstance(node, Binary) and node.op == " ":
+            sides = (node.left, node.right)
+            one_cell = any(isinstance(side, Reference) and ":" not in side.text
+                           or isinstance(side, Structured) and is_one_cell(side) for side in sides)
+            return not one_cell or any(self._may_give_many(side) for side in sides)
         return not (isinstance(node, Binary) and node.op == ",")
+
+    def _may_give_many(self, node: Node | None) -> bool:
+        if isinstance(node, NameNode):
+            return True
+        if not isinstance(node, Call) or function_key(node.name) in _CHOICES:
+            return False
+        marks, merged = set(self.marks), set(self.merged)
+        many = self._many(node, VALUE)
+        self.marks, self.merged = marks, merged
+        return many
 
     def _many(self, node: Node | None, where: str) -> bool:
         if node is None or isinstance(node, Literal):
@@ -168,7 +192,15 @@ class _Walk:
             # (tests/fixtures/workbook_links.json).
             return ":" in node.text or ":" in node.sheet.rpartition("]")[2]
         if isinstance(node, Structured):
-            raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
+            if is_one_cell(node):
+                return False
+            if self.merging:
+                # Written through Range.Formula, an @ on a table's cells goes as one on any other cells does
+                # (tests/fixtures/formula_reads.json).
+                return True
+            if not self.tables:
+                raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
+            return True
         if isinstance(node, ArrayLiteral):
             for row in node.rows:
                 for item in row:
@@ -187,8 +219,16 @@ class _Walk:
             return self.visit(node.operand, WHOLE if where == WHOLE else VALUE) and where == WHOLE
         if isinstance(node, Binary):
             if node.op in (":", " ", ","):
-                self.visit(node.left, WHOLE)
+                left = self.visit(node.left, WHOLE)
                 self.visit(node.right, WHOLE)
+                if _is_at(node.left) and node.op == " ":
+                    # An @ on the left is enough for an intersection too: =@D2:D3 (A1:A3,A1).
+                    return False
+                if _is_at(node.right) and node.op != ":":
+                    # =A1 @A2 and =A1,@A2 read back as they are; =A1:@A2 is a range all the same, and =SUM(A1:A2) @A2 as its
+                    # left is (tests/fixtures/value_gaps.json).
+                    unknown = isinstance(node.left, NameNode) or isinstance(node.left, Call) and function_key(node.left.name) not in _CHOICES
+                    return left and node.op == " " and unknown
                 return True
             inside = WHOLE if where == WHOLE else VALUE
             left = self.visit(node.left, inside)
@@ -203,9 +243,12 @@ class _Walk:
     def _at(self, node: Unary, where: str) -> bool:
         """An @, a call of SINGLE: one value, from what it holds taken as a range. Merging, an @ standing where one
         value is wanted, over something the formula cuts there anyway and not in brackets, is noted as that cut."""
-        if self.merging and where == VALUE and not self.body[self.starts[id(node)] + 1:].lstrip().startswith("("):
+        if self.merging and where == VALUE and (not self.body[self.starts[id(node)] + 1:].lstrip().startswith("(")
+                                                 or isinstance(node.operand, Binary) and node.operand.op == " " and not node.operand.grouped):
             marks, merged = set(self.marks), set(self.merged)
-            if self._many(node.operand, VALUE) and self._takes(node.operand):
+            operand = node.operand
+            on_at = isinstance(operand, Binary) and operand.op != ":" and _is_at(operand.right)
+            if self._many(operand, VALUE) and self._takes(operand) and not on_at:
                 self.merged.add(self.starts[id(node)])
                 return False
             # Kept: what it holds is walked again, as SINGLE takes it.
@@ -341,7 +384,7 @@ class _Walk:
         """Whether a function that gives several values only when given them does so here; ``many`` says which
         arguments can give several."""
         if key == "INDEX":
-            if not args or not isinstance(args[0], (Reference, NameNode)):
+            if not args or not isinstance(args[0], (Reference, NameNode, Structured)):
                 return True
             return any(not _whole_number(argument) for argument in args[1:3])
         if key == "OFFSET":
@@ -465,9 +508,9 @@ def formula2(formula: str, named: Callable[[str], str | None], *, whole: bool = 
     return deep(lambda: _formula2(formula, named, whole=whole))
 
 
-def _formula2(formula: str, named: Callable[[str], str | None], *, whole: bool) -> str:
+def _formula2(formula: str, named: Callable[[str], str | None], *, whole: bool, tables: bool = False) -> str:
     tree, starts = parse_placed(formula)
-    walk = _Walk(starts, named)
+    walk = _Walk(starts, named, tables=tables)
     walk.visit(tree, WHOLE if whole else VALUE)
     body = formula[1:] if formula.startswith("=") else formula
     for start in sorted(walk.marks, reverse=True):
@@ -497,7 +540,7 @@ def _written(formula: str, named: Callable[[str], str | None]) -> str:
     tokens = tokenize(body, spaces=True)
     kept = "=" + "".join(token.text for token in tokens
                          if not (token.kind == "op" and token.text == "@" and token.at in walk.merged))
-    return _formula2(kept, named, whole=False) if intersected(kept) else kept
+    return _formula2(kept, named, whole=False, tables=True) if intersected(kept) else kept
 
 
 __all__ = ["UnreadFormula2Error", "formula2", "written"]

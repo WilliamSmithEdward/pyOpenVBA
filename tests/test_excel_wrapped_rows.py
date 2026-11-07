@@ -81,6 +81,10 @@ def test_each_held_out_curve_as_excel_answered(number: int) -> None:
 def test_each_third_round_curve_as_excel_answered(number: int) -> None:
     case = ROUND3['cases'][number]
     _, sheet = _made(case)
+    if case['italic']:
+        with pytest.raises(VBAUnsupportedError, match='italic'):
+            _height_at(sheet, 100)
+        return
     wrong = [(column, tall, got) for column, tall in ROUND3_ANSWERS['curves'][number].items() if (got := _height_at(sheet, int(column))) != tall]
     assert not wrong
 
@@ -95,7 +99,7 @@ _HYPHEN_THEN_LINE_FEED = '-\n'
 def test_each_fourth_round_curve_as_excel_answered(number: int) -> None:
     case = ROUND4['cases'][number]
     _, sheet = _made(case)
-    if case['text'].endswith(_HYPHEN_THEN_LINE_FEED):
+    if case['text'].endswith(_HYPHEN_THEN_LINE_FEED) or case['italic']:
         with pytest.raises(VBAUnsupportedError):
             _height_at(sheet, 100)
         return
@@ -123,21 +127,26 @@ def _event_source(statements: list[str]) -> str:
 
 #: What the model reports rather than answers, and where in each sequence: a carriage return's width is not measured, nor AutoFit of a column over wrapped text.
 REFUSED_STATEMENTS = ('c.Value = "ab" & vbCr & "cd"', 'ws.Columns(1).AutoFit')
+#: Wrapped italic text reports itself, and every reading after it is of italic text too.
+_ITALIC = 'c.Font.Italic = True'
 
 
 @pytest.mark.parametrize('name', EVENTS['events'])
 def test_each_event_works_the_height_out_as_excel_does(name: str) -> None:
     statements: list[str] = EVENTS['events'][name]
+    readings: list[str] = EVENTS['rows'][name]
+    if _ITALIC in statements:
+        statements, readings = statements[:statements.index(_ITALIC)], readings[:statements.index(_ITALIC) + 1]
     # The first reading comes before any statement; each statement has the reading after it.
     kept = [one for one in statements if one not in REFUSED_STATEMENTS]
-    answers = [EVENTS['rows'][name][0], *[found for one, found in zip(statements, EVENTS['rows'][name][1:], strict=True) if one not in REFUSED_STATEMENTS]]
+    answers = [readings[0], *[found for one, found in zip(statements, readings[1:], strict=True) if one not in REFUSED_STATEMENTS]]
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(_event_source(kept), name='Probe')
     assert str(app.run('Probe.Go')).split('|')[1:] == answers
 
 
-@pytest.mark.parametrize('statement', REFUSED_STATEMENTS)
+@pytest.mark.parametrize('statement', [*REFUSED_STATEMENTS, _ITALIC])
 def test_what_is_not_measured_reports_itself(statement: str) -> None:
     app = ExcelApplication()
     app.add_workbook()
@@ -196,3 +205,44 @@ def test_a_wrapped_row_with_no_height_in_its_file_is_the_standard_row(tmp_path: 
             package.writestr(name, data)
     opened = ExcelApplication.open(tmp_path / 'bare.xlsx', with_vba=False)
     assert row_points_read(opened.workbook.sheets_[0].dims.row_quarters(1)) == 15
+
+
+_LONG = 'one two three four five six seven eight nine ten'
+_ONE_CELL = 'For i = 1 To 3: ws.Cells(i, 1).Value = "{0}": Next'
+_WHOLE_COLUMN = 'ws.Range("A1").Resize(3, 1).Value = "{0}"'
+
+
+def _after_write(statements: str) -> list[str]:
+    """Row 1 to 3's heights after these, with every height worked out before each write so that a write may leave what was worked out."""
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(f'''Public Function Go() As String
+    Dim ws As Object, i As Long, x As Variant
+    Set ws = ActiveSheet
+    ws.Range("A1:A3").WrapText = True
+    x = ws.Rows(1).RowHeight
+    {statements}
+    Go = ws.Rows(1).RowHeight & "," & ws.Rows(2).RowHeight & "," & ws.Rows(3).RowHeight
+End Function
+''', name='Probe')
+    return str(app.run('Probe.Go')).split(',')
+
+
+@pytest.mark.parametrize('write', [_ONE_CELL, _WHOLE_COLUMN], ids=['cell by cell', 'a whole column'])
+def test_a_write_down_a_column_measures_each_wrapped_row(write: str) -> None:
+    assert _after_write(write.format(_LONG)) == ['90', '90', '90']  # As live Excel answered at 96 DPI.
+
+
+@pytest.mark.parametrize('write', [_ONE_CELL, _WHOLE_COLUMN], ids=['cell by cell', 'a whole column'])
+def test_a_shorter_write_down_a_column_lets_each_wrapped_row_back(write: str) -> None:
+    assert _after_write(write.format(_LONG) + ': x = ws.Rows(1).RowHeight: ' + write.format('x')) == ['15', '15', '15']
+
+
+def test_a_plain_cell_written_beside_wrapped_text_leaves_the_row_and_the_next_write_still_counts() -> None:
+    tall = _after_write(_WHOLE_COLUMN.format(_LONG))
+    assert _after_write(_WHOLE_COLUMN.format(_LONG) + ': x = ws.Rows(1).RowHeight: ws.Range("B1").Resize(3, 1).Value = 7') == tall
+    assert _after_write(_WHOLE_COLUMN.format(_LONG) + ': x = ws.Rows(1).RowHeight: ws.Range("B1").Resize(3, 1).Value = 7: x = ws.Rows(1).RowHeight: ' + _WHOLE_COLUMN.format('x')) == ['15', '15', '15']
+
+
+def test_clearing_wrapped_text_lets_its_row_back() -> None:
+    assert _after_write(_WHOLE_COLUMN.format(_LONG) + ': x = ws.Rows(1).RowHeight: ws.Range("A1:A3").ClearContents') == ['15', '15', '15']

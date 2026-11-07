@@ -96,6 +96,8 @@ def outcome(case: Case, folder: Path) -> tuple[str, str]:
         after = without_book(str(again.run('Sweep.Go')), str(again.run('Sweep.Book')))
     except VBAUnsupportedError as refused:
         return 'no claim', f'the set stood at {before}; the reopened file reports {str(refused)[:80]}'
+    except VBARuntimeError as gone:
+        return 'lost', f'{before} before the save; after it the object is not found again ({str(gone)[:80]})'
     if after == before:
         return 'kept', after
     return 'lost', f'{before} before the save, {after} after it'

@@ -21,6 +21,7 @@ Every layout here was read from a workbook Excel saved, in
 
 from __future__ import annotations
 
+import math
 import re
 import uuid
 from dataclasses import dataclass, field, replace
@@ -516,12 +517,13 @@ def control_drawing(shape: Shape, grid: SheetGrid | None = None) -> str:
     its transform empty: where the control is comes from the anchor.
     """
     grid = grid or SheetGrid()
+    edit_as = f' editAs="{shape.edit_as}"' if shape.edit_as else ""
     return (
         '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
         '<mc:Choice xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" Requires="a14">'
-        f"<xdr:twoCellAnchor{f' editAs="{shape.edit_as}"' if shape.edit_as else ''}>"
-        f"{_corner_markup('from', grid, _on_pixel(shape.left), _on_pixel(shape.top))}"
-        f"{_corner_markup('to', grid, _on_pixel(shape.left + shape.width), _on_pixel(shape.top + shape.height))}"
+        f"<xdr:twoCellAnchor{edit_as}>"
+        f"{_corner_markup('from', grid, on_pixel(shape.left), on_pixel(shape.top))}"
+        f"{_corner_markup('to', grid, on_pixel(shape.left + shape.width), on_pixel(shape.top + shape.height))}"
         '<xdr:sp macro="" textlink="">'
         "<xdr:nvSpPr>"
         f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(shape.name)}" hidden="1">'
@@ -557,8 +559,8 @@ def control_entry(shape: Shape, relationship: str, grid: SheetGrid | None = None
         f'<control shapeId="{shape.shape_id}" r:id="{relationship}" name="{escape(shape.name)}">'
         f'<controlPr{"" if shape.locked else " locked=" + chr(34) + "0" + chr(34)} defaultSize="0" autoFill="0" autoPict="0"{macro}{_alt_text(shape)}>'
         f"<anchor{_anchor_flags(shape)}>"
-        f"{_corner_markup('from', grid, _on_pixel(shape.left), _on_pixel(shape.top)).replace('xdr:from', 'from')}"
-        f"{_corner_markup('to', grid, _on_pixel(shape.left + shape.width), _on_pixel(shape.top + shape.height)).replace('xdr:to', 'to')}"
+        f"{_corner_markup('from', grid, on_pixel(shape.left), on_pixel(shape.top)).replace('xdr:from', 'from')}"
+        f"{_corner_markup('to', grid, on_pixel(shape.left + shape.width), on_pixel(shape.top + shape.height)).replace('xdr:to', 'to')}"
         "</anchor>"
         "</controlPr>"
         "</control>"
@@ -567,9 +569,9 @@ def control_entry(shape: Shape, relationship: str, grid: SheetGrid | None = None
     )
 
 
-def _on_pixel(points: float) -> float:
-    """A control's edge in the file: back to a pixel, at the 96 DPI the model emulates (tests/fixtures/new_control_settings.json)."""
-    return points * 4 // 3 * 0.75
+def on_pixel(points: float) -> float:
+    """A control's edge in the file: the nearest pixel, a half going up, at the 96 DPI the model emulates (tests/fixtures/new_control_places.json)."""
+    return math.floor(points * 4 / 3 + 0.5) * 0.75
 
 
 def _alt_text(shape: Shape) -> str:
@@ -1808,15 +1810,19 @@ def _moved(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None = None)
     it was.  Both corners are worked out from the grid, because an
     offset that runs past its own cell is clamped rather than carried.
     """
-    del was
     out = dml.with_transform(markup, shape)
     span = dml.element_span(out, "xdr:from")
     finish = dml.element_span(out, "xdr:to")
-    if span is None or finish is None:
+    if span is None:
         return out
     grid = grid or SheetGrid()
     left, top, width, height = _turned_box(shape)
     start = _corner_markup("from", grid, left, top)
+    if finish is None:
+        # A one-cell anchor has only this corner, and its size apart (tests/fixtures/tool_drawings.json).
+        if (shape.width, shape.height) != (was.width, was.height):
+            raise VBAUnsupportedError("Resizing a shape on a one-cell anchor is not implemented")
+        return out[: span[0]] + start + out[span[1] :]
     end = _corner_markup("to", grid, left + width, top + height)
     return out[: span[0]] + start + out[span[1] : finish[0]] + end + out[finish[1] :]
 

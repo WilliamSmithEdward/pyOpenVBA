@@ -45,7 +45,7 @@ from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._deep import deep
-from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node,
+from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, Literal, NameNode, is_one_cell, Node,
                                       Reference, Structured, Token, Unary, literal, parse, read_structured, split_sheet,
                                       tokenize)
 from pyopenvba.formula._prefixes import bound
@@ -56,11 +56,12 @@ from pyopenvba.formula._values import ExcelError, number_text
 #: The largest number a formula can hold written out.
 LARGEST: Final = 9.99999999999999e307
 _CORNER: Final = re.compile(r"(\$?)([A-Za-z]{1,3})?(\$?)([0-9]{1,7})?")
-#: What Excel reads in a formula that the model does not: the dynamic-array operators.
-_UNMODELLED: Final = re.compile(r"@|#(?!N/A|NULL!|DIV/0!|VALUE!|REF!|NAME\?|NUM!|SPILL!|CALC!|GETTING_DATA)",
-                                re.IGNORECASE)
 #: A string, or a sheet's name in apostrophes, where any character may stand.
 _QUOTED: Final = re.compile(r'"(?:[^"]|"")*"|\'(?:[^\']|\'\')*\'')
+#: A cell, points and more after them, as one name: Excel writes it in apostrophes (tests/fixtures/value_gaps.json).
+_DOTTED_NAME: Final = re.compile(r"(?a)[A-Za-z]{1,3}\d+\.{2,}[^.].*")
+#: Two points between two cells, as Lotus wrote a range: A1..A2 reads A1:A2 (tests/fixtures/value_gaps.json).
+_DOTS: Final = re.compile(rf"(?a)({_QUOTED.pattern})|(?<![\w.$])(\$?[A-Za-z]{{1,3}}\$?\d+)\.\.(\$?[A-Za-z]{{1,3}}\$?\d+)(?![\w.])")
 
 
 @dataclass(frozen=True)
@@ -103,7 +104,7 @@ _FIRST_ITEM: Final[dict[str, _Places]] = {
 #: Where the functions that work out their own arguments read one value through intersected.
 _OWN_PLACES: Final[dict[str, _Places]] = {
     "IF": _Places((0,)), "IFS": _Places(start=0, step=2), "IFERROR": _EVERY, "IFNA": _EVERY, "CHOOSE": _Places((0,)),
-    "OFFSET": _Places(start=1),
+    "OFFSET": _Places(start=1), "INDIRECT": _Places((0,)),
 }
 #: Arguments worked out as arrays even in a cell: SUMPRODUCT(LEN(A1:A3)) adds every length, and INDEX(A1:A3*2,2)
 #: is A2*2 in any row.
@@ -190,17 +191,38 @@ def spelled(formula: str, names: Names, *, whole: bool = False, at: bool = False
     return deep(lambda: _spelled(formula, names, whole=whole, at=at, r1c1=r1c1))
 
 
+def _without_at(body: str, tokens: list[Token]) -> str:
+    """``body`` with each @ taken out but one standing on a single cell."""
+    out: list[str] = []
+    start = 0
+    for index, token in enumerate(tokens):
+        if token.kind != "op" or token.text != "@":
+            continue
+        after = _next(tokens, index)
+        if after.kind == "name" and is_cell(after.text) and _next(tokens, index + 1).text != ":":
+            continue
+        if after.kind == "structured" and is_one_cell(read_structured(after.text, at=after.at)):
+            continue
+        out.append(body[start:token.at])
+        start = token.at + 1
+    out.append(body[start:])
+    return "".join(out)
+
+
 def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -> str:
-    body = formula[1:]
-    try:
-        tokens = tokenize(body, spaces=True)
-    except FormulaError:
-        unmodelled = _UNMODELLED.search(_QUOTED.sub('""', body))
-        if unmodelled is not None:
-            raise UnmodelledFormulaError(f"{unmodelled.group(0)!r} in a formula is not implemented") from None
-        raise
+    body = _DOTS.sub(lambda found: found.group(1) or f"{found.group(2)}:{found.group(3)}", formula[1:])
+    formula = "=" + body
+    if "\t" in re.sub(r"\[[^\]]*\]", "", _QUOTED.sub('""', body)):
+        # In a string, a sheet's name or a table's column it may stand; anywhere else Excel refuses it.
+        raise FormulaError("a tab stands outside a string")
+    tokens = tokenize(body, spaces=True)
     if not at and any(token.kind == "op" and token.text == "@" for token in tokens):
-        raise UnmodelledFormulaError("'@' in a formula written through Range.Formula is not implemented")
+        # Written through Range.Formula an @ goes, but for one on a single cell; an array formula keeps each it is given
+        # (tests/fixtures/formula_reads.json).
+        if whole:
+            return _spelled(formula, names, whole=whole, at=True, r1c1=r1c1)
+        kept = _without_at(body, tokens)
+        return _spelled("=" + kept, names, whole=whole, at="@" in _QUOTED.sub('""', kept), r1c1=r1c1)
     _within_limits(tokens)
     bound_at = bound(body)
     if not r1c1 and any(token.kind == "name" and token.at in bound_at and is_cell(token.text) for token in tokens):
@@ -225,7 +247,8 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
         if token.kind == "eof":
             break
         if token.kind == "ws":
-            if not array and after.kind not in ("comma", "eof"):
+            if not array and after.kind != "eof" and (after.kind != "comma" or not calls):
+                # Before a comma between arguments a space goes; before a union's, with no brackets round it, it stays.
                 pieces.append(token.text)
             index += 1
             continue
@@ -257,7 +280,9 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
             if following.kind in ("ref", "name", "structured") and following.at == token.at + len(token.text):
                 # [Book2]Sheet1!A1: another workbook's cells.
                 raise UnmodelledFormulaError("a reference to another workbook is not implemented")
-            text = _structured(token, token.at in one_value, names)
+            # An @ on a table's column keeps the whole column in this session; a file loaded later reads it as this row's.
+            on_at = previous is not None and previous.kind == "op" and previous.text == "@"
+            text = _structured(token, token.at in one_value and not on_at, names)
         elif token.kind == "error":
             head, _, error = text.rpartition("#")
             text = _prefix(head[:-1], names, pair=pair) + "!#" + error.upper() if head else text.upper()
@@ -265,6 +290,8 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
             # A name a LET or a LAMBDA binds is spelled everywhere as the formula first writes it, where it is bound:
             # LET(a1,5,A1) reads back as LET(a1,5,a1) (tests/fixtures/bound_names.json).
             text = declared.setdefault(text.upper(), text)
+        elif token.kind == "name" and _DOTTED_NAME.fullmatch(text):
+            text = f"'{text}'"
         elif token.kind == "name":
             text = _name(text, tokens[index + 1].kind == "open", names)
         pieces.append(text)
@@ -283,6 +310,10 @@ def check_arguments(node: Node | None) -> None:
     be cells :data:`_CELLS`, measured in tests/fixtures/formula/probes.txt and
     tests/fixtures/formula_refusals.json.
     """
+    if isinstance(node, Binary) and node.op in REFERENCE_OPS:
+        for side in (node.right,) if node.held else (node.left, node.right):
+            if isinstance(side, Call) and is_excel_function(function_key(side.name)) and function_key(side.name) not in _ANSWER_CELLS:
+                raise FormulaError(f"{side.name} gives no cells for a reference operator")
     if isinstance(node, Call):
         name = function_key(node.name)
         count = len(node.args)
@@ -319,7 +350,7 @@ def _referring(node: Node | None) -> bool:
     has not got is let through, since what it answers with is not known
     here.
     """
-    if isinstance(node, (Reference, Structured)) or isinstance(node, Unary) and node.op == "#":
+    if isinstance(node, (Reference, Structured)) or isinstance(node, Unary) and node.op in ("#", "@"):
         return True
     if isinstance(node, Literal) and isinstance(node.value, ExcelError) and node.value.name == "#REF!":
         # What a deleted reference leaves is taken where a reference goes: ROW(#REF!) is #REF!

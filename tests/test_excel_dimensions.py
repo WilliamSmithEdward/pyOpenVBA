@@ -35,7 +35,8 @@ WRITTEN = [(index, case) for index, case in enumerate(CASES) if not case["name"]
 #: Probes whose answer rests on something the model has not measured -- a
 #: mix of fonts, a font outside the tables, super- or subscript, wrapped or
 #: turned text. Excel's answers are recorded; the model says it cannot tell.
-UNMEASURED = [record for record in RECORDS if record["name"].startswith("unmeasured_")]
+#: Wrapped text was unmeasured when recorded, and its live answers now replay with the rest.
+UNMEASURED = [record for record in RECORDS if record["name"].startswith("unmeasured_") and record["name"] != "unmeasured_wrapped_text"]
 
 
 

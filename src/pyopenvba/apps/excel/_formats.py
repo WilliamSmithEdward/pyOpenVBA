@@ -793,23 +793,30 @@ class Interior(ExcelObject):
         raise error(1004, "Unable to set the InvertIfNegative property of the Interior class")
 
     def _fills(self) -> list[S.Fill]:
+        """The range's different fills. Over several, a gradient reads as no fill, having no colours of the cell's own, and
+        beside only other gradients or no fill at all it reads as a gradient does (tests/fixtures/mixed_fills.json)."""
         fills = list({style.fill: None for style in styles_of(self.target)})
-        if any(fill.gradient for fill in fills) and not all(fill.gradient for fill in fills):
-            raise VBAUnsupportedError("the Interior of a range with gradient and other fills is not implemented")
+        if len(fills) > 1 and any(fill.gradient for fill in fills):
+            plain = list({(S.Fill() if fill.gradient else fill): None for fill in fills})
+            return [next(fill for fill in fills if fill.gradient)] if plain == [S.Fill()] else plain
         return fills
 
-    def _write(self, change: Callable[[S.Fill], S.Fill]) -> None:
+    def _mixes_gradient(self) -> bool:
+        fills = {style.fill for style in styles_of(self.target)}
+        return len(fills) > 1 and any(fill.gradient for fill in fills)
+
+    def _write(self, change: Callable[[S.Fill], S.Fill], *, gradient: S.Fill | None = None) -> None:
         def apply(style: S.Style) -> S.Style:
             # A colour or pattern given to a gradient takes the place of it, as one given to no fill would.
-            return S.applying(style, "fill", fill=change(S.Fill() if style.fill.gradient else style.fill))
+            return S.applying(style, "fill", fill=change((gradient or S.Fill()) if style.fill.gradient else style.fill))
 
         restyle(self.target, apply)
 
     def gradient(self) -> GradientFill:
-        """The gradient every cell of the range has."""
+        """The gradient every cell of the range has. A range without one has no Gradient to ask."""
         fills = self._fills()
-        if len(fills) != 1 or not fills[0].gradient:
-            raise VBAUnsupportedError("the gradient of a range whose cells have different fills is not implemented")
+        if self._mixes_gradient() or len(fills) != 1 or not fills[0].gradient:
+            raise error(91)
         return GradientFill.parsed(fills[0].gradient)
 
     def write_fill(self, fill: S.Fill) -> None:
@@ -819,7 +826,7 @@ class Interior(ExcelObject):
     def Gradient(self) -> object:
         """The range's gradient, Nothing for a fill that is none (tests/fixtures/interior_gradient.json)."""
         fills = self._fills()
-        if not any(fill.gradient for fill in fills):
+        if self._mixes_gradient() or not any(fill.gradient for fill in fills):
             return NOTHING
         return (RectangularGradient if self.gradient().path else LinearGradient)(self)
 
@@ -836,7 +843,8 @@ class Interior(ExcelObject):
         if fills and fills[0].gradient:
             # A gradient's Interior answers black, automatic, no theme colour (tests/fixtures/interior_gradient.json).
             return {"Color": 0.0, "ColorIndex": _long(XL_AUTOMATIC), "ThemeColor": _long(0)}.get(what, 0.0)
-        colors = {pick(fill) for fill in fills}
+        # A style's automatic pattern colour and a macro's are the one colour, though they are stored apart.
+        colors = {S.FOREGROUND if pick is not cell_color and pick(fill) == S.BACKGROUND else pick(fill) for fill in fills}
         if len(colors) != 1:
             return mixed
         color: S.Color | None = next(iter(colors))
@@ -852,6 +860,9 @@ class Interior(ExcelObject):
 
     @member
     def Color(self) -> object:
+        if self._mixes_gradient() and len(self._fills()) == 1:
+            # Gradients beside each other or no fill read as no fill's white.
+            return 16777215.0
         return self._answer(cell_color, "Color", 0.0)
 
     @setter("Color")
@@ -895,15 +906,16 @@ class Interior(ExcelObject):
         def change(fill: S.Fill) -> S.Fill:
             if fill.pattern == "none":
                 return fill
-            color = cell_color(fill)
-            if color in (S.FOREGROUND, S.BACKGROUND) or color.kind == "auto":
-                raise VBAUnsupportedError("TintAndShade on an automatic fill colour is not implemented")
-            return self._colored(fill, replace(color, tint=tint))
+            # An automatic colour keeps its shade and shows no change (tests/fixtures/mixed_fills.json).
+            return self._colored(fill, replace(cell_color(fill), tint=tint))
 
-        self._write(change)
+        # A shade given to a gradient leaves a solid fill of the automatic colour.
+        self._write(change, gradient=S.Fill(pattern="solid"))
 
     @member
     def Pattern(self) -> object:
+        if self._mixes_gradient():
+            return NULL
         fills = self._fills()
         if fills and fills[0].gradient:
             return _long(RECTANGULAR_GRADIENT if self.gradient().path else LINEAR_GRADIENT)
@@ -989,12 +1001,9 @@ class Interior(ExcelObject):
         def change(fill: S.Fill) -> S.Fill:
             if fill.pattern == "none":
                 return fill
-            color = pattern_color(fill)
-            if color in (S.FOREGROUND, S.BACKGROUND) or color.kind == "auto":
-                raise VBAUnsupportedError("PatternTintAndShade on an automatic pattern colour is not implemented")
-            return self._with_pattern_color(fill, replace(color, tint=tint))
+            return self._with_pattern_color(fill, replace(pattern_color(fill), tint=tint))
 
-        self._write(change)
+        self._write(change, gradient=S.Fill(pattern="solid"))
 
     @member
     def Parent(self) -> object:

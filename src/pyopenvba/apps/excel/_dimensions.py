@@ -442,7 +442,7 @@ class SheetDimensions:
         cannot tell. A number stays on a line, and a merged cell and a formula add nothing, until AutoFit for a formula
         (tests/fixtures/wrapped_events.json)."""
         from pyopenvba.apps.excel._column_fit import font_pad
-        from pyopenvba.apps.excel._font_widths import ascent, widths
+        from pyopenvba.apps.excel._font_widths import widths
         from pyopenvba.apps.excel._wrapped_text import lines_of, row_pixels_for
 
         if cell.runs is not None:
@@ -456,6 +456,10 @@ class SheetDimensions:
             # The fourth held-out round's one miss, in columns about a letter wide (tests/fixtures/wrapped_round4.json).
             return "wrapped text ending in a hyphen and a line feed"
         font = style.font
+        if font.italic:
+            # Italic held out 16 wrong of 6,060 lines over four fonts, each a line the rule fits and Excel breaks, and no slant rule tried does better
+            # (tests/fixtures/wrapped_italic_scores.json).
+            return "wrapped italic text"
         table = widths(font.name, font.bold, font.italic, float(font.size))
         if table is None:
             return f"the font {font.name}"
@@ -469,10 +473,6 @@ class SheetDimensions:
             # Widths broke elsewhere in italic at 18, 24 and 36pt, and nothing tried explains them (tests/fixtures/font_round_arial.json, font_round_arial2.json).
             return f"wrapped text in large italic {font.name}"
         taken = 9 * style.alignment.indent
-        if font.italic:
-            rise = ascent(font.name, font.bold, True, float(font.size))
-            assert rise is not None
-            taken += rise // 5
 
         def extent(text: str) -> int:
             return sum(table[character] for character in text)
@@ -568,7 +568,7 @@ class SheetDimensions:
                     self.rows.setdefault(row, RowRecord()).wrapped = last
             elif record is not None:
                 record.wrapped = None
-        self.invalidate_growth()
+        self.contents_changed(row, cell)
 
     def _hold_wrapped(self) -> None:
         """Before a column's width changes: wrapped text keeps the height it has. A sheet with none need not settle for it."""
@@ -584,6 +584,20 @@ class SheetDimensions:
                 record = self.rows[row] = RowRecord()
             if record.wrapped is None:
                 record.wrapped = quarters
+
+    def contents_changed(self, row: int, cell: Cell | None) -> None:
+        """A cell's contents changed and its format did not. A plain cell shows the Normal font, which grows no row, so a
+        write to a row nothing has grown, beside no edged row, leaves what was worked out as it was: the whole sheet need not
+        be gone through again for each cell a macro writes down a column."""
+        self._touched.add(row)
+        if (self._grown_valid and (cell is None or (cell.style is None and cell.runs is None))
+                and row not in self._grown and row not in self._unmeasured
+                and all(self._flags.get(near, self._default_flags) == self._default_flags for near in (row - 1, row, row + 1))
+                and (row not in self.rows or self.rows[row].style is None)
+                and not any(record.style is not None for record in self.columns.values())
+                and not self.sheet.merged_areas and self.normal_known()):
+            return
+        self.invalidate_growth()
 
     def column_fonts_changed(self) -> None:
         """A column's format changed, which every row without a format of its own shows."""

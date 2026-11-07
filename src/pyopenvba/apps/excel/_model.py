@@ -1902,6 +1902,9 @@ class Workbook(ExcelObject):
         #: DisplayDrawingObjects, DisplayInkComments, RemovePersonalInformation, ReadOnlyRecommended and
         #: EnableAutoRecover, as the file has them (see _workbook_options).
         self.drawing_objects = -4104
+        #: The last DisplayDrawingObjects a save can name (xlDisplayShapes, xlPlaceholders, xlHide), which a save writes for any
+        #: other value but 0 (_workbook_options).
+        self.drawing_objects_named = -4104
         self.ink_comments = True
         self.remove_personal = False
         self.read_only_recommended = False
@@ -3089,15 +3092,28 @@ class Workbook(ExcelObject):
         (tests/fixtures/settable_audit.json, tests/fixtures/workbook_reads.json)."""
         from pyopenvba.interpreter._objects import BINDING
 
-        if self.drawing_objects == -4104 or not BINDING.late:
-            return VBAInt(self.drawing_objects, "Long")
-        return float(self.drawing_objects & 0xFFFFFFFF)
+        if self.drawing_objects == -4104:
+            return VBAInt(-4104, "Long")
+        unsigned = self.drawing_objects & 0xFFFFFFFF
+        if BINDING.late:
+            return float(unsigned)
+        # Typed, the 32 bits read back as a Long, so one past 2147483647, as True's -1 is, overflows
+        # (tests/fixtures/workbook_setters_heldout/round1_excel.json).
+        if unsigned > 2 ** 31 - 1:
+            raise error(6, "Overflow")
+        return VBAInt(unsigned, "Long")
 
     @setter("DisplayDrawingObjects")
     def _set_drawing_objects(self, value: object) -> None:
         """A Long as VBA passes it, 1 being xlDisplayShapes again; the workbook is no longer saved."""
-        number = int(to_integer(value, "Long"))
+        from pyopenvba.apps.excel._workbook_options import drawing_objects_of
+
+        number = drawing_objects_of(value)
+        if number is None:
+            return
         self.drawing_objects = -4104 if number == 1 else number
+        if self.drawing_objects in (-4104, 2, 3):
+            self.drawing_objects_named = self.drawing_objects
         self.saved = False
 
     @member
@@ -3238,7 +3254,11 @@ class Workbook(ExcelObject):
     @setter("PrecisionAsDisplayed")
     def _set_precision_as_displayed(self, value: object) -> None:
         """True rounds every number as its format shows it, now and from then on (see _precision)."""
-        wanted = to_bool(value)
+        from pyopenvba.apps.excel._workbook_settings import file_flag
+
+        wanted = file_flag("PrecisionAsDisplayed", value)
+        if wanted is None:
+            return
         if wanted and not self.precision_as_displayed:
             from pyopenvba.apps.excel._precision import turned_on
 

@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._opc_xml import opc_part
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._values import to_bool
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -131,7 +130,11 @@ def _write_flags(book: Workbook, raw: bytes) -> bytes:
 
 def set_mode(book: Workbook, value: object) -> None:
     """Keep stored serials and invalidate calculations on a calendar change."""
-    wanted = to_bool(value)
+    from pyopenvba.apps.excel._workbook_settings import file_flag
+
+    wanted = file_flag('Date1904', value)
+    if wanted is None:
+        return
     if wanted == book.epoch_1904:
         return
     if book.application.udf_callers or book.calculation_in_progress:

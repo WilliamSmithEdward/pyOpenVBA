@@ -80,19 +80,21 @@ End Function
 '''
 
 
-def _answers(run: Any, round_name: str) -> dict[str, list[str]]:
+def _answers(run: Any, round_name: str, answers: dict[str, list[str]] | None = None, keep: Any = None) -> dict[str, list[str]]:
+    """Every case's answer by declared type, going on from those already in ``answers``, and handing each chunk's to ``keep``."""
     every = cases(round_name)
-    answers: dict[str, list[str]] = {}
+    answers = {} if answers is None else answers
     for declared in ('Workbook', 'Object'):
-        found: list[str] = []
-        for at in range(0, len(every), CHUNK):
+        found = answers.setdefault(declared, [])
+        for at in range(len(found), len(every), CHUNK):
             folder = Path(tempfile.mkdtemp(prefix='wbsetters_'))
             try:
                 found += run(declared, every[at:at + CHUNK], folder).split(SEPARATOR)
             finally:
                 shutil.rmtree(folder, ignore_errors=True)
+            if keep is not None:
+                keep(answers)
             print(declared, len(found), 'of', len(every), flush=True)
-        answers[declared] = found
     return answers
 
 
@@ -132,6 +134,14 @@ def measure(round_name: str) -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
     assert (FOLDER / f'{round_name}_predictions.json').exists(), 'write the predictions first'
+    out = FOLDER / f'{round_name}_excel.json'
+    record: dict[str, Any] = json.loads(out.read_text(encoding='utf-8')) if out.exists() else {'round': round_name, 'cases': cases(round_name),
+                                                                                                'answers': {}}
+
+    def keep(answers: dict[str, list[str]]) -> None:
+        record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'answers': answers})
+        out.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
+
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
         excel.new_document()
         excel.run_vba('Function Hello() As String\n    Hello = "x"\nEnd Function\n', 'Hello', (), timeout=60)
@@ -141,9 +151,7 @@ def measure(round_name: str) -> None:
             assert result.ok, (result.error, [one.message for one in result.dialogs])
             return str(result.value)
 
-        answers = _answers(run, round_name)
-    record = {'round': round_name, 'measured_at': datetime.now(timezone.utc).isoformat(), 'cases': cases(round_name), 'answers': answers}
-    (FOLDER / f'{round_name}_excel.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
+        _answers(run, round_name, record['answers'], keep)
     print('measured', round_name)
 
 

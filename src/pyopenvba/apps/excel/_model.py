@@ -412,6 +412,8 @@ class Application(ExcelObject):
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
         self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
+        #: What CopyPicture put on the clipboard, for as long as the clipboard holds it: the clipboard as it was left (see _output).
+        self.copied_picture: tuple[object] | None = None
         self.user_name = "pyOpenVBA"
         #: What Shape.PickUp kept for Shape.Apply, which outlives the workbook.
         self.picked_up_shape: object = None
@@ -6730,6 +6732,14 @@ class Range(ExcelObject):
         return export_fixed_format(self, 'Range', self.sheet.book, self.sheet,
                                    given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
                                           OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
+
+    @method
+    def CopyPicture(self, Appearance: object = MISSING, Format: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import copy_picture, given_arguments
+
+        if len(self.areas) > 1:
+            raise error(1004, "This action won't work on multiple selections.")
+        return copy_picture(self, 'Range', self.sheet.book, given_arguments(Appearance=Appearance, Format=Format))
 
     def _within(self, area: Area) -> bool:
         return any(one.top <= area.top and one.left <= area.left and one.bottom >= area.bottom and one.right >= area.right for one in self.areas)

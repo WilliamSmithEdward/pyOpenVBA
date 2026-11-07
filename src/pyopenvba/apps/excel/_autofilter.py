@@ -929,11 +929,16 @@ def grown(sheet: Worksheet, area: Area) -> Area:
     new filter over A1:D5 of a table down to row 13 filters and saves
     A1:D13 while its hidden name keeps A1:D5; arrows alone keep A1:D5.
     Filtering again, or ApplyFilter, takes in what has grown; filtering
-    again renames it, ApplyFilter does not.
+    again renames it, ApplyFilter does not. The foot is that of the current
+    region of the first header cell that holds something, as CurrentRegion finds it from
+    there: a blank last column keeps out what lies beyond it
+    (tests/fixtures/filter_range_growth.json).
     """
-    from pyopenvba.apps.excel._region import region_around
+    from pyopenvba.apps.excel._region import holds_content, region_around
 
-    bottom = region_around(sheet, area).bottom
+    # The first header cell that holds something, or the first one when none does.
+    column = next((one for one in range(area.left, area.right + 1) if holds_content(sheet, area.top, one)), area.left)
+    bottom = region_around(sheet, Area(area.top, column, area.top, column, area.sheet)).bottom
     return area if bottom <= area.bottom else Area(area.top, area.left, bottom, area.right, area.sheet)
 
 
@@ -988,7 +993,13 @@ def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
     Measured (scripts/measure_cell_shifts.py): the range moves and
     stretches as a reference to it does, as its hidden name does, and a
     delete up of its header cells, or of all of it, removes the filter and
-    the name. A shift that moves a filter with criteria was not measured.
+    the name. A delete left that reaches into its columns moves it only when
+    it lies wholly to its left (tests/fixtures/filter_left_deletes.json):
+    one that takes all its columns over its header, or over all of it,
+    removes the filter and the name, and any other leaves the range and its
+    Filters where they were, criteria and all, while the name shrinks as a
+    reference does. Any other shift that moves a filter with criteria was
+    not measured.
     """
     from pyopenvba.apps.excel._editing import shifted_box
 
@@ -1003,9 +1014,13 @@ def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
         start <= box.top < start + shift.count
     if moved == before and not header:
         return lambda: None
+    # A delete left that reaches its columns: gone with its header row, else where it was.
+    left = not shift.vertical and shift.delete and box.left < start + shift.count
+    if left and moved is not None and moved[0] == box.top:
+        return lambda: None
     if found.fields:
         raise VBAUnsupportedError("a cell shift that moves a filter with criteria is not implemented")
-    if moved is None or header:
+    if moved is None or header or left:
         return lambda: _drop(sheet)
     after = moved
 

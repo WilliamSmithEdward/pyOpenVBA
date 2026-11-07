@@ -1,0 +1,184 @@
+{
+ "cases": [
+  {
+   "name": "Tb7",
+   "typed": false,
+   "reopen": false,
+   "model": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "excel": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_",
+   "rule_a": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "rule_b": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_"
+  },
+  {
+   "name": "Tb7",
+   "typed": false,
+   "reopen": true,
+   "model": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "excel": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_",
+   "rule_a": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "rule_b": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_"
+  },
+  {
+   "name": "Tb7",
+   "typed": true,
+   "reopen": false,
+   "model": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "excel": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_",
+   "rule_a": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "rule_b": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_"
+  },
+  {
+   "name": "Tb7",
+   "typed": true,
+   "reopen": true,
+   "model": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "excel": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_",
+   "rule_a": "Tb7_ E0 | Tb7_ E0 | Tb7 | Tb7_",
+   "rule_b": "Tb7 E0 | Tb7 E0 | Tb7 | Tb7_"
+  },
+  {
+   "name": "a b",
+   "typed": false,
+   "reopen": false,
+   "model": "a_b E0 | a_b E0 | a b | a_b",
+   "excel": "a b E0 | a b E0 | a b | a_b",
+   "rule_a": "a_b E0 | a_b E0 | a b | a_b",
+   "rule_b": "a b E0 | a b E0 | a b | a_b"
+  },
+  {
+   "name": "a b",
+   "typed": false,
+   "reopen": true,
+   "model": "a_b E0 | a_b E0 | a b | a_b",
+   "excel": "a b E0 | a b E0 | a b | a_b",
+   "rule_a": "a_b E0 | a_b E0 | a b | a_b",
+   "rule_b": "a b E0 | a b E0 | a b | a_b"
+  },
+  {
+   "name": "a b",
+   "typed": true,
+   "reopen": false,
+   "model": "a_b E0 | a_b E0 | a b | a_b",
+   "excel": "a b E0 | a b E0 | a b | a_b",
+   "rule_a": "a_b E0 | a_b E0 | a b | a_b",
+   "rule_b": "a b E0 | a b E0 | a b | a_b"
+  },
+  {
+   "name": "a b",
+   "typed": true,
+   "reopen": true,
+   "model": "a_b E0 | a_b E0 | a b | a_b",
+   "excel": "a b E0 | a b E0 | a b | a_b",
+   "rule_a": "a_b E0 | a_b E0 | a b | a_b",
+   "rule_b": "a b E0 | a b E0 | a b | a_b"
+  },
+  {
+   "name": "1abc",
+   "typed": false,
+   "reopen": false,
+   "model": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "excel": "1abc E0 | 1abc E0 | 1abc | _1abc",
+   "rule_a": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "rule_b": "1abc E0 | 1abc E0 | 1abc | _1abc"
+  },
+  {
+   "name": "1abc",
+   "typed": false,
+   "reopen": true,
+   "model": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "excel": "1abc E0 | 1abc E0 | 1abc | _1abc",
+   "rule_a": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "rule_b": "1abc E0 | 1abc E0 | 1abc | _1abc"
+  },
+  {
+   "name": "1abc",
+   "typed": true,
+   "reopen": false,
+   "model": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "excel": "1abc E0 | 1abc E0 | 1abc | _1abc",
+   "rule_a": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "rule_b": "1abc E0 | 1abc E0 | 1abc | _1abc"
+  },
+  {
+   "name": "1abc",
+   "typed": true,
+   "reopen": true,
+   "model": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "excel": "1abc E0 | 1abc E0 | 1abc | _1abc",
+   "rule_a": "_1abc E0 | _1abc E0 | 1abc | _1abc",
+   "rule_b": "1abc E0 | 1abc E0 | 1abc | _1abc"
+  },
+  {
+   "name": "Plain",
+   "typed": false,
+   "reopen": false,
+   "model": "Plain E0 | Plain E0 | Plain | Plain",
+   "excel": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_a": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_b": "Plain E0 | Plain E0 | Plain | Plain"
+  },
+  {
+   "name": "Plain",
+   "typed": false,
+   "reopen": true,
+   "model": "Plain E0 | Plain E0 | Plain | Plain",
+   "excel": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_a": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_b": "Plain E0 | Plain E0 | Plain | Plain"
+  },
+  {
+   "name": "Plain",
+   "typed": true,
+   "reopen": false,
+   "model": "Plain E0 | Plain E0 | Plain | Plain",
+   "excel": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_a": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_b": "Plain E0 | Plain E0 | Plain | Plain"
+  },
+  {
+   "name": "Plain",
+   "typed": true,
+   "reopen": true,
+   "model": "Plain E0 | Plain E0 | Plain | Plain",
+   "excel": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_a": "Plain E0 | Plain E0 | Plain | Plain",
+   "rule_b": "Plain E0 | Plain E0 | Plain | Plain"
+  },
+  {
+   "name": "XFD1",
+   "typed": false,
+   "reopen": false,
+   "model": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "excel": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_",
+   "rule_a": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "rule_b": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_"
+  },
+  {
+   "name": "XFD1",
+   "typed": false,
+   "reopen": true,
+   "model": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "excel": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_",
+   "rule_a": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "rule_b": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_"
+  },
+  {
+   "name": "XFD1",
+   "typed": true,
+   "reopen": false,
+   "model": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "excel": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_",
+   "rule_a": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "rule_b": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_"
+  },
+  {
+   "name": "XFD1",
+   "typed": true,
+   "reopen": true,
+   "model": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "excel": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_",
+   "rule_a": "XFD1_ E0 | XFD1_ E0 | XFD1 | XFD1_",
+   "rule_b": "XFD1 E0 | XFD1 E0 | XFD1 | XFD1_"
+  }
+ ]
+}

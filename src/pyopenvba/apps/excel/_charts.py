@@ -1890,6 +1890,12 @@ class ChartObject(HeldPart):
     def Cut(self) -> object:
         return ShapeObject(self.sheet, self.shape).Cut()
 
+    @method
+    def CopyPicture(self, Appearance: object = MISSING, Format: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import copy_picture, given_arguments
+
+        return copy_picture(self, 'ChartObject', self.sheet.book, given_arguments(Appearance=Appearance, Format=Format), shown=not self.shape.hidden)
+
     # -- tests/fixtures/chart_object_more.json
 
     def _changed(self, name: str) -> Shape:
@@ -1976,6 +1982,18 @@ class Chart(ElementProperties, HeldPart):
                                    given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
                                           OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity),
                                    in_frame=getattr(self, 'book', None) is None)
+
+    @method
+    def Export(self, Filename: object = MISSING, FilterName: object = MISSING, Interactive: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import export_chart, given_arguments
+
+        return export_chart(self, self._book(), given_arguments(Filename=Filename, FilterName=FilterName, Interactive=Interactive))
+
+    @method
+    def CopyPicture(self, Appearance: object = MISSING, Format: object = MISSING, Size: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import copy_picture, given_arguments
+
+        return copy_picture(self, 'Chart', self._book(), given_arguments(Appearance=Appearance, Format=Format, Size=Size))
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet, self.shape = sheet, shape

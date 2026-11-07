@@ -17,8 +17,8 @@ REFUSALS = ('AutoFit of a column whose text wraps, is indented or is turned', 'J
             'changing the Normal font to', 'wrapped italic text')
 
 
-def _cases() -> list[tuple[str, int, dict[str, Any], str, str]]:
-    found = []
+def _cases() -> list[tuple[str, int, list[Any], str, str]]:
+    found: list[tuple[str, int, list[Any], str, str]] = []
     for stem in ROUNDS:
         record = json.loads((FIXTURES / f'font_round_{stem}.json').read_text('utf-8'))
         predictions = json.loads((FIXTURES / f'font_round_{stem}_predictions.json').read_text('utf-8'))['cases']

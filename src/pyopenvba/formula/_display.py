@@ -429,7 +429,9 @@ def _shaped(laid: str, language: str) -> str:
         return laid
     if zero is None:
         return laid
-    return "".join(chr(zero + ord(char) - 0x30) if "0" <= char <= "9" else char for char in laid)
+    # Tamil shows its zero as 0, the way it was written before Unicode had a Tamil zero.
+    low = "1" if zero == 0x0BE6 else "0"
+    return "".join(chr(zero + ord(char) - 0x30) if low <= char <= "9" else char for char in laid)
 
 
 def keeps_text(code: str) -> bool:

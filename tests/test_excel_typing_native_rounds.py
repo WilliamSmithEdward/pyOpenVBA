@@ -19,7 +19,9 @@ _spec.loader.exec_module(ROUNDS)
 RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8'))
                                  for path in sorted((ROOT / 'tests/fixtures/typing_native_rounds').glob('round_*.json'))]
 USED_UP = {54101: 'Text showed ASCII digits where Excel shows the script the format names; d-mmm-yy, #,##0.00, cents '
-                  'and a long number General shows with fewer places were not yet ruled'}
+                  'and a long number General shows with fewer places were not yet ruled',
+           54102: "a cell's own format was replaced by any native one, where Excel replaces it as the ASCII spelling "
+                  "would; a euro amount, a General date past its limits and Tamil's zero"}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

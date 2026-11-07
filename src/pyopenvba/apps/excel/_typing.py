@@ -201,7 +201,8 @@ def format_after(current: str, brought: str | None) -> str | None:
     if current in ("General", ""):
         return None if brought == "General" else brought
     held = "text" if current == "@" else _REPLACEABLE.get(current)
-    kind = _BROUGHT.get(brought)
+    # Another script's digits bring a format of the kind their ASCII spelling would (tests/fixtures/typing_native_rounds/).
+    kind = _BROUGHT.get(brought) or _native_kind(brought)
     if held is None or kind in (None, "number", held):
         return None
     return brought
@@ -341,8 +342,24 @@ _NATIVE_MOMENTS: Final = {"d-mmm": "dd-mmm", "m/d/yyyy": "mm/dd/yyyy", "d-mmm-yy
                           "[h]:mm:ss": "[h]:mm:ss", "mm:ss.0": "mm:ss.0"}
 #: The number formats that come through without a digit shape.
 _NATIVE_PLAIN: Final = ("0.00E+00", "##0.0E+0", "# ?/?", "# ??/??")
-#: The currency formats typing brings, whole and with cents: both become the set's own with cents.
-_CURRENCY_TYPED: Final = ("$#,##0_);[Red]($#,##0)", "$#,##0.00_);[Red]($#,##0.00)")
+#: The currency formats typing brings, whole and with cents, dollars or euros: all become the set's own with cents.
+_CURRENCY_TYPED: Final = ("$#,##0_);[Red]($#,##0)", "$#,##0.00_);[Red]($#,##0.00)", *_EURO_FORMATS.values())
+_SHAPED = re.compile(r"\[(\$?)\$-([0-9A-F]+)\]")
+
+
+def _native_kind(brought: str) -> str | None:
+    """The kind of a format typing brings with another script's digits, which is the kind its ASCII spelling brings
+    and decides whether it replaces a cell's own (format_after): currency, a date or a time, a percent, or a number,
+    which replaces nothing; None for a format with no digit shape."""
+    found = _SHAPED.match(brought)
+    if found is None or len(found.group(2)) <= 6 or int(found.group(2), 16) >> 24 not in DIGIT_SHAPES:
+        return None
+    if found.group(1):
+        return "currency"
+    body = brought[found.end():]
+    if found.group(2).endswith("000000"):
+        return _REPLACEABLE.get(next(ascii for ascii, shaped in _NATIVE_MOMENTS.items() if shaped == body), "date")
+    return "percent" if body.endswith("%") else "number"
 
 
 def _native_digits(text: str, *, fractions: bool = False, imported: bool = False) -> Typed | None:
@@ -385,14 +402,18 @@ def _native_format(found: Typed, plain: str, shape: tuple[int, int]) -> str:
         return ascii_format
     if ascii_format in _NATIVE_MOMENTS:
         return moment + _NATIVE_MOMENTS[ascii_format]
-    if ascii_format in _CURRENCY_TYPED:
+    if ascii_format == "General":
+        # A date and a time past their limits, which typing leaves General: no digit shape.
+        return "General"
+    if ascii_format in _CURRENCY_TYPED or (EURO in plain and isinstance(found.value, float)):
+        # A euro amount typed into a cell brings no format in ASCII; in these digits it is currency like a dollar's.
         currency = f"[$$-{code:X}{language:06X}]"
         return f"{currency} #,##0.00_);[Red]({currency}#,##0.00)"
     if ascii_format in ("0%", "0.00%"):
         return number + "0.00%"
     if ascii_format in ("#,##0", "#,##0.00"):
         return number + ascii_format
-    if (ascii_format is None or ascii_format == "General") and isinstance(found.value, float):
+    if ascii_format is None and isinstance(found.value, float):
         value = abs(found.value)
         if value >= 1e11:
             # As many places as General shows: 1.23457E+11, 1E+15.

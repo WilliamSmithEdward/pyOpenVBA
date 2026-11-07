@@ -546,6 +546,9 @@ class Shape:
     #: Excel: Placement as the anchor's editAs: "" for xlMoveAndSize, oneCell for xlMove, absolute for
     #: xlFreeFloating.
     edit_as: str = ""
+    #: Excel: a height set through a new form control's old object has moved the Shape's Top by an EMU up, down or not at all, by a rounding not worked out
+    #: (tests/fixtures/new_control_old_height_heldout.json), until the Top is set again. The file and the old object are not moved.
+    unsure_top: bool = False
     #: Excel: a new group's child space (chOff and chExt) in points, None while it is the group's own box. Its
     #: members are held where the sheet shows them and mapped into it when written.
     child_box: tuple[float, float, float, float] | None = None

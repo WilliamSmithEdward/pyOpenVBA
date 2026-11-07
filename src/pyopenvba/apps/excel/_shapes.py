@@ -1303,6 +1303,8 @@ class ShapeObject(_Drawn):
     @member
     def Top(self) -> object:
         self.sheet.dims.settle_shapes()
+        if self.shape.unsure_top:
+            raise _unsupported("the Top of a form control whose height was set through its old object, which Excel moves by an EMU or not at all")
         return VBASingle(self.shape.top)
 
     @setter("Top")
@@ -1317,12 +1319,18 @@ class ShapeObject(_Drawn):
         one moves inside that child space, which then becomes the members' boxes together, and the group's box
         follows at the scale it had."""
         shape = self.shape
+        if "top" in changes:
+            shape.unsure_top = False
+        # A place is held in whole EMUs, a half going up (tests/fixtures/new_control_old_places.json).
+        changes = {name: math.floor(value * 12700 + 0.5) / 12700 if name in ("left", "top") else value for name, value in changes.items()}
         if shape.kind == "formControl" and not shape.source and shape.control is not None:
-            # A size falls back to a pixel, where a place does only in the file. A scroll bar's width and a list box's height go their own
-            # way (tests/fixtures/new_control_settings.json).
-            if (shape.control.kind == "Scroll" and "width" in changes) or (shape.control.kind == "List" and "height" in changes):
+            # A size goes to the nearest pixel, a half to the even one, where a place does only in the file. A spinner sized either way
+            # stands on an even number of pixels high. A scroll bar's size and a list box's height go their own way (tests/fixtures/new_control_places.json).
+            if (shape.control.kind == "Scroll" and ("width" in changes or "height" in changes)) or (shape.control.kind == "List" and "height" in changes):
                 raise _unsupported("this size of a new form control")
-            changes = {name: value * 4 // 3 * 0.75 if name in ("width", "height") else value for name, value in changes.items()}
+            changes = {name: round(value * 4 / 3) * 0.75 if name in ("width", "height") else value for name, value in changes.items()}
+            if shape.control.kind == "Spin" and ("width" in changes or "height" in changes):
+                changes["height"] = math.ceil(changes.get("height", shape.height) * 2 / 3 - 1e-9) * 1.5
         group = parent_group(self.sheet, shape)
         if shape.kind == "group" and not shape.source:
             inside = [to_child(shape, _box(one)) for one in shape.children]

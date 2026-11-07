@@ -1,0 +1,1340 @@
+{
+"measured_at": "2026-11-05T04:28:27.147449+00:00",
+"standard_height": "15",
+"source": "Public Function Go() As String\n    Dim ws As Object, s As Object, o As Object, r As String, before As String\n    Set ws = ActiveSheet\n    before = ws.StandardHeight\n    Set s = %MAKE%\n    Set o = ws.DrawingObjects(ws.DrawingObjects.Count)\n    On Error Resume Next\n    %SET%\n    r = Err.Number & \"|\" & TypeName(o.Top) & \":\" & o.Left & \",\" & o.Top & \",\" & o.Width & \",\" & o.Height & \"|\" & TypeName(s.Top) & \":\" & s.Left & \",\" & s.Top & \",\" & s.Width & \",\" & s.Height\n    Err.Clear\n    On Error GoTo 0\n    s.Delete\n    Go = before & \"~\" & ws.StandardHeight & \"~\" & r\nEnd Function\n",
+"makers": {
+"button": "ws.Shapes.AddFormControl(xlButtonControl, 12, 12, 100, 40)",
+"check box": "ws.Shapes.AddFormControl(xlCheckBox, 12, 12, 100, 40)",
+"option button": "ws.Shapes.AddFormControl(xlOptionButton, 12, 12, 100, 40)",
+"drop-down": "ws.Shapes.AddFormControl(xlDropDown, 12, 12, 100, 40)",
+"list box": "ws.Shapes.AddFormControl(xlListBox, 12, 12, 100, 40)",
+"group box": "ws.Shapes.AddFormControl(xlGroupBox, 12, 12, 100, 40)",
+"label": "ws.Shapes.AddFormControl(xlLabel, 12, 12, 100, 40)",
+"spinner": "ws.Shapes.AddFormControl(xlSpinner, 12, 12, 100, 40)",
+"scroll bar": "ws.Shapes.AddFormControl(xlScrollBar, 12, 12, 100, 40)",
+"rectangle": "ws.Shapes.AddShape(1, 12, 12, 100, 40)",
+"text box": "ws.Shapes.AddTextbox(1, 12, 12, 100, 40)"
+},
+"cases": [
+{
+"kind": "button",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "button",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "button",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "button",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "button",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "button",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "button",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "button",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "check box",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "check box",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "check box",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "check box",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "check box",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "check box",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "option button",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "option button",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "option button",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "option button",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "option button",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "option button",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "drop-down",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "drop-down",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "list box",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,42|Single:31,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,42|Single:31,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,42|Single:30.1,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,42|Single:30.1,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,42|Single:30.37504,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,42|Single:30.37504,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,42|Single:30.6,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,42|Single:30.6,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,42|Single:12,31,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,42|Single:12,31,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,42|Single:12,30.1,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,42|Single:12,30.1,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,42|Single:12,30.37504,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,42|Single:12,30.37504,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,42|Single:12,30.6,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,42|Single:12,30.6,99.75,42"
+},
+{
+"kind": "list box",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,42|Single:12,12,60.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,42|Single:12,12,61,42"
+},
+{
+"kind": "list box",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,42|Single:12,12,60.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,42|Single:12,12,60.6,42"
+},
+{
+"kind": "list box",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,42|Single:12,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "list box",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,42|Single:12,12,99.75,42"
+},
+{
+"kind": "list box",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "group box",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "group box",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "group box",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "group box",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "group box",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "group box",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "label",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "label",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "label",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.75,39.75"
+},
+{
+"kind": "label",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "label",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "label",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "label",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,12,99.75,45.75"
+},
+{
+"kind": "label",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "spinner",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,60.75,40.5|Single:12,12,60.75,40.5"
+},
+{
+"kind": "spinner",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.75,40.5|Single:12,12,60.75,40.5"
+},
+{
+"kind": "spinner",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "spinner",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,99.75,46.5|Single:12,12,99.75,46.5"
+},
+{
+"kind": "spinner",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "spinner",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,99.75,46.5|Single:12,12,99.75,46.5"
+},
+{
+"kind": "spinner",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Left = 31",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:31,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30,12,99.75,39.75|Single:30.1,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.37504,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.75,12,99.75,39.75|Single:30.6,12,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Top = 31",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,31,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30,99.75,39.75|Single:12,30.1,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.37504,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.75,99.75,39.75|Single:12,30.6,99.75,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,119.25,39.75|Single:12,12,119.25,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,61,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,119.25,39.75|Single:12,12,119.25,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.75,39.75|Single:12,12,60.6,39.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,137.25,45.75|Single:12,12,137.25,45.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "scroll bar",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,137.25,45.75|Single:12,12,137.25,45.75"
+},
+{
+"kind": "scroll bar",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,99.75,45.75|Single:12,11.99992,99.75,45.75"
+},
+{
+"kind": "rectangle",
+"set": "s.Left = 31",
+"answer": "0|Double:31,12,100,40|Single:31,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Left = 31",
+"answer": "0|Double:31,12,100,40|Single:31,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30.1000003814697,12,100,40|Single:30.1,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30.1000003814697,12,100,40|Single:30.1,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.3750400543213,12,100,40|Single:30.37504,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.3750400543213,12,100,40|Single:30.37504,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.6000003814697,12,100,40|Single:30.6,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.6000003814697,12,100,40|Single:30.6,12,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Top = 31",
+"answer": "0|Double:12,31,100,40|Single:12,31,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Top = 31",
+"answer": "0|Double:12,31,100,40|Single:12,31,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30.1000003814697,100,40|Single:12,30.1,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30.1000003814697,100,40|Single:12,30.1,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.3750400543213,100,40|Single:12,30.37504,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.3750400543213,100,40|Single:12,30.37504,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.6000003814697,100,40|Single:12,30.6,100,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.6000003814697,100,40|Single:12,30.6,100,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,61,40|Single:12,12,61,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,61,40|Single:12,12,61,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.5999984741211,40|Single:12,12,60.6,40"
+},
+{
+"kind": "rectangle",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.5999984741211,40|Single:12,12,60.6,40"
+},
+{
+"kind": "rectangle",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,100,46|Single:12,12,100,46"
+},
+{
+"kind": "rectangle",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,100,46|Single:12,12,100,46"
+},
+{
+"kind": "rectangle",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,100,45.5999984741211|Single:12,12,100,45.6"
+},
+{
+"kind": "rectangle",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,100,45.5999984741211|Single:12,12,100,45.6"
+},
+{
+"kind": "text box",
+"set": "s.Left = 31",
+"answer": "0|Double:31,12,100,40|Single:31,12,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Left = 31",
+"answer": "0|Double:31,12,100,40|Single:31,12,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Left = 30.1",
+"answer": "0|Double:30.1000003814697,12,100,40|Single:30.1,12,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Left = 30.1",
+"answer": "0|Double:30.1000003814697,12,100,40|Single:30.1,12,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Left = 30.375",
+"answer": "0|Double:30.3750400543213,12,100,40|Single:30.37504,12,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Left = 30.375",
+"answer": "0|Double:30.3750400543213,12,100,40|Single:30.37504,12,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Left = 30.6",
+"answer": "0|Double:30.6000003814697,12,100,40|Single:30.6,12,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Left = 30.6",
+"answer": "0|Double:30.6000003814697,12,100,40|Single:30.6,12,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Top = 31",
+"answer": "0|Double:12,31,100,40|Single:12,31,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Top = 31",
+"answer": "0|Double:12,31,100,40|Single:12,31,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Top = 30.1",
+"answer": "0|Double:12,30.1000003814697,100,40|Single:12,30.1,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Top = 30.1",
+"answer": "0|Double:12,30.1000003814697,100,40|Single:12,30.1,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Top = 30.375",
+"answer": "0|Double:12,30.3750400543213,100,40|Single:12,30.37504,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Top = 30.375",
+"answer": "0|Double:12,30.3750400543213,100,40|Single:12,30.37504,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Top = 30.6",
+"answer": "0|Double:12,30.6000003814697,100,40|Single:12,30.6,100,40"
+},
+{
+"kind": "text box",
+"set": "o.Top = 30.6",
+"answer": "0|Double:12,30.6000003814697,100,40|Single:12,30.6,100,40"
+},
+{
+"kind": "text box",
+"set": "s.Width = 61",
+"answer": "0|Double:12,12,61,40|Single:12,12,61,40"
+},
+{
+"kind": "text box",
+"set": "o.Width = 61",
+"answer": "0|Double:12,12,61,40|Single:12,12,61,40"
+},
+{
+"kind": "text box",
+"set": "s.Width = 60.6",
+"answer": "0|Double:12,12,60.5999984741211,40|Single:12,12,60.6,40"
+},
+{
+"kind": "text box",
+"set": "o.Width = 60.6",
+"answer": "0|Double:12,12,60.5999984741211,40|Single:12,12,60.6,40"
+},
+{
+"kind": "text box",
+"set": "s.Height = 46",
+"answer": "0|Double:12,12,100,46|Single:12,12,100,46"
+},
+{
+"kind": "text box",
+"set": "o.Height = 46",
+"answer": "0|Double:12,12,100,46|Single:12,12,100,46"
+},
+{
+"kind": "text box",
+"set": "s.Height = 45.6",
+"answer": "0|Double:12,12,100,45.5999984741211|Single:12,12,100,45.6"
+},
+{
+"kind": "text box",
+"set": "o.Height = 45.6",
+"answer": "0|Double:12,12,100,45.5999984741211|Single:12,12,100,45.6"
+}
+]
+}

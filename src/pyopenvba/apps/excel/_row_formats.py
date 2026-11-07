@@ -297,19 +297,23 @@ _ROWS_FROM = 3
 
 
 def _lift_column_formats(sheet: Worksheet, top: int, styled: dict[int, S.Style]) -> None:
-    """Rows cleared to the sheet's last row take the columns' formats away: the rows above keep showing them, by a
-    row format of each where three columns or more were formatted, else by a cell at each formatted column
-    (tests/fixtures/clear_rows_formats.json)."""
-    if len(styled) >= _ROWS_FROM:
-        formats = set(styled.values())
-        if len(formats) > 1:
-            raise VBAUnsupportedError("clearing rows to the last row under columns of different formats is not "
-                                      "implemented")
-        shown = formats.pop()
+    """Rows cleared to the sheet's last row take the columns' formats away: the rows above keep showing them. Where most of
+    the columns share the last's format, 8,193 of 16,384, a row format shows that and a cell each of the others; else a cell
+    at each formatted column. And where the first column and the last are formatted differently they are all simply gone
+    (tests/fixtures/clear_rows_formats.json, tests/fixtures/value_gaps.json; where most starts, by binary search on a run
+    of columns up to the last)."""
+    last = styled.get(MAX_COLUMNS)
+    if last is not None and styled.get(1, last) != last:
+        pass
+    elif last is not None and sum(style == last for style in styled.values()) > MAX_COLUMNS // 2:
+        default = sheet.book.stylesheet.default
+        others = {column: styled.get(column, default) for column in range(1, MAX_COLUMNS + 1) if styled.get(column) != last}
         for row in range(1, top):
             record = sheet.dims.rows.get(row)
             if record is None or record.style is None:
-                _set_row(sheet, row, shown)
+                _set_row(sheet, row, last)
+                for column, style in others.items():
+                    _put(sheet, row, column, style)
     else:
         for row in range(1, top):
             record = sheet.dims.rows.get(row)

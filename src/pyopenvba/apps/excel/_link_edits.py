@@ -65,22 +65,33 @@ def source_is_open(book: Workbook, linked: LinkedBook) -> bool:
     return _open_book(book, linked.path(book.path)) is not None
 
 
-def _read(book: Workbook, path: str) -> tuple[tuple[str, ...], tuple[dict[tuple[int, int], object], ...]] | None:
-    """The sheets and cells of the workbook at ``path``, open or on disk, or None where it is neither."""
-    from pyopenvba.apps.excel._engine_book import model_value, scalar
+def loaded(book: Workbook, path: str) -> tuple[Workbook, bool] | None:
+    """The workbook at ``path`` and whether it is open, or None where it is neither open nor on disk. One on disk is
+    read past the interpreter's gate, which the sandbox shuts."""
     from pyopenvba.apps.excel._io import load_workbook
-    from pyopenvba.formula._calc.values import Empty
 
     source = _open_book(book, path)
-    if source is None:
-        book.application.outside("Reading a linked workbook")
-        file = Path(on_disk(path))
-        if not file.is_file():
-            return None
-        source = load_workbook(book.application, file)
-        live = False
-    else:
-        live = True
+    if source is not None:
+        return source, True
+    book.application.outside("Reading a linked workbook")
+    file = Path(on_disk(path))
+    if not file.is_file():
+        return None
+    return load_workbook(book.application, file), False
+
+
+def _read(book: Workbook, path: str) -> tuple[tuple[str, ...], tuple[dict[tuple[int, int], object], ...]] | None:
+    """The sheets and cells of the workbook at ``path``, open or on disk, or None where it is neither."""
+    found = loaded(book, path)
+    return None if found is None else contents(*found)
+
+
+def contents(source: Workbook, live: bool) -> tuple[tuple[str, ...], tuple[dict[tuple[int, int], object], ...]]:
+    """A workbook's sheets and the values of their cells: as they stand where it is open, as its file kept them where
+    not."""
+    from pyopenvba.apps.excel._engine_book import model_value, scalar
+    from pyopenvba.formula._calc.values import Empty
+
     names: list[str] = []
     cells: list[dict[tuple[int, int], object]] = []
     for sheet in source.sheets_:
@@ -367,7 +378,7 @@ def _cell_xml(reference: str, value: object) -> str:
     return f'<cell r="{reference}"><v>{excel_number(value)}</v></cell>'
 
 
-def _data_set(book: Workbook, linked: LinkedBook) -> str:
+def data_set(book: Workbook, linked: LinkedBook) -> str:
     """A link's sheetDataSet: the cells read of each sheet of its workbook, row by row, and for a sheet it does not
     have, an empty sheetData marked refreshError."""
     from pyopenvba._a1 import column_letter
@@ -393,7 +404,7 @@ def _data_set(book: Workbook, linked: LinkedBook) -> str:
 
 def write_reread(book: Workbook, linked: LinkedBook, text: str) -> str:
     """A link's part with the values its workbook was last read for."""
-    return re.sub(r"<sheetDataSet>.*?</sheetDataSet>|<sheetDataSet/>", lambda _: _data_set(book, linked), text, count=1,
+    return re.sub(r"<sheetDataSet>.*?</sheetDataSet>|<sheetDataSet/>", lambda _: data_set(book, linked), text, count=1,
                   flags=re.DOTALL)
 
 
@@ -417,5 +428,5 @@ def write_retargeted(book: Workbook, package: OpcFile, linked: LinkedBook, text:
                                            'xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
                                            + relationships + "</Relationships>").encode("utf-8"))
     return (f'{head}<externalBook xmlns:r="{_R}" r:id="rId1">{alternate}<sheetNames>{names}</sheetNames>'
-            f'{_data_set(book, linked)}</externalBook></externalLink>')
+            f'{data_set(book, linked)}</externalBook></externalLink>')
 

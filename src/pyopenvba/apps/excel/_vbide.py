@@ -605,7 +605,8 @@ def require_component(value: object) -> VBComponent:
 
 def read_source_file(path: Path, code_page: int) -> str:
     try:
-        return path.read_bytes().decode(encoding_for_codepage(code_page))
+        # A file may hold bytes its code page leaves undefined, which are no reason to stop.
+        return path.read_bytes().decode(encoding_for_codepage(code_page), errors='replace')
     except FileNotFoundError:
         raise error(53) from None
     except OSError:

@@ -44,7 +44,11 @@ from pyopenvba.apps.excel._text_paragraphs import paragraphs_set
 from pyopenvba.shapes._read_look import _attribute, _paint  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.shapes._read_text import paragraph_settings, typeface
 from pyopenvba.shapes._xlsx import read_shape_text, text_run_spans
+from pyopenvba.apps.excel._shape_anchors import keep_on_sheet
 from pyopenvba.shapes._values import (
+    MOST_PLACE,
+    MOST_POINTS,
+    SINGLE_LARGEST,
     Box,
     EMU_PER_POINT,
     ControlInfo,
@@ -251,6 +255,8 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
         wanted = int(to_number(Type)) if Type is not MISSING else 1
         if wanted not in EXCEL_GEOMETRY:
             raise error(1004, "Application-defined or object-defined error")
+        if _number(Width) >= MOST_POINTS or _number(Height) >= MOST_POINTS or _number(Left) >= MOST_PLACE or _number(Top) >= MOST_PLACE:
+            raise error(1004, "Application-defined or object-defined error")
         shape = self._made(
             kind="shape",
             geometry=EXCEL_GEOMETRY[wanted],
@@ -258,6 +264,7 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
             box=(Left, Top, Width, Height),
         )
         shape.auto_shape_type = EXCEL_ALIASES.get(wanted, wanted)
+        keep_on_sheet(self.sheet, shape)
         if shape.geometry == "arc":
             # The box given is the arc's quarter of an ellipse twice as big, which stays on the sheet (tests/fixtures/old_drawings.json).
             shape.left, shape.width, shape.height = max(shape.left - shape.width, 0.0), shape.width * 2, shape.height * 2
@@ -1288,9 +1295,10 @@ class ShapeObject(_Drawn):
     @setter("Left")
     def _set_left(self, value: object) -> None:
         if self.shape.geometry == "arc":
-            self._placed(left=max(_number(value) - self.shape.width / 2, 0.0))
+            self._placed(left=max(_a_place(value) - self.shape.width / 2, 0.0))
             return
-        self._placed(left=_number(value))
+        self._placed(left=_a_place(value))
+        keep_on_sheet(self.sheet, self.shape)
 
     @member
     def Top(self) -> object:
@@ -1301,7 +1309,8 @@ class ShapeObject(_Drawn):
 
     @setter("Top")
     def _set_top(self, value: object) -> None:
-        self._placed(top=_number(value))
+        self._placed(top=_a_place(value))
+        keep_on_sheet(self.sheet, self.shape)
 
     def _placed(self, **changes: float) -> None:
         """The shape given a new left, top, width or height (tests/fixtures/shape_group_items.json).
@@ -1514,7 +1523,7 @@ class ShapeObject(_Drawn):
 
     @setter("Width")
     def _set_width(self, value: object) -> None:
-        wanted = _number(value)
+        wanted = _a_size(value)
         if self.shape.geometry == "arc":
             # The ellipse keeps its centre where it is.
             self._placed(left=self.shape.left + self.shape.width / 2 - wanted, width=wanted * 2)
@@ -1532,7 +1541,7 @@ class ShapeObject(_Drawn):
 
     @setter("Height")
     def _set_height(self, value: object) -> None:
-        wanted = _number(value)
+        wanted = _a_size(value)
         if self.shape.lock_aspect and self.shape.height:
             self._placed(width=self.shape.width * wanted / self.shape.height, height=wanted)
             return
@@ -3353,6 +3362,9 @@ class Characters(_ShapeText):
 _FONT_UNDERLINES = {2: "words", -4119: "dbl", -4142: "none"}
 #: A font name's attributes in the file, for those measured. Others would need the font's own data, and report themselves.
 _FONT_LATIN = {"Arial": '<a:latin typeface="Arial" panose="020B0604020202020204" pitchFamily="34" charset="0"/>',
+               "Calibri": '<a:latin typeface="Calibri" panose="020F0502020204030204" pitchFamily="34" charset="0"/>',
+               "Aptos Narrow": '<a:latin typeface="Aptos Narrow" panose="020B0004020202020204" pitchFamily="34" charset="0"/>',
+               "Times New Roman": '<a:latin typeface="Times New Roman" panose="02020603050405020304" pitchFamily="18" charset="0"/>',
                "": '<a:latin typeface=""/>'}
 
 
@@ -3955,7 +3967,7 @@ class ShapeFont2(_ShapeFontBase):
 
     @setter("Spacing")
     def _spacing(self, value: object) -> None:
-        self.changed().font_spacing = round(float(to_number(value)) * 100)
+        self.changed().font_spacing = round(_letters(value, -2147024809) * 100)
 
     @member
     def Kerning(self) -> object:
@@ -3963,7 +3975,7 @@ class ShapeFont2(_ShapeFontBase):
 
     @setter("Kerning")
     def _kerning(self, value: object) -> None:
-        self.changed().font_kern = round(float(to_number(value)) * 100)
+        self.changed().font_kern = round(_letters(value, -2147467259) * 100)
 
     @member
     def Equalize(self) -> object:
@@ -4058,6 +4070,8 @@ class TextRange2(_ShapeText):
             found = [(match.start(), match.end() - match.start()) for match in re.finditer(r"[^\n]*\n|[^\n]+$", shape.text)]
         elif kind == "Sentences":
             found = [(match.start(), match.end() - match.start()) for match in _SENTENCE.finditer(shape.text)]
+        elif kind == "Lines":
+            found = self._laid_out()
         elif kind == "Words":
             if _WORD.sub("", shape.text).strip("\n\x0b\x0c\t") or shape.text[:1] == " ":
                 raise _unsupported(f"the Words of {shape.text!r}")
@@ -4066,6 +4080,44 @@ class TextRange2(_ShapeText):
             return [(start, count)]
         cut = [(max(at, start), min(at + size, start + count) - max(at, start)) for at, size in found]
         return [one for one in cut if one[1] > 0]
+
+    def _laid_out(self) -> list[tuple[int, int]]:
+        """Where the shape's text breaks into lines (`_text_lines`). What was not measured to leave the rule as it is reports itself
+        (tests/fixtures/shape_lines_members.json)."""
+        from pyopenvba.apps.excel._font_advances import advances
+        from pyopenvba.apps.excel._text_lines import BREAKS, line_spans
+        from pyopenvba.apps.excel._text_paragraphs import plain_paragraphs
+
+        shape = self.owner.shape
+        look = TextFrame2(self.owner)._look()  # pyright: ignore[reportPrivateUsage]
+        if shape.kind != "textBox" and shape.geometry != "rect":
+            raise _unsupported(f"the lines of text in a {shape.geometry} shape")
+        if shape.rotation % 360:
+            raise _unsupported("the lines of text in a turned shape")
+        if (look.vert or "horz") != "horz" or look.columns != 1 or look.upright:
+            raise _unsupported("the lines of text set upright, turned or in columns")
+        if not plain_paragraphs(shape):
+            raise _unsupported("the lines of paragraphs with bullets or indents")
+        settings = set(ShapeFont2(TextRange2(self.owner)).values(("font_size", "font_bold", "font_italic", "font_latin", "font_cap", "font_spacing", "font_baseline", "font_scale")))
+        if len(settings) > 1:
+            raise _unsupported("the lines of text with more than one font setting")
+        size, bold, italic, latin, cap, spacing, baseline, scale = next(iter(settings))
+        if cap not in (None, "none") or spacing or baseline:
+            raise _unsupported("the lines of text in capitals, spaced out or raised")
+        major, minor = self.owner.sheet.book.stylesheet.theme_fonts
+        named = typeface(latin) if isinstance(latin, str) else None
+        font = {None: minor, "+mn-lt": minor, "+mj-lt": major}.get(named, named or minor)
+        table = advances(font, bool(bold), bool(italic))
+        if table is None:
+            raise _unsupported(f"the lines of text in {font}")
+        em, units = table
+        strange = set(shape.text) - set(units) - set(BREAKS) | set(shape.text) & {"\xa0", "\xad"}
+        if strange:
+            raise _unsupported(f"the lines of text with {sorted(strange)!r}")
+        self.owner.sheet.dims.settle_shapes()
+        room = None if look.wrap == "none" else shape.width - (7.2 if look.margins[0] is None else look.margins[0]) - (7.2 if look.margins[2] is None else look.margins[2])
+        points = float(size) if not isinstance(scale, (int, float)) else float(size) * scale / 100000  # pyright: ignore[reportArgumentType]
+        return line_spans(shape.text, room, units, em, points)
 
     def counted(self, kind: str, start: object, length: object) -> TextRange2:
         """Runs, Words or Paragraphs: the whole range counting them, or one of them and any after it."""
@@ -4081,6 +4133,11 @@ class TextRange2(_ShapeText):
             raise error(-2147024809, "The parameter is incorrect.")
         begin = parts[first - 1][0]
         return TextRange2(self.owner, begin, parts[first + many - 2][0] + parts[first + many - 2][1] - begin, kind)
+
+    def replaced(self, value: object) -> None:
+        if self.owner.shape.kind == "formControl":  # tests/fixtures/shape_lines_members.json
+            raise error(-2147024809, "The parameter is incorrect.")
+        super().replaced(value)
 
     def _inserted(self, place: int, value: object) -> object:
         new = _shape_text("" if value is MISSING else value)
@@ -4149,6 +4206,25 @@ class TextRange2(_ShapeText):
     @member
     def Sentences(self, Start: object = MISSING, Length: object = MISSING) -> object:
         return self.counted("Sentences", Start, Length)
+
+    @member
+    def Lines(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        """Either part left out, or -1, is its default: the first line, and one of them. With both, all of them. No length is no characters there, at any line after the first
+        (tests/fixtures/shape_lines_members.json)."""
+        if self.owner.shape.kind not in ("shape", "textBox"):
+            raise error(-2147024809, "The parameter is incorrect.")
+        at, count = self.span()
+        if not count and self.owner.shape.text:
+            raise _unsupported("the Lines of a TextRange2 with no characters")
+        first = -1 if Start is MISSING else int(to_number(Start))
+        many = -1 if Length is MISSING else int(to_number(Length))
+        if first == -1 and many == -1:
+            return TextRange2(self.owner, self.at, self.size, "Lines")
+        first, many = 1 if first == -1 else first, 1 if many == -1 else many
+        parts = self.parts("Lines")
+        if many == 0 and first >= 1:
+            return TextRange2(self.owner, parts[first - 1][0] if first <= len(parts) else at + count, 0, "Lines")
+        return self.counted("Lines", first, many)
 
     @member
     def ParagraphFormat(self) -> object:
@@ -4719,7 +4795,35 @@ def _number(value: object) -> float:
     """One of the four measurements a shape is placed by."""
     if value is MISSING or value is None:
         return 0.0
-    return float(to_number(value))
+    number = float(to_number(value))
+    # The parameter is a Single (tests/fixtures/excel_huge_numbers.json).
+    if abs(number) > SINGLE_LARGEST:
+        raise error(6, "Overflow")
+    return number
+
+
+def _a_place(value: object) -> float:
+    """A left or top, which stops at the sheet's end until it is too far to be one (tests/fixtures/excel_huge_numbers.json)."""
+    number = _number(value)
+    if number >= MOST_PLACE:
+        raise error(-2147024809, "The specified value is out of range.")
+    return number
+
+
+def _a_size(value: object) -> float:
+    """A width or height, which Excel refuses by 169093 points and took at 100000 (tests/fixtures/excel_huge_numbers.json)."""
+    number = _number(value)
+    if number >= MOST_POINTS:
+        raise error(-2147024809, "The specified value is out of range.")
+    return number
+
+
+def _letters(value: object, refused: int) -> float:
+    """A Font2 measurement, which Excel took at 1000 points and refused by 50000 (tests/fixtures/excel_huge_numbers.json)."""
+    number = _number(value)
+    if abs(number) >= 50000:
+        raise error(refused, "The specified value is out of range.")
+    return number
 
 
 def _unsupported(what: str) -> VBAUnsupportedError:

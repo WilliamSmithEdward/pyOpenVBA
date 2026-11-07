@@ -1,0 +1,21 @@
+{
+ "measured_at": "2026-11-07T06:59:38.011744+00:00",
+ "answers": {
+  "List.First(List.Numbers(1, 1e12))": "1 | 1.0 s",
+  "List.First(List.Numbers(1, 3e9))": "1 | 1.2 s",
+  "List.First({1..1e12})": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.1 s",
+  "List.First({1..3e9})": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.0 s",
+  "List.First({1..2147483648})": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.0 s",
+  "List.First({1..2147483647})": "1 | 1.0 s",
+  "Table.FirstN(Table.Repeat(#table({\"a\"}, {{1}}), 1e12), 1)[a]{0}": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.0 s",
+  "List.First(List.Numbers(1, 1.8e308))": "1 | 1.0 s",
+  "List.First({1..1.8e308})": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.0 s",
+  "Table.FirstN(Table.Repeat(#table({\"a\"}, {{1}}), 1.8e308), 1)[a]{0}": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.0 s",
+  "List.Count(List.Numbers(1, 1e7))": "10000000 | 1.6 s",
+  "List.Count({1..1e7})": "10000000 | 1.0 s",
+  "Table.RowCount(Table.Repeat(#table({\"a\"}, {{1}}), 1e7))": "10000000 | 6.2 s",
+  "List.Count(List.Numbers(1, 1e12))": "ran past 90 s",
+  "List.Count({1..1e12})": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.4 s",
+  "Table.RowCount(Table.Repeat(#table({\"a\"}, {{1}}), 1e12))": "error 1004: [Expression.Error] The number is out of range of a 32 bit integer value. | 1.4 s"
+ }
+}

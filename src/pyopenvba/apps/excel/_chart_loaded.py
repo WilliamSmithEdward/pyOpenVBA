@@ -194,8 +194,11 @@ def _series_span(chart: Chart, entry: SeriesState) -> tuple[int, int]:
 
 
 def name_series(chart: Chart, entry: SeriesState, reference: str, literal: str, shown: str) -> None:
-    """Series.Name: its own text, or a cell's with that cell's text cached, in place of what c:tx held."""
+    """Series.Name: its own text, or a cell's with that cell's text cached, in place of what c:tx held. Once the plot area
+    is written whole at save, that writes it (tests/fixtures/loaded_chart_structure_edits.json)."""
     admit(chart)
+    if chart.state.plot_pending:
+        return
     start, end = _series_span(chart, entry)
     series = chart.state.original[start:end]
     if _SERIES_TEXT.search(series) is None:
@@ -416,6 +419,11 @@ def write_parts(chart: Chart) -> None:
     state = chart.state
     # One new end for everything the save adds, as Excel's save gives them.
     tail = '-' + str(uuid.uuid4()).upper().split('-', 1)[1]
+    if state.plot_pending:
+        # The plot area holds every series, so it is written whole and the parts with it.
+        _write_plot(chart, tail)
+        state.parts_pending, state.plot_pending = [], False
+        return
     for entry, part in state.parts_pending:
         start, end = _series_span(chart, entry)
         series = state.original[start:end]
@@ -436,3 +444,89 @@ def write_parts(chart: Chart) -> None:
         made = _IDENTIFIED.sub(identified, _part_now(chart, entry, part))
         state.original = state.original[:start] + series[:at] + made + series[to:] + state.original[end:]
     state.parts_pending = []
+
+
+_PLOT = re.compile(r'<c:plotArea>.*?</c:plotArea>', re.DOTALL)
+_SER = re.compile(r'<c:ser><c:idx val="(\d+)"/>.*?</c:ser>', re.DOTALL)
+#: The edits measured that change a loaded chart's plot area as a whole: its series, their data and its chart type
+#: (tests/fixtures/loaded_chart_structure_edits.json).
+PLOT_EDITS = frozenset({
+    'SeriesCollection.NewSeries', 'Series.Delete', 'Chart.SetSourceData', 'Chart.PlotBy', 'Series.Values', 'Series.XValues',
+    'Series.Formula', 'Chart.ChartType'})
+
+
+def _plot_now(chart: Chart) -> str:
+    """The plot area as the model writes it."""
+    from pyopenvba.apps.excel._charts_file import markup
+
+    if chart.sheet.chart_sheet is not None:
+        raise VBAUnsupportedError('Changing the series of an imported chart sheet is not implemented')
+    found = _PLOT.search(markup(chart.sheet, chart.shape.shape_id))
+    if found is None:
+        raise VBAUnsupportedError('Writing the plot area of this imported chart is not implemented')
+    return found.group(0)
+
+
+def admit_plot(chart: Chart, member: str) -> None:
+    """Whether a change to the chart's series or type can be made in its part: by a member measured, and only where the
+    model writes its plot area as the file holds it, so that writing it again changes only what the edit did. Excel
+    changes nothing outside it for these (tests/fixtures/loaded_chart_structure_edits.json)."""
+    admit(chart)
+    if member not in PLOT_EDITS:
+        raise VBAUnsupportedError(f'Changing {member or "this"} on an imported chart is not implemented')
+    state = chart.state
+    if state.plot_pending:
+        return
+    if state.style_part:
+        raise VBAUnsupportedError('Changing the series of an imported chart with a style is not implemented')
+    found = _PLOT.search(state.original)
+    if found is None or _without_tails(found.group(0)) != _without_tails(_plot_now(chart)):
+        raise VBAUnsupportedError('Changing the series of this imported chart is not implemented')
+    state.plot_pending = True
+
+
+def _ids(plot: str) -> dict[tuple[str, ...], str]:
+    """The unique ids a plot area holds, by the series' idx, the element and its idx, and the id's number."""
+    found: dict[tuple[str, ...], str] = {}
+    for series in _SER.finditer(plot):
+        body = series.group(0)
+        for element in _IDENTIFIED.finditer(body):
+            if (unique := _UNIQUE.search(element.group(0))) is not None:
+                found[(series.group(1), element.group(1), element.group(2), unique.group(2))] = unique.group(0)
+        own = list(_UNIQUE.finditer(_IDENTIFIED.sub('', body)))
+        if own:
+            found[(series.group(1), own[-1].group(2))] = own[-1].group(0)
+    return found
+
+
+def _write_plot(chart: Chart, tail: str) -> None:
+    """The plot area as the model writes it, in place of what the file held. A series, point or label the file had keeps
+    its unique id; what the edit adds takes the save's new end, as Excel's does."""
+    state = chart.state
+    found = _PLOT.search(state.original)
+    assert found is not None
+    kept = _ids(found.group(0))
+
+    def fresh(unique: re.Match[str], key: tuple[str, ...]) -> str:
+        return kept.get(key) or unique.group(1) + unique.group(2) + tail + unique.group(4)
+
+    def series(hit: re.Match[str]) -> str:
+        identity = hit.group(1)
+
+        def element(inner: re.Match[str]) -> str:
+            text = inner.group(0)
+            unique = _UNIQUE.search(text)
+            if unique is None:
+                return text
+            key = (identity, inner.group(1), inner.group(2), unique.group(2))
+            return text[:unique.start()] + fresh(unique, key) + text[unique.end():]
+
+        body = _IDENTIFIED.sub(element, hit.group(0))
+        # The series' own id is the one after its points and labels.
+        last = _UNIQUE.search(body, body.rfind('<c16:uniqueId')) if '<c16:uniqueId' in body else None
+        if last is None or '</c:dPt>' in body[last.start():] or '</c:dLbl>' in body[last.start():]:
+            return body
+        return body[:last.start()] + fresh(last, (identity, last.group(2))) + body[last.end():]
+
+    made = _SER.sub(series, _plot_now(chart))
+    state.original = state.original[:found.start()] + made + state.original[found.end():]

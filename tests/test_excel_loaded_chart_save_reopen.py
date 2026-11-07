@@ -20,7 +20,7 @@ SETTINGS = {'s.HasDataLabels': ['True', 'False'], 's.Points(1).HasDataLabel': ['
             's.Format.Fill.ForeColor.RGB': ['255'], 's.Format.Fill.Visible': ['0'], 's.Format.Fill.Transparency': ['0.5'],
             's.Format.Line.ForeColor.RGB': ['255'], 's.Format.Line.Weight': ['2'], 's.Format.Line.Visible': ['0'],
             's.Format.Line.DashStyle': ['4'], 's.Interior.Color': ['255'], 's.Points(1).Format.Fill.ForeColor.RGB': ['255'],
-            's.Points(2).Format.Line.ForeColor.RGB': ['255']}
+            's.Points(2).Format.Line.ForeColor.RGB': ['255'], 's.Values': ['"=One!$B$3:$C$3"'], 's.XValues': ['"=One!$A$2:$A$3"']}
 #: None yet: a list that only shrinks.
 ACCEPTED: dict[str, str] = {}
 

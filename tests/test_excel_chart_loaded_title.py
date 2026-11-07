@@ -76,7 +76,7 @@ def test_an_edit_to_a_loaded_chart_is_still_refused(tmp_path: Path) -> None:
     app.add_module('''Public Sub Try(ByVal path As String)
     Dim wb As Workbook
     Set wb = Workbooks.Open(path)
-    wb.Worksheets(1).ChartObjects(1).Chart.HasTitle = False
+    wb.Worksheets(1).ChartObjects(1).Chart.ChartType = xlLine
 End Sub
 ''', name='P')
     book = tmp_path / 'in.xlsx'

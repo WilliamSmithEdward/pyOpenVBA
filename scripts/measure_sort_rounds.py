@@ -33,7 +33,15 @@ FIELD_SETS = {"Order": ["xlAscending", "xlDescending", "1", "2", "0", "3", '"x"'
               "DataOption": ["xlSortNormal", "xlSortTextAsNumbers", "0", "1", "2", "-1", '"x"', "Null", "True", "Empty"],
               "SubField": ['"y"', '""', "5", "Null", "True", "Empty"]}
 LETTERS = "ABCDEF"
-LOCK = Path(__file__).resolve().parents[1] / ".git" / "excel-coordination" / "live.lock"
+def _shared_git() -> Path:
+    """The repository's git folder, which a worktree's .git file points into."""
+    git = Path(__file__).resolve().parents[1] / ".git"
+    if git.is_file():
+        return Path(git.read_text(encoding="utf-8").split(":", 1)[1].strip()).parents[1]
+    return git
+
+
+LOCK = _shared_git() / "excel-coordination" / "live.lock"
 
 
 def _value(r: random.Random) -> str:

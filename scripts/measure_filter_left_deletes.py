@@ -76,7 +76,7 @@ def first_look() -> list[list[object]]:
     for first, width in ((1, 3), (1, 5), (3, 3), (2, 4)):
         for other in ('', 'G1:G12', 'F5'):
             for target in ('A1:A12', 'B1:B12', 'C1:C12', 'A1:B12', 'B1:C12', 'B1:B13', 'B1:B20', 'B1:D12', 'C1:D12', 'D1:D12', 'E1:E12',
-                           'F1:F12', 'A1:E12', 'C1:E12', 'A1:F12'):
+                           'F1:F12', 'A1:E12', 'C1:E12', 'A1:F12', 'A1:C1', 'A1:A1', 'A1:E11', 'A2:E12', 'B1:B11', 'C2:C12'):
                 cases.append([first, width, False, other, target, True])
     return cases
 

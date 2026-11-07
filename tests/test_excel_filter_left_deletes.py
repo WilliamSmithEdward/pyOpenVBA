@@ -12,7 +12,7 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = tuple(stem for stem in ('filter_left_deletes', 'filter_left_deletes2') if (FIXTURES / f'{stem}.json').exists())
+ROUNDS = tuple(stem for stem in ('filter_left_deletes', 'filter_left_deletes2', 'filter_left_deletes3') if (FIXTURES / f'{stem}.json').exists())
 
 
 def _cases() -> list[tuple[str, list[Any], str, str]]:

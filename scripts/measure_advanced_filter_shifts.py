@@ -225,7 +225,7 @@ def held_out(round_: str) -> list[list[object]]:
     columns = 'ABCDEFGHJZ'
     cases: list[list[object]] = []
     while len(cases) < 200:
-        kind = chooser.choice(KINDS)
+        kind = chooser.choice((*KINDS, 'nomatch', 'distinct', 'repeats'))
         verb = chooser.choice(('delete', 'delete', 'insert'))
         shape = chooser.choice(('cells', 'cells', 'cells', 'rows', 'columns'))
         if shape == 'rows':
@@ -241,6 +241,8 @@ def held_out(round_: str) -> list[list[object]]:
             bottom = top + chooser.choice((0, 0, 1, 2, 4, 11))
             how = chooser.choice(('up', 'left', 'auto')) if verb == 'delete' else chooser.choice(('down', 'right', 'auto'))
             edit = f'{verb} {columns[left]}{top}:{columns[right]}{bottom} {how}'
+        if chooser.random() < 0.2:
+            edit += ' show'
         for typed in (True, False):
             cases.append([kind, edit, typed])
     return cases

@@ -57,7 +57,7 @@ def _row(case: dict[str, Any]) -> str:
 @pytest.mark.parametrize('case', CASES, ids=[f'{one["member"]} {one["owner"]} {one["binding"]} {one["row"]}' for one in CASES])
 def test_each_call_answers_as_excel_did(case: dict[str, Any], tmp_path: Path) -> None:
     """Excel's answer to the paste after it, which the model does not make, is left out; what was written is compared by name, and by kind for a chart sheet.
-    A chart in a frame Excel has not drawn since its workbook opened exports an empty file, which the model, drawing nothing, does not follow."""
+    In a fresh automated Excel a chart in a frame exports empty until some chart object has been activated (frame_drawn.json), which the model does not copy."""
     book, folder = _folder(tmp_path)
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
@@ -163,3 +163,17 @@ def test_a_paste_of_the_picture_reports_itself_until_cells_are_copied(tmp_path: 
     got = _macro(app, '    wb.Worksheets("One").Range("A1:B3").CopyPicture\n    wb.Worksheets("One").Range("A2").Copy\n'
                       '    wb.Worksheets("Two").Paste wb.Worksheets("Two").Range("D1")\n    Go = wb.Worksheets("Two").Range("D1").Value & "|" & Application.CutCopyMode', folder)
     assert str(got) == '2|1'
+
+
+def test_a_chart_in_a_frame_reaches_the_function_though_a_fresh_excel_would_not_draw_it(tmp_path: Path) -> None:
+    """Excel's drawing is the session's (frame_drawn.json): a fresh automated Excel draws no chart in a frame until a chart object is activated or selected,
+    and then draws every one, where a person's Excel nearly always has. The model goes by the chart, and calls the function before any activation."""
+    drawn: dict[str, Any] = json.loads((FIXTURES / 'frame_drawn.json').read_text(encoding='utf-8'))
+    first = {(one['first'], one['binding']): (one['itself_drawn'], one['next_new_chart_drawn']) for one in drawn['first_acts']}
+    assert first[('new_object_activate', 'Late')] == (True, True) and first[('new_refresh', 'Late')] == (False, False)
+    assert not next(one['drawn'] for one in drawn['cases'] if one['row'] == 'new_nothing')
+    app, folder = _book(tmp_path)
+    heard: list[HookRequest] = []
+    app.set_hook('Export', heard.append)
+    assert _macro(app, '    Go = wb.Worksheets("One").ChartObjects(1).Chart.Export(folder & "\\a.png")', folder) is True
+    assert heard[0].path == folder / 'a.png'

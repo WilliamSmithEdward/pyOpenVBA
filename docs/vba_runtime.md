@@ -167,8 +167,11 @@ function (measured in `tests/fixtures/output_pictures.json`):
 - `Export`: `path` is the name the macro gave, a relative one in the current folder, with nothing added. `FilterName`, or else the name's extension, says
   what to draw: `PNG`, `GIF`, `JPG`, `JPEG` or `BMP`, in any case. For any other, or none, Excel writes an empty file and answers `True`, and the model does
   the same without calling the function, through the same gate. A missing folder, a folder, a read-only file, a bad character and a path too long each
-  give Excel's own error first. Excel writes an empty file for a chart in a frame it has not drawn since its workbook opened; the model draws nothing, so it
-  calls the function for that chart as it does for a chart sheet.
+  give Excel's own error first.
+- A chart in a frame: in a fresh Excel started by automation, Excel exports every chart in a frame as an empty file until some chart object has been
+  activated or selected in that session, and draws every one after (`tests/fixtures/frame_drawn.json`). That is a state of Excel's drawing across the
+  session, not of the chart: a person's Excel has nearly always had a chart clicked already. The model does not copy it, and calls the function for a
+  chart in a frame as it does for a chart sheet.
 - `CopyPicture`: `path` is `None`. Each class checks `Appearance` and `Format` its own way, as Excel does: a chart takes any number, the rest only
   `xlScreen` or `xlPrinter` and `xlPicture` or `xlBitmap`, and a bitmap as printed only on a chart. A `Range` of several areas is 1004, and a hidden shape
   copies nothing and does not call the function. Like a `PrintOut` with no file, it runs under the sandbox: registering it is the grant. Afterwards

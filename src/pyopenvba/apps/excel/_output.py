@@ -14,8 +14,9 @@ the function set with ExcelApplication.set_hook (see _hooks). The model makes no
   nothing added. FilterName, or else the name's extension, picks the kind: PNG, GIF, JPG, JPEG and BMP, in any case. Any other, or none, and Excel writes an
   empty file and answers True, as the model does without the function. Null as the name is 94 typed and 13 late, as the filter -2147352571; an empty name and a
   folder not there -2147287037, a folder or a read-only file -2147287035, a character a file cannot hold -2147286917, a path too long -2147024809, each with
-  Excel's text about a chart type. It answers True. Excel writes an empty file for a chart in a frame it has not drawn since the workbook opened; the model,
-  which draws nothing, hands it to the function as it does a chart sheet.
+  Excel's text about a chart type. It answers True. A fresh automated Excel exports a chart in a frame as an empty file until some chart object has been
+  activated or selected in its session (tests/fixtures/frame_drawn.json), a state of its drawing, not of the chart, which the model does not copy: the
+  function is called for a chart in a frame as for a chart sheet.
 - CopyPicture on a Range, a Shape, a chart sheet or one in a frame, and a ChartObject: each class checks Appearance and Format its own way, below. A Range of
   several areas is 1004. A hidden shape copies nothing. Range answers True bound late, the rest Empty. CutCopyMode reads 0 after, and what a paste of the
   picture makes is not modelled.

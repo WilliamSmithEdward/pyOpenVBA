@@ -207,3 +207,108 @@ def name_series(chart: Chart, entry: SeriesState, reference: str, literal: str, 
         inner = f'<c:v>{escape_text(literal)}</c:v>'
     named = _SERIES_TEXT.sub(lambda _: f'<c:tx>{inner}</c:tx>', series, count=1)
     _edited(chart, chart.state.original[:start] + named + chart.state.original[end:])
+
+
+_RICH = re.compile(r'<c:tx><c:rich>(?P<head>.*?<a:lstStyle/>)(?P<body>.*?)</c:rich></c:tx>', re.DOTALL)
+_PARAGRAPH = re.compile(r'<a:p>.*?</a:p>', re.DOTALL)
+_RUN_TEXT = re.compile(r'<a:t>.*?</a:t>', re.DOTALL)
+
+
+def _plain_paragraph(line: str) -> str:
+    return f'<a:p><a:pPr><a:defRPr/></a:pPr><a:r><a:rPr lang="en-US"/><a:t>{escape_text(line)}</a:t></a:r></a:p>'
+
+
+def retitled(title: str, wanted: str) -> str:
+    """A title element with this text: a carriage return starts a paragraph and a line feed is kept as a line break, written
+    CRLF. Text of its own keeps its first paragraph's look; a title with none gains plain paragraphs (tests/fixtures/
+    loaded_chart_edits.json)."""
+    if '\r\n' in wanted:
+        raise VBAUnsupportedError('A title with a CRLF in an imported chart is not implemented')
+    lines = [line.replace('\n', '\r\n') for line in wanted.split('\r')]
+    found = _RICH.search(title)
+    if found is not None:
+        paragraphs = _PARAGRAPH.findall(found.group('body'))
+        if len(paragraphs) != 1 or len(_RUN_TEXT.findall(paragraphs[0])) != 1:
+            raise VBAUnsupportedError('Retyping a title of several runs in an imported chart is not implemented')
+        first = _RUN_TEXT.sub(lambda _: f'<a:t>{escape_text(lines[0])}</a:t>', paragraphs[0], count=1)
+        body = first + ''.join(_plain_paragraph(line) for line in lines[1:])
+        return title[:found.start('body')] + body + title[found.end('body'):]
+    if '<c:tx>' in title or '<c:txPr>' in title:
+        raise VBAUnsupportedError('Typing this imported chart title is not implemented')
+    rich = '<c:tx><c:rich><a:bodyPr/><a:lstStyle/>' + ''.join(_plain_paragraph(line) for line in lines) + '</c:rich></c:tx>'
+    return title.replace('<c:title>', '<c:title>' + rich, 1)
+
+
+def type_title(chart: Chart, wanted: str) -> None:
+    """ChartTitle.Text and Caption. Empty text takes the title away, and then raises."""
+    from pyopenvba.interpreter._values import error
+
+    admit(chart)
+    if wanted == '':
+        take_title_away(chart)
+        raise error(-2147024809, 'The parameter is incorrect.')
+    found = _TITLE.search(chart.state.original)
+    if found is None:
+        raise VBAUnsupportedError('Typing this imported chart title is not implemented')
+    _edited(chart, chart.state.original[:found.start()] + retitled(found.group(0), wanted) + chart.state.original[found.end():])
+    state = chart.state
+    state.title, state.title_typed, state.title_look.formula = wanted, True, ''
+
+
+def link_title(chart: Chart, formula: str, shown: str) -> None:
+    """ChartTitle.Formula naming a cell: the title's text becomes that reference, its text cached."""
+    admit(chart)
+    found = _TITLE.search(chart.state.original)
+    if found is None:
+        raise VBAUnsupportedError('Linking this imported chart title is not implemented')
+    linked = (f'<c:tx><c:strRef><c:f>{escape_text(formula)}</c:f><c:strCache><c:ptCount val="1"/><c:pt idx="0">'
+              f'<c:v>{escape_text(shown)}</c:v></c:pt></c:strCache></c:strRef></c:tx>')
+    title = found.group(0)
+    text = re.search(r'<c:tx>.*?</c:tx>', title, re.DOTALL)
+    title = title[:text.start()] + linked + title[text.end():] if text else title.replace('<c:title>', '<c:title>' + linked, 1)
+    _edited(chart, chart.state.original[:found.start()] + title + chart.state.original[found.end():])
+    chart.state.title_typed, chart.state.title_look.formula = False, formula
+
+
+_AXIS_TITLE = re.compile(r'<c:title>.*?</c:title>', re.DOTALL)
+
+
+def set_axis_title(chart: Chart, entry: AxisState, wanted: bool) -> None:
+    """An axis's HasTitle: the title after the axis's gridlines, back without its text once taken away. A new one on a styled
+    chart takes the style's look, which is not read here, so it stays refused."""
+    admit(chart)
+    state = chart.state
+    start, end = _axis_span(chart, entry)
+    axis = state.original[start:end]
+    found = _AXIS_TITLE.search(axis)
+    if wanted == (found is not None):
+        return
+    if found is not None:
+        state.axis_titles_taken[entry.identifier] = found.group(0)
+        axis = axis[:found.start()] + axis[found.end():]
+    else:
+        taken = state.axis_titles_taken.get(entry.identifier)
+        if taken is None and state.style_part:
+            raise VBAUnsupportedError('A new axis title on an imported styled chart is not implemented')
+        title = _TITLE_TEXT.sub('', taken, count=1) if taken else _PLAIN_TITLE
+        place = (re.search(r'<c:minorGridlines(?:/>|>.*?</c:minorGridlines>)', axis, re.DOTALL)
+                 or re.search(r'<c:majorGridlines(?:/>|>.*?</c:majorGridlines>)', axis, re.DOTALL)
+                 or re.search(r'<c:axPos val="\w+"/>', axis))
+        if place is None:
+            raise VBAUnsupportedError('A title on this imported chart axis is not implemented')
+        axis = axis[:place.end()] + title + axis[place.end():]
+    _edited(chart, state.original[:start] + axis + state.original[end:])
+
+
+def type_axis_title(chart: Chart, entry: AxisState, wanted: str) -> None:
+    """AxisTitle.Text, as a chart title's."""
+    admit(chart)
+    if wanted == '':
+        raise VBAUnsupportedError('Typing an empty title on an imported chart axis is not implemented')
+    start, end = _axis_span(chart, entry)
+    axis = chart.state.original[start:end]
+    found = _AXIS_TITLE.search(axis)
+    if found is None:
+        raise VBAUnsupportedError('Typing this imported chart axis title is not implemented')
+    axis = axis[:found.start()] + retitled(found.group(0), wanted) + axis[found.end():]
+    _edited(chart, chart.state.original[:start] + axis + chart.state.original[end:])

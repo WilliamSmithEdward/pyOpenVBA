@@ -479,6 +479,12 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
         format_area(sheet, area, lambda style: S.applying(style, "border",
                                                           border=with_diagonal(style.border, index, change)))
         return True
+    # An edge along whole rows or columns gives each of them the border part, which then counts toward UsedRange
+    # (tests/fixtures/used_range.json).
+    if kind == "rows" and index in (8, 9):
+        format_rows(sheet, area.top, area.bottom, _touch)
+    elif kind == "columns" and index in (7, 10):
+        format_columns(sheet, area.left, area.right, _touch)
     if kind == "rows":
         columns = sample_columns(sheet, 1, MAX_COLUMNS, area.top - 1, area.bottom + 1)
         if index in (8, 9):

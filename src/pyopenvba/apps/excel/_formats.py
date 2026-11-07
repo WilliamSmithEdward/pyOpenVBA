@@ -1081,6 +1081,14 @@ def with_diagonal(border: S.Border, index: int, change: Callable[[S.Side], S.Sid
     return replace(border, diagonal=shared, diagonal_up=up, diagonal_down=down)
 
 
+def _touch_cells(sheet: Worksheet, area: Area) -> None:
+    """Each cell of an area given the border part as it stands: changed in nothing, but a cell of its own."""
+    for row in range(area.top, area.bottom + 1):
+        for column in range(area.left, area.right + 1):
+            style = sheet.style_at(row, column)
+            sheet.restyle(row, column, S.applying(style, "border"))
+
+
 def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Callable[[S.Side], S.Side],
                 *, clear_neighbour: bool = True) -> None:
     """Set one edge of one cell the way Excel does it."""
@@ -1253,6 +1261,11 @@ class Border(ExcelObject):
         parts = [area for area in visible_areas(self.target) or self.target.areas
                  if not _row_formats.border_area(sheet, area, self.index, change)]
         _within_limit(parts)
+        if self.index in EDGES:
+            # Every cell of the range takes the border part, its edge or not, so each counts toward UsedRange until a
+            # save (tests/fixtures/used_range.json).
+            for area in parts:
+                _touch_cells(sheet, area)
         for area in parts:
             if self.index in (5, 6):
                 for row in range(area.top, area.bottom + 1):

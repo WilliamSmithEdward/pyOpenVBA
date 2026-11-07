@@ -4,12 +4,12 @@ Excel measures a cell's text for AutoFit and Range.Text as GDI's
 GetTextExtentPoint32 does at the font's height in pixels, the size in
 points times 4/3 at 96 DPI: whole pixels that add up along a text for
 ASCII and Latin-1. This asks GDI for every such character's width, and the
-font's ascent, at each height from 11 pixels (8pt) to 96 (72pt), for both
-fonts in regular, bold, italic and bold italic. At 15 pixels, 11pt, the
+font's ascent, at each height from 11 pixels (8pt) to 96 (72pt), for each
+font in regular, bold, italic and bold italic. At 15 pixels, 11pt, the
 widths have to be the ones live Excel showed for each character alone and
 between two x's (tests/fixtures/column_autofit.json, which
 scripts/measure_column_autofit.py measured), and this checks they are;
-tests/fixtures/autofit_sizes.json checks the other heights. Arial and Times New Roman have no such fixture: scripts/measure_font_round.py holds each of them out.
+tests/fixtures/autofit_sizes.json checks the other heights. Arial and Times New Roman have no such fixture: the rounds of scripts/font_round.py hold each of them out.
 
     python scripts/bake_font_widths.py
 

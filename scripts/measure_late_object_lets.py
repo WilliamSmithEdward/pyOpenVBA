@@ -41,9 +41,17 @@ OBJECTS = ['ws.Range("A1")', 'ws.Range("B1")', 'ws.Range("A1:C1")', 'ws.Range("A
 PART = 16
 
 
-def _case(target: tuple[str, str, str], value: str, declared: bool) -> str:
+#: Typed, a Let of these does not compile: a Collection's default member, Item, takes an index ("Argument not optional"), and Nothing is
+#: "Invalid use of object". A module that
+#: does not compile runs nothing, so a typed probe in live Excel leaves these cases out and records them as not compiling.
+NOT_COMPILING = frozenset({'New Collection', 'Nothing'})
+
+
+def _case(target: tuple[str, str, str], value: str, declared: bool, compiles_only: bool = False) -> str:
     kind, path, prop = target
     holder = 't' if declared else 'o'
+    if compiles_only and declared and value in NOT_COMPILING:
+        return f'    out = out & "{SEPARATOR}" & "does not compile"\n'
     restore = '    Application.StatusBar = False\n' if prop == 'StatusBar' else ''
     return f'''    Set wb = Workbooks.Add(xlWBATWorksheet)
     Set ws = wb.Worksheets(1)
@@ -64,7 +72,7 @@ def cases() -> list[tuple[str, str, str, str]]:
     return [(kind, path, prop, value) for kind, path, prop in TARGETS for value in OBJECTS]
 
 
-def macro(typed: bool) -> str:
+def macro(typed: bool, compiles_only: bool = False) -> str:
     every = cases()
     parts = [every[at:at + PART] for at in range(0, len(every), PART)]
     declare = ('    Dim tWorkbook As Workbook, tWorksheet As Worksheet, tRange As Range, tFont As Font, tApplication As Application\n' if typed
@@ -72,7 +80,7 @@ def macro(typed: bool) -> str:
     procedures = ''.join(f'''Private Sub Part{index}(ByRef out As String)
     Dim wb As Workbook, ws As Worksheet, v As Variant, s As String
 {declare}    On Error Resume Next
-{''.join(_case((kind, path, prop), value, typed) for kind, path, prop, value in part)}End Sub
+{''.join(_case((kind, path, prop), value, typed, compiles_only) for kind, path, prop, value in part)}End Sub
 ''' for index, part in enumerate(parts))
     calls = ''.join(f'    Part{index} out\n' for index in range(len(parts)))
     return f'''{procedures}Function Probe() As String
@@ -110,7 +118,7 @@ def measure() -> None:
         excel.new_document()
         excel.run_vba('Function Hello() As String\n    Hello = "x"\nEnd Function\n', 'Hello', (), timeout=60)
         for typed in (True, False):
-            result = excel.run_vba(macro(typed), 'Probe', (), timeout=400, line_numbers=False)
+            result = excel.run_vba(macro(typed, compiles_only=True), 'Probe', (), timeout=400, line_numbers=False)
             assert result.ok, (result.error, [one.message for one in result.dialogs])
             answers['typed' if typed else 'late'] = str(result.value).split(SEPARATOR)
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})

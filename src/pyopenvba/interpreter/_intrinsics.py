@@ -1105,7 +1105,8 @@ def vba_format_datetime(interpreter: Interpreter, value: object, named: object) 
 
 @intrinsic("Now")
 def vba_now(interpreter: Interpreter) -> object:
-    return VBADate.from_datetime(interpreter.clock())
+    # Whole seconds, as Excel's Now is: what the clock holds below a second is dropped, as oleaut32 drops it (tests/test_vba_now_whole_seconds.py).
+    return VBADate.from_datetime(interpreter.clock().replace(microsecond=0))
 
 
 @intrinsic("Date")
@@ -1115,7 +1116,7 @@ def vba_date(interpreter: Interpreter) -> object:
 
 @intrinsic("Time")
 def vba_time(interpreter: Interpreter) -> object:
-    return VBADate.from_datetime(interpreter.clock().time())
+    return VBADate.from_datetime(interpreter.clock().time().replace(microsecond=0))
 
 
 @intrinsic("Timer")

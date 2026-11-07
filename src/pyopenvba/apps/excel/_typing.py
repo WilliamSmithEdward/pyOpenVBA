@@ -67,7 +67,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Final
 
-from pyopenvba.formula._display import clock, format_value, keeps_text
+from pyopenvba.formula._display import DIGIT_SHAPES, clock, format_value, general_text, keeps_text
 from pyopenvba.formula._parse import literal
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, error
@@ -329,18 +329,20 @@ def typed_text(text: str, *, fractions: bool = False, imported: bool = False) ->
 #: theirs is formatted with (Arabic-Indic and extended Arabic-Indic, Devanagari, Bengali, Gurmukhi, Gujarati, Oriya,
 #: Tamil, Telugu, Kannada, Malayalam, Thai, Lao, Tibetan, Myanmar, Khmer, Mongolian;
 #: tests/fixtures/typing_native_digits.json, typing_native_shapes.json). Every other set's digits stay text.
-_NATIVE_SETS: Final = {0x0660: (0x02, 0x0401), 0x06F0: (0x03, 0x0401), 0x0966: (0x04, 0x0439), 0x09E6: (0x05, 0x0445),
-                       0x0A66: (0x06, 0x0446), 0x0AE6: (0x07, 0x0447), 0x0B66: (0x08, 0x0448), 0x0BE6: (0x09, 0x0449),
-                       0x0C66: (0x0A, 0x044A), 0x0CE6: (0x0B, 0x044B), 0x0D66: (0x0C, 0x044C), 0x0E50: (0x0D, 0x041E),
-                       0x0ED0: (0x0E, 0x0454), 0x0F20: (0x0F, 0x0451), 0x1040: (0x10, 0x0455), 0x17E0: (0x12, 0x0453),
-                       0x1810: (0x13, 0x0450)}
-#: The date and time formats typing brings, and what they become with another script's digits.
-_NATIVE_MOMENTS: Final = {"d-mmm": "dd-mmm", "m/d/yyyy": "mm/dd/yyyy", "mmm-yy": "mmm-yy", "h:mm": "h:mm",
-                          "h:mm AM/PM": "h:mm AM/PM", "h:mm:ss": "h:mm:ss", "h:mm:ss AM/PM": "h:mm:ss AM/PM",
-                          "m/d/yyyy h:mm": "m/d/yyyy h:mm", "d-mmm-yy": "dd-mmm-yy"}
+_LANGUAGES: Final = {0x0660: 0x0401, 0x06F0: 0x0401, 0x0966: 0x0439, 0x09E6: 0x0445, 0x0A66: 0x0446, 0x0AE6: 0x0447,
+                     0x0B66: 0x0448, 0x0BE6: 0x0449, 0x0C66: 0x044A, 0x0CE6: 0x044B, 0x0D66: 0x044C, 0x0E50: 0x041E,
+                     0x0ED0: 0x0454, 0x0F20: 0x0451, 0x1040: 0x0455, 0x17E0: 0x0453, 0x1810: 0x0450}
+_NATIVE_SETS: Final = {zero: (shape, _LANGUAGES[zero]) for shape, zero in DIGIT_SHAPES.items()}
+#: The date and time formats typing brings, and what they become with another script's digits: a day, a month and a
+#: year in full; times as they are.
+_NATIVE_MOMENTS: Final = {"d-mmm": "dd-mmm", "m/d/yyyy": "mm/dd/yyyy", "d-mmm-yy": "dd-mmm-yyyy", "mmm-yy": "mmm-yyyy",
+                          "h:mm": "h:mm", "h:mm AM/PM": "h:mm AM/PM", "h:mm:ss": "h:mm:ss",
+                          "h:mm:ss AM/PM": "h:mm:ss AM/PM", "m/d/yyyy h:mm": "m/d/yyyy h:mm", "mm:ss": "mm:ss",
+                          "[h]:mm:ss": "[h]:mm:ss", "mm:ss.0": "mm:ss.0"}
 #: The number formats that come through without a digit shape.
-_NATIVE_PLAIN: Final = ("0.00E+00", "# ?/?", "# ??/??")
-_CURRENCY_TYPED: Final = "$#,##0_);[Red]($#,##0)"
+_NATIVE_PLAIN: Final = ("0.00E+00", "##0.0E+0", "# ?/?", "# ??/??")
+#: The currency formats typing brings, whole and with cents: both become the set's own with cents.
+_CURRENCY_TYPED: Final = ("$#,##0_);[Red]($#,##0)", "$#,##0.00_);[Red]($#,##0.00)")
 
 
 def _native_digits(text: str, *, fractions: bool = False, imported: bool = False) -> Typed | None:
@@ -365,22 +367,16 @@ def _native_digits(text: str, *, fractions: bool = False, imported: bool = False
     found = typed_text(plain, fractions=fractions, imported=imported)
     if found.prefix or (found.value == plain and found.number_format is None):
         return Typed(text)
-    if imported or (fractions and found != typed_text(plain)):
-        # Measured as typed into a cell; a fraction a formatted cell reads, and a file's text, were not.
-        from pyopenvba.exceptions import VBAUnsupportedError
-
-        raise VBAUnsupportedError("reading digits of another script as a fraction, or from a file, is not implemented")
     return Typed(found.value, _native_format(found, plain, shape))
 
 
 def _native_format(found: Typed, plain: str, shape: tuple[int, int]) -> str:
     """The format a number or a moment typed in another script's digits brings: the ASCII typing's, with the digit
     shape and, for a number, the set's language before it; General a whole number's 0, a fraction's as many #s as
-    were typed after the point, and a number of twelve digits or more 0.#####E+00; a percent with two places; a
-    currency amount the set's own; an exponent's and a fraction's as typed (tests/fixtures/typing_native_shapes.json,
-    typing_native_formats.json). Formats not measured so report themselves."""
-    from pyopenvba.exceptions import VBAUnsupportedError
-
+    were typed after the point, and a number of twelve digits or more 0.#####E+00 with as many #s as General shows
+    places; a percent with two places; a currency amount the set's own with cents; a date's day, month and year in
+    full; a time's, an exponent's and a fraction's as typed (tests/fixtures/typing_native_shapes.json,
+    typing_native_rounds/)."""
     code, language = shape
     number = f"[$-{code:X}{language:06X}]"
     moment = f"[$-{code:X}000000]"
@@ -389,21 +385,24 @@ def _native_format(found: Typed, plain: str, shape: tuple[int, int]) -> str:
         return ascii_format
     if ascii_format in _NATIVE_MOMENTS:
         return moment + _NATIVE_MOMENTS[ascii_format]
-    if ascii_format == _CURRENCY_TYPED:
+    if ascii_format in _CURRENCY_TYPED:
         currency = f"[$$-{code:X}{language:06X}]"
         return f"{currency} #,##0.00_);[Red]({currency}#,##0.00)"
     if ascii_format in ("0%", "0.00%"):
         return number + "0.00%"
-    if ascii_format == "#,##0":
-        return number + "#,##0"
-    if ascii_format is None and isinstance(found.value, float):
+    if ascii_format in ("#,##0", "#,##0.00"):
+        return number + ascii_format
+    if (ascii_format is None or ascii_format == "General") and isinstance(found.value, float):
         value = abs(found.value)
         if value >= 1e11:
-            return number + "0.#####E+00"
+            # As many places as General shows: 1.23457E+11, 1E+15.
+            mantissa = general_text(value).split("E")[0]
+            return number + "0." + "#" * len(mantissa.partition(".")[2]) + "E+00"
         point = plain.find(".")
         places = len(re.match(r"\d*", plain[point + 1:]).group()) if point >= 0 else 0  # type: ignore[union-attr]
         return number + ("0." + "#" * places if places else "0")
-    raise VBAUnsupportedError("typing digits of another script with this format is not implemented")
+    # The rest of what typing brings, a euro amount's among them, keeps its format behind the number's prefix.
+    return number + str(ascii_format)
 
 
 # --- numbers ------------------------------------------------------------------------------------

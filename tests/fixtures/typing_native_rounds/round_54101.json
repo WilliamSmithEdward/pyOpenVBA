@@ -8,560 +8,641 @@
    "zero": "09E6",
    "text": "১২.২৫%",
    "typed": true,
-   "model": "Double 0.1225 ~ 0.1225 ~ [$-5000445]0.00% ~ 12.25%"
+   "model": "Double 0.1225 ~ 0.1225 ~ [$-5000445]0.00% ~ 12.25%",
+   "excel": "Double 0.1225 ~ 0.1225 ~ [$-5000445]0.00% ~ ১২.২৫%"
   },
   {
    "shape": "123456789012",
    "zero": "0D66",
    "text": "൧൨൩൪൫൬൭൮൯൦൧൨",
    "typed": true,
-   "model": "Double 123456789012 ~ 123456789012 ~ [$-C00044C]0.#####E+00 ~ 1.23457E+11"
+   "model": "Double 123456789012 ~ 123456789012 ~ [$-C00044C]0.#####E+00 ~ 1.23457E+11",
+   "excel": "Double 123456789012 ~ 123456789012 ~ [$-C00044C]0.#####E+00 ~ ൧.൨൩൪൫൭E+൧൧"
   },
   {
    "shape": "12a",
    "zero": "0F20",
    "text": "༡༢a",
    "typed": true,
-   "model": "String  ~ ༡༢a ~ General ~ ༡༢a"
+   "model": "String  ~ ༡༢a ~ General ~ ༡༢a",
+   "excel": "String  ~ ༡༢a ~ General ~ ༡༢a"
   },
   {
    "shape": "12,345.5",
    "zero": "0C66",
    "text": "౧౨,౩౪౫.౫",
    "typed": true,
-   "model": "model VBAUnsupportedError: typing digits of another script with this format is not implemented"
+   "model": "model VBAUnsupportedError: typing digits of another script with this format is not implemented",
+   "excel": "Double 12345.5 ~ 12345.5 ~ [$-A00044A]#,##0.00 ~ ౧౨,౩౪౫.౫౦"
   },
   {
    "shape": "12.125",
    "zero": "0660",
    "text": "١٢.١2٥",
    "typed": false,
-   "model": "Double 12.125 ~ 12.125 ~ [$-2000401]0.### ~ 12.125"
+   "model": "Double 12.125 ~ 12.125 ~ [$-2000401]0.### ~ 12.125",
+   "excel": "Double 12.125 ~ 12.125 ~ [$-2000401]0.### ~ ١٢.١٢٥"
   },
   {
    "shape": "1.5%",
    "zero": "0D66",
    "text": "൧.൫%",
    "typed": false,
-   "model": "Double 0.015 ~ 0.015 ~ [$-C00044C]0.00% ~ 1.50%"
+   "model": "Double 0.015 ~ 0.015 ~ [$-C00044C]0.00% ~ 1.50%",
+   "excel": "Double 0.015 ~ 0.015 ~ [$-C00044C]0.00% ~ ൧.൫൦%"
   },
   {
    "shape": "1,234,567",
    "zero": "0C66",
    "text": "౧,౨౩౪,5౬౭",
    "typed": true,
-   "model": "Double 1234567 ~ 1234567 ~ [$-A00044A]#,##0 ~ 1,234,567"
+   "model": "Double 1234567 ~ 1234567 ~ [$-A00044A]#,##0 ~ 1,234,567",
+   "excel": "Double 1234567 ~ 1234567 ~ [$-A00044A]#,##0 ~ ౧,౨౩౪,౫౬౭"
   },
   {
    "shape": "12:30:45",
    "zero": "1040",
    "text": "၁၂:၃၀:၄၅",
    "typed": false,
-   "model": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-10000000]h:mm:ss ~ 12:30:45"
+   "model": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-10000000]h:mm:ss ~ 12:30:45",
+   "excel": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-10000000]h:mm:ss ~ ၁၂:၃၀:၄၅"
   },
   {
    "shape": "1,2",
    "zero": "0D66",
    "text": "൧,൨",
    "typed": true,
-   "model": "String  ~ ൧,൨ ~ General ~ ൧,൨"
+   "model": "String  ~ ൧,൨ ~ General ~ ൧,൨",
+   "excel": "String  ~ ൧,൨ ~ General ~ ൧,൨"
   },
   {
    "shape": "1.5",
    "zero": "0BE6",
    "text": "௧.௫",
    "typed": true,
-   "model": "Double 1.5 ~ 1.5 ~ [$-9000449]0.# ~ 1.5"
+   "model": "Double 1.5 ~ 1.5 ~ [$-9000449]0.# ~ 1.5",
+   "excel": "Double 1.5 ~ 1.5 ~ [$-9000449]0.# ~ ௧.௫"
   },
   {
    "shape": "+3",
    "zero": "0C66",
    "text": "+౩",
    "typed": false,
-   "model": "Double 3 ~ 3 ~ [$-A00044A]0 ~ 3"
+   "model": "Double 3 ~ 3 ~ [$-A00044A]0 ~ 3",
+   "excel": "Double 3 ~ 3 ~ [$-A00044A]0 ~ ౩"
   },
   {
    "shape": "-12",
    "zero": "06F0",
    "text": "-۱۲",
    "typed": true,
-   "model": "Double -12 ~ -12 ~ [$-3000401]0 ~ -12"
+   "model": "Double -12 ~ -12 ~ [$-3000401]0 ~ -12",
+   "excel": "Double -12 ~ -12 ~ [$-3000401]0 ~ -۱۲"
   },
   {
    "shape": "-0.75",
    "zero": "17E0",
    "text": "-០.៧5",
    "typed": false,
-   "model": "Double -0.75 ~ -0.75 ~ [$-12000453]0.## ~ -0.75"
+   "model": "Double -0.75 ~ -0.75 ~ [$-12000453]0.## ~ -0.75",
+   "excel": "Double -0.75 ~ -0.75 ~ [$-12000453]0.## ~ -០.៧៥"
   },
   {
    "shape": "$12",
    "zero": "0AE6",
    "text": "$૧૨",
    "typed": true,
-   "model": "Double 12 ~ 12 ~ [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00) ~ $ 12.00 "
+   "model": "Double 12 ~ 12 ~ [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00) ~ $ 12.00 ",
+   "excel": "Double 12 ~ 12 ~ [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00) ~ $ ૧૨.૦૦ "
   },
   {
    "shape": "12,345.5",
    "zero": "0966",
    "text": "१२,3४५.५",
    "typed": false,
-   "model": "model VBAUnsupportedError: typing digits of another script with this format is not implemented"
+   "model": "model VBAUnsupportedError: typing digits of another script with this format is not implemented",
+   "excel": "Double 12345.5 ~ 12345.5 ~ [$-4000439]#,##0.00 ~ १२,३४५.५०"
   },
   {
    "shape": "12/31/1999",
    "zero": "0ED0",
    "text": "໑໒/໓໑/໑໙໙໙",
    "typed": true,
-   "model": "Date 12/31/1999 ~ 36525 ~ [$-E000000]mm/dd/yyyy ~ 12/31/1999"
+   "model": "Date 12/31/1999 ~ 36525 ~ [$-E000000]mm/dd/yyyy ~ 12/31/1999",
+   "excel": "Date 12/31/1999 ~ 36525 ~ [$-E000000]mm/dd/yyyy ~ ໑໒/໓໑/໑໙໙໙"
   },
   {
    "shape": "-12",
    "zero": "0B66",
    "text": "-୧୨",
    "typed": false,
-   "model": "Double -12 ~ -12 ~ [$-8000448]0 ~ -12"
+   "model": "Double -12 ~ -12 ~ [$-8000448]0 ~ -12",
+   "excel": "Double -12 ~ -12 ~ [$-8000448]0 ~ -୧୨"
   },
   {
    "shape": "7",
    "zero": "0B66",
    "text": "୭",
    "typed": false,
-   "model": "Double 7 ~ 7 ~ [$-8000448]0 ~ 7"
+   "model": "Double 7 ~ 7 ~ [$-8000448]0 ~ 7",
+   "excel": "Double 7 ~ 7 ~ [$-8000448]0 ~ ୭"
   },
   {
    "shape": "12.125",
    "zero": "0C66",
    "text": "౧౨.౧౨౫",
    "typed": true,
-   "model": "Double 12.125 ~ 12.125 ~ [$-A00044A]0.### ~ 12.125"
+   "model": "Double 12.125 ~ 12.125 ~ [$-A00044A]0.### ~ 12.125",
+   "excel": "Double 12.125 ~ 12.125 ~ [$-A00044A]0.### ~ ౧౨.౧౨౫"
   },
   {
    "shape": "1.25",
    "zero": "0E50",
    "text": "๑.๒๕",
    "typed": false,
-   "model": "Double 1.25 ~ 1.25 ~ [$-D00041E]0.## ~ 1.25"
+   "model": "Double 1.25 ~ 1.25 ~ [$-D00041E]0.## ~ 1.25",
+   "excel": "Double 1.25 ~ 1.25 ~ [$-D00041E]0.## ~ ๑.๒๕"
   },
   {
    "shape": "1,2",
    "zero": "0D66",
    "text": "൧,൨",
    "typed": true,
-   "model": "String  ~ ൧,൨ ~ General ~ ൧,൨"
+   "model": "String  ~ ൧,൨ ~ General ~ ൧,൨",
+   "excel": "String  ~ ൧,൨ ~ General ~ ൧,൨"
   },
   {
    "shape": "7",
    "zero": "0660",
    "text": "٧",
    "typed": false,
-   "model": "Double 7 ~ 7 ~ [$-2000401]0 ~ 7"
+   "model": "Double 7 ~ 7 ~ [$-2000401]0 ~ 7",
+   "excel": "Double 7 ~ 7 ~ [$-2000401]0 ~ ٧"
   },
   {
    "shape": "1/2/2020 3:04 PM",
    "zero": "1040",
    "text": "၁/၂/၂၀၂၀ ၃:၀4 PM",
    "typed": true,
-   "model": "Date 1/2/2020 3:04:00 PM ~ 43832.6277777778 ~ [$-10000000]m/d/yyyy h:mm ~ 1/2/2020 15:04"
+   "model": "Date 1/2/2020 3:04:00 PM ~ 43832.6277777778 ~ [$-10000000]m/d/yyyy h:mm ~ 1/2/2020 15:04",
+   "excel": "Date 1/2/2020 3:04:00 PM ~ 43832.6277777778 ~ [$-10000000]m/d/yyyy h:mm ~ ၁/၂/၂၀၂၀ ၁၅:၀၄"
   },
   {
    "shape": "1 1/4",
    "zero": "0C66",
    "text": "౧ ౧/౪",
    "typed": false,
-   "model": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4"
+   "model": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4",
+   "excel": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4"
   },
   {
    "shape": "1,2",
    "zero": "06F0",
    "text": "۱,۲",
    "typed": true,
-   "model": "String  ~ ۱,۲ ~ General ~ ۱,۲"
+   "model": "String  ~ ۱,۲ ~ General ~ ۱,۲",
+   "excel": "String  ~ ۱,۲ ~ General ~ ۱,۲"
   },
   {
    "shape": "x7",
    "zero": "0CE6",
    "text": "x೭",
    "typed": true,
-   "model": "String  ~ x೭ ~ General ~ x೭"
+   "model": "String  ~ x೭ ~ General ~ x೭",
+   "excel": "String  ~ x೭ ~ General ~ x೭"
   },
   {
    "shape": "7",
    "zero": "0BE6",
    "text": "௭",
    "typed": false,
-   "model": "Double 7 ~ 7 ~ [$-9000449]0 ~ 7"
+   "model": "Double 7 ~ 7 ~ [$-9000449]0 ~ 7",
+   "excel": "Double 7 ~ 7 ~ [$-9000449]0 ~ ௭"
   },
   {
    "shape": "x7",
    "zero": "1810",
    "text": "x᠗",
    "typed": true,
-   "model": "String  ~ x᠗ ~ General ~ x᠗"
+   "model": "String  ~ x᠗ ~ General ~ x᠗",
+   "excel": "String  ~ x᠗ ~ General ~ x᠗"
   },
   {
    "shape": "$1,234",
    "zero": "0660",
    "text": "$١,٢٣٤",
    "typed": true,
-   "model": "Double 1234 ~ 1234 ~ [$$-2000401] #,##0.00_);[Red]([$$-2000401]#,##0.00) ~ $ 1,234.00 "
+   "model": "Double 1234 ~ 1234 ~ [$$-2000401] #,##0.00_);[Red]([$$-2000401]#,##0.00) ~ $ 1,234.00 ",
+   "excel": "Double 1234 ~ 1234 ~ [$$-2000401] #,##0.00_);[Red]([$$-2000401]#,##0.00) ~ $ ١,٢٣٤.٠٠ "
   },
   {
    "shape": "12",
    "zero": "1040",
    "text": "1၂",
    "typed": true,
-   "model": "Double 12 ~ 12 ~ [$-10000455]0 ~ 12"
+   "model": "Double 12 ~ 12 ~ [$-10000455]0 ~ 12",
+   "excel": "Double 12 ~ 12 ~ [$-10000455]0 ~ ၁၂"
   },
   {
    "shape": "$12",
    "zero": "0A66",
    "text": "$੧੨",
    "typed": true,
-   "model": "Double 12 ~ 12 ~ [$$-6000446] #,##0.00_);[Red]([$$-6000446]#,##0.00) ~ $ 12.00 "
+   "model": "Double 12 ~ 12 ~ [$$-6000446] #,##0.00_);[Red]([$$-6000446]#,##0.00) ~ $ 12.00 ",
+   "excel": "Double 12 ~ 12 ~ [$$-6000446] #,##0.00_);[Red]([$$-6000446]#,##0.00) ~ $ ੧੨.੦੦ "
   },
   {
    "shape": "3/4",
    "zero": "06F0",
    "text": "۳/۴",
    "typed": true,
-   "model": "Date 3/4/2026 ~ 46085 ~ [$-3000000]dd-mmm ~ 04-Mar"
+   "model": "Date 3/4/2026 ~ 46085 ~ [$-3000000]dd-mmm ~ 04-Mar",
+   "excel": "Date 3/4/2026 ~ 46085 ~ [$-3000000]dd-mmm ~ ۰۴-Mar"
   },
   {
    "shape": "12.125",
    "zero": "0ED0",
    "text": "໑໒.໑໒໕",
    "typed": true,
-   "model": "Double 12.125 ~ 12.125 ~ [$-E000454]0.### ~ 12.125"
+   "model": "Double 12.125 ~ 12.125 ~ [$-E000454]0.### ~ 12.125",
+   "excel": "Double 12.125 ~ 12.125 ~ [$-E000454]0.### ~ ໑໒.໑໒໕"
   },
   {
    "shape": "123456789012",
    "zero": "0ED0",
    "text": "໑໒໓໔໕໖໗໘໙໐໑໒",
    "typed": true,
-   "model": "Double 123456789012 ~ 123456789012 ~ [$-E000454]0.#####E+00 ~ 1.23457E+11"
+   "model": "Double 123456789012 ~ 123456789012 ~ [$-E000454]0.#####E+00 ~ 1.23457E+11",
+   "excel": "Double 123456789012 ~ 123456789012 ~ [$-E000454]0.#####E+00 ~ ໑.໒໓໔໕໗E+໑໑"
   },
   {
    "shape": "(1.5)",
    "zero": "0F20",
    "text": "(༡.௫)",
    "typed": true,
-   "model": "Double -1.5 ~ -1.5 ~ [$-9000449]0.# ~ -1.5"
+   "model": "Double -1.5 ~ -1.5 ~ [$-9000449]0.# ~ -1.5",
+   "excel": "Double -1.5 ~ -1.5 ~ [$-9000449]0.# ~ -௧.௫"
   },
   {
    "shape": " 12 ",
    "zero": "0BE6",
    "text": " ௧၂ ",
    "typed": true,
-   "model": "Double 12 ~ 12 ~ [$-10000455]0 ~ 12"
+   "model": "Double 12 ~ 12 ~ [$-10000455]0 ~ 12",
+   "excel": "Double 12 ~ 12 ~ [$-10000455]0 ~ ၁၂"
   },
   {
    "shape": "1/2/2020 3:04 PM",
    "zero": "17E0",
    "text": "១/2/២០២០ ៣:០៤ PM",
    "typed": true,
-   "model": "Date 1/2/2020 3:04:00 PM ~ 43832.6277777778 ~ [$-12000000]m/d/yyyy h:mm ~ 1/2/2020 15:04"
+   "model": "Date 1/2/2020 3:04:00 PM ~ 43832.6277777778 ~ [$-12000000]m/d/yyyy h:mm ~ 1/2/2020 15:04",
+   "excel": "Date 1/2/2020 3:04:00 PM ~ 43832.6277777778 ~ [$-12000000]m/d/yyyy h:mm ~ ១/២/២០២០ ១៥:០៤"
   },
   {
    "shape": "12:30:45 PM",
    "zero": "0B66",
    "text": "୧୨:୩୦:୪୫ PM",
    "typed": false,
-   "model": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-8000000]h:mm:ss AM/PM ~ 12:30:45 PM"
+   "model": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-8000000]h:mm:ss AM/PM ~ 12:30:45 PM",
+   "excel": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-8000000]h:mm:ss AM/PM ~ ୧୨:୩୦:୪୫ PM"
   },
   {
    "shape": "3/4",
    "zero": "0A66",
    "text": "੩/੪",
    "typed": true,
-   "model": "Date 3/4/2026 ~ 46085 ~ [$-6000000]dd-mmm ~ 04-Mar"
+   "model": "Date 3/4/2026 ~ 46085 ~ [$-6000000]dd-mmm ~ 04-Mar",
+   "excel": "Date 3/4/2026 ~ 46085 ~ [$-6000000]dd-mmm ~ ੦੪-Mar"
   },
   {
    "shape": "1,2",
    "zero": "0C66",
    "text": "౧,౨",
    "typed": false,
-   "model": "String  ~ ౧,౨ ~ General ~ ౧,౨"
+   "model": "String  ~ ౧,౨ ~ General ~ ౧,౨",
+   "excel": "String  ~ ౧,౨ ~ General ~ ౧,౨"
   },
   {
    "shape": "$12",
    "zero": "0AE6",
    "text": "$૧૨",
    "typed": false,
-   "model": "Double 12 ~ 12 ~ [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00) ~ $ 12.00 "
+   "model": "Double 12 ~ 12 ~ [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00) ~ $ 12.00 ",
+   "excel": "Double 12 ~ 12 ~ [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00) ~ $ ૧૨.૦૦ "
   },
   {
    "shape": "1 1/4",
    "zero": "0ED0",
    "text": "໑ ໑/໔",
    "typed": false,
-   "model": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4"
+   "model": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4",
+   "excel": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4"
   },
   {
    "shape": "12a",
    "zero": "0660",
    "text": "١٢a",
    "typed": true,
-   "model": "String  ~ ١٢a ~ General ~ ١٢a"
+   "model": "String  ~ ١٢a ~ General ~ ١٢a",
+   "excel": "String  ~ ١٢a ~ General ~ ١٢a"
   },
   {
    "shape": "1e3",
    "zero": "06F0",
    "text": "۱e۳",
    "typed": true,
-   "model": "Double 1000 ~ 1000 ~ 0.00E+00 ~ 1.00E+03"
+   "model": "Double 1000 ~ 1000 ~ 0.00E+00 ~ 1.00E+03",
+   "excel": "Double 1000 ~ 1000 ~ 0.00E+00 ~ 1.00E+03"
   },
   {
    "shape": "12.125",
    "zero": "1040",
    "text": "၁၂.၁2၅",
    "typed": false,
-   "model": "Double 12.125 ~ 12.125 ~ [$-10000455]0.### ~ 12.125"
+   "model": "Double 12.125 ~ 12.125 ~ [$-10000455]0.### ~ 12.125",
+   "excel": "Double 12.125 ~ 12.125 ~ [$-10000455]0.### ~ ၁၂.၁၂၅"
   },
   {
    "shape": "(1.5)",
    "zero": "1810",
    "text": "(᠑.᠕)",
    "typed": true,
-   "model": "Double -1.5 ~ -1.5 ~ [$-13000450]0.# ~ -1.5"
+   "model": "Double -1.5 ~ -1.5 ~ [$-13000450]0.# ~ -1.5",
+   "excel": "Double -1.5 ~ -1.5 ~ [$-13000450]0.# ~ -᠑.᠕"
   },
   {
    "shape": "-$12",
    "zero": "0D66",
    "text": "-$൧൨",
    "typed": true,
-   "model": "Double -12 ~ -12 ~ [$$-C00044C] #,##0.00_);[Red]([$$-C00044C]#,##0.00) ~ ($12.00)"
+   "model": "Double -12 ~ -12 ~ [$$-C00044C] #,##0.00_);[Red]([$$-C00044C]#,##0.00) ~ ($12.00)",
+   "excel": "Double -12 ~ -12 ~ [$$-C00044C] #,##0.00_);[Red]([$$-C00044C]#,##0.00) ~ ($൧൨.൦൦)"
   },
   {
    "shape": "00",
    "zero": "0ED0",
    "text": "૦໐",
    "typed": false,
-   "model": "Double 0 ~ 0 ~ [$-E000454]0 ~ 0"
+   "model": "Double 0 ~ 0 ~ [$-E000454]0 ~ 0",
+   "excel": "Double 0 ~ 0 ~ [$-E000454]0 ~ ໐"
   },
   {
    "shape": " 12 ",
    "zero": "0966",
    "text": " १२ ",
    "typed": true,
-   "model": "Double 12 ~ 12 ~ [$-4000439]0 ~ 12"
+   "model": "Double 12 ~ 12 ~ [$-4000439]0 ~ 12",
+   "excel": "Double 12 ~ 12 ~ [$-4000439]0 ~ १२"
   },
   {
    "shape": "12.125",
    "zero": "0B66",
    "text": "୧୨.୧୨൫",
    "typed": true,
-   "model": "Double 12.125 ~ 12.125 ~ [$-C00044C]0.### ~ 12.125"
+   "model": "Double 12.125 ~ 12.125 ~ [$-C00044C]0.### ~ 12.125",
+   "excel": "Double 12.125 ~ 12.125 ~ [$-C00044C]0.### ~ ൧൨.൧൨൫"
   },
   {
    "shape": "-$12",
    "zero": "0ED0",
    "text": "-$໑໒",
    "typed": false,
-   "model": "Double -12 ~ -12 ~ [$$-E000454] #,##0.00_);[Red]([$$-E000454]#,##0.00) ~ ($12.00)"
+   "model": "Double -12 ~ -12 ~ [$$-E000454] #,##0.00_);[Red]([$$-E000454]#,##0.00) ~ ($12.00)",
+   "excel": "Double -12 ~ -12 ~ [$$-E000454] #,##0.00_);[Red]([$$-E000454]#,##0.00) ~ ($໑໒.໐໐)"
   },
   {
    "shape": "00",
    "zero": "06F0",
    "text": "۰۰",
    "typed": true,
-   "model": "Double 0 ~ 0 ~ [$-3000401]0 ~ 0"
+   "model": "Double 0 ~ 0 ~ [$-3000401]0 ~ 0",
+   "excel": "Double 0 ~ 0 ~ [$-3000401]0 ~ ۰"
   },
   {
    "shape": "1.5%",
    "zero": "0660",
    "text": "١.۵%",
    "typed": false,
-   "model": "Double 0.015 ~ 0.015 ~ [$-3000401]0.00% ~ 1.50%"
+   "model": "Double 0.015 ~ 0.015 ~ [$-3000401]0.00% ~ 1.50%",
+   "excel": "Double 0.015 ~ 0.015 ~ [$-3000401]0.00% ~ ۱.۵۰%"
   },
   {
    "shape": "$12.50",
    "zero": "1040",
    "text": "$၁၂.၅၀",
    "typed": true,
-   "model": "model VBAUnsupportedError: typing digits of another script with this format is not implemented"
+   "model": "model VBAUnsupportedError: typing digits of another script with this format is not implemented",
+   "excel": "Double 12.5 ~ 12.5 ~ [$$-10000455] #,##0.00_);[Red]([$$-10000455]#,##0.00) ~ $ ၁၂.၅၀ "
   },
   {
    "shape": "12.125",
    "zero": "0A66",
    "text": "੧੨.੧੨੫",
    "typed": true,
-   "model": "Double 12.125 ~ 12.125 ~ [$-6000446]0.### ~ 12.125"
+   "model": "Double 12.125 ~ 12.125 ~ [$-6000446]0.### ~ 12.125",
+   "excel": "Double 12.125 ~ 12.125 ~ [$-6000446]0.### ~ ੧੨.੧੨੫"
   },
   {
    "shape": "0",
    "zero": "17E0",
    "text": "០",
    "typed": false,
-   "model": "Double 0 ~ 0 ~ [$-12000453]0 ~ 0"
+   "model": "Double 0 ~ 0 ~ [$-12000453]0 ~ 0",
+   "excel": "Double 0 ~ 0 ~ [$-12000453]0 ~ ០"
   },
   {
    "shape": "-0.75",
    "zero": "1040",
    "text": "-०.၇၅",
    "typed": true,
-   "model": "Double -0.75 ~ -0.75 ~ [$-10000455]0.## ~ -0.75"
+   "model": "Double -0.75 ~ -0.75 ~ [$-10000455]0.## ~ -0.75",
+   "excel": "Double -0.75 ~ -0.75 ~ [$-10000455]0.## ~ -၀.၇၅"
   },
   {
    "shape": "7",
    "zero": "0E50",
    "text": "๗",
    "typed": false,
-   "model": "Double 7 ~ 7 ~ [$-D00041E]0 ~ 7"
+   "model": "Double 7 ~ 7 ~ [$-D00041E]0 ~ 7",
+   "excel": "Double 7 ~ 7 ~ [$-D00041E]0 ~ ๗"
   },
   {
    "shape": "12:30:45",
    "zero": "1040",
    "text": "၁၂:3၀:၄၅",
    "typed": true,
-   "model": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-10000000]h:mm:ss ~ 12:30:45"
+   "model": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-10000000]h:mm:ss ~ 12:30:45",
+   "excel": "Double 0.521354166666667 ~ 0.521354166666667 ~ [$-10000000]h:mm:ss ~ ၁၂:၃၀:၄၅"
   },
   {
    "shape": "+3",
    "zero": "0F20",
    "text": "+༣",
    "typed": true,
-   "model": "Double 3 ~ 3 ~ [$-F000451]0 ~ 3"
+   "model": "Double 3 ~ 3 ~ [$-F000451]0 ~ 3",
+   "excel": "Double 3 ~ 3 ~ [$-F000451]0 ~ ༣"
   },
   {
    "shape": "-$12",
    "zero": "06F0",
    "text": "-$۱۲",
    "typed": false,
-   "model": "Double -12 ~ -12 ~ [$$-3000401] #,##0.00_);[Red]([$$-3000401]#,##0.00) ~ ($12.00)"
+   "model": "Double -12 ~ -12 ~ [$$-3000401] #,##0.00_);[Red]([$$-3000401]#,##0.00) ~ ($12.00)",
+   "excel": "Double -12 ~ -12 ~ [$$-3000401] #,##0.00_);[Red]([$$-3000401]#,##0.00) ~ ($۱۲.۰۰)"
   },
   {
    "shape": "1/2",
    "zero": "0ED0",
    "text": "໑/໒",
    "typed": false,
-   "model": "Date 1/2/2026 ~ 46024 ~ [$-E000000]dd-mmm ~ 02-Jan"
+   "model": "Date 1/2/2026 ~ 46024 ~ [$-E000000]dd-mmm ~ 02-Jan",
+   "excel": "Date 1/2/2026 ~ 46024 ~ [$-E000000]dd-mmm ~ ໐໒-Jan"
   },
   {
    "shape": "12.125",
    "zero": "0AE6",
    "text": "૧૨.૧૨૫",
    "typed": false,
-   "model": "Double 12.125 ~ 12.125 ~ [$-7000447]0.### ~ 12.125"
+   "model": "Double 12.125 ~ 12.125 ~ [$-7000447]0.### ~ 12.125",
+   "excel": "Double 12.125 ~ 12.125 ~ [$-7000447]0.### ~ ૧૨.૧૨૫"
   },
   {
    "shape": "12-Jan-2020",
    "zero": "17E0",
    "text": "១២-Jan-២០២០",
    "typed": false,
-   "model": "Date 1/12/2020 ~ 43842 ~ [$-12000000]dd-mmm-yy ~ 12-Jan-20"
+   "model": "Date 1/12/2020 ~ 43842 ~ [$-12000000]dd-mmm-yy ~ 12-Jan-20",
+   "excel": "Date 1/12/2020 ~ 43842 ~ [$-12000000]dd-mmm-yyyy ~ ១២-Jan-២០២០"
   },
   {
    "shape": "1/2",
    "zero": "17E0",
    "text": "១/២",
    "typed": true,
-   "model": "Date 1/2/2026 ~ 46024 ~ [$-12000000]dd-mmm ~ 02-Jan"
+   "model": "Date 1/2/2026 ~ 46024 ~ [$-12000000]dd-mmm ~ 02-Jan",
+   "excel": "Date 1/2/2026 ~ 46024 ~ [$-12000000]dd-mmm ~ ០២-Jan"
   },
   {
    "shape": "7",
    "zero": "0E50",
    "text": "๗",
    "typed": false,
-   "model": "Double 7 ~ 7 ~ [$-D00041E]0 ~ 7"
+   "model": "Double 7 ~ 7 ~ [$-D00041E]0 ~ 7",
+   "excel": "Double 7 ~ 7 ~ [$-D00041E]0 ~ ๗"
   },
   {
    "shape": "1.2.3",
    "zero": "0BE6",
    "text": "௧.௨.௩",
    "typed": true,
-   "model": "String  ~ ௧.௨.௩ ~ General ~ ௧.௨.௩"
+   "model": "String  ~ ௧.௨.௩ ~ General ~ ௧.௨.௩",
+   "excel": "String  ~ ௧.௨.௩ ~ General ~ ௧.௨.௩"
   },
   {
    "shape": "1 1/4",
    "zero": "0BE6",
    "text": "௧ ௧/௪",
    "typed": true,
-   "model": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4"
+   "model": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4",
+   "excel": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4"
   },
   {
    "shape": "1,2",
    "zero": "0BE6",
    "text": "௧,௨",
    "typed": false,
-   "model": "String  ~ ௧,௨ ~ General ~ ௧,௨"
+   "model": "String  ~ ௧,௨ ~ General ~ ௧,௨",
+   "excel": "String  ~ ௧,௨ ~ General ~ ௧,௨"
   },
   {
    "shape": "7",
    "zero": "0660",
    "text": "٧",
    "typed": false,
-   "model": "Double 7 ~ 7 ~ [$-2000401]0 ~ 7"
+   "model": "Double 7 ~ 7 ~ [$-2000401]0 ~ 7",
+   "excel": "Double 7 ~ 7 ~ [$-2000401]0 ~ ٧"
   },
   {
    "shape": "999999999999999",
    "zero": "0E50",
    "text": "๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙",
    "typed": true,
-   "model": "Double 999999999999999 ~ 999999999999999 ~ [$-D00041E]0.#####E+00 ~ 1.E+15"
+   "model": "Double 999999999999999 ~ 999999999999999 ~ [$-D00041E]0.#####E+00 ~ 1.E+15",
+   "excel": "Double 999999999999999 ~ 999999999999999 ~ [$-D00041E]0.E+00 ~ ๑.E+๑๕"
   },
   {
    "shape": "-0.75",
    "zero": "06F0",
    "text": "-0.۷۵",
    "typed": true,
-   "model": "Double -0.75 ~ -0.75 ~ [$-3000401]0.## ~ -0.75"
+   "model": "Double -0.75 ~ -0.75 ~ [$-3000401]0.## ~ -0.75",
+   "excel": "Double -0.75 ~ -0.75 ~ [$-3000401]0.## ~ -۰.۷۵"
   },
   {
    "shape": "12.25%",
    "zero": "17E0",
    "text": "១២.២៥%",
    "typed": true,
-   "model": "Double 0.1225 ~ 0.1225 ~ [$-12000453]0.00% ~ 12.25%"
+   "model": "Double 0.1225 ~ 0.1225 ~ [$-12000453]0.00% ~ 12.25%",
+   "excel": "Double 0.1225 ~ 0.1225 ~ [$-12000453]0.00% ~ ១២.២៥%"
   },
   {
    "shape": "1.5%",
    "zero": "0D66",
    "text": "൧.൫%",
    "typed": true,
-   "model": "Double 0.015 ~ 0.015 ~ [$-C00044C]0.00% ~ 1.50%"
+   "model": "Double 0.015 ~ 0.015 ~ [$-C00044C]0.00% ~ 1.50%",
+   "excel": "Double 0.015 ~ 0.015 ~ [$-C00044C]0.00% ~ ൧.൫൦%"
   },
   {
    "shape": "1-2-3",
    "zero": "0B66",
    "text": "୧-୨-୩",
    "typed": true,
-   "model": "Date 1/2/2003 ~ 37623 ~ [$-8000000]mm/dd/yyyy ~ 01/02/2003"
+   "model": "Date 1/2/2003 ~ 37623 ~ [$-8000000]mm/dd/yyyy ~ 01/02/2003",
+   "excel": "Date 1/2/2003 ~ 37623 ~ [$-8000000]mm/dd/yyyy ~ ୦୧/୦୨/୨୦୦୩"
   },
   {
    "shape": "12a",
    "zero": "0A66",
    "text": "੧੨a",
    "typed": false,
-   "model": "String  ~ ੧੨a ~ General ~ ੧੨a"
+   "model": "String  ~ ੧੨a ~ General ~ ੧੨a",
+   "excel": "String  ~ ੧੨a ~ General ~ ੧੨a"
   },
   {
    "shape": "12a",
    "zero": "0A66",
    "text": "੧᠒a",
    "typed": false,
-   "model": "String  ~ ੧᠒a ~ General ~ ੧᠒a"
+   "model": "String  ~ ੧᠒a ~ General ~ ੧᠒a",
+   "excel": "String  ~ ੧᠒a ~ General ~ ੧᠒a"
   },
   {
    "shape": "1,234,567",
    "zero": "1810",
    "text": "᠑,᠒᠓᠔,᠕᠖᠗",
    "typed": true,
-   "model": "Double 1234567 ~ 1234567 ~ [$-13000450]#,##0 ~ 1,234,567"
+   "model": "Double 1234567 ~ 1234567 ~ [$-13000450]#,##0 ~ 1,234,567",
+   "excel": "Double 1234567 ~ 1234567 ~ [$-13000450]#,##0 ~ ᠑,᠒᠓᠔,᠕᠖᠗"
   },
   {
    "shape": "1.5%",
    "zero": "09E6",
    "text": "໑.৫%",
    "typed": false,
-   "model": "Double 0.015 ~ 0.015 ~ [$-5000445]0.00% ~ 1.50%"
+   "model": "Double 0.015 ~ 0.015 ~ [$-5000445]0.00% ~ 1.50%",
+   "excel": "Double 0.015 ~ 0.015 ~ [$-5000445]0.00% ~ ১.৫০%"
   },
   {
    "shape": "1.50",
    "zero": "0CE6",
    "text": "೧.೫೦",
    "typed": true,
-   "model": "Double 1.5 ~ 1.5 ~ [$-B00044B]0.## ~ 1.5"
+   "model": "Double 1.5 ~ 1.5 ~ [$-B00044B]0.## ~ 1.5",
+   "excel": "Double 1.5 ~ 1.5 ~ [$-B00044B]0.## ~ ೧.೫"
   }
- ]
+ ],
+ "measured_at": "2026-11-07T16:04:24.318383+00:00"
 }

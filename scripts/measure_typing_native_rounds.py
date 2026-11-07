@@ -35,6 +35,11 @@ SHAPES = ['7', '12', '-12', '+3', '0', '00', '1.5', '1.25', '1.50', '12.125', '-
           '1%', '1.5%', '12.25%', '12,345', '12,345.5', '1,234,567', '1,2', '12:30', '12:30:45', '12:30:45 PM',
           '1/2', '1/2/2020', '12/31/1999', 'Jan-2020', '1/2/2020 3:04 PM', '12-Jan-2020', '1e3', '1.5e-3', '1 1/4',
           '3/4', '12a', 'x7', '1-2-3', '1.2.3', ' 12 ']
+#: Shapes the second round on: formats typing brings that the first round had none of.
+MORE_SHAPES = ['Jan-2020', '12/2020', 'Jan 2020', '12:30.5', '1:30:45.5', '25:30:00', '30:45', '1/2/2020 25:00',
+               '€12', '12€', '%12', '12.5E+3', '1/2/2020 12:30:45 PM', '2020-01-02', '-1.5%', '($12.50)']
+#: How a case writes: into a cleared cell, into one formatted beforehand, or by TextToColumns over the cell.
+HOWS = ['clear'] * 6 + ['format:0.00', 'format:m/d/yyyy', 'format:@', 'format:0%', 'format:h:mm', 'textToColumns']
 CHUNK = 20
 
 
@@ -45,8 +50,10 @@ def native(text: str, zero: int) -> str:
 def texts(seed: int) -> list[dict[str, Any]]:
     pick = random.Random(seed)
     found: list[dict[str, Any]] = []
-    for _ in range(80):
-        shape = pick.choice(SHAPES)
+    # Rounds from 54102 on draw the further shapes and ways of writing too.
+    shapes = SHAPES if seed <= 54101 else SHAPES + MORE_SHAPES * 2
+    for _ in range(80 if seed <= 54101 else 120):
+        shape = pick.choice(shapes)
         zero = pick.choice(ZEROS)
         text = native(shape, zero)
         roll = pick.random()
@@ -60,7 +67,10 @@ def texts(seed: int) -> list[dict[str, Any]]:
             at = pick.choice(digits)
             other = pick.choice([z for z in ZEROS if z != zero])
             text = text[:at] + chr(other + int(shape[at])) + text[at + 1:]
-        found.append({'shape': shape, 'zero': f'{zero:04X}', 'text': text, 'typed': pick.random() < 0.5})
+        case = {'shape': shape, 'zero': f'{zero:04X}', 'text': text, 'typed': pick.random() < 0.5}
+        if seed > 54101:
+            case['how'] = pick.choice(HOWS)
+        found.append(case)
     return found
 
 
@@ -75,7 +85,18 @@ def source(cases: list[dict[str, Any]]) -> str:
              '    Set r = ws.Range("A1"): Set o = ws.Range("A1")', '    ws.Columns(1).ColumnWidth = 40']
     for case in cases:
         holder = 'r' if case['typed'] else 'o'
-        lines += [f'    {holder}.Clear', f'    {holder}.Value = {vba(case["text"])}', f'    v = {holder}.Value',
+        how = case.get('how', 'clear')
+        lines.append(f'    {holder}.Clear')
+        if how.startswith('format:'):
+            lines.append(f'    {holder}.NumberFormat = "{how[7:]}"')
+        if how == 'textToColumns':
+            # The text goes in as a string, kept by the apostrophe, and TextToColumns reads it.
+            lines += [f'    {holder}.Value = "\'" & {vba(case["text"])}',
+                      f'    {holder}.TextToColumns Destination:={holder}, DataType:=xlDelimited, Tab:=True, Semicolon:=False, '
+                      'Comma:=False, Space:=False, Other:=False']
+        else:
+            lines.append(f'    {holder}.Value = {vba(case["text"])}')
+        lines += [f'    v = {holder}.Value',
                   f'    s = s & TypeName(v) & " " & IIf(TypeName(v) = "String", "", CStr(v)) & " ~ " & CStr({holder}.Value2) & " ~ " '
                   f'& {holder}.NumberFormat & " ~ " & {holder}.Text & "|"']
     lines += ['    wb.Close False', '    One = s', 'End Function']

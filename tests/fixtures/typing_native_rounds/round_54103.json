@@ -1,0 +1,967 @@
+{
+ "seed": 54103,
+ "predicted_at": "2026-11-07T16:10:34.814690+00:00",
+ "predictions_sha256_16": "efe35b0efba07d9a",
+ "cases": [
+  {
+   "shape": "-1.5%",
+   "zero": "0660",
+   "text": "-١.٥%",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -0.015 ~ -0.015 ~ [$-2000401]0.00% ~ -١.٥٠%"
+  },
+  {
+   "shape": "30:45",
+   "zero": "09E6",
+   "text": "৩০:৪৫",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 1.28125 ~ 1.28125 ~ [$-5000000][h]:mm:ss ~ ৩০:৪৫:০০"
+  },
+  {
+   "shape": "-1.5%",
+   "zero": "0CE6",
+   "text": "-೧.೫%",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -0.015 ~ -0.015 ~ [$-B00044B]0.00% ~ -೧.೫೦%"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "06F0",
+   "text": "۱/۲/۲۰۲۰",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/2/2020 ~ 43832 ~ [$-3000000]mm/dd/yyyy ~ ۰۱/۰۲/۲۰۲۰"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0A66",
+   "text": "Jan-੨੦੨੦",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-6000000]mmm-yyyy ~ Jan-੨੦੨੦"
+  },
+  {
+   "shape": "12:30.5",
+   "zero": "0E50",
+   "text": "๑๒:๓๐.๕",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 8.68634259259259E-03 ~ 8.68634259259259E-03 ~ [$-D000000]mm:ss.0 ~ ๑๒:๓๐.๕"
+  },
+  {
+   "shape": "1:30:45.5",
+   "zero": "0D66",
+   "text": "൧:൩൦:൪൫.൫",
+   "typed": true,
+   "how": "format:0.00",
+   "model": "Double 6.30266203703704E-02 ~ 6.30266203703704E-02 ~ 0.00 ~ 0.06"
+  },
+  {
+   "shape": "1 1/4",
+   "zero": "0F20",
+   "text": "༡ ༡/൪",
+   "typed": true,
+   "how": "format:h:mm",
+   "model": "Double 1.25 ~ 1.25 ~ # ?/? ~ 1 1/4"
+  },
+  {
+   "shape": "1:30:45.5",
+   "zero": "0966",
+   "text": "१:३०:४५.५",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 6.30266203703704E-02 ~ 6.30266203703704E-02 ~ [$-4000000]mm:ss.0 ~ ३०:४५.५"
+  },
+  {
+   "shape": "12.125",
+   "zero": "17E0",
+   "text": "១២.១២៥",
+   "typed": true,
+   "how": "format:m/d/yyyy",
+   "model": "Date 1/11/1900 3:00:00 AM ~ 12.125 ~ m/d/yyyy ~ 1/12/1900"
+  },
+  {
+   "shape": "12.25%",
+   "zero": "0F20",
+   "text": "༡༢.༢༥%",
+   "typed": true,
+   "how": "format:@",
+   "model": "String  ~ ༡༢.༢༥% ~ @ ~ ༡༢.༢༥%"
+  },
+  {
+   "shape": "12,345.5",
+   "zero": "0660",
+   "text": "١٢,٣٤٥.٥",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 12345.5 ~ 12345.5 ~ [$-2000401]#,##0.00 ~ ١٢,٣٤٥.٥٠"
+  },
+  {
+   "shape": "12.125",
+   "zero": "17E0",
+   "text": "១២.១២៥",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 12.125 ~ 12.125 ~ [$-12000453]0.### ~ ១២.១២៥"
+  },
+  {
+   "shape": "2020-01-02",
+   "zero": "0E50",
+   "text": "๒๐๒๐-๐๑-๐๒",
+   "typed": true,
+   "how": "format:m/d/yyyy",
+   "model": "Date 1/2/2020 ~ 43832 ~ m/d/yyyy ~ 1/2/2020"
+  },
+  {
+   "shape": "2020-01-02",
+   "zero": "17E0",
+   "text": "២០២០-០១-០២",
+   "typed": true,
+   "how": "format:m/d/yyyy",
+   "model": "Date 1/2/2020 ~ 43832 ~ m/d/yyyy ~ 1/2/2020"
+  },
+  {
+   "shape": "1.5",
+   "zero": "1810",
+   "text": "᠑.᠕",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 1.5 ~ 1.5 ~ [$-13000450]0.# ~ ᠑.᠕"
+  },
+  {
+   "shape": "12-Jan-2020",
+   "zero": "0B66",
+   "text": "୧୨-Jan-୨୦୨୦",
+   "typed": true,
+   "how": "format:0.00",
+   "model": "Double 43842 ~ 43842 ~ 0.00 ~ 43842.00"
+  },
+  {
+   "shape": "12",
+   "zero": "0C66",
+   "text": "౧౨",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 12 ~ 12 ~ [$-A00044A]0 ~ ౧౨"
+  },
+  {
+   "shape": "-1.5%",
+   "zero": "0D66",
+   "text": "-൧.൫%",
+   "typed": false,
+   "how": "format:m/d/yyyy",
+   "model": "Date 12:21:36 AM ~ -0.015 ~ m/d/yyyy ~ ########################################"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0AE6",
+   "text": "૧e૩",
+   "typed": false,
+   "how": "textToColumns",
+   "model": "Double 1000 ~ 1000 ~ 0.00E+00 ~ 1.00E+03"
+  },
+  {
+   "shape": "(12)",
+   "zero": "0ED0",
+   "text": "(໑໒)",
+   "typed": true,
+   "how": "format:h:mm",
+   "model": "Double -12 ~ -12 ~ h:mm ~ ########################################"
+  },
+  {
+   "shape": "12,345.5",
+   "zero": "0ED0",
+   "text": "໑໒,௩໔໕.໕",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 12345.5 ~ 12345.5 ~ [$-E000454]#,##0.00 ~ ໑໒,໓໔໕.໕໐"
+  },
+  {
+   "shape": "Jan 2020",
+   "zero": "17E0",
+   "text": "Jan ២០២០",
+   "typed": true,
+   "how": "clear",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-12000000]mmm-yyyy ~ Jan-២០២០"
+  },
+  {
+   "shape": "%12",
+   "zero": "0D66",
+   "text": "%൧௨",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 0.12 ~ 0.12 ~ [$-9000449]0.00% ~ ௧௨.௦௦%"
+  },
+  {
+   "shape": "1/2/2020 3:04 PM",
+   "zero": "0B66",
+   "text": "୧/୨/୨୦୨୦ ୩:୦୪ PM",
+   "typed": false,
+   "how": "format:@",
+   "model": "String  ~ ୧/୨/୨୦୨୦ ୩:୦୪ PM ~ @ ~ ୧/୨/୨୦୨୦ ୩:୦୪ PM"
+  },
+  {
+   "shape": "$1,234",
+   "zero": "09E6",
+   "text": "$১,২൩৪",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 1234 ~ 1234 ~ [$$-5000445] #,##0.00_);[Red]([$$-5000445]#,##0.00) ~ $ ১,২৩৪.০০ "
+  },
+  {
+   "shape": "(12)",
+   "zero": "0C66",
+   "text": "(౧౨)",
+   "typed": true,
+   "how": "format:h:mm",
+   "model": "Double -12 ~ -12 ~ h:mm ~ ########################################"
+  },
+  {
+   "shape": "12,345",
+   "zero": "17E0",
+   "text": "១២,៣៤៥",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 12345 ~ 12345 ~ [$-12000453]#,##0 ~ ១២,៣៤៥"
+  },
+  {
+   "shape": "12/2020",
+   "zero": "0F20",
+   "text": "༡༢/2༠༢༠",
+   "typed": false,
+   "how": "format:h:mm",
+   "model": "Double 44166 ~ 44166 ~ h:mm ~ 0:00"
+  },
+  {
+   "shape": "+3",
+   "zero": "0A66",
+   "text": "+੩",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 3 ~ 3 ~ [$-6000446]0 ~ ੩"
+  },
+  {
+   "shape": " 12 ",
+   "zero": "17E0",
+   "text": " ១២ ",
+   "typed": true,
+   "how": "textToColumns",
+   "model": "Double 12 ~ 12 ~ [$-12000453]0 ~ ១២"
+  },
+  {
+   "shape": "-12",
+   "zero": "06F0",
+   "text": "-۱۲",
+   "typed": false,
+   "how": "format:0.00",
+   "model": "Double -12 ~ -12 ~ 0.00 ~ -12.00"
+  },
+  {
+   "shape": "($12.50)",
+   "zero": "0B66",
+   "text": "($୧୨.୫୦)",
+   "typed": false,
+   "how": "format:h:mm",
+   "model": "Double -12.5 ~ -12.5 ~ h:mm ~ ########################################"
+  },
+  {
+   "shape": "12.5E+3",
+   "zero": "0D66",
+   "text": "1൨.൫E+൩",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 12500 ~ 12500 ~ 0.00E+00 ~ 1.25E+04"
+  },
+  {
+   "shape": "1/2/2020 12:30:45 PM",
+   "zero": "0C66",
+   "text": "౧/౨/౨౦౨౦ ౧౨:౩౦:౪౫ PM",
+   "typed": false,
+   "how": "format:h:mm",
+   "model": "Double 43832.5213541667 ~ 43832.5213541667 ~ h:mm ~ 12:30"
+  },
+  {
+   "shape": "12:30",
+   "zero": "0CE6",
+   "text": "೧೨:೩೦",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 0.520833333333333 ~ 0.520833333333333 ~ [$-B000000]h:mm ~ ೧೨:೩೦"
+  },
+  {
+   "shape": "12345678.5",
+   "zero": "0B66",
+   "text": "୧୨୩୪୫୬୭୮.୫",
+   "typed": true,
+   "how": "format:h:mm",
+   "model": "Double 12345678.5 ~ 12345678.5 ~ h:mm ~ ########################################"
+  },
+  {
+   "shape": "1/2/2020",
+   "zero": "1810",
+   "text": "᠑/᠒/᠒᠐᠒᠐",
+   "typed": true,
+   "how": "format:h:mm",
+   "model": "Double 43832 ~ 43832 ~ h:mm ~ 0:00"
+  },
+  {
+   "shape": "x7",
+   "zero": "0D66",
+   "text": "x൭",
+   "typed": true,
+   "how": "clear",
+   "model": "String  ~ x൭ ~ General ~ x൭"
+  },
+  {
+   "shape": "12,345.5",
+   "zero": "1810",
+   "text": "᠑᠒,᠓᠔᠕.᠕",
+   "typed": true,
+   "how": "textToColumns",
+   "model": "Double 12345.5 ~ 12345.5 ~ [$-13000450]#,##0.00 ~ ᠑᠒,᠓᠔᠕.᠕᠐"
+  },
+  {
+   "shape": "12/2020",
+   "zero": "0966",
+   "text": "1२/२०२०",
+   "typed": true,
+   "how": "clear",
+   "model": "Date 12/1/2020 ~ 44166 ~ [$-4000000]mmm-yyyy ~ Dec-२०२०"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0A66",
+   "text": "Jan-੨੦੨੦",
+   "typed": true,
+   "how": "clear",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-6000000]mmm-yyyy ~ Jan-੨੦੨੦"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0D66",
+   "text": "Jan-൨൦൨൦",
+   "typed": false,
+   "how": "format:m/d/yyyy",
+   "model": "Date 1/1/2020 ~ 43831 ~ m/d/yyyy ~ 1/1/2020"
+  },
+  {
+   "shape": "Jan 2020",
+   "zero": "1040",
+   "text": "Jan ၂၀၂၀",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-10000000]mmm-yyyy ~ Jan-၂၀၂၀"
+  },
+  {
+   "shape": "1.5%",
+   "zero": "0F20",
+   "text": "༡.༥%",
+   "typed": true,
+   "how": "format:@",
+   "model": "String  ~ ༡.༥% ~ @ ~ ༡.༥%"
+  },
+  {
+   "shape": "30:45",
+   "zero": "0CE6",
+   "text": "೩೦:೪೫",
+   "typed": false,
+   "how": "format:0.00",
+   "model": "Double 1.28125 ~ 1.28125 ~ 0.00 ~ 1.28"
+  },
+  {
+   "shape": "30:45",
+   "zero": "1810",
+   "text": "᠓᠐:᠔᠕",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 1.28125 ~ 1.28125 ~ [$-13000000][h]:mm:ss ~ ᠓᠐:᠔᠕:᠐᠐"
+  },
+  {
+   "shape": "1,234,567",
+   "zero": "0AE6",
+   "text": "૧,૨૩૪,૫૬૭",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 1234567 ~ 1234567 ~ [$-7000447]#,##0 ~ ૧,૨૩૪,૫૬૭"
+  },
+  {
+   "shape": "€12",
+   "zero": "06F0",
+   "text": "€۱۲",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 12 ~ 12 ~ [$-3000401]0 ~ ۱۲"
+  },
+  {
+   "shape": "(1.5)",
+   "zero": "0C66",
+   "text": "(౧.౫)",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -1.5 ~ -1.5 ~ [$-A00044A]0.# ~ -౧.౫"
+  },
+  {
+   "shape": "%12",
+   "zero": "0D66",
+   "text": "%൧൨",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 0.12 ~ 0.12 ~ [$-C00044C]0.00% ~ ൧൨.൦൦%"
+  },
+  {
+   "shape": "25:30:00",
+   "zero": "0F20",
+   "text": "༢༥:༣༠:0༠",
+   "typed": true,
+   "how": "format:0.00",
+   "model": "Double 1.0625 ~ 1.0625 ~ 0.00 ~ 1.06"
+  },
+  {
+   "shape": ".25",
+   "zero": "0C66",
+   "text": ".౨৫",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 0.25 ~ 0.25 ~ [$-5000445]0.## ~ ০.২৫"
+  },
+  {
+   "shape": "12/2020",
+   "zero": "0A66",
+   "text": "1੨/੨੦੨੦",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 12/1/2020 ~ 44166 ~ [$-6000000]mmm-yyyy ~ Dec-੨੦੨੦"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0966",
+   "text": "१e३",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 1000 ~ 1000 ~ 0.00E+00 ~ 1.00E+03"
+  },
+  {
+   "shape": "($12.50)",
+   "zero": "0ED0",
+   "text": "($໑໒.໕໐)",
+   "typed": true,
+   "how": "format:0%",
+   "model": "Double -12.5 ~ -12.5 ~ 0% ~ -1250%"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0E50",
+   "text": "Jan-๒๐๒๐",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-D000000]mmm-yyyy ~ Jan-๒๐๒๐"
+  },
+  {
+   "shape": "+3",
+   "zero": "0E50",
+   "text": "+๓",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 3 ~ 3 ~ [$-D00041E]0 ~ ๓"
+  },
+  {
+   "shape": "1:30:45.5",
+   "zero": "0E50",
+   "text": "๑:๓๐:๔๕.৫",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 6.30266203703704E-02 ~ 6.30266203703704E-02 ~ [$-5000000]mm:ss.0 ~ ৩০:৪৫.৫"
+  },
+  {
+   "shape": "$12.50",
+   "zero": "0BE6",
+   "text": "$௧௨.௫௦",
+   "typed": false,
+   "how": "textToColumns",
+   "model": "Double 12.5 ~ 12.5 ~ [$$-9000449] #,##0.00_);[Red]([$$-9000449]#,##0.00) ~ $ ௧௨.௫௦ "
+  },
+  {
+   "shape": "12345678.5",
+   "zero": "0660",
+   "text": "١٢٣٤٥٦٧٨.٥",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 12345678.5 ~ 12345678.5 ~ [$-2000401]0.# ~ ١٢٣٤٥٦٧٨.٥"
+  },
+  {
+   "shape": "€12",
+   "zero": "06F0",
+   "text": "€۱2",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 12 ~ 12 ~ [$-3000401]0 ~ ۱۲"
+  },
+  {
+   "shape": "-0.75",
+   "zero": "0C66",
+   "text": "-౦.౭౫",
+   "typed": false,
+   "how": "format:h:mm",
+   "model": "Double -0.75 ~ -0.75 ~ h:mm ~ ########################################"
+  },
+  {
+   "shape": "(12)",
+   "zero": "0966",
+   "text": "(१२)",
+   "typed": false,
+   "how": "format:m/d/yyyy",
+   "model": "Date 12/18/1899 ~ -12 ~ m/d/yyyy ~ ########################################"
+  },
+  {
+   "shape": "$12",
+   "zero": "0AE6",
+   "text": "$૧૨",
+   "typed": true,
+   "how": "textToColumns",
+   "model": "Double 12 ~ 12 ~ [$$-7000447] #,##0.00_);[Red]([$$-7000447]#,##0.00) ~ $ ૧૨.૦૦ "
+  },
+  {
+   "shape": "1/2/2020 3:04 PM",
+   "zero": "0CE6",
+   "text": "೧/೨/೨೦೨೦ ೩:೦೪ PM",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/2/2020 3:04:00 PM ~ 43832.6277777778 ~ [$-B000000]m/d/yyyy h:mm ~ ೧/೨/೨೦೨೦ ೧೫:೦೪"
+  },
+  {
+   "shape": "-1.5%",
+   "zero": "0AE6",
+   "text": "-૧.૫%",
+   "typed": true,
+   "how": "format:@",
+   "model": "String  ~ -૧.૫% ~ @ ~ -૧.૫%"
+  },
+  {
+   "shape": "12.5E+3",
+   "zero": "0AE6",
+   "text": "૧૨.૫E+૩",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 12500 ~ 12500 ~ 0.00E+00 ~ 1.25E+04"
+  },
+  {
+   "shape": "1.5%",
+   "zero": "0BE6",
+   "text": "1.௫%",
+   "typed": true,
+   "how": "format:m/d/yyyy",
+   "model": "Date 12:21:36 AM ~ 0.015 ~ m/d/yyyy ~ 1/0/1900"
+  },
+  {
+   "shape": "-0.75",
+   "zero": "1810",
+   "text": "-᠐.᠗᠕",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -0.75 ~ -0.75 ~ [$-13000450]0.## ~ -᠐.᠗᠕"
+  },
+  {
+   "shape": "0",
+   "zero": "06F0",
+   "text": "۰",
+   "typed": false,
+   "how": "textToColumns",
+   "model": "Double 0 ~ 0 ~ [$-3000401]0 ~ ۰"
+  },
+  {
+   "shape": "(12)",
+   "zero": "0D66",
+   "text": "(1൨)",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -12 ~ -12 ~ [$-C00044C]0 ~ -൧൨"
+  },
+  {
+   "shape": "12€",
+   "zero": "0CE6",
+   "text": "1೨€",
+   "typed": false,
+   "how": "format:@",
+   "model": "String  ~ 1೨€ ~ @ ~ 1೨€"
+  },
+  {
+   "shape": "12.5E+3",
+   "zero": "0E50",
+   "text": "๑๒.๕E+๓",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 12500 ~ 12500 ~ 0.00E+00 ~ 1.25E+04"
+  },
+  {
+   "shape": "$1,234",
+   "zero": "0BE6",
+   "text": "$௧,௨௩௪",
+   "typed": false,
+   "how": "format:0.00",
+   "model": "Double 1234 ~ 1234 ~ 0.00 ~ 1234.00"
+  },
+  {
+   "shape": "1e3",
+   "zero": "0ED0",
+   "text": "໑e໓",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 1000 ~ 1000 ~ 0.00E+00 ~ 1.00E+03"
+  },
+  {
+   "shape": "-1.5%",
+   "zero": "0ED0",
+   "text": "-໑.໕%",
+   "typed": true,
+   "how": "format:0.00",
+   "model": "Double -0.015 ~ -0.015 ~ 0.00 ~ -0.02"
+  },
+  {
+   "shape": "-0.75",
+   "zero": "0BE6",
+   "text": "-௦.௭5",
+   "typed": true,
+   "how": "clear",
+   "model": "Double -0.75 ~ -0.75 ~ [$-9000449]0.## ~ -௦.௭௫"
+  },
+  {
+   "shape": "-1.5%",
+   "zero": "0ED0",
+   "text": "-1.໕%",
+   "typed": false,
+   "how": "textToColumns",
+   "model": "Double -0.015 ~ -0.015 ~ [$-E000454]0.00% ~ -໑.໕໐%"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0F20",
+   "text": "Jan-༢༠༢༠",
+   "typed": true,
+   "how": "textToColumns",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-F000000]mmm-yyyy ~ Jan-༢༠༢༠"
+  },
+  {
+   "shape": "12345678901",
+   "zero": "0D66",
+   "text": "൧൨൩൪൫൬൭൮൯൦൧",
+   "typed": true,
+   "how": "format:0.00",
+   "model": "Double 12345678901 ~ 12345678901 ~ 0.00 ~ 12345678901.00"
+  },
+  {
+   "shape": "-$12",
+   "zero": "0D66",
+   "text": "-$൧൨",
+   "typed": true,
+   "how": "format:m/d/yyyy",
+   "model": "Date 12/18/1899 ~ -12 ~ m/d/yyyy ~ ########################################"
+  },
+  {
+   "shape": "1-2-3",
+   "zero": "0C66",
+   "text": "౧-౨-౩",
+   "typed": true,
+   "how": "clear",
+   "model": "Date 1/2/2003 ~ 37623 ~ [$-A000000]mm/dd/yyyy ~ ౦౧/౦౨/౨౦౦౩"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "09E6",
+   "text": "Jan-২০২০",
+   "typed": true,
+   "how": "format:0%",
+   "model": "Double 43831 ~ 43831 ~ 0% ~ 4383100%"
+  },
+  {
+   "shape": "12:30.5",
+   "zero": "09E6",
+   "text": "১২:৩০.৫",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 8.68634259259259E-03 ~ 8.68634259259259E-03 ~ [$-5000000]mm:ss.0 ~ ১২:৩০.৫"
+  },
+  {
+   "shape": "Jan 2020",
+   "zero": "0ED0",
+   "text": "Jan ໒໐໒໐",
+   "typed": false,
+   "how": "textToColumns",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-E000000]mmm-yyyy ~ Jan-໒໐໒໐"
+  },
+  {
+   "shape": "12a",
+   "zero": "0F20",
+   "text": "༡۲a",
+   "typed": true,
+   "how": "clear",
+   "model": "String  ~ ༡۲a ~ General ~ ༡۲a"
+  },
+  {
+   "shape": "-1.5%",
+   "zero": "0C66",
+   "text": "-౧.౫%",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -0.015 ~ -0.015 ~ [$-A00044A]0.00% ~ -౧.౫౦%"
+  },
+  {
+   "shape": "Jan 2020",
+   "zero": "0BE6",
+   "text": "Jan ௨௦௨௦",
+   "typed": true,
+   "how": "clear",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-9000000]mmm-yyyy ~ Jan-௨௦௨௦"
+  },
+  {
+   "shape": "12345678901",
+   "zero": "0CE6",
+   "text": "೧೨೩೪೫೬೭೮೯೦೧",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 12345678901 ~ 12345678901 ~ [$-B00044B]0 ~ ೧೨೩೪೫೬೭೮೯೦೧"
+  },
+  {
+   "shape": "12.125",
+   "zero": "0BE6",
+   "text": "௧௨.௧௨௫",
+   "typed": false,
+   "how": "format:h:mm",
+   "model": "Double 12.125 ~ 12.125 ~ h:mm ~ 3:00"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0CE6",
+   "text": "Jan-೨೦೨೦",
+   "typed": false,
+   "how": "format:0%",
+   "model": "Double 43831 ~ 43831 ~ 0% ~ 4383100%"
+  },
+  {
+   "shape": "12:30.5",
+   "zero": "0966",
+   "text": "१२:३०.๕",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 8.68634259259259E-03 ~ 8.68634259259259E-03 ~ [$-D000000]mm:ss.0 ~ ๑๒:๓๐.๕"
+  },
+  {
+   "shape": "-$12",
+   "zero": "1040",
+   "text": "-$၁၂",
+   "typed": false,
+   "how": "format:0%",
+   "model": "Double -12 ~ -12 ~ 0% ~ -1200%"
+  },
+  {
+   "shape": "12.25%",
+   "zero": "0B66",
+   "text": "୧୨.୨୫%",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 0.1225 ~ 0.1225 ~ [$-8000448]0.00% ~ ୧୨.୨୫%"
+  },
+  {
+   "shape": "1,2",
+   "zero": "1810",
+   "text": "1,᠒",
+   "typed": true,
+   "how": "clear",
+   "model": "String  ~ 1,᠒ ~ General ~ 1,᠒"
+  },
+  {
+   "shape": "Jan 2020",
+   "zero": "06F0",
+   "text": "Jan ۲۰٢۰",
+   "typed": true,
+   "how": "format:0.00",
+   "model": "Double 43831 ~ 43831 ~ 0.00 ~ 43831.00"
+  },
+  {
+   "shape": "(12)",
+   "zero": "0ED0",
+   "text": "(໑໒)",
+   "typed": true,
+   "how": "format:0%",
+   "model": "Double -12 ~ -12 ~ 0% ~ -1200%"
+  },
+  {
+   "shape": "12,345",
+   "zero": "09E6",
+   "text": "১২,৩৪੫",
+   "typed": false,
+   "how": "textToColumns",
+   "model": "Double 12345 ~ 12345 ~ [$-6000446]#,##0 ~ ੧੨,੩੪੫"
+  },
+  {
+   "shape": "2020-01-02",
+   "zero": "17E0",
+   "text": "២០២០-០១-០២",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/2/2020 ~ 43832 ~ [$-12000000]mm/dd/yyyy ~ ០១/០២/២០២០"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0F20",
+   "text": "Jan-༢༠༢०",
+   "typed": true,
+   "how": "textToColumns",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-4000000]mmm-yyyy ~ Jan-२०२०"
+  },
+  {
+   "shape": "12.25%",
+   "zero": "0D66",
+   "text": "൧൨.൨൫%",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 0.1225 ~ 0.1225 ~ [$-C00044C]0.00% ~ ൧൨.൨൫%"
+  },
+  {
+   "shape": "-12",
+   "zero": "0ED0",
+   "text": "-໑2",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -12 ~ -12 ~ [$-E000454]0 ~ -໑໒"
+  },
+  {
+   "shape": " 12 ",
+   "zero": "0660",
+   "text": " ١٢ ",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 12 ~ 12 ~ [$-2000401]0 ~ ١٢"
+  },
+  {
+   "shape": "12,345.5",
+   "zero": "0ED0",
+   "text": "໑໒,໓໔໕.໕",
+   "typed": true,
+   "how": "format:0.00",
+   "model": "Double 12345.5 ~ 12345.5 ~ 0.00 ~ 12345.50"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0660",
+   "text": "Jan-٢٠٢٠",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/1/2020 ~ 43831 ~ [$-2000000]mmm-yyyy ~ Jan-٢٠٢٠"
+  },
+  {
+   "shape": "2020-01-02",
+   "zero": "0660",
+   "text": "٢٠٢٠-٠١-٠٢",
+   "typed": false,
+   "how": "clear",
+   "model": "Date 1/2/2020 ~ 43832 ~ [$-2000000]mm/dd/yyyy ~ ٠١/٠٢/٢٠٢٠"
+  },
+  {
+   "shape": "-1.5%",
+   "zero": "1810",
+   "text": "-᠑.༥%",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -0.015 ~ -0.015 ~ [$-F000451]0.00% ~ -༡.༥༠%"
+  },
+  {
+   "shape": "-12",
+   "zero": "0AE6",
+   "text": "-૧૨",
+   "typed": false,
+   "how": "clear",
+   "model": "Double -12 ~ -12 ~ [$-7000447]0 ~ -૧૨"
+  },
+  {
+   "shape": "7",
+   "zero": "0BE6",
+   "text": "௭",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 7 ~ 7 ~ [$-9000449]0 ~ ௭"
+  },
+  {
+   "shape": "Jan-2020",
+   "zero": "0BE6",
+   "text": "Jan-២௦௨௦",
+   "typed": false,
+   "how": "format:0%",
+   "model": "Double 43831 ~ 43831 ~ 0% ~ 4383100%"
+  },
+  {
+   "shape": "00",
+   "zero": "0B66",
+   "text": "୦୦",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 0 ~ 0 ~ [$-8000448]0 ~ ୦"
+  },
+  {
+   "shape": "1.25",
+   "zero": "0966",
+   "text": "१.२५",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 1.25 ~ 1.25 ~ [$-4000439]0.## ~ १.२५"
+  },
+  {
+   "shape": "$12.50",
+   "zero": "06F0",
+   "text": "$۱۲.۵۰",
+   "typed": false,
+   "how": "format:@",
+   "model": "String  ~ $۱۲.۵۰ ~ @ ~ $۱۲.۵۰"
+  },
+  {
+   "shape": "2020-01-02",
+   "zero": "0F20",
+   "text": "༢༠༢༠-༠༡-༠2",
+   "typed": false,
+   "how": "format:@",
+   "model": "String  ~ ༢༠༢༠-༠༡-༠2 ~ @ ~ ༢༠༢༠-༠༡-༠2"
+  },
+  {
+   "shape": "1/2/2020 25:00",
+   "zero": "0BE6",
+   "text": "௧/௨/௨௦௨௦ ௨௫:௦௦",
+   "typed": false,
+   "how": "clear",
+   "model": "Double 43833.0416666667 ~ 43833.0416666667 ~ [$-9000449]0 ~ ௪௩௮௩௩"
+  },
+  {
+   "shape": "12/2020",
+   "zero": "0BE6",
+   "text": "௧௨/௨௦௨௦",
+   "typed": true,
+   "how": "clear",
+   "model": "Date 12/1/2020 ~ 44166 ~ [$-9000000]mmm-yyyy ~ Dec-௨௦௨௦"
+  },
+  {
+   "shape": "1:30:45.5",
+   "zero": "0BE6",
+   "text": "௧:௩௦:௪௫.௫",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 6.30266203703704E-02 ~ 6.30266203703704E-02 ~ [$-9000000]mm:ss.0 ~ ௩௦:௪௫.௫"
+  },
+  {
+   "shape": "1.5e-3",
+   "zero": "0CE6",
+   "text": "೧.೫e-೩",
+   "typed": true,
+   "how": "format:@",
+   "model": "String  ~ ೧.೫e-೩ ~ @ ~ ೧.೫e-೩"
+  },
+  {
+   "shape": "1/2/2020 25:00",
+   "zero": "1810",
+   "text": "᠑/᠒/᠒᠐᠒᠐ ᠒᠕:᠐᠐",
+   "typed": true,
+   "how": "clear",
+   "model": "Double 43833.0416666667 ~ 43833.0416666667 ~ [$-13000450]0 ~ ᠔᠓᠘᠓᠓"
+  }
+ ]
+}

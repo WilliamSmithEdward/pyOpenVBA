@@ -11,7 +11,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel._typing import typed_text
-from pyopenvba.exceptions import VBAUnsupportedError
 
 ROOT = Path(__file__).parents[1]
 _spec = importlib.util.spec_from_file_location('measure_typing_native_digits', ROOT / 'scripts/measure_typing_native_digits.py')
@@ -55,6 +54,5 @@ def test_text_round_the_digits_stays_text(text: str) -> None:
     assert typed_text(text).value == text
 
 
-def test_a_fraction_read_in_a_formatted_cell_reports_itself() -> None:
-    with pytest.raises(VBAUnsupportedError):
-        typed_text('١/٢', fractions=True)
+def test_a_formatted_cell_reads_a_fraction_in_another_scripts_digits_as_a_half() -> None:
+    assert typed_text('١/٢', fractions=True).value == 0.5

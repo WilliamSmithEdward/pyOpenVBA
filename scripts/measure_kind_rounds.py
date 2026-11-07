@@ -22,6 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import measure_table_pivot_rounds as base  # noqa: E402
+from fixture_workbook import copy_saved  # noqa: E402
 
 OUT = base.FIXTURES / 'kind_rounds'
 BOOK = OUT / 'k.xlsx'
@@ -148,7 +149,7 @@ def make_book() -> None:
             target = Path(held) / 'k.xlsx'
             done = excel.run_vba(source, 'Make', (str(target),), timeout=120.0, line_numbers=False)
             assert done.ok and done.value == 'saved', done
-            shutil.copyfile(target, BOOK)
+            copy_saved(target, BOOK)
     finally:
         os.rmdir(lock)
     print('saved', BOOK)

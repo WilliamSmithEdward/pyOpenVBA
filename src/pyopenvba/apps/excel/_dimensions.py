@@ -442,7 +442,7 @@ class SheetDimensions:
         cannot tell. A number stays on a line, and a merged cell and a formula add nothing, until AutoFit for a formula
         (tests/fixtures/wrapped_events.json)."""
         from pyopenvba.apps.excel._column_fit import font_pad
-        from pyopenvba.apps.excel._font_widths import ascent, widths
+        from pyopenvba.apps.excel._font_widths import widths
         from pyopenvba.apps.excel._wrapped_text import lines_of, row_pixels_for
 
         if cell.runs is not None:
@@ -456,6 +456,10 @@ class SheetDimensions:
             # The fourth held-out round's one miss, in columns about a letter wide (tests/fixtures/wrapped_round4.json).
             return "wrapped text ending in a hyphen and a line feed"
         font = style.font
+        if font.italic:
+            # Italic held out 16 wrong of 6,060 lines over four fonts, each a line the rule fits and Excel breaks, and no slant rule tried does better
+            # (tests/fixtures/wrapped_italic_scores.json).
+            return "wrapped italic text"
         table = widths(font.name, font.bold, font.italic, float(font.size))
         if table is None:
             return f"the font {font.name}"
@@ -466,10 +470,6 @@ class SheetDimensions:
         if family is None or not 1 <= pixels <= _font_rows.MOST_PIXELS:
             return f"the font {font.name}"
         taken = 9 * style.alignment.indent
-        if font.italic:
-            rise = ascent(font.name, font.bold, True, float(font.size))
-            assert rise is not None
-            taken += rise // 5
 
         def extent(text: str) -> int:
             return sum(table[character] for character in text)
@@ -543,6 +543,11 @@ class SheetDimensions:
             return self.default_quarters()
         grown = self._grown.get(row)
         return grown[0] if grown is not None else self.default_quarters()
+
+    def rows_of_their_own(self) -> list[int]:
+        """The rows, in order, that may differ from a row the sheet says nothing about."""
+        self._settle()
+        return sorted({*self.rows, *self._grown, *self._unmeasured})
 
     def fonts_changed(self, row: int) -> None:
         """A cell in a row changed its value or its format, or went away, or the row's format changed."""
@@ -1579,6 +1584,9 @@ def recalculate_visibility(target: Range, before: tuple[bool, frozenset[int]]) -
 
 def write_row_height(target: Range, value: object) -> None:
     points = _size(value)
+    if math.isinf(points * 20):
+        # 1E+100 is 1004 where 1E+308, either sign, is a row of no height: too large to scale (tests/fixtures/excel_huge_numbers.json).
+        points = 0.0
     if points < 0 or _c_round(points * 20) > MOST_TWIPS:
         raise error(1004, "a row can be from 0 to 409.5 points tall")
     quarters = quarters_for(points)

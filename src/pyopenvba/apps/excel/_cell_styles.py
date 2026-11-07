@@ -157,6 +157,9 @@ STANDARD: Final[tuple[tuple[str, int, str, int, str | None, str, str], ...]] = (
         *((f"{shade}% - Accent{accent}", 26 + accent * 4 + step, "FP", 0, _BODY, _tinted(accent + 3, tint),
            _NO_BORDER) for step, (shade, tint) in enumerate(zip((20, 40, 60), _TINTS, strict=True)))))
 )
+#: The two styles a workbook opened from a file with a link on a sheet lists, by name in lower case: its title, builtinId and the
+#: theme colour of its underlined font. A link made in the session brings the first only (tests/fixtures/tool_books/tool_books.json).
+_LINK_STYLES: Final = {"hyperlink": ("Hyperlink", 8, 10), "followed hyperlink": ("Followed Hyperlink", 9, 11)}
 #: The standard styles' places in Excel's order, Normal being 0, by name in lower case.
 _RANKS: Final = {name.casefold(): rank for rank, (name, *_) in enumerate(STANDARD, start=1)}
 #: The outline styles Range.ApplyOutlineStyles gives summary rows and columns, by name in lower case: builtinId 1
@@ -223,7 +226,18 @@ def find(book: Workbook, name: str) -> int | None:
     if found is not None:
         return found
     entry = _built_in(stylesheet, name)
+    if entry is None and book.opened_with_links and name.casefold() in _LINK_STYLES:
+        entry = _link_style(stylesheet, *_LINK_STYLES[name.casefold()])
     return None if entry is None else stylesheet.add_cell_style(entry)
+
+
+def _link_style(stylesheet: S.Stylesheet, title: str, builtin: int, theme: int) -> S.CellStyle:
+    """A link style as Excel makes it: the Normal font underlined in the theme's link colour, its typeface, family and scheme kept
+    (tests/fixtures/hyperlinks/links.xlsx, tests/fixtures/value_gaps.json)."""
+    font = replace(stylesheet.fonts[0], underline="single", color=S.parse_font(f'<font><color theme="{theme}"/></font>').color)
+    own = S.Style(number_format=stylesheet.number_formats[0], font=font, fill=S.parse_fill(_NO_FILL),
+                  border=S.parse_border(_NO_BORDER))
+    return S.CellStyle(own, frozenset({"font"}), name=title, builtin=builtin)
 
 
 def _listed(book: Workbook) -> list[str]:
@@ -238,6 +252,10 @@ def _listed(book: Workbook) -> list[str]:
     for name, builtin, *_ in STANDARD:
         if builtin not in held:
             names.setdefault(text_key(name, False), name)
+    if book.opened_with_links:
+        for name, builtin, _ in _LINK_STYLES.values():
+            if builtin not in held:
+                names.setdefault(text_key(name, False), name)
     return [names[key] for key in sorted(names)]
 
 
@@ -314,12 +332,7 @@ def give_link_style(target: Range) -> None:
     stylesheet = target.sheet.book.stylesheet
     place = stylesheet.named("Hyperlink")
     if place is None:
-        # The Normal font underlined in the theme's hyperlink colour, its typeface, family and scheme kept
-        # (tests/fixtures/hyperlinks/links.xlsx, tests/fixtures/value_gaps.json).
-        font = replace(stylesheet.fonts[0], underline="single", color=S.parse_font('<font><color theme="10"/></font>').color)
-        own = S.Style(number_format=stylesheet.number_formats[0], font=font, fill=S.parse_fill(_NO_FILL),
-                      border=S.parse_border(_NO_BORDER))
-        place = stylesheet.add_cell_style(S.CellStyle(own, frozenset({"font"}), name="Hyperlink", builtin=8))
+        place = stylesheet.add_cell_style(_link_style(stylesheet, *_LINK_STYLES["hyperlink"]))
     found, entry = place, stylesheet.cell_styles[place]
     restyle(target, lambda style: given(stylesheet, style, found, entry))
 

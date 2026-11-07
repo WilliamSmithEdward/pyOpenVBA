@@ -175,6 +175,9 @@ class EngineBook:
         refers = next((text for key, text in linked.names.items() if key.casefold() == name.casefold()), None)
         if refers is None:
             return None
+        if not refers:
+            # A name of a workbook whose file was not there, kept with nothing it refers to: #NAME? (tests/fixtures/book_refs.json).
+            return parse("#NAME?")
         try:
             return _in_book(parse(refers.removeprefix("=")), str(linked.number))
         except FormulaSyntaxError:

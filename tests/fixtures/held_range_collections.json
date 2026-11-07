@@ -1,0 +1,76 @@
+{
+ "measured_at": "2026-11-05T20:27:32.139298+00:00",
+ "source": "Public Function Probe(ByVal path As String, ByVal which As Long, ByVal reopen As Boolean) As String\n    Dim wb As Object, ws As Object, h As Object, r As Object, x As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"D1:D5\").Value = 3\n    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=2\"\n    ws.Hyperlinks.Add ws.Range(\"Q2\"), \"http://example.com/a\", \"\", \"\", \"L0\"\n    If reopen Then\n        wb.SaveAs path, xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(path)\n        Set ws = wb.Worksheets(1)\n    End If\n    On Error Resume Next\n    Select Case which\n    Case 0\n        Set h = ws.Range(\"Q2\").Hyperlinks\n        If Err.Number <> 0 Then x = \"hold E\" & Err.Number: Err.Clear\n        ws.Rows(\"1:2\").Insert\n        If Err.Number <> 0 Then x = x & \"edit E\" & Err.Number: Err.Clear\n        x = h.Count & \"/\" & h.Item(1).Range.Address(False, False)\n    Case 1\n        Set r = ws.Range(\"Q2\")\n        If Err.Number <> 0 Then x = \"hold E\" & Err.Number: Err.Clear\n        ws.Rows(\"1:2\").Insert\n        If Err.Number <> 0 Then x = x & \"edit E\" & Err.Number: Err.Clear\n        x = r.Hyperlinks.Count & \"/\" & r.Hyperlinks(1).Range.Address(False, False)\n    Case 2\n        Set h = ws.Range(\"Q2:Q3\").Hyperlinks\n        If Err.Number <> 0 Then x = \"hold E\" & Err.Number: Err.Clear\n        ws.Rows(\"1:2\").Insert: ws.Hyperlinks.Add ws.Range(\"Q5\"), \"http://example.com/b\"\n        If Err.Number <> 0 Then x = x & \"edit E\" & Err.Number: Err.Clear\n        x = h.Count & \"/\" & h.Item(h.Count).Range.Address(False, False)\n    Case 3\n        Set h = ws.Range(\"Q2\").Hyperlinks\n        If Err.Number <> 0 Then x = \"hold E\" & Err.Number: Err.Clear\n        ws.Columns(1).Insert\n        If Err.Number <> 0 Then x = x & \"edit E\" & Err.Number: Err.Clear\n        x = h.Count & \"/\" & h.Item(1).Range.Address(False, False)\n    Case 4\n        Set h = ws.Range(\"D1:D5\").FormatConditions\n        If Err.Number <> 0 Then x = \"hold E\" & Err.Number: Err.Clear\n        ws.Rows(\"1:2\").Insert\n        If Err.Number <> 0 Then x = x & \"edit E\" & Err.Number: Err.Clear\n        x = h.Count & \"/\" & h.Item(1).Parent.Address(False, False) & \"/\" & h.Item(1).AppliesTo.Address(False, False)\n    Case 5\n        Set h = ws.Range(\"D3\").FormatConditions(1)\n        If Err.Number <> 0 Then x = \"hold E\" & Err.Number: Err.Clear\n        ws.Rows(\"1:2\").Insert\n        If Err.Number <> 0 Then x = x & \"edit E\" & Err.Number: Err.Clear\n        x = h.Parent.Address(False, False) & \"/\" & h.AppliesTo.Address(False, False)\n    Case 6\n        Set h = ws.Range(\"D3\").FormatConditions(1)\n        If Err.Number <> 0 Then x = \"hold E\" & Err.Number: Err.Clear\n        ws.Rows(\"3\").Delete\n        If Err.Number <> 0 Then x = x & \"edit E\" & Err.Number: Err.Clear\n        x = h.Parent.Address(False, False) & \"/\" & h.AppliesTo.Address(False, False)\n    End Select\n    Probe = x & \"|E\" & Err.Number\n    Err.Clear\n    wb.Close False\nEnd Function\n",
+ "cases": [
+  {
+   "case": "links held",
+   "reopen": false,
+   "answer": "1/Q4|E0"
+  },
+  {
+   "case": "links held",
+   "reopen": true,
+   "answer": "1/Q4|E0"
+  },
+  {
+   "case": "links of a held range",
+   "reopen": false,
+   "answer": "1/Q4|E0"
+  },
+  {
+   "case": "links of a held range",
+   "reopen": true,
+   "answer": "1/Q4|E0"
+  },
+  {
+   "case": "links held, link added after",
+   "reopen": false,
+   "answer": "1/Q4|E0"
+  },
+  {
+   "case": "links held, link added after",
+   "reopen": true,
+   "answer": "1/Q4|E0"
+  },
+  {
+   "case": "links held, moved column",
+   "reopen": false,
+   "answer": "1/R2|E0"
+  },
+  {
+   "case": "links held, moved column",
+   "reopen": true,
+   "answer": "1/R2|E0"
+  },
+  {
+   "case": "formats held",
+   "reopen": false,
+   "answer": "1/D3:D7/D3:D7|E0"
+  },
+  {
+   "case": "formats held",
+   "reopen": true,
+   "answer": "1/D3:D7/D3:D7|E0"
+  },
+  {
+   "case": "format held through D3",
+   "reopen": false,
+   "answer": "D5/D3:D7|E0"
+  },
+  {
+   "case": "format held through D3",
+   "reopen": true,
+   "answer": "D5/D3:D7|E0"
+  },
+  {
+   "case": "format held, then rows deleted under it",
+   "reopen": false,
+   "answer": "|E424"
+  },
+  {
+   "case": "format held, then rows deleted under it",
+   "reopen": true,
+   "answer": "|E424"
+  }
+ ]
+}

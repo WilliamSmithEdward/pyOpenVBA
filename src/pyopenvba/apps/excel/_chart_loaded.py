@@ -207,3 +207,232 @@ def name_series(chart: Chart, entry: SeriesState, reference: str, literal: str, 
         inner = f'<c:v>{escape_text(literal)}</c:v>'
     named = _SERIES_TEXT.sub(lambda _: f'<c:tx>{inner}</c:tx>', series, count=1)
     _edited(chart, chart.state.original[:start] + named + chart.state.original[end:])
+
+
+_RICH = re.compile(r'<c:tx><c:rich>(?P<head>.*?<a:lstStyle/>)(?P<body>.*?)</c:rich></c:tx>', re.DOTALL)
+_PARAGRAPH = re.compile(r'<a:p>.*?</a:p>', re.DOTALL)
+_RUN_TEXT = re.compile(r'<a:t>.*?</a:t>', re.DOTALL)
+
+
+def _plain_paragraph(line: str) -> str:
+    return f'<a:p><a:pPr><a:defRPr/></a:pPr><a:r><a:rPr lang="en-US"/><a:t>{escape_text(line)}</a:t></a:r></a:p>'
+
+
+def retitled(title: str, wanted: str) -> str:
+    """A title element with this text: a carriage return starts a paragraph and a line feed is kept as a line break, written
+    CRLF. Text of its own keeps its first paragraph's look; a title with none gains plain paragraphs (tests/fixtures/
+    loaded_chart_edits.json)."""
+    if '\r\n' in wanted:
+        raise VBAUnsupportedError('A title with a CRLF in an imported chart is not implemented')
+    lines = [line.replace('\n', '\r\n') for line in wanted.split('\r')]
+    found = _RICH.search(title)
+    if found is not None:
+        paragraphs = _PARAGRAPH.findall(found.group('body'))
+        if len(paragraphs) != 1 or len(_RUN_TEXT.findall(paragraphs[0])) != 1:
+            raise VBAUnsupportedError('Retyping a title of several runs in an imported chart is not implemented')
+        first = _RUN_TEXT.sub(lambda _: f'<a:t>{escape_text(lines[0])}</a:t>', paragraphs[0], count=1)
+        body = first + ''.join(_plain_paragraph(line) for line in lines[1:])
+        return title[:found.start('body')] + body + title[found.end('body'):]
+    if '<c:tx>' in title or '<c:txPr>' in title:
+        raise VBAUnsupportedError('Typing this imported chart title is not implemented')
+    rich = '<c:tx><c:rich><a:bodyPr/><a:lstStyle/>' + ''.join(_plain_paragraph(line) for line in lines) + '</c:rich></c:tx>'
+    return title.replace('<c:title>', '<c:title>' + rich, 1)
+
+
+def type_title(chart: Chart, wanted: str) -> None:
+    """ChartTitle.Text and Caption. Empty text takes the title away, and then raises."""
+    from pyopenvba.interpreter._values import error
+
+    admit(chart)
+    if wanted == '':
+        take_title_away(chart)
+        raise error(-2147024809, 'The parameter is incorrect.')
+    found = _TITLE.search(chart.state.original)
+    if found is None:
+        raise VBAUnsupportedError('Typing this imported chart title is not implemented')
+    _edited(chart, chart.state.original[:found.start()] + retitled(found.group(0), wanted) + chart.state.original[found.end():])
+    state = chart.state
+    state.title, state.title_typed, state.title_look.formula = wanted, True, ''
+
+
+def link_title(chart: Chart, formula: str, shown: str) -> None:
+    """ChartTitle.Formula naming a cell: the title's text becomes that reference, its text cached."""
+    admit(chart)
+    found = _TITLE.search(chart.state.original)
+    if found is None:
+        raise VBAUnsupportedError('Linking this imported chart title is not implemented')
+    linked = (f'<c:tx><c:strRef><c:f>{escape_text(formula)}</c:f><c:strCache><c:ptCount val="1"/><c:pt idx="0">'
+              f'<c:v>{escape_text(shown)}</c:v></c:pt></c:strCache></c:strRef></c:tx>')
+    title = found.group(0)
+    text = re.search(r'<c:tx>.*?</c:tx>', title, re.DOTALL)
+    title = title[:text.start()] + linked + title[text.end():] if text else title.replace('<c:title>', '<c:title>' + linked, 1)
+    _edited(chart, chart.state.original[:found.start()] + title + chart.state.original[found.end():])
+    chart.state.title_typed, chart.state.title_look.formula = False, formula
+
+
+_AXIS_TITLE = re.compile(r'<c:title>.*?</c:title>', re.DOTALL)
+
+
+def set_axis_title(chart: Chart, entry: AxisState, wanted: bool) -> None:
+    """An axis's HasTitle: the title after the axis's gridlines, back without its text once taken away. A new one on a styled
+    chart takes the style's look, which is not read here, so it stays refused."""
+    admit(chart)
+    state = chart.state
+    start, end = _axis_span(chart, entry)
+    axis = state.original[start:end]
+    found = _AXIS_TITLE.search(axis)
+    if wanted == (found is not None):
+        return
+    if found is not None:
+        state.axis_titles_taken[entry.identifier] = found.group(0)
+        axis = axis[:found.start()] + axis[found.end():]
+    else:
+        taken = state.axis_titles_taken.get(entry.identifier)
+        if taken is None and state.style_part:
+            raise VBAUnsupportedError('A new axis title on an imported styled chart is not implemented')
+        title = _TITLE_TEXT.sub('', taken, count=1) if taken else _PLAIN_TITLE
+        place = (re.search(r'<c:minorGridlines(?:/>|>.*?</c:minorGridlines>)', axis, re.DOTALL)
+                 or re.search(r'<c:majorGridlines(?:/>|>.*?</c:majorGridlines>)', axis, re.DOTALL)
+                 or re.search(r'<c:axPos val="\w+"/>', axis))
+        if place is None:
+            raise VBAUnsupportedError('A title on this imported chart axis is not implemented')
+        axis = axis[:place.end()] + title + axis[place.end():]
+    _edited(chart, state.original[:start] + axis + state.original[end:])
+
+
+def type_axis_title(chart: Chart, entry: AxisState, wanted: str) -> None:
+    """AxisTitle.Text, as a chart title's."""
+    admit(chart)
+    if wanted == '':
+        raise VBAUnsupportedError('Typing an empty title on an imported chart axis is not implemented')
+    start, end = _axis_span(chart, entry)
+    axis = chart.state.original[start:end]
+    found = _AXIS_TITLE.search(axis)
+    if found is None:
+        raise VBAUnsupportedError('Typing this imported chart axis title is not implemented')
+    axis = axis[:found.start()] + retitled(found.group(0), wanted) + axis[found.end():]
+    _edited(chart, chart.state.original[:start] + axis + chart.state.original[end:])
+
+
+#: A series' own parts a loaded chart rewrites at save, by name: its spPr, its points' dPt elements and its dLbls.
+LOOK, POINTS, LABELS = 'look', 'points', 'labels'
+_PARTS = (LOOK, POINTS, LABELS)
+_HEAD = re.compile(r'<c:ser><c:idx val="\d+"/><c:order val="\d+"/>(?:<c:tx>.*?</c:tx>)?', re.DOTALL)
+_OWN_LOOK = re.compile(r'<c:spPr>.*?</c:spPr>', re.DOTALL)
+_FOUND = {POINTS: re.compile(r'(?:<c:dPt>.*?</c:dPt>)+', re.DOTALL), LABELS: re.compile(r'<c:dLbls>.*?</c:dLbls>', re.DOTALL)}
+#: What follows each in its c:ser, whichever the series has first.
+_AFTER = {POINTS: re.compile(r'<c:(?:dLbls|trendline|errBars|cat|val|xVal|yVal)>'),
+          LABELS: re.compile(r'<c:(?:trendline|errBars|cat|val|xVal|yVal)>')}
+_IDENTIFIED = re.compile(r'<c:(dPt|dLbl)><c:idx val="(\d+)"/>.*?</c:\1>', re.DOTALL)
+_UNIQUE = re.compile(r'(<c16:uniqueId val="\{)([0-9A-F]{8})([^}"]*)(\}"/>)')
+
+
+def _part_span(series: str, part: str) -> tuple[int, int]:
+    """Where a part is in a series' markup, or where it would go."""
+    if part == LOOK:
+        head = _HEAD.match(series)
+        if head is None:
+            raise VBAUnsupportedError('Finding the look of this imported chart series is not implemented')
+        found = _OWN_LOOK.match(series, head.end())
+        return head.end(), found.end() if found else head.end()
+    found = _FOUND[part].search(series)
+    if found is not None:
+        return found.span()
+    place = _AFTER[part].search(series)
+    if place is None:
+        raise VBAUnsupportedError('Placing this part of an imported chart series is not implemented')
+    return place.start(), place.start()
+
+
+def _part_now(chart: Chart, entry: SeriesState, part: str) -> str:
+    """The part as the model writes it."""
+    from pyopenvba.apps.excel._chart_xml import CHART_KINDS
+    from pyopenvba.apps.excel._charts import CHART_TYPES, series_type
+    from pyopenvba.apps.excel._charts_file import series_parts
+
+    if CHART_TYPES.get(series_type(chart.state, entry), '') not in CHART_KINDS:
+        raise VBAUnsupportedError('Editing a series of this kind of imported chart is not implemented')
+    return series_parts(chart.sheet, chart, entry)[_PARTS.index(part)]
+
+
+def _without_tails(xml: str) -> str:
+    """Unique ids by their number alone: the rest is the part's, or Excel's at random for a label it adds."""
+    from pyopenvba.apps.excel._chart_xml import UNIQUE_END
+
+    return _UNIQUE.sub(lambda hit: hit.group(1) + hit.group(2) + hit.group(4), xml.replace(UNIQUE_END, ''))
+
+
+_SERIES_LOOKS = frozenset(f'Series.Format.{member}' for member in (
+    'Fill.ForeColor.RGB', 'Fill.Visible', 'Fill.Transparency', 'Fill.Solid', 'Line.ForeColor.RGB', 'Line.Weight', 'Line.Visible',
+    'Line.DashStyle'))
+#: The edits measured on loaded charts, by the part they change (tests/fixtures/loaded_chart_label_edits.json,
+#: tests/fixtures/loaded_chart_look_edits.json).
+EDITS: dict[str, frozenset[str]] = {
+    LABELS: frozenset({'Series.HasDataLabels', 'Point.HasDataLabel', 'DataLabels.ShowValue', 'DataLabels.ShowCategoryName',
+                       'DataLabels.ShowSeriesName', 'DataLabels.Position', 'DataLabels.NumberFormat', 'DataLabels.Separator',
+                       'DataLabel.Text', 'DataLabel.ShowCategoryName', 'DataLabel.Position'}),
+    LOOK: _SERIES_LOOKS,
+    # A series' look takes what it sets from its points.
+    POINTS: _SERIES_LOOKS | {'Point.Format.Fill.ForeColor.RGB', 'Point.Format.Line.ForeColor.RGB'},
+}
+
+
+def admit_part(chart: Chart, entry: SeriesState, part: str, member: str) -> None:
+    """Whether a series' part can change in this chart's part: by a member measured, and only where the model writes it as
+    the file holds it, so that writing it again changes only what the edit did. A chart with a style is refused: Excel gives
+    what it adds there the style's look (tests/fixtures/loaded_chart_label_edits.json)."""
+    admit(chart)
+    if member not in EDITS[part]:
+        raise VBAUnsupportedError(f'Changing {member or "this"} on an imported chart is not implemented')
+    if part == LABELS:
+        from pyopenvba.apps.excel._chart_xml import LabelLook
+
+        if member.startswith(('DataLabel.', 'Point.')) and entry.data_labels and entry.label_look != LabelLook():
+            # Excel gives such a point its series' place and the value alone, which the model does not.
+            raise VBAUnsupportedError("Changing a point's label on an imported chart whose series' labels have a look is not implemented")
+    if part == POINTS and member.startswith('Point.') and entry.format_look is not None:
+        # Excel gives such a point the series' look beside what is set, its transparency too, which the model does not.
+        raise VBAUnsupportedError("Changing a point's look on an imported chart whose series has a look is not implemented")
+    state = chart.state
+    if any(pending is entry and named == part for pending, named in state.parts_pending):
+        return
+    if state.style_part:
+        raise VBAUnsupportedError('Editing a series of an imported chart with a style is not implemented')
+    start, end = _series_span(chart, entry)
+    series = state.original[start:end]
+    at, to = _part_span(series, part)
+    if _without_tails(series[at:to]) != _without_tails(_part_now(chart, entry, part)):
+        raise VBAUnsupportedError('Editing this series of an imported chart is not implemented')
+    if part == LABELS:
+        entry.labels_read = True
+    state.parts_pending.append((entry, part))
+
+
+def write_parts(chart: Chart) -> None:
+    """The changed parts in place of what each held. A point's dPt or dLbl keeps the unique id the file gave it; those
+    added share a new end (tests/fixtures/loaded_chart_label_edits.json)."""
+    import uuid
+
+    state = chart.state
+    # One new end for everything the save adds, as Excel's save gives them.
+    tail = '-' + str(uuid.uuid4()).upper().split('-', 1)[1]
+    for entry, part in state.parts_pending:
+        start, end = _series_span(chart, entry)
+        series = state.original[start:end]
+        at, to = _part_span(series, part)
+        kept = {(hit.group(1), hit.group(2)): unique.group(0) for hit in _IDENTIFIED.finditer(series[at:to])
+                if (unique := _UNIQUE.search(hit.group(0))) is not None}
+
+        def identified(hit: re.Match[str]) -> str:
+            element = hit.group(0)
+            unique = _UNIQUE.search(element)
+            if unique is None:
+                return element
+            old = kept.get((hit.group(1), hit.group(2)))
+            if old is not None and _without_tails(old) == _without_tails(unique.group(0)):
+                return element[:unique.start()] + old + element[unique.end():]
+            return element[:unique.start()] + unique.group(1) + unique.group(2) + tail + unique.group(4) + element[unique.end():]
+
+        made = _IDENTIFIED.sub(identified, _part_now(chart, entry, part))
+        state.original = state.original[:start] + series[:at] + made + series[to:] + state.original[end:]
+    state.parts_pending = []

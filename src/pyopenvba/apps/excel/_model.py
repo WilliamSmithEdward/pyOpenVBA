@@ -412,6 +412,8 @@ class Application(ExcelObject):
         self.clipboard: Clip | None = None
         #: A chart copied as it was then, its state, and the clipboard then, which it lasts as long as.
         self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
+        #: What CopyPicture put on the clipboard, for as long as the clipboard holds it: the clipboard as it was left (see _output).
+        self.copied_picture: tuple[object] | None = None
         self.user_name = "pyOpenVBA"
         #: What Shape.PickUp kept for Shape.Apply, which outlives the workbook.
         self.picked_up_shape: object = None
@@ -1855,6 +1857,8 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: Whether a sheet of the file it was opened from held a link, which lists two more styles (_cell_styles._LINK_STYLES).
+        self.opened_with_links = False
         #: The hidden names the workbook's formulas have brought into Names (see _hidden_names).
         self.hidden_names: set[str] = set()
         self.hidden_entries: dict[str, NameEntry] = {}
@@ -2709,6 +2713,9 @@ class Workbook(ExcelObject):
                 _events.after_save(self, False)
                 return False
             raise VBAUnsupportedError("SaveAs without a filename is not implemented; supply Filename")
+        if not to_text(Filename):
+            # Excel would save under a name it chooses, which no probe should write, so this is not measured.
+            raise VBAUnsupportedError("SaveAs with a blank file name is not implemented; supply Filename")
         target = Path(native_path(to_text(Filename)))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
         writer = text_writer(chosen)
@@ -3420,9 +3427,7 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
         if len(self.book.selected()) > 1:
             # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
             raise error(1004, "Add method of Sheets class failed")
-        count = 1 if Count is MISSING else int(to_number(Count))
-        if count <= 0:
-            raise error(1004, "Count must be positive")
+        count = _sheets_to_add(Count)
         if Type is not MISSING and to_integer(Type, "Long") != -4167:
             raise VBAUnsupportedError("Worksheets.Add supports worksheet Type only")
         at: int | None = None
@@ -6728,6 +6733,14 @@ class Range(ExcelObject):
                                    given_arguments(Type=Type, Filename=Filename, Quality=Quality, IncludeDocProperties=IncludeDocProperties, IgnorePrintAreas=IgnorePrintAreas, From=From, To=To,
                                           OpenAfterPublish=OpenAfterPublish, FixedFormatExtClassPtr=FixedFormatExtClassPtr, WorkIdentity=WorkIdentity))
 
+    @method
+    def CopyPicture(self, Appearance: object = MISSING, Format: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import copy_picture, given_arguments
+
+        if len(self.areas) > 1:
+            raise error(1004, "This action won't work on multiple selections.")
+        return copy_picture(self, 'Range', self.sheet.book, given_arguments(Appearance=Appearance, Format=Format))
+
     def _within(self, area: Area) -> bool:
         return any(one.top <= area.top and one.left <= area.left and one.bottom >= area.bottom and one.right >= area.right for one in self.areas)
 
@@ -7716,8 +7729,13 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._visible import visible_areas
         from pyopenvba.formula._values import NA
 
+        if not array.bounds:
+            # An array with no bounds yet is no value (tests/fixtures/excel_huge_numbers.json).
+            raise error(13, "Type mismatch")
         if not array.size:
             return
+        source_rows = array.bounds[0][1] - array.bounds[0][0] + 1 if array.dimensions == 2 else 1
+        source_columns = array.bounds[-1][1] - array.bounds[-1][0] + 1
         for place, area in enumerate(visible_areas(self) or self.areas):
             if area.rows * area.columns > 1048576:
                 raise VBAUnsupportedError("writing to or formatting more than 1,048,576 cells at once is not implemented")
@@ -7727,7 +7745,20 @@ class Range(ExcelObject):
                     if item is NULL or isinstance(item, VBAArray):
                         # Nothing a cell can hold.
                         item = EMPTY
-                    self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
+                    if isinstance(item, str) and _is_formula(item):
+                        # A formula repeated down a row of one, or across a column of one, moves with each cell, as
+                        # Formula's does (tests/fixtures/value2_rounds.json).
+                        try:
+                            item = shift_text(item, row if source_rows == 1 else 0, column if source_columns == 1 else 0)
+                        except ValueError:
+                            raise error(7, "Out of memory") from None
+                    try:
+                        self._put(area.top + row, area.left + column, NA if item is NOT_IN_ARRAY else item, raw=raw)
+                    except VBARuntimeError as failure:
+                        if failure.number != 1004 or not isinstance(item, str):
+                            raise
+                        # A formula Excel cannot read, in an array, is error 7 (tests/fixtures/value2_rounds.json).
+                        raise error(7, "Out of memory") from None
         self.sheet.touched()
 
     def _array_item(self, array: VBAArray, row: int, column: int, *, swapped: bool) -> object:
@@ -8645,6 +8676,16 @@ class _BookNames:
         from pyopenvba._a1 import split_sheet
 
         scope = next((one for one in self.book.sheets_ if one.name.lower() == sheet.lower()), None)
+        if scope is None and sheet:
+            linked = self.sheet(sheet)
+            if linked is not None and linked.startswith("[") and linked.endswith("]"):
+                # Another workbook's name, Alpha.xlsx!Rate: as that workbook spells it, if its link has it.
+                number = linked[1:-1]
+                held = self.book.linked_books.get(int(number)) if number.isdigit() else None
+                if held is not None and held.made and not held.sheets and not held.extra_sheets:
+                    # A workbook whose file was not there: the name as written, which the link keeps with nothing it refers to (see _new_links).
+                    return next((own for own in held.names if own.casefold() == name.casefold()), None) or held.names.setdefault(name, '') or name
+                return None if held is None else next((own for own in held.names if own.casefold() == name.casefold()), None)
         found = self.book.names_.find(name, scope=scope)
         if found is None:
             # A table's name is the workbook's too, and stands for the table's data.
@@ -8675,6 +8716,20 @@ class _BookNames:
                     for one in remembered_names(cell.formula, names) if cell.formula else []:
                         spellings.setdefault(one.lower(), one)
         return spellings.setdefault(name.lower(), name)
+
+
+def _sheets_to_add(count: object) -> int:
+    """Sheets.Add's Count: 1 to 255 with any fraction cut, True as 1 and Null as left out, and anything else 1004 before a sheet is
+    added, where a macro's huge number must cost nothing (tests/fixtures/excel_huge_numbers.json)."""
+    if count is MISSING or count is NULL or count is True:
+        return 1
+    try:
+        wanted = 0.0 if count is EMPTY else float(to_number(count))
+    except (VBARuntimeError, OverflowError):
+        wanted = 0.0
+    if not 1 <= wanted < 256:
+        raise error(1004, "Add method of Sheets class failed")
+    return int(wanted)
 
 
 def _value_data_type(kind: object) -> None:
@@ -8815,9 +8870,11 @@ def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 
     try:
         return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
     except UnmodelledFormulaError:
-        # Excel takes it with no dialog when alerts are off: an open workbook's cells, a closed one's read from its file, and #REF! of
-        # one not there. A formula naming a workbook the file already links to goes another way (see _external_links).
-        raise VBAUnsupportedError("a formula naming a workbook the file does not link to is not implemented") from None
+        # No input reaches this today: a formula naming another workbook makes its link (see _new_links), and the
+        # parser refuses a structured token run into a ref, name or structured token first, as 1004 (21 shapes tried
+        # after tests/fixtures/book_refs.json). It stays as a guard: a sync of the formula code may bring a raise back,
+        # which would otherwise answer a trappable 1004 where the honest answer is that it is not modelled.
+        raise VBAUnsupportedError("a formula the model cannot spell is not implemented") from None
     except FormulaError:
         raise error(1004, "Application-defined or object-defined error") from None
 

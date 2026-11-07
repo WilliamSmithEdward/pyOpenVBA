@@ -186,6 +186,7 @@ _BEHIND_A_GATE = {
     ('interpreter/_files.py', 'read_only'),  # Open, Kill, FileCopy
     ('apps/excel/_vba_save.py', '_open_zip'),  # the bytes already in memory
     ('apps/excel/_output.py', '_check_writable'),  # _hooks.gate, which every caller runs first
+    ('apps/excel/_output.py', '_check_export_path'),  # _hooks.gate or Interpreter.outside, which export_chart runs first
     ('apps/excel/_hooks.py', 'saved_bytes'),  # a temporary file of its own, for the caller's function
 }
 
@@ -201,7 +202,10 @@ def _reaches(function: ast.AST) -> list[str]:
 
 
 def _gated(function: ast.AST) -> bool:
-    return any(isinstance(node, ast.Attribute) and node.attr == 'outside' for node in ast.walk(function))
+    """Whether the function goes through the gate: Interpreter.outside, or _hooks.link_gate, which is that gate unless the host
+    granted folders for linked files and then checks the path against them."""
+    return any(isinstance(node, ast.Attribute) and node.attr == 'outside'
+               or isinstance(node, ast.Name) and node.id == 'link_gate' for node in ast.walk(function))
 
 
 def test_nothing_reaches_outside_past_the_gate() -> None:

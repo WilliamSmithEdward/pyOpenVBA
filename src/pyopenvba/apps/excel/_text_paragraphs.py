@@ -60,6 +60,11 @@ def _all_formats(shape: Shape) -> list[str]:
     return list(shape.text_paragraphs) if shape.text_paragraphs is not None else [_plain(shape)] * (shape.text.count("\n") + 1)
 
 
+def plain_paragraphs(shape: Shape) -> bool:
+    """Whether every paragraph leaves a line its whole width: no indent, level, right-to-left, bullet or tab stops."""
+    return all(not any(value != "0" for name, value in paragraph_settings(one).items() if name != "algn") and "<a:bu" not in one.replace("<a:buNone/>", "") and "<a:tabLst" not in one for one in _all_formats(shape))
+
+
 def _settled(shape: Shape, formats: list[str]) -> None:
     """Keep the paragraphs' settings, in the look where it can hold them."""
     look = shape.text_look

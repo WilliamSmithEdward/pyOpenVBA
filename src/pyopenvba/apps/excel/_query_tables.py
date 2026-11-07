@@ -122,7 +122,18 @@ class QueryTables(VBACollection, ItemDefault, Created):
     @method
     def Add(self, Connection: object = MISSING, Destination: object = MISSING, Sql: object = MISSING) -> object:  # noqa: N803 - native named arguments
         from pyopenvba.apps.excel._model import Range
+        from pyopenvba.apps.excel._query_databases import DatabaseQueryTable, is_database
 
+        if Connection is not MISSING and is_database(to_text(Connection)):
+            if not isinstance(Destination, Range):
+                raise error(424, 'Object required')
+            if Destination.sheet is not self.sheet:
+                raise error(*_INVALID)
+            found = DatabaseQueryTable(self.sheet, to_text(Connection), Destination, self._next_name(), None if Sql is MISSING else to_text(Sql))
+            self.sheet.book.text_links.append(found.link)
+            self.sheet.query_tables.insert(0, found)
+            self.sheet.book.saved = False
+            return found
         source = _source(Connection)
         if not isinstance(Destination, Range):
             raise error(424, 'Object required')
@@ -192,6 +203,10 @@ def refresh_all(book: Workbook) -> None:
         return
     if book.queries_.entries or any(sheet.pivot_tables for sheet in book.sheets_):
         raise VBAUnsupportedError('Workbook.RefreshAll over query tables and queries or pivot tables together is not implemented')
+    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable
+
+    if any(isinstance(table, DatabaseQueryTable) for table in tables):
+        raise VBAUnsupportedError('Workbook.RefreshAll over a query table on a database is not implemented')
     book.application.outside('Workbook.RefreshAll over a query table')
     for table in tables:
         if Path(table.source).is_file():
@@ -691,6 +706,10 @@ for _spec in (_kept('AdjustColumnWidth', True, to_bool), _kept('BackgroundQuery'
 # -- the file
 
 def _connection_markup(table: QueryTable, number: int, name: str) -> str:
+    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable
+
+    if isinstance(table, DatabaseQueryTable):
+        return table.connection_markup(number, name)
     get = table.setting
     if get('TextFileHeaderRow', False):
         raise VBAUnsupportedError('Saving a query table with TextFileHeaderRow set through its TextConnection is not implemented')
@@ -793,8 +812,12 @@ def _table_markup(table: QueryTable, number: int) -> str:
         attributes += ' preserveFormatting="0"'
     if not get('AdjustColumnWidth', True):
         attributes += ' adjustColumnWidth="0"'
-    return (f'{_DECLARATION}<queryTable xmlns="{_MAIN}"{attributes} connectionId="{number}" autoFormatId="0" applyNumberFormats="0" '
-            'applyBorderFormats="0" applyFontFormats="1" applyPatternFormats="1" applyAlignmentFormats="0" applyWidthHeightFormats="0"/>')
+    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable
+
+    head = (f'{_DECLARATION}<queryTable xmlns="{_MAIN}"{attributes} connectionId="{number}" autoFormatId="0" applyNumberFormats="0" '
+            'applyBorderFormats="0" applyFontFormats="1" applyPatternFormats="1" applyAlignmentFormats="0" applyWidthHeightFormats="0"')
+    fields = table.fields_markup() if isinstance(table, DatabaseQueryTable) else ''
+    return f'{head}>{fields}</queryTable>' if fields else f'{head}/>'
 
 
 def _tables(book: Workbook) -> list[QueryTable]:

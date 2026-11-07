@@ -31,7 +31,7 @@ from pyopenvba._xml import escape
 from pyopenvba.apps.excel._query_tables import QueryTable, free_name
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, VBAInt, error, to_bool, to_text
+from pyopenvba.interpreter._values import MISSING, VBADate, VBAInt, error, to_bool, to_text
 
 if TYPE_CHECKING:
     from pyopenvba._a1 import Area
@@ -158,12 +158,13 @@ class DatabaseQueryTable(QueryTable):
         return True
 
     def _lay_out(self, rows: list[list[object]]) -> None:
-        names, data = [str(one) for one in rows[0]], rows[1:]
+        names: list[object] = [str(one) for one in rows[0]]
+        data: list[list[object]] = rows[1:]
         heading = bool(self.setting('FieldNames', True))
         numbered = bool(self.setting('RowNumbers', False))
         if numbered:
-            names = ['', *names]
-            data = [[float(at), *row] for at, row in enumerate(data)]
+            names = [None, *names]  # an empty heading, bold as the names are
+            data = [[float(at), *row] for at, row in enumerate(data)]  # numbered from 0, as Excel numbers them
         body = data or [[None] * len(names)]
         grid: list[list[object]] = ([list(names)] if heading else []) + [list(row) for row in body]
         height, width = len(grid), len(names)
@@ -183,28 +184,26 @@ class DatabaseQueryTable(QueryTable):
             self._range(Area(area.top, area.left, area.top, area.right, self.sheet.name)).vba_get('Font', []).vba_set('Bold', True)  # type: ignore[attr-defined]
         if old is not None and self.setting('FillAdjacentFormulas', False):
             self._fill_formulas(area, 1 if heading else 0)
-        self.fields = names
+        self.fields = ['' if one is None else str(one) for one in names]
         self._named(area)
         self.refreshed, self.emptied, self.size = True, False, (height, width)
         self.sheet.book.saved = False
 
     def _put(self, row: int, column: int, value: object) -> None:
         from pyopenvba._a1 import Area
+        from pyopenvba.apps.excel._typing import Typed
 
         cell = self._range(Area(row, column, row, column, self.sheet.name))
         if value is None:
             cell.vba_call('ClearContents', [])
             return
         if isinstance(value, (_dt.datetime, _dt.date)):
-            cell.vba_set('NumberFormat', _DATE_FORMAT)
-            cell.vba_set('Value', VBADate.from_datetime(value))
+            cell.store_typed(row, column, Typed(VBADate.from_datetime(value), _DATE_FORMAT))
             return
-        if isinstance(value, Decimal):
+        if isinstance(value, Decimal) or (isinstance(value, int) and not isinstance(value, bool)):
             value = float(value)
-        elif isinstance(value, int) and not isinstance(value, bool):
-            value = float(value)
-        # Text goes in as text, as a database's does: "00123" is not a number here.
-        cell.vba_set('Value2' if not isinstance(value, str) else 'Formula', value if not isinstance(value, str) else _as_text(value))
+        # Text goes in as text, as a database's does: "00123" is no number here, and "" is a cell holding it.
+        cell.store_typed(row, column, Typed(value, None))
 
     def _make_room(self, origin: Area, old: Area | None, height: int, width: int) -> None:
         from pyopenvba._a1 import Area
@@ -214,8 +213,8 @@ class DatabaseQueryTable(QueryTable):
         if old is None:
             block = Area(origin.top, origin.left, origin.top + height - 1, origin.left + width - 1, name)
             occupied = self._occupied(block)
-            if occupied:
-                # Whatever is in its way moves across, in its rows, by the table's width, whatever RefreshStyle says.
+            if occupied and int(to_text(self.setting('RefreshStyle', _INSERT_DELETE)) or 0) != _OVERWRITE:
+                # Whatever is in its way moves across, in its rows, by the table's width; xlOverwriteCells writes over it.
                 band = Area(block.top, min(column for _, column in occupied), block.bottom, block.right, name)
                 shift_cells(self._range(band), band, delete=False, vertical=False)
             return
@@ -228,6 +227,7 @@ class DatabaseQueryTable(QueryTable):
             # Room opens at the last row, so what referred to the last row still does.
             band = Area(old.bottom, old.left, old.bottom + height - before - 1, old.right, name)
             shift_cells(self._range(band), band, delete=False, vertical=True)
+            self._range(band).vba_call('ClearFormats', [])
         elif style == _INSERT_DELETE and height < before:
             band = Area(last + 1, old.left, old.bottom, old.right, name)
             shift_cells(self._range(band), band, delete=True, vertical=True)
@@ -275,11 +275,6 @@ class DatabaseQueryTable(QueryTable):
                 f'{fields}</queryTableFields></queryTableRefresh>')
 
 
-def _as_text(value: str) -> str:
-    """Text a Formula set leaves as it is: one that would read as a number, a date or a formula gets a quote first."""
-    return value if value == '' else "'" + value
-
-
 def _checked(rows: object) -> list[list[object]]:
     """The function's rows: a header of names and rows as long, of values a cell can hold."""
     if isinstance(rows, (str, bytes)) or not isinstance(rows, (list, tuple)):
@@ -305,7 +300,7 @@ def _checked(rows: object) -> list[list[object]]:
 
 def pending(application: Application) -> list[DatabaseQueryTable]:
     """The tables refreshing in the background, waiting for the macro to end."""
-    found = getattr(application, 'pending_refreshes', None)
+    found: list[DatabaseQueryTable] | None = getattr(application, 'pending_refreshes', None)
     if found is None:
         found = []
         setattr(application, 'pending_refreshes', found)
@@ -329,5 +324,3 @@ def finish(application: Application) -> list[Exception]:
 
 
 __all__ = ['DatabaseQueryTable', 'finish', 'is_database', 'masked', 'pending', 'without_passwords']
-
-_ = EMPTY

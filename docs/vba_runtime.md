@@ -117,7 +117,7 @@ app.set_hook("ExportAsFixedFormat", export, folders=["C:/reports"])
 app.set_hook("PrintOut", my_print_function)
 ```
 
-`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat` or `PrintOut`; any other name raises `ValueError`, and `None` removes the function.
+`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat`, `PrintOut` or `Refresh`; any other name raises `ValueError`, and `None` removes the function.
 
 The model answers what it measured itself: a macro's argument errors, then `BeforePrint`, then the file. Only then does it call the function with a
 `HookRequest`:
@@ -157,6 +157,73 @@ files reports itself, as `SaveCopyAs` elsewhere does.
 
 `PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
 printer's name were never run in Excel, so what the function does with them is unmeasured.
+
+### Refresh: rows from a database
+
+`set_hook("Refresh", function)` gives a query table over a database its rows. A macro adds one as Excel's does, with an `OLEDB;` or `ODBC;`
+connection string and SQL, and refreshes it:
+
+```vba
+Set q = ActiveSheet.QueryTables.Add("OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\data\sales.accdb", Range("B2"), "SELECT * FROM Sales")
+q.Refresh False
+```
+
+The function fetches and the model lays out. `request.source` is an `ExternalSource`:
+
+| Field | Holds |
+| --- | --- |
+| `kind` | `OLEDB` or `ODBC` |
+| `connection` | The connection string as the macro set it, without its `OLEDB;` or `ODBC;` |
+| `command_text` | The SQL |
+| `command_type` | `xlCmdSql` |
+| `parameters` | The parameters given, as `(name, value)` pairs |
+| `fields_wanted` | Whether the field names head the rows |
+
+It returns the rows, the field names first:
+
+```python
+from pyopenvba.access import AccessDatabase
+
+
+def from_access(request):
+    # An .accdb read through pyOpenVBA's own Access engine: an example of a host's source, not a dependency of the hook.
+    path = request.source.connection.partition("Data Source=")[2].partition(";")[0]
+    with AccessDatabase(path) as db:
+        found = db.execute(request.source.command_text)
+    names = list(found[0]) if found else []
+    return [names, *[[row[name] for name in names] for row in found]]
+
+
+app.set_hook("Refresh", from_access)
+```
+
+A value goes on the sheet by its Python type, as Excel puts a database's by its type (measured through ACE OLEDB against an Access file):
+`str` as text, even one that looks like a number, and `""` as a cell holding it; `int`, `float` and `Decimal` as numbers in General, Currency
+included; `bool` as a Boolean; a `date` or `datetime` as a Date shown `m/d/yyyy`, its time kept in the value; `None` as an empty cell. Rows of
+another length, a name that is not text or a value no cell holds are 1004.
+
+The model does what Excel does with the rows, measured in tests/fixtures/query_refresh_layout.json: the names in bold, `RowNumbers` from 0,
+`RefreshStyle` on a first and a later refresh, `FillAdjacentFormulas`, `PreserveFormatting`, the result range and its `ExternalData_` name, and
+the file Excel opens and refreshes itself.
+
+**In the background.** A table a macro adds has `BackgroundQuery` False. With it True, or `Refresh True`, Excel returns at once with the sheet
+as it was and `Refreshing` True until no macro runs. So does the model: `ExcelApplication.run` calls the function once the macro is over, before
+`OnTime`'s macros. Every waiting refresh runs. If any fails, `run` raises `pyopenvba.exceptions.BackgroundRefreshError` after the run's own
+result, with each failure in `failures` and the first as `__cause__`. If the run itself failed, its error is raised, with the failures as its
+`refresh_failures` and, on Python 3.11 and later, a note. Excel shows such a failure in a message the macro never sees, so nothing reaches the macro.
+
+**The step limit** does not count a refresh that runs after the macro: that is the host's code, outside the run. VBA the function runs is a new
+entry, with a budget of its own.
+
+**Passwords.** The function gets the connection string whole, since it needs it to connect. Everywhere the model shows one, in
+`ExternalSource`'s repr and in its errors, a password is `****`: any key with `password` or `pwd` in it, such as `Pwd`, `Password` or
+`Jet OLEDB:Database Password`. A function's own error text stays in `__cause__` alone, as it may echo the string. As Excel does, once a refresh
+has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then.
+
+Known differences: Excel reads back and saves the provider's own fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest,
+where the model keeps the one the macro set, so the file differs there; the uid Excel writes on each part is not written. Not built: a
+ListObject over a database, `Workbook.RefreshAll` over such a table, a refresh that changes the number of columns, and query tables over a
+database in a file opened again, whose sheet's `QueryTables` stays refused. A text file's query table is the model's own, with no function.
 
 ## Dialogs
 

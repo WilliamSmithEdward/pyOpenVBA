@@ -327,7 +327,24 @@ def test_the_sandbox_lets_a_registered_class_through_and_gates_getobject_files(t
     with pytest.raises(VBASandboxError, match='outside the folders'):
         app.run('H.Open', str(tmp_path / 'a.doc'))
     app.run('H.Open', str(allowed / 'a.doc'))
-    assert heard[0].path == allowed / 'a.doc' and heard[0].kind == 'get'
+    assert heard[0].path == (allowed / 'a.doc').resolve() and heard[0].kind == 'get'
+
+
+def test_a_backslash_cannot_carry_a_getobject_path_out_of_its_grant(tmp_path: Path) -> None:
+    """Off Windows a backslash is a character of a name, so folder/..\\away\\x.xlsx checked as given is one file in the folder, where opened it is
+    outside it. The gate checks the path as it will be opened, on every system (Agent 03's finding on #574)."""
+    app = _app()
+    heard: list[ComRequest] = []
+    allowed = tmp_path / 'grant'
+    allowed.mkdir()
+    (tmp_path / 'away').mkdir()
+    app.set_com_class('Host.Doc', lambda request: heard.append(request) or _FileSystem(), folders=[allowed])
+    app.add_module('Public Sub Open(ByVal path As String)\n    Set o = GetObject(path, "Host.Doc")\nEnd Sub\n', name='H')
+    with pytest.raises(VBASandboxError):
+        app.run('H.Open', str(allowed) + '/..\\away\\x.xlsx')
+    assert not heard
+    app.run('H.Open', str(allowed) + '\\inner\\..\\x.xlsx')
+    assert heard[0].path is not None and heard[0].path.parent == allowed.resolve()
 
 
 def test_getobject_of_a_file_for_a_class_no_host_supplies_is_refused(tmp_path: Path) -> None:

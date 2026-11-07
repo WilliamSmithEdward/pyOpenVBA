@@ -90,16 +90,18 @@ def gated(interpreter: Interpreter, prog_id: str, path: str) -> Path:
     """The file GetObject names, refused while the sandbox is on unless it lies in a folder registered with the class, before the factory hears of
     it. The refusal says nothing of where the path leads."""
     from pyopenvba.exceptions import VBASandboxError
-    from pyopenvba.interpreter._files import is_inside
+    from pyopenvba.interpreter._files import final_path, is_inside
 
+    # One conversion, checked and then handed on: the factory opens exactly what the gate let through.
+    final = final_path(path)
     if interpreter.sandbox and interpreter.frames:
         folders = interpreter.com_classes[prog_id.lower()][1]
         if not folders:
             interpreter.outside(f"GetObject of a file for {prog_id}")
-        if not is_inside(path, folders):
+        if not is_inside(final, folders):
             raise VBASandboxError(f"GetObject may not open that file: it is outside the folders named with set_com_class for {prog_id}",
                                   where=interpreter.current_where())
-    return Path(path)
+    return final
 
 
 def from_factory(interpreter: Interpreter, prog_id: str, kind: str, *, server: str = "", path: Path | None = None) -> object | None:

@@ -1,0 +1,245 @@
+{
+ "rounds": [
+  "tests/fixtures/font_round_arial.json",
+  "tests/fixtures/font_round_times_new_roman.json",
+  "tests/fixtures/font_round_arial2.json",
+  "tests/fixtures/font_round_arial3.json",
+  "tests/fixtures/font_round_times_new_roman3.json",
+  "tests/fixtures/font_round_aptos_narrow3.json",
+  "tests/fixtures/font_round_calibri3.json"
+ ],
+ "italic": {
+  "a fifth of the ascent, held out": {
+   "wrong": 16,
+   "of": 6060,
+   "by_font": {
+    "Aptos Narrow": 3,
+    "Arial": 4,
+    "Calibri": 1,
+    "Times New Roman": 8
+   }
+  },
+  "a fifth of the ascent, rounded up": {
+   "wrong": 184,
+   "of": 6060,
+   "by_font": {
+    "Aptos Narrow": 23,
+    "Arial": 90,
+    "Calibri": 26,
+    "Times New Roman": 45
+   }
+  },
+  "the last glyph overhang alone": {
+   "wrong": 585,
+   "of": 6060,
+   "by_font": {
+    "Aptos Narrow": 88,
+    "Arial": 237,
+    "Calibri": 75,
+    "Times New Roman": 185
+   }
+  },
+  "a fifth plus the last glyph overhang": {
+   "wrong": 126,
+   "of": 6060,
+   "by_font": {
+    "Aptos Narrow": 18,
+    "Arial": 63,
+    "Calibri": 9,
+    "Times New Roman": 36
+   }
+  },
+  "the more of a fifth and the overhang": {
+   "wrong": 252,
+   "of": 6060,
+   "by_font": {
+    "Aptos Narrow": 36,
+    "Arial": 125,
+    "Calibri": 30,
+    "Times New Roman": 61
+   }
+  }
+ },
+ "upright": {
+  "wrong": 0,
+  "of": 6092
+ },
+ "held_out_misses": [
+  {
+   "font": "Arial",
+   "size": 24.0,
+   "bold": true,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 187,
+   "model_lines": 2,
+   "excel_lines": 3,
+   "round": "arial"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 36.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after AutoFit",
+   "column_pixels": 163,
+   "model_lines": 6,
+   "excel_lines": 7,
+   "round": "times_new_roman"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 36.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after AutoFit",
+   "column_pixels": 163,
+   "model_lines": 5,
+   "excel_lines": 6,
+   "round": "times_new_roman"
+  },
+  {
+   "font": "Arial",
+   "size": 28.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 131,
+   "model_lines": 8,
+   "excel_lines": 9,
+   "round": "arial2"
+  },
+  {
+   "font": "Arial",
+   "size": 18.0,
+   "bold": false,
+   "indent": 1,
+   "reading": "after AutoFit",
+   "column_pixels": 163,
+   "model_lines": 3,
+   "excel_lines": 4,
+   "round": "arial2"
+  },
+  {
+   "font": "Arial",
+   "size": 20.0,
+   "bold": true,
+   "indent": 0,
+   "reading": "after AutoFit",
+   "column_pixels": 100,
+   "model_lines": 8,
+   "excel_lines": 9,
+   "round": "arial3"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 48.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after AutoFit",
+   "column_pixels": 257,
+   "model_lines": 5,
+   "excel_lines": 6,
+   "round": "times_new_roman3"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 12.5,
+   "bold": true,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 96,
+   "model_lines": 3,
+   "excel_lines": 4,
+   "round": "times_new_roman3"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 28.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 243,
+   "model_lines": 3,
+   "excel_lines": 4,
+   "round": "times_new_roman3"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 28.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 159,
+   "model_lines": 7,
+   "excel_lines": 8,
+   "round": "times_new_roman3"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 48.0,
+   "bold": true,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 110,
+   "model_lines": 5,
+   "excel_lines": 6,
+   "round": "times_new_roman3"
+  },
+  {
+   "font": "Times New Roman",
+   "size": 22.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 128,
+   "model_lines": 5,
+   "excel_lines": 6,
+   "round": "times_new_roman3"
+  },
+  {
+   "font": "Aptos Narrow",
+   "size": 20.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after the value",
+   "column_pixels": 96,
+   "model_lines": 5,
+   "excel_lines": 6,
+   "round": "aptos_narrow3"
+  },
+  {
+   "font": "Aptos Narrow",
+   "size": 48.0,
+   "bold": true,
+   "indent": 1,
+   "reading": "after the value",
+   "column_pixels": 124,
+   "model_lines": 4,
+   "excel_lines": 5,
+   "round": "aptos_narrow3"
+  },
+  {
+   "font": "Aptos Narrow",
+   "size": 12.5,
+   "bold": false,
+   "indent": 0,
+   "reading": "after AutoFit",
+   "column_pixels": 96,
+   "model_lines": 4,
+   "excel_lines": 5,
+   "round": "aptos_narrow3"
+  },
+  {
+   "font": "Calibri",
+   "size": 10.0,
+   "bold": false,
+   "indent": 0,
+   "reading": "after AutoFit",
+   "column_pixels": 93,
+   "model_lines": 2,
+   "excel_lines": 3,
+   "round": "calibri3"
+  }
+ ]
+}

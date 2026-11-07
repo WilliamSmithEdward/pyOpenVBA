@@ -372,8 +372,13 @@ class Axis(ElementProperties, Created):
         self.change()
         wanted = to_bool(value)
         self.change()
-        self.chart.keeps_look(f"title{self.entry.kind}", wanted)
-        self.chart.changed()
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import set_axis_title
+
+            set_axis_title(self.chart, self.entry, wanted)
+        else:
+            self.chart.keeps_look(f"title{self.entry.kind}", wanted)
+            self.chart.changed()
         if wanted:
             if self.entry.title is None:
                 self.entry.title = TitleState()
@@ -967,8 +972,13 @@ class AxisTitle(ElementProperties, TitleMembers):
             raise VBAUnsupportedError("Axis title characters requiring Office literal escapes are not implemented")
         self.read()
         self.axis.change()
-        self.axis.chart.keeps_look(f"title{self.axis.entry.kind}", bool(wanted))
-        self.axis.chart.changed()
+        if self.axis.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import type_axis_title
+
+            type_axis_title(self.axis.chart, self.axis.entry, wanted)
+        else:
+            self.axis.chart.keeps_look(f"title{self.axis.entry.kind}", bool(wanted))
+            self.axis.chart.changed()
         if wanted:
             assert self.entry is not None
             self.entry.text, self.entry.typed, self.entry.look.formula = wanted, True, ""

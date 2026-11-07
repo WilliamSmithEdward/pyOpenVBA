@@ -49,7 +49,7 @@ def test_each_case_as_excel_answered(case: list[Any], tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize('statements', ['sh.TextFrame.Characters.Text = "Hello World": sh.TextFrame2.TextRange.Characters(3, 0).Font.Bold = msoTrue',
-                                        'sh.TextFrame.Characters.Text = "ab cd": x = sh.TextFrame2.TextRange.Lines.Count'])
+                                        'sh.TextFrame.Characters.Text = "ab cd": sh.Rotation = 90: x = sh.TextFrame2.TextRange.Lines.Count'])
 def test_what_is_not_worked_out_reports_itself(statements: str) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

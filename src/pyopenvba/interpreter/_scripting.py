@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._fso import FileSystemMembers
-from pyopenvba.interpreter._objects import VBAObject, member, method, setter
+from pyopenvba.interpreter._objects import BINDING, VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
@@ -147,7 +147,8 @@ class Dictionary(VBAObject):
 
     @member
     def Key(self, Key: object = MISSING) -> object:
-        raise error(451, "Dictionary.Key can only be assigned to")
+        # Through an Object it is 438 (tests/fixtures/vba_everyday_17.json); 451 stays for a call not bound late, unmeasured.
+        raise error(438 if BINDING.late else 451, "Dictionary.Key can only be assigned to")
 
     @setter("Key")
     def _set_key(self, Key: object, value: object) -> None:

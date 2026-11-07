@@ -452,6 +452,13 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 target = target.target
             visit(target, context, callee=True, lvalue=True)
             visit(value.value, context)
+            if (value.kind == 'set' and isinstance(value.value, A.Literal) and type_name(value.value.value) != 'Nothing'
+                    and isinstance(target, A.Name) and not arguments):
+                # Set v = 5: a value is no object. Into a Variant VBA says Object required, into an Object Type mismatch
+                # (tests/fixtures/typed_set.json).
+                declared = local.get(strip_suffix(target.name).lower())
+                if declared is not None and not declared[1] and str(declared[0]).lower() in ('variant', 'object', ''):
+                    fail('Object required' if str(declared[0]).lower() in ('variant', '') else 'Type mismatch', target.line)
             if value.kind == 'let':
                 check_library_call(target, arguments, 'assign')
                 if isinstance(target, A.Name) and not arguments:

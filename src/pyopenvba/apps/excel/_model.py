@@ -6773,6 +6773,11 @@ class Range(ExcelObject):
         shift = given(Shift)
         lines = all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas)
         if shift is MISSING:
+            if filtered and not lines and self.sheet.book.application.display_alerts:
+                # Excel asks whether to delete the whole rows first (tests/fixtures/filter_shifts_c.json); the
+                # answer it takes with DisplayAlerts off is what follows.
+                raise VBAUnsupportedError("Range.Delete with no Shift on a filtered sheet with DisplayAlerts on, where "
+                                          "Excel asks first, is not implemented")
             up = filtered or self.first.rows <= self.first.columns
         else:
             # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on

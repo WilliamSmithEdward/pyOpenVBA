@@ -60,6 +60,10 @@ def main() -> None:
             # lone Null by the rule for any last argument: none of them by its kind.
             if (name == 'XLookup' and ((place == 2 and kind not in ('null', 'empty')) or (place == 3 and kind == 'null'))) or (name == 'Unique' and kind == 'null'):
                 continue
+            # XMatch's value and match mode are refused only by what the search then finds, which the probe's numbers did
+            # not hold: a logical, a blank or Null is looked for, and a blank or False mode is 0 (tests/fixtures/xlookup_rounds.json).
+            if name == 'XMatch' and (place == 0 or (place == 2 and kind != 'null')):
+                continue
             # Several ranges or arrays together can refuse by their sizes alone.
             if kind in ('cells', 'array') and any(_kind_given(one) in ('cells', 'array') for one in answered):
                 continue

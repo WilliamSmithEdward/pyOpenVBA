@@ -202,6 +202,10 @@ def MATCH(context: Context, value: Scalar, array: Value, kind: Scalar | None = N
 def XMATCH(
     context: Context, value: Scalar, array: Value, match_mode: Scalar | None = None, search_mode: Scalar | None = None
 ) -> Value:
+    grid = matrix(context, array)
+    if grid.height != 1 and grid.width != 1:
+        # Only a row or a column is searched (tests/fixtures/xlookup_rounds.json).
+        return VALUE
     values = _vector(context, array)
     position = _x_search(context, values, _lookup_value(value), match_mode, search_mode)
     return NA if position is None else float(position + 1)
@@ -227,7 +231,10 @@ def _x_search(
             return None
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
         return next((index for index in order if isinstance(values[index], Empty)), None)
-    if search in (2, -2) and mode != 2:
+    if search in (2, -2):
+        if mode == 2:
+            # Wildcards cannot be searched for in halves (tests/fixtures/xlookup_rounds.json).
+            raise ExcelError(VALUE)
         return _x_binary(values, target, mode, descending=search == -2)
     exact = _exact(values, target, wildcards=mode == 2, last=search == -1)
     if exact is not None or mode in (0, 2):
@@ -236,7 +243,7 @@ def _x_search(
     order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
     for index in order:
         candidate = values[index]
-        if isinstance(candidate, Empty):
+        if isinstance(candidate, Empty) and mode != 1:
             continue
         direction = _x_order(candidate, target)
         if (mode == -1 and direction < 0) or (mode == 1 and direction > 0):
@@ -250,7 +257,10 @@ def _x_search(
 
 
 def _x_order(value: Scalar, target: Scalar) -> int:
-    """How XLOOKUP's nearest match orders any two values: numbers, then text, then logicals, then errors."""
+    """How XLOOKUP's nearest match orders any two values: numbers, then text, then logicals, then errors, then blanks,
+    which only the next larger reaches (tests/fixtures/xlookup_rounds.json)."""
+    if isinstance(value, Empty) or isinstance(target, Empty):
+        return isinstance(value, Empty) - isinstance(target, Empty)
     if isinstance(value, CellError) or isinstance(target, CellError):
         return isinstance(value, CellError) - isinstance(target, CellError)
     return _order(value, target)

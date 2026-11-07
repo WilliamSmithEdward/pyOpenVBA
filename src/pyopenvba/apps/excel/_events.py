@@ -159,8 +159,8 @@ def before_print(book: Workbook) -> bool:
     return not to_bool(cancel.get())
 
 
-def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
-    """One event, in the sheet's module and then in its workbook's."""
+def _both(sheet: Worksheet, event: str, args: list[object], *, application: bool = True) -> None:
+    """One event, in the sheet's module and then in its workbook's, then the application's unless it has none to raise."""
     if not _on(sheet.book):
         return
     _sinks(sheet.book, sheet, event, args)
@@ -170,7 +170,7 @@ def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
     combined = [sheet, *args]
     _sinks(sheet.book, sheet.book, f"Sheet{event}", combined)
     _handle(sheet.book, f"Workbook_Sheet{event}", combined)
-    if _on(sheet.book):
+    if application and _on(sheet.book):
         _sinks(sheet.book, sheet.book.application, f"Sheet{event}", combined)
 
 
@@ -194,8 +194,20 @@ def followed(sheet: Worksheet, link: VBAObject) -> None:
     _both(sheet, "FollowHyperlink", [link])
 
 
-def pivot_updated(table: PivotTable) -> None:
+def pivot_updated(table: PivotTable, *, refreshed: bool = False) -> None:
+    """PivotTableUpdate, with PivotTableChangeSync before it on a refresh and after it on any other edit."""
+    if refreshed:
+        pivot_synced(table)
     _both(table.sheet, "PivotTableUpdate", [table])
+    if not refreshed:
+        pivot_synced(table)
+
+
+def pivot_synced(table: PivotTable) -> None:
+    """PivotTableChangeSync, in the sheet's module and its workbook's, never the application's: Excel raises it on every edit of a
+    pivot table, before PivotTableUpdate on a refresh and after it otherwise, and alone when a value written into the table is refused
+    with 1004 (tests/fixtures/workbook_macro_events.json)."""
+    _both(table.sheet, "PivotTableChangeSync", [table], application=False)
 
 
 def pivot_refresh_calculated(sheet: Worksheet) -> None:

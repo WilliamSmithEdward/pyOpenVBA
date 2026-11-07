@@ -43,7 +43,6 @@ from pyopenvba.interpreter._values import (
     VBAErrorValue,
     VBAInt,
     error,
-    to_bool,
     to_integer,
     to_number,
     to_text,
@@ -544,7 +543,12 @@ def set_update_links(book: Workbook, value: object) -> None:
 
 def set_save_link_values(book: Workbook, value: object) -> None:
     """SaveLinkValues set, a Boolean as VBA passes it; the workbook is no longer saved, even set as it was."""
-    book.save_link_values = to_bool(value)
+    from pyopenvba.apps.excel._workbook_settings import file_flag
+
+    wanted = file_flag("SaveLinkValues", value)
+    if wanted is None:
+        return
+    book.save_link_values = wanted
     book.saved = False
 
 

@@ -324,12 +324,14 @@ class SheetView(NamedRangeAPI):
 class ExcelApplication(NamedRangeAPI):
     """Excel, in memory: workbooks, sheets, cells, and the macros that move them."""
 
-    def __init__(self, *, locale: str = "en-US", sandbox: bool = True) -> None:
+    def __init__(self, *, locale: str = "en-US", sandbox: bool = True, step_limit: int | None = None) -> None:
         """``locale`` is the Windows Regional format the VBA runs under: "en-US", or "ja-JP" for what CStr,
         Format, FormatCurrency, FormatDateTime, MonthName and WeekdayName write and what CDate, IsDate,
         DateValue and the number conversions read under Japanese (Japan). Cells are not affected. ``sandbox``
         keeps running VBA from reaching outside the engine, its files, network and other programs, which raises
-        VBASandboxError; False allows what pyOpenVBA implements of them. Python's own calls are not affected."""
+        VBASandboxError; False allows what pyOpenVBA implements of them. Python's own calls are not affected.
+        ``step_limit`` is the most steps one run of VBA may take, past which VBAStepLimitError, which On Error
+        cannot trap; None, the default, is no limit (docs/vba_runtime.md)."""
         from pyopenvba.apps.excel._projects import ExcelInterpreter
         from pyopenvba.interpreter._locale import locale_named
 
@@ -338,16 +340,17 @@ class ExcelApplication(NamedRangeAPI):
         self.interpreter = ExcelInterpreter(self.application)
         self.application.interpreter = self.interpreter
         self.interpreter.sandbox = sandbox
+        self.interpreter.step_limit = step_limit
 
     # --- state in -------------------------------------------------------------------
 
     @classmethod
     def open(cls, path: str | Path, *, with_vba: bool = True, locale: str = "en-US",
-             sandbox: bool = True) -> ExcelApplication:
+             sandbox: bool = True, step_limit: int | None = None) -> ExcelApplication:
         """Load a workbook, its sheets, its names, its queries and its macros."""
         from pyopenvba.apps.excel._io import load_workbook
 
-        app = cls(locale=locale, sandbox=sandbox)
+        app = cls(locale=locale, sandbox=sandbox, step_limit=step_limit)
         book = load_workbook(app.application, Path(path))
         app.application.workbooks_.books.append(book)
         from pyopenvba.apps.excel._projects import attach_project

@@ -117,6 +117,18 @@ class VBASandboxError(VBAUnsupportedError):
     """
 
 
+class VBAStepLimitError(VBAError):
+    """Raised when a run of VBA has taken more steps than the host allows.
+
+    A host that runs macros it does not trust sets ``step_limit`` on the
+    application, so a loop that never ends stops instead of holding it.
+    A step is an instruction the interpreter carries out, a loop's test
+    and a jump included.  Like ``VBAUnsupportedError`` it cannot be trapped
+    by ``On Error``, and it is no run-time error, so ``Err`` is not set:
+    the run ends where it was, with what it had done kept.
+    """
+
+
 class BackgroundRefreshError(PyOpenVBAError):
     """Raised by ExcelApplication.run after a macro, when a query table it refreshed in the background then failed.
 

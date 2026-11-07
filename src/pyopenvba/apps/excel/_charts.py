@@ -144,8 +144,14 @@ class SeriesState:
     label_generation: int = 0
     #: What Series.Format set, None until then (tests/fixtures/series_format.json).
     format_look: FillLine | None = None
+    #: Whether a loaded series' look was read from its file: none of its own on a chart with no style part, or one the reads answer.
+    look_read: bool = False
+    #: Whether a loaded series holds a look or labels its points take, which are not read, so its points' reads are refused.
+    points_unread: bool = False
     #: Whether a loaded series holds a label of one of its points, which its DataLabels answer from but is not read.
     labels_unread: bool = False
+    #: Whether a loaded series' own data labels were read whole from its dLbls (tests/fixtures/loaded_chart_labels.json).
+    labels_read: bool = False
     #: What was set of its points, by their index from 0 (tests/fixtures/series_points.json).
     points: dict[int, PointState] = field(default_factory=lambda: {})
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
@@ -181,6 +187,9 @@ class ChartState:
     legend_taken: str = ''
     gridlines_taken: dict[tuple[int, bool], str] = field(default_factory=lambda: {})
     axis_titles_taken: dict[int, str] = field(default_factory=lambda: {})
+    #: The element looks a loaded chart has had read from its file, by their key: none of their own on a chart with no style part, or
+    #: one the reads answer (tests/fixtures/loaded_chart_looks.json).
+    looks_read: set[str] = field(default_factory=lambda: set())
     #: Whether a loaded chart has a style part: what it gains takes that style's look, which is not read here.
     style_part: bool = False
     #: Whether a loaded legend has a layout of its own, which makes its position custom.
@@ -1488,6 +1497,12 @@ class ChartArea(Created):
         self.chart = chart
 
     @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
+
+    @member
     def Parent(self) -> object:
         self.chart.admit_read()
         return self.chart
@@ -1589,6 +1604,12 @@ class PlotArea(ElementProperties, Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
 
     @member
     def Parent(self) -> object:
@@ -2931,6 +2952,12 @@ class ChartTitle(ElementProperties, TitleMembers):
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
 
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
+
     def title_look(self) -> TitleLook:
         self.chart.admit_read()
         return self.chart.state.title_look
@@ -3050,6 +3077,12 @@ class Legend(ElementProperties, Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
 
     def shown(self) -> ChartState:
         self.chart.admit_read()
@@ -4783,9 +4816,9 @@ class Series(PictureMembers, Created):
 
     @member
     def Interior(self) -> object:
-        from pyopenvba.apps.excel._chart_points import OldInterior
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
 
-        return OldInterior(self)
+        return ChartInterior(self, self.chart)
 
     @method
     def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,
@@ -4819,7 +4852,7 @@ class Series(PictureMembers, Created):
 
         self.position()
         if self.chart.state.original and self.entry.labels_unread:
-            # Excel answers from the point's label, where the series has none of its own (tests/fixtures/loaded_chart_labels.json).
+            # Excel answers from the point's label (tests/fixtures/loaded_chart_labels.json).
             raise VBAUnsupportedError("The data labels of an imported chart's series with a point's label are not implemented")
         if not self.has_labels():
             raise error(-2147467259, 'Automation error\nUnspecified error')

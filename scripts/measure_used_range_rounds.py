@@ -113,6 +113,14 @@ def model(case: dict[str, Any], path: str) -> str:
         return f"REFUSED {exc}"
 
 
+def _standard_height(excel: Any) -> str:
+    """A new sheet's StandardHeight, which reads 15 only at 96 DPI."""
+    source = ("Public Function Height() As String\nDim wb: Set wb = Workbooks.Add(xlWBATWorksheet)\n"
+              "Height = CStr(wb.Worksheets(1).StandardHeight)\nwb.Close False\nEnd Function\n")
+    answer = excel.run_vba(source, "Height", (), timeout=60.0, line_numbers=False)
+    return str(answer.value) if answer.ok else "no answer"
+
+
 def _lock() -> None:
     while True:
         try:
@@ -145,11 +153,16 @@ def main() -> None:
             try:
                 with ExcelSession(HarnessConfig(lock_wait_s=600.0, exclusive=False)) as excel:
                     excel.new_document()
+                    # Rows a border or a font draws taller depend on the display: measure only at 96 DPI, StandardHeight 15.
+                    if _standard_height(excel) != "15":
+                        raise SystemExit("StandardHeight is not 15: the display is not at 96 DPI")
                     for at in list(todo)[:40]:
                         answer = excel.run_vba(case_source(cases[at], str(folder / f"{at}.xlsx")), "Probe",
                                                (str(folder / f"{at}.xlsx"),), timeout=60.0, line_numbers=False)
                         cases[at]["excel"] = str(answer.value) if answer.ok else f"no answer {answer.outcome}"
                         todo.remove(at)
+                    if _standard_height(excel) != "15":
+                        raise SystemExit("StandardHeight left 15 during the run: its answers are not kept")
             except Exception as failure:  # noqa: BLE001 - a case that ends Excel is recorded, and the rest go on
                 cases[todo[0]]["excel"] = f"no answer, Excel ended: {str(failure)[:80]}"
                 todo.pop(0)

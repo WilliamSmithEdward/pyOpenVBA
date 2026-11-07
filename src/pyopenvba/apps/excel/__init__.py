@@ -324,12 +324,14 @@ class SheetView(NamedRangeAPI):
 class ExcelApplication(NamedRangeAPI):
     """Excel, in memory: workbooks, sheets, cells, and the macros that move them."""
 
-    def __init__(self, *, locale: str = "en-US", sandbox: bool = True) -> None:
+    def __init__(self, *, locale: str = "en-US", sandbox: bool = True, step_limit: int | None = None) -> None:
         """``locale`` is the Windows Regional format the VBA runs under: "en-US", or "ja-JP" for what CStr,
         Format, FormatCurrency, FormatDateTime, MonthName and WeekdayName write and what CDate, IsDate,
         DateValue and the number conversions read under Japanese (Japan). Cells are not affected. ``sandbox``
         keeps running VBA from reaching outside the engine, its files, network and other programs, which raises
-        VBASandboxError; False allows what pyOpenVBA implements of them. Python's own calls are not affected."""
+        VBASandboxError; False allows what pyOpenVBA implements of them. Python's own calls are not affected.
+        ``step_limit`` is the most steps one run of VBA may take, past which VBAStepLimitError, which On Error
+        cannot trap; None, the default, is no limit (docs/vba_runtime.md)."""
         from pyopenvba.apps.excel._projects import ExcelInterpreter
         from pyopenvba.interpreter._locale import locale_named
 
@@ -338,16 +340,17 @@ class ExcelApplication(NamedRangeAPI):
         self.interpreter = ExcelInterpreter(self.application)
         self.application.interpreter = self.interpreter
         self.interpreter.sandbox = sandbox
+        self.interpreter.step_limit = step_limit
 
     # --- state in -------------------------------------------------------------------
 
     @classmethod
     def open(cls, path: str | Path, *, with_vba: bool = True, locale: str = "en-US",
-             sandbox: bool = True) -> ExcelApplication:
+             sandbox: bool = True, step_limit: int | None = None) -> ExcelApplication:
         """Load a workbook, its sheets, its names, its queries and its macros."""
         from pyopenvba.apps.excel._io import load_workbook
 
-        app = cls(locale=locale, sandbox=sandbox)
+        app = cls(locale=locale, sandbox=sandbox, step_limit=step_limit)
         book = load_workbook(app.application, Path(path))
         app.application.workbooks_.books.append(book)
         from pyopenvba.apps.excel._projects import attach_project
@@ -437,12 +440,34 @@ class ExcelApplication(NamedRangeAPI):
     def run(self, macro: str, *args: object) -> object:
         """Run a macro by name, as Application.Run would, then what Application.OnTime has due, as Excel does once no
         macro is running."""
-        if "!" in macro:
-            answer = _plain(self.application.Run(macro, *args))
-        else:
-            answer = _plain(self.interpreter.run(macro, list(args)))
+        try:
+            if "!" in macro:
+                answer = _plain(self.application.Run(macro, *args))
+            else:
+                answer = _plain(self.interpreter.run(macro, list(args)))
+        except Exception as failed:
+            # The run's own error goes first; what the refreshes it left waiting then did rides along with it.
+            failures = self._finish_background()
+            if failures:
+                setattr(failed, "refresh_failures", failures)
+                note = getattr(failed, "add_note", None)  # Python 3.11 on
+                if callable(note):
+                    note(f"and {len(failures)} background refresh(es) failed after it: " + "; ".join(str(one) for one in failures))
+            raise
+        failures = self._finish_background()
         self.run_on_time()
+        if failures:
+            from pyopenvba.exceptions import BackgroundRefreshError
+
+            raise BackgroundRefreshError(failures) from failures[0]
         return answer
+
+    def _finish_background(self) -> list[Exception]:
+        """The query tables a macro refreshed in the background, refreshed now that it is over, as Excel does once no macro runs. Each is
+        the host's function called outside the run, with nothing counted against the run's steps."""
+        from pyopenvba.apps.excel._query_databases import finish
+
+        return finish(self.application)
 
     def run_on_time(self) -> None:
         """Run what Application.OnTime has due by now; freeze_clock moves a later one's time along."""
@@ -492,12 +517,22 @@ class ExcelApplication(NamedRangeAPI):
         self.interpreter.answers.extend(answers)
 
     def set_hook(self, name: str, function: object, *, folders: object = ()) -> None:
-        """Have ``function`` do what the engine cannot for a member, ExportAsFixedFormat or PrintOut; ``None`` removes it. It is called with a HookRequest after the macro's argument errors and
+        """Have ``function`` do what the engine cannot for a member, ExportAsFixedFormat, PrintOut or Refresh; ``None`` removes it. It is called with a HookRequest after the macro's argument errors and
         BeforePrint. Its output is its own, and not claimed to match Excel; a library that draws needs its own layout for that. Under the sandbox, a macro's file must lie in one of ``folders``
         or the function is not called; with none named, no file passes. Docs: docs/vba_runtime.md, Hooks."""
         from pyopenvba.apps.excel._hooks import set_hook
 
         set_hook(self.interpreter.hooks, name, function, folders)
+
+    def allow_link_reads(self, folders: object) -> None:
+        """Let a macro under the sandbox read linked workbooks' files that lie in ``folders``: UpdateLink, ChangeLink, a link's
+        status, and a formula naming a closed workbook. Each call replaces the folders, and ``()`` takes them all away. A path is
+        resolved first, links and .. followed, as set_hook's folders are. A formula naming a workbook by its file alone looks in
+        the current folder, which a sandboxed macro cannot change: the folder this process was in when the application was made.
+        Docs: docs/vba_runtime.md, Hooks."""
+        from pyopenvba.apps.excel._hooks import set_link_folders
+
+        set_link_folders(self.interpreter, folders)
 
     @property
     def console(self) -> list[str]:

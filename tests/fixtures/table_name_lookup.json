@@ -1,0 +1,76 @@
+{
+ "measured_at": "2026-11-05T20:03:08.496166+00:00",
+ "source": "\nPrivate Function Look(ByVal ws As Object, ByVal key As String) As String\n    Dim t As Object\n    On Error Resume Next\n    Set t = ws.ListObjects(key)\n    If Err.Number <> 0 Then Look = \"E\" & Err.Number Else Look = TypeName(t) & \":\" & t.Name\nEnd Function\n\nPublic Function Probe(ByVal path As String, ByVal wanted As String, ByVal reopen As Boolean) As String\n    Dim wb As Object, ws As Object, lo As Object, shown As String, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"E1:F1\").Value = Array(\"h\", \"g\"): ws.Range(\"E2:F3\").Value = 1\n    Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"E1:F3\"), , xlYes)\n    On Error Resume Next\n    lo.Name = wanted\n    s = \"set E\" & Err.Number\n    Err.Clear\n    On Error GoTo 0\n    If reopen Then\n        wb.SaveAs path, xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(path)\n        Set ws = wb.Worksheets(1)\n        Set lo = ws.ListObjects(1)\n    End If\n    shown = lo.DisplayName\n    s = s & \"|\" & TypeName(lo.Name) & \":\" & lo.Name & \"|\" & TypeName(shown) & \":\" & shown\n    s = s & \"|\" & Look(ws, wanted) & \"|\" & Look(ws, UCase(wanted)) & \"|\" & Look(ws, shown) & \"|\" & Look(ws, UCase(shown))\n    wb.Close False\n    Probe = s\nEnd Function\n",
+ "cases": [
+  {
+   "name": "Tb7",
+   "reopen": false,
+   "answer": "set E0|String:Tb7|String:Tb7_|ListObject:Tb7|ListObject:Tb7|E9|E9"
+  },
+  {
+   "name": "Tb7",
+   "reopen": true,
+   "answer": "set E0|String:Tb7|String:Tb7_|ListObject:Tb7|ListObject:Tb7|E9|E9"
+  },
+  {
+   "name": "ab12",
+   "reopen": false,
+   "answer": "set E0|String:ab12|String:ab12_|ListObject:ab12|ListObject:ab12|E9|E9"
+  },
+  {
+   "name": "ab12",
+   "reopen": true,
+   "answer": "set E0|String:ab12|String:ab12_|ListObject:ab12|ListObject:ab12|E9|E9"
+  },
+  {
+   "name": "a b",
+   "reopen": false,
+   "answer": "set E0|String:a b|String:a_b|ListObject:a b|ListObject:a b|E9|E9"
+  },
+  {
+   "name": "a b",
+   "reopen": true,
+   "answer": "set E0|String:a b|String:a_b|ListObject:a b|ListObject:a b|E9|E9"
+  },
+  {
+   "name": "1abc",
+   "reopen": false,
+   "answer": "set E0|String:1abc|String:_1abc|ListObject:1abc|ListObject:1abc|E9|E9"
+  },
+  {
+   "name": "1abc",
+   "reopen": true,
+   "answer": "set E0|String:1abc|String:_1abc|ListObject:1abc|ListObject:1abc|E9|E9"
+  },
+  {
+   "name": "Plain",
+   "reopen": false,
+   "answer": "set E0|String:Plain|String:Plain|ListObject:Plain|ListObject:Plain|ListObject:Plain|ListObject:Plain"
+  },
+  {
+   "name": "Plain",
+   "reopen": true,
+   "answer": "set E0|String:Plain|String:Plain|ListObject:Plain|ListObject:Plain|ListObject:Plain|ListObject:Plain"
+  },
+  {
+   "name": "R1C1",
+   "reopen": false,
+   "answer": "set E0|String:R1C1|String:_R1C1|ListObject:R1C1|ListObject:R1C1|E9|E9"
+  },
+  {
+   "name": "R1C1",
+   "reopen": true,
+   "answer": "set E0|String:R1C1|String:_R1C1|ListObject:R1C1|ListObject:R1C1|E9|E9"
+  },
+  {
+   "name": "xfd1",
+   "reopen": false,
+   "answer": "set E0|String:xfd1|String:xfd1_|ListObject:xfd1|ListObject:xfd1|E9|E9"
+  },
+  {
+   "name": "xfd1",
+   "reopen": true,
+   "answer": "set E0|String:xfd1|String:xfd1_|ListObject:xfd1|ListObject:xfd1|E9|E9"
+  }
+ ]
+}

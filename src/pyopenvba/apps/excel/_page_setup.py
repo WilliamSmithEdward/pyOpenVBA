@@ -418,13 +418,13 @@ class PageSetup(ExcelObject):
             attribute, mapping, default = ENUMS[name]
             raw = setup.get(attribute)
             if name == 'Orientation' and raw is None and ('pageSetup',) in current.attributes:
-                return 0.0
+                return VBAInt(0, 'Long')
             if raw is not None and raw not in mapping.values():
                 raise unsupported('with unrecognized stored enumeration values')
             value = next((number for number, text in mapping.items() if text == raw), default)
-            return float(value) if name in ('Orientation', 'Order') else VBAInt(value, 'Long')
+            return VBAInt(value, 'Long')
         if name == 'PaperSize':
-            return float(setup.get('paperSize', '1')) or 1.0  # Excel writes 0 beside some settings, and reads it as Letter (tests/fixtures/page_files.json)
+            return VBAInt(int(setup.get('paperSize', '1')) or 1, 'Long')  # Excel writes 0 beside some settings, and reads it as Letter (tests/fixtures/page_files.json)
         if name == 'FirstPageNumber':
             return float(setup.get('firstPageNumber', '1')) if setup.get('useFirstPageNumber') in ('1', 'true') else VBAInt(-4105, 'Long')
         if name == 'Zoom':

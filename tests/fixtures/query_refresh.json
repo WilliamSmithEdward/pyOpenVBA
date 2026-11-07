@@ -1,0 +1,121 @@
+{
+ "provider": "Microsoft.ACE.OLEDB.16.0",
+ "columns": [
+  [
+   "T",
+   "TEXT(20)",
+   "'abc'",
+   "'00123'"
+  ],
+  [
+   "N",
+   "TEXT(20)",
+   "'1E3'",
+   "'12.50'"
+  ],
+  [
+   "M",
+   "MEMO",
+   "'long text'",
+   "NULL"
+  ],
+  [
+   "L",
+   "LONG",
+   "7",
+   "-3"
+  ],
+  [
+   "D",
+   "DOUBLE",
+   "1.5",
+   "2"
+  ],
+  [
+   "C",
+   "CURRENCY",
+   "12.34",
+   "0"
+  ],
+  [
+   "X",
+   "DECIMAL(10,2)",
+   "3.25",
+   "4"
+  ],
+  [
+   "DT",
+   "DATETIME",
+   "#2024-01-15#",
+   "#2024-02-20 13:30:00#"
+  ],
+  [
+   "B",
+   "YESNO",
+   "True",
+   "False"
+  ],
+  [
+   "E",
+   "TEXT(5)",
+   "NULL",
+   "''"
+  ]
+ ],
+ "types": {
+  "result": "$A$1:$J$3",
+  "cells": [
+   "String:T|General|T",
+   "String:N|General|N",
+   "String:M|General|M",
+   "String:L|General|L",
+   "String:D|General|D",
+   "String:C|General|C",
+   "String:X|General|X",
+   "String:DT|General|DT",
+   "String:B|General|B",
+   "String:E|General|E",
+   "String:abc|General|abc",
+   "String:1E3|General|1E3",
+   "String:long text|General|long text",
+   "Double:7|General|7",
+   "Double:1.5|General|1.5",
+   "Double:12.34|General|12.34",
+   "Double:3.25|General|3.25",
+   "Date:1/15/2024|m/d/yyyy|1/15/2024",
+   "Boolean:True|General|TRUE",
+   "Empty:|General|",
+   "String:00123|General|00123",
+   "String:12.50|General|12.50",
+   "Empty:|General|",
+   "Double:-3|General|-3",
+   "Double:2|General|2",
+   "Double:0|General|0",
+   "Double:4|General|4",
+   "Date:2/20/2024 1:30:00 PM|m/d/yyyy|2/20/2024",
+   "Boolean:False|General|FALSE",
+   "String:|General|"
+  ]
+ },
+ "background": {
+  "no wait": "default False|after refresh: A2=String:abc refreshing=False result=$A$1:$J$3",
+  "wait": "default False|after refresh: A2=String:abc refreshing=False result=$A$1:$J$3|after DoEvents: A2=String:abc refreshing=False"
+ },
+ "saved": {
+  "SavePassword=False": {
+   "read": "OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=<folder>\\locked.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False|OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=<folder>\\locked.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False",
+   "parts": {
+    "xl/connections.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<connections xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr16\" xmlns:xr16=\"http://schemas.microsoft.com/office/spreadsheetml/2017/revision16\"><connection id=\"1\" xr16:uid=\"{DB6347F6-7C3F-4744-8755-4D6F161B1CDD}\" keepAlive=\"1\" name=\"Connection\" type=\"5\" refreshedVersion=\"8\" saveData=\"1\"><dbPr connection=\"Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=<folder>\\locked.accdb;Mode=Share Deny None;Extended Properties=&quot;&quot;;Jet OLEDB:System database=&quot;&quot;;Jet OLEDB:Registry Path=&quot;&quot;;Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=&quot;&quot;;Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False\" command=\"SELECT T FROM T\"/></connection></connections>",
+    "xl/queryTables/queryTable1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<queryTable xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr16\" xmlns:xr16=\"http://schemas.microsoft.com/office/spreadsheetml/2017/revision16\" name=\"ExternalData_1\" backgroundRefresh=\"0\" connectionId=\"1\" xr16:uid=\"{A4C9BF4A-532D-4E96-A3E2-E076C85871FB}\" autoFormatId=\"0\" applyNumberFormats=\"0\" applyBorderFormats=\"0\" applyFontFormats=\"1\" applyPatternFormats=\"1\" applyAlignmentFormats=\"0\" applyWidthHeightFormats=\"0\"><queryTableRefresh preserveSortFilterLayout=\"0\" nextId=\"2\"><queryTableFields count=\"1\"><queryTableField id=\"1\" name=\"T\"/></queryTableFields></queryTableRefresh></queryTable>"
+   }
+  },
+  "SavePassword=True": {
+   "read": "OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Password=\"\";User ID=Admin;Data Source=<folder>\\locked.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Database Password=Secret1;Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False|OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Password=\"\";User ID=Admin;Data Source=<folder>\\locked.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Database Password=Secret1;Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False",
+   "parts": {
+    "xl/connections.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<connections xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr16\" xmlns:xr16=\"http://schemas.microsoft.com/office/spreadsheetml/2017/revision16\"><connection id=\"1\" xr16:uid=\"{C918D523-8D64-4685-85E2-8D64CFE43C41}\" keepAlive=\"1\" name=\"Connection\" type=\"5\" refreshedVersion=\"8\" savePassword=\"1\" saveData=\"1\"><dbPr connection=\"Provider=Microsoft.ACE.OLEDB.16.0;Password=&quot;&quot;;User ID=Admin;Data Source=<folder>\\locked.accdb;Mode=Share Deny None;Extended Properties=&quot;&quot;;Jet OLEDB:System database=&quot;&quot;;Jet OLEDB:Registry Path=&quot;&quot;;Jet OLEDB:Database Password=Secret1;Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=&quot;&quot;;Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False\" command=\"SELECT T FROM T\"/></connection></connections>",
+    "xl/queryTables/queryTable1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<queryTable xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr16\" xmlns:xr16=\"http://schemas.microsoft.com/office/spreadsheetml/2017/revision16\" name=\"ExternalData_1\" backgroundRefresh=\"0\" connectionId=\"1\" xr16:uid=\"{4EB4D44A-ED98-4151-BCF4-1772FC3EC78B}\" autoFormatId=\"0\" applyNumberFormats=\"0\" applyBorderFormats=\"0\" applyFontFormats=\"1\" applyPatternFormats=\"1\" applyAlignmentFormats=\"0\" applyWidthHeightFormats=\"0\"><queryTableRefresh preserveSortFilterLayout=\"0\" nextId=\"2\"><queryTableFields count=\"1\"><queryTableField id=\"1\" name=\"T\"/></queryTableFields></queryTableRefresh></queryTable>"
+   }
+  }
+ },
+ "measured_at": "2026-11-05T20:55:31.077186+00:00"
+}

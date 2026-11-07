@@ -1,0 +1,24 @@
+{
+ "measured_at": "2026-11-05T20:53:15.012179+00:00",
+ "refs": [
+  "A1:XFD1048576",
+  "A:B",
+  "1:3",
+  "A1:B1048576",
+  "B2:C1048576",
+  "A1:XFD3",
+  "B2:XFD4",
+  "C5"
+ ],
+ "source": "Public Function Probe(ByVal path As String, ByVal reopen As Boolean) As String\n    Dim wb As Object, ws As Object, r0 As Object, r1 As Object, r2 As Object, r3 As Object, r4 As Object, r5 As Object, r6 As Object, r7 As Object, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"Z1\").Formula = \"=ROWS(A1:XFD1048576)+ROWS(A:B)+ROWS(1:3)+ROWS(A1:B1048576)+ROWS(B2:C1048576)+ROWS(A1:XFD3)+ROWS(B2:XFD4)+ROWS(C5)\"\n    If reopen Then\n        wb.SaveAs path, xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(path)\n        Set ws = wb.Worksheets(1)\n    End If\n    Set r0 = ws.Range(\"A1:XFD1048576\"): Set r1 = ws.Range(\"A:B\"): Set r2 = ws.Range(\"1:3\"): Set r3 = ws.Range(\"A1:B1048576\"): Set r4 = ws.Range(\"B2:C1048576\"): Set r5 = ws.Range(\"A1:XFD3\"): Set r6 = ws.Range(\"B2:XFD4\"): Set r7 = ws.Range(\"C5\")\n    ws.Rows(1).Insert\n    s = \"rows \" & r0.Address(False, False) & \" \" & r1.Address(False, False) & \" \" & r2.Address(False, False) & \" \" & r3.Address(False, False) & \" \" & r4.Address(False, False) & \" \" & r5.Address(False, False) & \" \" & r6.Address(False, False) & \" \" & r7.Address(False, False) & \" | \" & ws.Range(\"Z2\").Formula\n    ws.Columns(1).Insert\n    s = s & \" || columns \" & r0.Address(False, False) & \" \" & r1.Address(False, False) & \" \" & r2.Address(False, False) & \" \" & r3.Address(False, False) & \" \" & r4.Address(False, False) & \" \" & r5.Address(False, False) & \" \" & r6.Address(False, False) & \" \" & r7.Address(False, False) & \" | \" & ws.Range(\"AA2\").Formula\n    wb.Close False\n    Probe = s\nEnd Function\n",
+ "cases": [
+  {
+   "reopen": false,
+   "answer": "rows 1:1048576 A:B 2:4 A:B B3:C1048576 2:4 B3:XFD5 C6 | =ROWS(1:1048576)+ROWS(A:B)+ROWS(2:4)+ROWS(A:B)+ROWS(B3:C1048576)+ROWS(2:4)+ROWS(B3:XFD5)+ROWS(C6) || columns 1:1048576 B:C 2:4 B:C C3:D1048576 2:4 C3:XFD5 D6 | =ROWS(1:1048576)+ROWS(B:C)+ROWS(2:4)+ROWS(B:C)+ROWS(C3:D1048576)+ROWS(2:4)+ROWS(C3:XFD5)+ROWS(D6)"
+  },
+  {
+   "reopen": true,
+   "answer": "rows 1:1048576 A:B 2:4 A:B B3:C1048576 2:4 B3:XFD5 C6 | =ROWS(1:1048576)+ROWS(A:B)+ROWS(2:4)+ROWS(A:B)+ROWS(B3:C1048576)+ROWS(2:4)+ROWS(B3:XFD5)+ROWS(C6) || columns 1:1048576 B:C 2:4 B:C C3:D1048576 2:4 C3:XFD5 D6 | =ROWS(1:1048576)+ROWS(B:C)+ROWS(2:4)+ROWS(B:C)+ROWS(C3:D1048576)+ROWS(2:4)+ROWS(C3:XFD5)+ROWS(D6)"
+  }
+ ]
+}

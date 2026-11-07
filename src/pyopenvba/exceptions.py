@@ -117,6 +117,34 @@ class VBASandboxError(VBAUnsupportedError):
     """
 
 
+class VBAStepLimitError(VBAError):
+    """Raised when a run of VBA has taken more steps than the host allows.
+
+    A host that runs macros it does not trust sets ``step_limit`` on the
+    application, so a loop that never ends stops instead of holding it.
+    A step is an instruction the interpreter carries out, a loop's test
+    and a jump included.  Like ``VBAUnsupportedError`` it cannot be trapped
+    by ``On Error``, and it is no run-time error, so ``Err`` is not set:
+    the run ends where it was, with what it had done kept.
+    """
+
+
+class BackgroundRefreshError(PyOpenVBAError):
+    """Raised by ExcelApplication.run after a macro, when a query table it refreshed in the background then failed.
+
+    Excel refreshes such a table once no macro is running and shows a failure in a message the macro never sees, so the
+    caller hears of it here, after the run's own result. Every pending refresh is run and each failure is in ``failures``,
+    the first also as ``__cause__``. Where the run itself ended in an error, that error is raised instead, with the
+    failures as its ``refresh_failures``.
+    """
+
+    def __init__(self, failures: list[Exception]) -> None:
+        count = len(failures)
+        super().__init__(f"{count} background refresh{'es' if count != 1 else ''} failed after the run: "
+                         + "; ".join(str(one) for one in failures))
+        self.failures = failures
+
+
 class PowerQueryError(PyOpenVBAError):
     """Raised when a workbook's Power Query package cannot be read or written.
 

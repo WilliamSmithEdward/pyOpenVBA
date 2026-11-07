@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING, Any, Final
 from pyopenvba.apps.excel._engine_book import EngineBook
 from pyopenvba.apps.excel._given_values import currency_text
 from pyopenvba.apps.excel._worksheet_function_refusals import REFUSALS
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.nodes import Given, Missing, Node
@@ -141,12 +142,16 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
         if name.lower() == "round" and len(values) == 2 and isinstance(values[1], float) and abs(values[1]) >= 2 ** 31:
             return 0.0
+    if name.lower() == "munit" and len(values) == 1 and isinstance(values[0], (int, float)) and values[0] >= 100_000:
+        # Too large to build is a failure through Application as well, not an error value (tests/fixtures/excel_huge_numbers.json).
+        raise error(1004, "Unable to get the MUnit property of the WorksheetFunction class")
     calculator = sheet.book.calculator
     books = _OpenBooks(calculator)
     nodes = () if lifted_year_frac else tuple(_node(value, books) for value in values)
     single = not any(isinstance(value, (Range, VBAArray)) for value in values)
     now = calculator.now()
     context = Context(books, sheet.name, 1, 1, array=True, today=now.date(), now=now)
+    context.from_macro = True
     if lifted_year_frac:
         return _year_frac_lifted(given, entry, context, books, late=late)
     if not entry.minimum <= len(nodes) <= entry.maximum:
@@ -157,6 +162,9 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         found = registry.call(entry, context, nodes)
     except EngineError as failure:
         found = failure.error
+    except registry.LiftedRangeError:
+        raise VBAUnsupportedError(f"WorksheetFunction.{name} over an array whose items each find several cells is not "
+                                  "implemented") from None
     if raising and late and isinstance(found, CellError) and _text_cell_for_switch(name, values):
         # Excel's own conversion fails item by item, so the answer is an array (tests/fixtures/worksheet_function_types.json).
         found = Array([[found]])

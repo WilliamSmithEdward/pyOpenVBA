@@ -272,7 +272,7 @@ class PivotCache(HeldPart, ExcelObject):
         if kept:
             return VBADate(float(kept))
         interpreter = self.book.application.interpreter
-        return VBADate.from_datetime(interpreter.clock() if interpreter is not None else datetime.now())
+        return VBADate.from_datetime((interpreter.clock() if interpreter is not None else datetime.now()).replace(microsecond=0))
 
     # A cache over a list, not OLAP and not refreshed on a timer, refuses both with 1004
     # (tests/fixtures/pivot_olap_members.json).

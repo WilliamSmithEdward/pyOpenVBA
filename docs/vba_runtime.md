@@ -98,6 +98,36 @@ last stay `VBAUnsupportedError`.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
 
+## The step limit
+
+A macro can loop for ever, and the sandbox does not stop that. A host that runs
+macros it does not trust can set how many steps one run may take:
+
+```python
+app = ExcelApplication(step_limit=10_000_000)   # also on open, Word and PowerPoint
+app = ExcelApplication()                        # no limit, the default
+```
+
+A step is an instruction the interpreter carries out, a loop's test and a jump
+included, so `Do: Loop` with nothing in it runs out like any other. A run is
+everything one entry from the host sets off: a procedure called from Python, an
+event raised from Python, or a recalculation that calls a VBA function, with
+whatever those call, raise, evaluate or call back in turn. Class code, event
+macros, `Evaluate` and a host's callback that runs VBA all draw on the budget of
+the run they happen in, and so does every workbook's project. The next entry from
+the host starts afresh.
+
+Past the limit the run raises `VBAStepLimitError`, a `VBAError` but no run-time
+error, so `On Error` cannot trap it and `Err` is not set. The run ends where it was:
+what it did up to that statement is kept, not rolled back. A step limit must be a
+whole number of at least 1, or `None`; anything else is `ValueError` at once.
+
+It bounds the steps between statements, not what one statement costs. A large
+`Range.Sort`, a recalculation of many formulas, or one call into the engine takes as
+long as it takes, and neither memory nor time spent by the host itself is counted.
+With no limit set, counting costs one check of an attribute per instruction, which
+did not show above the noise of timing a 300,000-pass loop.
+
 ## Hooks
 
 Some members need something outside the engine: a PDF library, a printer. The model does not ship one. A caller registers a function instead, and the
@@ -117,8 +147,8 @@ app.set_hook("ExportAsFixedFormat", export, folders=["C:/reports"])
 app.set_hook("PrintOut", my_print_function)
 ```
 
-`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat`, `PrintOut`, `Export` (`Chart.Export`) or `CopyPicture`; any other name raises
-`ValueError`, and `None` removes the function.
+`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat`, `PrintOut`, `Export` (`Chart.Export`), `CopyPicture` or `Refresh`;
+any other name raises `ValueError`, and `None` removes the function.
 
 The model answers what it measured itself: a macro's argument errors, then `BeforePrint`, then the file. Only then does it call the function with a
 `HookRequest`:
@@ -176,6 +206,91 @@ function (measured in `tests/fixtures/output_pictures.json`):
   `xlScreen` or `xlPrinter` and `xlPicture` or `xlBitmap`, and a bitmap as printed only on a chart. A `Range` of several areas is 1004, and a hidden shape
   copies nothing and does not call the function. Like a `PrintOut` with no file, it runs under the sandbox: registering it is the grant. Afterwards
   `CutCopyMode` reads 0, and pasting the picture reports itself, as the model has no picture to make a shape of, until cells or a chart are copied again.
+
+### Linked files
+
+A macro reads another workbook's file in four places: `UpdateLink`, `ChangeLink`, `LinkInfo`'s status, and a formula naming a closed workbook the file has no
+link to yet. Under the sandbox all four are refused, as any file is. `allow_link_reads` grants folders for them without turning the sandbox off:
+
+```python
+app.allow_link_reads(["C:/reports/sources"])
+```
+
+A file passes only if it lies inside one of the folders, by the same check as `set_hook`'s `folders`: links, junctions and `..` resolved, parts compared whole, UNC
+and device paths refused unless the folder is one. A file outside raises `VBASandboxError`, which does not say where the path led, and nothing on disk is looked at
+before the check. Each call replaces the folders; `allow_link_reads(())` takes them all away. `Workbook.OpenLinks` opens workbooks rather than reading them, and
+stays refused.
+
+A formula that names a workbook by its file alone, `=[Alpha.xlsx]Sheet1!A1`, makes Excel look for it in the current folder. A macro under the sandbox cannot
+change the current folder, so it is the folder your process was in when you made the `ExcelApplication`. The file is read only if that folder, or one above it, is
+granted. If you do not want bare names read at all, grant only folders other than that one.
+
+### Refresh: rows from a database
+
+`set_hook("Refresh", function)` gives a query table over a database its rows. A macro adds one as Excel's does, with an `OLEDB;` or `ODBC;`
+connection string and SQL, and refreshes it:
+
+```vba
+Set q = ActiveSheet.QueryTables.Add("OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\data\sales.accdb", Range("B2"), "SELECT * FROM Sales")
+q.Refresh False
+```
+
+The function fetches and the model lays out. `request.source` is an `ExternalSource`:
+
+| Field | Holds |
+| --- | --- |
+| `kind` | `OLEDB` or `ODBC` |
+| `connection` | The connection string as the macro set it, without its `OLEDB;` or `ODBC;` |
+| `command_text` | The SQL |
+| `command_type` | `xlCmdSql` |
+| `parameters` | The parameters given, as `(name, value)` pairs |
+| `fields_wanted` | Whether the field names head the rows |
+
+It returns the rows, the field names first:
+
+```python
+from pyopenvba.access import AccessDatabase
+
+
+def from_access(request):
+    # An .accdb read through pyOpenVBA's own Access engine: an example of a host's source, not a dependency of the hook.
+    path = request.source.connection.partition("Data Source=")[2].partition(";")[0]
+    with AccessDatabase(path) as db:
+        found = db.execute(request.source.command_text)
+    names = list(found[0]) if found else []
+    return [names, *[[row[name] for name in names] for row in found]]
+
+
+app.set_hook("Refresh", from_access)
+```
+
+A value goes on the sheet by its Python type, as Excel puts a database's by its type (measured through ACE OLEDB against an Access file):
+`str` as text, even one that looks like a number, and `""` as a cell holding it; `int`, `float` and `Decimal` as numbers in General, Currency
+included; `bool` as a Boolean; a `date` or `datetime` as a Date shown `m/d/yyyy`, its time kept in the value; `None` as an empty cell. Rows of
+another length, a name that is not text or a value no cell holds are 1004.
+
+The model does what Excel does with the rows, measured in tests/fixtures/query_refresh_layout.json: the names in bold, `RowNumbers` from 0,
+`RefreshStyle` on a first and a later refresh, `FillAdjacentFormulas`, `PreserveFormatting`, the result range and its `ExternalData_` name, and
+the file Excel opens and refreshes itself.
+
+**In the background.** A table a macro adds has `BackgroundQuery` False. With it True, or `Refresh True`, Excel returns at once with the sheet
+as it was and `Refreshing` True until no macro runs. So does the model: `ExcelApplication.run` calls the function once the macro is over, before
+`OnTime`'s macros. Every waiting refresh runs. If any fails, `run` raises `pyopenvba.exceptions.BackgroundRefreshError` after the run's own
+result, with each failure in `failures` and the first as `__cause__`. If the run itself failed, its error is raised, with the failures as its
+`refresh_failures` and, on Python 3.11 and later, a note. Excel shows such a failure in a message the macro never sees, so nothing reaches the macro.
+
+**The step limit** does not count a refresh that runs after the macro: that is the host's code, outside the run. VBA the function runs is a new
+entry, with a budget of its own.
+
+**Passwords.** The function gets the connection string whole, since it needs it to connect. Everywhere the model shows one, in
+`ExternalSource`'s repr and in its errors, a password is `****`: any key with `password` or `pwd` in it, such as `Pwd`, `Password` or
+`Jet OLEDB:Database Password`. A function's own error text stays in `__cause__` alone, as it may echo the string. As Excel does, once a refresh
+has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then.
+
+Known differences: Excel reads back and saves the provider's own fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest,
+where the model keeps the one the macro set, so the file differs there; the uid Excel writes on each part is not written. Not built: a
+ListObject over a database, `Workbook.RefreshAll` over such a table, a refresh that changes the number of columns, and query tables over a
+database in a file opened again, whose sheet's `QueryTables` stays refused. A text file's query table is the model's own, with no function.
 
 ### Not supported
 

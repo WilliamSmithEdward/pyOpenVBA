@@ -26,7 +26,8 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAErrorValue, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
-from pyopenvba.shapes._values import FillLine, Shape, emu, points
+from pyopenvba.apps.excel._shape_anchors import keep_on_sheet
+from pyopenvba.shapes._values import MOST_PLACE, MOST_POINTS, SINGLE_LARGEST, FillLine, Shape, emu, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
@@ -143,6 +144,14 @@ class SeriesState:
     label_generation: int = 0
     #: What Series.Format set, None until then (tests/fixtures/series_format.json).
     format_look: FillLine | None = None
+    #: Whether a loaded series' look was read from its file: none of its own on a chart with no style part, or one the reads answer.
+    look_read: bool = False
+    #: Whether a loaded series holds a look or labels its points take, which are not read, so its points' reads are refused.
+    points_unread: bool = False
+    #: Whether a loaded series holds a label of one of its points, which its DataLabels answer from but is not read.
+    labels_unread: bool = False
+    #: Whether a loaded series' own data labels were read whole from its dLbls (tests/fixtures/loaded_chart_labels.json).
+    labels_read: bool = False
     #: What was set of its points, by their index from 0 (tests/fixtures/series_points.json).
     points: dict[int, PointState] = field(default_factory=lambda: {})
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
@@ -177,6 +186,10 @@ class ChartState:
     #: So with its legend element, and each axis's gridlines by the axis and whether major.
     legend_taken: str = ''
     gridlines_taken: dict[tuple[int, bool], str] = field(default_factory=lambda: {})
+    axis_titles_taken: dict[int, str] = field(default_factory=lambda: {})
+    #: The element looks a loaded chart has had read from its file, by their key: none of their own on a chart with no style part, or
+    #: one the reads answer (tests/fixtures/loaded_chart_looks.json).
+    looks_read: set[str] = field(default_factory=lambda: set())
     #: Whether a loaded chart has a style part: what it gains takes that style's look, which is not read here.
     style_part: bool = False
     #: Whether a loaded legend has a layout of its own, which makes its position custom.
@@ -219,6 +232,8 @@ class ChartState:
     series: list[SeriesState] = field(default_factory=lambda: [])
     part: str = ''
     original: str = ''
+    #: A loaded chart's series whose data labels changed, written into original at save (see _chart_loaded).
+    labels_pending: list[SeriesState] = field(default_factory=lambda: [])
     dirty: bool = True
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
@@ -884,8 +899,11 @@ class ChartObjects(VBACollection, ItemDefault, Created):
             raise VBAUnsupportedError('Chart placement centered in a native window is not implemented')
         if width < 0 or height < 0:
             width, height = 360, 216
+        if max(width, height) >= MOST_POINTS or max(left, top) >= MOST_PLACE:
+            raise error(-2147024809, 'The specified value is out of range.')
         left, top, width, height = (float(VBASingle(points(emu(value)))) for value in (left, top, width, height))
         shape = Shapes(self.sheet).new_chart_shape(left, top, width, height)
+        keep_on_sheet(self.sheet, shape)
         base = plotted_before(self.sheet)
         self.sheet.chart_states[shape.shape_id] = ChartState(unique_base=base, next_unique=base)
         made = ChartObject(self.sheet, shape)
@@ -1481,6 +1499,12 @@ class ChartArea(Created):
         self.chart = chart
 
     @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
+
+    @member
     def Parent(self) -> object:
         self.chart.admit_read()
         return self.chart
@@ -1582,6 +1606,12 @@ class PlotArea(ElementProperties, Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
 
     @member
     def Parent(self) -> object:
@@ -1830,8 +1860,15 @@ class ChartObject(HeldPart):
         number = float(to_number(value))
         if not math.isfinite(number):
             raise error(1004, 'Invalid chart geometry')
+        # A size is refused by 169093 points and a place by 2^31, both ways for a place, and a vast negative size is none at all
+        # (tests/fixtures/excel_huge_numbers.json).
+        if name in ('width', 'height') and number < -SINGLE_LARGEST:
+            number = 0.0
+        if number >= (MOST_POINTS if name in ('width', 'height') else MOST_PLACE) or abs(number) > SINGLE_LARGEST:
+            raise error(-2147024809, 'The specified value is out of range.')
         quantized = float(VBASingle(points(emu(number))))
         setattr(self.shape, name, quantized)
+        keep_on_sheet(self.sheet, self.shape)
         self.sheet.drawing_changed()
 
     @method
@@ -1998,6 +2035,18 @@ class Chart(ElementProperties, HeldPart):
 
     def changed(self) -> None:
         self.admit_change()
+        self.state.dirty = True
+        self.sheet.drawing_changed()
+
+    def labels_changed(self, entry: SeriesState, member: str = '') -> None:
+        """A change to a series' data labels, or a point's, made by this member. A loaded chart takes it where its
+        labels are written as the file holds them, and writes them into its own markup at save."""
+        if not self.state.original:
+            self.changed()
+            return
+        from pyopenvba.apps.excel._chart_loaded import admit_labels
+
+        admit_labels(self, entry, member)
         self.state.dirty = True
         self.sheet.drawing_changed()
 
@@ -2935,6 +2984,12 @@ class ChartTitle(ElementProperties, TitleMembers):
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
 
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
+
     def title_look(self) -> TitleLook:
         self.chart.admit_read()
         return self.chart.state.title_look
@@ -2945,7 +3000,12 @@ class ChartTitle(ElementProperties, TitleMembers):
         return self.chart.state.title_look
 
     def title_sheet(self) -> Worksheet:
-        self.chart.admit_change()
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import admit
+
+            admit(self.chart)
+        else:
+            self.chart.admit_change()
         return self.chart.sheet
 
     @method
@@ -2980,6 +3040,11 @@ class ChartTitle(ElementProperties, TitleMembers):
         return self.chart.font_of(self, 'title', size=18.0, bold=True)
 
     def title_link(self, formula: str) -> None:
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import link_title
+
+            link_title(self.chart, formula, linked_title(self.chart.sheet, formula))
+            return
         self.chart.changed()
         self.chart.state.title_typed = False
         self.chart.state.title_look.formula = formula
@@ -3004,6 +3069,11 @@ class ChartTitle(ElementProperties, TitleMembers):
 
     @setter('Text')
     def _text(self, value: object) -> None:
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import type_title
+
+            type_title(self.chart, to_text(value))
+            return
         self.chart.admit_change()
         wanted = to_text(value)
         self.chart.changed()
@@ -3039,6 +3109,12 @@ class Legend(ElementProperties, Created):
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
+
+    @member
+    def Interior(self) -> object:
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
+
+        return ChartInterior(self, self.chart)
 
     def shown(self) -> ChartState:
         self.chart.admit_read()
@@ -4734,13 +4810,24 @@ class Series(PictureMembers, Created):
     def _has_data_labels(self, value: object) -> None:
         self.position()
         wanted = to_bool(value)
-        if any(point.label is not None for point in self.entry.points.values()):
+        # On a loaded chart a point's label of its own goes with the series' labels, which is not built there
+        # (tests/fixtures/loaded_chart_label_edits.json).
+        own = self.chart.state.original and any(not point.label_own.empty() for point in self.entry.points.values())
+        if own or any(point.label is not None for point in self.entry.points.values()):
             raise VBAUnsupportedError('Changing the data labels of a series with point labels is not implemented')
         if self.entry.label_look.font is not None:
             raise VBAUnsupportedError('Changing data labels that have a font is not implemented')
-        self.chart.changed()
+        self.chart.labels_changed(self.entry, 'Series.HasDataLabels')
         if self.entry.data_labels and not wanted:
             self.entry.label_generation += 1
+        if wanted and self.entry.data_labels and self.entry.label_look.shown():
+            # Labels already on show the value alone and keep their place and number format
+            # (tests/fixtures/loaded_chart_label_edits.json).
+            look = self.entry.label_look
+            if look.separator is not None:
+                raise VBAUnsupportedError('Turning on data labels that have a separator is not implemented')
+            look.value, look.category, look.series, look.percent, look.legend_key, look.bubble = True, False, False, False, False, False
+            return
         if wanted:
             # Labels turned on show the value alone, however they were before.
             self.entry.label_look = LabelLook()
@@ -4772,9 +4859,9 @@ class Series(PictureMembers, Created):
 
     @member
     def Interior(self) -> object:
-        from pyopenvba.apps.excel._chart_points import OldInterior
+        from pyopenvba.apps.excel._chart_interior import ChartInterior
 
-        return OldInterior(self)
+        return ChartInterior(self, self.chart)
 
     @method
     def ApplyDataLabels(self, Type: object = MISSING, LegendKey: object = MISSING, AutoText: object = MISSING,
@@ -4807,6 +4894,9 @@ class Series(PictureMembers, Created):
         from pyopenvba.apps.excel._chart_data_labels import DataLabels
 
         self.position()
+        if self.chart.state.original and self.entry.labels_unread:
+            # Excel answers from the point's label (tests/fixtures/loaded_chart_labels.json).
+            raise VBAUnsupportedError("The data labels of an imported chart's series with a point's label are not implemented")
         if not self.has_labels():
             raise error(-2147467259, 'Automation error\nUnspecified error')
         labels = DataLabels(self, self.entry.label_generation)

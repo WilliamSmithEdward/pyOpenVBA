@@ -31,7 +31,7 @@ CURVE_ANSWERS = _load('wrapped_curves')
 ROUND3 = _load('wrapped_round3_predictions')
 ROUND3_ANSWERS = _load('wrapped_round3')
 #: The model has widths for these alone, and refuses the rest.
-TABLED = ('Calibri', 'Aptos Narrow')
+TABLED = ("Aptos Narrow", "Calibri", "Arial", "Times New Roman")
 
 
 def _sheet(text: str, font: str, size: float, *, bold: bool = False, italic: bool = False, indent: int = 0) -> tuple[ExcelApplication, Any]:
@@ -81,6 +81,10 @@ def test_each_held_out_curve_as_excel_answered(number: int) -> None:
 def test_each_third_round_curve_as_excel_answered(number: int) -> None:
     case = ROUND3['cases'][number]
     _, sheet = _made(case)
+    if case['italic']:
+        with pytest.raises(VBAUnsupportedError, match='italic'):
+            _height_at(sheet, 100)
+        return
     wrong = [(column, tall, got) for column, tall in ROUND3_ANSWERS['curves'][number].items() if (got := _height_at(sheet, int(column))) != tall]
     assert not wrong
 
@@ -95,7 +99,7 @@ _HYPHEN_THEN_LINE_FEED = '-\n'
 def test_each_fourth_round_curve_as_excel_answered(number: int) -> None:
     case = ROUND4['cases'][number]
     _, sheet = _made(case)
-    if case['text'].endswith(_HYPHEN_THEN_LINE_FEED):
+    if case['text'].endswith(_HYPHEN_THEN_LINE_FEED) or case['italic']:
         with pytest.raises(VBAUnsupportedError):
             _height_at(sheet, 100)
         return
@@ -123,21 +127,26 @@ def _event_source(statements: list[str]) -> str:
 
 #: What the model reports rather than answers, and where in each sequence: a carriage return's width is not measured, nor AutoFit of a column over wrapped text.
 REFUSED_STATEMENTS = ('c.Value = "ab" & vbCr & "cd"', 'ws.Columns(1).AutoFit')
+#: Wrapped italic text reports itself, and every reading after it is of italic text too.
+_ITALIC = 'c.Font.Italic = True'
 
 
 @pytest.mark.parametrize('name', EVENTS['events'])
 def test_each_event_works_the_height_out_as_excel_does(name: str) -> None:
     statements: list[str] = EVENTS['events'][name]
+    readings: list[str] = EVENTS['rows'][name]
+    if _ITALIC in statements:
+        statements, readings = statements[:statements.index(_ITALIC)], readings[:statements.index(_ITALIC) + 1]
     # The first reading comes before any statement; each statement has the reading after it.
     kept = [one for one in statements if one not in REFUSED_STATEMENTS]
-    answers = [EVENTS['rows'][name][0], *[found for one, found in zip(statements, EVENTS['rows'][name][1:], strict=True) if one not in REFUSED_STATEMENTS]]
+    answers = [readings[0], *[found for one, found in zip(statements, readings[1:], strict=True) if one not in REFUSED_STATEMENTS]]
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(_event_source(kept), name='Probe')
     assert str(app.run('Probe.Go')).split('|')[1:] == answers
 
 
-@pytest.mark.parametrize('statement', REFUSED_STATEMENTS)
+@pytest.mark.parametrize('statement', [*REFUSED_STATEMENTS, _ITALIC])
 def test_what_is_not_measured_reports_itself(statement: str) -> None:
     app = ExcelApplication()
     app.add_workbook()

@@ -31,13 +31,14 @@ from pyopenvba.apps.excel._chart_xml import group_markup, plain_label_text
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.apps.excel._chart_line_format import group_line_markup
+from pyopenvba.apps.excel._chart_loaded_looks import read_looks
 from pyopenvba.apps.excel._chart_trendlines import TYPES as TRENDLINE_TYPES, TrendlineState, markup as trendlines_markup
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._chart_xml import ChartKind
+    from pyopenvba.apps.excel._chart_xml import ChartKind, LabelLook
     from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -169,6 +170,161 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
             rels = rels_part(part)
             sheet.chart_states[shape.shape_id].style_part = package.has(rels) and REL_CHART_STYLE in package.read(rels).decode('utf-8')
+            read_looks(sheet.chart_states[shape.shape_id], package, part)
+
+#: What a series' dLbls holds that its labels are read from, by the tag; a point's dLbl is the points' own.
+_LABEL_FLAGS = {'showLegendKey': 'legend_key', 'showVal': 'value', 'showCatName': 'category', 'showSerName': 'series',
+                'showPercent': 'percent', 'showBubbleSize': 'bubble'}
+_LABEL_TAGS = frozenset({*_LABEL_FLAGS, 'numFmt', 'spPr', 'txPr', 'dLblPos', 'separator', 'showLeaderLines', 'extLst', 'dLbl'})
+
+
+def _read_labels(look: LabelLook, labels: ET.Element) -> bool:
+    """A series' own data labels, as _series_labels writes them: what they show, their number format, place, separator and box.
+    False where the dLbls holds what is not read here, which leaves its labels' reads refused."""
+    from pyopenvba.apps.excel._number_format import from_file
+
+    if any(child.tag.rpartition('}')[2] not in _LABEL_TAGS for child in labels):
+        return False
+    for tag, name in _LABEL_FLAGS.items():
+        found = labels.find(f'c:{tag}', NS)
+        if found is None:
+            return False
+        setattr(look, name, found.get('val', '1') in ('1', 'true'))
+    number = labels.find('c:numFmt', NS)
+    if number is not None:
+        linked = number.get('sourceLinked', '0') in ('1', 'true')
+        look.linked, look.number_format = linked, None if linked else from_file(number.get('formatCode', 'General'))
+    place = labels.find('c:dLblPos', NS)
+    if place is not None:
+        spelled = {name: number for number, name in LABEL_POSITIONS.items()}
+        if place.get('val') not in spelled:
+            return False
+        look.position = spelled[place.get('val', '')]
+    separator = labels.find('c:separator', NS)
+    look.separator = None if separator is None else separator.text or ''
+    box = labels.find('c:spPr', NS)
+    if box is not None:
+        fills = [child.tag.rpartition('}')[2] for child in box if child.tag.rpartition('}')[2] in ('noFill', 'solidFill', 'gradFill', 'pattFill')]
+        line = box.find('a:ln', NS)
+        effects = box.find('a:effectLst', NS)
+        if (fills != ['noFill'] or line is None or line.find('a:noFill', NS) is None
+                or (effects is not None and len(effects))):
+            return False
+    # What DataLabels answers as new labels' (Orientation, alignment, ReadingOrder, Shadow, AutoText, ShowRange) holds only where
+    # the file says nothing else.
+    text = labels.find('c:txPr', NS)
+    if text is not None:
+        body = text.find('a:bodyPr', NS)
+        layout = text.find('a:p/a:pPr', NS)
+        defaults = {'rot': '0', 'vert': 'horz', 'anchor': 'ctr'}
+        if (body is not None and any(body.get(name, value) != value for name, value in defaults.items())
+                or layout is not None and layout.attrib):
+            return False
+    for extension in labels.findall('c:extLst/c:ext', NS):
+        if extension.get('uri') != _RANGE_URI or any(_local(child) != 'showLeaderLines' for child in extension):
+            return False
+    return True
+
+
+_POINT_LABEL_TAGS = frozenset({*_LABEL_FLAGS, 'idx', 'delete', 'tx', 'numFmt', 'spPr', 'dLblPos', 'separator', 'extLst'})
+_RANGE_URI = '{CE6537A1-D6FC-4f65-9D91-7224C49458BB}'
+_UNIQUE_URI = '{C3380CC4-5D6E-409C-BE32-E72D297353CC}'
+
+
+def _local(element: ET.Element) -> str:
+    return element.tag.rpartition('}')[2]
+
+
+def _read_point_label(item: SeriesState, label: ET.Element) -> bool:
+    """A point's own label as Excel saves one: its text in a single run, whose paragraph holds its font, its number format,
+    place, flags and separator, on no box. False where it holds what is not read here."""
+    from pyopenvba.apps.excel._charts import PointLabel, PointState
+    from pyopenvba.apps.excel._number_format import from_file
+
+    index = label.find('c:idx', NS)
+    if index is None or not index.get('val', '').isdigit():
+        return False
+    if any(_local(child) not in _POINT_LABEL_TAGS for child in label):
+        return False
+    point = item.points.setdefault(int(index.get('val', '')), PointState())
+    for extension in label.findall('c:extLst/c:ext', NS):
+        uri = extension.get('uri')
+        if uri == _UNIQUE_URI:
+            unique = extension.find('c16:uniqueId', {'c16': 'http://schemas.microsoft.com/office/drawing/2014/chart'})
+            spelled = '' if unique is None else unique.get('val', '')
+            if len(spelled) < 9 or not all(ch in '0123456789ABCDEFabcdef' for ch in spelled[1:9]):
+                return False
+            point.label_unique = int(spelled[1:9], 16)
+        elif uri != _RANGE_URI:
+            return False
+    gone = label.find('c:delete', NS)
+    if gone is not None:
+        if len(label) != 2 + (label.find('c:extLst', NS) is not None) or gone.get('val', '1') not in ('1', 'true'):
+            return False
+        point.label = False
+        return True
+    own = PointLabel()
+    for extension in label.findall('c:extLst/c:ext', NS):
+        if extension.get('uri') == _RANGE_URI:
+            shown = [child for child in extension if _local(child) == 'showDataLabelsRange']
+            if len(shown) != len(extension) - sum(_local(child) == 'dlblFieldTable' for child in extension):
+                return False
+            own.show_range = bool(shown) and shown[0].get('val', '1') in ('1', 'true')
+    rich = label.find('c:tx/c:rich', NS)
+    if label.find('c:tx', NS) is not None:
+        if rich is None:
+            return False
+        body = rich.find('a:bodyPr', NS)
+        paragraphs = rich.findall('a:p', NS)
+        if body is None or body.get('rot') is not None or len(paragraphs) != 1:
+            return False
+        paragraph = paragraphs[0]
+        layout = paragraph.find('a:pPr', NS)
+        if layout is not None and (layout.attrib or any(_local(child) != 'defRPr' for child in layout)):
+            return False
+        runs = paragraph.findall('a:r', NS)
+        if any(_local(child) not in ('pPr', 'r', 'endParaRPr') for child in paragraph) or len(runs) > 1:
+            return False
+        own.text = '' if not runs else ''.join(part.text or '' for part in runs[0].findall('a:t', NS))
+        own.font = read_font(label, NS)
+    number = label.find('c:numFmt', NS)
+    if number is not None:
+        if number.get('sourceLinked', '0') in ('1', 'true'):
+            own.linked = True
+        else:
+            own.number_format = from_file(number.get('formatCode', 'General'))
+    box = label.find('c:spPr', NS)
+    if box is not None:
+        fills = [_local(child) for child in box if _local(child) in ('noFill', 'solidFill', 'gradFill', 'pattFill')]
+        line = box.find('a:ln', NS)
+        effects = box.find('a:effectLst', NS)
+        if (fills != ['noFill'] or line is None or line.find('a:noFill', NS) is None
+                or (effects is not None and len(effects))):
+            return False
+    place = label.find('c:dLblPos', NS)
+    if place is not None:
+        spelled = {name: number for number, name in LABEL_POSITIONS.items()}
+        if place.get('val') not in spelled:
+            return False
+        own.position = spelled[place.get('val', '')]
+    for tag, name in _LABEL_FLAGS.items():
+        found = label.find(f'c:{tag}', NS)
+        if found is None:
+            return False
+        own.shows[name] = found.get('val', '1') in ('1', 'true')
+    if not any(own.shows.values()) and not own.text:
+        # A label showing nothing: what Excel answers of it is not measured.
+        return False
+    separator = label.find('c:separator', NS)
+    own.separator = None if separator is None else separator.text or ''
+    point.label, point.label_own = (None if item.data_labels else True), own
+    return True
+
+
+def _read_point_labels(item: SeriesState, labels: ET.Element) -> bool:
+    """Every point's own label in a series' dLbls, read; False where one is not, which leaves the series' labels unread."""
+    return all(_read_point_label(item, label) for label in labels.findall('c:dLbl', NS))
+
 
 def _axis_elements(plot: ET.Element) -> list[ET.Element]:
     return [child for child in plot if child.tag.rpartition('}')[2] in ('catAx', 'valAx', 'dateAx')]
@@ -419,10 +575,12 @@ def read_chart(xml: str, part: str) -> ChartState:
         labels = series.find('c:dLbls', NS)
         if labels is not None:
             item.label_look.font = read_font(labels, NS)
-            shown = labels.find('c:showVal', NS)
-            item.data_labels = shown is not None and shown.get('val', '1') in ('1', 'true')
+            # Labels are on where they show any part, the value or another (tests/test_excel_loaded_chart_save_reopen.py).
+            flags = [labels.find(f'c:{tag}', NS) for tag in ('showLegendKey', 'showVal', 'showCatName', 'showSerName', 'showPercent', 'showBubbleSize')]
+            item.data_labels = any(flag is not None and flag.get('val', '1') in ('1', 'true') for flag in flags)
             leaders = labels.find('c:showLeaderLines', NS)
             item.leader_lines = leaders is not None and leaders.get('val', '1') in ('1', 'true')
+            item.labels_read = _read_labels(item.label_look, labels) and _read_point_labels(item, labels)
         else:
             # A pie's own leader lines, which its series follow until they have labels of their own.
             leaders = owner.find('c:dLbls/c:showLeaderLines', NS)
@@ -605,7 +763,11 @@ def source_format(sheet: Worksheet, formula: str) -> str:
 def refresh(sheet: Worksheet, package: OpcFile) -> None:
     """Refresh only changed reference caches; leave every other chart byte alone, but for the references a chart read
     from a file has had rewritten as its cells moved."""
-    for chart in sheet.chart_states.values():
+    for shape_id, chart in sheet.chart_states.items():
+        if chart.labels_pending:
+            from pyopenvba.apps.excel._chart_loaded import write_labels
+
+            write_labels(sheet.chart_sheet or Chart(sheet, next(item for item in sheet.shapes_ if item.shape_id == shape_id)))
         if chart.dirty and chart.original and chart.part and package.has(chart.part):
             package.write(chart.part, chart.original.encode('utf-8'))
             chart.dirty = False
@@ -724,7 +886,7 @@ def _all_numbers(sheet: Worksheet, reference: str) -> bool:
                                        for value in referenced_values(sheet, reference))
 
 
-def _shown_points(sheet: Worksheet, state: ChartState, item: SeriesState) -> SeriesState:
+def shown_points(sheet: Worksheet, state: ChartState, item: SeriesState) -> SeriesState:
     """The series with its points numbered among the cells shown, as the file numbers them; those hidden wait."""
     if not state.visible_only or not item.points or not item.value_reference or lost(item.value_reference):
         return item
@@ -854,10 +1016,10 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                               and CHART_TYPES.get(shown_type(chart.state)) == 'scatter' else ''),
                                              item.shadow),
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
-                               points=points_markup(_shown_points(sheet, chart.state, item),
+                               points=points_markup(shown_points(sheet, chart.state, item),
                                                     CHART_TYPES.get(series_type(chart.state, item), ''),
                                                     series.position(), sheet.book.stylesheet.colors.theme),
-                               point_labels=point_labels_markup(_shown_points(sheet, chart.state, item)),
+                               point_labels=point_labels_markup(shown_points(sheet, chart.state, item)),
                                labels=item.data_labels, leader_lines=item.leader_lines, label_look=item.label_look,
                                error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(series_type(chart.state, item), ''),
                                                             lambda element, given: _bar_values(sheet, element, given)),

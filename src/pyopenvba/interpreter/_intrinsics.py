@@ -197,7 +197,16 @@ def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str,
     strict = getattr(target, "vba_strict_call_types", False)
     if strict and kind == _GET and spec is not None and spec.kind == "method":
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
-    return _answered(target, name, rest)
+    found = _answered(target, name, rest)
+    # Bound late as any read through CallByName is: what the library declares a Long and Excel answers as a Double, as a late read of the member
+    # does (tests/fixtures/loaded_control_edits.json, DropDownLines).
+    from pyopenvba.interpreter._type_library import find_class, reads_double_late
+
+    library = getattr(interpreter.host, "vba_type_library", None)
+    held = find_class(library, target.vba_type_name) if library is not None and not rest else None
+    if held is not None and isinstance(found, int) and not isinstance(found, bool) and reads_double_late(held, name):
+        return float(found)
+    return found
 
 
 INTRINSICS["callbyname"] = _call_by_name

@@ -892,6 +892,111 @@ def with_control_state(sheet_xml: str, shape: Shape) -> str:
     return _CONTROL.sub(change, sheet_xml)
 
 
+#: The schema's order of what this module patches on a control loaded from a file: x:ClientData's children, controlPr's attributes and
+#: formControlPr's. Excel puts a new one before the first already there that comes after it, whatever order the rest keep
+#: (tests/fixtures/loaded_control_edits.json).
+_CLIENT_ORDER = ('MoveWithCells', 'SizeWithCells', 'Anchor', 'Locked', 'DefaultSize', 'PrintObject', 'Disabled', 'AutoFill', 'AutoLine', 'AutoPict',
+                 'FmlaMacro', 'TextHAlign', 'TextVAlign', 'LockText', 'JustLastX', 'SecretEdit', 'Default', 'Help', 'Cancel', 'Dismiss', 'Accel',
+                 'Accel2', 'Row', 'Column', 'Visible', 'RowHidden', 'ColHidden', 'VTEdit', 'MultiLine', 'VScroll', 'ValidIds', 'FmlaRange', 'WidthMin',
+                 'Sel', 'NoThreeD2', 'SelType', 'MultiSel', 'LCT', 'ListItem', 'DropStyle', 'Colored', 'DropLines', 'Checked', 'FmlaLink', 'FmlaPict',
+                 'NoThreeD', 'FirstButton', 'FmlaGroup', 'Val', 'Min', 'Max', 'Inc', 'Page', 'Horiz', 'Dx')
+_CONTROL_PR_ORDER = ('locked', 'defaultSize', 'print', 'disabled', 'recalcAlways', 'uiObject', 'autoFill', 'autoLine', 'autoPict', 'macro', 'altText',
+                     'linkedCell', 'listFillRange', 'cf', 'r:id')
+_FORM_CONTROL_ORDER = ('objectType', 'checked', 'colored', 'dropLines', 'dropStyle', 'dx', 'firstButton', 'fmlaGroup', 'fmlaLink', 'fmlaRange',
+                       'fmlaTxbx', 'horiz', 'inc', 'justLastX', 'lockText', 'max', 'min', 'multiSel', 'noThreeD', 'noThreeD2', 'page', 'sel', 'seltype',
+                       'textHAlign', 'textVAlign', 'val', 'widthMin', 'editVal', 'multiLine', 'verticalBar', 'passwordEdit')
+
+
+def _ordered_attribute(markup: str, tag: str, name: str, value: str | None, order: tuple[str, ...]) -> str:
+    """One attribute of ``tag`` set, or taken off for None, a new one placed where ``order`` puts it among those already there."""
+    found = re.search(rf"<{re.escape(tag)}(?=[\s/>])[^>]*>", markup)
+    if found is None:
+        return markup
+    head = found.group(0)
+    attribute = re.compile(rf'\s{re.escape(name)}="[^"]*"')
+    if value is None:
+        head = attribute.sub("", head, count=1)
+    elif attribute.search(head):
+        head = attribute.sub(lambda _: f' {name}="{escape(value)}"', head, count=1)
+    else:
+        later = order[order.index(name) + 1:]
+        place = next((match.start() for match in re.finditer(r'\s([\w:]+)="', head) if match.group(1) in later), None)
+        if place is None:
+            place = len(head) - (2 if head.endswith("/>") else 1)
+        head = head[:place] + f' {name}="{escape(value)}"' + head[place:]
+    return markup[:found.start()] + head + markup[found.end():]
+
+
+def _ordered_child(markup: str, tag: str, wanted: str) -> str:
+    """One of x:ClientData's children as ``wanted`` spells it, or taken off where that is empty, a new one placed in _CLIENT_ORDER."""
+    # Each child on a line of its own as Excel writes them, "\r\n   " before each; none in the model's own VML.
+    spacing = re.search(r"<x:ClientData\b[^>]*>(\s*)<", markup)
+    separator = spacing.group(1) if spacing else ""
+    found = re.search(rf"\s*<x:{tag}\b[^>]*?(?:/>|>.*?</x:{tag}>)", markup, re.DOTALL)
+    if found is not None:
+        if not wanted:
+            return markup[:found.start()] + markup[found.end():]
+        element = found.group(0).lstrip()
+        start = found.end() - len(element)
+        return markup if element == wanted else markup[:start] + wanted + markup[found.end():]
+    if not wanted:
+        return markup
+    later = _CLIENT_ORDER[_CLIENT_ORDER.index(tag) + 1:]
+    place = next((match.start() for match in re.finditer(r"<x:(\w+)", markup) if match.group(1) in later), None)
+    if place is not None:
+        return markup[:place] + wanted + separator + markup[place:]
+    end = markup.find("</x:ClientData>")
+    if end < 0:
+        return markup
+    # After the last child: where the space before the closing tag starts.
+    last = len(markup[:end].rstrip())
+    return markup[:last] + separator + wanted + markup[last:]
+
+
+def with_control_flags(sheet_xml: str, shape: Shape) -> str:
+    """What the sheet's controlPr says of a loaded control's PrintObject and Enabled."""
+    control = shape.control
+
+    def change(found: re.Match[str]) -> str:
+        markup = found.group(0)
+        head = _CONTROL_HEAD.search(markup)
+        if control is None or head is None or dict(_ATTRIBUTE.findall(head.group(1))).get("shapeId") != str(shape.shape_id):
+            return markup
+        markup = _ordered_attribute(markup, "controlPr", "print", "0" if control.print_object is False else None, _CONTROL_PR_ORDER)
+        return _ordered_attribute(markup, "controlPr", "disabled", "1" if control.disabled else None, _CONTROL_PR_ORDER)
+
+    return _CONTROL.sub(change, sheet_xml)
+
+
+def with_vml_flags(vml: str, shape: Shape) -> str:
+    """A loaded control's PrintObject, Disabled, LockText and DropLines in its VML."""
+    control = shape.control
+    span = _vml_shape_span(vml, f"_x0000_s{shape.shape_id}")
+    if control is None or span is None:
+        return vml
+    markup = vml[span[0]:span[1]]
+    kind = CONTROL_KINDS.get(control.kind, control.kind)
+    markup = _ordered_child(markup, "PrintObject", "<x:PrintObject>False</x:PrintObject>" if control.print_object is False else "")
+    markup = _ordered_child(markup, "Disabled", "<x:Disabled/>" if control.disabled else "")
+    if kind in ("Checkbox", "Button", "Radio"):
+        markup = _ordered_child(markup, "LockText", "" if control.lock_text else "<x:LockText>False</x:LockText>")
+    if kind == "Drop":
+        markup = _ordered_child(markup, "DropLines", f"<x:DropLines>{8 if control.drop_lines is None else control.drop_lines}</x:DropLines>")
+    return vml[:span[0]] + markup + vml[span[1]:]
+
+
+def with_control_settings(properties: str, control: ControlInfo) -> str:
+    """A loaded control's part with its LockText and DropLines, where it keeps them: lockText is written only while on, dropLines only once
+    set from its 8."""
+    kind = CONTROL_KINDS.get(control.kind, control.kind)
+    if kind in ("Checkbox", "Button", "Radio"):
+        properties = _ordered_attribute(properties, "formControlPr", "lockText", "1" if control.lock_text else None, _FORM_CONTROL_ORDER)
+    if kind == "Drop":
+        lines = None if control.drop_lines in (None, 8) else str(control.drop_lines)
+        properties = _ordered_attribute(properties, "formControlPr", "dropLines", lines, _FORM_CONTROL_ORDER)
+    return properties
+
+
 def _vml_flag(markup: str, tag: str, wanted: str) -> str:
     """One setting among a VML client's, as ``wanted`` spells it, none where that is empty."""
     found = re.search(rf"\s*<x:{tag}\b[^>]*?(?:/>|>.*?</x:{tag}>)", markup, re.DOTALL)

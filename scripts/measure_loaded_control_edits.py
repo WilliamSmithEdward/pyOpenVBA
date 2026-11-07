@@ -6,6 +6,7 @@ Rival rules, written before measuring: a setting lives in the control's ctrlProp
 default is left out of the part, or written with its default.
 
     python scripts/measure_loaded_control_edits.py
+    python scripts/measure_loaded_control_edits.py model
 
 writes tests/fixtures/loaded_control_edits.json, which tests/test_excel_loaded_control_edits.py replays.
 """
@@ -13,6 +14,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 import tempfile
 import zipfile
 from datetime import datetime, timezone
@@ -73,6 +75,47 @@ def parts(path: Path) -> dict[str, str]:
                 if re.search(r'ctrlProp|vmlDrawing|drawings/drawing|worksheets/sheet', name)}
 
 
+#: The settings the model writes on a loaded control, so far.
+MODELLED = ('Enabled', 'PrintObject', 'LockedText', 'DropDownLines')
+READ_BACK = r'''Public Function ReadBack(ByVal path As String, ByVal kind As String, ByVal member As String) As String
+    Dim wb As Workbook, o As Object, s As String
+    Application.DisplayAlerts = False
+    Set wb = Workbooks.Open(path, 0)
+    Set o = CallByName(wb.Worksheets(1), kind, VbMethod, 1)
+    On Error Resume Next
+    s = TypeName(CallByName(o, member, VbGet)) & " " & CStr(CallByName(o, member, VbGet))
+    If Err.Number Then s = "E" & Err.Number
+    On Error GoTo 0
+    wb.Close False
+    ReadBack = s
+End Function
+'''
+
+
+def model_saves() -> None:
+    """Each modelled setting made in the model and saved; Excel opens the model's file and reads the setting: excel_reads_model."""
+    from pyvbaharness import ExcelSession, HarnessConfig
+
+    from pyopenvba.apps.excel import ExcelApplication
+
+    record = json.loads(OUT.read_text(encoding='utf-8'))
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as held, ExcelSession(HarnessConfig(exclusive=False)) as excel:
+        excel.new_document()
+        for number, case in enumerate(record['cases']):
+            if case['member'] not in MODELLED or not str(case['excel']).startswith('E0'):
+                continue
+            book, saved = Path(held) / f'in{number}.xlsx', Path(held) / f'out{number}.xlsx'
+            book.write_bytes(BOOK.read_bytes())
+            app = ExcelApplication(sandbox=False)
+            app.add_workbook()
+            app.add_module(record['source'], name='Probe')
+            app.run('Probe.Row', str(book), str(saved), case['kind'], case['member'], value_of(str(case['value'])), True)
+            ran = excel.run_vba(READ_BACK, 'ReadBack', (str(saved), case['kind'], case['member']), timeout=60.0, line_numbers=False)
+            case['excel_reads_model'] = str(ran.value) if ran.ok and not ran.dialogs else f'failed {ran.outcome}'
+            print(case['kind'], case['member'], case['excel_reads_model'], flush=True)
+    OUT.write_text(json.dumps(record, indent=0) + '\n', encoding='utf-8')
+
+
 def main() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
@@ -102,4 +145,7 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    if sys.argv[1:] == ["model"]:
+        model_saves()
+    else:
+        main()

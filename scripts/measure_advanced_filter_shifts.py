@@ -249,7 +249,10 @@ def held_out(round_: str) -> list[list[object]]:
     columns = 'ABCDEFGHJZ'
     cases: list[list[object]] = []
     while len(cases) < 200:
-        kind = chooser.choice((*KINDS, 'nomatch', 'distinct', 'repeats'))
+        # From round 3 sheets with no filter and cells beside the markers join, for which way a Delete with no Shift
+        # goes; round 2 was drawn from the filters alone, and its fixture keeps the cases it asked.
+        kind = chooser.choice((*KINDS, 'nomatch', 'distinct', 'repeats')
+                              + (('plain', 'far', 'near', 'low', 'fmtnear', 'fmtlow') if round_ not in ('', '2') else ()))
         verb = chooser.choice(('delete', 'delete', 'insert'))
         shape = chooser.choice(('cells', 'cells', 'cells', 'rows', 'columns'))
         if shape == 'rows':

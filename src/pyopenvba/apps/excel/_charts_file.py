@@ -764,10 +764,10 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
     """Refresh only changed reference caches; leave every other chart byte alone, but for the references a chart read
     from a file has had rewritten as its cells moved."""
     for shape_id, chart in sheet.chart_states.items():
-        if chart.labels_pending:
-            from pyopenvba.apps.excel._chart_loaded import write_labels
+        if chart.parts_pending:
+            from pyopenvba.apps.excel._chart_loaded import write_parts
 
-            write_labels(sheet.chart_sheet or Chart(sheet, next(item for item in sheet.shapes_ if item.shape_id == shape_id)))
+            write_parts(sheet.chart_sheet or Chart(sheet, next(item for item in sheet.shapes_ if item.shape_id == shape_id)))
         if chart.dirty and chart.original and chart.part and package.has(chart.part):
             package.write(chart.part, chart.original.encode('utf-8'))
             chart.dirty = False
@@ -901,6 +901,25 @@ def shown_points(sheet: Worksheet, state: ChartState, item: SeriesState) -> Seri
                                  if place in places})
 
 
+def series_parts(sheet: Worksheet, chart: Chart, item: SeriesState) -> tuple[str, str, str]:
+    """A series' own spPr, its points' dPt elements and its dLbls, as the writer writes them."""
+    from pyopenvba.apps.excel._chart_format import markup as series_look
+    from pyopenvba.apps.excel._chart_points import point_labels_markup, points_markup
+    from pyopenvba.apps.excel._chart_xml import CHART_KINDS, labels_markup
+
+    kind = CHART_TYPES.get(series_type(chart.state, item), '')
+    place, theme = Series(chart, item).position(), sheet.book.stylesheet.colors.theme
+    look = shadowed(series_look(item, kind, place, theme) or
+                    (_NO_LINE if chart.state.series and item.shadow is not None and not item.scatter_line
+                     and CHART_TYPES.get(shown_type(chart.state)) == 'scatter' else ''),
+                    item.shadow)
+    shown = shown_points(sheet, chart.state, item)
+    labels = ''
+    if kind in CHART_KINDS:
+        labels = labels_markup(kind, item.data_labels, item.leader_lines, item.label_look, point_labels_markup(shown))
+    return look, points_markup(shown, kind, place, theme), labels
+
+
 def _with_series_out_of_sight(xml: str, state: ChartState) -> str:
     """A series with its cells all hidden is in the file with references that hold nothing, and without its own look,
     which it has again once shown."""
@@ -983,8 +1002,8 @@ def _with_element_labels(xml: str, shown: bool, place: int | None) -> str:
 
 def markup(sheet: Worksheet, shape_id: int) -> str:
     shape = next(item for item in sheet.shapes_ if item.shape_id == shape_id)
-    from pyopenvba.apps.excel._chart_format import element_markup, markup as series_look
-    from pyopenvba.apps.excel._chart_points import point_labels_markup, points_markup
+    from pyopenvba.apps.excel._chart_format import element_markup
+    from pyopenvba.apps.excel._chart_points import point_labels_markup
     from pyopenvba.apps.excel._chart_styled import dressed, is_styled
 
     chart = sheet.chart_sheet or Chart(sheet, shape)
@@ -992,6 +1011,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     data: list[SeriesData] = []
     for item in chart.state.full_series or chart.state.series:
         series = Series(chart, item)
+        parts = series_parts(sheet, chart, item)
         categories = series.categories()
         levels = category_levels(sheet, item) or []
         numeric = numeric_categories(categories, levels)
@@ -1010,15 +1030,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
                                smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion,
                                scatter_line=item.scatter_line,
-                               look=shadowed(series_look(item, CHART_TYPES.get(series_type(chart.state, item), ''), series.position(),
-                                                         sheet.book.stylesheet.colors.theme) or
-                                             (_NO_LINE if chart.state.series and item.shadow is not None and not item.scatter_line
-                                              and CHART_TYPES.get(shown_type(chart.state)) == 'scatter' else ''),
-                                             item.shadow),
+                               look=parts[0],
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
-                               points=points_markup(shown_points(sheet, chart.state, item),
-                                                    CHART_TYPES.get(series_type(chart.state, item), ''),
-                                                    series.position(), sheet.book.stylesheet.colors.theme),
+                               points=parts[1],
                                point_labels=point_labels_markup(shown_points(sheet, chart.state, item)),
                                labels=item.data_labels, leader_lines=item.leader_lines, label_look=item.label_look,
                                error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(series_type(chart.state, item), ''),

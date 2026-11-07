@@ -176,7 +176,7 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
         look = self.look()
         if not self.series.entry.data_labels:
             raise unmeasured("Changing the labels of a series whose labels are on some points alone")
-        self.series.chart.labels_changed(self.series.entry, member and f"DataLabels.{member}")
+        self.series.chart.part_changed(self.series.entry, "labels", member and f"DataLabels.{member}")
         return look
 
     def chart_type(self) -> int:
@@ -442,7 +442,7 @@ class DataLabel(ElementProperties, Created):
     def held(self, member: str = "") -> PointLabel:
         """Its state, made if it had none, with the unique id its dLbl takes."""
         chart = self.series.chart
-        chart.labels_changed(self.series.entry, member and f"DataLabel.{member}")
+        chart.part_changed(self.series.entry, "labels", member and f"DataLabel.{member}")
         state = self.series.entry.points.setdefault(self.series.point_key(self.index - 1), PointState())
         if state.drawn_at < 0:
             state.drawn_at = self.index - 1

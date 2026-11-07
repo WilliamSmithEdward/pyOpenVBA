@@ -35,13 +35,13 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'legend position bottom', 'legend position same', 'legend moved position read',
          'axis maximum', 'axis minimum', 'axis both', 'axis maximum twice', 'axis maximum auto', 'axis maximum auto read',
          'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off',
-         'series name', 'series name formula', 'series name cell', 'series labels', 'point label',
+         'series name', 'series name formula', 'series name cell', 'series labels', 'point label', 'series fill',
          'title text', 'title text marks', 'title text two lines', 'title text cr', 'title text empty', 'title text spaces', 'title text twice',
          'title caption', 'title text then gone', 'title text read after back', 'title formula',
          'axis title', 'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
 #: Built, but not for a chart with a style: new gridlines and labels take the style's look, which is not read.
-NEEDS_NO_STYLE = ('series labels', 'point label', 'category gridlines', 'minor gridlines', 'minor gridlines off', 'axis title', 'axis title on',
-                  'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
+NEEDS_NO_STYLE = ('series labels', 'point label', 'series fill', 'category gridlines', 'minor gridlines', 'minor gridlines off', 'axis title',
+                  'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
 NOT_EXCELS = 'loaded_chart_openpyxl.xlsx'
 
 

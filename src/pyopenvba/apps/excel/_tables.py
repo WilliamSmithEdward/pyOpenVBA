@@ -34,7 +34,7 @@ import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba._a1 import Area, parse_area
@@ -146,6 +146,8 @@ class Table:
     xml: str = ""
     changed: bool = False
     view: ListObject | None = dataclass_field(default=None, repr=False)
+    #: The query table of a table over a database, read from a file (see _query_databases.ListQueryTable).
+    query: Any = dataclass_field(default=None, repr=False)
     sort_state: SortState | None = dataclass_field(default=None, repr=False)
 
     @property
@@ -1207,7 +1209,9 @@ class ListObject(HeldPart, ExcelObject):
 
     @member
     def SourceType(self) -> object:
-        """xlSrcRange for a table of the sheet's own cells."""
+        """xlSrcRange for a table of the sheet's own cells, xlSrcQuery for one over a database (tests/fixtures/query_refresh_loaded.json)."""
+        if self.table.query is not None:
+            return VBAInt(3, "Long")
         if self.table.kind:
             raise VBAUnsupportedError(f"SourceType of a table of type {self.table.kind!r} is not implemented")
         return VBAInt(SOURCE_RANGE, "Long")
@@ -1241,10 +1245,14 @@ class ListObject(HeldPart, ExcelObject):
 
     @method
     def Refresh(self) -> object:
+        if self.table.query is not None:
+            raise VBAUnsupportedError("ListObject.Refresh over a database is not implemented: refresh its QueryTable")
         raise error(1004, "Application-defined or object-defined error")
 
     @member
     def QueryTable(self) -> object:
+        if self.table.query is not None:
+            return self.table.query
         raise error(1004, "Application-defined or object-defined error")
 
     @member

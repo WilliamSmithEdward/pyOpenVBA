@@ -30,17 +30,22 @@ from typing import TYPE_CHECKING
 from pyopenvba._xml import escape
 from pyopenvba.apps.excel._query_tables import QueryTable, free_name
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import member, method, setter
+from pyopenvba.interpreter._objects import MemberSpec, member, method, setter
 from pyopenvba.interpreter._values import MISSING, VBADate, VBAInt, error, to_bool, to_text
 
 if TYPE_CHECKING:
     from pyopenvba._a1 import Area
+    from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Application, Range, Worksheet
+    from pyopenvba.apps.excel._tables import Table
 
 #: The kinds of source a refresh hands to the host, by the prefix of the connection string.
 KINDS = {'OLEDB': VBAInt(5, 'Long'), 'ODBC': VBAInt(1, 'Long')}
 #: A key=value pair of a connection string whose key names a password, its value quoted or not.
 _SECRET = re.compile(r"""(?i)((?:^|;)\s*[^;=]*(?:password|pwd)[^;=]*=\s*)("[^"]*"|'[^']*'|[^;]*)""")
+#: The connection type a file gives a database's table, back to the kind its string starts with.
+_TYPES = {str(int(value)): kind for kind, value in KINDS.items()}
+_NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 _INSERT_DELETE, _OVERWRITE, _INSERT_ROWS = 1, 0, 2
 _DATE_FORMAT = 'm/d/yyyy'
 
@@ -50,9 +55,20 @@ def masked(connection: str) -> str:
     return _SECRET.sub(lambda found: found.group(1) + '****', connection)
 
 
+#: The one password key Excel keeps with SavePassword False: ACE's own string holds it empty, and Excel writes it on, where it drops
+#: Password and Jet OLEDB:Database Password, empty or not (tests/fixtures/query_refresh.json, query_refresh_loaded.json).
+_KEPT = 'jet oledb:new database password'
+
+
 def without_passwords(connection: str) -> str:
     """A connection string with its passwords taken out, as Excel keeps one once SavePassword is False."""
-    return _SECRET.sub(lambda found: '' if found.group(1).startswith(';') or found.start() == 0 else found.group(0), connection).lstrip(';')
+    def drop(found: re.Match[str]) -> str:
+        key = found.group(1).lstrip(';').partition('=')[0].strip().lower()
+        if key == _KEPT:
+            return found.group(0)
+        return '' if found.group(1).startswith(';') or found.start() == 0 else found.group(0)
+
+    return _SECRET.sub(drop, connection).lstrip(';')
 
 
 def is_database(connection: str) -> bool:
@@ -64,10 +80,10 @@ class DatabaseQueryTable(QueryTable):
 
     vba_type_name = 'QueryTable'
 
-    def __init__(self, sheet: Worksheet, connection: str, destination: Range, name: str, command: str | None) -> None:
+    def __init__(self, sheet: Worksheet, connection: str, destination: Range, name: str, command: str | None, link_name: str | None = None) -> None:
         kind, _, rest = connection.partition(';')
         self.kind, self.connection = kind.strip().upper(), rest
-        super().__init__(sheet, rest, destination, name, free_name(sheet.book, 'Connection'))
+        super().__init__(sheet, rest, destination, name, link_name if link_name is not None else free_name(sheet.book, 'Connection'))
         self.link.element.set('type', str(int(KINDS[self.kind])))
         self.command_text = command
         #: The field names of the last refresh, which a save lists.
@@ -79,6 +95,9 @@ class DatabaseQueryTable(QueryTable):
     def setting(self, name: str, default: object) -> object:
         if name == 'BackgroundQuery':
             return self.settings.get(name, False)
+        if name == 'MaintainConnection':
+            # The connection a database's table makes is kept alive (tests/fixtures/query_refresh_loaded.json).
+            return self.settings.get(name, True)
         return super().setting(name, default)
 
     # -- members that differ from a text file's
@@ -180,14 +199,20 @@ class DatabaseQueryTable(QueryTable):
         for row, values in enumerate(grid, start=area.top):
             for column, value in enumerate(values, start=area.left):
                 self._put(row, column, value)
-        if heading:
+        if heading and self.bold_names:
             self._range(Area(area.top, area.left, area.top, area.right, self.sheet.name)).vba_get('Font', []).vba_set('Bold', True)  # type: ignore[attr-defined]
         if old is not None and self.setting('FillAdjacentFormulas', False):
             self._fill_formulas(area, 1 if heading else 0)
         self.fields = ['' if one is None else str(one) for one in names]
-        self._named(area)
+        self._placed(area)
         self.refreshed, self.emptied, self.size = True, False, (height, width)
         self.sheet.book.saved = False
+
+    #: The field names go in bold; a table's style shows its own.
+    bold_names = True
+
+    def _placed(self, area: Area) -> None:
+        self._named(area)
 
     def _put(self, row: int, column: int, value: object) -> None:
         from pyopenvba._a1 import Area
@@ -256,7 +281,8 @@ class DatabaseQueryTable(QueryTable):
     def connection_markup(self, number: int, name: str) -> str:
         get = self.setting
         keep = bool(get('SavePassword', False))
-        attributes = f' id="{number}" keepAlive="1" name="{escape(name)}" type="{int(KINDS[self.kind])}" refreshedVersion="8"'
+        attributes = f' id="{number}"' + (' keepAlive="1"' if get('MaintainConnection', True) else '')
+        attributes += f' name="{escape(name)}" type="{int(KINDS[self.kind])}" refreshedVersion="8"'
         if keep:
             attributes += ' savePassword="1"'
         if get('BackgroundQuery', False):
@@ -298,6 +324,128 @@ def _checked(rows: object) -> list[list[object]]:
     return found
 
 
+class ListQueryTable(DatabaseQueryTable):
+    """The QueryTable of a ListObject over a database: the table is its result, resized by each refresh, and the sheet's QueryTables
+    does not list it (tests/fixtures/query_refresh_loaded.json). Its Name and FieldNames are error 1004, PreserveColumnInfo is True,
+    and its names go in unbold, under the table's style."""
+
+    bold_names = False
+
+    def __init__(self, table: Table, connection: str, name: str, command: str | None, link_name: str) -> None:
+        from pyopenvba._a1 import Area
+        from pyopenvba.apps.excel._model import Range
+
+        self.table = table
+        corner = Range(table.sheet, [Area(table.area.top, table.area.left, table.area.top, table.area.left, table.sheet.name)])
+        super().__init__(table.sheet, connection, corner, name, command, link_name)
+        self.refreshed = True
+
+    def vba_member(self, name: str) -> MemberSpec | None:
+        if self.table.deleted or self.table.query is not self or self.table not in self.table.sheet.tables:
+            raise error(424, 'Object required')
+        return super(QueryTable, self).vba_member(name)
+
+    def setting(self, name: str, default: object) -> object:
+        if name == 'PreserveColumnInfo':
+            return self.settings.get(name, True)
+        return super().setting(name, default)
+
+    def result_area(self) -> Area | None:
+        from pyopenvba._a1 import Area
+
+        area = self.table.area
+        return Area(area.top, area.left, area.bottom, area.right, self.sheet.name)
+
+    def _placed(self, area: Area) -> None:
+        from pyopenvba._a1 import Area
+        from pyopenvba.apps.excel._table_edits import resize
+
+        if self.fields != [column.name for column in self.table.columns]:
+            raise VBAUnsupportedError("A refresh that renames a ListObject's columns is not implemented")
+        if (area.top, area.left, area.bottom, area.right) != (self.table.area.top, self.table.area.left, self.table.area.bottom, self.table.area.right):
+            resize(self.table, Area(area.top, area.left, area.bottom, area.right))
+        self._named(area)
+
+    def _make_room(self, origin: Area, old: Area | None, height: int, width: int) -> None:
+        if not bool(self.setting('FieldNames', True)) or self.setting('RowNumbers', False):
+            raise VBAUnsupportedError("A ListObject's query table without field names or with row numbers is not implemented")
+        if int(to_text(self.setting('RefreshStyle', _INSERT_DELETE)) or 0) != _INSERT_DELETE:
+            raise VBAUnsupportedError("A ListObject's query table refreshed by another RefreshStyle than xlInsertDeleteCells is not implemented")
+        from pyopenvba._a1 import Area
+        from pyopenvba.apps.excel._editing import shift_cells
+        from pyopenvba.apps.excel._table_edits import resize
+
+        assert old is not None
+        if width != old.right - old.left + 1:
+            raise VBAUnsupportedError("A refresh that changes a ListObject's number of columns is not implemented")
+        self._range(old).vba_call('ClearContents', [])
+        name, before, last = self.sheet.name, old.bottom - old.top + 1, old.top + height - 1
+        # What is below moves by the change in rows, in the table's columns, as with a query table's xlInsertDeleteCells; the table
+        # takes the rows in, or lets them go first.
+        if height > before:
+            band = Area(old.bottom + 1, old.left, last, old.right, name)
+            shift_cells(self._range(band), band, delete=False, vertical=True)
+            resize(self.table, Area(old.top, old.left, last, old.right))
+        elif height < before:
+            resize(self.table, Area(old.top, old.left, last, old.right))
+            band = Area(last + 1, old.left, old.bottom, old.right, name)
+            shift_cells(self._range(band), band, delete=True, vertical=True)
+
+    @member
+    def Name(self) -> object:
+        raise error(1004, 'Application-defined or object-defined error')
+
+    @setter('Name')
+    def _set_name(self, value: object) -> None:
+        raise VBAUnsupportedError("Naming a ListObject's query table is not implemented")
+
+    @member
+    def FieldNames(self) -> object:
+        raise error(1004, 'Application-defined or object-defined error')
+
+    @setter('FieldNames')
+    def _set_field_names(self, value: object) -> None:
+        raise VBAUnsupportedError("Setting FieldNames on a ListObject's query table is not implemented")
+
+    @member
+    def ListObject(self) -> object:
+        from pyopenvba.apps.excel._tables import view
+
+        return view(self.table)
+
+    @method
+    def Delete(self) -> object:
+        raise VBAUnsupportedError("Deleting a ListObject's query table is not implemented")
+
+    def fields_markup(self) -> str:
+        """As Excel writes a table's: each field with the column it fills, and no sort-filter flag."""
+        if len(self.fields) != len(self.table.columns):
+            raise VBAUnsupportedError("A ListObject's query table whose fields are not its columns is not implemented")
+        fields = ''.join(f'<queryTableField id="{at}" name="{escape(one).replace(chr(34), "&quot;")}" tableColumnId="{column.id}"/>'
+                         for at, (one, column) in enumerate(zip(self.fields, self.table.columns, strict=True), start=1))
+        return (f'<queryTableRefresh nextId="{len(self.fields) + 1}"><queryTableFields count="{len(self.fields)}">'
+                f'{fields}</queryTableFields></queryTableRefresh>')
+
+
+def loaded(sheet: Worksheet, root: XmlElement, entry: XmlElement, destination: Range, name: str, listed: Table | None = None) -> DatabaseQueryTable | None:
+    """A table a file holds over a database, as its parts say, with the connection string the file keeps, a ListObject's where
+    ``listed`` is that table; None where the parts are not a database's. The caller checks that the model writes the parts back as
+    they are."""
+    database = entry.find(f'{_NS}dbPr')
+    kind = _TYPES.get(entry.get('type', ''))
+    if database is None or kind is None or database.get('connection') is None:
+        return None
+    connection = f"{kind};{database.get('connection')}"
+    table = (DatabaseQueryTable(sheet, connection, destination, name, database.get('command'), entry.get('name', '')) if listed is None
+             else ListQueryTable(listed, connection, name, database.get('command'), entry.get('name', '')))
+    fields = root.find(f'{_NS}queryTableRefresh/{_NS}queryTableFields')
+    table.fields = [field.get('name', '') for field in fields] if fields is not None else []
+    # The table's part says when a refresh waits; the connection, whether it is kept alive.
+    table.settings['BackgroundQuery'] = root.get('backgroundRefresh') is None
+    table.settings['MaintainConnection'] = entry.get('keepAlive') == '1'
+    return table
+
+
 def pending(application: Application) -> list[DatabaseQueryTable]:
     """The tables refreshing in the background, waiting for the macro to end."""
     found: list[DatabaseQueryTable] | None = getattr(application, 'pending_refreshes', None)
@@ -323,4 +471,4 @@ def finish(application: Application) -> list[Exception]:
     return failures
 
 
-__all__ = ['DatabaseQueryTable', 'finish', 'is_database', 'masked', 'pending', 'without_passwords']
+__all__ = ['DatabaseQueryTable', 'ListQueryTable', 'finish', 'is_database', 'loaded', 'masked', 'pending', 'without_passwords']

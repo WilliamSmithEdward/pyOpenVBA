@@ -8,7 +8,9 @@ those, and "books" for the rest; each writes its own part of the fixture.
     python scripts/measure_settable_audit.py sort
 
 writes tests/fixtures/settable_audit.json, which scripts/compare_settable_audit.py and tests/test_excel_settable_audit.py
-replay. AutoSaveOn is left out, as it can reach the cloud, and Colors, which takes an index.
+replay. AutoSaveOn is left out, as it can reach the cloud, and Colors, which takes an index. WorkIdentity is no longer set: no live
+probe touches it, with rights, encryption and signing (tests/test_probes_leave_crypto_alone.py). The fixture keeps what an earlier run
+recorded for it: do not remeasure it.
 """
 from __future__ import annotations
 
@@ -47,7 +49,7 @@ WORKBOOK = {
     "PersonalViewPrintSettings": BOOLEAN, "PrecisionAsDisplayed": BOOLEAN, "ReadOnlyRecommended": BOOLEAN,
     "RemovePersonalInformation": BOOLEAN, "Saved": BOOLEAN, "SaveLinkValues": BOOLEAN, "ShowConflictHistory": BOOLEAN,
     "ShowPivotChartActiveFields": BOOLEAN, "ShowPivotTableFieldList": BOOLEAN, "TemplateRemoveExtData": BOOLEAN,
-    "UpdateLinks": NUMBER, "UpdateRemoteReferences": BOOLEAN, "WorkIdentity": TEXT, "WritePassword": TEXT,
+    "UpdateLinks": NUMBER, "UpdateRemoteReferences": BOOLEAN, "WritePassword": TEXT,
     "EncryptionProvider": TEXT,
 }
 APPLICATION = {

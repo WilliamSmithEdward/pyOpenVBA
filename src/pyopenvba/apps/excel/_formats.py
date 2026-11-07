@@ -1105,6 +1105,11 @@ def _held_rows_and_columns(sheet: Worksheet) -> tuple[set[int], int, int]:
     return rows, min(columns), max(columns)
 
 
+def _every_column_formatted(sheet: Worksheet) -> bool:
+    """Whether every column of the sheet has a format of its own, as a whole sheet's format gives them."""
+    return sum(sheet.dims.column_groups().values()) >= MAX_COLUMNS
+
+
 def _one_line(sides: list[S.Side]) -> S.Side:
     """The line every place along an edge shows, or none where they differ."""
     return sides[0] if len(set(sides)) == 1 else S.NO_SIDE
@@ -1187,8 +1192,11 @@ def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Cal
         return
     opposite, down, across = _OPPOSITE[name]
     row, column = row + down, column + across
+    # The cell above is cleared where it is a cell or its column has a format, short of a format on every column, as a
+    # whole sheet's is (tests/fixtures/border_union.json).
     if 1 <= row <= MAX_ROWS and 1 <= column <= MAX_COLUMNS and own_side(sheet, row, column, opposite).style and (
-            (row, column) in sheet.cells_ or (sheet.dims.column_style(column) is not None if down < 0 else across < 0 and _row_style(sheet, row) is not None)):
+            (row, column) in sheet.cells_ or (sheet.dims.column_style(column) is not None and not _every_column_formatted(sheet)
+                                              if down < 0 else across < 0 and _row_style(sheet, row) is not None)):
         theirs = sheet.style_at(row, column)
         cleared = replace(theirs.border, **{opposite: S.NO_SIDE})
         sheet.restyle(row, column, S.applying(theirs, "border", border=cleared))

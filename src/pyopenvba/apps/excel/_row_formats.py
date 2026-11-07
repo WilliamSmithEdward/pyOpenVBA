@@ -571,11 +571,16 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
             along = _along_first_row(sheet) if index == 12 else _along_first_column(sheet)
             # What stands along the first row or column keeps what it has there, and the rest of that row or column shows none.
             kept = {place: own_side(sheet, *place, "top" if index == 12 else "left") for place in sheet.cells_ if place[0 if index == 12 else 1] == 1}
+            # The first row or column keeps the line its own format had there: none, unless the sheet's edge gave one.
+            default = sheet.book.stylesheet.default
+            first_row = sheet.dims.rows.get(1)
+            row_top = (first_row.style if first_row is not None and first_row.style is not None else default).border.top
+            column_left = (sheet.dims.column_style(1) or default).border.left
             format_sheet(sheet, lambda style: _sides(style, **{first: new, second: new}))
             if along and index == 12:
-                format_rows(sheet, 1, 1, lambda style: _sides(style, top=S.NO_SIDE))
+                format_rows(sheet, 1, 1, lambda style: _sides(style, top=row_top))
             elif along:
-                format_columns(sheet, 1, 1, lambda style: _sides(style, left=S.NO_SIDE))
+                format_columns(sheet, 1, 1, lambda style: _sides(style, left=column_left))
             if along:
                 for (row, column), side in kept.items():
                     change_side(sheet, row, column, 8 if index == 12 else 7, lambda _: side, clear_neighbour=False)  # noqa: B023
@@ -588,13 +593,19 @@ def changes_line(change: Callable[[S.Side], S.Side]) -> bool:
     return any(change(S.Side(style, S.Color("auto"))).style != style for style in ("thin", "medium", "dashDot"))
 
 
+def _formats_differently(sheet: Worksheet, style: S.Style | None) -> bool:
+    """Whether a row's or column's format differs from the sheet's default in more than the parts a macro touched."""
+    default = sheet.book.stylesheet.default
+    return style is not None and replace(style, applied=default.applied) != default
+
+
 def _along_first_column(sheet: Worksheet) -> bool:
-    return sheet.dims.column_style(1) not in (None, sheet.book.stylesheet.default) or any(column == 1 for _, column in sheet.cells_)
+    return _formats_differently(sheet, sheet.dims.column_style(1)) or any(column == 1 for _, column in sheet.cells_)
 
 
 def _along_first_row(sheet: Worksheet) -> bool:
     record = sheet.dims.rows.get(1)
-    return (record is not None and record.style is not None) or any(row == 1 for row, _ in sheet.cells_)
+    return _formats_differently(sheet, record.style if record is not None else None) or any(row == 1 for row, _ in sheet.cells_)
 
 
 def _on_edge(index: int, row: int, column: int) -> bool:

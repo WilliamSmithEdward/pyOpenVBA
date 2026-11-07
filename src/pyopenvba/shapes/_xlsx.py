@@ -404,6 +404,7 @@ def read_controls(sheet_xml: str, parts: dict[str, str]) -> dict[int, ControlInf
                 control.kind = values.get("objectType", "control")
                 control.first_button = values.get("firstButton", "0") == "1"
                 control.lock_text = values.get("lockText", "0") == "1"
+                control.three_d = values.get("noThreeD", "0") != "1"
                 control.linked_cell = values.get("fmlaLink", "")
                 control.list_range = values.get("fmlaRange", "")
                 control.value = int(_number(values.get("val"), 0))
@@ -607,7 +608,11 @@ def control_properties(shape: Shape) -> str:
         '<formControlPr xmlns="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"'
         f' objectType="{kind}"{linked}{listed}{extra}{locked}/>'
     )
-    return with_control_bindings(xml, control) if control else xml
+    xml = with_control_bindings(xml, control) if control else xml
+    if kind in {"CheckBox", "Radio", "Drop", "List", "GBox"} and not (control and control.three_d):
+        # Shading off, as Excel writes every new one of these (tests/fixtures/new_control_settings.json), so a save read back is as new.
+        xml = _ordered_attribute(xml, "formControlPr", "noThreeD", "1", _FORM_CONTROL_ORDER)
+    return xml
 
 
 def control_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
@@ -969,7 +974,7 @@ def with_control_flags(sheet_xml: str, shape: Shape) -> str:
 
 
 def with_vml_flags(vml: str, shape: Shape) -> str:
-    """A loaded control's PrintObject, Disabled, LockText and DropLines in its VML."""
+    """A loaded control's PrintObject, Disabled, LockText, DropLines and NoThreeD in its VML."""
     control = shape.control
     span = _vml_shape_span(vml, f"_x0000_s{shape.shape_id}")
     if control is None or span is None:
@@ -982,18 +987,28 @@ def with_vml_flags(vml: str, shape: Shape) -> str:
         markup = _ordered_child(markup, "LockText", "" if control.lock_text else "<x:LockText>False</x:LockText>")
     if kind == "Drop":
         markup = _ordered_child(markup, "DropLines", f"<x:DropLines>{8 if control.drop_lines is None else control.drop_lines}</x:DropLines>")
+    # A button's flags set this session go in; one already there stays, as Excel reads none of them back to change.
+    for flag in sorted(control.button_flags):
+        markup = _ordered_child(markup, flag, f"<x:{flag}/>")
+    # A list and a drop-down keep Display3DShading turned off as NoThreeD2, a check box and an option button as NoThreeD.
+    if kind in ("Drop", "List"):
+        markup = _ordered_child(markup, "NoThreeD2", "" if control.three_d else "<x:NoThreeD2/>")
+    elif kind in ("Checkbox", "Radio"):
+        markup = _ordered_child(markup, "NoThreeD", "" if control.three_d else "<x:NoThreeD/>")
     return vml[:span[0]] + markup + vml[span[1]:]
 
 
 def with_control_settings(properties: str, control: ControlInfo) -> str:
-    """A loaded control's part with its LockText and DropLines, where it keeps them: lockText is written only while on, dropLines only once
-    set from its 8."""
+    """A loaded control's part with its LockText, DropLines and Display3DShading, where it keeps them: lockText is written only while on,
+    dropLines only once set from its 8, noThreeD only while the shading is off."""
     kind = CONTROL_KINDS.get(control.kind, control.kind)
     if kind in ("Checkbox", "Button", "Radio"):
         properties = _ordered_attribute(properties, "formControlPr", "lockText", "1" if control.lock_text else None, _FORM_CONTROL_ORDER)
     if kind == "Drop":
         lines = None if control.drop_lines in (None, 8) else str(control.drop_lines)
         properties = _ordered_attribute(properties, "formControlPr", "dropLines", lines, _FORM_CONTROL_ORDER)
+    if kind in ("Drop", "List", "Checkbox", "Radio"):
+        properties = _ordered_attribute(properties, "formControlPr", "noThreeD", None if control.three_d else "1", _FORM_CONTROL_ORDER)
     return properties
 
 

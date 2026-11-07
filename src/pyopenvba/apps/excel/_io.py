@@ -1254,7 +1254,7 @@ def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
 
 
 def _sync_control_flags(package: OpcFile, sheet: Worksheet, xml: str, vml: str, item: ShapeState, info: object) -> tuple[str, str]:
-    """A loaded control's Enabled, PrintObject, LockedText and DropDownLines where they now differ from what its file holds, written where Excel
+    """A loaded control's Enabled, PrintObject, LockedText, DropDownLines and Display3DShading where they now differ from what its file holds, written where Excel
     writes each (tests/fixtures/loaded_control_edits.json); a control nobody changed is left as its file has it."""
     from dataclasses import replace
 
@@ -1266,14 +1266,16 @@ def _sync_control_flags(package: OpcFile, sheet: Worksheet, xml: str, vml: str, 
     held = replace(control)
     read_control_settings(vml, replace(item, control=held), held)
     file_lock = getattr(info, "lock_text", control.lock_text)
-    if (held.disabled, held.print_object, held.drop_lines) != (control.disabled, control.print_object, control.drop_lines) or file_lock != control.lock_text:
+    file_three_d = getattr(info, "three_d", control.three_d)
+    in_part = file_lock != control.lock_text or file_three_d != control.three_d
+    if (held.disabled, held.print_object, held.drop_lines) != (control.disabled, control.print_object, control.drop_lines) or in_part or control.button_flags:
         xml = with_control_flags(xml, item)
         vml = with_vml_flags(vml, item)
     part = _part_for(package, sheet.part_name, getattr(info, "relationship", ""))
     if part and package.has(part):
         properties = package.read(part).decode("utf-8")
         changed = with_control_settings(properties, control)
-        if changed != properties and (file_lock != control.lock_text or held.drop_lines != control.drop_lines):
+        if changed != properties and (in_part or held.drop_lines != control.drop_lines):
             package.write(part, changed.encode("utf-8"))
     return xml, vml
 

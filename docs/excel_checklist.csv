@@ -640,7 +640,7 @@ Buttons,DefaultButton,property,As Boolean,,MISSING,,
 Buttons,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Buttons,DismissButton,property,As Boolean,,MISSING,,
 Buttons,Duplicate,method,Duplicate() As Object,,MISSING,,
-Buttons,Enabled,property,As Boolean,,MISSING,,
+Buttons,Enabled,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 Buttons,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 Buttons,Formula,property,As String,,MISSING,,
 Buttons,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -650,12 +650,12 @@ Buttons,HorizontalAlignment,property,As Variant,,MISSING,,
 Buttons,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Buttons,Left,property,As Double,,MISSING,,
 Buttons,Locked,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-Buttons,LockedText,property,As Boolean,,MISSING,,
+Buttons,LockedText,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 Buttons,Orientation,property,As Variant,,MISSING,,
 Buttons,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Buttons,PhoneticAccelerator,property,As Variant,,MISSING,,
 Buttons,Placement,property,As Variant,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-Buttons,PrintObject,property,As Boolean,,MISSING,,
+Buttons,PrintObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 Buttons,ReadingOrder,property,As Long,,MISSING,,
 Buttons,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Buttons,SendToBack,method,SendToBack() As Variant,,MISSING,,
@@ -1074,7 +1074,7 @@ CheckBoxes,Cut,method,Cut() As Variant,,MISSING,,
 CheckBoxes,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBoxes,Display3DShading,property,As Boolean,,MISSING,,
 CheckBoxes,Duplicate,method,Duplicate() As Object,,MISSING,,
-CheckBoxes,Enabled,property,As Boolean,,MISSING,,
+CheckBoxes,Enabled,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 CheckBoxes,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBoxes,Height,property,As Double,,MISSING,,
 CheckBoxes,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
@@ -1082,11 +1082,11 @@ CheckBoxes,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_exce
 CheckBoxes,Left,property,As Double,,MISSING,,
 CheckBoxes,LinkedCell,property,As String,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 CheckBoxes,Locked,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-CheckBoxes,LockedText,property,As Boolean,,MISSING,,
+CheckBoxes,LockedText,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 CheckBoxes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBoxes,PhoneticAccelerator,property,As Variant,,MISSING,,
 CheckBoxes,Placement,property,As Variant,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-CheckBoxes,PrintObject,property,As Boolean,,MISSING,,
+CheckBoxes,PrintObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 CheckBoxes,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBoxes,SendToBack,method,SendToBack() As Variant,,MISSING,,
 CheckBoxes,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
@@ -1501,9 +1501,9 @@ DrawingObjects,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_dra
 DrawingObjects,DismissButton,property,As Boolean,,MISSING,,
 DrawingObjects,Display3DShading,property,As Boolean,,MISSING,,
 DrawingObjects,DisplayVerticalScrollBar,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-DrawingObjects,DropDownLines,property,As Long,,MISSING,,
+DrawingObjects,DropDownLines,property,As Long,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DrawingObjects,Duplicate,method,Duplicate() As Object,,MISSING,,
-DrawingObjects,Enabled,property,As Boolean,,MISSING,,
+DrawingObjects,Enabled,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DrawingObjects,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DrawingObjects,Group,method,Group() As GroupObject,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 DrawingObjects,Height,property,As Double,,MISSING,,
@@ -1529,7 +1529,7 @@ DrawingObjects,Orientation,property,As Variant,,MISSING,,
 DrawingObjects,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 DrawingObjects,PhoneticAccelerator,property,As Variant,,MISSING,,
 DrawingObjects,Placement,property,As Variant,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-DrawingObjects,PrintObject,property,As Boolean,,MISSING,,
+DrawingObjects,PrintObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DrawingObjects,ReadingOrder,property,As Long,,MISSING,,
 DrawingObjects,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
 DrawingObjects,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
@@ -1609,9 +1609,9 @@ DropDowns,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_o
 DropDowns,Cut,method,Cut() As Variant,,MISSING,,
 DropDowns,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDowns,Display3DShading,property,As Boolean,,MISSING,,
-DropDowns,DropDownLines,property,As Long,,MISSING,,
+DropDowns,DropDownLines,property,As Long,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DropDowns,Duplicate,method,Duplicate() As Object,,MISSING,,
-DropDowns,Enabled,property,As Boolean,,MISSING,,
+DropDowns,Enabled,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DropDowns,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDowns,Height,property,As Double,,MISSING,,
 DropDowns,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -1623,7 +1623,7 @@ DropDowns,ListIndex,property,As Long,no setter,PARTIAL,tests/fixtures/old_collec
 DropDowns,Locked,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DropDowns,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDowns,Placement,property,As Variant,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-DropDowns,PrintObject,property,As Boolean,,MISSING,,
+DropDowns,PrintObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DropDowns,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
 DropDowns,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
 DropDowns,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -2270,7 +2270,7 @@ ListBoxes,Cut,method,Cut() As Variant,,MISSING,,
 ListBoxes,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBoxes,Display3DShading,property,As Boolean,,MISSING,,
 ListBoxes,Duplicate,method,Duplicate() As Object,,MISSING,,
-ListBoxes,Enabled,property,As Boolean,,MISSING,,
+ListBoxes,Enabled,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 ListBoxes,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBoxes,Height,property,As Double,,MISSING,,
 ListBoxes,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -2283,7 +2283,7 @@ ListBoxes,Locked,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collec
 ListBoxes,MultiSelect,property,As Long,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 ListBoxes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBoxes,Placement,property,As Variant,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-ListBoxes,PrintObject,property,As Boolean,,MISSING,,
+ListBoxes,PrintObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 ListBoxes,RemoveAllItems,method,RemoveAllItems() As Variant,,MISSING,,
 ListBoxes,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,MISSING,,
 ListBoxes,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -2564,7 +2564,7 @@ OptionButtons,Cut,method,Cut() As Variant,,MISSING,,
 OptionButtons,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButtons,Display3DShading,property,As Boolean,,MISSING,,
 OptionButtons,Duplicate,method,Duplicate() As Object,,MISSING,,
-OptionButtons,Enabled,property,As Boolean,,MISSING,,
+OptionButtons,Enabled,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 OptionButtons,Group,method,Group() As GroupObject,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButtons,GroupBox,"property, read-only",As GroupBox,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 OptionButtons,Height,property,As Double,,MISSING,,
@@ -2573,11 +2573,11 @@ OptionButtons,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_e
 OptionButtons,Left,property,As Double,,MISSING,,
 OptionButtons,LinkedCell,property,As String,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 OptionButtons,Locked,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-OptionButtons,LockedText,property,As Boolean,,MISSING,,
+OptionButtons,LockedText,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 OptionButtons,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButtons,PhoneticAccelerator,property,As Variant,,MISSING,,
 OptionButtons,Placement,property,As Variant,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
-OptionButtons,PrintObject,property,As Boolean,,MISSING,,
+OptionButtons,PrintObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 OptionButtons,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButtons,SendToBack,method,SendToBack() As Variant,,MISSING,,
 OptionButtons,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."

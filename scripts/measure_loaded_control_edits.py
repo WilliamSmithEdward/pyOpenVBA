@@ -76,7 +76,7 @@ def parts(path: Path) -> dict[str, str]:
 
 
 #: The settings the model writes on a loaded control, so far.
-MODELLED = ('Enabled', 'PrintObject', 'LockedText', 'DropDownLines')
+MODELLED = ('Enabled', 'PrintObject', 'LockedText', 'DropDownLines', 'Display3DShading', 'AddIndent', 'DefaultButton', 'CancelButton', 'DismissButton', 'HelpButton')
 READ_BACK = r'''Public Function ReadBack(ByVal path As String, ByVal kind As String, ByVal member As String) As String
     Dim wb As Workbook, o As Object, s As String
     Application.DisplayAlerts = False

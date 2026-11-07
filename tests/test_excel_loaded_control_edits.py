@@ -15,11 +15,12 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_control_edits.json').read_text(encoding='utf-8'))
 #: The settings the model writes on a loaded control, so far.
-MODELLED = ('Enabled', 'PrintObject', 'LockedText', 'DropDownLines')
+MODELLED = ('Enabled', 'PrintObject', 'LockedText', 'DropDownLines', 'Display3DShading', 'AddIndent', 'DefaultButton', 'CancelButton', 'DismissButton', 'HelpButton')
 CASES = [one for one in RECORD['cases'] if one['member'] in MODELLED]
 CONSTANTS = {'xlRTL': -5004, 'xlLeft': -4131, 'xlTop': -4160, 'xlUpward': -4171, 'xlFreeFloating': 3, 'xlSimple': 1}
 
@@ -82,3 +83,22 @@ def test_a_loaded_control_nobody_changed_is_saved_as_its_file_has_it(tmp_path: P
         for name in one.namelist():
             if re.search(r'ctrlProp|vmlDrawing|worksheets/sheet', name):
                 assert one.read(name) == two.read(name), name
+
+
+FLAGS: dict[str, Any] = json.loads((FIXTURES / 'button_flags.json').read_text(encoding='utf-8'))
+
+
+@pytest.mark.parametrize('case', FLAGS['cases'], ids=lambda one: f'{"new" if one["new"] else "loaded"} {one["member"]}')
+def test_a_button_flag_reads_in_the_session_as_excel_did(case: dict[str, Any], tmp_path: Path) -> None:
+    """scripts/measure_button_flags.py: the roles read True for the session and False after a reopen, AddIndent False throughout. On a new
+    button what the set writes is not measured, and it reports itself."""
+    book, saved = tmp_path / 'in.xlsx', tmp_path / 'out.xlsx'
+    book.write_bytes((FIXTURES / 'old_collections.xlsx').read_bytes())
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(FLAGS['source'], name='Probe')
+    if case['new']:
+        with pytest.raises(VBAUnsupportedError, match='new form control'):
+            app.run('Probe.Row', str(book), str(saved), case['member'], True)
+        return
+    assert str(app.run('Probe.Row', str(book), str(saved), case['member'], False)) == case['excel']

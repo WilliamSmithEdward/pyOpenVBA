@@ -983,7 +983,8 @@ class ListObject(HeldPart, ExcelObject):
 
     @member(default=True)
     def _Default(self) -> object:
-        return self.table.name
+        """Name, the name given, not DisplayName (tests/fixtures/list_object_default.json)."""
+        return self.table.own_name or self.table.name
 
     @member
     def Name(self) -> object:

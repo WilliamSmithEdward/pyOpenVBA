@@ -1,0 +1,80 @@
+{
+"measured_at": "2026-11-07T16:53:05.661231+00:00",
+"source": "Public Function Go(ByVal edit As String, ByVal path As String) As String\n    Dim wb As Object, ws As Object, parts() As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:A10\").Value = 5\n    ws.Range(\"C2:C4\").Validation.Add Type:=xlValidateWholeNumber, Operator:=xlBetween, Formula1:=\"=MIN($A$3:$A$6)\", Formula2:=\"100\"\n    ws.Range(\"E1\").Validation.Add Type:=xlValidateWholeNumber, Operator:=xlBetween, Formula1:=\"1\", Formula2:=\"200\"\n    ws.Range(\"E2\").Validation.Add Type:=xlValidateWholeNumber, Operator:=xlBetween, Formula1:=\"1\", Formula2:=\"300\"\n    parts = Split(edit, \" \")\n    Select Case parts(1)\n        Case \"down\": ws.Range(parts(0)).Insert Shift:=xlShiftDown\n        Case \"up\": ws.Range(parts(0)).Delete Shift:=xlShiftUp\n    End Select\n    wb.SaveAs path, 51\n    wb.Close False\n    Go = \"ok\"\nEnd Function\n",
+"cases": [
+[
+"A3 up"
+],
+[
+"A4 up"
+],
+[
+"A6 up"
+],
+[
+"A2 up"
+],
+[
+"A7 up"
+],
+[
+"A3:A4 up"
+],
+[
+"A5:A6 up"
+],
+[
+"A5:A7 up"
+],
+[
+"A2:A3 up"
+],
+[
+"A3:A6 up"
+],
+[
+"A1:A10 up"
+],
+[
+"A3 down"
+],
+[
+"A4 down"
+],
+[
+"A6 down"
+],
+[
+"A7 down"
+],
+[
+"A2 down"
+],
+[
+"A4:A5 down"
+],
+[
+"A1 down"
+]
+],
+"answers": [
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$5):C2:C4",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$5):C2:C4",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$5):C2:C4",
+"100:MIN($A$2:$A$5):C2:C4 200:1:E1 300:1:E2",
+"100:MIN($A$3:$A$6):C2:C4 200:1:E1 300:1:E2",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$4):C2:C4",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$4):C2:C4",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$4):C2:C4",
+"200:1:E1 300:1:E2 100:MIN($A$2:$A$4):C2:C4",
+"200:1:E1 300:1:E2 100:MIN(#REF!):C2:C4",
+"200:1:E1 300:1:E2 100:MIN(#REF!):C2:C4",
+"100:MIN($A$4:$A$7):C2:C4 200:1:E1 300:1:E2",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$7):C2:C4",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$7):C2:C4",
+"100:MIN($A$3:$A$6):C2:C4 200:1:E1 300:1:E2",
+"100:MIN($A$4:$A$7):C2:C4 200:1:E1 300:1:E2",
+"200:1:E1 300:1:E2 100:MIN($A$3:$A$8):C2:C4",
+"100:MIN($A$4:$A$7):C2:C4 200:1:E1 300:1:E2"
+]
+}

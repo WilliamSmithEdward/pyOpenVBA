@@ -124,6 +124,8 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     from pyopenvba.apps.excel._conditional_edits import LineEdit, planned
 
     conditional = planned(sheet, LineEdit(rows, start, count, delete), below=below)
+    validation = _validation.planned(sheet, LineEdit(rows, start, count, delete), lambda owner: lambda text: rewrite(
+        text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
     _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _data_tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
@@ -184,8 +186,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
 
     _held_ranges.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                    delete=delete))
-    _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
-                                                  delete=delete))
+    validation()
     conditional()
     _hyperlinks.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
@@ -277,6 +278,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     from pyopenvba.apps.excel._conditional_edits import planned
 
     conditional = planned(sheet, shift, below=below)
+    validation = _validation.planned(sheet, shift, lambda owner: lambda text: rewrite_shift(text, owner, sheet.name, shift))
     _arrays.shift_admitted(sheet, area, region, delete=delete)
     _data_tables.shift_admitted(sheet, area, region, delete=delete)
     _tables.refuse(sheet, region, "Shifting", allowing=through)
@@ -344,7 +346,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _arrays.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _data_tables.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
-    _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    validation()
     from pyopenvba.apps.excel import _held_ranges
 
     _held_ranges.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))

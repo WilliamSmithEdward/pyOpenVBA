@@ -7989,22 +7989,32 @@ class Names(VBACollection, ItemDefault, ExcelObject):
     def Application(self) -> object:
         return self.book.application
 
-    def vba_items(self) -> list[object]:
+    def _listed(self) -> list[NameEntry]:
+        """The names the collection holds, in no order: a sheet's its own, the workbook's every name and the hidden ones."""
         from pyopenvba._a1 import split_sheet
 
         self._check_alive()
         entries = [entry for entry in self.entries if self.sheet is None or split_sheet(entry.name)[0].casefold() == self.sheet.name.casefold()]
+        if self.sheet is None:
+            held = {entry.name.casefold() for entry in entries}
+            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
+                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
+        return entries
+
+    def vba_items(self) -> list[object]:
+        from pyopenvba._a1 import split_sheet
         from pyopenvba.apps.excel._names import collation
 
         def order(entry: NameEntry) -> tuple[object, ...]:
             scope, bare = split_sheet(entry.name)
             return (collation(bare), 0 if scope else 1, collation(scope))
 
-        if self.sheet is None:
-            held = {entry.name.casefold() for entry in entries}
-            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
-                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
-        return [DefinedName(entry) for entry in sorted(entries, key=order)]
+        return [DefinedName(entry) for entry in sorted(self._listed(), key=order)]
+
+    @member
+    def Count(self) -> object:
+        """How many names there are, which needs no order, so names in any script count (tests/fixtures/names_count_scripts.json)."""
+        return VBAInt(len(self._listed()), "Long")
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         self.book.names_fetched = True

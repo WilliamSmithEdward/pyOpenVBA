@@ -212,7 +212,10 @@ def _read_filter(table: Table, element: str) -> None:
     if found is None:
         return
     block = Area(found.area.top, found.area.left, found.area.bottom, found.area.right)
-    if block != table.area:
+    # Excel writes the filter's block without the totals row, and reading it back answers the whole table
+    # (tests/fixtures/table_filter_range.json).
+    short = Area(table.area.top, table.area.left, table.area.bottom - 1, table.area.right) if table.totals else None
+    if block != table.area and block != short:
         table.filter_ref = (block, table.area)
     hidden = ' hiddenButton="1"'
     if found.fields and all(index in found.fields and hidden in found.fields[index].attributes

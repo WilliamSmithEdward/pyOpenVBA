@@ -80,11 +80,21 @@ def has_criteria(table: Table) -> bool:
 
 
 def filter_range(table: Table) -> Area:
-    """AutoFilter.Range of a table: the whole of it, but the block its file gave while it is as it was read."""
+    """AutoFilter.Range of a table: the whole of it, but the block its file gave while it is as it was read. A totals row is
+    in it only while the table's sheet is the one in front, Application.ActiveSheet, on a new book or one opened again
+    (tests/fixtures/table_filter_active.json, table_filter_block.json)."""
     kept = table.filter_ref
     if kept is not None and kept[1] == table.area:
         return kept[0]
+    if table.totals and table.area.bottom > table.area.top and not _in_front(table.sheet):
+        return Area(table.area.top, table.area.left, table.area.bottom - 1, table.area.right)
     return table.area
+
+
+def _in_front(sheet: Worksheet) -> bool:
+    """Whether the sheet is Application.ActiveSheet: its workbook the active one, and the sheet active in it."""
+    book = sheet.book
+    return book.application.active_book is book and book.active_chart_sheet is None and book.active_sheet is sheet
 
 
 def changed(table: Table) -> None:

@@ -36,8 +36,7 @@ ITEMS = ([Target(f'{name} new', f'ws.Range("A20").Value = "a": ws.Range("A21").V
          + [Target(f'{name} file', f'Set s = ws.{name}(1)', f'Set s = ws.{name}(1)', BOOK) for name in (*ADDS, 'Pictures')])
 CASES: list[Case] = cases(SHEETS, SHEET) + cases(ITEMS, ITEM)
 #: What the file does not keep yet.
-ACCEPTED = {f'{name} new: s.Top = 31': 'In Excel the old object reads the snapped 30.75 straight after the set, and Shape.Top reads 31 (tests/fixtures/sheet_session_settings.json, controls); here the old object reads 31 until a save'
-            for name in ('Buttons', 'CheckBoxes', 'OptionButtons', 'DropDowns', 'ListBoxes')}
+ACCEPTED: dict[str, str] = {}
 _RECORD = json.loads((FIXTURES / 'sheet_session_settings.json').read_text(encoding='utf-8'))
 _MEASURED = _RECORD['cases']
 #: What Excel's own save loses too, hidden and shown, so a model keeping it would be wrong.

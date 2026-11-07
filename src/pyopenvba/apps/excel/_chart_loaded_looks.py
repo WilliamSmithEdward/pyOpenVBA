@@ -133,6 +133,7 @@ def read_looks(state: ChartState, package: OpcFile, part: str) -> None:
     orders = [int(hit.group(1)) if (hit := _ORDER.search(one)) else -1 for one in found]
     if len(found) == len(state.series) and sorted(orders) == orders:
         for index, (entry, markup) in enumerate(zip(state.series, found)):
+            entry.points_unread = '<c:dPt>' in markup
             expected = _point_box(style, index) if style is not None else ''
             own = _own(_SERIES_PARTS.sub('', markup), expected)
             if own == '':

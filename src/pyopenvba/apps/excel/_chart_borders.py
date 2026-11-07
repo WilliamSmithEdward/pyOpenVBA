@@ -177,7 +177,8 @@ class ChartBorder(Created):
     def look(self) -> FillLine:
         """The line's look. A loaded chart with a style part answers Border otherwise than its Format, which is not measured, so
         it refuses (tests/fixtures/loaded_chart_looks.json)."""
-        chart = getattr(self.parent, 'chart', None) or getattr(getattr(self.parent, 'axis', None), 'chart', None)
+        chart = (getattr(self.parent, 'chart', None) or getattr(getattr(self.parent, 'axis', None), 'chart', None)
+                 or getattr(getattr(self.parent, 'series', None), 'chart', None))
         state = getattr(chart, 'state', None)
         if state is not None and state.original and state.style_part:
             raise VBAUnsupportedError('The Border of an element of an imported styled chart is not implemented')

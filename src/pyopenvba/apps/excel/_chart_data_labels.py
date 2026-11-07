@@ -158,7 +158,8 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
         -2147467259 for Position, -2147467261 for the rest."""
         self.series.position()
         entry = self.series.entry
-        if self.series.chart.state.original:
+        if self.series.chart.state.original and not entry.labels_read:
+            # Read whole from the file, they answer; an edit stays refused by Chart.changed (tests/fixtures/loaded_chart_labels.json).
             raise VBAUnsupportedError('The data labels of an imported chart are not implemented')
         if not self.series.has_labels() or entry.label_generation != self.generation:
             if name == 'Parent':
@@ -365,6 +366,10 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
     @member
     def AutoText(self) -> object:
         self.look()
+        if any(point.label_own.text is not None for point in self.series.entry.points.values()):
+            # A point's typed text makes it False on a series without labels of its own; the rest is unmeasured
+            # (tests/fixtures/loaded_chart_labels.json).
+            raise VBAUnsupportedError("DataLabels.AutoText with a point's own text is not implemented")
         return True
 
     @member

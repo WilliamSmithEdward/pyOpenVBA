@@ -285,12 +285,41 @@ entry, with a budget of its own.
 **Passwords.** The function gets the connection string whole, since it needs it to connect. Everywhere the model shows one, in
 `ExternalSource`'s repr and in its errors, a password is `****`: any key with `password` or `pwd` in it, such as `Pwd`, `Password` or
 `Jet OLEDB:Database Password`. A function's own error text stays in `__cause__` alone, as it may echo the string. As Excel does, once a refresh
-has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then.
+has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then. What Excel drops goes by the key, not by
+the value: `Password=""` goes though it is empty, and `Jet OLEDB:New Database Password=""`, which ACE's own string holds, stays.
 
-Known differences: Excel reads back and saves the provider's own fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest,
-where the model keeps the one the macro set, so the file differs there; the uid Excel writes on each part is not written. Not built: a
-ListObject over a database, `Workbook.RefreshAll` over such a table, a refresh that changes the number of columns, and query tables over a
-database in a file opened again, whose sheet's `QueryTables` stays refused. A text file's query table is the model's own, with no function.
+**A file opened again.** A book Excel saved with a query table over a database, on a sheet or as a ListObject's, opens with it, measured
+against Excel's own saves over an Access file and a CSV file (tests/fixtures/query_refresh_loaded.json). The model keeps what the file says of
+the connection it did not make: the provider's fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest, the command, the
+connection's name and number, and every setting. The function gets that string, and an untouched save writes Excel's parts as they came. A
+ListObject's `QueryTable` is not in the sheet's `QueryTables`; its `Name` and `FieldNames` are 1004, `PreserveColumnInfo` is True, its names
+are not bold, and a refresh resizes the ListObject. Excel opens what the model saved and refreshes it itself
+(tests/fixtures/query_refresh_loaded_saved.json). A file whose query tables or connections say anything the model would not write back the
+same keeps them all refused, its parts saved as they came.
+
+**A ListObject over a database.** `ListObjects.Add(xlSrcExternal, Array(connection), , , Destination)` makes a table of one column at the
+destination under `ExternalData_1: Getting Data ...`, named `Table_ExternalData_1`, with a hidden `ExternalData_1` over its block and a
+connection named `Connection`, measured against Excel over an Access file (tests/fixtures/list_query_add.json). The source may be the string
+alone; the headers argument changes nothing; with no `Destination` it is error 5. Before its first refresh its `CommandText` is error 7 and a
+refresh is 1004; its `CommandType` is xlCmdDefault, and xlCmdTable takes a table's name. `ListObject.Refresh` refreshes it. A refresh gives the
+table its fields' columns: columns it has keep their order and their ids, new fields follow, and one it no longer has goes. A first refresh moves
+only what is in the new columns' way, right in their rows; a later one inserts or deletes columns beside the table, and what is below moves in the
+table's columns. `Unlist` and `Delete` take the query table, its connection and its name with the table, and a save of a book Excel saved
+leaves no part of them. A save writes the table, its query table and its connection as Excel does, ids and all, before the first refresh too,
+and Excel opens what the model saved and refreshes it itself (tests/fixtures/list_query_add_saved.json).
+
+**RefreshAll.** `Workbook.RefreshAll` refreshes each table over a database a refresh has run on, a sheet's or a ListObject's, with its command
+as it is now, and a ListObject's never refreshed where it has a command; a sheet's never refreshed, and a ListObject's with no command, it
+passes over without an error, as it does one whose `EnableRefresh` is False or whose connection's `RefreshWithRefreshAll` is False. A table
+whose `BackgroundQuery` is True waits for the macro to end, `Refreshing` True meanwhile, as its own `Refresh` does
+(tests/fixtures/refresh_all_database.json). A source that has gone puts up the provider's prompt in Excel, which is not modelled.
+
+Known differences: Excel reads back and saves the provider's own fuller string where the macro set a shorter one; the model keeps the one the
+macro set, so the file differs there. The uid Excel writes on each part is not written for a part the model writes again. Not built:
+`Workbook.RefreshAll` over tables on text files and on databases together, or with pivot tables; `ListObjects.Add` over cells in use, which Excel moves by a rule one case does not settle; a refresh
+that changes both the columns and the rows of a ListObject with cells to its right, or the columns of one a file gave; a ListObject's query
+table with row numbers, without field names or with another `RefreshStyle`; a refresh of one a file holds that was saved before its first
+refresh; and saving one beside a sheet's own query tables. A text file's query table is the model's own, with no function.
 
 ### Not supported
 

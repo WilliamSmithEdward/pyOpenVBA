@@ -148,8 +148,10 @@ def books(folder: Path) -> None:
 
 
 def clean(text: str, folder: Path) -> str:
-    """The folder written <folder>, whatever its case and slashes."""
-    return re.sub(re.escape(str(folder)).replace(r"\\", r"[\\/]"), "<folder>", text, flags=re.IGNORECASE)
+    """The folder written <folder>, whatever its case and slashes. Off Windows a path in it has a slash after it, where
+    Excel's has a backslash, as a link path follows its folder's spelling (as tests/test_excel_book_refs.py reads it)."""
+    found = re.sub(re.escape(str(folder)).replace(r"\\", r"[\\/]"), "<folder>", text, flags=re.IGNORECASE)
+    return found.replace("<folder>/", "<folder>\\")
 
 
 def model(case: dict[str, Any], folder: Path) -> str:

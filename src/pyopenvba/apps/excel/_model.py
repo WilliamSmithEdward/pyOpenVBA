@@ -8852,13 +8852,17 @@ def spelled_formula(sheet: Worksheet, formula: str, row: int = 0, column: int = 
     spells it back; error 1004 where Excel refuses it. ``whole`` for an array formula, ``at`` for one written
     through Formula2, which may hold an @, ``r1c1`` for one read in R1C1 and turned into A1."""
     from pyopenvba.formula._parse import FormulaError
-    from pyopenvba.formula._spell import spelled
+    from pyopenvba.formula._spell import UnmodelledFormulaError, spelled
 
     try:
         return spelled(formula, _BookNames(sheet, row, column), whole=whole, at=at, r1c1=r1c1)
+    except UnmodelledFormulaError:
+        # No input reaches this today: a formula naming another workbook makes its link (see _new_links), and the
+        # parser refuses a structured token run into a ref, name or structured token first, as 1004 (21 shapes tried
+        # after tests/fixtures/book_refs.json). It stays as a guard: a sync of the formula code may bring a raise back,
+        # which would otherwise answer a trappable 1004 where the honest answer is that it is not modelled.
+        raise VBAUnsupportedError("a formula the model cannot spell is not implemented") from None
     except FormulaError:
-        # A formula naming another workbook makes its link (see _new_links), so _spell's refusal of one is never reached
-        # from here: the shapes it guards are refused by the parser first, as 1004 (tests/fixtures/book_refs.json).
         raise error(1004, "Application-defined or object-defined error") from None
 
 

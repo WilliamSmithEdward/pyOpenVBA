@@ -538,6 +538,11 @@ def read_chart(xml: str, part: str) -> ChartState:
         raise VBAUnsupportedError('Ambiguous chart series identity/order is not implemented')
     for _order, identity, series in sorted(ordered, key=lambda item: item[0]):
         item = SeriesState(series_id=identity)
+        # Its unique id's number, which a save keeps (tests/fixtures/loaded_chart_structure_edits.json).
+        for unique in series.findall('c:extLst/c:ext/c16:uniqueId', {**NS, 'c16': 'http://schemas.microsoft.com/office/drawing/2014/chart'}):
+            spelled = unique.get('val', '')
+            if len(spelled) >= 9 and all(ch in '0123456789ABCDEFabcdef' for ch in spelled[1:9]):
+                item.unique = int(spelled[1:9], 16)
         item.error_bars = read_error_bars(series, NS)
         item.trendlines = read_trendlines(series, NS)
         name_ref = series.find('c:tx/c:strRef/c:f', NS)
@@ -764,7 +769,7 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
     """Refresh only changed reference caches; leave every other chart byte alone, but for the references a chart read
     from a file has had rewritten as its cells moved."""
     for shape_id, chart in sheet.chart_states.items():
-        if chart.parts_pending:
+        if chart.parts_pending or chart.plot_pending:
             from pyopenvba.apps.excel._chart_loaded import write_parts
 
             write_parts(sheet.chart_sheet or Chart(sheet, next(item for item in sheet.shapes_ if item.shape_id == shape_id)))

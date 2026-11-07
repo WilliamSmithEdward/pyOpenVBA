@@ -309,6 +309,10 @@ def load_workbook(application: Application, path: Path, *, _passed: object = Non
     from pyopenvba.apps.excel._hidden_names import read_from_file
 
     read_from_file(book)
+    for sheet in book.sheets_:
+        # Excel keeps no record for a row a file's borders or fonts draw taller until an edit there works the row out
+        # again, so such a row counts toward the used block only through the file's own record (tests/fixtures/used_range.json).
+        sheet.dims.opened_shapes = sheet.dims.shaped_rows() - set(sheet.dims.rows)
     return book
 
 

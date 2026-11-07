@@ -308,6 +308,9 @@ class SheetDimensions:
         #: Columns hidden while they kept a width of their own. Excel's used
         #: block takes them in and keeps them, whatever the column does next.
         self.kept_columns: set[int] = set()
+        #: Rows an opened file's borders or fonts drew taller with no row record in the file: Excel's used block leaves
+        #: them out (see _io.load_workbook).
+        self.opened_shapes: set[int] = set()
         #: Rows their fonts make another height than the standard row, or
         #: give another descent: row -> (quarter pixels, descent in twips).
         self._grown: dict[int, tuple[int, int]] = {}

@@ -4671,7 +4671,7 @@ class Worksheet(ExcelObject):
         live.extend(self.notes)
         rows = [row for row, _ in live]
         rows.extend(self.dims.record_rows())
-        rows.extend(self.dims.shaped_rows())
+        rows.extend(self.dims.shaped_rows() - self.dims.opened_shapes)
         columns = [column for _, column in live]
         columns.extend(self.dims.used_columns())
         if not rows and not columns:

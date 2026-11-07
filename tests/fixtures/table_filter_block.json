@@ -1,0 +1,164 @@
+{
+ "cases": [
+  {
+   "active": "T",
+   "step": "none",
+   "typed": false,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | True A1:B5 E0"
+  },
+  {
+   "active": "T",
+   "step": "none",
+   "typed": true,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | True A1:B5 E0"
+  },
+  {
+   "active": "T",
+   "step": "activate T",
+   "typed": false,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | True A1:B5 E0",
+   "excel": "True A1:B5 | True A1:B5 E0"
+  },
+  {
+   "active": "T",
+   "step": "activate T",
+   "typed": true,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | True A1:B5 E0",
+   "excel": "True A1:B5 | True A1:B5 E0"
+  },
+  {
+   "active": "T",
+   "step": "activate Other",
+   "typed": false,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | False A1:B4 E0"
+  },
+  {
+   "active": "T",
+   "step": "activate Other",
+   "typed": true,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | False A1:B4 E0"
+  },
+  {
+   "active": "T",
+   "step": "select on T",
+   "typed": false,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | False A1:B5 E0"
+  },
+  {
+   "active": "T",
+   "step": "select on T",
+   "typed": true,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | False A1:B5 E0"
+  },
+  {
+   "active": "T",
+   "step": "read only Range again",
+   "typed": false,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | True A1:B5 E0"
+  },
+  {
+   "active": "T",
+   "step": "read only Range again",
+   "typed": true,
+   "rule": "True A1:B5 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "True A1:B5 | True A1:B5 E0"
+  },
+  {
+   "active": "Other",
+   "step": "none",
+   "typed": false,
+   "rule": "False A1:B4 | False A1:B4 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B4 E0"
+  },
+  {
+   "active": "Other",
+   "step": "none",
+   "typed": true,
+   "rule": "False A1:B4 | False A1:B4 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B4 E0"
+  },
+  {
+   "active": "Other",
+   "step": "activate T",
+   "typed": false,
+   "rule": "False A1:B4 | True A1:B5 E0",
+   "model": "False A1:B5 | True A1:B5 E0",
+   "excel": "False A1:B4 | True A1:B5 E0"
+  },
+  {
+   "active": "Other",
+   "step": "activate T",
+   "typed": true,
+   "rule": "False A1:B4 | True A1:B5 E0",
+   "model": "False A1:B5 | True A1:B5 E0",
+   "excel": "False A1:B4 | True A1:B5 E0"
+  },
+  {
+   "active": "Other",
+   "step": "activate Other",
+   "typed": false,
+   "rule": "False A1:B4 | False A1:B4 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B4 E0"
+  },
+  {
+   "active": "Other",
+   "step": "activate Other",
+   "typed": true,
+   "rule": "False A1:B4 | False A1:B4 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B4 E0"
+  },
+  {
+   "active": "Other",
+   "step": "select on T",
+   "typed": false,
+   "rule": "False A1:B4 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B5 E0"
+  },
+  {
+   "active": "Other",
+   "step": "select on T",
+   "typed": true,
+   "rule": "False A1:B4 | True A1:B5 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B5 E0"
+  },
+  {
+   "active": "Other",
+   "step": "read only Range again",
+   "typed": false,
+   "rule": "False A1:B4 | False A1:B4 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B4 E0"
+  },
+  {
+   "active": "Other",
+   "step": "read only Range again",
+   "typed": true,
+   "rule": "False A1:B4 | False A1:B4 E0",
+   "model": "False A1:B5 | False A1:B5 E0",
+   "excel": "False A1:B4 | False A1:B4 E0"
+  }
+ ]
+}

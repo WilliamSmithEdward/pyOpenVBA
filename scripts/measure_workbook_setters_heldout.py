@@ -38,10 +38,22 @@ KINDS = ('True', 'False', '0', '1', '-1', '2', '3', '4', '-4104', '1.5', '"1"', 
 CHUNK = 20
 
 
+#: From round three, each setting also takes values of its own the seed picks, so no round repeats another's values.
+SEEDED_FROM = 3
+
+
+def _seeded(chooser: random.Random) -> list[str]:
+    day = chooser.randint(1, 28)
+    return [str(chooser.randint(-6, 12)), f'{chooser.randint(-3, 9)}.{chooser.choice((25, 5, 75))}', f'"{chooser.randint(0, 9)}"',
+            f'#{chooser.randint(1, 12)}/{day}/{chooser.randint(1990, 2030)}#', str(chooser.randint(10 ** 5, 10 ** 9)),
+            f'-{chooser.randint(1, 4)}.{chooser.choice((5, 25))}']
+
+
 def cases(round_name: str) -> list[dict[str, Any]]:
     chooser = random.Random(f'workbook-setters-{round_name}')
+    seeded = int(round_name.removeprefix('round')) >= SEEDED_FROM if round_name.startswith('round') else False
     return [{'setting': setting, 'value': value, 'first': chooser.choice(('new', 'set')), 'format': chooser.choice(('xlsx', 'xlsm'))}
-            for setting in SETTINGS for value in KINDS]
+            for setting in SETTINGS for value in (*KINDS, *(_seeded(chooser) if seeded else ()))]
 
 
 def _reads() -> str:

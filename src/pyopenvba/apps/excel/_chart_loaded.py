@@ -312,3 +312,100 @@ def type_axis_title(chart: Chart, entry: AxisState, wanted: str) -> None:
         raise VBAUnsupportedError('Typing this imported chart axis title is not implemented')
     axis = axis[:found.start()] + retitled(found.group(0), wanted) + axis[found.end():]
     _edited(chart, chart.state.original[:start] + axis + chart.state.original[end:])
+
+
+_LABELS = re.compile(r'<c:dLbls>.*?</c:dLbls>', re.DOTALL)
+_POINT_LABEL = re.compile(r'<c:dLbl><c:idx val="(\d+)"/>.*?</c:dLbl>', re.DOTALL)
+_UNIQUE = re.compile(r'(<c16:uniqueId val="\{)([0-9A-F]{8})([^}"]*)(\}"/>)')
+#: What follows a series' dLbls in its c:ser, whichever it has first.
+_AFTER_LABELS = re.compile(r'<c:(?:trendline|errBars|cat|val|xVal|yVal)>')
+
+
+def _labels_now(chart: Chart, entry: SeriesState) -> str:
+    """The series' dLbls as the model writes them."""
+    from pyopenvba.apps.excel._chart_points import point_labels_markup
+    from pyopenvba.apps.excel._chart_xml import CHART_KINDS, labels_markup
+    from pyopenvba.apps.excel._charts import CHART_TYPES, series_type
+    from pyopenvba.apps.excel._charts_file import shown_points
+
+    kind = CHART_TYPES.get(series_type(chart.state, entry), '')
+    if kind not in CHART_KINDS:
+        raise VBAUnsupportedError('Data labels on this kind of imported chart are not implemented')
+    points = point_labels_markup(shown_points(chart.sheet, chart.state, entry))
+    return labels_markup(kind, entry.data_labels, entry.leader_lines, entry.label_look, points)
+
+
+def _without_tails(xml: str) -> str:
+    """Unique ids by their number alone: the rest is the part's, or Excel's at random for a label it adds."""
+    from pyopenvba.apps.excel._chart_xml import UNIQUE_END
+
+    return _UNIQUE.sub(lambda hit: hit.group(1) + hit.group(2) + hit.group(4), xml.replace(UNIQUE_END, ''))
+
+
+#: The label edits measured on loaded charts (tests/fixtures/loaded_chart_label_edits.json).
+LABEL_EDITS = frozenset({
+    'Series.HasDataLabels', 'Point.HasDataLabel', 'DataLabels.ShowValue', 'DataLabels.ShowCategoryName', 'DataLabels.ShowSeriesName',
+    'DataLabels.Position', 'DataLabels.NumberFormat', 'DataLabels.Separator', 'DataLabel.Text', 'DataLabel.ShowCategoryName',
+    'DataLabel.Position'})
+
+
+def admit_labels(chart: Chart, entry: SeriesState, member: str) -> None:
+    """Whether a series' data labels can change in this chart's part: by a member measured, and only where the model
+    writes them as the file holds them, so that writing them again changes only what the edit did. A chart with a style
+    is refused: Excel gives what it adds there the style's look (tests/fixtures/loaded_chart_label_edits.json)."""
+    admit(chart)
+    if member not in LABEL_EDITS:
+        raise VBAUnsupportedError(f'Changing {member or "these data labels"} on an imported chart is not implemented')
+    from pyopenvba.apps.excel._chart_xml import LabelLook
+
+    if member.startswith(('DataLabel.', 'Point.')) and entry.data_labels and entry.label_look != LabelLook():
+        # Excel gives such a point its series' place and the value alone, which the model does not.
+        raise VBAUnsupportedError("Changing a point's label on an imported chart whose series' labels have a look is not implemented")
+    state = chart.state
+    if any(pending is entry for pending in state.labels_pending):
+        return
+    if state.style_part:
+        raise VBAUnsupportedError('Changing the data labels of an imported chart with a style is not implemented')
+    start, end = _series_span(chart, entry)
+    found = _LABELS.search(state.original, start, end)
+    if _without_tails(found.group(0) if found else '') != _without_tails(_labels_now(chart, entry)):
+        raise VBAUnsupportedError('Changing these data labels of an imported chart is not implemented')
+    entry.labels_read = True
+    state.labels_pending.append(entry)
+
+
+def write_labels(chart: Chart) -> None:
+    """The changed series' dLbls in place of what each held. A point's label keeps the unique id the file gave it; those
+    added share a new end (tests/fixtures/loaded_chart_label_edits.json)."""
+    import uuid
+
+    state = chart.state
+    # One new end for every label the save adds, as Excel's save gives them.
+    tail = '-' + str(uuid.uuid4()).upper().split('-', 1)[1]
+    for entry in state.labels_pending:
+        start, end = _series_span(chart, entry)
+        series = state.original[start:end]
+        found = _LABELS.search(series)
+        kept = {hit.group(1): unique.group(0) for hit in _POINT_LABEL.finditer(found.group(0) if found else '')
+                if (unique := _UNIQUE.search(hit.group(0))) is not None}
+
+        def identified(hit: re.Match[str]) -> str:
+            label = hit.group(0)
+            unique = _UNIQUE.search(label)
+            if unique is None:
+                return label
+            old = kept.get(hit.group(1))
+            if old is not None and _without_tails(old) == _without_tails(unique.group(0)):
+                return label[:unique.start()] + old + label[unique.end():]
+            return label[:unique.start()] + unique.group(1) + unique.group(2) + tail + unique.group(4) + label[unique.end():]
+
+        made = _POINT_LABEL.sub(identified, _labels_now(chart, entry))
+        if found is not None:
+            series = series[:found.start()] + made + series[found.end():]
+        else:
+            place = _AFTER_LABELS.search(series)
+            if place is None:
+                raise VBAUnsupportedError('Placing data labels in this imported chart series is not implemented')
+            series = series[:place.start()] + made + series[place.start():]
+        state.original = state.original[:start] + series + state.original[end:]
+    state.labels_pending = []

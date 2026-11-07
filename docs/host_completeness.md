@@ -339,6 +339,19 @@ for the audits' fixtures. Read-only rows do not need it.
 A row whose evidence predates this standard is audited against it. A row
 that fails goes back to PARTIAL until it is fixed.
 
+Some members are never measured live, because a probe could act outside
+Excel: mail members could send mail from the account Excel runs under, and
+naming a cryptographic provider can reach hardware. A probe that named the
+smartcard provider through `SetPasswordEncryptionOptions` raised Windows
+Security prompts for a smartcard. So no probe names a provider, or touches
+encryption options, rights (`Permission`), signatures, certificates,
+sensitivity labels or `WorkIdentity`; `tests/test_probes_leave_mail_alone.py` and
+`tests/test_probes_leave_crypto_alone.py` hold that. The model's answers for
+these come from the files it reads and from what was already measured:
+`SetPasswordEncryptionOptions` and the provider names it takes come from
+`tests/fixtures/workbook_encryption_options.json`, which is not measured
+again.
+
 A rule fitted to a fixture cannot fail when it is replayed against that
 fixture. So a row resting on one, or on any correction made from its own
 measurements, also needs a held-out test: values and calls the rule was not made

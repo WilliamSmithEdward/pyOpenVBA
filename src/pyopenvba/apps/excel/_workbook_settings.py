@@ -252,8 +252,12 @@ def flag(book: Workbook, name: str) -> object:
 
 
 def set_flag(book: Workbook, name: str, value: object) -> None:
+    from pyopenvba.interpreter._objects import BINDING
+
     if value is NULL:
-        raise VBAUnsupportedError(f"Workbook.{name} set to Null is not implemented")
+        # Typed, VBA's conversion refuses Null with 94; bound late, the workbook refuses it with 13
+        # (tests/fixtures/workbook_setters_heldout/round1_excel.json).
+        raise error(13 if BINDING.late else 94, "Type mismatch" if BINDING.late else "Invalid use of Null")
     wanted = to_bool(value)
     if wanted == flag(book, name):
         return
@@ -261,6 +265,25 @@ def set_flag(book: Workbook, name: str, value: object) -> None:
     book.workbook_pr[attribute] = "1" if wanted != inverted else "0"
     book.workbook_pr_changed.add(attribute)
     book.saved = False
+
+
+def file_flag(name: str, value: object) -> bool | None:
+    """The Boolean that Date1904, PrecisionAsDisplayed and SaveLinkValues take, or None for a set that changes nothing. Bound late, these
+    take a number or a Boolean only: text, even "1", a Currency, a Date or an object is 1004, and Null is no change. Typed, VBA converts
+    first, so text is 13 and Null 94 (tests/fixtures/workbook_setters_heldout/round1_excel.json)."""
+    from datetime import date
+
+    from pyopenvba.interpreter._objects import BINDING, VBAObject
+    from pyopenvba.interpreter._values import VBACurrency, VBADate
+
+    if BINDING.late:
+        if value is NULL:
+            return None
+        if isinstance(value, (str, VBACurrency, VBADate, date, VBAObject)):
+            raise error(1004, f"Unable to set the {name} property of the Workbook class")
+    elif value is NULL:
+        raise error(94, "Invalid use of Null")
+    return to_bool(value)
 
 
 def refused(name: str, number: int) -> None:

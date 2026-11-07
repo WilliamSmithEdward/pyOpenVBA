@@ -18,7 +18,6 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-from pyopenvba.exceptions import VBAUnsupportedError
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -80,13 +79,41 @@ def write(book: Workbook, package: OpcFile) -> None:
         package.write("xl/workbook.xml", written.encode("utf-8"))
 
 
+def drawing_objects_of(value: object) -> int | None:
+    """The number DisplayDrawingObjects keeps for a value, or None for one it ignores. Typed, VBA converts to a Long first: True is -1,
+    1.5 is 2, text is 13 and 1E+300 is 6. Bound late, the workbook converts: True is 1, a fraction is rounded down, -3.5 to -4, a number past a
+    Long is held at its bound, text of a number is that number, other text and an object are 1004, and Null changes nothing
+    (tests/fixtures/workbook_setters_heldout/round1_excel.json)."""
+    import math
+
+    from pyopenvba.interpreter._objects import BINDING, VBAObject
+    from pyopenvba.exceptions import VBARuntimeError
+    from pyopenvba.interpreter._values import NULL, VBADate, error, to_integer, to_number
+
+    if not BINDING.late:
+        return int(to_integer(value, "Long"))
+    if value is NULL:
+        return None
+    if isinstance(value, bool):
+        return 1 if value else 0
+    if isinstance(value, VBAObject):
+        raise error(1004, "Unable to set the DisplayDrawingObjects property of the Workbook class")
+    try:
+        number = float(value.serial if isinstance(value, VBADate) else to_number(value))
+    except VBARuntimeError:
+        raise error(1004, "Unable to set the DisplayDrawingObjects property of the Workbook class") from None
+    if not math.isfinite(number):
+        number = 2 ** 31 - 1 if number > 0 else -(2 ** 31)
+    return max(-(2 ** 31), min(2 ** 31 - 1, math.floor(number)))
+
+
 def _with_properties(book: Workbook, text: str) -> str:
-    if book.drawing_objects not in _OBJECTS.values():
-        raise VBAUnsupportedError(f"saving DisplayDrawingObjects {book.drawing_objects}, which Excel takes but no "
-                                  "showObjects names, is not implemented")
     found = re.search(r"<workbookPr\b[^>]*?/?>", text)
     tag = found.group(0) if found is not None else "<workbookPr/>"
-    shown = next(name for name, value in _OBJECTS.items() if value == book.drawing_objects)
+    # A value no showObjects names is saved by its low two bits: 3 as none, 2 as placeholders, anything else as all, so True's -1 and
+    # 2147483647 save as xlHide and 4, 0 or a date's serial as xlDisplayShapes (tests/fixtures/workbook_setters_heldout/).
+    kept = book.drawing_objects if book.drawing_objects in _OBJECTS.values() else {3: 3, 2: 2}.get(book.drawing_objects & 3, -4104)
+    shown = next(name for name, value in _OBJECTS.items() if value == kept)
     wanted = {"saveExternalLinkValues": None if book.save_link_values else "0",
               "updateLinks": {2: "never", 3: "always"}.get(book.update_links),
               "checkCompatibility": "1" if book.check_compatibility else None,

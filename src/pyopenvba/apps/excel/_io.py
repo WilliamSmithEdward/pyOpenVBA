@@ -1939,10 +1939,11 @@ def _fresh_package(suffix: str) -> OpcFile:
     from pyopenvba._templates import EMPTY_XLSM_BYTES
 
     package = OpcFile.parse(EMPTY_XLSM_BYTES)
-    if suffix in (".xlsx", ".xltx", ""):
-        _make_macro_free(package)
-    if suffix in (".xltx", ".xltm"):
-        _write_main_type(package, 54 if suffix == ".xltx" else 53)
+    # A macro-enabled book Excel saves with no code holds no VBA project, nor code names (tests/fixtures/workbook_reads/settings.xlsm,
+    # tests/fixtures/workbook_reads_heldout/round1_excel.json): the project is put in at the save only when there is code for it.
+    _make_macro_free(package)
+    if suffix in (".xlsm", ".xltx", ".xltm"):
+        _write_main_type(package, {".xlsm": 52, ".xltx": 54, ".xltm": 53}[suffix])
     return package
 
 

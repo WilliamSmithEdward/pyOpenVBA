@@ -118,11 +118,18 @@ class Key:
 
 @cache
 def _weights() -> dict[int, tuple[bytes, bytes, bytes, bytes, bytes]]:
+    """Every character weighed alike under every locale: _sort_weights' Latin, Greek and Cyrillic, and
+    _sort_weights_scripts' Hebrew, Arabic, Thai and Hangul."""
     from pyopenvba.apps.excel._sort_weights import WEIGHTS
+    from pyopenvba.apps.excel._sort_weights_scripts import HANGUL, SCRIPTS
 
-    return {code: (bytes.fromhex(primary), bytes.fromhex(accent), bytes.fromhex(ignoring), bytes.fromhex(matching),
-                   bytes.fromhex(skipped))
-            for code, (primary, accent, ignoring, matching, skipped) in WEIGHTS.items()}
+    table = {code: (bytes.fromhex(primary), bytes.fromhex(accent), bytes.fromhex(ignoring), bytes.fromhex(matching),
+                    bytes.fromhex(skipped))
+             for code, (primary, accent, ignoring, matching, skipped) in (*WEIGHTS.items(), *SCRIPTS.items())}
+    for first, weight, count in HANGUL:
+        for step in range(count):
+            table[first + step] = ((weight + step).to_bytes(2, "big"), b"", b"", b"", b"")
+    return table
 
 
 #: The extra weights' flags (_sort_weights_cjk): a small kana, a katakana, a half-width form, a kana at all; and a

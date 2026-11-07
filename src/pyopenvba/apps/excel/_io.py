@@ -29,6 +29,7 @@ from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
 from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _encode_string
+from pyopenvba.integrity import xml_problem
 from pyopenvba.exceptions import PyOpenVBAError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
@@ -112,7 +113,26 @@ class WorkbookFileError(PyOpenVBAError):
     """Raised when a workbook's parts cannot be read or written."""
 
 
+class MalformedPartError(WorkbookFileError):
+    """A part of the package is not well-formed XML, which Workbooks.Open answers as Excel does."""
+
+    def __init__(self, part: str, reason: str) -> None:
+        super().__init__(f"{part} is not well-formed XML: {reason}")
+        self.part = part
+
+
 # --- reading ------------------------------------------------------------------------
+
+
+def _refuse_malformed(package: OpcFile) -> None:
+    """Excel opens no workbook with a part that is not well-formed XML, but for its theme, which it goes without
+    (tests/fixtures/bad_xml/bad_xml.json)."""
+    for part in package.names():
+        if not part.endswith((".xml", ".rels")) or re.fullmatch(r"xl/theme/theme\d+\.xml", part):
+            continue
+        problem = xml_problem(package.read(part))
+        if problem is not None:
+            raise MalformedPartError(part, problem)
 
 
 #: A column of a table named on its own: Tab[a], not Tab[@a] or Tab[[#All],[a]].
@@ -154,6 +174,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             "its VBA project is readable through ExcelFile"
         )
     package = OpcFile.parse(path.read_bytes())
+    _refuse_malformed(package)
     from pyopenvba.apps.excel._prefixed_parts import respell
 
     # A part spelling SpreadsheetML's namespace under a prefix is read, and saved, as Excel spells it.
@@ -280,7 +301,11 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     read_calculation(book, workbook_xml)
     # Excel's numbering of new sheets starts again in an opened file (tests/fixtures/new_sheet_names.json).
     book.sheet_name_counter = 0
+    book.opened_with_links = any(sheet.hyperlinks for sheet in book.sheets_)
     _read_columns_as_this_row(book)
+    from pyopenvba.apps.excel._hidden_names import read_from_file
+
+    read_from_file(book)
     return book
 
 
@@ -365,6 +390,16 @@ def _template_style_parts() -> tuple[str, str]:
     return (template.read("xl/styles.xml").decode("utf-8"), template.read("xl/theme/theme1.xml").decode("utf-8"))
 
 
+#: What a file with no theme part reads as: Excel's 2007 theme, not the one a new workbook has now (tests/fixtures/tool_books/spellings.json).
+_NO_THEME = ('<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:themeElements><a:clrScheme name="Office">'
+             '<a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>'
+             '<a:dk2><a:srgbClr val="1F497D"/></a:dk2><a:lt2><a:srgbClr val="EEECE1"/></a:lt2><a:accent1><a:srgbClr val="4F81BD"/></a:accent1>'
+             '<a:accent2><a:srgbClr val="C0504D"/></a:accent2><a:accent3><a:srgbClr val="9BBB59"/></a:accent3><a:accent4><a:srgbClr val="8064A2"/></a:accent4>'
+             '<a:accent5><a:srgbClr val="4BACC6"/></a:accent5><a:accent6><a:srgbClr val="F79646"/></a:accent6><a:hlink><a:srgbClr val="0000FF"/></a:hlink>'
+             '<a:folHlink><a:srgbClr val="800080"/></a:folHlink></a:clrScheme><a:fontScheme name="Office"><a:majorFont><a:latin typeface="Cambria"/></a:majorFont>'
+             '<a:minorFont><a:latin typeface="Calibri"/></a:minorFont></a:fontScheme></a:themeElements></a:theme>')
+
+
 def read_stylesheet(package: OpcFile | None) -> Stylesheet:
     """A workbook's stylesheet and theme; a workbook made here has the template's."""
     from pyopenvba.apps.excel._styles import Stylesheet
@@ -377,7 +412,7 @@ def read_stylesheet(package: OpcFile | None) -> Stylesheet:
         if re.fullmatch(r"xl/theme/theme\d+\.xml", part):
             theme = package.read(part).decode("utf-8", errors="replace")
             break
-    return Stylesheet(styles or _template_style_parts()[0], theme)
+    return Stylesheet(styles or _template_style_parts()[0], theme or _NO_THEME)
 
 
 def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Stylesheet,
@@ -1800,6 +1835,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._workbook_links import write as write_workbook_links
 
     write_workbook_links(book, package)
+    from pyopenvba.apps.excel._new_links import write_made
+
+    write_made(book, package, str(target.resolve().parent))
     from pyopenvba.apps.excel._connections import refuse_changed
 
     refuse_changed(book)

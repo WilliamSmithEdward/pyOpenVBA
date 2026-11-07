@@ -76,6 +76,8 @@ if TYPE_CHECKING:
 Intrinsic = Callable[["Interpreter", list[object], dict[str, object]], object]
 
 INTRINSICS: dict[str, Intrinsic] = {}
+#: How many of each built-in function's arguments a call must give, which the compiler checks of an empty one: Mid("abc", , 2).
+INTRINSIC_MINIMUMS: dict[str, int] = {}
 
 #: The names VBA defines that this does not implement, and the reason.
 UNIMPLEMENTED: Final[dict[str, str]] = {
@@ -130,6 +132,7 @@ def intrinsic(name: str, *parameters: str, minimum: int = 0) -> Callable[..., An
             return function(interpreter, *laid[: len(parameters)])
 
         INTRINSICS[name.lower()] = dispatch
+        INTRINSIC_MINIMUMS[name.lower()] = minimum
         return function
 
     return register
@@ -197,7 +200,14 @@ def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str,
     strict = getattr(target, "vba_strict_call_types", False)
     if strict and kind == _GET and spec is not None and spec.kind == "method":
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
-    return _answered(target, name, rest)
+    answer = _answered(target, name, rest)
+    # It goes through IDispatch as a call on an Object does, so what is a Double late is one here (tests/fixtures/page_setup/).
+    from pyopenvba.interpreter._type_library import find_class, reads_double_late
+
+    library = getattr(interpreter.host, "vba_type_library", None)
+    found = find_class(library, target.vba_type_name) if library is not None else None
+    numeric = isinstance(answer, int | float) and not isinstance(answer, bool)
+    return float(answer) if numeric and found is not None and reads_double_late(found, name) else answer  # type: ignore[arg-type]
 
 
 INTRINSICS["callbyname"] = _call_by_name
@@ -1475,7 +1485,8 @@ INTRINSICS["iif"] = vba_iif
 def vba_choose(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
     if not args:
         raise error(449)
-    index = int(to_integer(args[0], "Long"))
+    # Its index's whole part, where a conversion to Long would round: Choose(1.9, "a", "b") is "a" (tests/fixtures/vba_everyday_17.json).
+    index = int(to_number(args[0]))
     if 1 <= index < len(args):
         return args[index]
     return NULL
@@ -1486,7 +1497,7 @@ INTRINSICS["choose"] = vba_choose
 
 def vba_switch(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
     if len(args) % 2:
-        raise error(450, "Switch takes pairs")
+        raise error(5, "Switch takes pairs")
     for index in range(0, len(args), 2):
         if to_bool(args[index]):
             return args[index + 1]

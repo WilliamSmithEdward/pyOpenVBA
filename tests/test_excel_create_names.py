@@ -2,7 +2,7 @@
 the measuring macros run in the model in the order Excel ran them, every side given or guessed, labels of every
 kind and the names they clean into.
 
-Excel lists a hidden name, _xlfn.SINGLE, the model does not make (see tests/test_excel_workbook_links.py); the name
+Excel lists a hidden name, _xlfn.SINGLE, as the model does (see _hidden_names); the name
 lists are compared without it.
 """
 from __future__ import annotations
@@ -18,7 +18,6 @@ from pyopenvba.apps.excel._create_names import name_of
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/create_names.json').read_text(encoding='utf-8'))
-SINGLE = '|_xlfn.SINGLE==#NAME?'
 
 
 @pytest.fixture(scope='module')
@@ -30,7 +29,7 @@ def app() -> ExcelApplication:
 
 
 def _excels(answer: str) -> list[str]:
-    return answer.replace(SINGLE, '').split('|')
+    return answer.split('|')
 
 
 @pytest.mark.parametrize('sides', list(RECORD['sides']))

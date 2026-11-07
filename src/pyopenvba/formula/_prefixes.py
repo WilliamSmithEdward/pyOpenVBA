@@ -182,9 +182,10 @@ def _joined(tokens: list[Token], index: int) -> bool:
     """Whether a reference operator joins more to what ends just before ``index``: a range's colon, a spill's #, or
     a space between two operands, which intersects them."""
     token, before = tokens[index], tokens[index - 1]
+    spaced = token.at > before.at + len(before.text)
     if token.kind == "op":
-        return token.text in (":", "#")
-    return token.kind in ("ref", "structured", "name", "open") and token.at > before.at + len(before.text)
+        return token.text in (":", "#") or (token.text == "@" and spaced)
+    return token.kind in ("ref", "structured", "name", "open") and spaced
 
 
 def _operand_end(tokens: list[Token], index: int) -> int:
@@ -199,11 +200,17 @@ def _operand_end(tokens: list[Token], index: int) -> int:
         if token.kind != "op":
             # A space, and what it intersects with.
             index = _primary_end(tokens, index)
+        elif token.text == "@":
+            # A space, and an @ on what it intersects with.
+            index = _primary_end(tokens, index + 1)
         elif token.text == "#":
             index += 1
         else:
-            # A colon, and the range's other end.
-            index = _primary_end(tokens, index + 1)
+            # A colon, and the range's other end, an @ perhaps before it.
+            index += 1
+            if tokens[index].kind == "op" and tokens[index].text == "@":
+                index += 1
+            index = _primary_end(tokens, index)
     return index
 
 

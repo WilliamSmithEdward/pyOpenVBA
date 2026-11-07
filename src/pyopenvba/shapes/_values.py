@@ -546,6 +546,9 @@ class Shape:
     #: Excel: Placement as the anchor's editAs: "" for xlMoveAndSize, oneCell for xlMove, absolute for
     #: xlFreeFloating.
     edit_as: str = ""
+    #: Excel: a height set through a new form control's old object has moved the Shape's Top by an EMU up, down or not at all, by a rounding not worked out
+    #: (tests/fixtures/new_control_old_height_heldout.json), until the Top is set again. The file and the old object are not moved.
+    unsure_top: bool = False
     #: Excel: a new group's child space (chOff and chExt) in points, None while it is the group's own box. Its
     #: members are held where the sheet shows them and mapped into it when written.
     child_box: tuple[float, float, float, float] | None = None
@@ -595,6 +598,14 @@ def points(emu: str | int | float) -> float:
         return int(emu) / EMU_PER_POINT
     except (TypeError, ValueError):
         return 0.0
+
+
+#: The largest number a Single holds, past which a parameter of the type overflows.
+SINGLE_LARGEST = 3.4028235677973366e38
+#: The first size measured refused: Excel took 100000 points and refused 169093 (tests/fixtures/excel_huge_numbers.json).
+MOST_POINTS = 169093.0
+#: The first place measured refused: Excel took 1E+9 points, stopping at the sheet's end, and refused 2147483647.
+MOST_PLACE = 2147483647.0
 
 
 def emu(value: float) -> int:

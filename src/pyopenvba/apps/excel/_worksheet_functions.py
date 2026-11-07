@@ -141,6 +141,9 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         # Measured at 1E+300, past what a whole number of digits can be; where it starts is not.
         if name.lower() == "round" and len(values) == 2 and isinstance(values[1], float) and abs(values[1]) >= 2 ** 31:
             return 0.0
+    if name.lower() == "munit" and len(values) == 1 and isinstance(values[0], (int, float)) and values[0] >= 100_000:
+        # Too large to build is a failure through Application as well, not an error value (tests/fixtures/excel_huge_numbers.json).
+        raise error(1004, "Unable to get the MUnit property of the WorksheetFunction class")
     calculator = sheet.book.calculator
     books = _OpenBooks(calculator)
     nodes = () if lifted_year_frac else tuple(_node(value, books) for value in values)

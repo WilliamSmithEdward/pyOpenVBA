@@ -26,7 +26,7 @@ from functools import lru_cache
 from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
-from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
+from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAStepLimitError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
@@ -41,6 +41,7 @@ from pyopenvba.interpreter._type_library import (
     find_class,
     kinds_of,
     late_arguments,
+    late_index_error,
     late_call_error,
     late_error,
     late_let_error,
@@ -1096,6 +1097,17 @@ class EachLoop:
 # --- the interpreter -------------------------------------------------------------------
 
 
+class StepBudget:
+    """What is left of a run's steps: one for a host and every interpreter of its projects."""
+
+    __slots__ = ("left", "limit", "running")
+
+    def __init__(self) -> None:
+        self.limit: int | None = None
+        self.left = 0
+        self.running = False
+
+
 class Interpreter:
     """Runs VBA against a host object model."""
 
@@ -1117,10 +1129,15 @@ class Interpreter:
         self.internet_sessions: dict[str, Sessions] = {}
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
+        #: How many steps a run of VBA may take, shared with every interpreter of the host's projects (see step_limit).
+        self.steps = StepBudget()
         #: Every dialog the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
         self.answers: list[object] = []
+        #: What ExcelApplication.set_hook registered, and the members whose functions are running (see apps/excel/_hooks).
+        self.hooks: dict[str, object] = {}
+        self.hooks_running: list[str] = []
         self.frozen_now: Any = None
         #: The Regional format the project runs under: what CStr, Format and CDate write and read.
         self.locale: _locale.Locale = _locale.EN_US
@@ -1241,6 +1258,19 @@ class Interpreter:
 
     # --- running ---------------------------------------------------------------------
 
+    @property
+    def step_limit(self) -> int | None:
+        """The most steps one run of VBA may take, or None for no limit, which is the default. A run is everything one entry
+        from the host sets off: a procedure called from Python, an event raised from Python, a recalculation that calls VBA,
+        with whatever those call, raise or evaluate in turn. Past it VBAStepLimitError, which On Error cannot trap."""
+        return self.steps.limit
+
+    @step_limit.setter
+    def step_limit(self, value: object) -> None:
+        if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
+            raise ValueError(f"step_limit must be a whole number of at least 1, or None for no limit, not {value!r}")
+        self.steps.limit = value
+
     def outside(self, what: str) -> None:
         """The gate on everything that reaches outside the engine, to run before it looks at anything out there:
         refused while VBA is running with the sandbox on. Python calling the same code is not VBA, and passes."""
@@ -1294,6 +1324,15 @@ class Interpreter:
         reset_error: bool = False,
     ) -> object:
         """Call one procedure and give back what it returns."""
+        steps = self.steps
+        if steps.limit is not None and not steps.running:
+            # The host's entry into VBA: whatever it sets off draws on one budget, however many interpreters it passes
+            # through, and the next entry starts afresh.
+            steps.running, steps.left = True, steps.limit
+            try:
+                return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
+            finally:
+                steps.running = False
         if not self.frames and _locale.current() is not self.locale:
             # The outermost call runs everything under the project's locale.
             with _locale.active(self.locale):
@@ -1450,7 +1489,13 @@ class Interpreter:
         assert program is not None
         pc = start
         scopes: tuple[int, ...] | None = None
+        steps = self.steps
         while pc < len(program.instructions):
+            if steps.limit is not None:
+                steps.left -= 1
+                if steps.left < 0:
+                    # Spent stays spent until the host's next entry, so a caller that swallows this cannot run on.
+                    raise VBAStepLimitError(f"the run took more than step_limit={steps.limit} steps", where=self.current_where())
             instruction = program.instructions[pc]
             # Lexical With context is independent of the path used to reach
             # this instruction. A skipped initializer leaves a Nothing slot.
@@ -2400,7 +2445,9 @@ class Interpreter:
         count = len(positional)
         while count and positional[count - 1] is MISSING:
             count -= 1
-        number = late_error(found, strip_suffix(name), count, list(named))
+        number = late_index_error(found, strip_suffix(name)) if count and not named else None
+        if number is None:
+            number = late_error(found, strip_suffix(name), count, list(named))
         if number is not None:
             raise error(number)
 
@@ -2460,11 +2507,17 @@ class Interpreter:
             return _dispatch_get(target, "Evaluate", [expression.name], {})
         if BINDING.late:
             self._check_late_call(target, expression.name, [], {})
-            library = getattr(self.host, "vba_type_library", None)
-            found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
-            if found is not None and reads_double_late(found, strip_suffix(expression.name)):
-                return float(_dispatch_get(target, expression.name, [], {}))  # type: ignore[arg-type]
-        return _dispatch_get(target, expression.name, [], {})
+        return self._property_value(target, expression.name)
+
+    def _property_value(self, target: object, name: str) -> object:
+        """A property read with no arguments: through an Object, one the library declares Long that Excel answers as a
+        Double is a Double, however the read is reached, a ByRef argument's included (tests/fixtures/application_settings.json)."""
+        answer = _dispatch_get(target, name, [], {})
+        if not BINDING.late or isinstance(answer, bool) or not isinstance(answer, int | float):
+            return answer
+        library = getattr(self.host, "vba_type_library", None)
+        found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
+        return float(answer) if found is not None and reads_double_late(found, strip_suffix(name)) else answer
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
         if expression.target is None:
@@ -2637,7 +2690,13 @@ class Interpreter:
         why Len(n) is 4 for a Long holding 12345 while Len of the same
         number in a Variant is 5.  Measured against Excel.
         """
-        if frame is None or len(args) != 1 or args[0].name or not isinstance(args[0].value, A.Name):
+        if frame is None or len(args) != 1 or args[0].name:
+            return None
+        stored = frame.program.stored_len_arguments.get(id(args[0].value)) if frame.program is not None else None
+        if stored is not None:
+            width = STORAGE_WIDTH.get(stored)
+            return VBAInt(width, "Integer") if width is not None else None
+        if not isinstance(args[0].value, A.Name):
             return None
         slot = self.lookup(args[0].value.name, frame, want_slot=True)
         if not isinstance(slot, Slot):
@@ -2688,7 +2747,9 @@ class Interpreter:
             elif wants_slot and isinstance(argument.value, A.Member):
                 owner = self._member_target(argument.value, frame)
                 slot = self.member_variable(owner, argument.value.name, frame)
-                value = slot if slot is not None else _dispatch_get(owner, argument.value.name, [], {})
+                if slot is None:
+                    self._note_binding(argument.value, frame)
+                value = slot if slot is not None else self._property_value(owner, argument.value.name)
             elif wants_slot and isinstance(argument.value, A.Index):
                 expression = argument.value
                 slot = None
@@ -3247,7 +3308,7 @@ def _call_value(value: object, args: list[object], named: dict[str, object]) -> 
         # An object variable set to Nothing has no default member to call (tests/fixtures/data_labels_object.json).
         raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     if args:
-        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
+        raise error(ERR_TYPE_MISMATCH)
     return value
 
 

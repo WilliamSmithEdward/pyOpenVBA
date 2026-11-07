@@ -86,6 +86,8 @@ class Binary(Node):
     right: Node | None = None
     #: Written in brackets, which keeps Excel from setting a last sum that cancels to zero.
     grouped: bool = field(default=False, compare=False)
+    #: A reference operator straight after an @, whose left may then be anything: =@ABS(A1),A2.
+    held: bool = field(default=False, compare=False)
 
 
 @dataclass(slots=True)
@@ -161,6 +163,8 @@ _DANGLING: Final = (rf"(?i:\#REF!)(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_RO
                     r"(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff])")
 _DANGLING_OR_QUOTED: Final = re.compile(rf"""\"(?:[^\"]|\"\")*\"|'(?:[^']|'')*'|(?P<dangling>{_DANGLING})""")
 
+#: A cell, a point and a word: a field of what the cell holds, where it holds a data type (tests/fixtures/value_gaps.json).
+_FIELD_OF_CELL = rf"{_CELL}\.[A-Za-z][A-Za-z0-9_.]*(?!!)"
 _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
@@ -170,7 +174,7 @@ _TOKEN: Final = re.compile(
   | (?P<structured>{STRUCTURED})
   | (?P<error>{_DANGLING}|(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff]))
-  | (?P<name>(?:{_SHEET})?(?:[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*|'(?:[^']|'')+'(?!!)))
+  | (?P<name>(?:{_SHEET})?(?:{_FIELD_OF_CELL}|[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*|'(?:[^']|'')+'(?!!)))
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
   | (?P<op><>|<=|>=|[=<>+\-*/^&%:@#])
   | (?P<open>\()
@@ -474,6 +478,12 @@ _LEVELS: Final = (
 )
 
 
+def is_one_cell(node: Structured) -> bool:
+    """Whether a table's reference is one value wherever it stands: this row's, or a heading or a total of one column."""
+    one_column = node.first is not None and node.first == node.last
+    return "#This Row" in node.items or (one_column and bool(set(node.items) & {"#Headers", "#Totals"}))
+
+
 class Parser:
     def __init__(self, tokens: list[Token], source: str) -> None:
         self.tokens = tokens
@@ -481,6 +491,10 @@ class Parser:
         self.at = 0
         #: Where each node's text starts in the source, by the node's id.
         self.starts: dict[int, int] = {}
+        #: How many calls, brackets and arrays the parser is inside. Outside them a comma joins references.
+        self.inside = 0
+        #: Whether an @ stands just before what is being read, which makes anything an operand of a union: =@1,A1.
+        self.after_at = False
 
     def placed(self, node: Node, start: int) -> Node:
         """``node``, noted as starting at ``start`` in the source."""
@@ -557,7 +571,11 @@ class Parser:
             start = self.token.at
             op = self.advance().text
             return self.placed(Unary(op=op, operand=self.signed()), start)
-        return self.operand()
+        self.after_at = True
+        try:
+            return self.operand()
+        finally:
+            self.after_at = False
 
     def percents(self, node: Node) -> Node:
         """``node`` and each percent sign after it."""
@@ -573,17 +591,37 @@ class Parser:
         while True:
             if self.token.kind == "op" and self.token.text == ":":
                 self.advance()
-                joined = Binary(op=":", left=self.referable(node), right=self.referable(self.primary()))
+                joined = Binary(op=":", left=self.referable(node), right=self.referable(self.joined_operand()))
                 node = self.placed(joined, self.start(node))
-            elif self.token.kind in ("ref", "structured", "name", "open") and self.spaced():
-                joined = Binary(op=" ", left=self.referable(node), right=self.referable(self.primary()))
+            elif (self.token.kind in ("ref", "structured", "name", "open") or self._at_sign()) and self.spaced():
+                joined = Binary(op=" ", left=self.referable(node), right=self.referable(self.joined_operand()))
+                node = self.placed(joined, self.start(node))
+            elif self.token.kind == "comma" and not self.inside:
+                # With nothing round it a comma is a reference operator that binds as tightly as these: -A1,A2 and
+                # A1,A2+1 are a union with a sign and a union plus 1, and A1+1,A2 is refused (tests/fixtures/value_gaps.json).
+                self.advance()
+                left = node if self.after_at else self.referable(node)
+                joined = Binary(op=",", left=left, right=self.referable(self.joined_operand()), held=self.after_at)
                 node = self.placed(joined, self.start(node))
             else:
                 return node
 
+    def _at_sign(self) -> bool:
+        return self.token.kind == "op" and self.token.text == "@"
+
+    def joined_operand(self) -> Node:
+        """What a reference operator joins on its right: one reference, an @ perhaps before it."""
+        if self._at_sign():
+            start = self.token.at
+            self.advance()
+            return self.placed(Unary(op="@", operand=self.joined_operand()), start)
+        return self.spilled(self.primary())
+
     def spilled(self, node: Node) -> Node:
         """``node`` and a ``#`` after it, what spilled from a cell: A1#."""
         while self.token.kind == "op" and self.token.text == "#":
+            if isinstance(node, Literal):
+                raise FormulaError(f"nothing spills from a value in {self.source!r}")
             self.advance()
             node = self.placed(Unary(op="#", operand=node), self.start(node))
         return node
@@ -598,7 +636,7 @@ class Parser:
     def referable(self, node: Node) -> Node:
         """A reference operator's operand, which has to be a reference, a name or a call that might give one."""
         if isinstance(node, (Reference, Structured, NameNode, Call)) \
-                or (isinstance(node, Binary) and node.op in REFERENCE_OPS) or isinstance(node, Unary) and node.op == "#":
+                or (isinstance(node, Binary) and node.op in REFERENCE_OPS) or isinstance(node, Unary) and node.op in ("#", "@"):
             return node
         raise FormulaError(f"a reference operator needs references in {self.source!r}")
 
@@ -644,12 +682,14 @@ class Parser:
     def bracketed(self) -> Node:
         """What stands in brackets, the node inside them keeping its own start."""
         self.advance()
+        self.inside += 1
         inner = self.expression()
         while self.token.kind == "comma":
             # Inside brackets a comma joins references into a union.
             self.advance()
             joined = Binary(op=",", left=self.referable(inner), right=self.referable(self.expression()))
             inner = self.placed(joined, self.start(inner))
+        self.inside -= 1
         self.expect("close")
         if isinstance(inner, Binary):
             inner.grouped = True
@@ -678,6 +718,7 @@ class Parser:
         if self.at_kind("close"):
             self.advance()
             return args
+        self.inside += 1
         while True:
             if self.at_kind("comma", "close"):
                 # An argument left out, as in OFFSET(A1,1,,2).
@@ -688,11 +729,13 @@ class Parser:
                 self.advance()
                 continue
             break
+        self.inside -= 1
         self.expect("close")
         return args
 
     def array(self) -> Node:
         self.expect("lbrace")
+        self.inside += 1
         rows: list[list[Node]] = [[]]
         while True:
             rows[-1].append(self.expression())
@@ -704,7 +747,10 @@ class Parser:
                 rows.append([])
                 continue
             break
+        self.inside -= 1
         self.expect("rbrace")
+        if len({len(row) for row in rows}) > 1:
+            raise FormulaError(f"an array's rows differ in length in {self.source!r}")
         return ArrayLiteral(rows=rows)
 
 

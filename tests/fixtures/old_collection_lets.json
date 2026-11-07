@@ -1,0 +1,2808 @@
+{
+"measured_at": "2026-11-07T03:51:22.583510+00:00",
+"driver": "Private Function Show(ByVal v As Variant) As String\n    If IsObject(v) Then\n        Show = \"obj \" & TypeName(v)\n    ElseIf IsArray(v) Then\n        Show = \"array\"\n    ElseIf IsNull(v) Then\n        Show = \"null\"\n    ElseIf IsError(v) Then\n        Show = \"error \" & CStr(v)\n    Else\n        Show = TypeName(v) & \" \" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Items(ws As Object) As String\n    Dim i As Long, s As String\n    On Error Resume Next\n    For i = 1 To ws.{c}.Count\n        Err.Clear\n        s = s & \";\" & Show({read})\n        If Err.Number Then s = s & \"E\" & Err.Number\n    Next\n    Items = ws.{c}.Count & \":\" & Mid(s, 2)\nEnd Function\n\nPublic Function Row(ByVal path As String, ByVal saved As String) As String\n    Dim wb As Workbook, o As {declared}, e As Long, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set o = wb.Worksheets(1).{c}\n    On Error Resume Next\n    o.{m} = {v}\n    e = Err.Number\n    Err.Clear\n    On Error GoTo 0\n    s = \"E\" & e & \"|\" & Items(wb.Worksheets(1))\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    s = s & \"|reopened \" & Items(wb.Worksheets(1))\n    wb.Close False\n    Row = s\nEnd Function\n",
+"values": {
+"Accelerator": "\"K\"",
+"AddIndent": "True",
+"ArrowHeadLength": "xlArrowHeadLengthLong",
+"ArrowHeadStyle": "xlArrowHeadStyleOpen",
+"ArrowHeadWidth": "xlArrowHeadWidthWide",
+"AutoScaleFont": "True",
+"AutoSize": "True",
+"CancelButton": "True",
+"Caption": "\"Fresh\"",
+"DefaultButton": "True",
+"DismissButton": "True",
+"Display3DShading": "True",
+"DisplayVerticalScrollBar": "True",
+"DropDownLines": "4",
+"Enabled": "False",
+"Formula": "\"=$A$21\"",
+"HelpButton": "True",
+"HorizontalAlignment": "xlCenter",
+"InputType": "xlNumber",
+"LargeChange": "7",
+"LinkedCell": "\"$D$20\"",
+"List": "Array(\"x\", \"y\")",
+"ListFillRange": "\"$A$21:$A$22\"",
+"ListIndex": "1",
+"Locked": "False",
+"LockedText": "False",
+"Max": "50",
+"Min": "2",
+"MultiLine": "True",
+"MultiSelect": "xlSimple",
+"Orientation": "xlUpward",
+"PhoneticAccelerator": "\"Q\"",
+"Placement": "xlFreeFloating",
+"PrintObject": "False",
+"ReadingOrder": "xlRTL",
+"RoundedCorners": "True",
+"Shadow": "True",
+"SmallChange": "3",
+"Text": "\"Fresh\"",
+"Value": "xlOn",
+"VerticalAlignment": "xlCenter",
+"Visible": "False"
+},
+"cases": [
+{
+"collection": "Arcs",
+"member": "AddIndent",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "AddIndent",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "AutoSize",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Arcs",
+"member": "AutoSize",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Arcs",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Arcs",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Arcs",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Arcs",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Arcs",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Typed",
+"excel": "E1004|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Arcs",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Late",
+"excel": "E1004|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Arcs",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Arcs",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Arcs",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Typed",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Arcs",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Late",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Arcs",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Arcs",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Arcs",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Typed",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "Arcs",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Late",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "Arcs",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Arcs",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Arcs",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Arcs",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Arcs",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Arcs",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Buttons",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Buttons",
+"member": "AddIndent",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "AddIndent",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "AutoSize",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Buttons",
+"member": "AutoSize",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Buttons",
+"member": "CancelButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "CancelButton",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Buttons",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Buttons",
+"member": "DefaultButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "DefaultButton",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "DismissButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "DismissButton",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Typed",
+"excel": "E1004|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Buttons",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Late",
+"excel": "E1004|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Buttons",
+"member": "HelpButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "HelpButton",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean True|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Buttons",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Buttons",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Typed",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Buttons",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Late",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Buttons",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Buttons",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Buttons",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Buttons",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Buttons",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Typed",
+"excel": "E0|2:Long 27;Long 27|reopened 2:Long 27;Long 27"
+},
+{
+"collection": "Buttons",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Late",
+"excel": "E0|2:Long 27;Long 27|reopened 2:Long 27;Long 27"
+},
+{
+"collection": "Buttons",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Buttons",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Buttons",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Buttons",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Buttons",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Buttons",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "CheckBoxes",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "CheckBoxes",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "CheckBoxes",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "CheckBoxes",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "CheckBoxes",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "CheckBoxes",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Typed",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "CheckBoxes",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Late",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "CheckBoxes",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "CheckBoxes",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "CheckBoxes",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "CheckBoxes",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "CheckBoxes",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "CheckBoxes",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "CheckBoxes",
+"member": "Value",
+"value": "xlOn",
+"binding": "Typed",
+"excel": "E0|2:Double 1;Double 1|reopened 2:Double 1;Double 1"
+},
+{
+"collection": "CheckBoxes",
+"member": "Value",
+"value": "xlOn",
+"binding": "Late",
+"excel": "E0|2:Double 1;Double 1|reopened 2:Double 1;Double 1"
+},
+{
+"collection": "CheckBoxes",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "CheckBoxes",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "DropDowns",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "DropDowns",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "DropDowns",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "DropDowns",
+"member": "DropDownLines",
+"value": "4",
+"binding": "Typed",
+"excel": "E0|2:Double 4;Double 4|reopened 2:Double 4;Double 4"
+},
+{
+"collection": "DropDowns",
+"member": "DropDownLines",
+"value": "4",
+"binding": "Late",
+"excel": "E0|2:Double 4;Double 4|reopened 2:Double 4;Double 4"
+},
+{
+"collection": "DropDowns",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Typed",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "DropDowns",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Late",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "DropDowns",
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"binding": "Typed",
+"excel": "E1004|2:String one,two,threeE13|reopened 2:String one,two,threeE13"
+},
+{
+"collection": "DropDowns",
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"binding": "Late",
+"excel": "E1004|2:String one,two,threeE13|reopened 2:String one,two,threeE13"
+},
+{
+"collection": "DropDowns",
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"binding": "Typed",
+"excel": "E0|2:String $A$21:$A$22;String $A$21:$A$22|reopened 2:String $A$21:$A$22;String $A$21:$A$22"
+},
+{
+"collection": "DropDowns",
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"binding": "Late",
+"excel": "E0|2:String $A$21:$A$22;String $A$21:$A$22|reopened 2:String $A$21:$A$22;String $A$21:$A$22"
+},
+{
+"collection": "DropDowns",
+"member": "ListIndex",
+"value": "1",
+"binding": "Typed",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "DropDowns",
+"member": "ListIndex",
+"value": "1",
+"binding": "Late",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "DropDowns",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "DropDowns",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "DropDowns",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "DropDowns",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "DropDowns",
+"member": "Value",
+"value": "xlOn",
+"binding": "Typed",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "DropDowns",
+"member": "Value",
+"value": "xlOn",
+"binding": "Late",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "DropDowns",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DropDowns",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Lines",
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Lines",
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Lines",
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"binding": "Typed",
+"excel": "E0|2:Long 2;Long 2|reopened 2:Long 2;Long 2"
+},
+{
+"collection": "Lines",
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"binding": "Late",
+"excel": "E0|2:Long 2;Long 2|reopened 2:Long 2;Long 2"
+},
+{
+"collection": "Lines",
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Lines",
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Lines",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Lines",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Lines",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Lines",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Lines",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Lines",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Lines",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Lines",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Lines",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Lines",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "ListBoxes",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "ListBoxes",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Typed",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "ListBoxes",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Late",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "ListBoxes",
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"binding": "Typed",
+"excel": "E1004|2:String one,two,threeE13|reopened 2:String one,two,threeE13"
+},
+{
+"collection": "ListBoxes",
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"binding": "Late",
+"excel": "E1004|2:String one,two,threeE13|reopened 2:String one,two,threeE13"
+},
+{
+"collection": "ListBoxes",
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"binding": "Typed",
+"excel": "E0|2:String $A$21:$A$22;String $A$21:$A$22|reopened 2:String $A$21:$A$22;String $A$21:$A$22"
+},
+{
+"collection": "ListBoxes",
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"binding": "Late",
+"excel": "E0|2:String $A$21:$A$22;String $A$21:$A$22|reopened 2:String $A$21:$A$22;String $A$21:$A$22"
+},
+{
+"collection": "ListBoxes",
+"member": "ListIndex",
+"value": "1",
+"binding": "Typed",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "ListBoxes",
+"member": "ListIndex",
+"value": "1",
+"binding": "Late",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "ListBoxes",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "MultiSelect",
+"value": "xlSimple",
+"binding": "Typed",
+"excel": "E0|2:Long -4154;Long -4154|reopened 2:Long -4154;Long -4154"
+},
+{
+"collection": "ListBoxes",
+"member": "MultiSelect",
+"value": "xlSimple",
+"binding": "Late",
+"excel": "E0|2:Long -4154;Long -4154|reopened 2:Long -4154;Long -4154"
+},
+{
+"collection": "ListBoxes",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "ListBoxes",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "ListBoxes",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "Value",
+"value": "xlOn",
+"binding": "Typed",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "ListBoxes",
+"member": "Value",
+"value": "xlOn",
+"binding": "Late",
+"excel": "E0|2:Double 1;Double 0|reopened 2:Double 1;Double 0"
+},
+{
+"collection": "ListBoxes",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "ListBoxes",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "OptionButtons",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "OptionButtons",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "OptionButtons",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "OptionButtons",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "OptionButtons",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "OptionButtons",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Typed",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "OptionButtons",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Late",
+"excel": "E0|2:String $D$20;String $D$20|reopened 2:String $D$20;String $D$20"
+},
+{
+"collection": "OptionButtons",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "OptionButtons",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "OptionButtons",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "OptionButtons",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "OptionButtons",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "OptionButtons",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "OptionButtons",
+"member": "Value",
+"value": "xlOn",
+"binding": "Typed",
+"excel": "E0|2:Long -4146;Double 1|reopened 2:Long -4146;Double 1"
+},
+{
+"collection": "OptionButtons",
+"member": "Value",
+"value": "xlOn",
+"binding": "Late",
+"excel": "E0|2:Long -4146;Double 1|reopened 2:Long -4146;Double 1"
+},
+{
+"collection": "OptionButtons",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "OptionButtons",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "AddIndent",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "AddIndent",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "AutoSize",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean TrueE1004|reopened 2:Boolean TrueE1004"
+},
+{
+"collection": "Ovals",
+"member": "AutoSize",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean TrueE1004|reopened 2:Boolean TrueE1004"
+},
+{
+"collection": "Ovals",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Ovals",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Ovals",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Ovals",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Ovals",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Typed",
+"excel": "E1004|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Ovals",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Late",
+"excel": "E1004|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Ovals",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Ovals",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Ovals",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Typed",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Ovals",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Late",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Ovals",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Ovals",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Ovals",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Typed",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "Ovals",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Late",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "Ovals",
+"member": "Shadow",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Ovals",
+"member": "Shadow",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Ovals",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Ovals",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Ovals",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Ovals",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Ovals",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Ovals",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Pictures",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Pictures",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Pictures",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Pictures",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Pictures",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Pictures",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Pictures",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Pictures",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Pictures",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Pictures",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Pictures",
+"member": "Shadow",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Pictures",
+"member": "Shadow",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Pictures",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Pictures",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "AddIndent",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "AddIndent",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "AutoSize",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean TrueE1004|reopened 2:Boolean TrueE1004"
+},
+{
+"collection": "Rectangles",
+"member": "AutoSize",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean TrueE1004|reopened 2:Boolean TrueE1004"
+},
+{
+"collection": "Rectangles",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Rectangles",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Rectangles",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Rectangles",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "Rectangles",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Typed",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Rectangles",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Late",
+"excel": "E0|2:String ;String |reopened 2:String ;String "
+},
+{
+"collection": "Rectangles",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Rectangles",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Rectangles",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Typed",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Rectangles",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Late",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "Rectangles",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Rectangles",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "Rectangles",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Typed",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "Rectangles",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Late",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "Rectangles",
+"member": "RoundedCorners",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Rectangles",
+"member": "RoundedCorners",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Rectangles",
+"member": "Shadow",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Rectangles",
+"member": "Shadow",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "Rectangles",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Rectangles",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "Rectangles",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Rectangles",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "Rectangles",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "Rectangles",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "AddIndent",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "AddIndent",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "AutoScaleFont",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "AutoSize",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "TextBoxes",
+"member": "AutoSize",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "TextBoxes",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "TextBoxes",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "TextBoxes",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "TextBoxes",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E1004|2:1004E1004|reopened 2:1004E1004"
+},
+{
+"collection": "TextBoxes",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Typed",
+"excel": "E1004|2:String ;String $A$20 |reopened 2:String ;String $A$20 "
+},
+{
+"collection": "TextBoxes",
+"member": "Formula",
+"value": "\"=$A$21\"",
+"binding": "Late",
+"excel": "E1004|2:String ;String $A$20 |reopened 2:String ;String $A$20 "
+},
+{
+"collection": "TextBoxes",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "TextBoxes",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "TextBoxes",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Typed",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "TextBoxes",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Late",
+"excel": "E0|2:Long -4171;Long -4171|reopened 2:Long -4171;Long -4171"
+},
+{
+"collection": "TextBoxes",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "TextBoxes",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|2:Long 3;Long 3|reopened 2:Long 3;Long 3"
+},
+{
+"collection": "TextBoxes",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Typed",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "TextBoxes",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Late",
+"excel": "E0|2:Long -5004;Long -5004|reopened 2:Long -5004;Long -5004"
+},
+{
+"collection": "TextBoxes",
+"member": "RoundedCorners",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "TextBoxes",
+"member": "RoundedCorners",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "TextBoxes",
+"member": "Shadow",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "TextBoxes",
+"member": "Shadow",
+"value": "True",
+"binding": "Late",
+"excel": "E0|2:Boolean True;Boolean True|reopened 2:Boolean True;Boolean True"
+},
+{
+"collection": "TextBoxes",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "TextBoxes",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|2:String Fresh;String Fresh|reopened 2:String Fresh;String Fresh"
+},
+{
+"collection": "TextBoxes",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "TextBoxes",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|2:Long -4108;Long -4108|reopened 2:Long -4108;Long -4108"
+},
+{
+"collection": "TextBoxes",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "TextBoxes",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|2:Boolean False;Boolean False|reopened 2:Boolean False;Boolean False"
+},
+{
+"collection": "DrawingObjects",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Typed",
+"excel": "E1004|22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438|reopened 22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Accelerator",
+"value": "\"K\"",
+"binding": "Late",
+"excel": "E1004|22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438|reopened 22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "AddIndent",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|22:Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438|reopened 22:Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "AddIndent",
+"value": "True",
+"binding": "Late",
+"excel": "E0|22:Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438|reopened 22:Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438;Boolean False;Boolean False;Boolean FalseE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438|reopened 22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438|reopened 22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"binding": "Typed",
+"excel": "E0|22:438E438E438E438;Long 2E438E438E438E438E438E438E438E438E438E438;Long 2E438E438E438E438E438E438|reopened 22:438E438E438E438;Long 2E438E438E438E438E438E438E438E438E438E438;Long 2E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"binding": "Late",
+"excel": "E0|22:438E438E438E438;Long 2E438E438E438E438E438E438E438E438E438E438;Long 2E438E438E438E438E438E438|reopened 22:438E438E438E438;Long 2E438E438E438E438E438E438E438E438E438E438;Long 2E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"binding": "Typed",
+"excel": "E0|22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438|reopened 22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"binding": "Late",
+"excel": "E0|22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438|reopened 22:438E438E438E438;Long 3E438E438E438E438E438E438E438E438E438E438;Long 3E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "AutoSize",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|22:1004;Boolean TrueE438E438E438E438E438;Boolean True;Boolean True;Boolean TrueE438E1004;Boolean TrueE438E438E438E438E438E1004E1004;Boolean TrueE438|reopened 22:1004;Boolean TrueE438E438E438E438E438;Boolean True;Boolean True;Boolean TrueE438E1004;Boolean TrueE438E438E438E438E438E1004E1004;Boolean TrueE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "AutoSize",
+"value": "True",
+"binding": "Late",
+"excel": "E0|22:1004;Boolean TrueE438E438E438E438E438;Boolean True;Boolean True;Boolean TrueE438E1004;Boolean TrueE438E438E438E438E438E1004E1004;Boolean TrueE438|reopened 22:1004;Boolean TrueE438E438E438E438E438;Boolean True;Boolean True;Boolean TrueE438E1004;Boolean TrueE438E438E438E438E438E1004E1004;Boolean TrueE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "CancelButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "CancelButton",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438|reopened 22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Caption",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438|reopened 22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DefaultButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DefaultButton",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DismissButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DismissButton",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|22:438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438|reopened 22:438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Display3DShading",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|22:438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438|reopened 22:438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438E438E438;Boolean False;Boolean FalseE438;Boolean False;Boolean FalseE438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DropDownLines",
+"value": "4",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438;Double 8E438E438E438E438E438E438E438E438E438E438;Double 8E438E438E438E438E438E438E438|reopened 22:438E438E438;Double 8E438E438E438E438E438E438E438E438E438E438;Double 8E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "DropDownLines",
+"value": "4",
+"binding": "Late",
+"excel": "E1004|22:438E438E438;Double 8E438E438E438E438E438E438E438E438E438E438;Double 8E438E438E438E438E438E438E438|reopened 22:438E438E438;Double 8E438E438E438E438E438E438E438E438E438E438;Double 8E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Enabled",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|22:1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004E1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004|reopened 22:1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004E1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004"
+},
+{
+"collection": "DrawingObjects",
+"member": "Enabled",
+"value": "False",
+"binding": "Late",
+"excel": "E0|22:1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004E1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004|reopened 22:1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004E1004;Boolean False;Boolean False;Boolean FalseE1004;Boolean False;Boolean FalseE1004E1004E1004E1004"
+},
+{
+"collection": "DrawingObjects",
+"member": "HelpButton",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "HelpButton",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438|reopened 22:438;Boolean FalseE438E438E438E438E438E438E438E438E438E438;Boolean FalseE438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438|reopened 22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438|reopened 22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "InputType",
+"value": "xlNumber",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "InputType",
+"value": "xlNumber",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "LargeChange",
+"value": "7",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "LargeChange",
+"value": "7",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Typed",
+"excel": "E1004|22:438E438;String $C$20;String $C$21E438;String ;String E438E438E438E438E438E438;String ;String E438;String ;String E438E438E438E438|reopened 22:438E438;String $C$20;String $C$21E438;String ;String E438E438E438E438E438E438;String ;String E438;String ;String E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"binding": "Late",
+"excel": "E1004|22:438E438;String $C$20;String $C$21E438;String ;String E438E438E438E438E438E438;String ;String E438;String ;String E438E438E438E438|reopened 22:438E438;String $C$20;String $C$21E438;String ;String E438E438E438E438E438E438;String ;String E438;String ;String E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438;String $A$20:$A$22E438;String $A$20:$A$22E438E438E438E438E438E438E438E438;String E438;String E438E438E438E438E438|reopened 22:438E438E438;String $A$20:$A$22E438;String $A$20:$A$22E438E438E438E438E438E438E438E438;String E438;String E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"binding": "Late",
+"excel": "E1004|22:438E438E438;String $A$20:$A$22E438;String $A$20:$A$22E438E438E438E438E438E438E438E438;String E438;String E438E438E438E438E438|reopened 22:438E438E438;String $A$20:$A$22E438;String $A$20:$A$22E438E438E438E438E438E438E438E438;String E438;String E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ListIndex",
+"value": "1",
+"binding": "Typed",
+"excel": "E0|22:438E438E438;Double 1E438;Double 1E438E438E438E438E438E438E438E438;Double 0E438;Double 0E438E438E438E438E438|reopened 22:438E438E438;Double 1E438;Double 1E438E438E438E438E438E438E438E438;Double 0E438;Double 0E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ListIndex",
+"value": "1",
+"binding": "Late",
+"excel": "E0|22:438E438E438;Double 1E438;Double 1E438E438E438E438E438E438E438E438;Double 0E438;Double 0E438E438E438E438E438|reopened 22:438E438E438;Double 1E438;Double 1E438E438E438E438E438E438E438E438;Double 0E438;Double 0E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Locked",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False|reopened 22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False"
+},
+{
+"collection": "DrawingObjects",
+"member": "Locked",
+"value": "False",
+"binding": "Late",
+"excel": "E0|22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False|reopened 22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False"
+},
+{
+"collection": "DrawingObjects",
+"member": "LockedText",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|22:Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438|reopened 22:Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "LockedText",
+"value": "False",
+"binding": "Late",
+"excel": "E0|22:Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438|reopened 22:Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438;Boolean False;Boolean False;Boolean FalseE438E438E438;Boolean False;Boolean False;Boolean False;Boolean FalseE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Max",
+"value": "50",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Max",
+"value": "50",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Min",
+"value": "2",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Min",
+"value": "2",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "MultiLine",
+"value": "True",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "MultiLine",
+"value": "True",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "MultiSelect",
+"value": "xlSimple",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438;Long -4142E438E438E438E438E438E438E438E438E438E438;Long -4142E438E438E438E438E438|reopened 22:438E438E438E438E438;Long -4142E438E438E438E438E438E438E438E438E438E438;Long -4142E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "MultiSelect",
+"value": "xlSimple",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438;Long -4142E438E438E438E438E438E438E438E438E438E438;Long -4142E438E438E438E438E438|reopened 22:438E438E438E438E438;Long -4142E438E438E438E438E438E438E438E438E438E438;Long -4142E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Typed",
+"excel": "E0|22:Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438;Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438|reopened 22:Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438;Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Orientation",
+"value": "xlUpward",
+"binding": "Late",
+"excel": "E0|22:Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438;Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438|reopened 22:Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438;Long -4171;Long -4171E438E438E438E438E438;Long -4171;Long -4171;Long -4171E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Typed",
+"excel": "E1004|22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438|reopened 22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"binding": "Late",
+"excel": "E1004|22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438|reopened 22:438;String ;String E438E438E438;String E438E438E438E438E438;String ;String E438E438E438;String E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Typed",
+"excel": "E0|22:Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3|reopened 22:Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3"
+},
+{
+"collection": "DrawingObjects",
+"member": "Placement",
+"value": "xlFreeFloating",
+"binding": "Late",
+"excel": "E0|22:Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3|reopened 22:Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3;Long 3"
+},
+{
+"collection": "DrawingObjects",
+"member": "PrintObject",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False|reopened 22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False"
+},
+{
+"collection": "DrawingObjects",
+"member": "PrintObject",
+"value": "False",
+"binding": "Late",
+"excel": "E0|22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False|reopened 22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False"
+},
+{
+"collection": "DrawingObjects",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Typed",
+"excel": "E0|22:Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438;Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438|reopened 22:Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438;Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "ReadingOrder",
+"value": "xlRTL",
+"binding": "Late",
+"excel": "E0|22:Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438;Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438|reopened 22:Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438;Long -5004;Long 27E438E438E438E438E438;Long -5004;Long -5004;Long -5004E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "RoundedCorners",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|22:438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438E438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438|reopened 22:438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438E438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "RoundedCorners",
+"value": "True",
+"binding": "Late",
+"excel": "E0|22:438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438E438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438|reopened 22:438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438E438E438E438E438E438E438E438E438;Boolean True;Boolean FalseE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Shadow",
+"value": "True",
+"binding": "Typed",
+"excel": "E0|22:438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean TrueE438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean True|reopened 22:438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean TrueE438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean True"
+},
+{
+"collection": "DrawingObjects",
+"member": "Shadow",
+"value": "True",
+"binding": "Late",
+"excel": "E0|22:438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean TrueE438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean True|reopened 22:438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean TrueE438E438E438E438E438E438E438;Boolean True;Boolean True;Boolean True;Boolean True"
+},
+{
+"collection": "DrawingObjects",
+"member": "SmallChange",
+"value": "3",
+"binding": "Typed",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "SmallChange",
+"value": "3",
+"binding": "Late",
+"excel": "E1004|22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438|reopened 22:438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Typed",
+"excel": "E0|22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438|reopened 22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Text",
+"value": "\"Fresh\"",
+"binding": "Late",
+"excel": "E0|22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438|reopened 22:String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438;String Fresh;String Fresh;String FreshE1004E438E438;String Fresh;String Fresh;String Fresh;String FreshE438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Value",
+"value": "xlOn",
+"binding": "Typed",
+"excel": "E0|22:438E438;Double 1;Double 1E438;Double 1;Long -4146E438E438E438E438E438E438;Double 1;Double 0E438;Double 0;Long -4146E438E438E438E438|reopened 22:438E438;Double 1;Double 1E438;Double 1;Long -4146E438E438E438E438E438E438;Double 1;Double 0E438;Double 0;Long -4146E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Value",
+"value": "xlOn",
+"binding": "Late",
+"excel": "E0|22:438E438;Double 1;Double 1E438;Double 1;Long -4146E438E438E438E438E438E438;Double 1;Double 0E438;Double 0;Long -4146E438E438E438E438|reopened 22:438E438;Double 1;Double 1E438;Double 1;Long -4146E438E438E438E438E438E438;Double 1;Double 0E438;Double 0;Long -4146E438E438E438E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Typed",
+"excel": "E0|22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438|reopened 22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"binding": "Late",
+"excel": "E0|22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438|reopened 22:Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438;Long -4108;Long -4108E438E438E438E438E438;Long -4108;Long -4108;Long -4108E438"
+},
+{
+"collection": "DrawingObjects",
+"member": "Visible",
+"value": "False",
+"binding": "Typed",
+"excel": "E0|22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False|reopened 22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False"
+},
+{
+"collection": "DrawingObjects",
+"member": "Visible",
+"value": "False",
+"binding": "Late",
+"excel": "E0|22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False|reopened 22:Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False;Boolean False"
+}
+]
+}

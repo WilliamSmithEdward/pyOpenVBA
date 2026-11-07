@@ -58,6 +58,15 @@ Private Function Dump(ws As Object) As String
     For i = 1 To 20
         out = out & ws.Cells(i, 26).Formula & ","
     Next
+    ' Every cell in A1:AF32 holding something, or filled, for the plain-sheet rounds' scattered cells.
+    out = out & " grid="
+    For Each c In ws.Range("A1:AF32").Cells
+        If c.Formula <> "" Then
+            out = out & c.Address(False, False) & ":" & c.Formula & ","
+        ElseIf c.Interior.ColorIndex <> xlColorIndexNone Then
+            out = out & c.Address(False, False) & ":#,"
+        End If
+    Next
     Dump = out
 End Function
 
@@ -108,6 +117,21 @@ Public Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Bo
         Case "allrepeats"
             ws.Range("G1:G2").Value = Application.Transpose(Array("Num", ">0"))
             ws.Range("C1:C12").AdvancedFilter xlFilterInPlace, ws.Range("G1:G2"), , True
+        Case Else
+            ' "put A1|B2 fill C3": values in the first cells, a fill alone in those after "fill".
+            If Left(kind, 4) = "put " Then
+                Dim spots() As String, spot As Variant, one As Variant, filling As Boolean
+                spots = Split(Mid(kind, 5), " ")
+                For Each spot In spots
+                    If spot = "fill" Then
+                        filling = True
+                    ElseIf spot <> "" Then
+                        For Each one In Split(spot, "|")
+                            If filling Then ws.Range(one).Interior.Color = RGB(0, 128, 255) Else ws.Range(one).Value = "p" & one
+                        Next
+                    End If
+                Next
+            End If
     End Select
     If edit = "none" Then
         Go = Dump(ws)
@@ -285,6 +309,64 @@ def held_out(round_: str) -> list[list[object]]:
     return cases
 
 
+#: The plain-sheet rounds' strata: which branch of the no-Shift rule each edit takes, drawn equally.
+BRANCHES = ('delete tall beside', 'delete tall clear', 'delete wide beside', 'delete wide clear', 'insert tall',
+            'insert wide beside', 'insert wide clear')
+
+
+def _letters(column: int) -> str:
+    text = ''
+    while column:
+        column, rest = divmod(column - 1, 26)
+        text = chr(65 + rest) + text
+    return text
+
+
+def branch(verb: str, top: int, left: int, bottom: int, right: int, cells: set[tuple[int, int]]) -> str:
+    """Which branch of the no-Shift rule an edit takes, by the rule the model holds; it only sorts draws into strata."""
+    if bottom - top > right - left:
+        if verb == 'insert':
+            return 'insert tall'
+        side = any(column > right and top <= row <= bottom for row, column in cells)
+    else:
+        first = top if verb == 'insert' else bottom + 1
+        side = any(row >= first and left <= column <= right for row, column in cells)
+    return f"{verb} {'tall' if bottom - top > right - left else 'wide'} {'beside' if side else 'clear'}"
+
+
+def held_out_plain(round_: str) -> list[list[object]]:
+    """A Delete or Insert with no Shift on a sheet with no filter: the list and markers, a few cells put at random
+    with values or a fill alone, and a range drawn at random, kept until each branch has its share."""
+    import random
+
+    chooser = random.Random('advanced-filter-shifts-plain' + round_)
+    base = {(row, column) for row in range(1, 13) for column in (1, 2, 3)}
+    base |= {(row, 5) for row in range(1, 21)} | {(row, 26) for row in range(1, 21)}
+    share = {name: 14 for name in BRANCHES}
+    cases: list[list[object]] = []
+    while any(share.values()):
+        values = [(chooser.randint(1, 30), chooser.randint(4, 31)) for _ in range(chooser.choice((0, 1, 2, 3)))]
+        fills = [(chooser.randint(1, 30), chooser.randint(4, 31)) for _ in range(chooser.choice((0, 0, 1)))]
+        top, left = chooser.randint(1, 24), chooser.randint(4, 30)
+        tall = chooser.random() < 0.5
+        rows, columns = (chooser.randint(2, 6), chooser.randint(1, 2)) if tall else (chooser.randint(1, 2), chooser.randint(1, 5))
+        if tall and rows <= columns:
+            rows = columns + 1
+        bottom, right = top + rows - 1, min(32, left + columns - 1)
+        verb = chooser.choice(('delete', 'insert'))
+        taken = branch(verb, top, left, bottom, right, base | set(values) | set(fills))
+        if not share[taken]:
+            continue
+        share[taken] -= 1
+        kind = 'put ' + '|'.join(_letters(column) + str(row) for row, column in values)
+        if fills:
+            kind += ' fill ' + '|'.join(_letters(column) + str(row) for row, column in fills)
+        target = f'{_letters(left)}{top}:{_letters(right)}{bottom}'
+        for typed in (True, False):
+            cases.append([kind, f'{verb} {target} auto', typed])
+    return cases
+
+
 def model_answer(case: list[object]) -> str | None:
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBAUnsupportedError
@@ -299,7 +381,9 @@ def model_answer(case: list[object]) -> str | None:
 
 
 def predict(round_: str) -> None:
-    found = [{'call': case, 'model': model_answer(case)} for case in {'_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F, '_g': CASES_G, '_h': CASES_H}.get(round_) or held_out(round_)]
+    looks = {'_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F, '_g': CASES_G, '_h': CASES_H}
+    chosen = looks.get(round_) or (held_out_plain(round_) if round_.startswith('_plain') else held_out(round_))
+    found = [{'call': case, 'model': model_answer(case)} for case in chosen]
     (FIXTURES / f'advanced_filter_shifts{round_}_predictions.json').write_text(json.dumps({'cases': found}, indent=0),
                                                                                encoding='utf-8', newline='\n')
     print(len(found), 'predicted,', sum(one['model'] is None for one in found), 'refused')

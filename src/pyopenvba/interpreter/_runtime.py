@@ -26,7 +26,7 @@ from functools import lru_cache
 from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
-from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
+from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAStepLimitError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
@@ -168,6 +168,10 @@ class Slot:
         if self.array_of == "Byte" and isinstance(value, str):
             # A String assigned to a Byte array is its UTF-16LE bytes (native probe).
             value = text_bytes(value)
+        elif isinstance(value, VBAObject) and not of_declared_class(value, self.declared):
+            # A variable of a class takes only an object of that class, and keeps what it held: Set c = Worksheets(1) with
+            # c As Collection is 13, as is Set ws = ws.Parent (tests/fixtures/typed_set.json).
+            raise error(ERR_TYPE_MISMATCH)
         elif (isinstance(value, VBAArray) and self.array_of and value.element_type != self.array_of
               and default_for(self.array_of) is not NOTHING):
             # An array of another type does not go into a typed dynamic array: b() As Long
@@ -1097,6 +1101,17 @@ class EachLoop:
 # --- the interpreter -------------------------------------------------------------------
 
 
+class StepBudget:
+    """What is left of a run's steps: one for a host and every interpreter of its projects."""
+
+    __slots__ = ("left", "limit", "running")
+
+    def __init__(self) -> None:
+        self.limit: int | None = None
+        self.left = 0
+        self.running = False
+
+
 class Interpreter:
     """Runs VBA against a host object model."""
 
@@ -1118,6 +1133,8 @@ class Interpreter:
         self.internet_sessions: dict[str, Sessions] = {}
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
+        #: How many steps a run of VBA may take, shared with every interpreter of the host's projects (see step_limit).
+        self.steps = StepBudget()
         #: Every dialog the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
@@ -1125,6 +1142,8 @@ class Interpreter:
         #: What ExcelApplication.set_hook registered, and the members whose functions are running (see apps/excel/_hooks).
         self.hooks: dict[str, object] = {}
         self.hooks_running: list[str] = []
+        #: The folders a sandboxed macro may read linked workbooks in (ExcelApplication.allow_link_reads).
+        self.link_folders: tuple[str, ...] = ()
         self.frozen_now: Any = None
         #: The Regional format the project runs under: what CStr, Format and CDate write and read.
         self.locale: _locale.Locale = _locale.EN_US
@@ -1245,6 +1264,19 @@ class Interpreter:
 
     # --- running ---------------------------------------------------------------------
 
+    @property
+    def step_limit(self) -> int | None:
+        """The most steps one run of VBA may take, or None for no limit, which is the default. A run is everything one entry
+        from the host sets off: a procedure called from Python, an event raised from Python, a recalculation that calls VBA,
+        with whatever those call, raise or evaluate in turn. Past it VBAStepLimitError, which On Error cannot trap."""
+        return self.steps.limit
+
+    @step_limit.setter
+    def step_limit(self, value: object) -> None:
+        if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
+            raise ValueError(f"step_limit must be a whole number of at least 1, or None for no limit, not {value!r}")
+        self.steps.limit = value
+
     def outside(self, what: str) -> None:
         """The gate on everything that reaches outside the engine, to run before it looks at anything out there:
         refused while VBA is running with the sandbox on. Python calling the same code is not VBA, and passes."""
@@ -1298,6 +1330,15 @@ class Interpreter:
         reset_error: bool = False,
     ) -> object:
         """Call one procedure and give back what it returns."""
+        steps = self.steps
+        if steps.limit is not None and not steps.running:
+            # The host's entry into VBA: whatever it sets off draws on one budget, however many interpreters it passes
+            # through, and the next entry starts afresh.
+            steps.running, steps.left = True, steps.limit
+            try:
+                return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
+            finally:
+                steps.running = False
         if not self.frames and _locale.current() is not self.locale:
             # The outermost call runs everything under the project's locale.
             with _locale.active(self.locale):
@@ -1417,6 +1458,10 @@ class Interpreter:
                         declared,
                     )
                 continue
+            held = self._by_value(given)
+            if isinstance(held, VBAObject) and not of_declared_class(held, declared):
+                # A parameter of a class takes only that class, ByVal or ByRef (tests/fixtures/typed_set.json).
+                raise error(ERR_TYPE_MISMATCH)
             if isinstance(given, Slot) and not parameter.by_val:
                 for array in given.borrow_arrays():
                     array.borrowed_elements += 1
@@ -1454,7 +1499,13 @@ class Interpreter:
         assert program is not None
         pc = start
         scopes: tuple[int, ...] | None = None
+        steps = self.steps
         while pc < len(program.instructions):
+            if steps.limit is not None:
+                steps.left -= 1
+                if steps.left < 0:
+                    # Spent stays spent until the host's next entry, so a caller that swallows this cannot run on.
+                    raise VBAStepLimitError(f"the run took more than step_limit={steps.limit} steps", where=self.current_where())
             instruction = program.instructions[pc]
             # Lexical With context is independent of the path used to reach
             # this instruction. A skipped initializer leaves a Nothing slot.
@@ -2466,11 +2517,17 @@ class Interpreter:
             return _dispatch_get(target, "Evaluate", [expression.name], {})
         if BINDING.late:
             self._check_late_call(target, expression.name, [], {})
-            library = getattr(self.host, "vba_type_library", None)
-            found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
-            if found is not None and reads_double_late(found, strip_suffix(expression.name)):
-                return float(_dispatch_get(target, expression.name, [], {}))  # type: ignore[arg-type]
-        return _dispatch_get(target, expression.name, [], {})
+        return self._property_value(target, expression.name)
+
+    def _property_value(self, target: object, name: str) -> object:
+        """A property read with no arguments: through an Object, one the library declares Long that Excel answers as a
+        Double is a Double, however the read is reached, a ByRef argument's included (tests/fixtures/application_settings.json)."""
+        answer = _dispatch_get(target, name, [], {})
+        if not BINDING.late or isinstance(answer, bool) or not isinstance(answer, int | float):
+            return answer
+        library = getattr(self.host, "vba_type_library", None)
+        found = find_class(library, target.vba_type_name) if library is not None and isinstance(target, VBAObject) else None
+        return float(answer) if found is not None and reads_double_late(found, strip_suffix(name)) else answer
 
     def _member_target(self, expression: A.Member | A.Bang, frame: Frame | None) -> object:
         if expression.target is None:
@@ -2700,7 +2757,9 @@ class Interpreter:
             elif wants_slot and isinstance(argument.value, A.Member):
                 owner = self._member_target(argument.value, frame)
                 slot = self.member_variable(owner, argument.value.name, frame)
-                value = slot if slot is not None else _dispatch_get(owner, argument.value.name, [], {})
+                if slot is None:
+                    self._note_binding(argument.value, frame)
+                value = slot if slot is not None else self._property_value(owner, argument.value.name)
             elif wants_slot and isinstance(argument.value, A.Index):
                 expression = argument.value
                 slot = None
@@ -3278,15 +3337,29 @@ def _is_type(value: object, wanted: str) -> bool:
         return False
     if isinstance(value, InterfaceView):
         value = value.instance
-    if isinstance(value, UserClassInstance) and any(
-            name.lower() == wanted.rpartition(".")[2].lower() for name in value.module.parsed.implements):
+    # Excel.Worksheet is Worksheet: the library's name says where the class is, not what it is.
+    bare = wanted.rpartition(".")[2].lower()
+    if isinstance(value, UserClassInstance) and any(name.lower() == bare for name in value.module.parsed.implements):
         # TypeOf x Is IShape for a class that Implements IShape (native probes).
         return True
     if isinstance(value, VBAObject):
-        if value.vba_type_name.lower() == wanted.lower():
+        if value.vba_type_name.lower() in (wanted.lower(), bare):
             return True
-        return any(base.__name__.lower() == wanted.lower() for base in type(value).__mro__)
-    return type_name(value).lower() == wanted.lower()
+        return any(base.__name__.lower() in (wanted.lower(), bare) for base in type(value).__mro__)
+    return type_name(value).lower() in (wanted.lower(), bare)
+
+
+#: What a variable declared as one of these takes is not an object of a class.
+_NOT_A_CLASS = frozenset({"", "variant", "object", "byte", "integer", "long", "longlong", "longptr", "single", "double", "currency", "decimal",
+                          "date", "string", "boolean", "any"})
+
+
+def of_declared_class(value: VBAObject, declared: str) -> bool:
+    """Whether a variable declared ``declared`` takes this object by Set: any object, where it is no class's name."""
+    key = declared.lower()
+    if key in _NOT_A_CLASS or key.startswith("string *"):
+        return True
+    return _is_type(value, declared)
 
 
 #: Each MsgBox button set's buttons, by what each answers, in order: vbOKOnly to vbRetryCancel.

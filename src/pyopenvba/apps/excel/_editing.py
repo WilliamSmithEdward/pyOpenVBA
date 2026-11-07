@@ -70,7 +70,10 @@ def rewrite(formula: str, owner: str, edited: str, *, rows: bool, start: int, co
         if any(value is None for value in values):
             continue  # Whole columns survive row edits, and vice versa.
         positions = [value for value in values if value is not None]
-        result = interval(min(positions), max(positions), start, count, delete, MAX_ROWS if rows else MAX_COLUMNS)
+        limit = MAX_ROWS if rows else MAX_COLUMNS
+        if not delete and len(positions) == 2 and min(positions) == 1 and max(positions) == limit:
+            continue  # Every row (or column) stays every row as lines go in: 1:1048576 (tests/fixtures/whole_span_inserts.json).
+        result = interval(min(positions), max(positions), start, count, delete, limit)
         prefix = token.text[:-len(reference)]
         if result is None:
             replacement = "#REF!"

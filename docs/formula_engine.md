@@ -110,9 +110,16 @@ name looking like a cell is not read as the cell.
    `tests/fixtures/worksheet_function_kinds.json`. XLOOKUP is #VALUE! when
    its result does not fit its lookup, found or not, answers a whole row or
    column for a lookup of one cell, reads match mode 3 as a regular
-   expression, and binary searches as written, in order or not
-   (`functions/lookup.py`, with `_pattern` in `functions/text.py` now
-   `regular_expression`). YEARFRAC's basis 1 does not count 1900 as a leap
+   expression, and binary searches as Excel does, in order or not: halving
+   at the lower middle, a match kept while the search goes on toward the
+   start (toward the end searching from the bottom), blanks included. For
+   XLOOKUP and XMATCH a blank is the largest value there is, which only the
+   next larger reaches, and a blank target matches a blank; wildcards with a
+   binary search are #VALUE!, and XMATCH on more than one row and column is
+   #VALUE! (`functions/lookup.py`, with `_pattern` in `functions/text.py` now
+   `regular_expression`; `tests/fixtures/xlookup_rounds.json`). A macro's
+   call lifted over an array whose item answers several cells raises
+   `registry.LiftedRangeError`, set by `Context.from_macro`. YEARFRAC's basis 1 does not count 1900 as a leap
    year, and its basis 0 takes 28 February 1900 as that month's end
    (`functions/dates.py`). SORT's order is rounded down
    (`functions/arrays.py`). YEARFRAC reads its basis first. Those in
@@ -223,3 +230,15 @@ name looking like a cell is not read as the cell.
     and the like as the error alone, as Excel reads what `=Gone!A1` becomes when
     the sheet goes, and `Evaluator` gives `#NAME?` for `[0]!Name`, this
     workbook's name with its sheet gone (`tests/fixtures/sheet_delete_refs.json`).
+20. **What would never return.** `MUNIT`, `SEQUENCE`, `RANDARRAY` and the Bessel
+    functions take the size of their work from an argument, so a number in a
+    workbook could hold the host for as long as it liked. They now stop first,
+    at Excel's measured limits (`tests/fixtures/excel_huge_numbers.json`): past
+    1048576 rows or at 1.6 billion cells `#VALUE!`, `MUNIT` at 100000 `#VALUE!`,
+    and a Bessel order of 1E+8 `#NUM!`. Excel built 25 million cells and answered
+    an order of 1E+7 within a second, which here would take minutes, so past 4
+    million cells, `MUNIT(2000)` and an order of 1E+5 a size raises
+    `UnsupportedFormulaError` instead. That is a limit of this engine, not of
+    Excel. One gap: a cell given
+    `=MUNIT(100000)` or `=SUM(SEQUENCE(100000,100000))` shows 0 in Excel and
+    `#VALUE!` here, where `WorksheetFunction` refuses both as 1004 either way.

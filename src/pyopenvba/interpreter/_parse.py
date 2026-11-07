@@ -1487,10 +1487,11 @@ class Parser:
                 args.append(A.Argument())
                 self.advance()
                 continue
-            if closing and self.at_op(")"):
-                args.append(A.Argument())
-                break
-            if not closing and (self.at_eos() or (self._inline and self.at_word("else"))):
+            if (closing and self.at_op(")")) or (not closing and (self.at_eos() or (self._inline and self.at_word("else")))):
+                if args:
+                    # f(a, ) and Sub a, end on an empty argument, which VBA will not compile, where f(a, , c) does
+                    # (tests/fixtures/trailing_arguments.json).
+                    self.fail("Syntax error")
                 args.append(A.Argument())
                 break
             name = ""

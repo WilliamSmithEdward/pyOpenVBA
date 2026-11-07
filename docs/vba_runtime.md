@@ -98,6 +98,36 @@ last stay `VBAUnsupportedError`.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
 
+## The step limit
+
+A macro can loop for ever, and the sandbox does not stop that. A host that runs
+macros it does not trust can set how many steps one run may take:
+
+```python
+app = ExcelApplication(step_limit=10_000_000)   # also on open, Word and PowerPoint
+app = ExcelApplication()                        # no limit, the default
+```
+
+A step is an instruction the interpreter carries out, a loop's test and a jump
+included, so `Do: Loop` with nothing in it runs out like any other. A run is
+everything one entry from the host sets off: a procedure called from Python, an
+event raised from Python, or a recalculation that calls a VBA function, with
+whatever those call, raise, evaluate or call back in turn. Class code, event
+macros, `Evaluate` and a host's callback that runs VBA all draw on the budget of
+the run they happen in, and so does every workbook's project. The next entry from
+the host starts afresh.
+
+Past the limit the run raises `VBAStepLimitError`, a `VBAError` but no run-time
+error, so `On Error` cannot trap it and `Err` is not set. The run ends where it was:
+what it did up to that statement is kept, not rolled back. A step limit must be a
+whole number of at least 1, or `None`; anything else is `ValueError` at once.
+
+It bounds the steps between statements, not what one statement costs. A large
+`Range.Sort`, a recalculation of many formulas, or one call into the engine takes as
+long as it takes, and neither memory nor time spent by the host itself is counted.
+With no limit set, counting costs one check of an attribute per instruction, which
+did not show above the noise of timing a 300,000-pass loop.
+
 ## Hooks
 
 Some members need something outside the engine: a PDF library, a printer. The model does not ship one. A caller registers a function instead, and the
@@ -157,6 +187,24 @@ files reports itself, as `SaveCopyAs` elsewhere does.
 
 `PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
 printer's name were never run in Excel, so what the function does with them is unmeasured.
+
+### Linked files
+
+A macro reads another workbook's file in four places: `UpdateLink`, `ChangeLink`, `LinkInfo`'s status, and a formula naming a closed workbook the file has no
+link to yet. Under the sandbox all four are refused, as any file is. `allow_link_reads` grants folders for them without turning the sandbox off:
+
+```python
+app.allow_link_reads(["C:/reports/sources"])
+```
+
+A file passes only if it lies inside one of the folders, by the same check as `set_hook`'s `folders`: links, junctions and `..` resolved, parts compared whole, UNC
+and device paths refused unless the folder is one. A file outside raises `VBASandboxError`, which does not say where the path led, and nothing on disk is looked at
+before the check. Each call replaces the folders; `allow_link_reads(())` takes them all away. `Workbook.OpenLinks` opens workbooks rather than reading them, and
+stays refused.
+
+A formula that names a workbook by its file alone, `=[Alpha.xlsx]Sheet1!A1`, makes Excel look for it in the current folder. A macro under the sandbox cannot
+change the current folder, so it is the folder your process was in when you made the `ExcelApplication`. The file is read only if that folder, or one above it, is
+granted. If you do not want bare names read at all, grant only folders other than that one.
 
 ## Dialogs
 

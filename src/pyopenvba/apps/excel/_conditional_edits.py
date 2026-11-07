@@ -556,6 +556,21 @@ def planned(sheet: Worksheet, edit: Edit, *, below: bool = False) -> Callable[[]
         groups.extend(_group(owner, group, sheet, edit, below) for group in rule_groups(owner.conditional_formats))
     old_areas = {id(group): projected_areas(group.rules[0]) for group in groups}
     changes = [group for group in groups if group.areas != old_areas[id(group)] or group.texts or group.remade]
+    def reshaped(group: _Group) -> bool:
+        before = old_areas[id(group)]
+        return group.remade or (isinstance(edit, CellShift) and (len(group.areas) != len(before) or any(
+            (one.rows, one.columns) != (other.rows, other.columns) for one, other in zip(group.areas, before))))
+
+    def beside_alone(owner: Worksheet) -> bool:
+        return any(rule.extension_only and rule.root.get('type') in ('cellIs', 'expression') for rule in owner.conditional_formats)
+
+    if any(reshaped(group) and beside_alone(group.owner) and rule.root.get('type') in ('dataBar', 'iconSet', 'colorScale')
+           for group in changes for rule in group.rules):
+        # Beside a cell-value or formula rule the Excel 2010 extension holds alone on its sheet, Excel remade a data bar a cell shift
+        # stretched, at a priority counting those rules, and ordered its strips otherwise (x14_format_shifts.json):
+        # not measured enough to follow.
+        raise _unsupported('changing a data bar, icon set or colour scale beside conditional formats the Excel 2010 '
+                           'extension holds alone')
     remade = [group for group in changes if group.remade]
     highest = max((_priority(rule) for group in groups for rule in group.rules), default=0)
     extra = 0

@@ -102,10 +102,10 @@ def test_a_file_reads_its_formats_as_excel_does(modelled: dict[str, tuple[list[s
     assert modelled[case["name"]][0][:10] == case["answer"].split("~")[:10]
 
 
-@pytest.mark.xfail(strict=True, reason="a rule kept only in the worksheet's Excel 2010 extension, here one naming "
-                                       "another sheet, is not one of the range's FormatConditions in the model")
 def test_a_rule_kept_in_the_extension_reads_its_format_as_excel_does(
         modelled: dict[str, tuple[list[str], Any]]) -> None:
+    """A rule kept only in the worksheet's Excel 2010 extension, here one naming another sheet, is one of the range's
+    FormatConditions, and its number format is the one its x14:dxf gives."""
     assert [modelled[case["name"]][0][10] for case in CASES] == [case["answer"].split("~")[10] for case in CASES]
 
 

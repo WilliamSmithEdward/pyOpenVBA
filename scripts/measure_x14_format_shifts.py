@@ -1,4 +1,4 @@
-"""What inserts and deletes do to conditional formats Excel keeps in a worksheet's x14 extension that the model does not read:
+"""What inserts and deletes do to conditional formats Excel keeps in a worksheet's x14 extension alone: cell-value and formula
 rules whose formulas read another sheet.
 
     python scripts/measure_x14_format_shifts.py build      # Excel makes tests/fixtures/x14_format_base.xlsx
@@ -7,10 +7,14 @@ rules whose formulas read another sheet.
     python scripts/measure_x14_format_shifts.py measure 2  # asks Excel those and scores them
 
 The base book has numbers in Sheet1!A1:H12 and in Sheet2!A1:A6. Sheet1 holds two rules that read Sheet2, which Excel keeps in the
-x14 extension and the model does not read (B2:B6, cell value greater than Sheet2!$A$1; D2:E6, the formula =D2>Sheet2!$A$2),
-and two it keeps in the plain part (F2:F8, cell value greater than 50; G2:G8, a data bar). Each case opens a copy, makes one edit
-on either sheet, reads every rule of Sheet1 (its type, range, priority and Formula1), saves the book, and keeps Sheet1's
-conditionalFormatting elements and the extension's x14:conditionalFormattings as the saved file spells them.
+x14 extension alone (B2:B6, cell value greater than Sheet2!$A$1; D2:E6, the formula =D2>Sheet2!$A$2), and one it keeps in the
+plain part (F2:F8, cell value greater than 50). Each case opens a copy, makes one edit on either sheet, reads every rule of Sheet1
+(its type, range, priority and Formula1), saves the book, and keeps Sheet1's conditionalFormatting elements and the extension's
+x14:conditionalFormattings as the saved file spells them.
+
+tests/fixtures/x14_format_shifts_bar.json is the first look from tests/fixtures/x14_format_base_bar.xlsx, the same book with a data
+bar on G2:G8 too, built while this BUILD held that rule: it is why the model refuses to reshape a data bar, icon set or colour
+scale beside the extension's rules. Each fixture names the base it was measured from.
 """
 from __future__ import annotations
 
@@ -46,7 +50,6 @@ BUILD = r'''Public Function Build(ByVal path As String) As String
     ws.Range("B2:B6").FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, Formula1:="=Sheet2!$A$1"
     ws.Range("D2:E6").FormatConditions.Add Type:=xlExpression, Formula1:="=D2>Sheet2!$A$2"
     ws.Range("F2:F8").FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, Formula1:="=50"
-    ws.Range("G2:G8").FormatConditions.AddDatabar
     ws.Activate
     wb.SaveAs path, 51
     wb.Close False
@@ -156,7 +159,7 @@ def build() -> None:
     print('built', BASE.name, BASE.stat().st_size)
 
 
-def _ask(cases: list[list[object]]) -> list[str]:
+def _ask(cases: list[list[object]], base: Path = BASE) -> list[str]:
     from pyvbaharness import ExcelSession, HarnessConfig
 
     answers: list[str] = []
@@ -165,23 +168,24 @@ def _ask(cases: list[list[object]]) -> list[str]:
             excel.new_document()
             for number, case in enumerate(cases):
                 opened, saved = Path(temp) / f'in{number}.xlsx', Path(temp) / f'out{number}.xlsx'
-                shutil.copyfile(BASE, opened)
+                shutil.copyfile(base, opened)
                 result = excel.run_vba(SOURCE, 'Go', (str(opened), str(saved), *case), timeout=60.0, line_numbers=False)
                 answers.append(f'{result.value} ~ {parts_of(saved)}' if result.ok else f'ERROR {str(result)[:200]}')
     return answers
 
 
 def _write(path: Path, cases: list[list[object]], answers: list[str]) -> None:
-    path.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'source': SOURCE, 'cases': cases, 'answers': answers},
+    path.write_text(json.dumps({'measured_at': datetime.now(timezone.utc).isoformat(), 'base': BASE.name, 'source': SOURCE, 'cases': cases,
+                                'answers': answers},
                                indent=0), encoding='utf-8', newline='\n')
 
 
-def model_answer(case: list[object], temp: Path) -> str:
+def model_answer(case: list[object], temp: Path, base: Path = BASE) -> str:
     """What the model answers for one case, opening the base book from the folder given and saving beside it."""
     from pyopenvba.apps.excel import ExcelApplication
 
     opened, saved = temp / 'in.xlsx', temp / 'out.xlsx'
-    shutil.copyfile(BASE, opened)
+    shutil.copyfile(base, opened)
     saved.unlink(missing_ok=True)
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

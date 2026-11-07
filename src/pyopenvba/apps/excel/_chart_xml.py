@@ -356,6 +356,17 @@ def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook, points:
             f'{separator}{leaders}<c:extLst>{tail}</c:extLst></c:dLbls>')
 
 
+def labels_markup(kind: ChartKind, on: bool, leader_lines: bool, look: LabelLook, points: str) -> str:
+    """A series' dLbls, with ``points`` its points' dLbl elements: none for labels showing nothing
+    (tests/fixtures/data_labels_object.json), and labels on some points alone with the series' own all off
+    (tests/fixtures/series_points.json)."""
+    if on and look.shown():
+        return _series_labels(kind, leader_lines, look, points)
+    if points:
+        return _series_labels(kind, leader_lines, LabelLook(value=False), points, alone=True)
+    return ""
+
+
 #: Stands for the chart part's own end of a unique id in a point's markup, which only the writer knows.
 UNIQUE_END = "@UNIQUE@"
 _INVERT_FILL = ('<c:ext uri="{6F2FDCE9-48DA-4B69-8628-5D25D57E5C99}"'
@@ -392,14 +403,9 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         element = "xVal" if kind == "scatter" else "cat"
         categories = _reference(element, data.categories, cache, numbers=data.numeric_categories)
     categories = data.trendlines + data.error_bars + categories
-    if data.labels and data.label_look.shown():
-        # A series' data labels come just before its categories, on every kind (tests/fixtures/chart_data_labels.json);
-        # labels showing nothing write none (tests/fixtures/data_labels_object.json).
-        categories = _series_labels(kind, data.leader_lines, data.label_look, data.point_labels) + categories
-    elif data.point_labels:
-        # Labels on some points alone, the series' own all off (tests/fixtures/series_points.json).
-        categories = _series_labels(kind, data.leader_lines, LabelLook(value=False), data.point_labels,
-                                    alone=True) + categories
+    # A series' data labels come just before its trendlines, error bars and categories, on every kind
+    # (tests/fixtures/chart_data_labels.json).
+    categories = labels_markup(kind, data.labels, data.leader_lines, data.label_look, data.point_labels) + categories
     # A series' points set apart come before its labels (tests/fixtures/series_points.json).
     categories = data.points + categories
     values = _reference(

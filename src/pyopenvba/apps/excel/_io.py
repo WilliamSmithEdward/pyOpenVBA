@@ -1835,6 +1835,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._workbook_links import write as write_workbook_links
 
     write_workbook_links(book, package)
+    from pyopenvba.apps.excel._new_links import write_made
+
+    write_made(book, package, str(target.resolve().parent))
     from pyopenvba.apps.excel._connections import refuse_changed
 
     refuse_changed(book)

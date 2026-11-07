@@ -1855,6 +1855,8 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: Whether a sheet of the file it was opened from held a link, which lists two more styles (_cell_styles._LINK_STYLES).
+        self.opened_with_links = False
         #: The hidden names the workbook's formulas have brought into Names (see _hidden_names).
         self.hidden_names: set[str] = set()
         self.hidden_entries: dict[str, NameEntry] = {}

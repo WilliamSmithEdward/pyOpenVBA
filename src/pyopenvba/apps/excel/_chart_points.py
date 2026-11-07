@@ -258,9 +258,12 @@ class Point(ElementProperties, PictureMembers, Created):
     def own(self) -> PointState | None:
         return self.series.entry.points.get(self.series.point_key(self.index))
 
-    def held(self) -> PointState:
-        """The point's state, made if it had none."""
-        self.series.chart.changed()
+    def held(self, labels: str = "") -> PointState:
+        """The point's state, made if it had none. ``labels`` names the member when what changes is its data label."""
+        if labels:
+            self.series.chart.labels_changed(self.series.entry, labels)
+        else:
+            self.series.chart.changed()
         point = self.series.entry.points.setdefault(self.series.point_key(self.index), PointState())
         if point.drawn_at < 0:
             point.drawn_at = self.index
@@ -364,7 +367,7 @@ class Point(ElementProperties, PictureMembers, Created):
         wanted = to_bool(value)
         self.kind()
         entry = self.series.entry
-        point = self.held()
+        point = self.held("Point.HasDataLabel")
         if wanted and entry.data_labels:
             # Back to what its series' labels give, whatever it had of its own.
             point.label, point.label_own = None, PointLabel()

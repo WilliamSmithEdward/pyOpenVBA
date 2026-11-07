@@ -232,6 +232,8 @@ class ChartState:
     series: list[SeriesState] = field(default_factory=lambda: [])
     part: str = ''
     original: str = ''
+    #: A loaded chart's series whose data labels changed, written into original at save (see _chart_loaded).
+    labels_pending: list[SeriesState] = field(default_factory=lambda: [])
     dirty: bool = True
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
@@ -2015,6 +2017,18 @@ class Chart(ElementProperties, HeldPart):
 
     def changed(self) -> None:
         self.admit_change()
+        self.state.dirty = True
+        self.sheet.drawing_changed()
+
+    def labels_changed(self, entry: SeriesState, member: str = '') -> None:
+        """A change to a series' data labels, or a point's, made by this member. A loaded chart takes it where its
+        labels are written as the file holds them, and writes them into its own markup at save."""
+        if not self.state.original:
+            self.changed()
+            return
+        from pyopenvba.apps.excel._chart_loaded import admit_labels
+
+        admit_labels(self, entry, member)
         self.state.dirty = True
         self.sheet.drawing_changed()
 
@@ -4778,13 +4792,24 @@ class Series(PictureMembers, Created):
     def _has_data_labels(self, value: object) -> None:
         self.position()
         wanted = to_bool(value)
-        if any(point.label is not None for point in self.entry.points.values()):
+        # On a loaded chart a point's label of its own goes with the series' labels, which is not built there
+        # (tests/fixtures/loaded_chart_label_edits.json).
+        own = self.chart.state.original and any(not point.label_own.empty() for point in self.entry.points.values())
+        if own or any(point.label is not None for point in self.entry.points.values()):
             raise VBAUnsupportedError('Changing the data labels of a series with point labels is not implemented')
         if self.entry.label_look.font is not None:
             raise VBAUnsupportedError('Changing data labels that have a font is not implemented')
-        self.chart.changed()
+        self.chart.labels_changed(self.entry, 'Series.HasDataLabels')
         if self.entry.data_labels and not wanted:
             self.entry.label_generation += 1
+        if wanted and self.entry.data_labels and self.entry.label_look.shown():
+            # Labels already on show the value alone and keep their place and number format
+            # (tests/fixtures/loaded_chart_label_edits.json).
+            look = self.entry.label_look
+            if look.separator is not None:
+                raise VBAUnsupportedError('Turning on data labels that have a separator is not implemented')
+            look.value, look.category, look.series, look.percent, look.legend_key, look.bubble = True, False, False, False, False, False
+            return
         if wanted:
             # Labels turned on show the value alone, however they were before.
             self.entry.label_look = LabelLook()

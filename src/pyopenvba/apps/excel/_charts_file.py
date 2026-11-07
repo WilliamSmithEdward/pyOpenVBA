@@ -575,8 +575,9 @@ def read_chart(xml: str, part: str) -> ChartState:
         labels = series.find('c:dLbls', NS)
         if labels is not None:
             item.label_look.font = read_font(labels, NS)
-            shown = labels.find('c:showVal', NS)
-            item.data_labels = shown is not None and shown.get('val', '1') in ('1', 'true')
+            # Labels are on where they show any part, the value or another (tests/test_excel_loaded_chart_save_reopen.py).
+            flags = [labels.find(f'c:{tag}', NS) for tag in ('showLegendKey', 'showVal', 'showCatName', 'showSerName', 'showPercent', 'showBubbleSize')]
+            item.data_labels = any(flag is not None and flag.get('val', '1') in ('1', 'true') for flag in flags)
             leaders = labels.find('c:showLeaderLines', NS)
             item.leader_lines = leaders is not None and leaders.get('val', '1') in ('1', 'true')
             item.labels_read = _read_labels(item.label_look, labels) and _read_point_labels(item, labels)
@@ -762,7 +763,11 @@ def source_format(sheet: Worksheet, formula: str) -> str:
 def refresh(sheet: Worksheet, package: OpcFile) -> None:
     """Refresh only changed reference caches; leave every other chart byte alone, but for the references a chart read
     from a file has had rewritten as its cells moved."""
-    for chart in sheet.chart_states.values():
+    for shape_id, chart in sheet.chart_states.items():
+        if chart.labels_pending:
+            from pyopenvba.apps.excel._chart_loaded import write_labels
+
+            write_labels(sheet.chart_sheet or Chart(sheet, next(item for item in sheet.shapes_ if item.shape_id == shape_id)))
         if chart.dirty and chart.original and chart.part and package.has(chart.part):
             package.write(chart.part, chart.original.encode('utf-8'))
             chart.dirty = False
@@ -881,7 +886,7 @@ def _all_numbers(sheet: Worksheet, reference: str) -> bool:
                                        for value in referenced_values(sheet, reference))
 
 
-def _shown_points(sheet: Worksheet, state: ChartState, item: SeriesState) -> SeriesState:
+def shown_points(sheet: Worksheet, state: ChartState, item: SeriesState) -> SeriesState:
     """The series with its points numbered among the cells shown, as the file numbers them; those hidden wait."""
     if not state.visible_only or not item.points or not item.value_reference or lost(item.value_reference):
         return item
@@ -1011,10 +1016,10 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                               and CHART_TYPES.get(shown_type(chart.state)) == 'scatter' else ''),
                                              item.shadow),
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
-                               points=points_markup(_shown_points(sheet, chart.state, item),
+                               points=points_markup(shown_points(sheet, chart.state, item),
                                                     CHART_TYPES.get(series_type(chart.state, item), ''),
                                                     series.position(), sheet.book.stylesheet.colors.theme),
-                               point_labels=point_labels_markup(_shown_points(sheet, chart.state, item)),
+                               point_labels=point_labels_markup(shown_points(sheet, chart.state, item)),
                                labels=item.data_labels, leader_lines=item.leader_lines, label_look=item.label_look,
                                error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(series_type(chart.state, item), ''),
                                                             lambda element, given: _bar_values(sheet, element, given)),

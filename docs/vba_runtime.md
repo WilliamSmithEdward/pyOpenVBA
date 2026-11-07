@@ -248,12 +248,23 @@ entry, with a budget of its own.
 **Passwords.** The function gets the connection string whole, since it needs it to connect. Everywhere the model shows one, in
 `ExternalSource`'s repr and in its errors, a password is `****`: any key with `password` or `pwd` in it, such as `Pwd`, `Password` or
 `Jet OLEDB:Database Password`. A function's own error text stays in `__cause__` alone, as it may echo the string. As Excel does, once a refresh
-has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then.
+has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then. What Excel drops goes by the key, not by
+the value: `Password=""` goes though it is empty, and `Jet OLEDB:New Database Password=""`, which ACE's own string holds, stays.
 
-Known differences: Excel reads back and saves the provider's own fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest,
-where the model keeps the one the macro set, so the file differs there; the uid Excel writes on each part is not written. Not built: a
-ListObject over a database, `Workbook.RefreshAll` over such a table, a refresh that changes the number of columns, and query tables over a
-database in a file opened again, whose sheet's `QueryTables` stays refused. A text file's query table is the model's own, with no function.
+**A file opened again.** A book Excel saved with a query table over a database, on a sheet or as a ListObject's, opens with it, measured
+against Excel's own saves over an Access file and a CSV file (tests/fixtures/query_refresh_loaded.json). The model keeps what the file says of
+the connection it did not make: the provider's fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest, the command, the
+connection's name and number, and every setting. The function gets that string, and an untouched save writes Excel's parts as they came. A
+ListObject's `QueryTable` is not in the sheet's `QueryTables`; its `Name` and `FieldNames` are 1004, `PreserveColumnInfo` is True, its names
+are not bold, and a refresh resizes the ListObject. Excel opens what the model saved and refreshes it itself
+(tests/fixtures/query_refresh_loaded_saved.json). A file whose query tables or connections say anything the model would not write back the
+same keeps them all refused, its parts saved as they came.
+
+Known differences: Excel reads back and saves the provider's own fuller string where the macro set a shorter one; the model keeps the one the
+macro set, so the file differs there. The uid Excel writes on each part is not written for a part the model writes again. Not built:
+`ListObjects.Add` over a database, `Workbook.RefreshAll` over such a table, a refresh that changes the number of columns or renames a
+ListObject's, a ListObject's query table with row numbers, without field names or with another `RefreshStyle`, and saving one beside a sheet's
+own query tables. A text file's query table is the model's own, with no function.
 
 ## Dialogs
 

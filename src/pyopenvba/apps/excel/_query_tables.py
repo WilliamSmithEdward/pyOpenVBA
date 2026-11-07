@@ -8,8 +8,9 @@ the sheet as any name does. Only a table refreshed at least once reaches the fil
 Refused rather than guessed: any source but a text file, a file with bytes past ASCII, setting PostText or a URL
 Connection (each stops Excel outright), TextFilePromptOnRefresh, and a table's width changing between refreshes. Column
 widths are left alone: Excel's AdjustColumnWidth follows a rule the 144-DPI measurements did not settle. A workbook loaded
-with query tables is read back when every connection it has is a text file the model would write back the same; any other
-stays refused by the sheet's QueryTables, with its parts saved as they came (see _empty_collections).
+with query tables is read back when every connection it has is a text file or a database the model would write back the same,
+ListObjects' over a database among them (see _query_databases); any other stays refused by the sheet's QueryTables, with its parts
+saved as they came (see _empty_collections).
 
 Each table has a connection from the moment it is added, named after its file with the lowest free number
 (scripts/measure_query_table_connections.py, tests/fixtures/query_table_connections.json). Deleting a table refreshed at

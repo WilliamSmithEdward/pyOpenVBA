@@ -19,6 +19,10 @@ The host fetches; the model lays the rows out as Excel does, measured against an
 A connection string's password never shows: Connection drops it once a refresh has run unless SavePassword is True, as Excel does,
 and a save writes it only then. What Excel reads back is the provider's own fuller string; the model gives back the one the macro set.
 That is a known difference, as is the uid Excel writes on each part.
+
+A book Excel saved opens with its tables, a sheet's and a ListObject's, keeping the provider's string, the command and every setting as
+the file has them (scripts/measure_query_refresh_loaded.py, tests/fixtures/query_refresh_loaded.json); see ListQueryTable for the
+ListObject's.
 """
 from __future__ import annotations
 

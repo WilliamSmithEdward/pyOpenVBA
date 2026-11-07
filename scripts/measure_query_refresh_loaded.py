@@ -31,6 +31,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from measure_query_refresh import PROVIDER  # noqa: E402
 from measure_query_refresh_layout import MAKE  # noqa: E402
+from fixture_workbook import without_save_path  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "tests/fixtures/query_refresh_loaded.json"
@@ -197,7 +198,7 @@ def main() -> None:
                     measured[case] = {"built": f"[{built.outcome}] {built.message} {built.value}"}
                     print(case, measured[case])
                     continue
-                kept = masked_book(saved.read_bytes(), folder)
+                kept = without_save_path(masked_book(saved.read_bytes(), folder))
                 (BOOKS / f"{case}.xlsx").write_bytes(kept)
                 probed = excel.run_vba(PROBE, "Probe", (str(saved), str(again), kind, table), timeout=180.0, line_numbers=False)
                 answer = str(probed.value) if probed.ok else f"[{probed.outcome}] {probed.message}"

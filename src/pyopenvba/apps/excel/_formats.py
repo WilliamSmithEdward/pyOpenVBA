@@ -1394,8 +1394,11 @@ class Border(ExcelObject):
         sheet = self.target.sheet
         areas = visible_areas(self.target) or self.target.areas
         if self.index not in (5, 6) and _leaves_lines(change) and all(_row_formats.whole(area) for area in areas):
-            # No colour along whole rows or columns changes nothing (tests/fixtures/border_gaps.json).
-            return
+            # No colour along whole rows or columns changes nothing where the border reads a line, and otherwise takes
+            # every line along it away (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
+            if self.side().style:
+                return
+            change = _exactly(S.NO_SIDE)
         if self.index in (5, 6) and (len(areas) > 1 or areas[0].rows * areas[0].columns > 1):
             self._many_diagonals(areas, change)
             return

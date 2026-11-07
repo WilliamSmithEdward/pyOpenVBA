@@ -1,8 +1,8 @@
 """ListObjects.Add over a database, refreshed through the host's Refresh function, against what Excel did with an Access file through
 its own ACE OLEDB provider (scripts/measure_list_query_add.py, tests/fixtures/list_query_add.json).
 
-The function here stands for the Access file: table T of six numbered rows, the columns a SELECT names, or the whole table for
-xlCmdTable.
+The function here stands for the Access file: table T of six numbered rows, the columns a SELECT names, or the whole table for its
+name. ACE runs SQL text as SQL even under xlCmdTable, as Excel's refresh showed (table_then_sql), so the function does too.
 
 One difference is named and kept: once a refresh has run, Excel reads back and saves the provider's fuller connection string, where the
 model keeps the one the macro set. The expected answers and parts have Excel's string put back to the macro's, and nothing else.
@@ -56,8 +56,9 @@ def table_t(request: HookRequest) -> list[list[object]]:
     """The rows of T the command asks for."""
     assert request.source is not None
     command = request.source.command_text
-    if request.source.command_type == "xlCmdTable":
-        assert command == "T"
+    if command == "T":
+        # A table's name gives the whole table; SQL text runs as SQL whatever CommandType says, as ACE runs it (table_then_sql).
+        assert request.source.command_type == "xlCmdTable"
         fields, last = ["Id", "Name"], 6
     else:
         found = re.fullmatch(r"SELECT (.+) FROM T WHERE Id <= (\d+) ORDER BY Id", command)

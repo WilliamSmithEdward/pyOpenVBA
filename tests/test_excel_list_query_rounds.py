@@ -20,7 +20,9 @@ _spec.loader.exec_module(ROUNDS)
 
 RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8')) for path in sorted((ROOT / 'tests/fixtures/list_query_rounds').glob('round_*.json'))]
 USED_UP = {54201: "TypeName of a ListObject's query table answered ListQueryTable, where Excel answers QueryTable",
-           54202: 'the same TypeName'}
+           54202: 'the same TypeName',
+           54204: "the replay's stand-in for ACE gave the whole table for SQL text under xlCmdTable, where ACE runs the SQL "
+                  '(tests/fixtures/list_query_add.json, table_then_sql); the model was right, the stand-in was fixed'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

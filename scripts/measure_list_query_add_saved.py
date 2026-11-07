@@ -97,9 +97,10 @@ def kept(data: bytes) -> dict[str, object]:
 
 
 def table_t(request: object) -> list[list[object]]:
-    """The rows of T the command asks for, as ACE gives them."""
+    """The rows of T the command asks for, as ACE gives them: a table's name gives the whole table, and SQL text runs as SQL whatever
+    CommandType says (tests/fixtures/list_query_add.json, table_then_sql)."""
     source = getattr(request, "source")
-    if source.command_type == "xlCmdTable":
+    if source.command_text == "T":
         fields, last = ["Id", "Name"], 6
     else:
         found = re.fullmatch(r"SELECT (.+) FROM T WHERE Id <= (\d+) ORDER BY Id", source.command_text)

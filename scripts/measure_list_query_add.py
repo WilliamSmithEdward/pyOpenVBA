@@ -201,7 +201,11 @@ CASES["ids"] = steps(
      + COPY.format(n=5)),
     ("three", 'lo.QueryTable.CommandText = "SELECT Id, Name, Id * 2 AS D FROM T WHERE Id <= 2 ORDER BY Id": lo.QueryTable.Refresh False: '
      + COPY.format(n=6)))
-CASES["first_one"] = steps(("added", ADD), ("one", 'lo.QueryTable.CommandText = "SELECT Id FROM T WHERE Id <= 2 ORDER BY Id": '
+#: Third round, written before it ran: CommandType stays xlCmdTable once SQL text is set, and the refresh runs the SQL.
+CASES["table_then_sql"] = steps(("table", ADD + ': Set q = lo.QueryTable: q.CommandType = xlCmdTable: q.CommandText = Array("T"): q.Refresh False'),
+                                ("sql", "q.CommandText = Rows_(4)"), ("refreshed", "q.Refresh False"),
+                                ("typed", "q.CommandType = xlCmdSql"), ("again", "q.CommandText = Rows_(2): q.Refresh False"))
+CASES["first_one"] =steps(("added", ADD), ("one", 'lo.QueryTable.CommandText = "SELECT Id FROM T WHERE Id <= 2 ORDER BY Id": '
                                                    'lo.QueryTable.Refresh False: ' + COPY.format(n=1)))
 CASES["first_three"] = steps(("added", ADD), ("three", 'lo.QueryTable.CommandText = "SELECT Id, Name, Id * 2 AS D FROM T WHERE Id <= 2 ORDER BY Id": '
                                                        'lo.QueryTable.Refresh False: ' + COPY.format(n=1)))

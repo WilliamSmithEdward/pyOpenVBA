@@ -2942,6 +2942,10 @@ class Chart(ElementProperties, HeldPart):
         if orientation not in (1, 2):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.plot_admitted('Chart.SetSourceData')
+        if self.state.original and any(Series(self, entry).has_labels() for entry in self.state.series):
+            # Excel's save kept a loaded chart's labels on the same source and took them away on others
+            # (tests/fixtures/loaded_chart_structure_edits.json).
+            raise VBAUnsupportedError('SetSourceData on an imported chart with data labels is not implemented')
         series_plan = plan_series(Source.sheet, area, orientation, at)
         kept = [(entry.own_type, entry.axis_group, entry.marker) for entry in self.state.series]
         if is_combo(self.state) and len(series_plan) > len(kept):
@@ -4667,6 +4671,9 @@ class Series(PictureMembers, Created):
     def _values(self, value: object) -> None:
         self.position()
         self.chart.plot_admitted('Series.Values')
+        if self.chart.state.original and self.has_labels():
+            # Excel's save took a loaded series' labels away with new values (tests/fixtures/loaded_chart_structure_edits.json).
+            raise VBAUnsupportedError('Setting the values of an imported chart series with data labels is not implemented')
         reference, values = series_input(value, sheet=self.chart.sheet)
         self.position()
         self.chart.plot_changed('Series.Values')

@@ -584,6 +584,9 @@ def read_chart(xml: str, part: str) -> ChartState:
             flags = [labels.find(f'c:{tag}', NS) for tag in ('showLegendKey', 'showVal', 'showCatName', 'showSerName', 'showPercent', 'showBubbleSize')]
             item.data_labels = any(flag is not None and flag.get('val', '1') in ('1', 'true') for flag in flags)
             leaders = labels.find('c:showLeaderLines', NS)
+            if leaders is None:
+                # Labels on some points alone say it in their extension only (tests/fixtures/series_points.json).
+                leaders = labels.find('c:extLst/c:ext/c15:showLeaderLines', {**NS, 'c15': 'http://schemas.microsoft.com/office/drawing/2012/chart'})
             item.leader_lines = leaders is not None and leaders.get('val', '1') in ('1', 'true')
             item.labels_read = _read_labels(item.label_look, labels) and _read_point_labels(item, labels)
         else:

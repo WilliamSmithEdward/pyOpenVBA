@@ -383,6 +383,9 @@ class Point(ElementProperties, PictureMembers, Created):
         self.kind()
         entry = self.series.entry
         point = self.held("labels", "Point.HasDataLabel")
+        if wanted and point.label is True and self.series.chart.state.original:
+            # A loaded point's label of its own stays as it is, font and all (tests/fixtures/loaded_chart_label_edits.json).
+            return
         if wanted and entry.data_labels:
             # Back to what its series' labels give, whatever it had of its own.
             point.label, point.label_own = None, PointLabel()

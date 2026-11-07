@@ -263,6 +263,10 @@ def invoke(entry: Function, context: Context, args: list[Any]) -> Value:
     return result
 
 
+class LiftedRangeError(Exception):
+    """A macro's call, lifted over an array, whose item answers a range of several cells."""
+
+
 def _lift(entry: Function, context: Context, args: list[Any], positions: list[int]) -> Array:
     """Call once per item of the arrays given for single values or for
     references, an item never being a reference."""
@@ -278,9 +282,15 @@ def _lift(entry: Function, context: Context, args: list[Any], positions: list[in
             each = list(args)
             for index in positions:
                 each[index] = args[index].at(row, column)
-            items.append(context.first(invoke(entry, context, each)))
+            answer = invoke(entry, context, each)
+            if context.from_macro and isinstance(answer, Reference) and answer.area is not None and not answer.area.is_cell:
+                # Called from a macro, an item that finds several cells answers their first cell, or #VALUE! once a
+                # formula was calculated earlier in the macro: not modelled (tests/fixtures/xlookup_rounds.json).
+                raise LiftedRangeError(entry.name)
+            items.append(context.first(answer))
         rows.append(items)
     return Array(rows)
 
 
-__all__ = ["FUNCTIONS", "LAZY", "MAX_ARGUMENTS", "REF", "A", "Function", "Kind", "R", "V", "call", "function", "invoke"]
+__all__ = ["FUNCTIONS", "LAZY", "MAX_ARGUMENTS", "REF", "A", "Function", "Kind", "LiftedRangeError", "R", "V", "call", "function",
+           "invoke"]

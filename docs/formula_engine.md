@@ -110,9 +110,16 @@ name looking like a cell is not read as the cell.
    `tests/fixtures/worksheet_function_kinds.json`. XLOOKUP is #VALUE! when
    its result does not fit its lookup, found or not, answers a whole row or
    column for a lookup of one cell, reads match mode 3 as a regular
-   expression, and binary searches as written, in order or not
-   (`functions/lookup.py`, with `_pattern` in `functions/text.py` now
-   `regular_expression`). YEARFRAC's basis 1 does not count 1900 as a leap
+   expression, and binary searches as Excel does, in order or not: halving
+   at the lower middle, a match kept while the search goes on toward the
+   start (toward the end searching from the bottom), blanks included. For
+   XLOOKUP and XMATCH a blank is the largest value there is, which only the
+   next larger reaches, and a blank target matches a blank; wildcards with a
+   binary search are #VALUE!, and XMATCH on more than one row and column is
+   #VALUE! (`functions/lookup.py`, with `_pattern` in `functions/text.py` now
+   `regular_expression`; `tests/fixtures/xlookup_rounds.json`). A macro's
+   call lifted over an array whose item answers several cells raises
+   `registry.LiftedRangeError`, set by `Context.from_macro`. YEARFRAC's basis 1 does not count 1900 as a leap
    year, and its basis 0 takes 28 February 1900 as that month's end
    (`functions/dates.py`). SORT's order is rounded down
    (`functions/arrays.py`). YEARFRAC reads its basis first. Those in

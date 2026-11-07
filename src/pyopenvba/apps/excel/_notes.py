@@ -136,10 +136,10 @@ def placed(sheet: Worksheet, row: int, column: int) -> Anchor:
     top = max(_row_top(sheet, row) - _ABOVE, _TOP_MARGIN)
     if top + HEIGHT > height:
         top = min(_row_top(sheet, row) + _ABOVE, height - _BOTTOM_MARGIN) - HEIGHT
-    return _anchor(sheet, left, top, left + WIDTH, top + HEIGHT)
+    return anchor_around(sheet, left, top, left + WIDTH, top + HEIGHT)
 
 
-def _anchor(sheet: Worksheet, left: int, top: int, right: int, bottom: int) -> Anchor:
+def anchor_around(sheet: Worksheet, left: int, top: int, right: int, bottom: int) -> Anchor:
     columns: Callable[[int], int] = lambda column: _column_left(sheet, column)  # noqa: E731
     rows: Callable[[int], int] = lambda row: _row_top(sheet, row)  # noqa: E731
     first_column, x = _line_at(left, columns, MAX_COLUMNS)
@@ -158,7 +158,7 @@ def box(sheet: Worksheet, note: Note) -> tuple[int, int, int, int]:
 
 def anchor_of(sheet: Worksheet, note: Note) -> Anchor:
     """A note's anchor as a file writes it, its far corner where the box's size puts it on the sheet as it is."""
-    return _anchor(sheet, *box(sheet, note))
+    return anchor_around(sheet, *box(sheet, note))
 
 
 def size_of(sheet: Worksheet, anchor: Anchor) -> tuple[int, int]:
@@ -653,6 +653,16 @@ class NoteShape(HeldPart, ExcelObject):
     def Height(self) -> object:
         _, top, _, bottom = self._edges()
         return VBASingle((bottom - top) * 0.75)
+
+    @member
+    def TopLeftCell(self) -> object:
+        column, _, row = anchor_of(self.sheet, self.note)[:3]
+        return Range(self.sheet, [Area(row + 1, column + 1, row + 1, column + 1, self.sheet.name)])
+
+    @member
+    def BottomRightCell(self) -> object:
+        column, _, row = anchor_of(self.sheet, self.note)[4:7]
+        return Range(self.sheet, [Area(row + 1, column + 1, row + 1, column + 1, self.sheet.name)])
 
     @member
     def Visible(self) -> object:

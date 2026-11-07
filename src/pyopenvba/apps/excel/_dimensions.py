@@ -442,7 +442,7 @@ class SheetDimensions:
         cannot tell. A number stays on a line, and a merged cell and a formula add nothing, until AutoFit for a formula
         (tests/fixtures/wrapped_events.json)."""
         from pyopenvba.apps.excel._column_fit import font_pad
-        from pyopenvba.apps.excel._font_widths import ascent, widths
+        from pyopenvba.apps.excel._font_widths import widths
         from pyopenvba.apps.excel._wrapped_text import lines_of, row_pixels_for
 
         if cell.runs is not None:
@@ -456,6 +456,10 @@ class SheetDimensions:
             # The fourth held-out round's one miss, in columns about a letter wide (tests/fixtures/wrapped_round4.json).
             return "wrapped text ending in a hyphen and a line feed"
         font = style.font
+        if font.italic:
+            # Italic held out 16 wrong of 6,060 lines over four fonts, each a line the rule fits and Excel breaks, and no slant rule tried does better
+            # (tests/fixtures/wrapped_italic_scores.json).
+            return "wrapped italic text"
         table = widths(font.name, font.bold, font.italic, float(font.size))
         if table is None:
             return f"the font {font.name}"
@@ -466,10 +470,6 @@ class SheetDimensions:
         if family is None or not 1 <= pixels <= _font_rows.MOST_PIXELS:
             return f"the font {font.name}"
         taken = 9 * style.alignment.indent
-        if font.italic:
-            rise = ascent(font.name, font.bold, True, float(font.size))
-            assert rise is not None
-            taken += rise // 5
 
         def extent(text: str) -> int:
             return sum(table[character] for character in text)

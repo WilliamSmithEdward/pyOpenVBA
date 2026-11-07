@@ -1032,6 +1032,10 @@ class Stylesheet:
                 entry.custom = found.get("customBuiltin", "0") in ("1", "true")
                 entry.deleted = found.get("hidden", "0") in ("1", "true") and entry.builtin is not None
                 self._named.append((place, element))
+        if not self._named and style_xfs:
+            # With no cellStyles at all the file's first style is still Normal (tests/fixtures/tool_books/spellings.json).
+            self.cell_styles[0].name, self.cell_styles[0].builtin = "Normal", 0
+            self._named.append((0, '<cellStyle name="Normal" xfId="0" builtinId="0"/>'))
         self._made = 0
         #: The Normal font as the workbook opened, which the built-in styles that want it keep a copy of.
         normal = self.named("Normal")

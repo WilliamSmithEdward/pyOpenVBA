@@ -26,8 +26,9 @@ assert _SPEC is not None and _SPEC.loader is not None
 HELDOUT: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(HELDOUT)
 #: Each round's predictions, as their digest was recorded before Excel answered (.git/excel-coordination/BOARD.md).
-DIGESTS = {'round1': '3b9544fda88f7ddb7e73c74b718bffcb59b136344365bc574eebf7642e411603'}
-MISSES = {'round1': 20}
+DIGESTS = {'round1': '3b9544fda88f7ddb7e73c74b718bffcb59b136344365bc574eebf7642e411603',
+           'round2': '87ff331ad0b360a39ef14865becd1a114a50fc775d1476f4b4d92251c9ae8992'}
+MISSES = {'round1': 20, 'round2': 0}
 #: User-level: what Excel reads depends on what an earlier book of the round set, not on the book.
 USER_LEVEL = frozenset({'DoNotPromptForConvert'})
 ROUNDS = sorted(path.name.removesuffix('_excel.json') for path in FOLDER.glob('*_excel.json'))

@@ -8672,7 +8672,7 @@ class _BookNames:
                 # Another workbook's name, Alpha.xlsx!Rate: as that workbook spells it, if its link has it.
                 number = linked[1:-1]
                 held = self.book.linked_books.get(int(number)) if number.isdigit() else None
-                if held is not None and held.made and not held.sheets and not held.extra_sheets:
+                if held is not None and held.made and not held.sheets:
                     # A workbook whose file was not there: the name as written, which the link keeps with nothing it refers to (see _new_links).
                     return next((own for own in held.names if own.casefold() == name.casefold()), None) or held.names.setdefault(name, '') or name
                 return None if held is None else next((own for own in held.names if own.casefold() == name.casefold()), None)

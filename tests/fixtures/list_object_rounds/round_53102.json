@@ -1,0 +1,1507 @@
+{
+ "seed": 53102,
+ "predicted_at": "2026-11-07T11:42:04.359801+00:00",
+ "predictions_sha256_16": "6d733a4d9fd05443",
+ "cases": [
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.Application, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Application:True E0",
+   "model_typed": "Application:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.Creator, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Long:1480803660 E0",
+   "model_typed": "Long:1480803660 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.Parent, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Worksheet:one E0",
+   "model_typed": "Worksheet:one E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.Creator = 0",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "Set o.Parent = Nothing",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E438",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleFirstColumn = True: x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleLastColumn = 0: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleRowStripes = \"yes\": x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.ShowAutoFilter, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = o",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Shaded E0",
+   "model_typed": "Shaded E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "ws.Activate: ws.Range(tcell).Select: x = Key(o.Active, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.AlternativeText = \"\": x = Key(o.AlternativeText, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.AlternativeText = \"alt \" & String(300, \"a\"): x = Len(o.AlternativeText)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "304 E0",
+   "model_typed": "304 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.Summary = \"sum\" & vbLf & \"two\": x = Key(o.Summary, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "String:sum\ntwo E0",
+   "model_typed": "String:sum\ntwo E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.Comment = 3.5: x = Key(o.Comment, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String:3.5 E0",
+   "model_typed": "String:3.5 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.Comment = String(255, \"z\"): x = Len(o.Comment)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "255 E0",
+   "model_typed": "255 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.AutoFilter, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "AutoFilter:? E0",
+   "model_typed": "AutoFilter:? E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.AutoFilter.FilterMode, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.AutoFilter.Range, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E91",
+   "model_typed": " E91"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowAutoFilter = False: o.ShowAutoFilter = True: x = Key(o.AutoFilter.Filters.Count, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Long:2 E0",
+   "model_typed": "Long:2 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.DisplayName, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String:Shaded E0",
+   "model_typed": "String:Shaded E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "ws.DisplayRightToLeft = True: x = Key(o.DisplayRightToLeft, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.TableStyle = \"TableStyleLight9\": x = Key(o.TableStyle, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "TableStyle:TableStyleLight9 E0",
+   "model_typed": "TableStyle:TableStyleLight9 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = TypeName(o.Sort) & \" \" & o.Sort.SortFields.Count & \" \" & o.Sort.Header",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Sort 0 1 E0",
+   "model_typed": "Sort 0 1 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.QueryTable, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.Refresh: x = \"refreshed\"",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "refreshed E1004",
+   "model_typed": "refreshed E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.SharePointURL, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.TableObject, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.XmlMap, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Nothing E0",
+   "model_typed": "Nothing E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.Comment = \"c\" & vbLf & \"d\": x = Key(o.Comment, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String:c\nd E0",
+   "model_typed": "String:c\nd E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.Creator = 0",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.TableStyle, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": "TableStyle:TableStyleDark3 E0",
+   "model_typed": "TableStyle:TableStyleDark3 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.AlternativeText, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "String:alt 5 E0",
+   "model_typed": "String:alt 5 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowTableStyleRowStripes = True: x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowTableStyleFirstColumn = 0: x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowTableStyleRowStripes = 0: x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.Comment, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.AlternativeText = \"alt \" & String(300, \"a\"): x = Len(o.AlternativeText)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "304 E0",
+   "model_typed": "304 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "ws2.Activate: x = Key(o.Active, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.TableStyle = \"NoSuchStyle\": x = Key(o.TableStyle, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "TableStyle:TableStyleDark3 E0",
+   "model_typed": "TableStyle:TableStyleDark3 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "ws.DisplayRightToLeft = True: x = Key(o.DisplayRightToLeft, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.Summary = 12: x = Key(o.Summary, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String:12 E0",
+   "model_typed": "String:12 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleLastColumn = Not o.ShowTableStyleLastColumn: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.QueryTable, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = o",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Tb43_ E0",
+   "model_typed": "Tb43_ E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.TableStyle = \"NoSuchStyle\": x = Key(o.TableStyle, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "TableStyle:TableStyleMedium2 E0",
+   "model_typed": "TableStyle:TableStyleMedium2 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.Comment = \"c\" & vbLf & \"d\": x = Key(o.Comment, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "String:c\nd E0",
+   "model_typed": "String:c\nd E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleLastColumn = Not o.ShowTableStyleLastColumn: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "ws2.Activate: x = Key(o.Active, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.Comment, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.Summary, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.Slicers, book) & o.Slicers.Count",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Slicers:?0 E0",
+   "model_typed": "Slicers:?0 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.Creator, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Long:1480803660 E0",
+   "model_typed": "Long:1480803660 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowTableStyleRowStripes = Not o.ShowTableStyleRowStripes: x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowAutoFilter = 0: x = Key(o.ShowAutoFilter, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowAutoFilter = Not o.ShowAutoFilter: x = Key(o.ShowAutoFilter, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.AlternativeText, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.Comment, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.Summary = \"sum\" & vbLf & \"two\": x = Key(o.Summary, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String:sum\ntwo E0",
+   "model_typed": "String:sum\ntwo E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.AlternativeText = \"alt \" & String(300, \"a\"): x = Len(o.AlternativeText)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "304 E0",
+   "model_typed": "304 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "Set o.Application = Nothing",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.Parent, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Worksheet:Main E0",
+   "model_typed": "Worksheet:Main E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowTableStyleFirstColumn = 0: x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.Comment = \"c\" & vbLf & \"d\": x = Key(o.Comment, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "String:c\nd E0",
+   "model_typed": "String:c\nd E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleRowStripes = Not o.ShowTableStyleRowStripes: x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.Application, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Application:True E0",
+   "model_typed": "Application:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowAutoFilter = Not o.ShowAutoFilter: x = Key(o.ShowAutoFilter, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.DisplayRightToLeft, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleLastColumn = \"yes\": x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowTableStyleLastColumn = 0: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.AutoFilter, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "AutoFilter:? E0",
+   "model_typed": "AutoFilter:? E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.Active, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "ws2.Activate: x = Key(o.Active, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "ws.Activate: ws.Range(tcell).Select: x = Key(o.Active, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.TableStyle = \"TableStyleLight9\": x = Key(o.TableStyle, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "TableStyle:TableStyleLight9 E0",
+   "model_typed": "TableStyle:TableStyleLight9 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.AlternativeText = \"\": x = Key(o.AlternativeText, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowTableStyleLastColumn = True: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "ws.Activate: ws.Range(tcell).Select: x = Key(o.Active, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.Parent, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Worksheet:Main E0",
+   "model_typed": "Worksheet:Main E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.Summary, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.AutoFilter.FilterMode, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": " E91",
+   "model_typed": " E91"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.AlternativeText = \"alt \" & String(300, \"a\"): x = Len(o.AlternativeText)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": " E91",
+   "model_typed": " E91"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowTableStyleRowStripes = 0: x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleLastColumn = True: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = TypeName(o.Sort) & \" \" & o.Sort.SortFields.Count & \" \" & o.Sort.Header",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Sort 0 1 E0",
+   "model_typed": "Sort 0 1 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.TableStyle, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "TableStyle:TableStyleMedium2 E0",
+   "model_typed": "TableStyle:TableStyleMedium2 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.AutoFilter.FilterMode, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.AlternativeText, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String:alt 5 E0",
+   "model_typed": "String:alt 5 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.XmlMap, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Nothing E0",
+   "model_typed": "Nothing E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.TableStyle = \"TableStyleLight9\": x = Key(o.TableStyle, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "TableStyle:TableStyleLight9 E0",
+   "model_typed": "TableStyle:TableStyleLight9 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.Comment = 3.5: x = Key(o.Comment, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "String:3.5 E0",
+   "model_typed": "String:3.5 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleLastColumn = \"yes\": x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "ws2.Activate: x = Key(o.Active, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowTableStyleRowStripes = True: x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.TableStyle = \"\": x = Key(o.TableStyle, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "String:  E0",
+   "model_typed": "String:  E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleColumnStripes = Not o.ShowTableStyleColumnStripes: x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleFirstColumn = \"yes\": x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.Unlink: x = Key(o.Range, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Range:M2:M4@Main E0",
+   "model_typed": "Range:M2:M4@Main E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.AlternativeText = \"\": x = Key(o.AlternativeText, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.Summary = 12: x = Key(o.Summary, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String:12 E0",
+   "model_typed": "String:12 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowTableStyleLastColumn = Not o.ShowTableStyleLastColumn: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "Set o.Parent = Nothing",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E438",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.Summary = 12: x = Key(o.Summary, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String:12 E0",
+   "model_typed": "String:12 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowTableStyleLastColumn = True: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.Active, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.TableObject, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowTableStyleFirstColumn = Not o.ShowTableStyleFirstColumn: x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "Set o.Application = Nothing",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.TableStyle, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": " E91",
+   "model_typed": " E91"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "x = Key(o.AutoFilter.FilterMode, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.Comment = String(256, \"z\"): x = Len(o.Comment)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "0 E5",
+   "model_typed": "0 E5"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleColumnStripes = \"yes\": x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "ws.DisplayRightToLeft = True: x = Key(o.DisplayRightToLeft, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.Active, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "Set o.Parent = Nothing",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E438",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.Comment = String(256, \"z\"): x = Len(o.Comment)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "0 E5",
+   "model_typed": "0 E5"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = TypeName(o.Sort) & \" \" & o.Sort.SortFields.Count & \" \" & o.Sort.Header",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Sort 0 1 E0",
+   "model_typed": "Sort 0 1 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.TableObject, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.SharePointURL, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowAutoFilter = False: x = Key(o.AutoFilter, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Nothing E0",
+   "model_typed": "Nothing E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowAutoFilter = \"yes\": x = Key(o.ShowAutoFilter, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowAutoFilter = False: o.ShowAutoFilter = True: x = Key(o.AutoFilter.Filters.Count, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowAutoFilter = True: x = Key(o.ShowAutoFilter, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(ws.ListObjects.Count)",
+   "call": "o.ShowTableStyleFirstColumn = True: x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "ws.Activate: ws.Range(tcell).Select: x = Key(o.Active, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "x = Key(o.Parent, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Worksheet:Main E0",
+   "model_typed": "Worksheet:Main E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.Active, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowAutoFilter = Not o.ShowAutoFilter: x = Key(o.ShowAutoFilter, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": " E91",
+   "model_typed": " E91"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.Creator = 0",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleColumnStripes = True: x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleColumnStripes = 0: x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowAutoFilter = False: x = Key(o.AutoFilter, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Nothing E0",
+   "model_typed": "Nothing E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.Summary, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.Range(tcell).ListObject",
+   "call": "o.ShowAutoFilter = False: x = Key(o.AutoFilter, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Nothing E0",
+   "model_typed": "Nothing E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.DisplayName, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "String:Tb43_ E0",
+   "model_typed": "String:Tb43_ E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.Application, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Application:True E0",
+   "model_typed": "Application:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "o.ShowTableStyleColumnStripes = Not o.ShowTableStyleColumnStripes: x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.SharePointURL, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.TableStyle = \"TableStyleDark2\": x = Key(o.TableStyle, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "TableStyle:TableStyleDark2 E0",
+   "model_typed": "TableStyle:TableStyleDark2 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "Set o.Application = Nothing",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(1)",
+   "call": "x = Key(o.Slicers, book) & o.Slicers.Count",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Slicers:?0 E0",
+   "model_typed": "Slicers:?0 E0"
+  },
+  {
+   "cls": "ListObject",
+   "reach": "ws.ListObjects(tname)",
+   "call": "o.ShowTableStyleFirstColumn = 0: x = Key(o.ShowTableStyleFirstColumn, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  }
+ ]
+}

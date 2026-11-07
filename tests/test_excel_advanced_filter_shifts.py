@@ -22,7 +22,8 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = tuple(stem for stem in ('advanced_filter_shifts', 'advanced_filter_shifts_b', 'advanced_filter_shifts2')
+ROUNDS = tuple(stem for stem in ('advanced_filter_shifts', 'advanced_filter_shifts_b', 'advanced_filter_shifts_c', 'advanced_filter_shifts_d',
+                                  'advanced_filter_shifts_e', 'advanced_filter_shifts2', 'advanced_filter_shifts3')
                if (FIXTURES / f'{stem}.json').exists())
 REFUSALS = ('where Excel asks first', 'unmatched criteria headers')
 
@@ -60,4 +61,4 @@ def test_the_only_stops_were_excel_prompts() -> None:
         record = json.loads((FIXTURES / f'{stem}.json').read_text('utf-8'))
         for call, answer in zip(record['cases'], record['answers'], strict=True):
             assert not answer.startswith(('ERROR', 'CRASH')) or (
-                'modal' in answer and call[1].startswith('delete') and call[1].endswith(' auto')), (stem, call)
+                'modal' in answer and call[1].startswith('delete') and call[1].split()[2] == 'auto'), (stem, call)

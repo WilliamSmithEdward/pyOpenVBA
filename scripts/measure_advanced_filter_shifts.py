@@ -96,6 +96,13 @@ Public Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Bo
         Case "nomatch"
             ws.Range("G1:G2").Value = Application.Transpose(Array("Num", ">100"))
             ws.Range("A1:C12").AdvancedFilter xlFilterInPlace, ws.Range("G1:G2")
+        Case "far": ws.Range("AC1").Value = "far"
+        Case "low": ws.Range("AC30").Value = "low"
+        Case "near": ws.Range("AA14").Value = "near"
+        Case "fmtnear": ws.Range("AA14").Interior.Color = RGB(255, 0, 0)
+        Case "fmtlow": ws.Range("F22").Interior.Color = RGB(255, 0, 0)
+        Case "textnear": ws.Range("AA14").Formula = "="""""
+        Case "textlow": ws.Range("F22").Formula = "="""""
         Case "distinct": ws.Range("A1:C12").AdvancedFilter xlFilterInPlace, , , True
         Case "repeats": ws.Range("C1:C12").AdvancedFilter xlFilterInPlace, , , True
         Case "allrepeats"
@@ -175,6 +182,23 @@ KINDS_C = ('greater', 'all', 'nomatch', 'distinct', 'repeats', 'copy')
 EDITS_C = ('showall A1 auto', 'delete A7:C7 up show', 'delete 5:5 auto show', 'insert 5:5 auto show', 'delete B1:B12 left show',
            'insert B:B auto show', 'delete 2:12 auto show', 'delete A5:C5 up show')
 CASES_C: list[list[object]] = [[kind, edit, typed] for kind in KINDS_C for edit in EDITS_C for typed in (True, False)]
+#: The fourth look: which way a Delete or Insert with no Shift goes where a tall range has nothing to its right, on a
+#: sheet with no filter ('plain') and one an extracting filter left its names on.
+KINDS_D = ('plain', 'copy')
+EDITS_D = ('delete Z12:Z16 auto', 'delete E12:E16 auto', 'delete Y12:Y16 auto', 'delete AA12:AA16 auto', 'delete Z2:Z3 auto',
+           'delete E2:E3 auto', 'delete Z12:AA16 auto', 'insert Z12:Z16 auto', 'insert AA12:AA16 auto', 'delete Z21:Z25 auto',
+           'delete C2:C12 auto', 'delete Z1:Z20 auto')
+CASES_D: list[list[object]] = [[kind, edit, typed] for kind in KINDS_D for edit in EDITS_D for typed in (True, False)]
+#: The fifth look: what "nothing to its right" is, with a cell further right in another row ('far', AC1), below the
+#: markers ('low', AC30) or beside the range ('near', AA14); and whether a wide range with nothing below goes left.
+KINDS_E = ('plain', 'far', 'low', 'near')
+EDITS_E = ('delete Z12:Z16 auto', 'delete Z2:Z3 auto', 'delete F20:Y20 auto', 'delete Z12:AA16 auto', 'delete Y12:Y16 auto',
+           'delete F19:Y19 auto')
+CASES_E: list[list[object]] = [[kind, edit, typed] for kind in KINDS_E for edit in EDITS_E for typed in (True, False)]
+#: The sixth look: whether a cell with only a fill, or a formula showing "", counts as lying to the right or below.
+KINDS_F = ('fmtnear', 'fmtlow', 'textnear', 'textlow')
+EDITS_F = ('delete Z12:Z16 auto', 'delete F20:Y20 auto', 'delete Z2:Z3 auto')
+CASES_F: list[list[object]] = [[kind, edit, typed] for kind in KINDS_F for edit in EDITS_F for typed in (True, False)]
 
 
 def main() -> None:
@@ -183,7 +207,7 @@ def main() -> None:
 
     stem = 'advanced_filter_shifts' + (sys.argv[1] if len(sys.argv) > 1 else '')
     predicted = FIXTURES / f'{stem}_predictions.json'
-    cases: list[dict[str, Any]] = json.loads(predicted.read_text('utf-8'))['cases'] if predicted.exists() else [{'call': one} for one in (CASES_B if stem.endswith('_b') else CASES_C if stem.endswith('_c') else CASES)]
+    cases: list[dict[str, Any]] = json.loads(predicted.read_text('utf-8'))['cases'] if predicted.exists() else [{'call': one} for one in {'_b': CASES_B, '_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F}.get(stem[len('advanced_filter_shifts'):], CASES)]
     answers: list[str] = []
     crashes: list[list[object]] = []
     number = 0
@@ -262,7 +286,7 @@ def model_answer(case: list[object]) -> str | None:
 
 
 def predict(round_: str) -> None:
-    found = [{'call': case, 'model': model_answer(case)} for case in (CASES_C if round_ == '_c' else held_out(round_))]
+    found = [{'call': case, 'model': model_answer(case)} for case in {'_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F}.get(round_) or held_out(round_)]
     (FIXTURES / f'advanced_filter_shifts{round_}_predictions.json').write_text(json.dumps({'cases': found}, indent=0),
                                                                                encoding='utf-8', newline='\n')
     print(len(found), 'predicted,', sum(one['model'] is None for one in found), 'refused')

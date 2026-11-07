@@ -6810,7 +6810,9 @@ class Range(ExcelObject):
         """Delete, which pulls the cells below or to the right up or left.
 
         With no Shift a range taller than it is wide pulls cells left and
-        any other range pulls them up; _editing has how references follow.
+        any other range pulls them up, each the other way where nothing
+        lies to its right or below it (_pulls_up); _editing has how
+        references follow.
         On a filtered sheet, as _visible has it, a delete that would pull
         cells up takes the whole of each visible row instead, anywhere on
         the sheet, with no Shift too, and one that pulls them left takes
@@ -6832,7 +6834,7 @@ class Range(ExcelObject):
                 # answer it takes with DisplayAlerts off is what follows.
                 raise VBAUnsupportedError("Range.Delete with no Shift on a filtered sheet with DisplayAlerts on, where "
                                           "Excel asks first, is not implemented")
-            up = filtered or self.first.rows <= self.first.columns
+            up = filtered or self._pulls_up(self.first)
         else:
             # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on
             # cells, and whole rows and columns do not look (tests/fixtures/range_methods_moves.json).
@@ -6863,6 +6865,16 @@ class Range(ExcelObject):
             self._delete_cells(self.first, up)
         _events.after_edit(where, calculate_first=True)
         return True
+
+    def _pulls_up(self, area: Area) -> bool:
+        """Which way a Delete with no Shift pulls cells: a range no taller than it is wide pulls them up, unless nothing
+        lies below it in its columns, and a taller one pulls them left, unless nothing lies to its right in its rows;
+        then the other way (tests/fixtures/advanced_filter_shifts_d.json, _e)."""
+        if area.rows <= area.columns:
+            return any(row > area.bottom and area.left <= column <= area.right and not cell.is_blank()
+                       for (row, column), cell in self.sheet.cells_.items())
+        return not any(column > area.right and area.top <= row <= area.bottom and not cell.is_blank()
+                       for (row, column), cell in self.sheet.cells_.items())
 
     def _delete_lines(self) -> None:
         """Whole rows or columns deleted, the last area first, so that each goes from where it was."""

@@ -161,6 +161,42 @@ def test_a_granted_folder_does_not_let_a_macro_open_a_workbook(tmp_path: Path, o
     assert [book.name for book in app.workbooks()] == [app.workbook.name]
 
 
+@pytest.mark.parametrize('route', ['/..\\away\\', '\\..\\away\\', '/sub\\..\\..\\away\\', '/./..\\away/'])
+def test_a_backslashed_way_out_of_the_granted_folder_is_refused(tmp_path: Path, route: str) -> None:
+    """Off Windows a backslash is a character of a name: "grant/..\\away" checked as given is one file inside grant, which a read turning
+    its backslashes round finds in away. The gate checks the path the read opens (_hooks.final_path), so each is refused on every system;
+    on Linux and macOS the first once read away's Alpha.xlsx."""
+    grant, away = tmp_path / 'grant', _books(tmp_path / 'away')
+    grant.mkdir()
+    (grant / 'sub').mkdir()
+    app = _app(grant)
+    with pytest.raises(VBASandboxError):
+        app.run('Links.Put', f"='{grant}{route}[Alpha.xlsx]Sheet1'!A1")
+    assert app.workbook.linked_books == {}
+    assert (away / 'Alpha.xlsx').is_file()
+
+
+@pytest.mark.parametrize('system', ['nt', 'posix'])
+def test_the_gate_checks_the_one_path_the_read_opens(system: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    """final_path turns a macro's path into the system's once, backslashes and .. included, and link_gate hands that same string to the read."""
+    import ntpath
+    import posixpath
+
+    from pyopenvba.apps.excel import _hooks
+
+    given, wanted = {'nt': ('C:\\grant\\..\\away\\Alpha.xlsx', 'C:\\away\\Alpha.xlsx'),
+                     'posix': ('/grant/..\\away\\Alpha.xlsx', '/away/Alpha.xlsx')}[system]
+    with monkeypatch.context() as patched:
+        patched.setattr(os, 'name', system)
+        patched.setattr(os, 'sep', '\\' if system == 'nt' else '/')
+        patched.setattr(os, 'path', ntpath if system == 'nt' else posixpath)
+        found = _hooks.final_path(given)
+    assert (found.replace('/', '\\') if system == 'nt' else found) == wanted
+    app = ExcelApplication()
+    _, final = _hooks.link_gate(app.application, 'Reading a linked workbook', str(Path('grant') / 'Alpha.xlsx'))
+    assert final == _hooks.final_path(str(Path('grant') / 'Alpha.xlsx'))
+
+
 def test_the_loader_takes_no_token_but_the_gate_s() -> None:
     from pyopenvba.apps.excel._hooks import LinkReadPassed, passed
 

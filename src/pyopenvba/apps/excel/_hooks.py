@@ -25,7 +25,7 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
-from pyopenvba.interpreter._files import spelled
+from pyopenvba.interpreter._files import native_path, spelled
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
@@ -91,8 +91,16 @@ def hook_of(application: Application, member: str) -> Hook | None:
     return found if isinstance(found, Hook) else None
 
 
+def final_path(path: str) -> str:
+    """The file a macro's path names, as this system opens it: a backslash a separator off Windows too, each part in the case the disk
+    spells it, then links and .. resolved. The gate checks this and the read or write uses this, so nothing turns the path round between
+    them: off Windows a backslash is a character of a name, and "grant/..\\away" checked as given is one file inside grant that a read
+    turning its backslashes round would find outside."""
+    return os.path.realpath(spelled(native_path(path)))
+
+
 def _real(path: str) -> Path:
-    return Path(os.path.realpath(spelled(path)))
+    return Path(final_path(path))
 
 
 def is_inside(path: Path | str, folders: tuple[str, ...]) -> bool:
@@ -144,19 +152,18 @@ def passed(token: object) -> bool:
     return token is _PASSED
 
 
-def link_gate(application: Application, what: str, path: str | None = None) -> LinkReadPassed:
-    """The sandbox's gate on reading a linked workbook's file, before anything on disk is looked at. With no folders granted it
-    is the interpreter's own gate, shut; with folders, a member passes, and each file it reads, ``path``, must lie in one.
-    The token it gives back lets load_workbook read that file."""
+def link_gate(application: Application, what: str, path: str | None = None) -> tuple[LinkReadPassed, str]:
+    """The sandbox's gate on reading a linked workbook's file. With no folders granted it is the interpreter's own gate, shut, before
+    anything on disk is looked at; with folders, a member passes, and each file it reads, ``path``, must lie in one. It gives back the
+    token that lets load_workbook read the file, and the file's final_path, the one string checked: the read opens that and nothing else."""
     interpreter = application.interpreter
-    if interpreter is None or not (interpreter.sandbox and interpreter.frames):
-        return _PASSED
-    if not interpreter.link_folders:
+    if interpreter is not None and interpreter.sandbox and interpreter.frames and not interpreter.link_folders:
         application.outside(what)
-    if path is not None:
-        _refuse_outside(application, interpreter.link_folders, path,
+    final = '' if path is None else final_path(path)
+    if interpreter is not None and interpreter.sandbox and interpreter.frames and path is not None:
+        _refuse_outside(application, interpreter.link_folders, final,
                         f'{what} may not read there: it is outside the folders named with allow_link_reads')
-    return _PASSED
+    return _PASSED, final
 
 
 def call(application: Application, hook: Hook, member: str, owner: str, target: object, workbook: Workbook, arguments: dict[str, object], path: Path | None = None) -> None:

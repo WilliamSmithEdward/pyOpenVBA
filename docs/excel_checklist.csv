@@ -4424,7 +4424,7 @@ TextRange2,InsertSymbol,method,"InsertSymbol(FontName As String, CharNumber As L
 TextRange2,Item,method,Item(Index As Variant) As TextRange2,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,By what the range counts.
 TextRange2,LanguageID,property,As MsoLanguageID,no setter,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,Reads for the two languages measured; others report themselves. No sets.
 TextRange2,Length,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_runs.json; tests/test_excel_shape_runs.py,Measured.
-TextRange2,Lines,"property, read-only",As TextRange2,,MISSING,,
+TextRange2,Lines,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/shape_lines.json; tests/fixtures/shape_lines2.json; tests/fixtures/shape_lines_members.json; tests/test_excel_text_lines.py,"Rectangles and text boxes in Aptos Narrow and Calibri, one font setting, no indents, bullets, columns, turning, spacing or capitals; anything else reports itself."
 TextRange2,LtrRun,method,LtrRun(),,MISSING,,
 TextRange2,MathZones,"property, read-only",As TextRange2,,MISSING,,
 TextRange2,ParagraphFormat,"property, read-only",As ParagraphFormat2,,PARTIAL,tests/fixtures/loaded_shape_foreign.json; tests/fixtures/loaded_shape_text.json; tests/test_excel_loaded_shape_text.py,"Alignment, indents, spacing, level, direction and whether a bullet shows: reads and sets (tests/fixtures/loaded_shape_sets.json). Taking a bullet off, and differing indents or spacing, report themselves."

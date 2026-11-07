@@ -74,11 +74,11 @@ def loaded(book: Workbook, path: str) -> tuple[Workbook, bool] | None:
     source = _open_book(book, path)
     if source is not None:
         return source, True
-    link_gate(book.application, "Reading a linked workbook", path)
+    token = link_gate(book.application, "Reading a linked workbook", path)
     file = Path(on_disk(path))
     if not file.is_file():
         return None
-    return load_workbook(book.application, file, checked=True), False
+    return load_workbook(book.application, file, _passed=token), False
 
 
 def _read(book: Workbook, path: str) -> tuple[tuple[str, ...], tuple[dict[tuple[int, int], object], ...]] | None:

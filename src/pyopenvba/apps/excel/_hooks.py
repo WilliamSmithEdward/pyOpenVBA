@@ -130,17 +130,33 @@ def set_link_folders(interpreter: Interpreter, folders: object) -> None:
     interpreter.link_folders = tuple(os.fspath(one) for one in folders)  # pyright: ignore[reportArgumentType, reportUnknownVariableType, reportUnknownArgumentType, reportGeneralTypeIssues]
 
 
-def link_gate(application: Application, what: str, path: str | None = None) -> None:
+class LinkReadPassed:
+    """What link_gate hands back for a file it checked, the one thing load_workbook takes in place of its own gate: no other
+    code makes one, so nothing skips the gate on opening a workbook by accident."""
+
+    __slots__ = ()
+
+
+_PASSED = LinkReadPassed()
+
+
+def passed(token: object) -> bool:
+    return token is _PASSED
+
+
+def link_gate(application: Application, what: str, path: str | None = None) -> LinkReadPassed:
     """The sandbox's gate on reading a linked workbook's file, before anything on disk is looked at. With no folders granted it
-    is the interpreter's own gate, shut; with folders, a member passes, and each file it reads, ``path``, must lie in one."""
+    is the interpreter's own gate, shut; with folders, a member passes, and each file it reads, ``path``, must lie in one.
+    The token it gives back lets load_workbook read that file."""
     interpreter = application.interpreter
     if interpreter is None or not (interpreter.sandbox and interpreter.frames):
-        return
+        return _PASSED
     if not interpreter.link_folders:
         application.outside(what)
     if path is not None:
         _refuse_outside(application, interpreter.link_folders, path,
                         f'{what} may not read there: it is outside the folders named with allow_link_reads')
+    return _PASSED
 
 
 def call(application: Application, hook: Hook, member: str, owner: str, target: object, workbook: Workbook, arguments: dict[str, object], path: Path | None = None) -> None:

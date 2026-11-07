@@ -159,12 +159,13 @@ def _read_columns_as_this_row(book: Workbook) -> None:
                 cell.formula = read
 
 
-def load_workbook(application: Application, path: Path, *, checked: bool = False) -> Workbook:
-    """A workbook read from an xlsx, xlsm, xlsb or xlam package; ``checked`` where the caller has passed the sandbox's gate for
-    this file itself, as a linked workbook's read does (see _hooks.link_gate)."""
+def load_workbook(application: Application, path: Path, *, _passed: object = None) -> Workbook:
+    """A workbook read from an xlsx, xlsm, xlsb or xlam package. ``_passed`` is the token _hooks.link_gate gives for a linked
+    workbook's file it checked; anything else goes through the sandbox's gate on opening a workbook."""
+    from pyopenvba.apps.excel._hooks import passed
     from pyopenvba.apps.excel._model import Workbook
 
-    if not checked:
+    if not passed(_passed):
         application.outside("Opening a workbook")
     if not path.exists():
         raise WorkbookFileError(f"there is no file at {path}")

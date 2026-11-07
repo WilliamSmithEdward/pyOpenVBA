@@ -147,3 +147,22 @@ def test_a_name_alone_is_looked_for_in_the_folder_the_application_was_made_in(tm
 def test_folders_must_be_a_list() -> None:
     with pytest.raises(TypeError):
         ExcelApplication().allow_link_reads('C:\\books')
+
+
+@pytest.mark.parametrize('opening', ['Workbooks.Open folder & "\\Alpha.xlsx"', 'ActiveWorkbook.OpenLinks folder & "\\Alpha.xlsx"'])
+def test_a_granted_folder_does_not_let_a_macro_open_a_workbook(tmp_path: Path, opening: str) -> None:
+    """The grant is for reading a link's file: opening a workbook keeps its own gate, which only the link read's token passes."""
+    folder = _books(tmp_path / 'books')
+    app = _app(folder)
+    app.run('Links.Put', _alpha(folder))
+    app.add_module(f'Public Sub Opened(ByVal folder As String)\n    {opening}\nEnd Sub\n', name='Opener')
+    with pytest.raises(VBASandboxError):
+        app.run('Opener.Opened', str(folder))
+    assert [book.name for book in app.workbooks()] == [app.workbook.name]
+
+
+def test_the_loader_takes_no_token_but_the_gate_s() -> None:
+    from pyopenvba.apps.excel._hooks import LinkReadPassed, passed
+
+    assert not passed(True)
+    assert not passed(LinkReadPassed())

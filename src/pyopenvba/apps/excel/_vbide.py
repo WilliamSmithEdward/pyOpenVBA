@@ -12,11 +12,11 @@ from typing import TYPE_CHECKING
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._runtime import Slot
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_integer, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, VBAInt, error, to_integer, to_text
 from pyopenvba.vba import VBAModule, VBAModuleKind, VBAProject, VBE_REFUSED_MODULE_NAMES, encode_mbcs, encoding_for_codepage, normalize_class_source, split_attribute_header
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Workbook
+    from pyopenvba.apps.excel._model import Application, Workbook
 
 INVALID_ARGUMENT = -2147024809
 PROCEDURE = re.compile(r'^\s*(?:(?:Public|Private|Friend|Static)\s+)*(Sub|Function|Property\s+(Get|Let|Set))\s+(\w+)', re.I)
@@ -166,6 +166,14 @@ class VBProject(VBAObject):
     @member
     def Protection(self) -> object:
         return VBAInt(int(self.protected), 'Long')
+
+    @member
+    def VBE(self) -> object:
+        return editor(self.book.application)
+
+    @member
+    def Collection(self) -> object:
+        return editor(self.book.application).projects
 
     def compile_pending(self, *, for_udf: bool = False) -> None:
         from pyopenvba.apps.excel._projects import attach_project
@@ -586,6 +594,113 @@ class CodeModule(VBAObject):
                     ProcKind.set(VBAInt(entry[1], 'Long'))
                 return entry[0]
         return ''
+
+
+class VBE(VBAObject):
+    """The Visual Basic Editor, one for the application, as a macro reads it with nobody at the editor: nothing selected, no
+    pane or window active (tests/fixtures/application_language_vbe.json). Its windows, panes, add-ins, command bars and
+    events show the editor the measuring machine had, and are refused."""
+
+    vba_type_name = 'VBE'
+    vba_library = 'vbide'
+
+    def __init__(self, application: Application) -> None:
+        self.application = application
+        self.projects = VBProjects(self)
+
+    def vba_no_member(self, name: str) -> Exception:
+        # The member inventory leaves dispatch interfaces out; every member VBE's type library gives it is here.
+        return error(438, f'VBE has no member named {name}')
+
+    @member
+    def Version(self) -> object:
+        return '7.01'
+
+    @member
+    def VBProjects(self) -> object:
+        return self.projects
+
+    @member
+    def ActiveVBProject(self) -> object:
+        """The active workbook's project, not the running macro's."""
+        book = self.application.active_book
+        return NOTHING if book is None else project_for(book)
+
+    @member
+    def SelectedVBComponent(self) -> object:
+        return NOTHING
+
+    @member
+    def ActiveCodePane(self) -> object:
+        return NOTHING
+
+    @member
+    def ActiveWindow(self) -> object:
+        return NOTHING
+
+    @member
+    def MainWindow(self) -> object:
+        raise VBAUnsupportedError('VBE.MainWindow is not implemented: the model has no editor window')
+
+    @member
+    def Windows(self) -> object:
+        raise VBAUnsupportedError('VBE.Windows is not implemented: the model has no editor windows')
+
+    @member
+    def CodePanes(self) -> object:
+        raise VBAUnsupportedError('VBE.CodePanes is not implemented: the model has no editor panes')
+
+    @member
+    def Addins(self) -> object:
+        raise VBAUnsupportedError("VBE.Addins is not implemented: the editor's add-ins are the machine's")
+
+    @member
+    def CommandBars(self) -> object:
+        raise VBAUnsupportedError("VBE.CommandBars is not implemented: the model has no editor menus")
+
+    @member
+    def Events(self) -> object:
+        raise VBAUnsupportedError("VBE.Events is not implemented: the model has no editor to raise them")
+
+
+class VBProjects(VBACollection):
+    """Each open workbook's project, in the order the workbooks opened; a name finds the first project of that name, and
+    a number or name past them is 9."""
+
+    vba_type_name = 'VBProjects'
+    vba_library = 'vbide'
+
+    def __init__(self, editor: VBE) -> None:
+        self.editor = editor
+
+    def vba_items(self) -> list[object]:
+        return [project_for(book) for book in self.editor.application.workbooks_.books]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        if isinstance(index, str):
+            for project in items:
+                assert isinstance(project, VBProject)
+                if project.name.casefold() == index.casefold():
+                    return project
+            raise error(9)
+        return super().vba_lookup(index, items)
+
+    @member
+    def Parent(self) -> object:
+        return self.editor
+
+    @member
+    def VBE(self) -> object:
+        return self.editor
+
+
+def editor(application: Application) -> VBE:
+    """The application's one VBE."""
+    found = application.__dict__.get('_editor')
+    if not isinstance(found, VBE):
+        found = VBE(application)
+        application.__dict__['_editor'] = found
+    return found
 
 
 def project_for(book: Workbook) -> VBProject:

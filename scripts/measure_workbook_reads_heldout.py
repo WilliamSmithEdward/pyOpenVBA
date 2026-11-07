@@ -38,7 +38,7 @@ SETTINGS: dict[str, tuple[str, ...]] = {
     'ForceFullCalculation': ('True', 'False'), 'ShowPivotTableFieldList': ('True', 'False'), 'ShowPivotChartActiveFields': ('True', 'False'),
     'EnableAutoRecover': ('True', 'False'), 'RemovePersonalInformation': ('True', 'False'), 'PrecisionAsDisplayed': ('True', 'False'),
     'DisplayInkComments': ('True', 'False'), 'UpdateLinks': ('1', '2', '3'), 'ConflictResolution': ('1', '2', '3'),
-    'DoNotPromptForConvert': ('True', 'False'), 'PersonalViewListSettings': ('True', 'False'), 'PersonalViewPrintSettings': ('True', 'False'),
+    'PersonalViewListSettings': ('True', 'False'), 'PersonalViewPrintSettings': ('True', 'False'),
     'TemplateRemoveExtData': ('True', 'False'), 'KeepChangeHistory': ('True', 'False'), 'HighlightChangesOnScreen': ('True', 'False'),
     'ListChangesOnNewSheet': ('True', 'False'), 'DefaultTableStyle': ('"TableStyleLight9"', '"TableStyleMedium2"', '"TableStyleDark1"'),
     'DefaultPivotTableStyle': ('"PivotStyleLight16"', '"PivotStyleMedium9"'),

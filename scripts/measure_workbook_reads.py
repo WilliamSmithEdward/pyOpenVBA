@@ -11,7 +11,7 @@ as a yes or no, never as what they are on this machine.
 
     python scripts/measure_workbook_reads.py
 
-writes tests/fixtures/workbook_reads.json and, for each round, tests/fixtures/workbook_reads_<round>.xlsx or .xlsm, the book both sides
+writes tests/fixtures/workbook_reads.json and, for each round, tests/fixtures/workbook_reads/<round>.xlsx, .xlsm, .xlsb or .xls, the book both sides
 read. A round already in the fixture is kept as measured.
 """
 from __future__ import annotations
@@ -213,7 +213,7 @@ ROUNDS = {'plain': (PLAIN.replace('FORMAT', 'xlOpenXMLWorkbook'), 'xlsx', True),
 def book(round_name: str) -> Path:
     if ROUNDS[round_name][0] is None:
         return ROOT / f'tests/fixtures/tool_books/{round_name}.xlsx'
-    return ROOT / f'tests/fixtures/workbook_reads_{round_name}.{ROUNDS[round_name][1]}'
+    return ROOT / f'tests/fixtures/workbook_reads/{round_name}.{ROUNDS[round_name][1]}'
 
 
 def main() -> None:

@@ -232,8 +232,8 @@ class ChartState:
     series: list[SeriesState] = field(default_factory=lambda: [])
     part: str = ''
     original: str = ''
-    #: A loaded chart's series whose data labels changed, written into original at save (see _chart_loaded).
-    labels_pending: list[SeriesState] = field(default_factory=lambda: [])
+    #: A loaded chart's series parts that changed, each written into original at save (see _chart_loaded.write_parts).
+    parts_pending: list[tuple[SeriesState, str]] = field(default_factory=lambda: [])
     dirty: bool = True
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
@@ -2020,15 +2020,16 @@ class Chart(ElementProperties, HeldPart):
         self.state.dirty = True
         self.sheet.drawing_changed()
 
-    def labels_changed(self, entry: SeriesState, member: str = '') -> None:
-        """A change to a series' data labels, or a point's, made by this member. A loaded chart takes it where its
-        labels are written as the file holds them, and writes them into its own markup at save."""
+    def part_changed(self, entry: SeriesState, part: str, member: str = '') -> None:
+        """A change to a part of a series, its look, its points' or its data labels (see _chart_loaded), made by this
+        member. A loaded chart takes it where the part is written as the file holds it, and writes it into its own markup
+        at save."""
         if not self.state.original:
             self.changed()
             return
-        from pyopenvba.apps.excel._chart_loaded import admit_labels
+        from pyopenvba.apps.excel._chart_loaded import admit_part
 
-        admit_labels(self, entry, member)
+        admit_part(self, entry, part, member)
         self.state.dirty = True
         self.sheet.drawing_changed()
 
@@ -4799,7 +4800,7 @@ class Series(PictureMembers, Created):
             raise VBAUnsupportedError('Changing the data labels of a series with point labels is not implemented')
         if self.entry.label_look.font is not None:
             raise VBAUnsupportedError('Changing data labels that have a font is not implemented')
-        self.chart.labels_changed(self.entry, 'Series.HasDataLabels')
+        self.chart.part_changed(self.entry, 'labels', 'Series.HasDataLabels')
         if self.entry.data_labels and not wanted:
             self.entry.label_generation += 1
         if wanted and self.entry.data_labels and self.entry.label_look.shown():

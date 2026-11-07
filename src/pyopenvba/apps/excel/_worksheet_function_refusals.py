@@ -352,7 +352,7 @@ REFUSALS: dict[str, dict[int, frozenset[str]]] = {
     'workday_intl': {0: frozenset(['cells', 'empty', 'empty cell', 'false', 'null', 'true']), 1: frozenset(['cells', 'false', 'null', 'true']), 2: frozenset(['empty', 'empty cell', 'false'])},
     'xirr': {0: frozenset(['empty', 'empty cell', 'false', 'null', 'true']), 1: frozenset(['empty', 'empty cell', 'false', 'null', 'true'])},
     'xlookup': {1: frozenset(['empty', 'null']), 2: frozenset(['empty', 'null'])},
-    'xmatch': {0: frozenset(['empty', 'empty cell', 'false', 'null', 'true']), 1: frozenset(['empty', 'null']), 2: frozenset(['empty', 'empty cell', 'false', 'null'])},
+    'xmatch': {1: frozenset(['empty', 'null']), 2: frozenset(['null'])},
     'xnpv': {0: frozenset(['empty', 'empty cell', 'false', 'null', 'true']), 1: frozenset(['empty', 'empty cell', 'false', 'null', 'true'])},
     'yearfrac': {0: frozenset(['cells', 'false', 'null', 'true']), 1: frozenset(['cells', 'false', 'null', 'true']), 2: frozenset(['cells', 'false', 'true'])},
     'yielddisc': {0: frozenset(['cells', 'false', 'null', 'true']), 1: frozenset(['cells', 'empty', 'empty cell', 'false', 'null', 'true']), 2: frozenset(['cells', 'empty', 'empty cell', 'false', 'null', 'true']), 3: frozenset(['cells', 'empty', 'empty cell', 'false', 'null', 'true']), 4: frozenset(['cells', 'false', 'true'])},

@@ -258,6 +258,10 @@ class EventSlot(Slot):
         self.name = name
 
     def set(self, value: object) -> None:
+        from pyopenvba.interpreter._com_hook import HostObject
+
+        if isinstance(value, HostObject):
+            raise VBAUnsupportedError(f"WithEvents on {value.vba_type_name}, an object the host supplies, is not implemented")
         super().set(value)
         owner = self.owner()
         if owner is not None:
@@ -1102,14 +1106,16 @@ class EachLoop:
 
 
 class StepBudget:
-    """What is left of a run's steps: one for a host and every interpreter of its projects."""
+    """One run from the host: what started it and what is left of its steps, shared by every interpreter of the host's projects."""
 
-    __slots__ = ("left", "limit", "running")
+    __slots__ = ("entry", "left", "limit", "running")
 
     def __init__(self) -> None:
         self.limit: int | None = None
         self.left = 0
         self.running = False
+        #: What the host started the run with, "Module1.Main" or "ThisWorkbook.Workbook_Open"; "" between runs.
+        self.entry = ""
 
 
 class Interpreter:
@@ -1135,6 +1141,8 @@ class Interpreter:
         self.sandbox = True
         #: How many steps a run of VBA may take, shared with every interpreter of the host's projects (see step_limit).
         self.steps = StepBudget()
+        #: The COM classes the host supplies, by ProgID in lower case, with the folders a file may be in (see set_com_class).
+        self.com_classes: dict[str, tuple[Callable[..., object], tuple[str, ...]]] = {}
         #: Every dialog the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
@@ -1242,12 +1250,27 @@ class Interpreter:
                                  where=self.current_where())
         return self.answers.pop(0)
 
-    def create_com(self, class_name: str) -> object:
+    def set_com_class(self, prog_id: str, factory: Callable[..., object] | None, *, folders: object = ()) -> None:
+        """What CreateObject and GetObject make for ``prog_id``: the factory's answer to a ComRequest. None takes it away. ``folders`` are those
+        a GetObject of a file may name while the sandbox is on. See _com_hook."""
+        from pyopenvba.interpreter._com_hook import set_com_class
+
+        set_com_class(self, prog_id, factory, folders)
+
+    def create_com(self, class_name: str, server: str = "") -> object:
+        from pyopenvba.interpreter._com_hook import CANNOT_CREATE, from_factory
         from pyopenvba.interpreter._scripting import in_memory
 
+        made = from_factory(self, class_name, "create", server=server)
+        if made is not None:
+            return made
         found = in_memory(class_name, program=True, interpreter=self)
         if found is not None:
             return found
+        if not class_name or class_name != class_name.strip():
+            # No ProgID is blank or has spaces round it, so this is Excel's answer for a class that does not exist
+            # (tests/fixtures/com_objects.json).
+            raise error(CANNOT_CREATE, "ActiveX component can't create object")
         made = self.host.create(class_name)
         if made is not UNRESOLVED:
             return made
@@ -1255,6 +1278,41 @@ class Interpreter:
         raise VBAUnsupportedError(
             f"CreateObject({class_name!r}) needs a real COM server, which pyOpenVBA does not start"
         )
+
+    def get_com(self, path: object, class_name: object) -> object:
+        """GetObject: with a path of "" a new object, as CreateObject; with no path the class's running object; with a file what the host's
+        factory makes of it. pyOpenVBA never looks at what is running on the machine (tests/fixtures/com_objects.json)."""
+        from pyopenvba.interpreter._com_hook import CANNOT_CREATE, from_factory
+        from pyopenvba.interpreter._values import to_text
+
+        name = "" if class_name is MISSING else to_text(class_name)
+        if path is not MISSING and to_text(path) == "":
+            return self.create_com(name)
+        if path is not MISSING:
+            if class_name is MISSING:
+                raise VBAUnsupportedError("GetObject of a file with no class is not implemented: Windows would choose the program")
+            return self._get_file(to_text(path), name)
+        made = from_factory(self, name, "get")
+        if made is not None:
+            return made
+        running = self.host.running(name)
+        if running is not UNRESOLVED:
+            return running
+        if not name or name != name.strip():
+            raise error(CANNOT_CREATE, "ActiveX component can't create object")
+        self.outside(f"GetObject(, {name!r})")
+        # With the sandbox off, nothing runs here for it to find, as it does not on a machine with none of the class running.
+        raise error(CANNOT_CREATE, "ActiveX component can't create object")
+
+    def _get_file(self, path: str, name: str) -> object:
+        from pyopenvba.interpreter._com_hook import from_factory, gated
+
+        if name.lower() not in self.com_classes:
+            self.outside(f"GetObject({path!r}, {name!r})")
+            raise VBAUnsupportedError(f"GetObject of a file needs a class the host supplies: {name!r} is not one")
+        made = from_factory(self, name, "get", path=gated(self, name, path))
+        assert made is not None
+        return made
 
     def current_where(self) -> str:
         if not self.frames:
@@ -1331,14 +1389,14 @@ class Interpreter:
     ) -> object:
         """Call one procedure and give back what it returns."""
         steps = self.steps
-        if steps.limit is not None and not steps.running:
+        if not steps.running:
             # The host's entry into VBA: whatever it sets off draws on one budget, however many interpreters it passes
-            # through, and the next entry starts afresh.
-            steps.running, steps.left = True, steps.limit
+            # through, is part of the run it started, and the next entry starts afresh.
+            steps.running, steps.left, steps.entry = True, steps.limit or 0, f"{module.name}.{procedure.name}"
             try:
                 return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
             finally:
-                steps.running = False
+                steps.running, steps.entry = False, ""
         if not self.frames and _locale.current() is not self.locale:
             # The outermost call runs everything under the project's locale.
             with _locale.active(self.locale):
@@ -1842,7 +1900,15 @@ class Interpreter:
             # Some objects, and some properties, take an object itself by Let; anything else hands over the
             # object's default member.
             if not ((value.vba_let_as_object or target.takes_objects) and isinstance(statement.target, A.Member)):
-                value = value.vba_value()
+                try:
+                    value = value.vba_value()
+                except VBARuntimeError:
+                    # A Variant that held Nothing is Empty after the Let fails (tests/fixtures/com_objects.json).
+                    if isinstance(statement.target, A.Name):
+                        slot = self.lookup(statement.target.name, frame, want_slot=True)
+                        if isinstance(slot, Slot) and slot.declared in ("", "Variant") and slot.get() is NOTHING:
+                            slot.set(EMPTY)
+                    raise
         target.put(value, statement.kind == "set")
 
     def _let_default(self, held: VBAObject, value: object, found: LibraryClass) -> None:
@@ -3195,6 +3261,14 @@ class HostBridge:
         raise VBAUnsupportedError(f"{name} is not something this host provides")
 
     def constant(self, name: str) -> object:
+        return UNRESOLVED
+
+    def document(self) -> object:
+        """The Workbook, Document or Presentation whose project runs, for a hook's request; None where there is none."""
+        return None
+
+    def running(self, class_name: str) -> object:
+        """GetObject(, class): the host's own object of that class where the host is one, else UNRESOLVED."""
         return UNRESOLVED
 
     def create(self, type_name_: str) -> object:

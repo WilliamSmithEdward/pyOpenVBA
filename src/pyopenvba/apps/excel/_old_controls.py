@@ -527,6 +527,13 @@ class SpreadPart(Created):
         raise VBAUnsupportedError(f'Setting {self.part}.{name} on {self.owner.vba_type_name} is not implemented')
 
 
+def _spread_getter(name: str) -> Any:
+    def read(self: OldControls) -> object:
+        return self.vba_get(name)
+
+    return read
+
+
 class OldControls(VBACollection, Created):
     """One kind of a sheet's form controls, or some of them picked by an Array. Asked for a member of its items, a collection of one
     answers for the item, and of several fails, but for what these say (tests/fixtures/old_collection_members.json)."""
@@ -541,6 +548,14 @@ class OldControls(VBACollection, Created):
     several: ClassVar[dict[str, object]] = {'visible': True}
     #: What the collection of one gives as a Double, where its item gives a Long.
     doubled: ClassVar[frozenset[str]] = frozenset({'zorder', 'value', 'listindex', 'dropdownlines', 'listcount'})
+    #: Its items' members it answers for them as Excel does, as is, alike and different, typed and late, on a saved and a made workbook
+    #: (tests/fixtures/old_collection_reads.json). Each is registered, so the class lists it, and read as the rest are.
+    spread_reads: ClassVar[frozenset[str]] = frozenset()
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        for name in cls.spread_reads:
+            cls.vba_add_member(MemberSpec(name=name, kind='property', getter=_spread_getter(name)))
 
     def __init__(self, sheet: Worksheet, picked: list[Shape] | None = None) -> None:
         self.sheet, self.picked = sheet, picked
@@ -628,8 +643,13 @@ class OldControls(VBACollection, Created):
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection, or else what its items answer."""
         lower = name.lower()
-        if lower in {key.lower() for key in self._vba_members}:
+        if lower in {key.lower() for key in self._vba_members} and lower not in {key.lower() for key in self.spread_reads}:
             return super().vba_get(name, args, named)
+        return self.items_read(name, args, named)
+
+    def items_read(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        """What the collection answers for its items' member ``name``."""
+        lower = name.lower()
         items = self.vba_items()
         if not items:
             return self.nothing_held(name)
@@ -652,8 +672,9 @@ class OldControls(VBACollection, Created):
             return getattr(items[0], 'vba_get')(name, args, named)
         if lower not in self.several:
             raise error(*_NOT_THERE)
-        if lower == 'visible' and any(getattr(one, 'shape').hidden for one in items):
-            raise VBAUnsupportedError(f'{self.vba_type_name}.Visible with some of its items hidden is not implemented')
+        if lower == 'visible':
+            # The first item's, whatever the rest hold: all hidden reads False, the second alone hidden True (tests/fixtures/old_collection_reads.json).
+            return not getattr(items[0], 'shape').hidden
         return self.several[lower]
 
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
@@ -671,6 +692,7 @@ class OldControls(VBACollection, Created):
 class Buttons(OldControls):
     vba_type_name = 'Buttons'
     kind = 'Button'
+    spread_reads = frozenset({'Accelerator', 'Caption', 'Characters', 'Font', 'Locked', 'Placement', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
     parts = frozenset({'Characters', 'Font'})
     several = {'visible': True, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
 
@@ -678,12 +700,14 @@ class Buttons(OldControls):
 class CheckBoxes(OldControls):
     vba_type_name = 'CheckBoxes'
     kind = 'CheckBox'
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Interior', 'LinkedCell', 'Locked', 'Placement', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
 
 
 class OptionButtons(OldControls):
     vba_type_name = 'OptionButtons'
     kind = 'Radio'
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'GroupBox', 'Interior', 'LinkedCell', 'Locked', 'Placement', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
     several = {'visible': True, 'groupbox': NOTHING}
 
@@ -691,12 +715,14 @@ class OptionButtons(OldControls):
 class DropDowns(OldControls):
     vba_type_name = 'DropDowns'
     kind = 'Drop'
+    spread_reads = frozenset({'Caption', 'Characters', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'Selected', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
     parts = frozenset({'Characters'})
 
 
 class ListBoxes(OldControls):
     vba_type_name = 'ListBoxes'
     kind = 'List'
+    spread_reads = frozenset({'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'Selected', 'ShapeRange', 'Value', 'Visible', 'ZOrder'})
 
 
 def collection(sheet: Worksheet, kind: type[OldControls], index: object) -> Any:

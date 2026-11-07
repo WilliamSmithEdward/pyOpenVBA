@@ -100,6 +100,7 @@ ERROR_CODES = (
 )
 
 _SPACE = re.compile(r"[ \t\r\n]+")
+_FIELD_OF_CELL = re.compile(r"\$?[A-Za-z]{1,3}\$?[0-9]{1,7}\.[^\W\d_][\w.]*(?![\w.!])")
 _NUMBER = re.compile(r"(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
 #: What may not follow a reference, because the reference would then be the
 #: start of something longer: a name, a call, a table, a sheet's name.
@@ -216,6 +217,11 @@ class _Lexer:
     def operand(self) -> None:
         text = self.text
         start = self.position
+        field = _FIELD_OF_CELL.match(text, start)
+        if field is not None:
+            # Of a cell holding no data type, as no cell here does, a field is this error (tests/fixtures/value_gaps.json).
+            self.emit(Kind.OPERAND, field.end(), ErrorLiteral("#FIELD!"))
+            return
         prefix, after = self.prefix()
         if prefix is not None:
             node, end = self.target(after, prefix)

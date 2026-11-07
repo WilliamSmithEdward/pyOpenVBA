@@ -41,6 +41,13 @@ CANNOT_ACCESS = ("Microsoft Excel cannot access the file '{}'. There are several
                  "• The workbook you are trying to save has the same name as a currently open workbook.")
 
 
+def refuse_moved_links(book: Workbook) -> None:
+    """A copy elsewhere of a workbook that links to files, which would need its links moved."""
+    if _links_to_files(book):
+        raise VBAUnsupportedError("SaveCopyAs into another folder of a workbook that links to files is not "
+                                  "implemented: Excel moves the workbook's own links to the copy's folder")
+
+
 def save_copy(book: Workbook, filename: object) -> None:
     """Write ``book`` to ``filename`` as SaveCopyAs writes it (see the module's notes)."""
     from pyopenvba.apps.excel._document_properties import stamp
@@ -60,9 +67,8 @@ def save_copy(book: Workbook, filename: object) -> None:
     target = Path(os.path.abspath(on_disk(filename)))
     if not target.parent.is_dir() or _open_file(book, target):
         raise error(1004, CANNOT_ACCESS.format(target))
-    if str(target.resolve().parent) != book.links_folder and _links_to_files(book):
-        raise VBAUnsupportedError("SaveCopyAs into another folder of a workbook that links to files is not "
-                                  "implemented: Excel moves the workbook's own links to the copy's folder")
+    if str(target.resolve().parent) != book.links_folder:
+        refuse_moved_links(book)
     try:
         save_workbook(book, target, fresh_suffix=".xlsm" if workbook_format(book) == 52 else ".xlsx")
     except OSError as failure:

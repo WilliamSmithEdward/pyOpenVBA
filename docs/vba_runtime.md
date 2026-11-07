@@ -98,6 +98,96 @@ last stay `VBAUnsupportedError`.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
 
+## The step limit
+
+A macro can loop for ever, and the sandbox does not stop that. A host that runs
+macros it does not trust can set how many steps one run may take:
+
+```python
+app = ExcelApplication(step_limit=10_000_000)   # also on open, Word and PowerPoint
+app = ExcelApplication()                        # no limit, the default
+```
+
+A step is an instruction the interpreter carries out, a loop's test and a jump
+included, so `Do: Loop` with nothing in it runs out like any other. A run is
+everything one entry from the host sets off: a procedure called from Python, an
+event raised from Python, or a recalculation that calls a VBA function, with
+whatever those call, raise, evaluate or call back in turn. Class code, event
+macros, `Evaluate` and a host's callback that runs VBA all draw on the budget of
+the run they happen in, and so does every workbook's project. The next entry from
+the host starts afresh.
+
+Past the limit the run raises `VBAStepLimitError`, a `VBAError` but no run-time
+error, so `On Error` cannot trap it and `Err` is not set. The run ends where it was:
+what it did up to that statement is kept, not rolled back. A step limit must be a
+whole number of at least 1, or `None`; anything else is `ValueError` at once.
+
+It bounds the steps between statements, not what one statement costs. A large
+`Range.Sort`, a recalculation of many formulas, or one call into the engine takes as
+long as it takes, and neither memory nor time spent by the host itself is counted.
+With no limit set, counting costs one check of an attribute per instruction, which
+did not show above the noise of timing a 300,000-pass loop.
+
+## Hooks
+
+Some members need something outside the engine: a PDF library, a printer. The model does not ship one. A caller registers a function instead, and the
+package stays free of runtime dependencies and of any choice of library.
+
+```python
+from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.apps.excel._hooks import HookRequest
+
+
+def export(request: HookRequest) -> None:
+    my_converter(request.saved_bytes(), request.path)
+
+
+app = ExcelApplication.open("book.xlsm")
+app.set_hook("ExportAsFixedFormat", export, folders=["C:/reports"])
+app.set_hook("PrintOut", my_print_function)
+```
+
+`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat` or `PrintOut`; any other name raises `ValueError`, and `None` removes the function.
+
+The model answers what it measured itself: a macro's argument errors, then `BeforePrint`, then the file. Only then does it call the function with a
+`HookRequest`:
+
+| Field | Holds |
+| --- | --- |
+| `member` | `ExportAsFixedFormat` or `PrintOut` |
+| `owner` | The class it was called on: `Worksheet`, `Workbook`, `Range`, `Chart` or `Sheets` |
+| `target`, `workbook` | The live objects |
+| `arguments` | Only what the macro gave, under Excel's names, read-only |
+| `path` | The file to write, past the gate and with Excel's name rules applied, or `None` |
+| `saved_bytes()` | What `SaveCopyAs` would write now, changing nothing about the workbook |
+
+Trust `path`, not `arguments`. Every value in `arguments` comes from the macro, which may be untrusted. `Copies` and `ActivePrinter` are yours to honour or not.
+`OpenAfterPublish` and `Preview` are values only: the model opens no viewer, prints nothing and shows nothing. Excel's names rule on `path`: a name left out goes to the
+current folder under the workbook's name, a relative one to the current folder, and `.pdf` or `.xps` is added unless the name ends in it.
+
+What a function makes is its own. **Its output is not claimed to match Excel**, and a library that draws needs its own layout: the model has no automatic page
+breaks, and Excel's own placing of text depends on its printer driver. The model has no pages, so `From` past the last page, which Excel refuses on a sheet or a range, goes to the function: handle it there.
+
+**Under the sandbox**, a file a macro names must lie inside one of `folders`, or the function is not called. With links, junctions and `..` resolved, parts compare
+whole, so `C:/out2` is not in `C:/out`, and UNC and device paths are refused unless the folder is one. With no `folders`, no file passes. With `sandbox=False` there
+is no limit. A `PrintOut` with no file runs its function under the sandbox, as registering it is the grant, so a macro can make your function run.
+
+A chart in a frame, `ChartObject.Chart`, prints as a chart sheet does, but Excel makes no file of one: past its argument errors `ExportAsFixedFormat` raises -2147417848, or -2147024773 with no name, and the function is not called. This refusal is Excel's own behaviour, measured bound late. Bound typed, Excel stops the macro's run there, which could not be measured, so the model answers typed as it does late: a stated assumption.
+
+**With no function**, `ExportAsFixedFormat` reports itself. A plain `PrintOut` goes nowhere, as it always has, and a macro sees only `BeforePrint`; `Preview`, a printer and to-file report
+themselves. `Window.PrintOut` is 1004 in Excel, so it never reaches a function.
+
+Chosen rather than measured: `From` or `To` below 1 failing after `BeforePrint` on an export, the 259 characters a path can hold, and `FixedFormatExtClassPtr` or `WorkIdentity` being refused whatever they hold (measured with `Nothing`).
+
+**What a function raises** (chosen, based on the 1004 Excel gives when it cannot write a file): a `VBAError` goes on as it is, so `pyopenvba.interpreter._values.error(70)` is a trappable 70 and
+`VBADialogError` still stops the run. Any other `Exception` is a trappable 1004, with the original as `__cause__`. `KeyboardInterrupt` passes. A function that runs its own member again is refused.
+
+Inside a function the sandbox stays up while a macro runs, so `app.save` is refused there: use `saved_bytes()`. A workbook never saved gives a new file in its own format. One that links to other
+files reports itself, as `SaveCopyAs` elsewhere does.
+
+`PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
+printer's name were never run in Excel, so what the function does with them is unmeasured.
+
 ## Dialogs
 
 Nobody is at the screen, so a dialog never blocks. It takes the next answer the

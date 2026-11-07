@@ -56,11 +56,20 @@ def _custom_styles(book: Workbook) -> bool:
 
 
 def table_style_named(book: Workbook, name: str) -> TableStyle | None:
-    """The built-in style of this name in any case, or None; a workbook's own style is kept by its name as given."""
+    """The built-in style of this name in any case, or the workbook's own by its name in any case, spelt as the book keeps it, a
+    style it marks for pivot tables only among them; else None (tests/fixtures/table_style_own.json)."""
     found = _BUILT_IN.get(name.lower())
     if found is None and name and _custom_styles(book):
-        return TableStyle(book, name)
+        found = next((own for own in _own_style_names(book) if own.lower() == name.lower()), None)
     return None if found is None else TableStyle(book, found)
+
+
+def _own_style_names(book: Workbook) -> list[str]:
+    """The names of the table styles the workbook's stylesheet holds of its own."""
+    from pyopenvba._xml import unescape
+
+    return [unescape(name) for name in
+            re.findall(r'<(?:[\w.-]+:)?tableStyle\b[^>]*?\bname="([^"]*)"', book.stylesheet.xml)]
 
 
 class TableStyles(VBACollection, ItemDefault, ExcelObject):

@@ -1853,6 +1853,8 @@ class Workbook(ExcelObject):
         #: (_workbook_settings), which a save writes.
         self.workbook_pr: dict[str, str] = {}
         self.workbook_pr_changed: set[str] = set()
+        #: SetPasswordEncryptionOptions' provider, algorithm, key length and file properties, which the four reads answer.
+        self.encryption_options: tuple[str, str, int, bool] = ("", "", 0, True)
         #: ChartDataPointTrack: True for a new book, and what the file says for one opened (_date_system).
         self.chart_data_point_track = True
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
@@ -2353,19 +2355,29 @@ class Workbook(ExcelObject):
 
     @member
     def PasswordEncryptionProvider(self) -> object:
-        return ""
+        return self.encryption_options[0]
 
     @member
     def PasswordEncryptionAlgorithm(self) -> object:
-        return ""
+        return self.encryption_options[1]
 
     @member
     def PasswordEncryptionKeyLength(self) -> object:
-        return VBAInt(0, "Long")
+        return VBAInt(self.encryption_options[2], "Long")
 
     @member
     def PasswordEncryptionFileProperties(self) -> object:
-        return True
+        return self.encryption_options[3]
+
+    @method
+    def SetPasswordEncryptionOptions(self, PasswordEncryptionProvider: object = MISSING, PasswordEncryptionAlgorithm: object = MISSING,
+                                     PasswordEncryptionKeyLength: object = MISSING,
+                                     PasswordEncryptionFileProperties: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_more import encryption_options
+
+        self.encryption_options = encryption_options(self.encryption_options, PasswordEncryptionProvider, PasswordEncryptionAlgorithm,
+                                                     PasswordEncryptionKeyLength, PasswordEncryptionFileProperties)
+        return EMPTY
 
     @member
     def ExternalCodeServiceTimeout(self) -> object:

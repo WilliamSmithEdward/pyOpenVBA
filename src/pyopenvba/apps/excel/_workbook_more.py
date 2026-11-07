@@ -86,11 +86,21 @@ class ThemeColorScheme(_Owned):
     def Count(self) -> object:
         return VBAInt(len(_SCHEME), "Long")
 
-    @method(default=True)
+    @method
     def Colors(self, Index: object = MISSING) -> object:
         place = int(to_integer(Index, "Long"))
         if not 1 <= place <= len(_SCHEME):
             raise error(5, "The specified value is out of range.")
+        return ThemeColor(self, self.book, place)
+
+    def vba_default_call(self, args: list[object], named: dict[str, object]) -> object:
+        """An index straight on the scheme, as `ThemeColorScheme(5).RGB` writes it, is Colors(5); one out of range is -2147024809 there,
+        where Colors says 5 (tests/fixtures/theme_scheme_default.json, tests/fixtures/workbook_members.json)."""
+        if len(args) != 1 or named:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        place = int(to_integer(args[0], "Long"))
+        if not 1 <= place <= len(_SCHEME):
+            raise error(-2147024809, "The parameter is incorrect.")
         return ThemeColor(self, self.book, place)
 
 
@@ -490,3 +500,39 @@ class Graphic(ExcelObject):
     @member
     def LockAspectRatio(self) -> object:
         raise app_defined()
+
+
+#: The cryptographic providers Windows ships, and the algorithm names SetPasswordEncryptionOptions takes for each, as Excel answered once on
+#: this machine (tests/fixtures/workbook_encryption_options.json). No live probe names a provider again (tests/test_probes_leave_crypto_alone.py).
+_PROVIDERS: dict[str, frozenset[str]] = {
+    "Microsoft Base Cryptographic Provider v1.0": frozenset({"RC4", "RC2", "DES"}),
+    "Microsoft Enhanced Cryptographic Provider v1.0": frozenset({"RC4", "RC2", "DES", "3DES"}),
+    "Microsoft Strong Cryptographic Provider": frozenset({"RC4", "RC2", "DES", "3DES"}),
+    "Microsoft RSA SChannel Cryptographic Provider": frozenset({"RC4", "RC2", "DES", "3DES", "AES 128", "AES 256"}),
+    "Microsoft Enhanced RSA and AES Cryptographic Provider": frozenset({"RC4", "RC2", "DES", "3DES", "AES 128", "AES 192", "AES 256"}),
+    "Microsoft Base DSS Cryptographic Provider": frozenset(),
+    "Microsoft Base DSS and Diffie-Hellman Cryptographic Provider": frozenset({"RC4", "RC2", "DES"}),
+    "Microsoft Enhanced DSS and Diffie-Hellman Cryptographic Provider": frozenset({"RC4", "RC2", "DES", "3DES"}),
+    "Microsoft DH SChannel Cryptographic Provider": frozenset({"RC4", "RC2", "DES", "3DES"}),
+}
+#: A provider whose answers depend on a smartcard: Excel asked the machine for one, and what it answered is not a rule.
+_HARDWARE = "Microsoft Base Smart Card Crypto Provider"
+
+
+def encryption_options(held: tuple[str, str, int, bool], provider: object, algorithm: object, length: object,
+                       properties: object) -> tuple[str, str, int, bool]:
+    """Workbook.SetPasswordEncryptionOptions: the options it sets, or the error Excel gives, keeping what the book held. Text for the key length
+    or the file properties is 13. A provider or algorithm left out, unknown, or spelled in another case is 5, as is an algorithm the provider
+    does not offer; a leading space before the algorithm is dropped. A key length is 0 or a positive multiple of 8, or 5. Typed and late
+    answer the same (tests/fixtures/workbook_encryption_options.json)."""
+    from pyopenvba.interpreter._values import to_bool
+
+    bits = 0 if length is MISSING else int(to_integer(length, "Long"))
+    files = held[3] if properties is MISSING else to_bool(properties)
+    name = provider if isinstance(provider, str) else None
+    if name == _HARDWARE:
+        raise VBAUnsupportedError(f"SetPasswordEncryptionOptions with {_HARDWARE}, which asks the machine for a smartcard, is not implemented")
+    method = algorithm.lstrip(" ") if isinstance(algorithm, str) else None
+    if name not in _PROVIDERS or method not in _PROVIDERS[name] or bits < 0 or bits % 8:
+        raise error(5, "Invalid procedure call or argument")
+    return name, method, bits, files

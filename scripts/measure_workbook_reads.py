@@ -18,16 +18,19 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import probe_limits  # noqa: E402 - beside this script, which may not name what it leaves out
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'tests/fixtures/workbook_reads.json'
 SEPARATOR = '%%'
 #: Not read: mail, servers and rights, panes, and SmartDocument. See the docstring.
-LEFT_OUT = frozenset({'Mailer', 'EnvelopeVisible', 'Permission', 'ServerPolicy', 'SharedWorkspace', 'DocumentLibraryVersions', 'ContentTypeProperties',
-                      'SensitivityLabel', 'Research', 'SmartDocument', 'Signatures', 'WorkIdentity'})
+LEFT_OUT = probe_limits.MAIL | probe_limits.RIGHTS | probe_limits.SERVERS
 #: Read as whether they are blank, since their text is this machine's folder or user.
 PRIVATE = frozenset({'FullName', 'FullNameURLEncoded', 'Path', 'UserStatus', 'WriteReservedBy'})
 

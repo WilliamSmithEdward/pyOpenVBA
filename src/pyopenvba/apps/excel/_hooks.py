@@ -32,9 +32,32 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Workbook
 
 #: The members with a hook. Each is added here when it is built, so that a name mistyped raises rather than never being called.
-HOOK_NAMES = frozenset({'ExportAsFixedFormat', 'PrintOut'})
+HOOK_NAMES = frozenset({'ExportAsFixedFormat', 'PrintOut', 'Refresh'})
 #: Names Windows gives to devices rather than files, whatever follows the dot.
 _DEVICES = frozenset({'CON', 'PRN', 'AUX', 'NUL', 'CONIN$', 'CONOUT$', *(f'COM{at}' for at in range(1, 10)), *(f'LPT{at}' for at in range(1, 10))})
+
+
+@dataclass(frozen=True)
+class ExternalSource:
+    """What a Refresh asks for: the kind of source, OLEDB or ODBC, its connection string as the macro set it with that kind's prefix
+    taken off, the command, the command's kind as Excel names it (xlCmdSql, xlCmdTable, xlCmdDefault), the parameters given, and
+    whether the field names are wanted. The model lays out the rows; the function only fetches them.
+
+    The connection string goes to the function whole, as it needs it to connect. Wherever the model shows one, in this object's repr and
+    in every error, a password is written ****."""
+
+    kind: str
+    connection: str
+    command_text: str
+    command_type: str = 'xlCmdSql'
+    parameters: tuple[tuple[str, object], ...] = ()
+    fields_wanted: bool = True
+
+    def __repr__(self) -> str:
+        from pyopenvba.apps.excel._query_databases import masked
+
+        return (f'ExternalSource(kind={self.kind!r}, connection={masked(self.connection)!r}, command_text={self.command_text!r}, '
+                f'command_type={self.command_type!r}, parameters={self.parameters!r}, fields_wanted={self.fields_wanted!r})')
 
 
 @dataclass(frozen=True)
@@ -51,6 +74,8 @@ class HookRequest:
     workbook: Workbook
     arguments: Mapping[str, object]
     path: Path | None = None
+    #: For Refresh: the source to fetch rows from, as the macro named it.
+    source: ExternalSource | None = None
 
     def saved_bytes(self) -> bytes:
         """What SaveCopyAs would write now, for a tool that converts files. Nothing about the workbook changes: not Saved, not its name or its path, and no event runs. A workbook never
@@ -117,8 +142,9 @@ def gate(application: Application, hook: Hook, member: str, path: Path) -> None:
         raise VBASandboxError(f'{member} may not write there: it is outside the folders named with set_hook', where=interpreter.current_where())
 
 
-def call(application: Application, hook: Hook, member: str, owner: str, target: object, workbook: Workbook, arguments: dict[str, object], path: Path | None = None) -> None:
-    """Call the function, as the docstring above says."""
+def call(application: Application, hook: Hook, member: str, owner: str, target: object, workbook: Workbook, arguments: dict[str, object], path: Path | None = None,
+         source: ExternalSource | None = None) -> object:
+    """Call the function, as the docstring above says, and give back what it returns: nothing for an output hook, the rows for Refresh."""
     interpreter = application.interpreter
     assert interpreter is not None
     running: list[str] = interpreter.hooks_running
@@ -126,10 +152,12 @@ def call(application: Application, hook: Hook, member: str, owner: str, target: 
         raise VBAUnsupportedError(f'{member} called from its own hook is not implemented')
     running.append(member)
     try:
-        hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path))
+        return hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path, source))
     except VBAError:
         raise
     except Exception as failed:
-        raise error(1004, f'The function set for {member} failed: {failed}') from failed
+        # A source's function may echo its connection string, password and all, so its words stay in __cause__ alone.
+        said = type(failed).__name__ if source is not None else failed
+        raise error(1004, f'The function set for {member} failed: {said}') from failed
     finally:
         running.remove(member)

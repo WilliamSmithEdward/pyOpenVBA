@@ -929,11 +929,14 @@ def grown(sheet: Worksheet, area: Area) -> Area:
     new filter over A1:D5 of a table down to row 13 filters and saves
     A1:D13 while its hidden name keeps A1:D5; arrows alone keep A1:D5.
     Filtering again, or ApplyFilter, takes in what has grown; filtering
-    again renames it, ApplyFilter does not.
+    again renames it, ApplyFilter does not. The foot is that of the current
+    region of the range's top-left cell, as CurrentRegion finds it from
+    there: a blank last column keeps out what lies beyond it
+    (tests/fixtures/filter_range_growth.json).
     """
     from pyopenvba.apps.excel._region import region_around
 
-    bottom = region_around(sheet, area).bottom
+    bottom = region_around(sheet, Area(area.top, area.left, area.top, area.left, area.sheet)).bottom
     return area if bottom <= area.bottom else Area(area.top, area.left, bottom, area.right, area.sheet)
 
 

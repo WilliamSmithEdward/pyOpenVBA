@@ -676,9 +676,13 @@ Booleans: given a Font bound late, the first is error 1004 and the second
 13. So the model answers from a table measured per member,
 `interpreter/_late_object_lets.py`, which `scripts/build_late_object_lets.py`
 builds from `tests/fixtures/late_object_lets.json` and
-`late_object_lets_2.json`. An object with a value, a one-cell Range or a
-Name, gives that value. Anything a member has not been measured for is
-refused openly, with `VBAUnsupportedError`. The name's own references,
+`late_object_lets_2.json`, and the Workbook setter rounds. An object with
+a value, a one-cell Range or a Name, gives that value, and a Range of
+several cells gives its value too, an array or its first cell's, as
+`tests/fixtures/given_value_rounds.json` measured for every settable
+member of Range, Font, Interior, Border, Borders, Style and Characters.
+An object with no value, a Collection or Nothing, given to a member not
+measured for it, is refused openly, with `VBAUnsupportedError`. The name's own references,
 `Name.RefersTo` and its kin, take a Range's address rather than its
 value, so they refuse any object until they are measured.
 

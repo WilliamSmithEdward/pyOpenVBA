@@ -25,7 +25,10 @@ DPI = frozenset({'StandardWidth', 'RowHeight'})
 #: Named gaps that are not of objects, each held so that one that closes leaves the list: StatusBar read after a set of False (Excel says
 #: "FALSE", a String), ScrollArea given a reference's text, and a Date into a Boolean that is a Variant.
 GAPS = {('StatusBar', 'ws.Range("A1,C1")'), ('StatusBar', 'ws.Range("A1").Font'), ('StatusBar', 'New Collection'), ('StatusBar', 'Nothing'),
-        ('ScrollArea', 'wb.Names("Base")'), ('WrapText', 'ws.Range("A2")'), ('Locked', 'ws.Range("A2")'), ('Italic', 'ws.Range("A2")')}
+        ('ScrollArea', 'wb.Names("Base")'), ('WrapText', 'ws.Range("A2")'), ('Locked', 'ws.Range("A2")'), ('Italic', 'ws.Range("A2")'),
+        # A Range of several cells hands over its value, as tests/fixtures/given_value_rounds.json measured for Range, Font, Interior, Border,
+        # Borders, Style and Characters; these members answer one otherwise, and the model answers them as it did before this change.
+        ('StatusBar', 'ws.Range("A1:C1")'), ('Date1904', 'ws.Range("A1:C1")'), ('StandardWidth', 'ws.Range("A1:C1")')}
 
 
 def _probe(name: str) -> tuple[Any, dict[str, Any]]:

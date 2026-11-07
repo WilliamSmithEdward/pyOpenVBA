@@ -1,7 +1,7 @@
 """A Range given to Workbook settings, typed and late, as live Excel answered (scripts/measure_workbook_setters_range.py), the model's answers
 written first. The eight settings with no named gap answer every case as Excel did. Date1904, PrecisionAsDisplayed, SaveLinkValues and
-DisplayDrawingObjects, given late one area of two cells, which Excel takes and changes, are refused openly: an object given by Let answers
-by its member's measured rule (src/pyopenvba/interpreter/_late_object_lets.py), and these were not measured to leave the member as it was."""
+DisplayDrawingObjects, given late one area of two cells, which Excel takes and changes, answer as the model did before: a Range of several
+cells hands over its value, and these four take it otherwise (src/pyopenvba/interpreter/_late_object_lets.py)."""
 from __future__ import annotations
 
 import importlib.util
@@ -43,5 +43,5 @@ def _alone(declared: str, setting: str, value: str) -> str:
 def test_each_case_answers_as_excel_did_or_is_refused_openly(declared: str) -> None:
     differ = {(setting, value): mine for (setting, value), theirs in zip(CASES, RECORD['excel'][declared])
               if (mine := _alone(declared, setting, value)) != theirs}
-    expected: dict[tuple[str, str], str] = ({(setting, 'ws.Range("A1:B1")'): 'refused' for setting in GAPS} if declared == 'Object' else {})
-    assert differ == expected
+    expected: set[tuple[str, str]] = {(setting, 'ws.Range("A1:B1")') for setting in GAPS} if declared == 'Object' else set()
+    assert set(differ) == expected

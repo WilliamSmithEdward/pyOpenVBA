@@ -3410,6 +3410,11 @@ def _object_let_value(target: Assignable, value: object) -> object:
             assert isinstance(value, VBAObject)
             return value.vba_value()
         raise error(measured[kind])
+    if kind in ('cells', 'areas') and target.member.lower() not in _TAKES_REFERENCES:
+        # A Range of several cells hands over its value, an array or its first cell's, as every settable member of Range, Font,
+        # Interior, Border, Borders, Style and Characters was measured to take it (tests/fixtures/given_value_rounds.json).
+        assert isinstance(value, VBAObject)
+        return value.vba_value()
     if kind != 'value' or target.member.lower() in _TAKES_REFERENCES:
         raise VBAUnsupportedError(refusal)
     return given

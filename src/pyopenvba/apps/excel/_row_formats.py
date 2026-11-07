@@ -224,6 +224,7 @@ def format_sheet(sheet: Worksheet, change: Change) -> None:
         sheet.settle(row, column)
         sheet.dims.fonts_changed(row)
     sheet.dims.column_fonts_changed()
+    sheet.dims.sheet_format = sheet.dims.column_style(MAX_COLUMNS)
 
 
 def format_area(sheet: Worksheet, area: Area, change: Change) -> bool:

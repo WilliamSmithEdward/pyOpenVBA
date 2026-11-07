@@ -311,6 +311,10 @@ class SheetDimensions:
         #: Rows an opened file's borders or fonts drew taller with no row record in the file: Excel's used block leaves
         #: them out (see _io.load_workbook).
         self.opened_shapes: set[int] = set()
+        #: The format the used block takes as the sheet's own, which a column needs another of to count: the one the
+        #: last whole-sheet format left, or the one an opened file's column XFD has; None for neither. In the session a
+        #: column XFD formatted alone counts like any other (tests/fixtures/used_range.json).
+        self.sheet_format: Style | None = None
         #: Rows their fonts make another height than the standard row, or
         #: give another descent: row -> (quarter pixels, descent in twips).
         self._grown: dict[int, tuple[int, int]] = {}
@@ -1302,7 +1306,11 @@ class SheetDimensions:
         found = set(self.kept_columns)
         found.update(column for column, record in self.columns.items()
                      if record.hidden and record.custom and record.width)
-        found.update(self.formatted_columns())
+        sheet_format = self.sheet_format
+        if sheet_format is None:
+            found.update(column for column, record in self.columns.items() if record.style is not None)
+        else:
+            found.update(column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet_format)
         return sorted(found)
 
     def formatted_columns(self) -> list[int]:

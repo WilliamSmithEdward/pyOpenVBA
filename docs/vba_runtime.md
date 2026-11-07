@@ -584,6 +584,26 @@ the same macro leaves the same state behind on both sides, that a file
 written here opens with everything the model does not describe still in
 it, and that shapes drawn here are the shapes Office reads back.
 
+### An object given by Let
+
+`o.Prop = obj`, with no `Set`, hands the property the object itself when
+the call is bound late, and when it is typed but the property is declared
+a Variant or an object. Only a typed property of a value type gets the
+object's default value, which VBA reads first. Typed, a Let of `Nothing`
+or of a `New Collection` does not compile.
+
+What a property then makes of the object goes by the property, not by
+its type. `Workbook.Date1904` and `Workbook.CheckCompatibility` are both
+Booleans: given a Font bound late, the first is error 1004 and the second
+13. So the model answers from a table measured per member,
+`interpreter/_late_object_lets.py`, which `scripts/build_late_object_lets.py`
+builds from `tests/fixtures/late_object_lets.json` and
+`late_object_lets_2.json`. An object with a value, a one-cell Range or a
+Name, gives that value. Anything a member has not been measured for is
+refused openly, with `VBAUnsupportedError`. The name's own references,
+`Name.RefersTo` and its kin, take a Range's address rather than its
+value, so they refuse any object until they are measured.
+
 ## What is implemented
 
 **The language.** The declarations, `If` in both

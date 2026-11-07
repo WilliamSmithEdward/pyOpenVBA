@@ -464,6 +464,15 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 declared = local.get(strip_suffix(target.name).lower())
                 if declared is not None and not declared[1] and str(declared[0]).lower() in ('variant', 'object', ''):
                     fail('Object required' if str(declared[0]).lower() in ('variant', '') else 'Type mismatch', target.line)
+            if value.kind == 'let' and isinstance(target, A.Member) and isinstance(target.target, A.Name) and not arguments:
+                # t.Prop = Nothing and t.Prop = New Collection, t typed as a library class: VBA reads the value's default member at
+                # compile time, and Nothing has none and a Collection's Item wants its index (tests/fixtures/late_object_lets.json).
+                owner = local.get(strip_suffix(target.target.name).lower())
+                if owner is not None and not owner[1] and library_class(owner[0], owner[2]) is not None:
+                    if isinstance(value.value, A.Literal) and type_name(value.value.value) == 'Nothing':
+                        fail('Invalid use of object', target.line)
+                    if isinstance(value.value, A.NewExpr) and value.value.type_name.lower() in ('collection', 'vba.collection'):
+                        fail('Argument not optional', target.line)
             if value.kind == 'let':
                 check_library_call(target, arguments, 'assign')
                 if isinstance(target, A.Name) and not arguments:

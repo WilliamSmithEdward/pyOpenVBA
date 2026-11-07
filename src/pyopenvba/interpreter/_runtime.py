@@ -1075,6 +1075,12 @@ class Assignable:
     takes_objects: bool = False
     #: What the property makes of a value given by Let, an object still whole, before anything else does.
     given: Callable[[object], object] | None = None
+    #: For a member: the object it belongs to, the library its class is looked up in when an object is given by Let, the member, and
+    #: whether the call is bound late.
+    owner: object = None
+    library: str | None = None
+    member: str = ''
+    bound_late: bool = False
 
 
 @dataclass(slots=True)
@@ -1832,12 +1838,14 @@ class Interpreter:
                     "Variant", ""):
                 raise error(ERR_TYPE_MISMATCH, "Set needs an object on the right")
             raise error(424, "Object required")
-        if statement.kind == "let" and value is NOTHING:
+        if statement.kind == "let" and value is NOTHING and not isinstance(statement.target, A.Member):
             # Nothing has no value to let: v = Range("A1:B1").Style, whose cells differ, is error 91.
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
         if statement.kind == "let" and target.given is not None:
             value = target.given(value)
+        if statement.kind == "let" and isinstance(statement.target, A.Member) and (isinstance(value, VBAObject) or value is NOTHING):
+            value = _object_let_value(target, value)
         if statement.kind == "let" and isinstance(value, VBAObject):
             # Some objects, and some properties, take an object itself by Let; anything else hands over the
             # object's default member.
@@ -2876,6 +2884,7 @@ class Interpreter:
                 declared=slot.declared if slot is not None else 'Variant',
                 takes_objects=bool(spec is not None and getattr(spec.setter, '_vba_let_objects', False)),
                 given=(lambda value: target.vba_given(strip_suffix(name), value)) if isinstance(target, VBAObject) else None,
+                owner=target, library=library, member=strip_suffix(name), bound_late=BINDING.late,
             )
         if isinstance(expression, A.Index):
             return self._index_target(expression, frame)
@@ -3263,6 +3272,73 @@ def _dispatch_get(target: object, name: str, args: list[object], named: dict[str
     if target is NOTHING:
         raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     raise error(424, f"{type_name(target)} has no member named {name}")
+
+
+#: Members that make a reference of a Range given by Let, not its value: Name.RefersTo given Range("A1") is =Sheet1!$A$1
+#: (tests/fixtures/late_object_lets_2.json). An object given to one is refused openly until each is measured.
+_TAKES_REFERENCES = frozenset({'refersto', 'referstolocal', 'referstor1c1', 'referstor1c1local'})
+
+
+def _object_let_value(target: Assignable, value: object) -> object:
+    """An object given by Let to a member, before the member sees it. Excel hands the object itself to a member bound late, and to one typed
+    whose declared type is a Variant or an object; only a typed member of a value type gets the object's default value from VBA. A member
+    given the object answers by its own rule, which goes by the member, not its type: Workbook.Date1904 refuses a Font with 1004 and
+    Workbook.CheckCompatibility with 13, though both are Booleans. So an object with a value, a one-cell Range or a Name, gives that value,
+    as every measured member takes it, and one with none, Nothing, or a Range of several cells is refused openly where the member gets the
+    object (tests/fixtures/late_object_lets.json, tests/fixtures/late_object_lets_2.json)."""
+    owner = target.owner
+    found = (find_class(target.library, owner.vba_type_name)
+             if target.library is not None and isinstance(owner, VBAObject) and not isinstance(owner, UserClassInstance) else None)
+    if found is None or target.takes_objects or (isinstance(value, VBAObject) and value.vba_let_as_object):
+        if value is NOTHING:
+            raise error(ERR_OBJECT_VARIABLE_NOT_SET)
+        return value
+    from pyopenvba.interpreter._late_object_lets import LATE_OBJECT_LETS
+
+    declared = found.result(target.member) or ''
+    measured = LATE_OBJECT_LETS['late' if target.bound_late else 'typed'].get(f"{found.name.lstrip('_').lower()}.{target.member.lower()}", {})
+    if not target.bound_late and declared not in ('Variant', 'Object', ''):
+        # Typed into a value type: VBA reads the default member, as before, but for what was measured, as a Range of several cells,
+        # whose array no value type takes (13).
+        if value is NOTHING:
+            raise error(ERR_OBJECT_VARIABLE_NOT_SET)
+        areas = getattr(value, 'areas', None)
+        kind = 'areas' if areas is not None and len(areas) > 1 else 'cells' if areas is not None and sum(
+            area.rows * area.columns for area in areas) > 1 else ''
+        if measured.get(kind):
+            raise error(measured[kind])
+        return value
+    what = 'Nothing' if value is NOTHING else type_name(value)
+    refusal = f"{found.name.lstrip('_')}.{target.member} given {what} by Let is not measured: what a member makes of an object is its own"
+    given: object = None
+    if value is NOTHING:
+        kind = 'nothing'
+    elif isinstance(value, VBACollection):
+        kind = 'collection'
+    else:
+        assert isinstance(value, VBAObject)
+        areas = getattr(value, 'areas', None)
+        if areas is not None and len(areas) > 1:
+            kind = 'areas'
+        elif areas is not None and sum(area.rows * area.columns for area in areas) > 1:
+            kind = 'cells'
+        else:
+            kind = 'value'
+            try:
+                given = value.vba_value() if value.vba_default_member() is not None else None
+            except VBARuntimeError:
+                given = None
+            if given is None:
+                kind = 'novalue'
+    if kind in measured:
+        if not measured[kind]:
+            # Measured to take the object's value, as VBA reads it.
+            assert isinstance(value, VBAObject)
+            return value.vba_value()
+        raise error(measured[kind])
+    if kind != 'value' or target.member.lower() in _TAKES_REFERENCES:
+        raise VBAUnsupportedError(refusal)
+    return given
 
 
 def _set_member(target: object, name: str, value: object, by_ref: bool, late: LibraryClass | None) -> None:

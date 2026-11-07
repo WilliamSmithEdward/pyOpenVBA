@@ -45,7 +45,7 @@ STACKED = {52: 'stacked', 53: 'percentStacked', 58: 'stacked', 59: 'percentStack
            64: 'percentStacked', 66: 'stacked', 67: 'percentStacked', 76: 'stacked', 77: 'percentStacked'}
 #: The chart types a loaded chart turns to as Excel saves it: clustered and stacked columns, clustered bars, and lines with and
 #: without markers (tests/fixtures/loaded_chart_structure_edits.json).
-_LOADED_TYPES = frozenset({51, 52, 57, 4, 65})
+_LOADED_TYPES = frozenset({51, 52, 57, 4, 65, 1, 76, 5, -4120})
 #: Series.Type for each kind: the gallery constants xlArea, xlBar, xlColumn, xlLine, xlPie, xlDoughnut and xlXYScatter
 #: (tests/fixtures/chart_series_reads.json).
 SERIES_KINDS = {'column': 3, 'bar': 2, 'line': 4, 'lineMarkers': 4, 'pie': 5, 'doughnut': -4120, 'scatter': -4169,
@@ -2960,6 +2960,10 @@ class Chart(ElementProperties, HeldPart):
         if orientation not in (1, 2):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.plot_admitted('Chart.SetSourceData')
+        if self.state.original and any(Series(self, entry).has_labels() for entry in self.state.series):
+            # Excel's save kept a loaded chart's labels on the same source and took them away on others
+            # (tests/fixtures/loaded_chart_structure_edits.json).
+            raise VBAUnsupportedError('SetSourceData on an imported chart with data labels is not implemented')
         series_plan = plan_series(Source.sheet, area, orientation, at)
         kept = [(entry.own_type, entry.axis_group, entry.marker) for entry in self.state.series]
         if is_combo(self.state) and len(series_plan) > len(kept):
@@ -4387,6 +4391,9 @@ class Series(PictureMembers, Created):
         wanted = int(to_integer(value, 'Long'))
         self.position()
         self.chart.plot_admitted('Series.ChartType')
+        if self.chart.state.original and is_combo(self.chart.state):
+            # Measured on a loaded chart of one group only (tests/fixtures/chart_turns_and_label_fonts.json).
+            raise VBAUnsupportedError('Changing a series type on an imported combo chart is not implemented')
         if wanted in (0, -1) or wanted not in KNOWN_TYPES:
             raise error(-2147467259, 'Automation error\nUnspecified error')
         if self.entry.format_look is not None or self.entry.points or self.entry.label_look.font is not None:
@@ -4682,6 +4689,9 @@ class Series(PictureMembers, Created):
     def _values(self, value: object) -> None:
         self.position()
         self.chart.plot_admitted('Series.Values')
+        if self.chart.state.original and self.has_labels():
+            # Excel's save took a loaded series' labels away with new values (tests/fixtures/loaded_chart_structure_edits.json).
+            raise VBAUnsupportedError('Setting the values of an imported chart series with data labels is not implemented')
         reference, values = series_input(value, sheet=self.chart.sheet)
         self.position()
         self.chart.plot_changed('Series.Values')

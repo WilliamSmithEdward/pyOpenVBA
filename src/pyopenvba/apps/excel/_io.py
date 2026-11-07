@@ -1140,7 +1140,9 @@ def _write_tables(book: Workbook, package: OpcFile) -> None:
         for table in sheet.tables:
             if table.part and not table.changed and not sort_changed(table):
                 continue
-            if table.part and table.xml:
+            # A table ListObjects.Add made over a database is written whole: a refresh changes its columns and their ids.
+            made = table.query is not None and table.query.made
+            if table.part and table.xml and not made:
                 table.xml = patched_xml(table)
                 package.write(table.part, table.xml.encode("utf-8"))
                 table.changed = False

@@ -104,14 +104,7 @@ class QueryTables(VBACollection, ItemDefault, Created):
         return items[position - 1]
 
     def _next_name(self) -> str:
-        """ExternalData_ with the first number no table or defined name on the sheet has, a deleted table's name staying
-        with its cells (tests/fixtures/query_tables_saved.json)."""
-        taken = {table.name.lower() for table in self.sheet.query_tables}
-        taken |= {split_sheet(entry.name)[1].lower() for entry in self.sheet.book.names_.entries if split_sheet(entry.name)[0].lower() == self.sheet.name.lower()}
-        number = 1
-        while f'externaldata_{number}' in taken:
-            number += 1
-        return f'ExternalData_{number}'
+        return next_name(self.sheet)
 
     @member
     def Parent(self) -> object:
@@ -187,6 +180,17 @@ def links(book: Workbook) -> list[TextLink]:
 def listed(book: Workbook) -> list[QueryTable]:
     """The query tables of ListObjects, which the sheets' QueryTables do not list."""
     return [table.query for sheet in book.sheets_ for table in sheet.tables if table.query is not None and not table.deleted]
+
+
+def next_name(sheet: Worksheet) -> str:
+    """ExternalData_ with the first number no table or defined name on the sheet has, a deleted table's name staying with its cells
+    (tests/fixtures/query_tables_saved.json); a ListObject's query table takes one the same way (tests/fixtures/list_query_add.json)."""
+    taken = {table.name.lower() for table in sheet.query_tables}
+    taken |= {split_sheet(entry.name)[1].lower() for entry in sheet.book.names_.entries if split_sheet(entry.name)[0].lower() == sheet.name.lower()}
+    number = 1
+    while f'externaldata_{number}' in taken:
+        number += 1
+    return f'ExternalData_{number}'
 
 
 def free_name(book: Workbook, base: str) -> str:
@@ -819,7 +823,11 @@ def _table_markup(table: QueryTable, number: int) -> str:
         attributes += ' preserveFormatting="0"'
     if not get('AdjustColumnWidth', True):
         attributes += ' adjustColumnWidth="0"'
-    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable
+    from pyopenvba.apps.excel._query_databases import DatabaseQueryTable, ListQueryTable
+
+    if isinstance(table, ListQueryTable) and table.placeholder:
+        # A ListObject's never refreshed (tests/fixtures/list_query_add.json).
+        attributes += ' intermediate="1"'
 
     head = (f'{_DECLARATION}<queryTable xmlns="{_MAIN}"{attributes} connectionId="{number}" autoFormatId="0" applyNumberFormats="0" '
             'applyBorderFormats="0" applyFontFormats="1" applyPatternFormats="1" applyAlignmentFormats="0" applyWidthHeightFormats="0"')
@@ -1061,9 +1069,15 @@ def write(book: Workbook, package: OpcFile, add_relationship: Callable[..., str]
         raise VBAUnsupportedError("Saving a query table whose deleted connection's name a newer table took is not implemented: Excel ties the two together")
     if lists and (tables or behind):
         raise VBAUnsupportedError("Saving a ListObject's query table beside a sheet's query tables is not implemented")
-    # A ListObject's query table keeps the part the file gave it, which names its connection by number.
-    if any(numbers[id(table)][0] != getattr(table, 'connection_id', None) for table in lists):
+    # A ListObject's query table from a file keeps the part the file gave it, which names its connection by number; one
+    # ListObjects.Add made has its part written here.
+    from pyopenvba.apps.excel._query_databases import ListQueryTable
+
+    made = [table for table in lists if isinstance(table, ListQueryTable) and table.made]
+    if any(numbers[id(table)][0] != getattr(table, 'connection_id', None) for table in lists if table not in made):
         raise VBAUnsupportedError("Saving a ListObject's query table whose connection would be numbered again is not implemented")
+    if any(table.placeholder and table.command_text is not None for table in made):
+        raise VBAUnsupportedError("Saving a ListObject over a database given a command but never refreshed is not implemented")
     if not tables and not behind and not lists:
         if package.has(CONNECTIONS_PART):
             package.remove(CONNECTIONS_PART)
@@ -1078,6 +1092,18 @@ def write(book: Workbook, package: OpcFile, add_relationship: Callable[..., str]
         add_override(package, part, QUERY_TABLE_TYPE)
         add_relationship(package, table.sheet.part_name, f'../queryTables/queryTable{number}.xml', QUERY_TABLE_RELATIONSHIP)
         package.write(part, _table_markup(table, numbers[id(table)][0]).encode('utf-8'))
+    for table in made:
+        owner = table.table
+        if not owner.part:
+            raise VBAUnsupportedError("Saving a ListObject's query table on a sheet the model does not write is not implemented")
+        if not table.part or not package.has(table.part):
+            number = 1
+            while package.has(f'xl/queryTables/queryTable{number}.xml'):
+                number += 1
+            table.part = f'xl/queryTables/queryTable{number}.xml'
+            add_override(package, table.part, QUERY_TABLE_TYPE)
+            add_relationship(package, owner.part, f'../queryTables/queryTable{number}.xml', QUERY_TABLE_RELATIONSHIP)
+        package.write(table.part, _table_markup(table, numbers[id(table)][0]).encode('utf-8'))
     if not package.has(CONNECTIONS_PART):
         add_override(package, CONNECTIONS_PART, CONNECTIONS_TYPE)
         text = package.read(rels).decode('utf-8')
@@ -1091,4 +1117,4 @@ def write(book: Workbook, package: OpcFile, add_relationship: Callable[..., str]
     book.query_baseline = _signature(book)
 
 
-__all__ = ['QueryTable', 'QueryTables', 'TextLink', 'connections_stale', 'free_name', 'links', 'listed', 'read', 'refresh_all', 'write']
+__all__ = ['QueryTable', 'QueryTables', 'TextLink', 'connections_stale', 'free_name', 'links', 'listed', 'next_name', 'read', 'refresh_all', 'write']

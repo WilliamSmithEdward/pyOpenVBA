@@ -278,11 +278,23 @@ are not bold, and a refresh resizes the ListObject. Excel opens what the model s
 (tests/fixtures/query_refresh_loaded_saved.json). A file whose query tables or connections say anything the model would not write back the
 same keeps them all refused, its parts saved as they came.
 
+**A ListObject over a database.** `ListObjects.Add(xlSrcExternal, Array(connection), , , Destination)` makes a table of one column at the
+destination under `ExternalData_1: Getting Data ...`, named `Table_ExternalData_1`, with a hidden `ExternalData_1` over its block and a
+connection named `Connection`, measured against Excel over an Access file (tests/fixtures/list_query_add.json). The source may be the string
+alone; the headers argument changes nothing; with no `Destination` it is error 5. Before its first refresh its `CommandText` is error 7 and a
+refresh is 1004; its `CommandType` is xlCmdDefault, and xlCmdTable takes a table's name. `ListObject.Refresh` refreshes it. A refresh gives the
+table its fields' columns: columns it has keep their order and their ids, new fields follow, and one it no longer has goes. A first refresh moves
+only what is in the new columns' way, right in their rows; a later one inserts or deletes columns beside the table, and what is below moves in the
+table's columns. `Unlist` and `Delete` take the query table, its connection and its name with the table. A save writes the table, its query table
+and its connection as Excel does, ids and all, before the first refresh too, and Excel opens what the model saved and refreshes it itself
+(tests/fixtures/list_query_add_saved.json).
+
 Known differences: Excel reads back and saves the provider's own fuller string where the macro set a shorter one; the model keeps the one the
 macro set, so the file differs there. The uid Excel writes on each part is not written for a part the model writes again. Not built:
-`ListObjects.Add` over a database, `Workbook.RefreshAll` over such a table, a refresh that changes the number of columns or renames a
-ListObject's, a ListObject's query table with row numbers, without field names or with another `RefreshStyle`, and saving one beside a sheet's
-own query tables. A text file's query table is the model's own, with no function.
+`Workbook.RefreshAll` over such a table; `ListObjects.Add` over cells in use, which Excel moves by a rule one case does not settle; a refresh
+that changes both the columns and the rows of a ListObject with cells to its right, or the columns of one a file gave; a ListObject's query
+table with row numbers, without field names or with another `RefreshStyle`; `Unlist` or `Delete` of one a file gave or the model saved; and
+saving one beside a sheet's own query tables. A text file's query table is the model's own, with no function.
 
 ## Dialogs
 

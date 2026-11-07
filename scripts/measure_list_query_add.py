@@ -24,6 +24,13 @@ Predictions, written before the run:
 - The save has the connection with keepAlive="1", a queryTable part with a tableColumnId per field, and the table with
   tableType="queryTable", as in the books of tests/fixtures/query_refresh_loaded/.
 
+Predictions for the second round, written after the first and before it ran (the first's answers are above them in the fixture):
+- Unlist and Delete before any refresh drop the connection and the ExternalData_ name, as after one.
+- The placeholder column is id 1; a first refresh gives the fields ids from 1 and the columns ids from 1 + the number of fields
+  (3 and 4 for two). A later refresh keeps the ids of columns whose field names stay, and gives a new name the next free ids.
+- A cell right of or below the two placeholder cells moves right by one as the table is added, as in over_cells; a cell not
+  touching them stays.
+
     python scripts/measure_list_query_add.py
 
 writes tests/fixtures/list_query_add.json.
@@ -171,9 +178,33 @@ CASES: dict[str, list[str]] = {
                         ("refreshed", "lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False")),
     "unlist": steps(("added", ADD + ": lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False"), ("unlisted", "lo.Unlist")),
     "delete": steps(("added", ADD + ": lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False"), ("deleted", "lo.Delete")),
-    "save": steps(("added", ADD + ": lo.QueryTable.CommandText = Rows_(3): lo.QueryTable.Refresh False"), ("saved", "wb.SaveAs out, 51")),
-    "save_unrefreshed": steps(("added", ADD), ("saved", "wb.SaveAs out, 51")),
+    "save": steps(("added", ADD + ": lo.QueryTable.CommandText = Rows_(3): lo.QueryTable.Refresh False"), ("saved", 'wb.SaveAs out & ".xlsx", 51')),
+    "save_unrefreshed": steps(("added", ADD), ("saved", 'wb.SaveAs out & ".xlsx", 51')),
+    "unlist_unrefreshed": steps(("added", ADD), ("unlisted", "lo.Unlist")),
+    "delete_unrefreshed": steps(("added", ADD), ("deleted", "lo.Delete")),
+    "beside_right": steps(("filled", 'ws.Range("C3").Value = "x"'), ("added", ADD),
+                          ("refreshed", "lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False")),
+    "beside_below": steps(("filled", 'ws.Range("B4").Value = "x"'), ("added", ADD),
+                          ("refreshed", "lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False")),
+    "beside_apart": steps(("filled", 'ws.Range("D2").Value = "x"'), ("added", ADD),
+                          ("refreshed", "lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False")),
 }
+#: Copies saved after each refresh, numbered, for the ids a save gives the table's columns and the query's fields.
+COPY = 'wb.SaveCopyAs out & "{n}.xlsx"'
+CASES["ids"] = steps(
+    ("added", ADD + ": " + COPY.format(n=0)),
+    ("one", 'lo.QueryTable.CommandText = "SELECT Id FROM T WHERE Id <= 2 ORDER BY Id": lo.QueryTable.Refresh False: ' + COPY.format(n=1)),
+    ("two", "lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False: " + COPY.format(n=2)),
+    ("more", "lo.QueryTable.CommandText = Rows_(4): lo.QueryTable.Refresh False: " + COPY.format(n=3)),
+    ("renamed", 'lo.QueryTable.CommandText = "SELECT Name FROM T WHERE Id <= 2 ORDER BY Id": lo.QueryTable.Refresh False: ' + COPY.format(n=4)),
+    ("reordered", 'lo.QueryTable.CommandText = "SELECT Name, Id FROM T WHERE Id <= 2 ORDER BY Id": lo.QueryTable.Refresh False: '
+     + COPY.format(n=5)),
+    ("three", 'lo.QueryTable.CommandText = "SELECT Id, Name, Id * 2 AS D FROM T WHERE Id <= 2 ORDER BY Id": lo.QueryTable.Refresh False: '
+     + COPY.format(n=6)))
+CASES["first_one"] = steps(("added", ADD), ("one", 'lo.QueryTable.CommandText = "SELECT Id FROM T WHERE Id <= 2 ORDER BY Id": '
+                                                   'lo.QueryTable.Refresh False: ' + COPY.format(n=1)))
+CASES["first_three"] = steps(("added", ADD), ("three", 'lo.QueryTable.CommandText = "SELECT Id, Name, Id * 2 AS D FROM T WHERE Id <= 2 ORDER BY Id": '
+                                                       'lo.QueryTable.Refresh False: ' + COPY.format(n=1)))
 
 
 def parts(data: bytes, folder: str) -> dict[str, str]:
@@ -189,19 +220,19 @@ def main() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
     rows: dict[str, list[str]] = {}
-    saves: dict[str, dict[str, str]] = {}
+    saves: dict[str, dict[str, dict[str, str]]] = {}
     with tempfile.TemporaryDirectory(prefix="pyopenvba_la_") as folder, ExcelSession(HarnessConfig(lock_wait_s=900.0)) as excel:
         excel.new_document()
         file = str(Path(folder) / "rows.accdb")
         made = excel.run_vba(MAKE.replace("{provider}", PROVIDER), "MakeDb", (file,), timeout=120.0, line_numbers=False)
         assert made.ok, made.message
         for name, case_steps in CASES.items():
-            out = Path(folder) / f"{name}.xlsx"
+            out = Path(folder) / f"{name}~"
             code = CASE.replace("{provider}", PROVIDER).replace("{steps}", "\n".join(f"    {step}" for step in case_steps))
             answer = excel.run_vba(code, "Go", (file, str(out)), timeout=120.0, line_numbers=False)
             rows[name] = (str(answer.value).replace(folder, FOLDER).split("\t") if answer.ok else [f"[{answer.outcome}] {answer.message}"])
-            if out.exists():
-                saves[name] = parts(out.read_bytes(), folder)
+            for saved in sorted(Path(folder).glob(f"{name}~*.xlsx")):
+                saves.setdefault(name, {})[saved.stem.partition("~")[2] or "book"] = parts(saved.read_bytes(), folder)
             print(name, " / ".join(part[:120] for part in rows[name] if not part.startswith("|")), flush=True)
     OUT.write_text(json.dumps({"provider": PROVIDER, "cases": CASES, "rows": rows, "saves": saves,
                                "measured_at": datetime.now(timezone.utc).isoformat()}, indent=1) + "\n", encoding="utf-8")

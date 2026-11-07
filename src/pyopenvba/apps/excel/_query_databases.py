@@ -29,13 +29,13 @@ from __future__ import annotations
 import datetime as _dt
 import re
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from pyopenvba._xml import escape
 from pyopenvba.apps.excel._query_tables import QueryTable, free_name
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import MemberSpec, member, method, setter
-from pyopenvba.interpreter._values import MISSING, VBADate, VBAInt, error, to_bool, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBAArray, VBADate, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba._a1 import Area
@@ -173,12 +173,15 @@ class DatabaseQueryTable(QueryTable):
         hook = hook_of(application, 'Refresh')
         if hook is None:
             raise VBAUnsupportedError(f"Refreshing a query table over {self.kind} takes a function set with set_hook('Refresh', ...)")
-        source = ExternalSource(self.kind, self.connection, self.command_text or '', 'xlCmdSql', (), bool(self.setting('FieldNames', True)))
+        source = ExternalSource(self.kind, self.connection, self.command_text or '', self._command_kind(), (), bool(self.setting('FieldNames', True)))
         rows = _checked(call(application, hook, 'Refresh', 'QueryTable', self, self.sheet.book, {}, source=source))
         self._lay_out(rows)
         if not self.setting('SavePassword', False):
             self.password_dropped = True
         return True
+
+    def _command_kind(self) -> str:
+        return 'xlCmdSql'
 
     def _lay_out(self, rows: list[list[object]]) -> None:
         names: list[object] = [str(one) for one in rows[0]]
@@ -286,7 +289,7 @@ class DatabaseQueryTable(QueryTable):
         get = self.setting
         keep = bool(get('SavePassword', False))
         attributes = f' id="{number}"' + (' keepAlive="1"' if get('MaintainConnection', True) else '')
-        attributes += f' name="{escape(name)}" type="{int(KINDS[self.kind])}" refreshedVersion="8"'
+        attributes += f' name="{escape(name)}" type="{int(KINDS[self.kind])}" refreshedVersion="{self._version()}"'
         if keep:
             attributes += ' savePassword="1"'
         if get('BackgroundQuery', False):
@@ -294,8 +297,13 @@ class DatabaseQueryTable(QueryTable):
         if get('SaveData', True):
             attributes += ' saveData="1"'
         connection = self.connection if keep else without_passwords(self.connection)
-        command = escape(self.command_text or '').replace('"', '&quot;')
-        return f'<connection{attributes}><dbPr connection="{escape(connection).replace(chr(34), "&quot;")}" command="{command}"/></connection>'
+        return f'<connection{attributes}>{self._database_markup(_attribute(connection))}</connection>'
+
+    def _version(self) -> int:
+        return 8
+
+    def _database_markup(self, connection: str) -> str:
+        return f'<dbPr connection="{connection}" command="{_attribute(self.command_text or "")}"/>'
 
     def fields_markup(self) -> str:
         if not self.fields:
@@ -303,6 +311,10 @@ class DatabaseQueryTable(QueryTable):
         fields = ''.join(f'<queryTableField id="{at}" name="{escape(one).replace(chr(34), "&quot;")}"/>' for at, one in enumerate(self.fields, start=1))
         return (f'<queryTableRefresh preserveSortFilterLayout="0" nextId="{len(self.fields) + 1}"><queryTableFields count="{len(self.fields)}">'
                 f'{fields}</queryTableFields></queryTableRefresh>')
+
+
+def _attribute(text: str) -> str:
+    return escape(text).replace('"', '&quot;')
 
 
 def _checked(rows: object) -> list[list[object]]:
@@ -328,14 +340,31 @@ def _checked(rows: object) -> list[list[object]]:
     return found
 
 
+#: CommandType's numbers and the names a Refresh function is given them by.
+_COMMAND_KINDS = {2: 'xlCmdSql', 3: 'xlCmdTable', 4: 'xlCmdDefault'}
+
+
+def _command(value: object) -> str:
+    """CommandText as set: text, or an array of text, which Excel joins (tests/fixtures/list_query_add.json, command_table)."""
+    if isinstance(value, VBAArray):
+        return ''.join(to_text(one) for one in value.items)
+    return to_text(value)
+
+
 class ListQueryTable(DatabaseQueryTable):
     """The QueryTable of a ListObject over a database: the table is its result, resized by each refresh, and the sheet's QueryTables
-    does not list it (tests/fixtures/query_refresh_loaded.json). Its Name and FieldNames are error 1004, PreserveColumnInfo is True,
-    and its names go in unbold, under the table's style."""
+    does not list it (tests/fixtures/query_refresh_loaded.json, list_query_add.json). Its Name and FieldNames are error 1004,
+    PreserveColumnInfo is True, and its names go in unbold, under the table's style.
+
+    One ListObjects.Add made (``made``) starts as one column under "ExternalData_1: Getting Data ...", whose CommandText is error 7
+    until set and whose CommandType is xlCmdDefault. A refresh gives the table its fields' columns: the first one numbers the fields
+    from 1 and the columns from one past the number of fields; a later one keeps a field whose name stays, with its ids, and gives a
+    new one the next field id and one past the highest column id. What is in the way of new columns moves right in their rows; what
+    is right of the table follows a change of width. A table a file gave keeps its fields as the file has them."""
 
     bold_names = False
 
-    def __init__(self, table: Table, connection: str, name: str, command: str | None, link_name: str) -> None:
+    def __init__(self, table: Table, connection: str, name: str, command: str | None, link_name: str, *, made: bool = False) -> None:
         from pyopenvba._a1 import Area
         from pyopenvba.apps.excel._model import Range
 
@@ -343,6 +372,32 @@ class ListQueryTable(DatabaseQueryTable):
         corner = Range(table.sheet, [Area(table.area.top, table.area.left, table.area.top, table.area.left, table.sheet.name)])
         super().__init__(table.sheet, connection, corner, name, command, link_name)
         self.refreshed = True
+        self.made = made
+        #: Before a made table's first refresh, its one column stands in for the fields.
+        self.placeholder = made
+        #: Each field's id, in the columns' order, and the id the next new field takes.
+        self.field_ids: list[int] = []
+        self.next_field = 1
+        #: The queryTable part a save wrote for a made table.
+        self.part = ''
+        self._incoming: list[str] = []
+
+    def start(self) -> None:
+        """A made table as ListObjects.Add leaves it: its block named, its placeholder its one field."""
+        self.fields, self.field_ids, self.next_field = [self.table.columns[0].name], [1], 2
+        self._named(self.table.area)
+        entry = self._entry()
+        if entry is not None:
+            setattr(entry, 'visible', False)  # hidden, as Excel makes it
+
+    def dropped(self) -> None:
+        """Its name gone and its connection with it, as the table goes."""
+        names = self.sheet.book.names_
+        entry = self._entry()
+        if entry is not None:
+            names.entries.remove(entry)  # type: ignore[arg-type]
+            names.changed = True
+        self.link.deleted = True
 
     def vba_member(self, name: str) -> MemberSpec | None:
         if self.table.deleted or self.table.query is not self or self.table not in self.table.sheet.tables:
@@ -352,6 +407,8 @@ class ListQueryTable(DatabaseQueryTable):
     def setting(self, name: str, default: object) -> object:
         if name == 'PreserveColumnInfo':
             return self.settings.get(name, True)
+        if name == 'CommandType':
+            return self.settings.get(name, 4 if self.made else 2)
         return super().setting(name, default)
 
     def result_area(self) -> Area | None:
@@ -360,14 +417,63 @@ class ListQueryTable(DatabaseQueryTable):
         area = self.table.area
         return Area(area.top, area.left, area.bottom, area.right, self.sheet.name)
 
-    def _placed(self, area: Area) -> None:
-        from pyopenvba._a1 import Area
-        from pyopenvba.apps.excel._table_edits import resize
+    @member
+    def CommandText(self) -> object:
+        if self.command_text is None:
+            raise error(7, 'Out of memory')
+        return self.command_text
 
+    @setter('CommandText')
+    def _set_command_text(self, value: object) -> None:
+        self.command_text = _command(value)
+
+    @member
+    def CommandType(self) -> object:
+        return VBAInt(int(to_text(self.setting('CommandType', 2))), 'Long')
+
+    @setter('CommandType')
+    def _set_command_type(self, value: object) -> None:
+        kind = int(to_integer(value, 'Long'))
+        if kind not in _COMMAND_KINDS:
+            raise VBAUnsupportedError("A ListObject's query table command other than SQL text, a table's name or the default is not implemented")
+        self.settings['CommandType'] = kind
+
+    def _command_kind(self) -> str:
+        return _COMMAND_KINDS[int(to_text(self.setting('CommandType', 2)))]
+
+    @method
+    def Refresh(self, BackgroundQuery: object = MISSING) -> object:  # noqa: N803 - native named argument
+        if self.command_text is None:
+            # With no command it refreshes nothing, and the table stays as it was (tests/fixtures/list_query_add.json).
+            raise error(1004, 'Application-defined or object-defined error')
+        if self.placeholder and not self.made:
+            raise VBAUnsupportedError('Refreshing a ListObject over a database that a file gave before its first refresh is not implemented')
+        return super().Refresh(BackgroundQuery)
+
+    def _lay_out(self, rows: list[list[object]]) -> None:
+        from pyopenvba.apps.excel._tables import column_names
+
+        names = [str(one) for one in rows[0]]
+        held = [column.name for column in self.table.columns]
+        if not self.made and sorted(names) != sorted(held):
+            raise VBAUnsupportedError("A refresh that changes the columns of a ListObject a file gave is not implemented")
+        if column_names(names) != names:
+            raise VBAUnsupportedError("A refresh whose field names are blank or repeated, over a ListObject, is not implemented")
+        if not self.placeholder:
+            if any(one not in held and one.lower() in {other.lower() for other in held} for one in names):
+                raise VBAUnsupportedError("A refresh that changes the case of a ListObject's column name is not implemented")
+            # The columns it has keep their order, as PreserveColumnInfo keeps them, and new fields follow
+            # (tests/fixtures/list_query_add.json, ids).
+            order = [one for one in held if one in names] + [one for one in names if one not in held]
+            places = [names.index(one) for one in order]
+            rows = [[row[at] for at in places] for row in rows]
+            names = order
+        self._incoming = names
+        super()._lay_out(rows)
+
+    def _placed(self, area: Area) -> None:
         if self.fields != [column.name for column in self.table.columns]:
             raise VBAUnsupportedError("A refresh that renames a ListObject's columns is not implemented")
-        if (area.top, area.left, area.bottom, area.right) != (self.table.area.top, self.table.area.left, self.table.area.bottom, self.table.area.right):
-            resize(self.table, Area(area.top, area.left, area.bottom, area.right))
         self._named(area)
 
     def _make_room(self, origin: Area, old: Area | None, height: int, width: int) -> None:
@@ -380,10 +486,23 @@ class ListQueryTable(DatabaseQueryTable):
         from pyopenvba.apps.excel._table_edits import resize
 
         assert old is not None
-        if width != old.right - old.left + 1:
-            raise VBAUnsupportedError("A refresh that changes a ListObject's number of columns is not implemented")
-        self._range(old).vba_call('ClearContents', [])
         name, before, last = self.sheet.name, old.bottom - old.top + 1, old.top + height - 1
+        columns = old.right - old.left + 1
+        new = Area(old.top, old.left, last, old.left + width - 1)
+        right = self._occupied(Area(old.top, old.right + 1, max(old.bottom, last), 16384, name))
+        first = self.placeholder
+        if width != columns and right and height != before and not first:
+            raise VBAUnsupportedError("A refresh that changes both the columns and the rows of a ListObject with cells to its right is not "
+                                      "implemented")
+        # A first refresh moves only what is in the new columns' way; a later one inserts or deletes columns beside the table, in its rows
+        # (tests/fixtures/list_query_add.json: beside_right, beside_apart, columns_change).
+        in_way = self._occupied(Area(old.top, old.right + 1, last, new.right, name)) if width > columns and first else []
+        if in_way and min(column for _, column in in_way) != old.right + 1:
+            raise VBAUnsupportedError("A refresh that adds columns to a ListObject over cells not beside it is not implemented")
+        if width > columns and right and not first:
+            in_way = right
+        shape = self._shape(new)
+        self._range(old).vba_call('ClearContents', [])
         # What is below moves by the change in rows, in the table's columns, as with a query table's xlInsertDeleteCells; the table
         # takes the rows in, or lets them go first.
         if height > before:
@@ -394,6 +513,50 @@ class ListQueryTable(DatabaseQueryTable):
             resize(self.table, Area(old.top, old.left, last, old.right))
             band = Area(last + 1, old.left, old.bottom, old.right, name)
             shift_cells(self._range(band), band, delete=True, vertical=True)
+        if width > columns and in_way:
+            # What is in the new columns' way moves right in their rows, and what is beyond it with it.
+            band = Area(old.top, old.right + 1, last, new.right, name)
+            shift_cells(self._range(band), band, delete=False, vertical=False)
+        shape()
+        if width < columns:
+            # The columns it lets go are left empty: a cleared header holds a ColumnN name until the table lets the column go.
+            self._range(Area(old.top, new.right + 1, old.bottom, old.right, name)).vba_call('ClearContents', [])
+        if width < columns and right:
+            band = Area(old.top, new.right + 1, last, old.right, name)
+            shift_cells(self._range(band), band, delete=True, vertical=False)
+
+    def _shape(self, area: Area) -> Callable[[], None]:
+        """What gives the table its block and its fields' columns, checked before anything moves."""
+        from pyopenvba.apps.excel._table_edits import reshape
+        from pyopenvba.apps.excel._tables import TableColumn, guid
+
+        names, table = self._incoming, self.table
+        if not self.made:
+            return lambda: None
+        columns: list[TableColumn] = []
+        ids: list[int] = []
+        if self.placeholder:
+            count = len(names)
+            columns = [TableColumn(one, count + 1 + at, guid()) for at, one in enumerate(names)]
+            ids, following = list(range(1, count + 1)), count + 1
+        else:
+            held = {column.name: (column, field) for column, field in zip(table.columns, self.field_ids, strict=True)}
+            top, following = max(column.id for column in table.columns), self.next_field
+            for one in names:
+                if one in held:
+                    columns.append(held[one][0])
+                    ids.append(held[one][1])
+                    continue
+                top += 1
+                columns.append(TableColumn(one, top, guid()))
+                ids.append(following)
+                following += 1
+
+        def done() -> None:
+            reshape(table, area, columns)
+            self.field_ids, self.next_field, self.placeholder = ids, following, False
+
+        return done
 
     @member
     def Name(self) -> object:
@@ -421,14 +584,71 @@ class ListQueryTable(DatabaseQueryTable):
     def Delete(self) -> object:
         raise VBAUnsupportedError("Deleting a ListObject's query table is not implemented")
 
+    # -- the file
+
+    def _version(self) -> int:
+        return 0 if self.placeholder else 8
+
+    def _database_markup(self, connection: str) -> str:
+        """Before a first refresh no command and commandType 0; after one, its CommandType where it is not xlCmdSql."""
+        if self.placeholder:
+            return f'<dbPr connection="{connection}" commandType="0"/>'
+        kind = int(to_text(self.setting('CommandType', 2)))
+        typed = f' commandType="{kind}"' if kind != 2 else ''
+        return f'<dbPr connection="{connection}" command="{_attribute(self.command_text or "")}"{typed}/>'
+
     def fields_markup(self) -> str:
-        """As Excel writes a table's: each field with the column it fills, and no sort-filter flag."""
-        if len(self.fields) != len(self.table.columns):
+        """As Excel writes a table's: each field with its id and the column it fills, and no sort-filter flag."""
+        if len(self.fields) != len(self.table.columns) or len(self.field_ids) != len(self.fields):
             raise VBAUnsupportedError("A ListObject's query table whose fields are not its columns is not implemented")
-        fields = ''.join(f'<queryTableField id="{at}" name="{escape(one).replace(chr(34), "&quot;")}" tableColumnId="{column.id}"/>'
-                         for at, (one, column) in enumerate(zip(self.fields, self.table.columns, strict=True), start=1))
-        return (f'<queryTableRefresh nextId="{len(self.fields) + 1}"><queryTableFields count="{len(self.fields)}">'
+        fields = ''.join(f'<queryTableField id="{field}" name="{_attribute(one)}" tableColumnId="{column.id}"/>'
+                         for field, one, column in zip(self.field_ids, self.fields, self.table.columns, strict=True))
+        return (f'<queryTableRefresh nextId="{self.next_field}"><queryTableFields count="{len(self.fields)}">'
                 f'{fields}</queryTableFields></queryTableRefresh>')
+
+
+def add_list(sheet: Worksheet, source: object, destination: object, style: str) -> Table:
+    """ListObjects.Add(xlSrcExternal, ...) over a database: a table of one column under "<name>: Getting Data ..." at the destination,
+    its query table and its connection, named as Excel names them (tests/fixtures/list_query_add.json)."""
+    from pyopenvba._a1 import Area
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._query_tables import free_name, next_name
+    from pyopenvba.apps.excel._tables import YES, add, all_tables
+    from pyopenvba.apps.excel._typing import Typed
+
+    items = source.items if isinstance(source, VBAArray) else [source]
+    if len(items) != 1 or not isinstance(items[0], str) or not is_database(items[0]):
+        raise VBAUnsupportedError('ListObjects.Add(xlSrcExternal) over anything but one OLEDB or ODBC connection string is not implemented')
+    if not isinstance(destination, Range):
+        raise VBAUnsupportedError('ListObjects.Add(xlSrcExternal) with a Destination that is not a range is not implemented')
+    corner = destination.first
+    if destination.sheet is not sheet or len(destination.areas) != 1 or corner.rows != 1 or corner.columns != 1:
+        raise VBAUnsupportedError('ListObjects.Add(xlSrcExternal) with a Destination that is not one cell of the sheet is not implemented')
+    block = Area(corner.top, corner.left, corner.top + 1, corner.left, sheet.name)
+    if any(sheet.cells_[place].value not in (None, EMPTY, '') for place in sheet.cells_ if block.contains(*place)):
+        raise VBAUnsupportedError('ListObjects.Add(xlSrcExternal) over cells in use, which Excel moves, is not implemented')
+    name = next_name(sheet)
+    if any(table.name.lower() == f'table_{name}'.lower() for table in all_tables(sheet)):
+        raise VBAUnsupportedError(f'ListObjects.Add(xlSrcExternal) where a table is named Table_{name} already is not implemented')
+    Range(sheet, [block]).store_typed(block.top, block.left, Typed(f'{name}: Getting Data ...', None))
+    table = add(sheet, Range(sheet, [block]), YES, style)
+    table.name, table.kind = f'Table_{name}', 'queryTable'
+    query = ListQueryTable(table, items[0], name, None, free_name(sheet.book, 'Connection'), made=True)
+    table.query = query
+    sheet.book.text_links.append(query.link)
+    query.start()
+    sheet.book.saved = False
+    return table
+
+
+def droppable(table: Table) -> ListQueryTable:
+    """Before ListObject.Unlist or Delete of a table over a database, its query table, whose dropped() the caller calls once the
+    table has gone: its connection and name go with it (tests/fixtures/list_query_add.json). The model lets one go only where it made
+    the table and has not saved it."""
+    query = table.query
+    if not isinstance(query, ListQueryTable) or not query.made or table.part:
+        raise VBAUnsupportedError('Unlisting or deleting a ListObject over a database that a file holds is not implemented')
+    return query
 
 
 def loaded(sheet: Worksheet, root: XmlElement, entry: XmlElement, destination: Range, name: str, listed: Table | None = None) -> DatabaseQueryTable | None:
@@ -440,9 +660,18 @@ def loaded(sheet: Worksheet, root: XmlElement, entry: XmlElement, destination: R
     if database is None or kind is None or database.get('connection') is None:
         return None
     connection = f"{kind};{database.get('connection')}"
-    table = (DatabaseQueryTable(sheet, connection, destination, name, database.get('command'), entry.get('name', '')) if listed is None
-             else ListQueryTable(listed, connection, name, database.get('command'), entry.get('name', '')))
     fields = root.find(f'{_NS}queryTableRefresh/{_NS}queryTableFields')
+    if listed is None:
+        table: DatabaseQueryTable = DatabaseQueryTable(sheet, connection, destination, name, database.get('command'), entry.get('name', ''))
+    else:
+        found = ListQueryTable(listed, connection, name, database.get('command'), entry.get('name', ''))
+        found.field_ids = [int(field.get('id', '0')) for field in fields] if fields is not None else []
+        refreshing = root.find(f'{_NS}queryTableRefresh')
+        found.next_field = int(refreshing.get('nextId', '1')) if refreshing is not None else 1
+        found.settings['CommandType'] = int(database.get('commandType', '2'))
+        # Saved before its first refresh, it is still the placeholder (tests/fixtures/list_query_add.json, save_unrefreshed).
+        found.placeholder = root.get('intermediate') == '1'
+        table = found
     table.fields = [field.get('name', '') for field in fields] if fields is not None else []
     # The table's part says when a refresh waits; the connection, whether it is kept alive.
     table.settings['BackgroundQuery'] = root.get('backgroundRefresh') is None
@@ -475,4 +704,4 @@ def finish(application: Application) -> list[Exception]:
     return failures
 
 
-__all__ = ['DatabaseQueryTable', 'ListQueryTable', 'finish', 'is_database', 'loaded', 'masked', 'pending', 'without_passwords']
+__all__ = ['DatabaseQueryTable', 'ListQueryTable', 'add_list', 'droppable', 'finish', 'is_database', 'loaded', 'masked', 'pending', 'without_passwords']

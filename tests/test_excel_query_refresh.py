@@ -79,14 +79,8 @@ def _app(function: Callable[[HookRequest], object] = numbered) -> ExcelApplicati
     return app
 
 
-#: Measured and not built: a ListObject over a database is a table that follows each refresh, with its own parts.
-NOT_BUILT = {"list_object", "list_object_shrink"}
-
-
 @pytest.mark.parametrize("case", sorted(LAYOUT["rows"]))
 def test_lays_out_rows_as_excel_did(case: str) -> None:
-    if case in NOT_BUILT:
-        pytest.xfail("ListObjects.Add over a database is not built")
     app = _app()
     code = MEASURE.CASE.replace("{steps}", "\n".join(f"    {step}" for step in LAYOUT["cases"][case]))
     app.add_module(code, name="M")

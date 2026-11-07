@@ -1,4 +1,4 @@
-"""No live probe names a cryptographic provider, or touches encryption options, rights, signing, certificates or sensitivity labels. Naming
+"""No live probe names a cryptographic provider, or touches encryption options, rights, signing, certificates, sensitivity labels or the work identity. Naming
 a provider can reach hardware: on 2026-11-07 a probe that named "Microsoft Base Smart Card Crypto Provider" through
 SetPasswordEncryptionOptions raised Windows Security popups asking for a smartcard. The model's answers for these members come from the files
 it reads and from fixtures already measured (tests/fixtures/workbook_encryption_options.json), never from a new live run. A script's
@@ -15,7 +15,7 @@ import pytest
 SCRIPTS = sorted((Path(__file__).parents[1] / "scripts").glob("measure_*.py"))
 #: The members, each reached with a dot or named alone in a list a probe walks.
 BANNED = ("SetPasswordEncryptionOptions", "Permission", "Signatures", "SignatureSet", "SignatureLine", "AddSignatureLine", "Certificate",
-          "SensitivityLabel", "SensitivityLabelInitInfo", "IRM")
+          "SensitivityLabel", "SensitivityLabelInitInfo", "IRM", "WorkIdentity")
 #: What names a provider in a probe's text.
 _PROVIDER = re.compile(r"(?i)crypt\w*\s+provider|\bcsp\b")
 #: Setting the provider a book encrypts with names one. Reading it does not. WorksheetFunction.Sign is arithmetic, so signing is caught by

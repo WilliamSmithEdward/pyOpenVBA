@@ -344,8 +344,8 @@ Excel: mail members could send mail from the account Excel runs under, and
 naming a cryptographic provider can reach hardware. A probe that named the
 smartcard provider through `SetPasswordEncryptionOptions` raised Windows
 Security prompts for a smartcard. So no probe names a provider, or touches
-encryption options, rights (`Permission`), signatures, certificates or
-sensitivity labels; `tests/test_probes_leave_mail_alone.py` and
+encryption options, rights (`Permission`), signatures, certificates,
+sensitivity labels or `WorkIdentity`; `tests/test_probes_leave_mail_alone.py` and
 `tests/test_probes_leave_crypto_alone.py` hold that. The model's answers for
 these come from the files it reads and from what was already measured:
 `SetPasswordEncryptionOptions` and the provider names it takes come from

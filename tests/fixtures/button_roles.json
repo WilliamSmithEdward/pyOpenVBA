@@ -1,0 +1,201 @@
+{
+ "measured_at": "2026-11-07T14:59:28.774172+00:00",
+ "cases": [
+  {
+   "case": "one then two",
+   "role": "DefaultButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;True,False,False"
+  },
+  {
+   "case": "two then one",
+   "role": "DefaultButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|True,False,False;False,False,False"
+  },
+  {
+   "case": "one then off",
+   "role": "DefaultButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = False\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,False"
+  },
+  {
+   "case": "one alone",
+   "role": "DefaultButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0|True,False,False;False,False,False"
+  },
+  {
+   "case": "one then two",
+   "role": "CancelButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,True,False"
+  },
+  {
+   "case": "two then one",
+   "role": "CancelButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,True,False;False,False,False"
+  },
+  {
+   "case": "one then off",
+   "role": "CancelButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = False\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,False"
+  },
+  {
+   "case": "one alone",
+   "role": "CancelButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0|False,True,False;False,False,False"
+  },
+  {
+   "case": "one then two",
+   "role": "HelpButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,True"
+  },
+  {
+   "case": "two then one",
+   "role": "HelpButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,True;False,False,False"
+  },
+  {
+   "case": "one then off",
+   "role": "HelpButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = False\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,False"
+  },
+  {
+   "case": "one alone",
+   "role": "HelpButton",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0|False,False,True;False,False,False"
+  },
+  {
+   "case": "default one, cancel two",
+   "role": "",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|True,False,False;False,True,False"
+  },
+  {
+   "case": "default one, cancel one",
+   "role": "",
+   "binding": "Typed",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Excel.Button, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|True,True,False;False,False,False"
+  },
+  {
+   "case": "one then two",
+   "role": "DefaultButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;True,False,False"
+  },
+  {
+   "case": "two then one",
+   "role": "DefaultButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|True,False,False;False,False,False"
+  },
+  {
+   "case": "one then off",
+   "role": "DefaultButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = False\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,False"
+  },
+  {
+   "case": "one alone",
+   "role": "DefaultButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0|True,False,False;False,False,False"
+  },
+  {
+   "case": "one then two",
+   "role": "CancelButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,True,False"
+  },
+  {
+   "case": "two then one",
+   "role": "CancelButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,True,False;False,False,False"
+  },
+  {
+   "case": "one then off",
+   "role": "CancelButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = False\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,False"
+  },
+  {
+   "case": "one alone",
+   "role": "CancelButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0|False,True,False;False,False,False"
+  },
+  {
+   "case": "one then two",
+   "role": "HelpButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,True"
+  },
+  {
+   "case": "two then one",
+   "role": "HelpButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,True;False,False,False"
+  },
+  {
+   "case": "one then off",
+   "role": "HelpButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = False\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|False,False,False;False,False,False"
+  },
+  {
+   "case": "one alone",
+   "role": "HelpButton",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.HelpButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0|False,False,True;False,False,False"
+  },
+  {
+   "case": "default one, cancel two",
+   "role": "",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(2)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|True,False,False;False,True,False"
+  },
+  {
+   "case": "default one, cancel one",
+   "role": "",
+   "binding": "Late",
+   "source": "Public Function Row(ByVal path As String) As String\n    Dim wb As Workbook, ws As Worksheet, b As Object, e As String, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0, True)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.DefaultButton = True\n    e = e & \";\" & Err.Number\n    Set b = ws.Buttons(1)\n    Err.Clear\n    b.CancelButton = True\n    e = e & \";\" & Err.Number\n    For i = 1 To ws.Buttons.Count\n        Set b = ws.Buttons(i)\n        s = s & \";\" & b.DefaultButton & \",\" & b.CancelButton & \",\" & b.HelpButton\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = Mid(e, 2) & \"|\" & Mid(s, 2)\nEnd Function\n",
+   "excel": "0;0|True,True,False;False,False,False"
+  }
+ ]
+}

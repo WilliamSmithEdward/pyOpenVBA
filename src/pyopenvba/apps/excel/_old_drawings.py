@@ -549,6 +549,7 @@ class _BoxAdded(_Drawings):
 
 class TextBoxes(_BoxAdded):
     spread_reads = frozenset({'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Caption', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Text', 'Visible'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -562,6 +563,7 @@ class TextBoxes(_BoxAdded):
 
 class Rectangles(_BoxAdded):
     spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -570,6 +572,7 @@ class Rectangles(_BoxAdded):
 
 class Ovals(_BoxAdded):
     spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Ovals'
     item = Oval
     shape_type = 9
@@ -577,6 +580,7 @@ class Ovals(_BoxAdded):
 
 class Arcs(_Drawings):
     spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Arcs'
     item = Arc
 
@@ -589,6 +593,7 @@ class Arcs(_Drawings):
 
 class Lines(_Drawings):
     spread_reads = frozenset({'Border', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
     vba_type_name = 'Lines'
     parts = frozenset({'Border'})
     several = {}
@@ -603,6 +608,7 @@ class Lines(_Drawings):
 
 class Pictures(_Drawings):
     spread_reads = frozenset({'Border', 'Enabled', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
     vba_type_name = 'Pictures'
     parts = frozenset({'Border', 'Interior'})
     several = {}
@@ -639,7 +645,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'DisplayVerticalScrollBar', 'Font', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Placement', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

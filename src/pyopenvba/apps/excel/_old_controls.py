@@ -350,12 +350,22 @@ def _button_flag(name: str) -> MemberSpec:
         flags = set(control.button_flags)
         if to_bool(wanted):
             flags.add(element)
+            if element in _SOLE_ROLES:
+                # One button on the sheet holds each of these; the other roles stay (tests/fixtures/button_roles.json).
+                for other in item.sheet.shapes_:
+                    held = other.control
+                    if other is not item.shape and held is not None and element in held.button_flags:
+                        held.button_flags = held.button_flags - {element}
         else:
             flags.discard(element)
         control.button_flags = frozenset(flags)
         item.sheet.drawing_changed()
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
+#: The roles a sheet gives one button at a time.
+_SOLE_ROLES = frozenset({'Default', 'Cancel', 'Help'})
 
 
 def _text_frame(name: str) -> MemberSpec:
@@ -637,6 +647,13 @@ def _spread_getter(name: str) -> Any:
     return read
 
 
+def _spread_setter(name: str) -> Any:
+    def write(self: OldControls, value: object) -> None:
+        self.vba_set(name, value)
+
+    return write
+
+
 class OldControls(VBACollection, Created):
     """One kind of a sheet's form controls, or some of them picked by an Array. Asked for a member of its items, a collection of one
     answers for the item, and of several fails, but for what these say (tests/fixtures/old_collection_members.json)."""
@@ -654,11 +671,18 @@ class OldControls(VBACollection, Created):
     #: Its items' members it answers for them as Excel does, as is, alike and different, typed and late, on a saved and a made workbook
     #: (tests/fixtures/old_collection_reads.json). Each is registered, so the class lists it, and read as the rest are.
     spread_reads: ClassVar[frozenset[str]] = frozenset()
+    #: Those of them a set on the whole collection answers for as Excel does, typed and late, in the session and after a save and a reopen
+    #: (tests/fixtures/old_collection_lets.json): registered with a setter, which goes through ``vba_set`` as every set here does.
+    spread_sets: ClassVar[frozenset[str]] = frozenset()
+    #: Members a set on the whole collection takes and loses, its items reading as before, in the session and after a save.
+    lost_sets: ClassVar[frozenset[str]] = frozenset()
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
+        assert cls.spread_sets <= cls.spread_reads, cls.spread_sets - cls.spread_reads
         for name in cls.spread_reads:
-            cls.vba_add_member(MemberSpec(name=name, kind='property', getter=_spread_getter(name)))
+            cls.vba_add_member(MemberSpec(name=name, kind='property', getter=_spread_getter(name),
+                                          setter=_spread_setter(name) if name in cls.spread_sets else None))
 
     def __init__(self, sheet: Worksheet, picked: list[Shape] | None = None) -> None:
         self.sheet, self.picked = sheet, picked
@@ -781,14 +805,21 @@ class OldControls(VBACollection, Created):
         return self.several[lower]
 
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
-        """A member set on every item, though not a name, which they cannot share. A list with nothing in it takes no Value, and the others still do."""
-        if name.lower() == 'name':
+        """A member set on every item, though not a name, which they cannot share, nor a whole List, which is 1004 before any item changes, as
+        its read is. A list with nothing in it takes no Value or ListIndex, and the others still do. What ``lost_sets`` names is taken and
+        changes nothing (tests/fixtures/old_collection_lets.json)."""
+        lower = name.lower()
+        if lower == 'name':
             raise error(438, "Object doesn't support this property or method")
         items = self.vba_items()
         if not items:
             raise VBAUnsupportedError(f'{self.vba_type_name}.{name} with nothing in the collection is not implemented')
+        if lower == 'list' and not args:
+            raise error(*_NOT_THERE)
+        if lower in self.lost_sets:
+            return
         for item in items:
-            if not (name.lower() == 'value' and isinstance(item, _Listed) and not int(to_number(item.control.vba_get('ListCount', [])))):
+            if not (lower in ('value', 'listindex') and isinstance(item, _Listed) and not int(to_number(item.control.vba_get('ListCount', [])))):
                 getattr(item, 'vba_set')(name, value, args, named, by_ref=by_ref)
 
 
@@ -796,14 +827,17 @@ class Buttons(OldControls):
     vba_type_name = 'Buttons'
     kind = 'Button'
     spread_reads = frozenset({'Accelerator', 'Caption', 'Characters', 'Enabled', 'Font', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Text', 'Visible'})
     parts = frozenset({'Characters', 'Font'})
     several = {'visible': True, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
+    lost_sets = frozenset({'autoscalefont'})
 
 
 class CheckBoxes(OldControls):
     vba_type_name = 'CheckBoxes'
     kind = 'CheckBox'
     spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Enabled', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'Caption', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
 
 
@@ -811,6 +845,7 @@ class OptionButtons(OldControls):
     vba_type_name = 'OptionButtons'
     kind = 'Radio'
     spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Enabled', 'GroupBox', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'Caption', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
     several = {'visible': True, 'groupbox': NOTHING}
 
@@ -819,6 +854,7 @@ class DropDowns(OldControls):
     vba_type_name = 'DropDowns'
     kind = 'Drop'
     spread_reads = frozenset({'Caption', 'Characters', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Caption', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
     parts = frozenset({'Characters'})
 
 
@@ -826,6 +862,7 @@ class ListBoxes(OldControls):
     vba_type_name = 'ListBoxes'
     kind = 'List'
     spread_reads = frozenset({'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Value', 'Visible'})
 
 
 def collection(sheet: Worksheet, kind: type[OldControls], index: object) -> Any:

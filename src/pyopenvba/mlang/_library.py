@@ -150,6 +150,26 @@ def m_hash_duration(days: object, hours: object, minutes: object, seconds: objec
     return Duration(as_number(days), as_number(hours), as_number(minutes), as_number(seconds))
 
 
+#: What Power Query says of a count or a list's end past a 32-bit integer (tests/fixtures/m_vast_lists.json).
+_OUT_OF_INT32: Final = "The number is out of range of a 32 bit integer value."
+#: The most items this engine builds of a list or table. Power Query built 10 million in seconds and builds a larger one lazily, as an item at a
+#: time, where this engine would build it whole, so past this one is refused before any work rather than left to run on.
+MOST_ITEMS: Final = 10_000_000
+
+
+def _int32(value: object) -> int:
+    """A count or an end as a 32-bit integer, as {1..x} and Table.Repeat take it, or Power Query's Expression.Error."""
+    number = as_number(value)
+    if not (math.isfinite(number) and -2 ** 31 <= number <= 2 ** 31 - 1):
+        raise MError("Expression.Error", _OUT_OF_INT32)
+    return int(number)
+
+
+def _not_vast(items: float, what: str) -> None:
+    if items > MOST_ITEMS:
+        raise VBAUnsupportedError(f"{what} of more than {MOST_ITEMS:,} items is not built here: Power Query makes one lazily, an item at a time")
+
+
 @m("#range", 2, 2)
 def m_hash_range(first: object, last: object) -> object:
     """{1..3}, which M writes as a range inside a list.
@@ -160,8 +180,9 @@ def m_hash_range(first: object, last: object) -> object:
     """
     if isinstance(first, str) and isinstance(last, str):
         return [chr(one) for one in range(ord(first), ord(last) + 1)]
-    start = int(as_number(first))
-    stop = int(as_number(last))
+    start = _int32(first)
+    stop = _int32(last)
+    _not_vast(stop - start + 1, "A list range")
     return [number_out(float(one)) for one in range(start, stop + 1)]
 
 
@@ -916,7 +937,10 @@ def m_list_combine(values: object) -> object:
 def m_list_numbers(start: object, count: object, *rest: object) -> object:
     step = as_number(_optional(rest, 0, 1))
     first = as_number(start)
-    return [number_out(first + step * index) for index in range(int(as_number(count)))]
+    # No 32-bit check here: Power Query answers List.First(List.Numbers(1, 1e12)) at once (tests/fixtures/m_vast_lists.json).
+    wanted = as_number(count)
+    _not_vast(wanted if not math.isnan(wanted) else 0, "List.Numbers")
+    return [number_out(first + step * index) for index in range(int(wanted))]
 
 
 @m("List.Zip", 1, 1)
@@ -1966,7 +1990,8 @@ def m_table_reverse_rows(table: object) -> object:
 @m("Table.Repeat", 2, 2)
 def m_table_repeat(table: object, count: object) -> object:
     source = as_table(table)
-    times = int(as_number(count))
+    times = _int32(count)
+    _not_vast(times * len(source.rows), "Table.Repeat")
     return Table(list(source.columns), [list(row) for _ in range(times) for row in source.rows])
 
 

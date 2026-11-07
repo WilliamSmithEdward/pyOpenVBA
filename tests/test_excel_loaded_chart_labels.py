@@ -1,6 +1,7 @@
 """What Excel reads of a loaded chart's data labels, through a typed Chart and a late-bound Object (scripts/measure_loaded_chart_labels.py,
-tests/fixtures/loaded_chart_labels.json). Until the model reads a loaded chart's dLbls, each read gives Excel's answer or is refused: a
-series whose markup holds labels keeps its points' reads refused, and one holding a point's label keeps its DataLabels refused."""
+tests/fixtures/loaded_chart_labels.json). Each read gives Excel's answer or is refused. A series' dLbls and its points' dLbl are read
+where they hold what the model writes; a turned, shadowed or right-to-left label, or anything else, leaves the series' labels and its
+points' reads refused. The turned book is a held-out round: its reads were predicted refused before Excel was measured."""
 
 from __future__ import annotations
 

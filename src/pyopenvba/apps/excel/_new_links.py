@@ -8,8 +8,8 @@ place, and the formula names that sheet. A file not there leaves the link with t
 at #REF!. A workbook never saved is linked by its name. The values stay once the workbook closes, and a link no formula
 reads any more goes. Measured by scripts/measure_book_refs.py (tests/fixtures/book_refs.json).
 
-A file on disk is read past the interpreter's gate, as UpdateLink and ChangeLink read one, so the sandbox refuses it
-before anything is looked for (see _link_edits.loaded).
+A file on disk is read past the gate UpdateLink and ChangeLink read one through, so the sandbox refuses it unless a host granted
+its folder with allow_link_reads, before anything is looked for (see _hooks.link_gate).
 """
 from __future__ import annotations
 
@@ -72,7 +72,10 @@ def made(book: Workbook, given: str, file: str, sheet: str) -> str:
         pathless = found is None and not given
     if found is None:
         if not sheet:
-            raise VBAUnsupportedError("a name in a workbook whose file is not there is not implemented")
+            # One of its names: the link keeps each name a formula reads, as written and with nothing it refers to, read as #NAME?
+            # (see _model._BookNames.defined; tests/fixtures/book_refs.json, cases 26 to 28).
+            book.linked_books[number] = LinkedBook(number, file if pathless else target, (), (), {}, made=True, pathless=pathless)
+            return f"[{number}]"
         # Read as #REF!: the link lists the sheet, as one its workbook does not have.
         book.linked_books[number] = LinkedBook(number, file if pathless else target, (), (), {}, extra_sheets=(sheet,),
                                                made=True, pathless=pathless)
@@ -142,6 +145,10 @@ def _defined_names(book: Workbook, linked: LinkedBook) -> str:
     entries: list[str] = []
     for name, refers in linked.names.items():
         if name.casefold() not in read:
+            continue
+        if not refers:
+            # A name of a workbook whose file was not there: Excel keeps it with nothing it refers to.
+            entries.append(f'<definedName name="{escape(name)}"/>')
             continue
         sheet, rest = split_sheet(refers.removeprefix("="))
         if not sheet or "!" in rest or "(" in rest:

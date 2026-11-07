@@ -6783,6 +6783,11 @@ class Range(ExcelObject):
         shift = given(Shift)
         lines = all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas)
         if shift is MISSING:
+            if filtered and not lines and self.sheet.book.application.display_alerts:
+                # Excel asks whether to delete the whole rows first (tests/fixtures/filter_shifts_c.json); the
+                # answer it takes with DisplayAlerts off is what follows.
+                raise VBAUnsupportedError("Range.Delete with no Shift on a filtered sheet with DisplayAlerts on, where "
+                                          "Excel asks first, is not implemented")
             up = filtered or self.first.rows <= self.first.columns
         else:
             # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on
@@ -6949,6 +6954,9 @@ class Range(ExcelObject):
             if which not in (-4121, -4161, 1, 2):
                 raise error(1004, refusal)
             down = which in (-4121, 2)
+        from pyopenvba.apps.excel._autofilter import insert_admitted
+
+        insert_admitted(self.sheet, area, down=down)
         self.shifting_cells(area, vertical=down, delete=False)
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)

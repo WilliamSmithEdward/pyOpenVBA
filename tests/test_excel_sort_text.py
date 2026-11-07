@@ -165,7 +165,7 @@ def test_kana_and_ideographs_weigh_as_windows_weighs_them(locale: str) -> None:
 
 def test_ideographs_weigh_by_the_locale_and_names_weigh_none() -> None:
     """ja-JP weighs the common ideographs in Japanese order, en-US in Unicode's; names, compared without a locale,
-    still report text beyond Latin, Greek and Cyrillic."""
+    still report text beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai and Hangul."""
     assert ordering_key("亜", False, JA_JP) < ordering_key("一", False, JA_JP)
     assert ordering_key("一", False, EN_US) < ordering_key("亜", False, EN_US)
     with pytest.raises(VBAUnsupportedError):
@@ -193,6 +193,73 @@ def test_kana_and_ideographs_sort_as_compare_string_orders_them(locale: str) -> 
             if mine != theirs:
                 missed.append((first, second, matching))
     assert not missed, missed[:3]
+
+
+# --- Hebrew, Arabic, Thai and Hangul ------------------------------------------------------------------------------
+
+#: tests/fixtures/sort_keys_scripts.json: 1,500 strings of Hebrew, Arabic and its presentation forms, Thai, Hangul
+#: syllables and compatibility jamo, mostly one script to a string, with ASCII mixed in, and the keys Windows made of
+#: them (en-US), ignoring case and matching it (scripts/bake_sort_weights.py).
+SCRIPT_KEYS: list[list[str]] = json.loads((FIXTURES / "sort_keys_scripts.json").read_text(encoding="utf-8"))["cases"]
+
+
+def test_hebrew_arabic_thai_and_hangul_weigh_as_windows_weighs_them() -> None:
+    """Every key the model makes is the one Windows made under en-US, and the same with no locale, as names compare,
+    since these scripts weigh alike under every locale tried (scripts/bake_sort_weights.py checks each character);
+    the text it does not make a key for is text it reports, a combining mark first or a run of marks past 255."""
+    missed: list[tuple[str, bool, str]] = []
+    reported = 0
+    for text, ignoring, matching in SCRIPT_KEYS:
+        for locale in (None, EN_US):
+            for expected, matched in ((ignoring, False), (matching, True)):
+                try:
+                    mine = ordering_key(text, matched, locale)
+                except VBAUnsupportedError:
+                    reported += 1
+                    continue
+                if mine.hex() != expected:
+                    missed.append((text, matched, getattr(locale, "name", "none")))
+    assert not missed, missed[:3]
+    # Four tries a string: under 1 in 4 reported, most of them a mark first.
+    assert reported < len(SCRIPT_KEYS)
+
+
+@pytest.mark.parametrize("text", ["가", "한", "aᆨ", "ﱛ", "ﹰ"],
+                         ids=["conjoining jamo", "conjoining syllable", "final jamo", "ligature", "fathatan form"])
+def test_conjoining_jamo_and_odd_arabic_forms_report_themselves(text: str) -> None:
+    """Windows weighs a run of conjoining jamo as the syllable it spells, and a few Arabic forms lay their keys out
+    otherwise: no table weighs them."""
+    with pytest.raises(VBAUnsupportedError):
+        ordering_key(text, False)
+
+
+def test_a_syllable_sorts_with_its_compatibility_jamo_and_after_latin() -> None:
+    assert ordering_key("zzz", False) < ordering_key("ㄱ", False) < ordering_key("가", False) \
+        < ordering_key("각", False) < ordering_key("힣", False)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="CompareStringEx is Windows'")
+def test_hebrew_arabic_thai_and_hangul_sort_as_compare_string_orders_them() -> None:
+    compare = _windows.WinDLL("kernel32").CompareStringEx
+    compare.argtypes = [ctypes.c_wchar_p, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_int, ctypes.c_wchar_p,
+                        ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+    pick = random.Random(20261107)
+    texts = [case[0] for case in SCRIPT_KEYS]
+    missed: list[tuple[str, str, bool]] = []
+    compared = 0
+    for _ in range(20000):
+        first, second = pick.choice(texts), pick.choice(texts)
+        for matching in (False, True):
+            mine_first, mine_second = _reported(first, matching, EN_US), _reported(second, matching, EN_US)
+            if mine_first is None or mine_second is None:
+                continue
+            compared += 1
+            mine = (mine_first > mine_second) - (mine_first < mine_second)
+            theirs = compare("en-US", 0 if matching else 1, first, -1, second, -1, None, None, None) - 2
+            if mine != theirs:
+                missed.append((first, second, matching))
+    assert not missed, missed[:3]
+    assert compared > 20000
 
 
 LIVE_SORTS: dict[str, Any] = json.loads((FIXTURES / "vba_locale_live.json").read_text(encoding="utf-8"))

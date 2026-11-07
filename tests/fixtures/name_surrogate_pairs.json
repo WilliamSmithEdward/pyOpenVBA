@@ -1,0 +1,126 @@
+{
+ "excel_count": 30,
+ "model_count": 0,
+ "cases": [
+  {
+   "point": "U+1F600",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+1F44D",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+20000",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+2A6D6",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+1D400",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+1D7CE",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+10330",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+10000",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+1D11E",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+E0041",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+F0000",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+10FFFD",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+3FFFF",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+1FFFE",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  },
+  {
+   "point": "U+16FE0",
+   "later_excel": 0,
+   "first_excel": 0,
+   "later_model": 1004,
+   "first_model": 1004,
+   "rule": 0
+  }
+ ]
+}

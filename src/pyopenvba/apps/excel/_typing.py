@@ -38,6 +38,12 @@ scripts/measure_typing_formats.py and scripts/measure_typed_dates.py):
   a month's name. Excel misreads a space before a month's name and a
   time, and digits after AM or PM and a point, into numbers no rule
   gives; those are refused.
+- Digits of 17 other scripts' sets, Arabic-Indic and Thai among them, read
+  as ASCII digits when they are all of one set and alone, or with a minus
+  or a point; two runs about a comma stay text, as does text round them
+  that would be text with ASCII digits. Other scripts' digits stay text.
+  Other shapes of those digits are refused
+  (scripts/measure_typing_native_digits.py).
 
 What the cell already holds decides the rest. A Text cell (``@``) keeps
 every string as it is written and turns a Date or a Currency a macro
@@ -61,7 +67,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Final
 
-from pyopenvba.formula._display import clock, format_value, keeps_text
+from pyopenvba.formula._display import DIGIT_SHAPES, clock, format_value, general_text, keeps_text
 from pyopenvba.formula._parse import literal
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, error
@@ -195,7 +201,8 @@ def format_after(current: str, brought: str | None) -> str | None:
     if current in ("General", ""):
         return None if brought == "General" else brought
     held = "text" if current == "@" else _REPLACEABLE.get(current)
-    kind = _BROUGHT.get(brought)
+    # Another script's digits bring a format of the kind their ASCII spelling would (tests/fixtures/typing_native_rounds/).
+    kind = _BROUGHT.get(brought) or _native_kind(brought)
     if held is None or kind in (None, "number", held):
         return None
     return brought
@@ -306,6 +313,9 @@ def typed_text(text: str, *, fractions: bool = False, imported: bool = False) ->
         return Typed(ERRORS.get(upper, ExcelError(upper)))
     if upper in ("TRUE", "FALSE"):
         return Typed(upper == "TRUE")
+    native = _native_digits(text, fractions=fractions, imported=imported)
+    if native is not None:
+        return native
     body = text.strip(" ")
     if not body:
         return Typed(text)
@@ -314,6 +324,106 @@ def typed_text(text: str, *, fractions: bool = False, imported: bool = False) ->
     if found is None:
         return Typed(text)
     return found if found.value is not None else Typed(text, found.number_format)
+
+
+#: The digit sets Excel reads as numbers in a cell, by their zero: the digit-shape code and the language a number of
+#: theirs is formatted with (Arabic-Indic and extended Arabic-Indic, Devanagari, Bengali, Gurmukhi, Gujarati, Oriya,
+#: Tamil, Telugu, Kannada, Malayalam, Thai, Lao, Tibetan, Myanmar, Khmer, Mongolian;
+#: tests/fixtures/typing_native_digits.json, typing_native_shapes.json). Every other set's digits stay text.
+_LANGUAGES: Final = {0x0660: 0x0401, 0x06F0: 0x0401, 0x0966: 0x0439, 0x09E6: 0x0445, 0x0A66: 0x0446, 0x0AE6: 0x0447,
+                     0x0B66: 0x0448, 0x0BE6: 0x0449, 0x0C66: 0x044A, 0x0CE6: 0x044B, 0x0D66: 0x044C, 0x0E50: 0x041E,
+                     0x0ED0: 0x0454, 0x0F20: 0x0451, 0x1040: 0x0455, 0x17E0: 0x0453, 0x1810: 0x0450}
+_NATIVE_SETS: Final = {zero: (shape, _LANGUAGES[zero]) for shape, zero in DIGIT_SHAPES.items()}
+#: The date and time formats typing brings, and what they become with another script's digits: a day, a month and a
+#: year in full; times as they are.
+_NATIVE_MOMENTS: Final = {"d-mmm": "dd-mmm", "m/d/yyyy": "mm/dd/yyyy", "d-mmm-yy": "dd-mmm-yyyy", "mmm-yy": "mmm-yyyy",
+                          "h:mm": "h:mm", "h:mm AM/PM": "h:mm AM/PM", "h:mm:ss": "h:mm:ss",
+                          "h:mm:ss AM/PM": "h:mm:ss AM/PM", "m/d/yyyy h:mm": "m/d/yyyy h:mm", "mm:ss": "mm:ss",
+                          "[h]:mm:ss": "[h]:mm:ss", "mm:ss.0": "mm:ss.0"}
+#: The number formats that come through without a digit shape.
+_NATIVE_PLAIN: Final = ("0.00E+00", "##0.0E+0", "# ?/?", "# ??/??")
+#: The currency formats typing brings, whole and with cents, dollars or euros: all become the set's own with cents.
+_CURRENCY_TYPED: Final = ("$#,##0_);[Red]($#,##0)", "$#,##0.00_);[Red]($#,##0.00)", *_EURO_FORMATS.values())
+_SHAPED = re.compile(r"\[(\$?)\$-([0-9A-F]+)\]")
+
+
+def _native_kind(brought: str) -> str | None:
+    """The kind of a format typing brings with another script's digits, which is the kind its ASCII spelling brings
+    and decides whether it replaces a cell's own (format_after): currency, a date or a time, a percent, or a number,
+    which replaces nothing; None for a format with no digit shape."""
+    found = _SHAPED.match(brought)
+    if found is None or len(found.group(2)) <= 6 or int(found.group(2), 16) >> 24 not in DIGIT_SHAPES:
+        return None
+    if found.group(1):
+        return "currency"
+    body = brought[found.end():]
+    if found.group(2).endswith("000000"):
+        return _REPLACEABLE.get(next(ascii for ascii, shaped in _NATIVE_MOMENTS.items() if shaped == body), "date")
+    return "percent" if body.endswith("%") else "number"
+
+
+def _native_digits(text: str, *, fractions: bool = False, imported: bool = False) -> Typed | None:
+    """Text holding digits of a set Excel reads, typed as Excel types it: each digit read as its ASCII digit, the
+    text then typed as usual, and a number or a moment so read given a format that shows the digits in their own
+    script, a digit shape and a language before it (:func:`_native_format`). None for text with no such digit."""
+    shape: tuple[int, int] | None = None
+    folded: list[str] = []
+    for character in text:
+        code = ord(character)
+        if code > 0x7F and character.isdecimal():
+            zero = code - int(character)
+            if zero in _NATIVE_SETS:
+                # Digits of two sets together take the last one's shape.
+                shape = _NATIVE_SETS[zero]
+                folded.append(str(code - zero))
+                continue
+        folded.append(character)
+    if shape is None:
+        return None
+    plain = "".join(folded)
+    found = typed_text(plain, fractions=fractions, imported=imported)
+    if found.prefix or (found.value == plain and found.number_format is None):
+        return Typed(text)
+    return Typed(found.value, _native_format(found, plain, shape))
+
+
+def _native_format(found: Typed, plain: str, shape: tuple[int, int]) -> str:
+    """The format a number or a moment typed in another script's digits brings: the ASCII typing's, with the digit
+    shape and, for a number, the set's language before it; General a whole number's 0, a fraction's as many #s as
+    were typed after the point, and a number of twelve digits or more 0.#####E+00 with as many #s as General shows
+    places; a percent with two places; a currency amount the set's own with cents; a date's day, month and year in
+    full; a time's, an exponent's and a fraction's as typed (tests/fixtures/typing_native_shapes.json,
+    typing_native_rounds/)."""
+    code, language = shape
+    number = f"[$-{code:X}{language:06X}]"
+    moment = f"[$-{code:X}000000]"
+    ascii_format = found.number_format
+    if ascii_format in _NATIVE_PLAIN:
+        return ascii_format
+    if ascii_format in _NATIVE_MOMENTS:
+        return moment + _NATIVE_MOMENTS[ascii_format]
+    if ascii_format == "General":
+        # A date and a time past their limits, which typing leaves General: no digit shape.
+        return "General"
+    if ascii_format in _CURRENCY_TYPED or (EURO in plain and isinstance(found.value, float)):
+        # A euro amount typed into a cell brings no format in ASCII; in these digits it is currency like a dollar's.
+        currency = f"[$$-{code:X}{language:06X}]"
+        return f"{currency} #,##0.00_);[Red]({currency}#,##0.00)"
+    if ascii_format in ("0%", "0.00%"):
+        return number + "0.00%"
+    if ascii_format in ("#,##0", "#,##0.00"):
+        return number + ascii_format
+    if ascii_format is None and isinstance(found.value, float):
+        value = abs(found.value)
+        if value >= 1e11:
+            # As many places as General shows: 1.23457E+11, 1E+15.
+            mantissa = general_text(value).split("E")[0]
+            return number + "0." + "#" * len(mantissa.partition(".")[2]) + "E+00"
+        point = plain.find(".")
+        places = len(re.match(r"\d*", plain[point + 1:]).group()) if point >= 0 else 0  # type: ignore[union-attr]
+        return number + ("0." + "#" * places if places else "0")
+    # The rest of what typing brings, a euro amount's among them, keeps its format behind the number's prefix.
+    return number + str(ascii_format)
 
 
 # --- numbers ------------------------------------------------------------------------------------

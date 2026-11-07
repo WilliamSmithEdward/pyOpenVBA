@@ -85,7 +85,7 @@ matches one character at a time, each by its word-sort key, so ae* leaves
 out the ash's spelling and k* keeps the Kelvin sign's.
 
 What is not modelled reports itself: AutoFilter.Sort, a hidden drop-down,
-and text beyond Latin, Greek and Cyrillic where it is compared.
+and text beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai and Hangul where it is compared.
 
 A table has a filter of its own, which a range inside it reaches; the
 sheet's members reach whichever filter the active cell is in. Both are
@@ -263,9 +263,9 @@ def ordered(text: str) -> bytes:
     try:
         return ordering_key(text, False)
     except VBAUnsupportedError:
-        raise VBAUnsupportedError("filtering text with characters beyond Latin, Greek and Cyrillic, their marks and "
-                                  "punctuation, or with a combining mark before anything word sort weighs, is not "
-                                  "implemented") from None
+        raise VBAUnsupportedError("filtering text with characters beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai "
+                                  "and Hangul, their marks and punctuation, or with a combining mark before anything "
+                                  "word sort weighs, is not implemented") from None
 
 
 def letter(char: str) -> bytes | str:

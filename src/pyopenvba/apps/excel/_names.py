@@ -1,9 +1,12 @@
 """Shared name validation, scope and reference rewriting."""
 from __future__ import annotations
+import bisect
 import re
+import string
 from functools import lru_cache
 from typing import TYPE_CHECKING, Final
 from pyopenvba._a1 import parse_area, quote_sheet
+from pyopenvba.apps.excel._name_characters import REFUSED_FIRST, REFUSED_LATER
 from pyopenvba.formula._parse import tokenize, split_sheet, FormulaError
 from pyopenvba.interpreter._values import error
 
@@ -69,17 +72,40 @@ def refers_text(value: object, empty: str = "=") -> str:
     return text
 
 
+def _unit_ok(unit: int, first: bool) -> bool:
+    """Whether Excel takes one UTF-16 unit of a name, first or after the first."""
+    if unit < 0x80:
+        return chr(unit) in (_FIRST_ASCII if first else _LATER_ASCII)
+    refused = REFUSED_FIRST if first else REFUSED_LATER
+    at = bisect.bisect_right(refused, (unit, 0x10000)) - 1
+    return not (at >= 0 and refused[at][0] <= unit <= refused[at][1])
+
+
+_FIRST_ASCII = frozenset(string.ascii_letters + "_\\")
+_LATER_ASCII = frozenset(string.ascii_letters + string.digits + "_.\\?")
+#: The zero of each run of digits Excel reads as ASCII digits in a reference; not the fullwidth digits, nor later scripts'.
+_ADDRESS_ZEROS = (0x0660, 0x06F0, 0x0966, 0x09E6, 0x0A66, 0x0AE6, 0x0B66, 0x0BE6, 0x0C66, 0x0CE6, 0x0D66, 0x0E50, 0x0ED0, 0x0F20, 0x1040,
+                  0x17E0, 0x1810)
+_ADDRESS_DIGITS = {zero + digit: str(digit) for zero in _ADDRESS_ZEROS for digit in range(10)}
+
+
 def valid(bare: str) -> bool:
-    """Whether Excel takes ``bare`` as a name (tests/fixtures/name_validity.json): a letter, _ or \\ first, then
+    """Whether Excel takes ``bare`` as a name (tests/fixtures/name_validity.json): in ASCII a letter, _ or \\ first, then
     letters, digits, _, ., \\ and ?, at most 255 of them; no cell's address, A1 or RX1; and nothing that starts as
     an R1C1 reference -- R, C, RC or Rc alone, nor R1, C12 or RC1 with anything after it but a . -- though R_, Cx
-    and Rb12c are names."""
-    # After its first character a name may hold a combining accent, e with U+0301
-    # (tests/fixtures/name_equality.json, marks).
-    if not re.fullmatch(r"[A-Za-z_\\\u0080-\uffff][\w.\\?\u0300-\u036f]*", bare) or len(bare) > 255:
+    and Rb12c are names. Beyond ASCII, each UTF-16 unit but those _name_characters lists, which Excel refuses first or after
+    the first (tests/fixtures/name_characters_bmp.json, name_surrogate_pairs.json)."""
+    data = bare.encode("utf-16-le", "surrogatepass")
+    units = [int.from_bytes(data[at:at + 2], "little") for at in range(0, len(data), 2)]
+    if not units or len(bare) > 255:
+        return False
+    if not all(_unit_ok(unit, at == 0) for at, unit in enumerate(units)):
         return False
     if bare.upper() in ("TRUE", "FALSE"):
         return False
+    # Read as a reference, the digits of seventeen scripts stand for their ASCII digits (tests/fixtures/name_address_digits.json,
+    # name_address_digit_forms.json).
+    bare = bare.translate(_ADDRESS_DIGITS)
     found = _R1C1_START.match(bare)
     if found is not None and found.group(0):
         if found.end() == len(bare):

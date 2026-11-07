@@ -373,7 +373,7 @@ class Application(ExcelObject):
         "WorkbookActivate", "WorkbookDeactivate", "WorkbookNewSheet", "SheetChange", "SheetCalculate",
         "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate",
         "NewWorkbook", "SheetBeforeDelete", "SheetFollowHyperlink", "WindowActivate", "WindowDeactivate",
-        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart"})
+        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart", "AfterCalculate"})
 
     def vba_information_value(self) -> object:
         return self.Name()
@@ -756,6 +756,7 @@ class Application(ExcelObject):
             for book in self.workbooks_.books:
                 _events.calculated_all(book, book.calculator.calculate_all(
                     volatile=False, udf_volatile=book is self.active_book))
+            _events.after_calculate(self)
 
     @member
     def StatusBar(self) -> object:
@@ -1358,6 +1359,7 @@ class Application(ExcelObject):
             worked = book.calculator.calculate_all(asked=True, full=full)
             calculated(book, full)
             _events.calculated_all(book, worked)
+        _events.after_calculate(self)
         return EMPTY
 
     @method
@@ -1368,6 +1370,7 @@ class Application(ExcelObject):
             worked = book.calculator.calculate_all(full=True, asked=True)
             calculated(book, True)
             _events.calculated_all(book, worked)
+        _events.after_calculate(self)
         return EMPTY
 
     @method
@@ -1379,6 +1382,7 @@ class Application(ExcelObject):
             worked = book.calculator.calculate_all(full=True, asked=True)
             calculated(book, True)
             _events.calculated_all(book, worked)
+        _events.after_calculate(self)
         return EMPTY
 
     @method
@@ -5930,6 +5934,7 @@ class Range(ExcelObject):
             # Not a calculation that works data tables out in semi-automatic calculation
             # (tests/fixtures/data_tables.json).
             _events.calculated_all(self.sheet.book, calculator.calculate_all())
+            _events.after_calculate(self.sheet.book.application)
         else:
             # Deliver earlier notifications, then retain this limited
             # calculation's notification until another calculation request.
@@ -6634,7 +6639,7 @@ class Range(ExcelObject):
         # Here and not in clear_contents_checked, which is also how a pivot table clears the cells it is about to fill.
         self._taking_whole_pivot_tables()
         self.clear_contents_checked()
-        _events.after_edit(self)
+        _events.after_edit(self, announced_last=True)
         return EMPTY
 
     def clear_contents_checked(self) -> None:

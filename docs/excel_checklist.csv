@@ -861,6 +861,7 @@ ChartArea,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/ob
 ChartArea,Font,not in the type library,,,PARTIAL,tests/fixtures/chart_fonts.json; tests/test_excel_chart_fonts.py,A txPr after the chart. Whether it reaches the other elements was not measured: refused beside theirs.
 ChartArea,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 ChartArea,Height,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,"The chart object's height in whole EMU, less 5 points."
+ChartArea,Interior,not in the type library,,,PARTIAL,tests/fixtures/chart_interior.json; tests/test_excel_chart_interior.py; tests/fixtures/loaded_chart_looks.json,"Color, ColorIndex, Pattern, PatternColorIndex and InvertIfNegative as Excel reads them, a view of Format.Fill; Color, ColorIndex 1 to 56 and xlNone, and Pattern xlSolid and xlNone set. Refused on a loaded styled chart."
 ChartArea,Left,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's Left.
 ChartArea,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Chart.
 ChartArea,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,"Chart, by the way it is reached; Set o.Parent is the error set_parent_error gives."
@@ -1003,6 +1004,7 @@ ChartTitle,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL
 ChartTitle,Height,"property, read-only",As Double,,MISSING,,
 ChartTitle,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Written as the paragraph's algn once set. Ignored while the title is turned, as Excel ignores it; refused on vertical titles."
 ChartTitle,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,False writes overlay 1.
+ChartTitle,Interior,not in the type library,,,PARTIAL,tests/fixtures/chart_interior.json; tests/test_excel_chart_interior.py; tests/fixtures/loaded_chart_looks.json,"Color, ColorIndex, Pattern, PatternColorIndex and InvertIfNegative as Excel reads them, a view of Format.Fill; Color, ColorIndex 1 to 56 and xlNone, and Pattern xlSolid and xlNone set. Refused on a loaded styled chart."
 ChartTitle,Left,property,As Double,,MISSING,,
 ChartTitle,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads ""Title""."
 ChartTitle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"-90 to 90 degrees or the named constants, written as bodyPr rot; xlVertical as wordArtVert. Out of range raises -2147467259."
@@ -2076,6 +2078,7 @@ Legend,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart
 Legend,GetProperty,method,GetProperty(ID As String) As Variant,no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 Legend,Height,property,As Double,,MISSING,,
 Legend,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,False writes overlay 1.
+Legend,Interior,not in the type library,,,PARTIAL,tests/fixtures/chart_interior.json; tests/test_excel_chart_interior.py; tests/fixtures/loaded_chart_looks.json,"Color, ColorIndex, Pattern, PatternColorIndex and InvertIfNegative as Excel reads them, a view of Format.Fill; Color, ColorIndex 1 to 56 and xlNone, and Pattern xlSolid and xlNone set. Refused on a loaded styled chart."
 Legend,Left,property,As Double,,MISSING,,
 Legend,LegendEntries,method,LegendEntries([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"The entries still shown, or one by index; out of range raises -2147467259."
 Legend,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads ""Legend""."
@@ -3222,6 +3225,7 @@ PlotArea,InsideHeight,property,As Double,,MISSING,,
 PlotArea,InsideLeft,property,As Double,,MISSING,,
 PlotArea,InsideTop,property,As Double,,MISSING,,
 PlotArea,InsideWidth,property,As Double,,MISSING,,
+PlotArea,Interior,not in the type library,,,PARTIAL,tests/fixtures/chart_interior.json; tests/test_excel_chart_interior.py; tests/fixtures/loaded_chart_looks.json,"Color, ColorIndex, Pattern, PatternColorIndex and InvertIfNegative as Excel reads them, a view of Format.Fill; Color, ColorIndex 1 to 56 and xlNone, and Pattern xlSolid and xlNone set. Refused on a loaded styled chart."
 PlotArea,Left,property,As Double,,MISSING,,
 PlotArea,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Plot.
 PlotArea,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,"Chart, by the way it is reached; Set o.Parent is the error set_parent_error gives."
@@ -3726,7 +3730,7 @@ Series,Has3DEffect,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_se
 Series,HasDataLabels,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"The series' dLbls showing values, before its categories, on every kind; setting it either way turns HasLeaderLines off."
 Series,HasErrorBars,property,As Boolean,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py; tests/fixtures/chart_series_reads.json,"On, a fixed bar both ways, X and Y in a scatter chart, of the value axis' major unit, 1 on scatter, pie and doughnut charts; an automatic major unit needs native layout and is refused. Off removes every bar. Area charts are refused."
 Series,HasLeaderLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"True until data labels are set; written in the series' dLbls, and a pie's or doughnut's own leader lines go off once any series' do."
-Series,Interior,not in the type library,,,PARTIAL,tests/fixtures/excel_everyday_14.json,Color only
+Series,Interior,not in the type library,,,PARTIAL,tests/fixtures/chart_interior.json; tests/test_excel_chart_interior.py; tests/fixtures/loaded_chart_looks.json,"Color, ColorIndex, Pattern, PatternColorIndex and InvertIfNegative as Excel reads them, a view of Format.Fill; Color, ColorIndex 1 to 56 and xlNone, and Pattern xlSolid and xlNone set. Refused on a loaded styled chart."
 Series,InvertColor,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"Reads white, 16777215; the setter is not implemented."
 Series,InvertColorIndex,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 2; the setter is not implemented.
 Series,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The ser's invertIfNegative on column and bar charts; other kinds take the setting silently and write nothing.

@@ -643,11 +643,10 @@ def add_list(sheet: Worksheet, source: object, destination: object, style: str) 
 
 def droppable(table: Table) -> ListQueryTable:
     """Before ListObject.Unlist or Delete of a table over a database, its query table, whose dropped() the caller calls once the
-    table has gone: its connection and name go with it (tests/fixtures/list_query_add.json). The model lets one go only where it made
-    the table and has not saved it."""
+    table has gone: its connection and name go with it, and a save takes its query table's part (tests/fixtures/list_query_add.json,
+    list_query_add_saved.json)."""
     query = table.query
-    if not isinstance(query, ListQueryTable) or not query.made or table.part:
-        raise VBAUnsupportedError('Unlisting or deleting a ListObject over a database that a file holds is not implemented')
+    assert isinstance(query, ListQueryTable), 'a table holds only a database query table'
     return query
 
 

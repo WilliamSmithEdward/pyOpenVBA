@@ -1107,7 +1107,18 @@ def _drop_gone_tables(book: Workbook, package: OpcFile) -> None:
         xml = re.sub(r"<tableParts\b.*?</tableParts>|<tableParts\b[^>]*/>", lambda _: element, xml, count=1, flags=re.DOTALL)
         package.write(sheet.part_name, xml.encode("utf-8"))
         for part in gone.values():
+            # A table over a database takes its query table's part with it (tests/fixtures/list_query_add_saved.json).
+            owned = [_resolved(target) for kind, target in _sheet_relationships(package, part).values() if kind == "queryTable"]
             _drop_sheet_part(package, sheet, part)
+            rels = posixpath.join(posixpath.dirname(part), "_rels", posixpath.basename(part) + ".rels")
+            if owned and package.has(rels):
+                package.remove(rels)
+            for one in owned:
+                _remove_unreferenced_part(package, one)
+            # With its last relationship gone the sheet has no relationships part, as Excel writes none.
+            sheet_rels = posixpath.join(posixpath.dirname(sheet.part_name), "_rels", posixpath.basename(sheet.part_name) + ".rels")
+            if owned and package.has(sheet_rels) and "<Relationship " not in package.read(sheet_rels).decode("utf-8"):
+                package.remove(sheet_rels)
 
 
 def _drop_gone_pivot_tables(book: Workbook, package: OpcFile) -> None:

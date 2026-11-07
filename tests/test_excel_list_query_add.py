@@ -170,6 +170,21 @@ def test_excel_opens_and_refreshes_what_the_model_saved(book: str, tmp_path: Pat
     assert _checked(book, _saved_book(book, tmp_path)) == expected
 
 
+@pytest.mark.parametrize("case", sorted(CHECKED["dropped"]))
+def test_a_dropped_list_object_takes_its_query_table_out_of_the_file(case: str, tmp_path: Path) -> None:
+    """Excel's own book with a ListObject over a database, the table deleted or unlisted and saved: the file keeps no connection, no
+    query table and no name of its block (scripts/measure_list_query_add_saved.py)."""
+    book, how = SAVED.LOADED[case]
+    given, out = tmp_path / f"{case}.xlsx", tmp_path / f"{case}_saved.xlsx"
+    given.write_bytes((SAVED.LOADED_BOOKS / f"{book}.xlsx").read_bytes())
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(SAVED.DROP, name="M")
+    measured = CHECKED["dropped"][case]
+    assert str(app.run("Drop", str(given), str(out), how)).split("\t") == measured["rows"]
+    assert SAVED.kept(out.read_bytes()) == measured["saved"]
+
+
 @pytest.mark.parametrize("book", sorted(UNREFRESHED))
 def test_excel_refreshes_a_saved_placeholder_the_model_refuses(book: str, tmp_path: Path) -> None:
     assert any(line.startswith("four E0 ") for line in CHECKED["cases"][book])

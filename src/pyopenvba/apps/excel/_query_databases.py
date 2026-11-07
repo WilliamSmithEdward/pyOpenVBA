@@ -362,6 +362,8 @@ class ListQueryTable(DatabaseQueryTable):
     new one the next field id and one past the highest column id. What is in the way of new columns moves right in their rows; what
     is right of the table follows a change of width. A table a file gave keeps its fields as the file has them."""
 
+    # TypeName answers QueryTable, as for a sheet's (tests/fixtures/list_query_rounds/round_54201.json).
+    vba_type_name = 'QueryTable'
     bold_names = False
 
     def __init__(self, table: Table, connection: str, name: str, command: str | None, link_name: str, *, made: bool = False) -> None:

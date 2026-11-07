@@ -21,8 +21,8 @@ KINDS: dict[str, int] = RECORD['kinds']
 BOXES: dict[str, Any] = json.loads((FIXTURES / 'new_control_boxes.json').read_text(encoding='utf-8'))
 GRID: dict[str, Any] = json.loads((FIXTURES / 'new_control_grid.json').read_text(encoding='utf-8'))
 GEOMETRY: set[str] = set()
-#: What the model reports rather than answers: a scroll bar's width, and a list box's height.
-REFUSED = re.compile(r'^ScrollBar: s\.Width|^ListBox: s\.Height')
+#: What the model reports rather than answers: a scroll bar's size, and a list box's height.
+REFUSED = re.compile(r'^ScrollBar: s\.(?:Width|Height)|^ListBox: s\.Height')
 
 
 def _block(name: str, form: str) -> list[str]:
@@ -139,3 +139,81 @@ def test_a_setting_on_a_control_in_a_file_comes_back(tmp_path: Path) -> None:
     again.add_module(source.format(''), name='Probe')
     assert again.run('Probe.Go') == 'Alt,3,False,0'
 
+
+PLACES = json.loads((Path(__file__).parent / 'fixtures/new_control_places.json').read_text('utf-8'))
+_CONSTANTS = {'xlButtonControl': 0, 'xlCheckBox': 1, 'xlDropDown': 2, 'xlListBox': 6, 'xlGroupBox': 4, 'xlLabel': 5, 'xlOptionButton': 7, 'xlScrollBar': 8, 'xlSpinner': 9}
+
+
+@pytest.mark.parametrize('case', PLACES['cases'], ids=[f"{one['kind']}-{one['member']}-{one['value']}" for one in PLACES['cases']])
+def test_a_place_or_size_set_lands_where_excel_put_it(case: dict[str, Any], tmp_path: Path) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(PLACES['source'], name='Probe')
+    arguments = (_CONSTANTS[case['kind']], case['member'], case['value'], str(tmp_path / 'book.xlsx'))
+    if (case['kind'], case['member']) in (('xlScrollBar', 'Width'), ('xlScrollBar', 'Height'), ('xlListBox', 'Height')):
+        with pytest.raises(VBAUnsupportedError):
+            app.run('Probe.Go', *arguments)
+        return
+    assert str(app.run('Probe.Go', *arguments)) == f"15~15~{case['answer']}"
+
+
+OLD_PLACES = json.loads((Path(__file__).parent / 'fixtures/new_control_old_places.json').read_text('utf-8'))
+#: A height set through the old object moves the Shape's Top by an EMU or not at all, by a rounding not worked out over 989 heights
+#: (tests/fixtures/new_control_old_height_heldout.json), so the model's Shape.Top reports itself there.
+
+
+@pytest.mark.parametrize('case', OLD_PLACES['cases'], ids=[f"{one['kind']}-{one['set']}" for one in OLD_PLACES['cases']])
+def test_an_old_object_reads_its_box_as_excel_does(case: dict[str, str]) -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(OLD_PLACES['source'].replace('%MAKE%', OLD_PLACES['makers'][case['kind']]).replace('%SET%', case['set']), name='Probe')
+    member = case['set'][2:].split(' = ')[0]
+    if case['kind'] in ('group box', 'label', 'spinner', 'scroll bar') or (case['kind'] == 'list box' and member == 'Height') or (case['set'].startswith('o.Height') and case['kind'] not in ('rectangle', 'text box')):  # Their old objects are not built, and a list box's height goes its own way.
+        with pytest.raises(VBAUnsupportedError):
+            app.run('Probe.Go')
+        return
+    assert str(app.run('Probe.Go')).split('~', 2)[2] == case['answer']
+
+
+OLD_HEIGHTS = json.loads((Path(__file__).parent / 'fixtures/new_control_old_heights.json').read_text('utf-8'))
+_OLD_READS = '''Public Function Go(ByVal kind As Long, ByVal top As Double, ByVal tall As Double, ByVal through As String, ByVal path As String) As String
+    Dim wb As Workbook, s As Object, o As Object, r As String
+    Set wb = Workbooks.Add
+    Set s = wb.Worksheets(1).Shapes.AddFormControl(kind, 12, top, 100, 40)
+    Set o = wb.Worksheets(1).DrawingObjects(1)
+    If through = "o" Then o.Height = tall Else s.Height = tall
+    r = CStr(CDbl(s.Height) * 12700) & "," & o.Top & "," & o.Height
+    wb.SaveAs path, xlOpenXMLWorkbook
+    wb.Close False
+    Set wb = Workbooks.Open(path)
+    Set s = wb.Worksheets(1).Shapes(1)
+    Go = r & "|" & CStr(CDbl(s.Top) * 12700) & "," & CStr(CDbl(s.Height) * 12700)
+End Function
+'''
+
+
+@pytest.mark.parametrize('case', OLD_HEIGHTS['cases'], ids=[f"{one['kind']}-{one['through']}-{one['top']}-{one['height']}" for one in OLD_HEIGHTS['cases']])
+def test_a_height_set_either_way_reads_and_saves_as_excel_does(case: dict[str, Any], tmp_path: Path) -> None:
+    """Everything tests/fixtures/new_control_old_heights.json read but the Shape's Top straight after an old object's height, which reports itself."""
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(_OLD_READS, name='Probe')
+    _, after, saved = case['answer'].split('|')
+    expected = f"{after.split(',', 1)[1]}|{saved}"
+    assert str(app.run('Probe.Go', 0 if case['kind'] == 'button' else 1, case['top'], case['height'], case['through'], str(tmp_path / 'book.xlsx'))) == expected
+
+
+def test_the_shape_s_top_after_an_old_object_s_height_reports_itself_until_it_is_set() -> None:
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module('''Public Function Go(ByVal again As Boolean) As String
+    Dim s As Object
+    Set s = ActiveSheet.Shapes.AddFormControl(xlButtonControl, 12, 12, 100, 40)
+    ActiveSheet.DrawingObjects(1).Height = 46
+    If again Then s.Top = 12
+    Go = s.Top
+End Function
+''', name='Probe')
+    with pytest.raises(VBAUnsupportedError, match='EMU'):
+        app.run('Probe.Go', False)
+    assert str(app.run('Probe.Go', True)) == '12'

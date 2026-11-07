@@ -568,7 +568,7 @@ def main() -> None:
 
 
 def _anonymize_file(path: Path, author: str) -> None:
-    """Rewrite a saved workbook with the author's name written <author> in its docProps parts."""
+    """Rewrite a saved workbook with the author's name written &lt;author&gt; in its docProps parts, so each stays well-formed XML."""
     if not author:
         return
     with zipfile.ZipFile(path) as package:
@@ -576,7 +576,7 @@ def _anonymize_file(path: Path, author: str) -> None:
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as package:
         for info, data in items:
             if info.filename.startswith("docProps/"):
-                data = data.replace(f">{author}<".encode(), b"><author><")
+                data = data.replace(f">{author}<".encode(), b">&lt;author&gt;<")
             package.writestr(info, data)
 
 

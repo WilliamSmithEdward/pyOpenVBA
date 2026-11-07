@@ -243,6 +243,13 @@ def late_call_error(found: LibraryClass, member: str, number: int, kinds: Sequen
     return _late_answer(LATE_CALLS.get(f"{found.name.lstrip('_').lower()}.{member.lower()}", {}), number, kinds)
 
 
+def late_index_error(found: LibraryClass, member: str) -> int | None:
+    """What a property that takes nothing says to an index bound late, if it refuses one rather than indexing what it answers."""
+    from pyopenvba.interpreter._late_lets import LATE_INDEXES
+
+    return LATE_INDEXES.get(f"{found.name.lstrip('_').lower()}.{member.lower()}")
+
+
 def reads_double_late(found: LibraryClass, member: str) -> bool:
     from pyopenvba.interpreter._late_lets import LATE_DOUBLES
 

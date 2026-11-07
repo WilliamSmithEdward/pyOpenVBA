@@ -49,7 +49,7 @@ class HookRequest:
     workbook: Workbook
     arguments: Mapping[str, object]
     path: Path | None = None
-    #: The procedure making the call, "Module1.Export", and what the host itself started the run with: the macro it ran, or the event that
+    #: The procedure making the call, "Module1.SaveReport", and what the host itself started the run with: the macro it ran, or the event that
     #: fired. A macro names its own procedures, so a rule about what the user started goes by ``entry``.
     caller: str = ''
     entry: str = ''
@@ -116,8 +116,9 @@ def call(application: Application, hook: Hook, member: str, owner: str, target: 
         raise VBAUnsupportedError(f'{member} called from its own hook is not implemented')
     running.append(member)
     try:
-        hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path, interpreter.current_where(),
-                                  interpreter.steps.entry))
+        # By keyword: every field after path has a default, so a positional call would fill the wrong one without a complaint.
+        hook.function(HookRequest(member, owner, target, workbook, MappingProxyType(dict(arguments)), path,
+                                  caller=interpreter.current_where(), entry=interpreter.steps.entry))
     except VBAError:
         raise
     except Exception as failed:

@@ -109,7 +109,8 @@ def from_factory(interpreter: Interpreter, prog_id: str, kind: str, *, server: s
     if registered is None:
         return None
     factory = registered[0]
-    request = ComRequest(prog_id, kind, server, path, interpreter.current_where(), interpreter.steps.entry, interpreter.host.document())
+    request = ComRequest(prog_id, kind, server, path, caller=interpreter.current_where(), entry=interpreter.steps.entry,
+                         document=interpreter.host.document())
     made = _guarded(lambda: factory(request), f"the factory for {prog_id}", interpreter)
     if made is None:
         raise error(CANNOT_CREATE, "ActiveX component can't create object")

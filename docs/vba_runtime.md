@@ -160,7 +160,7 @@ The model answers what it measured itself: a macro's argument errors, then `Befo
 | `arguments` | Only what the macro gave, under Excel's names, read-only |
 | `path` | The file to write, past the gate and with Excel's name rules applied, or `None` |
 | `saved_bytes()` | What `SaveCopyAs` would write now, changing nothing about the workbook |
-| `caller` | The procedure making the call, as `"Module1.Export"` |
+| `caller` | The procedure making the call, as `"Module1.SaveReport"` |
 | `entry` | What the host itself started the run with: the macro it ran, or the event that fired, as `"ThisWorkbook.Workbook_Open"`. A macro names its own procedures, so a rule about what the user started goes by `entry`, not `caller` |
 
 Trust `path`, not `arguments`. Every value in `arguments` comes from the macro, which may be untrusted. `Copies` and `ActivePrinter` are yours to honour or not.

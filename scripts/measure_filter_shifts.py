@@ -176,6 +176,20 @@ EDITS_D = ('delete A20:C20 up', 'delete Z20 up', 'delete E14 up', 'delete A15:A1
            'delete A7:C7 up', 'delete B2:B12 left', 'delete C2:C12 left', 'delete Z20 left')
 CASES = [[kind, edit, typed] for kind in KINDS for edit in EDITS for typed in (True, False)]
 CASES_D = [[kind, edit, typed] for kind in KINDS_D for edit in EDITS_D for typed in (True, False)]
+#: The fifth look: inserts that cut through a filter with no criteria, and deletes that do the same, against whole-band ones.
+KINDS_E = ('plain', 'hidden')
+EDITS_E = ('insert A5:B5 down', 'insert B5:C5 down', 'insert A5 down', 'insert D5 down', 'insert A12 right', 'insert A5:A6 right',
+           'insert B1:B5 right', 'insert A1:A11 right', 'insert A2:A12 right', 'insert A1:A12 right', 'insert A13 right', 'insert A5:C5 right',
+           'insert E5 right', 'insert A1:C1 down', 'insert A1:B1 down', 'insert A13:C13 down', 'insert A12:C12 down', 'insert B12 down',
+           'insert A1:A20 right', 'insert A3:C3 down', 'delete A5:B5 up', 'delete A12 left', 'delete B1:B5 left', 'insert A1 down')
+CASES_E = [[kind, edit, typed] for kind in KINDS_E for edit in EDITS_E for typed in (True, False)]
+#: The sixth look: where an insert through a filter with no criteria starts, and whether it takes the header row in.
+EDITS_F = ('insert B5 right', 'insert C5 right', 'insert B5:C5 right', 'insert A5:B5 right', 'insert A5:D5 right', 'insert A1:C1 right',
+           'insert B1 right', 'insert C1:C3 right', 'insert A1:A2 right', 'insert A11:A12 right', 'insert B12 right', 'insert D3 right',
+           'insert A5:C6 right', 'insert Z5 right', 'insert B1 down', 'insert C1 down', 'insert B1:C1 down', 'insert A1:D1 down',
+           'insert B2 down', 'insert A2:B2 down', 'insert A1:C2 down', 'insert B1:B3 down', 'insert D1 down', 'insert A1:A2 down',
+           'insert B2:B12 right', 'insert C1:C12 right', 'insert B1:B12 right', 'insert A1:B5 right')
+CASES_F = [['plain', edit, typed] for edit in EDITS_F for typed in (True, False)]
 CASES_C = [[kind, edit, typed] for kind in KINDS_C for edit in EDITS_C for typed in (True, False)]
 CASES_B = [[kind, edit, typed] for kind in KINDS_B for edit in EDITS_B for typed in (True, False)]
 
@@ -185,7 +199,7 @@ def main() -> None:
 
     stem = 'filter_shifts' + (sys.argv[1] if len(sys.argv) > 1 else '')
     predicted = FIXTURES / f'{stem}_predictions.json'
-    cases = json.loads(predicted.read_text('utf-8'))['cases'] if predicted.exists() else [{'call': one} for one in (CASES_B if stem.endswith('_b') else CASES_C if stem.endswith('_c') else CASES_D if stem.endswith('_d') else CASES)]
+    cases = json.loads(predicted.read_text('utf-8'))['cases'] if predicted.exists() else [{'call': one} for one in (CASES_B if stem.endswith('_b') else CASES_C if stem.endswith('_c') else CASES_D if stem.endswith('_d') else CASES_E if stem.endswith('_e') else CASES_F if stem.endswith('_f') else CASES)]
     from pyvbaharness.results import HarnessError
 
     answers: list[str] = []

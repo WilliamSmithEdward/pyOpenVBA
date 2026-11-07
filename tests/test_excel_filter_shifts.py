@@ -16,7 +16,8 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = tuple(stem for stem in ('filter_shifts', 'filter_shifts_b', 'filter_shifts_c', 'filter_shifts_d', 'filter_shifts2')
+ROUNDS = tuple(stem for stem in ('filter_shifts', 'filter_shifts_b', 'filter_shifts_c', 'filter_shifts_d', 'filter_shifts_e', 'filter_shifts_f',
+                                  'filter_shifts2', 'filter_shifts3')
                if (FIXTURES / f'{stem}.json').exists())
 ASKS_FIRST = 'where Excel asks first'
 

@@ -985,6 +985,40 @@ def filter_edited(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
     _changed(sheet)
 
 
+def insert_admitted(sheet: Worksheet, area: Area, *, down: bool) -> None:
+    """Whether cells may go in at ``area`` beside a filter with no criteria, which Excel refuses with 1004 when they
+    would part its header from its columns or cut its first column (tests/fixtures/filter_shifts_e.json, _f).
+
+    Down: an insert that pushes the header row through some, not all, of its columns fails. Right: one that starts
+    past its first column and takes the header row in fails, even over its whole height; one a single column wide at its
+    first column, over part of its height, changes "a filtered range". Wider ones there, and any below the header row,
+    go in. Inserts that start above it or to its left, through part of it, were not measured.
+    """
+    found = sheet.auto_filter
+    if found is None:
+        return
+    box = found.area
+    failed = "Insert method of Range class failed"
+    if down:
+        if area.right < box.left or box.right < area.left or box.top < area.top or box.bottom < area.top:
+            return
+        if area.left <= box.left and box.right <= area.right:
+            return
+        if area.top == box.top:
+            raise error(1004, failed)
+        raise VBAUnsupportedError("inserting cells above a filter, through some of its columns, is not implemented")
+    if area.bottom < box.top or box.bottom < area.top or box.right < area.left:
+        return
+    if area.top <= box.top and box.left < area.left:
+        raise error(1004, failed)
+    if area.top <= box.top and box.bottom <= area.bottom:
+        return
+    if area.left < box.left:
+        raise VBAUnsupportedError("inserting cells to the left of a filter, over part of its height, is not implemented")
+    if area.left == box.left and area.columns == 1:
+        raise error(1004, "This will change a filtered range on your worksheet. To complete this task, please remove AutoFilters.")
+
+
 def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
     """What a cell shift does to the sheet's filter: worked out before any cell moves, done by what it returns.
 

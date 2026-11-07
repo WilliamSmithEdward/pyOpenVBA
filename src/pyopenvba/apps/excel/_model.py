@@ -6944,6 +6944,9 @@ class Range(ExcelObject):
             if which not in (-4121, -4161, 1, 2):
                 raise error(1004, refusal)
             down = which in (-4121, 2)
+        from pyopenvba.apps.excel._autofilter import insert_admitted
+
+        insert_admitted(self.sheet, area, down=down)
         self.shifting_cells(area, vertical=down, delete=False)
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)

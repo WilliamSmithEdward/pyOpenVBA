@@ -23,7 +23,9 @@ USED_UP = {53101: "a table's default member answered DisplayName, not Name (test
            53102: 'the same default member',
            53103: "TableStyle set to an unknown name on a book with a style of its own took the name, where Excel raises 450 "
                   '(tests/fixtures/table_style_own.json)',
-           53104: 'the same TableStyle set'}
+           53104: 'the same TableStyle set',
+           53105: "a totals table's AutoFilter.Range took in the totals row with the table's sheet not in front "
+                  '(tests/fixtures/table_filter_active.json)'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 

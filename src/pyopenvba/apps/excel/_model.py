@@ -1834,7 +1834,7 @@ class Workbook(ExcelObject):
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
-        "SheetPivotTableUpdate", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
+        "SheetPivotTableUpdate", "SheetPivotTableChangeSync", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
         "WindowActivate", "WindowDeactivate", "WindowResize"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
@@ -3519,7 +3519,7 @@ class Worksheet(ExcelObject):
     vba_type_name = "Worksheet"
     #: The events the model raises in the sheet's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
-        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "BeforeDelete",
+        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate", "PivotTableChangeSync", "BeforeDelete",
         "FollowHyperlink"})
     #: True once Delete took the sheet out of its workbook.
     deleted = False
@@ -4892,6 +4892,10 @@ class Range(ExcelObject):
 
         value = _not_null(value)
         _within_length(value)
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_cells import refuse_value_write
+
+            refuse_value_write(self)
         if not _arrays.write_admitted(self):
             return
         with writing(self.sheet):

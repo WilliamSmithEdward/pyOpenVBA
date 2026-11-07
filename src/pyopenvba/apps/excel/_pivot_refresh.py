@@ -602,7 +602,7 @@ def refresh(cache: PivotCache, *, calculate: bool = True) -> object:
     for index, entry in enumerate(book.pivot_caches, 1):
         entry.index = index
     book.saved = False
-    announce(book, plans, calculate=calculate)
+    announce(book, plans, calculate=calculate, refreshed=True)
     return EMPTY
 
 
@@ -613,7 +613,7 @@ def cache_tables(cache: PivotCache) -> list[PivotTable]:
     return [table for sheet in cache.book.sheets_ for table in sheet.pivot_tables if table.cache is cache]
 
 
-def announce(book: Workbook, plans: list[RenderPlan], *, calculate: bool = True) -> None:
+def announce(book: Workbook, plans: list[RenderPlan], *, calculate: bool = True, refreshed: bool = False) -> None:
     """The events of tables laid out together, after all of them are: each one's Change, its sheet's Calculate and
     its PivotTableUpdate, in the order they were laid out, then, unless ``calculate`` is False, the calculation
     that ends a refresh (see _events.refresh_calculated)."""
@@ -625,7 +625,7 @@ def announce(book: Workbook, plans: list[RenderPlan], *, calculate: bool = True)
         if book.calculator.automatic:
             book.calculator.calculate_all(only=plan.table.sheet, background=True)
         _events.pivot_refresh_calculated(plan.table.sheet)
-        _events.pivot_updated(plan.table)
+        _events.pivot_updated(plan.table, refreshed=refreshed)
     if calculate:
         _events.refresh_calculated(book)
 

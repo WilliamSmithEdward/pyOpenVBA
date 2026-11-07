@@ -2,10 +2,12 @@
 tests/fixtures/loaded_control_edits.json): what the set and a reopen answer, what the save writes, and what Excel read of the model's
 save. `excel_reads_model` is Excel's reading of the model's save, recorded when the fixture was measured.
 
-Excel writes the whole VML part again on every save, so the model's VML is compared with Excel's in the changed control's own
-x:ClientData; the sheet's part and the control's own part are compared whole."""
+The sheet's part and the control's own part are compared whole. Excel writes its VML again on every save and renumbers every shape's
+creationId in the drawing part, so in those two what the set changed is compared: the model's save against its own untouched save,
+element by element, and Excel's after against its before. A part Excel's set left alone is the model's untouched save byte for byte."""
 from __future__ import annotations
 
+import difflib
 import json
 import re
 import zipfile
@@ -19,10 +21,18 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_control_edits.json').read_text(encoding='utf-8'))
-#: The settings the model writes on a loaded control, so far.
-MODELLED = ('Enabled', 'PrintObject', 'LockedText', 'DropDownLines', 'Display3DShading', 'AddIndent', 'DefaultButton', 'CancelButton', 'DismissButton', 'HelpButton')
-CASES = [one for one in RECORD['cases'] if one['member'] in MODELLED]
-CONSTANTS = {'xlRTL': -5004, 'xlLeft': -4131, 'xlTop': -4160, 'xlUpward': -4171, 'xlFreeFloating': 3, 'xlSimple': 1}
+#: scripts/measure_button_text.py: every value of a button's alignments, Orientation and ReadingOrder, and PhoneticAccelerator, with what
+#: each reads in the session.
+TEXT: dict[str, Any] = json.loads((FIXTURES / 'button_text.json').read_text(encoding='utf-8'))
+#: The settings the model does not yet set on a loaded control as Excel does.
+NOT_YET: dict[tuple[str, str], str] = {('Buttons', 'AutoSize'): 'refused: the size it fits to is the caption measured in its font'}
+CASES = ([{**one, 'source': RECORD['source']} for one in RECORD['cases'] if (one['kind'], one['member']) not in NOT_YET]
+         + [{**one, 'source': TEXT['source']} for one in TEXT['cases']])
+#: The parts a control's settings live in.
+CONTROL_PARTS = re.compile(r'xl/(?:worksheets/sheet|drawings/drawing|drawings/vmlDrawing|ctrlProps/ctrlProp)\d+\.(?:xml|vml)$')
+CONSTANTS = {'xlLeft': -4131, 'xlCenter': -4108, 'xlRight': -4152, 'xlJustify': -4130, 'xlDistributed': -4117, 'xlTop': -4160,
+             'xlBottom': -4107, 'xlHorizontal': -4128, 'xlUpward': -4171, 'xlDownward': -4170, 'xlVertical': -4166, 'xlRTL': -5004,
+             'xlLTR': -5003, 'xlContext': -5002, 'xlFreeFloating': 3, 'xlSimple': 1}
 
 
 def _value(text: str) -> object:
@@ -33,32 +43,37 @@ def _value(text: str) -> object:
     return CONSTANTS.get(text, int(text) if text.lstrip('-').isdigit() else text)
 
 
-def _saved(case: dict[str, Any], folder: Path) -> tuple[str, dict[str, str]]:
-    book, saved = folder / 'in.xlsx', folder / 'out.xlsx'
+def _saved(case: dict[str, Any], folder: Path, change: bool = True) -> tuple[str, dict[str, str]]:
+    book, saved = folder / 'in.xlsx', folder / f'out_{change}.xlsx'
     book.write_bytes((FIXTURES / 'old_collections.xlsx').read_bytes())
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
-    app.add_module(RECORD['source'], name='Probe')
-    answer = str(app.run('Probe.Row', str(book), str(saved), case['kind'], case['member'], _value(case['value']), True))
+    app.add_module(case.get('source', RECORD['source']), name='Probe')
+    answer = str(app.run('Probe.Row', str(book), str(saved), case['kind'], case['member'], _value(case['value']), change))
     with zipfile.ZipFile(saved) as package:
-        return answer, {name: package.read(name).decode('utf-8') for name in package.namelist() if name in case['parts']}
+        return answer, {name: package.read(name).decode('utf-8') for name in package.namelist() if CONTROL_PARTS.match(name)}
 
 
-def _blocks(vml: str) -> list[str]:
-    return re.findall(r'<x:ClientData\b.*?</x:ClientData>', vml, re.DOTALL)
+def _changes(before: str, after: str) -> list[tuple[str, list[str], list[str]]]:
+    """What changed from one part to the other, tag by tag and text by text."""
+    one, two = (re.split(r'(?<=>)|(?=<)', text) for text in (before, after))
+    return [(tag, one[i1:i2], two[j1:j2]) for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, one, two, autojunk=False).get_opcodes()
+            if tag != 'equal']
 
 
-@pytest.mark.parametrize('case', CASES, ids=[f'{one["kind"]} {one["member"]}' for one in CASES])
+@pytest.mark.parametrize('case', CASES, ids=[f'{one["kind"]} {one["member"]} {one["value"]}' for one in CASES])
 def test_each_setting_answers_and_saves_as_excel_did(case: dict[str, Any], tmp_path: Path) -> None:
     answer, parts = _saved(case, tmp_path)
     assert answer == case['excel']
-    for name, texts in case['parts'].items():
-        if name.endswith('.vml'):
-            before, after = _blocks(texts['before']), _blocks(texts['after'])
-            changed = next(at for at, (one, two) in enumerate(zip(before, after)) if one != two)
-            assert _blocks(parts[name])[changed] == after[changed]
+    _, untouched = _saved(case, tmp_path, change=False)
+    for name, part in parts.items():
+        texts = case['parts'].get(name)
+        if texts is None:
+            assert part == untouched[name], name
+        elif name.endswith('.vml') or '/drawings/drawing' in name:
+            assert _changes(untouched[name], part) == _changes(texts['before'], texts['after']), name
         else:
-            assert parts[name] == texts['after'], name
+            assert part == texts['after'], name
 
 
 @pytest.mark.parametrize('case', [one for one in CASES if 'excel_reads_model' in one], ids=lambda one: f'{one["kind"]} {one["member"]}')
@@ -102,3 +117,39 @@ def test_a_button_flag_reads_in_the_session_as_excel_did(case: dict[str, Any], t
             app.run('Probe.Row', str(book), str(saved), case['member'], True)
         return
     assert str(app.run('Probe.Row', str(book), str(saved), case['member'], False)) == case['excel']
+
+
+def _loaded(tmp_path: Path, body: str) -> ExcelApplication:
+    book = tmp_path / 'in.xlsx'
+    book.write_bytes((FIXTURES / 'old_collections.xlsx').read_bytes())
+    app = ExcelApplication.open(book, with_vba=False)
+    app.add_module(f'Public Sub Go()\n    With ActiveWorkbook.Worksheets(1)\n{body}    End With\nEnd Sub\n', name='Go')
+    return app
+
+
+def test_a_second_text_setting_on_one_button_is_refused(tmp_path: Path) -> None:
+    """Only one of a button's alignments and Orientation at a time was measured from its layout, so a second is refused; the first can
+    be set again."""
+    app = _loaded(tmp_path, '        .Buttons(1).HorizontalAlignment = xlLeft\n        .Buttons(1).HorizontalAlignment = xlRight\n'
+                            '        .Buttons(1).VerticalAlignment = xlTop\n')
+    with pytest.raises(VBAUnsupportedError, match='laid out otherwise'):
+        app.run('Go.Go')
+
+
+def test_a_new_button_text_setting_is_refused(tmp_path: Path) -> None:
+    app = _loaded(tmp_path, '        .Buttons.Add(300, 300, 60, 30).Orientation = xlUpward\n')
+    with pytest.raises(VBAUnsupportedError, match='new form control'):
+        app.run('Go.Go')
+
+
+@pytest.mark.parametrize('member', ['HorizontalAlignment = xlDistributed', 'VerticalAlignment = xlBottom', 'Orientation = xlUpward'])
+def test_saving_a_button_text_setting_twice_writes_it_once(member: str, tmp_path: Path) -> None:
+    app = _loaded(tmp_path, f'        .Buttons(1).{member}\n')
+    app.run('Go.Go')
+    first, second = tmp_path / 'first.xlsx', tmp_path / 'second.xlsx'
+    app.save(first)
+    app.save(second)
+    with zipfile.ZipFile(first) as one, zipfile.ZipFile(second) as two:
+        for name in one.namelist():
+            if CONTROL_PARTS.match(name):
+                assert one.read(name) == two.read(name), name

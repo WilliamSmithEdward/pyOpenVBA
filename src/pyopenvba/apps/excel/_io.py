@@ -1258,7 +1258,7 @@ def _sync_control_flags(package: OpcFile, sheet: Worksheet, xml: str, vml: str, 
     writes each (tests/fixtures/loaded_control_edits.json); a control nobody changed is left as its file has it."""
     from dataclasses import replace
 
-    from pyopenvba.shapes._xlsx import read_control_settings, with_control_flags, with_control_settings, with_vml_flags
+    from pyopenvba.shapes._xlsx import read_control_settings, with_control_flags, with_control_settings, with_vml_flags, with_vml_text_frame
 
     control = item.control
     if control is None:
@@ -1271,6 +1271,7 @@ def _sync_control_flags(package: OpcFile, sheet: Worksheet, xml: str, vml: str, 
     if (held.disabled, held.print_object, held.drop_lines) != (control.disabled, control.print_object, control.drop_lines) or in_part or control.button_flags:
         xml = with_control_flags(xml, item)
         vml = with_vml_flags(vml, item)
+    vml = with_vml_text_frame(vml, item)
     part = _part_for(package, sheet.part_name, getattr(info, "relationship", ""))
     if part and package.has(part):
         properties = package.read(part).decode("utf-8")

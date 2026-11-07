@@ -180,6 +180,25 @@ def _new_control(name: str, value: object) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
+def _taken_on_loaded(name: str, value: object, values: tuple[int, ...] | None = None) -> MemberSpec:
+    """A setting a control loaded from a file takes and keeps nothing of, reading ``value`` before and after, as Excel's does
+    (tests/fixtures/button_text.json); on a new control what a set writes is not measured, and it is refused."""
+
+    def get(item: OldControl) -> object:
+        del item
+        return value
+
+    def put(item: OldControl, wanted: object) -> None:
+        if item.shape.control is None or not item.shape.source:
+            raise VBAUnsupportedError(f'Setting {name} on a new form control is not implemented')
+        if values is None:
+            to_text(wanted)
+        elif int(to_number(wanted)) not in values:
+            raise VBAUnsupportedError(f'Setting {name} to {wanted} on a form control is not implemented')
+
+    return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
 def _raising(name: str, failure: tuple[int, str]) -> MemberSpec:
     def get(item: OldControl) -> object:
         del item
@@ -246,7 +265,7 @@ class _Captioned(OldControl):
         to_text(value)
 
 
-for _spec in (_through('control', 'LockedText'), _new_control('PhoneticAccelerator', '')):
+for _spec in (_through('control', 'LockedText'), _taken_on_loaded('PhoneticAccelerator', '')):
     _Captioned.vba_add_member(_spec)
 
 
@@ -339,9 +358,39 @@ def _button_flag(name: str) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
+def _text_frame(name: str) -> MemberSpec:
+    """A button's HorizontalAlignment, VerticalAlignment or Orientation: what its DrawingML holds, or what it was set to this session. Set
+    on a button loaded from a file whose text is laid out as the one measured, it is written as Excel writes it, one of the three at
+    a time (tests/fixtures/button_text.json); anything else is refused, as what it writes is not measured."""
+    from pyopenvba.shapes._xlsx import TEXT_FRAME_VALUES, control_text_frame, text_frame_measured
+
+    def get(item: OldControl) -> object:
+        control = item.shape.control
+        if control is not None and control.text_frame is not None and control.text_frame[0] == name:
+            return VBAInt(control.text_frame[1], 'Long')
+        return VBAInt(control_text_frame(item.shape.source)[name], 'Long')
+
+    def put(item: OldControl, wanted: object) -> None:
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        control = item.shape.control
+        if control is None or not item.shape.source:
+            raise VBAUnsupportedError(f'Setting {name} on a new form control is not implemented')
+        value = int(to_number(wanted))
+        if value not in TEXT_FRAME_VALUES[name]:
+            raise VBAUnsupportedError(f'Setting {name} to {value} on a form control is not implemented')
+        if control.text_frame is not None and control.text_frame[0] != name or not text_frame_measured(item.shape.source):
+            raise VBAUnsupportedError(f'Setting {name} on a button laid out otherwise than the one measured is not implemented')
+        guard_drawing(item.sheet, 'ControlFormat')
+        control.text_frame = (name, value)
+        item.sheet.drawing_changed()
+
+    return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
 for _spec in (*(_new_control(_name, False) for _name in ('AutoSize', 'AutoScaleFont')), *(_button_flag(_name) for _name in _BUTTON_FLAGS),
-              _new_control('HorizontalAlignment', VBAInt(-4108, 'Long')),
-              _new_control('VerticalAlignment', VBAInt(-4108, 'Long')), _new_control('Orientation', VBAInt(-4128, 'Long')), _new_control('ReadingOrder', VBAInt(27, 'Long')), _new_control('Formula', '')):
+              *(_text_frame(_name) for _name in ('HorizontalAlignment', 'VerticalAlignment', 'Orientation')),
+              _taken_on_loaded('ReadingOrder', VBAInt(27, 'Long'), (-5004, -5003, -5002)), _new_control('Formula', '')):
     Button.vba_add_member(_spec)
 
 

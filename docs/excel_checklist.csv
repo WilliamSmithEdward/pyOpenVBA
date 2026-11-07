@@ -580,7 +580,7 @@ Button,AutoSize,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Re
 Button,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,CancelButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
-Button,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 Button,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 Button,Copy,method,Copy() As Variant,,MISSING,,
@@ -596,27 +596,27 @@ Button,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_old_controls
 Button,Formula,property,As String,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
 Button,Height,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,HelpButton,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
-Button,HorizontalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,HorizontalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"Reads what its DrawingML holds. Set on a button loaded from a file and laid out as measured, every value is written as Excel writes it, one of the alignments and Orientation at a time (tests/fixtures/button_text.json); a new button's set is refused."
 Button,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-Button,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 Button,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-Button,Orientation,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,Orientation,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"Reads what its DrawingML holds. Set on a button loaded from a file and laid out as measured, every value is written as Excel writes it, one of the alignments and Orientation at a time (tests/fixtures/button_text.json); a new button's set is refused."
 Button,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-Button,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
-Button,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"Reads an empty string; a control loaded from a file takes one and goes on reading none, writing nothing, as Excel does (tests/fixtures/button_text.json); a new control's set is refused."
+Button,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 Button,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-Button,ReadingOrder,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
+Button,ReadingOrder,property,As Long,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"Reads 27 whatever is set, and a button loaded from a file takes xlRTL, xlLTR and xlContext writing nothing, as Excel does (tests/fixtures/button_text.json); a new button's set is refused."
 Button,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-Button,VerticalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
-Button,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+Button,VerticalAlignment,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"Reads what its DrawingML holds; Justify and Distributed read back Center after a reopen, as in Excel. Set on a button loaded from a file and laid out as measured, every value is written as Excel writes it, one of the alignments and Orientation at a time (tests/fixtures/button_text.json); a new button's set is refused."
+Button,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 Button,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Button,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 Buttons,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
@@ -1022,7 +1022,7 @@ CheckBox,Application,"property, read-only",As Application,,PARTIAL,tests/test_ex
 CheckBox,Border,"property, read-only",As Border,,MISSING,,
 CheckBox,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-CheckBox,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 CheckBox,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 CheckBox,Copy,method,Copy() As Variant,,MISSING,,
@@ -1038,13 +1038,13 @@ CheckBox,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_contr
 CheckBox,Interior,"property, read-only",As Interior,,MISSING,,
 CheckBox,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-CheckBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 CheckBox,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-CheckBox,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
-CheckBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"Reads an empty string; a control loaded from a file takes one and goes on reading none, writing nothing, as Excel does (tests/fixtures/button_text.json); a new control's set is refused."
+CheckBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 CheckBox,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -1053,7 +1053,7 @@ CheckBox,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As l
 CheckBox,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,Value,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-CheckBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+CheckBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 CheckBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 CheckBoxes,_Default,property,As Long,,MISSING,,
@@ -1575,11 +1575,11 @@ DropDown,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As 
 DropDown,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,ListIndex,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-DropDown,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 DropDown,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-DropDown,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 DropDown,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,RemoveAllItems,method,RemoveAllItems() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -1591,7 +1591,7 @@ DropDown,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As l
 DropDown,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,Value,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-DropDown,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+DropDown,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 DropDown,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDown,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 DropDowns,_Default,property,As Long,,MISSING,,
@@ -2236,12 +2236,12 @@ ListBox,List,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As l
 ListBox,ListCount,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,ListFillRange,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,ListIndex,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-ListBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 ListBox,MultiSelect,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-ListBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 ListBox,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,RemoveAllItems,method,RemoveAllItems() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant]) As Variant",,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -2253,7 +2253,7 @@ ListBox,Text,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,
 ListBox,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,Value,property,As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-ListBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+ListBox,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 ListBox,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 ListBoxes,_Default,property,As Long,,MISSING,,
@@ -2511,7 +2511,7 @@ OptionButton,Application,"property, read-only",As Application,,PARTIAL,tests/tes
 OptionButton,Border,"property, read-only",As Border,,MISSING,,
 OptionButton,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-OptionButton,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Caption,property,As String,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 OptionButton,Characters,"property, read-only",As Characters,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 OptionButton,Copy,method,Copy() As Variant,,MISSING,,
@@ -2528,13 +2528,13 @@ OptionButton,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_c
 OptionButton,Interior,"property, read-only",As Interior,,MISSING,,
 OptionButton,Left,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,LinkedCell,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-OptionButton,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Locked,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 OptionButton,LockedText,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,Name,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,OnAction,not in the type library,,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-OptionButton,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,Reads what Excel answers for a new control; setting it is refused.
-OptionButton,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,PhoneticAccelerator,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"Reads an empty string; a control loaded from a file takes one and goes on reading none, writing nothing, as Excel does (tests/fixtures/button_text.json); a new control's set is refused."
+OptionButton,Placement,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 OptionButton,PrintObject,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
@@ -2543,7 +2543,7 @@ OptionButton,Text,property,As String,,PARTIAL,tests/test_excel_old_controls.py,"
 OptionButton,Top,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,Value,property,As Variant,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
-OptionButton,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
+OptionButton,Visible,property,As Boolean,,PARTIAL,tests/test_excel_old_controls.py; tests/test_excel_loaded_control_edits.py,"As live Excel, on a control made here. Set on a control loaded from a file, written where Excel writes it (tests/fixtures/loaded_control_edits.json)."
 OptionButton,Width,property,As Double,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButton,ZOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_old_controls.py,"As live Excel, on a control made here."
 OptionButtons,_Default,property,As Long,,MISSING,,

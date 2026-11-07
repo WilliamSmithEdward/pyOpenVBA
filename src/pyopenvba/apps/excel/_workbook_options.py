@@ -81,7 +81,7 @@ def write(book: Workbook, package: OpcFile) -> None:
 
 def drawing_objects_of(value: object) -> int | None:
     """The number DisplayDrawingObjects keeps for a value, or None for one it ignores. Typed, VBA converts to a Long first: True is -1,
-    1.5 is 2, text is 13 and 1E+300 is 6. Bound late, the workbook converts: True is 1, a fraction is cut toward zero, a number past a
+    1.5 is 2, text is 13 and 1E+300 is 6. Bound late, the workbook converts: True is 1, a fraction is rounded down, -3.5 to -4, a number past a
     Long is held at its bound, text of a number is that number, other text and an object are 1004, and Null changes nothing
     (tests/fixtures/workbook_setters_heldout/round1_excel.json)."""
     import math
@@ -104,7 +104,7 @@ def drawing_objects_of(value: object) -> int | None:
         raise error(1004, "Unable to set the DisplayDrawingObjects property of the Workbook class") from None
     if not math.isfinite(number):
         number = 2 ** 31 - 1 if number > 0 else -(2 ** 31)
-    return max(-(2 ** 31), min(2 ** 31 - 1, math.trunc(number)))
+    return max(-(2 ** 31), min(2 ** 31 - 1, math.floor(number)))
 
 
 def _with_properties(book: Workbook, text: str) -> str:

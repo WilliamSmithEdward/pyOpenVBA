@@ -22,7 +22,7 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._hooks import HookRequest
 from pyopenvba.apps.excel._query_databases import masked, without_passwords
-from pyopenvba.exceptions import BackgroundRefreshError, VBARuntimeError, VBAUnsupportedError
+from pyopenvba.exceptions import BackgroundRefreshError, VBARuntimeError, VBAStepLimitError, VBAUnsupportedError
 
 HERE = Path(__file__).parent / "fixtures"
 LAYOUT: dict[str, Any] = json.loads((HERE / "query_refresh_layout.json").read_text(encoding="utf-8"))
@@ -210,3 +210,38 @@ def test_the_request_hides_its_password() -> None:
     app.run("Go", 2)
     assert "hunter2" in seen[0].source.connection  # type: ignore[union-attr]
     assert "hunter2" not in repr(seen[0].source)
+
+
+SPENDING = BACKGROUND + """Function Spend() As Long
+    Dim i As Long
+    For i = 1 To 100
+        Spend = Spend + 1
+    Next
+End Function
+Function SpendTwice() As Long
+    SpendTwice = Spend() + Spend()
+End Function
+Function GoAndSpend() As String
+    GoAndSpend = Go() & " " & Spend()
+End Function
+"""
+
+
+def test_a_deferred_refresh_is_outside_the_run_step_budget() -> None:
+    """William's ruling: the refresh that waits for the macro is not the macro's, and VBA the host's function runs is a new entry with a
+    budget of its own (docs/vba_runtime.md, Refresh)."""
+    app = ExcelApplication(sandbox=False, step_limit=400)
+    app.add_workbook()
+    app.add_module(SPENDING, name="M")
+    with pytest.raises(VBAStepLimitError):
+        app.run("SpendTwice")
+    spent: list[object] = []
+
+    def spending(request: HookRequest) -> object:
+        spent.append(app.run("Spend"))
+        return numbered(request)
+
+    app.set_hook("Refresh", spending)
+    assert app.run("GoAndSpend") == "Empty True 100"
+    assert spent == [100]
+    assert app.run("Read") == "1 False"

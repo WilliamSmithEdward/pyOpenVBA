@@ -22,12 +22,13 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_structure_edits.json').read_text(encoding='utf-8'))
 _ALL = tuple(label for label, _ in RECORD['edits'])
 #: The cases the model answers, by book. The rest are refused: a chart with a style; a plot area the model does not write as the file
-#: holds it, as the labelled book's typed point label with a font; Chart.PlotBy, which the model does not set; a turn to an area or pie
-#: chart, where Excel's save differs from the model's turn; and a series of its own type beside others.
+#: holds it; Chart.PlotBy, which the model does not set; and SetSourceData and Values on a series with data labels, whose labels
+#: Excel's save keeps in one case and takes away in the others.
 BUILT: dict[str, tuple[str, ...]] = {
-    'loaded_chart_plain.xlsx': tuple(name for name in _ALL if name not in ('plot by columns', 'type area', 'type pie', 'series type line')),
+    'loaded_chart_plain.xlsx': tuple(name for name in _ALL if name != 'plot by columns'),
     'loaded_chart_dressed.xlsx': ('nothing',),
-    'loaded_chart_labelled.xlsx': ('nothing',),
+    'loaded_chart_labelled.xlsx': ('nothing', 'new series', 'new series twice', 'new series filled', 'delete last', 'delete first',
+                                   'delete first then new', 'new then delete it', 'series categories'),
 }
 
 

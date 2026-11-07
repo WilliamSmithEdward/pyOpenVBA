@@ -584,6 +584,9 @@ def read_chart(xml: str, part: str) -> ChartState:
             flags = [labels.find(f'c:{tag}', NS) for tag in ('showLegendKey', 'showVal', 'showCatName', 'showSerName', 'showPercent', 'showBubbleSize')]
             item.data_labels = any(flag is not None and flag.get('val', '1') in ('1', 'true') for flag in flags)
             leaders = labels.find('c:showLeaderLines', NS)
+            if leaders is None:
+                # Labels on some points alone say it in their extension only (tests/fixtures/series_points.json).
+                leaders = labels.find('c:extLst/c:ext/c15:showLeaderLines', {**NS, 'c15': 'http://schemas.microsoft.com/office/drawing/2012/chart'})
             item.leader_lines = leaders is not None and leaders.get('val', '1') in ('1', 'true')
             item.labels_read = _read_labels(item.label_look, labels) and _read_point_labels(item, labels)
         else:
@@ -610,7 +613,21 @@ def read_chart(xml: str, part: str) -> ChartState:
                 result.plot_by = 1
         except ValueError:
             pass
+    if len(plots) == 1:
+        _defaults_as_unset(result)
     return result
+
+
+def _defaults_as_unset(state: ChartState) -> None:
+    """A setting the file spells as its chart type's default is read as unset, as a chart made in a session holds it: a turn
+    to another type then gives it that type's default, as Excel's turn of a loaded chart does (tests/fixtures/
+    chart_turns_and_label_fonts.json). The file cannot tell such a setting from the default, nor can Excel."""
+    kind = CHART_TYPES.get(state.chart_type, '')
+    if state.vary is not None and state.vary == (kind in ('pie', 'doughnut')):
+        state.vary = None
+    for axis in state.axes.values():
+        if axis.between is not None and axis.between == (kind != 'area'):
+            axis.between = None
 
 def _marker_colour(node: ET.Element) -> str | None:
     """A marker's fill or line colour as SeriesState keeps it: RRGGBB, "none", None when the element names none, or

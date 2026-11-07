@@ -3,6 +3,7 @@ stand, their number format and separator, what each kind of chart takes, and the
 labels went raises."""
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any, TYPE_CHECKING
 
 from pyopenvba.apps.excel._chart_format import unmeasured
@@ -583,7 +584,10 @@ class DataLabel(ElementProperties, Created):
         self._type(to_text(value))
 
     def _type(self, text: str) -> None:
-        if self.own().plain_format is False:
+        own = self.own()
+        # A font alone is measured: Excel writes it in the typed text (tests/fixtures/chart_turns_and_label_fonts.json).
+        font_alone = own.font is not None and replace(own, font=None).plain_format
+        if own.plain_format is False and not (font_alone and text):
             raise unmeasured("Typing a label's text once its look is set")
         own = self.held("Text")
         own.text, own.touched = text, True

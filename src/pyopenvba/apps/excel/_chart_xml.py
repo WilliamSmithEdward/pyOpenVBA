@@ -294,7 +294,7 @@ def text_properties(look: TextLook | None, body: str = "<a:bodyPr/>") -> str:
 
 
 #: Data labels write their text properties with this body (tests/fixtures/chart_fonts.json).
-_LABEL_BODY = ('<a:bodyPr wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
+LABEL_BODY = ('<a:bodyPr wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
                "<a:spAutoFit/></a:bodyPr>")
 #: DataLabels.Position and how the file spells it (tests/fixtures/data_labels_object.json).
 LABEL_POSITIONS = {3: "inEnd", -4108: "ctr", 4: "inBase", 2: "outEnd", 0: "t", 1: "b", -4131: "l", -4152: "r",
@@ -347,7 +347,7 @@ def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook, points:
     # Only a pie or doughnut says it in the element; the others say it in their extension alone.
     plain = shown if kind in ("pie", "doughnut") else 0
     leaders = "" if alone else f'<c:showLeaderLines val="{plain}"/>'
-    text = text_properties(look.font, _LABEL_BODY)
+    text = text_properties(look.font, LABEL_BODY)
     fill = "<a:noFill/>" if look.fill_rgb is None else f'<a:solidFill><a:srgbClr val="{look.fill_rgb}"/></a:solidFill>'
     outline = ("<a:ln><a:noFill/></a:ln>" if look.line_width is None else
                f'<a:ln w="{look.line_width}"><a:solidFill><a:schemeClr val="tx1"/></a:solidFill></a:ln>')
@@ -588,7 +588,7 @@ def _axis_ids() -> tuple[int, int]:
 
 def plain_label_text(xml: str) -> str:
     """Data labels' text once the chart area has a font: their body is the plain one (tests/fixtures/chart_font_gaps.json)."""
-    return xml.replace(_LABEL_BODY, "<a:bodyPr/>")
+    return xml.replace(LABEL_BODY, "<a:bodyPr/>")
 
 
 __all__ = ["CHART_KINDS", "CT_CHART", "ChartKind", "SeriesData", "chart_frame", "chart_part"]

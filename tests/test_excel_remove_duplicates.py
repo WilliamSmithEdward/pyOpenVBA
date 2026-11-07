@@ -39,7 +39,7 @@ def test_duplicates_go_as_excel_removes_them(layout: dict[str, Any]) -> None:
 
 
 def test_text_word_sort_does_not_weigh_reports_itself() -> None:
-    """Text beyond Latin, Greek and Cyrillic: Excel's word sort is not reproduced for it."""
+    """Text beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai and Hangul: Excel's word sort is not reproduced for it."""
     layout = {"setup": 'ws.Range("A1").Value = ChrW(20013)\nws.Range("A2").Value = ChrW(20013)\n'
                        'ws.Range("A1:A2").RemoveDuplicates Columns:=1, Header:=xlNo'}
     with pytest.raises(VBAUnsupportedError):

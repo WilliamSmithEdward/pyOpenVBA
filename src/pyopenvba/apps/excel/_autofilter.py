@@ -988,7 +988,11 @@ def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
     Measured (scripts/measure_cell_shifts.py): the range moves and
     stretches as a reference to it does, as its hidden name does, and a
     delete up of its header cells, or of all of it, removes the filter and
-    the name. A shift that moves a filter with criteria was not measured.
+    the name. A delete left over its whole height that takes in some of its
+    columns, but not all, leaves the range and its Filters where they were,
+    criteria and all, while the name shrinks as a reference does; one wholly
+    to its left moves it (tests/fixtures/filter_left_deletes.json). Any other
+    shift that moves a filter with criteria was not measured.
     """
     from pyopenvba.apps.excel._editing import shifted_box
 
@@ -1002,6 +1006,8 @@ def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
     header = shift.vertical and shift.delete and band[0] <= box.left and box.right <= band[1] and \
         start <= box.top < start + shift.count
     if moved == before and not header:
+        return lambda: None
+    if moved is not None and not shift.vertical and shift.delete and start <= box.right and box.left < start + shift.count:
         return lambda: None
     if found.fields:
         raise VBAUnsupportedError("a cell shift that moves a filter with criteria is not implemented")

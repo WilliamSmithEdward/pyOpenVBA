@@ -108,7 +108,8 @@ def test_change_link_update_link_and_status_read_inside_the_granted_folder(tmp_p
     app.run('Links.Put', _alpha(folder))
     alpha, other = str(folder / 'Alpha.xlsx'), str(folder / 'Other.xlsx')
     assert str(app.run('Links.Updated', alpha)) == '1'
-    assert str(app.run('Links.Changed', alpha, other)) == f"='{folder}{os.sep}[Other.xlsx]Elsewhere'!A1"
+    # Excel's backslash before the file, on every system, as the formula shows a link.
+    assert str(app.run('Links.Changed', alpha, other)) == f"='{folder}\\[Other.xlsx]Elsewhere'!A1"
     assert int(str(app.run('Links.Status', other))) != 1  # xlLinkStatusMissingFile: the file was read, not refused
 
 
@@ -174,6 +175,22 @@ def test_a_backslashed_way_out_of_the_granted_folder_is_refused(tmp_path: Path, 
         app.run('Links.Put', f"='{grant}{route}[Alpha.xlsx]Sheet1'!A1")
     assert app.workbook.linked_books == {}
     assert (away / 'Alpha.xlsx').is_file()
+
+
+def test_a_grant_reached_through_a_link_keeps_the_path_as_given(tmp_path: Path) -> None:
+    """As macOS reaches /var through /private/var: the gate checks the resolved path, and the formula, LinkSources and ChangeLink keep the one the
+    macro gave, as Excel does."""
+    real = tmp_path / 'real'
+    (real / 'books').mkdir(parents=True)
+    try:
+        (tmp_path / 'link').symlink_to(real, target_is_directory=True)
+    except OSError:
+        pytest.skip('this system lets no one make a link')
+    given = _books(tmp_path / 'link' / 'books')
+    app = _app(given)
+    assert str(app.run('Links.Put', _alpha(given))) == f"='{given}\\[Alpha.xlsx]Sheet1'!A1=1"
+    assert str(app.run('Links.Changed', str(given / 'Alpha.xlsx'), str(given / 'Other.xlsx'))) == f"='{given}\\[Other.xlsx]Elsewhere'!A1"
+    assert str(real) not in str(app.workbook.linked_books[1].target)
 
 
 @pytest.mark.parametrize('system', ['nt', 'posix'])

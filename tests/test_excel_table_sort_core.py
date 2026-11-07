@@ -185,7 +185,7 @@ def test_wrapped_sort_metadata_is_guarded_before_and_after_view_acquisition(acqu
 
 
 @pytest.mark.parametrize('body', [
-    'ActiveSheet.Sort.SortFields(1).Order=3',
+    'ActiveSheet.Sort.SortFields(1).DataOption=2',
     'ActiveSheet.Sort.SetRange Worksheets.Add.Range("D1:E4")',
 ])
 def test_unmeasured_worksheet_sort_persistence_refuses_wrong_binding_or_enum(body: str, tmp_path: Path) -> None:

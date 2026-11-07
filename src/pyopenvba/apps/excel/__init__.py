@@ -440,12 +440,34 @@ class ExcelApplication(NamedRangeAPI):
     def run(self, macro: str, *args: object) -> object:
         """Run a macro by name, as Application.Run would, then what Application.OnTime has due, as Excel does once no
         macro is running."""
-        if "!" in macro:
-            answer = _plain(self.application.Run(macro, *args))
-        else:
-            answer = _plain(self.interpreter.run(macro, list(args)))
+        try:
+            if "!" in macro:
+                answer = _plain(self.application.Run(macro, *args))
+            else:
+                answer = _plain(self.interpreter.run(macro, list(args)))
+        except Exception as failed:
+            # The run's own error goes first; what the refreshes it left waiting then did rides along with it.
+            failures = self._finish_background()
+            if failures:
+                setattr(failed, "refresh_failures", failures)
+                note = getattr(failed, "add_note", None)  # Python 3.11 on
+                if callable(note):
+                    note(f"and {len(failures)} background refresh(es) failed after it: " + "; ".join(str(one) for one in failures))
+            raise
+        failures = self._finish_background()
         self.run_on_time()
+        if failures:
+            from pyopenvba.exceptions import BackgroundRefreshError
+
+            raise BackgroundRefreshError(failures) from failures[0]
         return answer
+
+    def _finish_background(self) -> list[Exception]:
+        """The query tables a macro refreshed in the background, refreshed now that it is over, as Excel does once no macro runs. Each is
+        the host's function called outside the run, with nothing counted against the run's steps."""
+        from pyopenvba.apps.excel._query_databases import finish
+
+        return finish(self.application)
 
     def run_on_time(self) -> None:
         """Run what Application.OnTime has due by now; freeze_clock moves a later one's time along."""
@@ -495,12 +517,22 @@ class ExcelApplication(NamedRangeAPI):
         self.interpreter.answers.extend(answers)
 
     def set_hook(self, name: str, function: object, *, folders: object = ()) -> None:
-        """Have ``function`` do what the engine cannot for a member, ExportAsFixedFormat or PrintOut; ``None`` removes it. It is called with a HookRequest after the macro's argument errors and
+        """Have ``function`` do what the engine cannot for a member, ExportAsFixedFormat, PrintOut or Refresh; ``None`` removes it. It is called with a HookRequest after the macro's argument errors and
         BeforePrint. Its output is its own, and not claimed to match Excel; a library that draws needs its own layout for that. Under the sandbox, a macro's file must lie in one of ``folders``
         or the function is not called; with none named, no file passes. Docs: docs/vba_runtime.md, Hooks."""
         from pyopenvba.apps.excel._hooks import set_hook
 
         set_hook(self.interpreter.hooks, name, function, folders)
+
+    def allow_link_reads(self, folders: object) -> None:
+        """Let a macro under the sandbox read linked workbooks' files that lie in ``folders``: UpdateLink, ChangeLink, a link's
+        status, and a formula naming a closed workbook. Each call replaces the folders, and ``()`` takes them all away. A path is
+        resolved first, links and .. followed, as set_hook's folders are. A formula naming a workbook by its file alone looks in
+        the current folder, which a sandboxed macro cannot change: the folder this process was in when the application was made.
+        Docs: docs/vba_runtime.md, Hooks."""
+        from pyopenvba.apps.excel._hooks import set_link_folders
+
+        set_link_folders(self.interpreter, folders)
 
     @property
     def console(self) -> list[str]:

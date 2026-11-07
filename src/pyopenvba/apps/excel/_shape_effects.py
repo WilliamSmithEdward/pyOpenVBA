@@ -16,7 +16,7 @@ from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import method, member, setter
 from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number
-from pyopenvba.shapes._values import FillLine, ShapeEffects
+from pyopenvba.shapes._values import MOST_POINTS, SINGLE_LARGEST, FillLine, ShapeEffects
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange
@@ -27,6 +27,17 @@ _ANGLE = 60000
 #: What a shadow reads for its offsets until they are set.
 _FIRST_OFFSET = 2.079952
 _OUT_OF_RANGE = (-2147024809, 'The specified value is out of range.')
+
+
+def _points(value: object) -> float:
+    """A distance an effect takes: past a Single it is 6, and Excel refuses by 169093 points what it took at 100000, either way
+    (tests/fixtures/excel_huge_numbers.json)."""
+    number = float(to_number(value))
+    if abs(number) > SINGLE_LARGEST:
+        raise error(6, 'Overflow')
+    if abs(number) >= MOST_POINTS:
+        raise error(*_OUT_OF_RANGE)
+    return number
 _SOFT_EDGES = {1: 12700, 2: 31750, 3: 63500, 4: 127000, 5: 317500, 6: 635000}
 #: Reflection.Type: start alpha, end alpha, end position and distance. The rest is the same in each.
 _REFLECTIONS = {1: (52000, 300, 35000, 0), 2: (50000, 300, 55000, 0), 3: (50000, 300, 90000, 0),
@@ -195,7 +206,7 @@ class ShadowFormat(_Effect):
 
     @setter('OffsetX')
     def _offset_x(self, value: object) -> None:
-        self._moved(float(to_number(value)), self._offsets()[1])
+        self._moved(_points(value), self._offsets()[1])
 
     @member
     def OffsetY(self) -> object:
@@ -203,18 +214,18 @@ class ShadowFormat(_Effect):
 
     @setter('OffsetY')
     def _offset_y(self, value: object) -> None:
-        self._moved(self._offsets()[0], float(to_number(value)))
+        self._moved(self._offsets()[0], _points(value))
 
     @method
     def IncrementOffsetX(self, Increment: object) -> object:  # noqa: N803 - native named argument
         across, down = self._offsets()
-        self._moved(across + float(to_number(Increment)), down)
+        self._moved(across + _points(Increment), down)
         return EMPTY
 
     @method
     def IncrementOffsetY(self, Increment: object) -> object:  # noqa: N803 - native named argument
         across, down = self._offsets()
-        self._moved(across, down + float(to_number(Increment)))
+        self._moved(across, down + _points(Increment))
         return EMPTY
 
     @member
@@ -223,7 +234,7 @@ class ShadowFormat(_Effect):
 
     @setter('Blur')
     def _blur(self, value: object) -> None:
-        wanted = float(to_number(value))
+        wanted = _points(value)
         if wanted < 0:
             raise error(*_OUT_OF_RANGE)
         self.worked().shadow_blur = round(wanted * _EMU_PER_POINT)
@@ -439,7 +450,7 @@ class ReflectionFormat(_Effect):
     @setter('Offset')
     def _offset(self, value: object) -> None:
         # Less than nothing is taken as nothing.
-        self.worked().reflection_distance = round(max(float(to_number(value)), 0.0) * _EMU_PER_POINT) or None
+        self.worked().reflection_distance = round(max(_points(value), 0.0) * _EMU_PER_POINT) or None
 
     @member
     def Blur(self) -> object:
@@ -447,7 +458,7 @@ class ReflectionFormat(_Effect):
 
     @setter('Blur')
     def _blur(self, value: object) -> None:
-        wanted = float(to_number(value))
+        wanted = _points(value)
         if wanted < 0:
             raise error(*_OUT_OF_RANGE)
         self.worked().reflection_blur = round(wanted * _EMU_PER_POINT) or None

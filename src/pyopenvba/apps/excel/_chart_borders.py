@@ -11,6 +11,7 @@ from pyopenvba.apps.excel._creator import Created
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
 from pyopenvba.interpreter._values import VBAInt, error, to_integer, to_number
 from pyopenvba.shapes._values import FillLine
+from pyopenvba.exceptions import VBAUnsupportedError
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._styles import Colors
@@ -173,6 +174,16 @@ class ChartBorder(Created):
     def __init__(self, line: Line, family: Family, parent: object, colours: Colors) -> None:
         self.line, self.family, self.parent, self.colours = line, family, parent, colours
 
+    def look(self) -> FillLine:
+        """The line's look. A loaded chart with a style part answers Border otherwise than its Format, which is not measured, so
+        it refuses (tests/fixtures/loaded_chart_looks.json)."""
+        chart = (getattr(self.parent, 'chart', None) or getattr(getattr(self.parent, 'axis', None), 'chart', None)
+                 or getattr(getattr(self.parent, 'series', None), 'chart', None))
+        state = getattr(chart, 'state', None)
+        if state is not None and state.original and state.style_part:
+            raise VBAUnsupportedError('The Border of an element of an imported styled chart is not implemented')
+        return self.line.look()
+
     @member
     def Parent(self) -> object:
         return self.parent
@@ -183,7 +194,7 @@ class ChartBorder(Created):
 
     @member
     def Color(self) -> object:
-        look = self.line.look()
+        look = self.look()
         if look.line_off or look.line_hidden:
             return VBAInt(-2, 'Long')
         if look.line_rgb is not None:
@@ -196,7 +207,7 @@ class ChartBorder(Created):
         self._paint(_rgb(int(to_number(value))))
 
     def _paint(self, rgb: str) -> None:
-        self.line.look()
+        self.look()
         look = self.line.change()
         look.line_off = look.line_by_weight = False
         look.line_rgb = rgb
@@ -204,7 +215,7 @@ class ChartBorder(Created):
 
     @member
     def ColorIndex(self) -> object:
-        look = self.line.look()
+        look = self.look()
         if look.line_off or look.line_hidden:
             return VBAInt(_NONE, 'Long')
         if look.line_rgb is None or look.line_by_weight:
@@ -227,7 +238,7 @@ class ChartBorder(Created):
 
     @member
     def Weight(self) -> object:
-        look = self.line.look()
+        look = self.look()
         if look.line_off or look.line_hidden:
             return VBAInt(self.family.hidden_weight, 'Long')
         return VBAInt(self.family.weight if look.line_width is None else _weight_of(look.line_width), 'Long')
@@ -237,7 +248,7 @@ class ChartBorder(Created):
         wanted = int(to_integer(value, 'Long'))
         if wanted not in _WIDTHS:
             raise error(1004, 'Unable to set the Weight property of the Border class')
-        before = self.line.look()
+        before = self.look()
         untouched = before.line_rgb is None and before.line_dash is None and not before.line_off
         if untouched and not self.family.weighs:
             return
@@ -250,7 +261,7 @@ class ChartBorder(Created):
 
     @member
     def LineStyle(self) -> object:
-        look = self.line.look()
+        look = self.look()
         if look.line_off or look.line_hidden:
             return VBAInt(_NONE, 'Long')
         if look.line_by_weight or (look.line_rgb is None and look.line_dash is not None):
@@ -269,7 +280,7 @@ class ChartBorder(Created):
                 raise error(1004, 'Unable to set the LineStyle property of the Border class')
             self._hide()
         elif wanted in _DASHES:
-            before = self.line.look()
+            before = self.look()
             look = self.line.change()
             if self.family.draws and self.family.styles_width and before.line_width is None:
                 look.line_width = 12700
@@ -280,13 +291,13 @@ class ChartBorder(Created):
             raise error(1004, 'Unable to set the LineStyle property of the Border class')
 
     def _automatic(self) -> None:
-        before = self.line.look()
+        before = self.look()
         if (before.line_rgb is not None or before.line_width is not None or before.line_dash is not None
                 or before.line_off):
             _clear(self.line.change())
 
     def _hide(self) -> None:
-        self.line.look()
+        self.look()
         look = self.line.change()
         _clear(look)
         look.line_off = True

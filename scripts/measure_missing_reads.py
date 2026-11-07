@@ -8,6 +8,9 @@ WriteReservedBy, are left out.
     python scripts/measure_missing_reads.py
 
 writes tests/fixtures/missing_reads.json, which tests/test_excel_missing_reads.py replays.
+
+Workbook.Permission, the rights member, is no longer read: no live probe touches rights, encryption or signing
+(tests/test_probes_leave_crypto_alone.py). The fixture keeps what an earlier run recorded for it: do not remeasure it.
 """
 from __future__ import annotations
 
@@ -25,7 +28,7 @@ READS = [
     ('wb', 'PasswordEncryptionFileProperties'), ('wb', 'Container'), ('wb', 'ContentTypeProperties'),
     ('wb', 'ServerPolicy'), ('wb', '_CodeName'), ('wb', 'ActiveChart'), ('wb', 'ActiveSlicer'),
     ('wb', 'ExternalCodeServiceTimeout'), ('wb', 'PivotTables'), ('wb', 'Theme'), ('wb', 'WebOptions'),
-    ('wb', 'DocumentLibraryVersions'), ('wb', 'SharedWorkspace'), ('wb', 'SmartDocument'), ('wb', 'Permission'),
+    ('wb', 'DocumentLibraryVersions'), ('wb', 'SharedWorkspace'), ('wb', 'SmartDocument'),
     ('ws', 'PrintedCommentPages'),
     ('ch', 'Index'), ('ch', 'CodeName'), ('ch', 'Visible'), ('ch', 'ProtectContents'), ('ch', 'ProtectData'),
     ('ch', 'ProtectDrawingObjects'), ('ch', 'ProtectFormatting'), ('ch', 'ProtectionMode'),

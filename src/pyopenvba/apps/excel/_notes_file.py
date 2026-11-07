@@ -171,9 +171,9 @@ def _moved_box(source: str, fresh: str) -> str:
         return fresh
     box = re.sub(r'\bid="_x0000_s\d+"', lambda _: f'id="_x0000_s{_shape_id(fresh)}"', source, count=1)
     for part in ("margin-left", "margin-top", "width", "height", "z-index", "visibility"):
-        now = re.search(rf"(?<![-\w]){part}:([^;']*)", fresh)
+        now = re.search(rf"(?<![-\w]){part}:([^;'\"]*)", fresh)
         if now is not None:
-            box = re.sub(rf"(?<![-\w]){part}:[^;']*", lambda _, value=now.group(1), name=part: f"{name}:{value}", box, count=1)
+            box = re.sub(rf"(?<![-\w]){part}:[^;'\"]*", lambda _, value=now.group(1), name=part: f"{name}:{value}", box, count=1)
     for tag in ("Anchor", "Row", "Column"):
         now = re.search(rf"<x:{tag}>.*?</x:{tag}>", fresh, re.DOTALL)
         if now is not None:
@@ -254,6 +254,24 @@ def _typed_first(vml: str, number: str, shape_type: str) -> str:
 # --- reading -----------------------------------------------------------------------------------------------------
 
 
+def _style_anchor(sheet: Worksheet, shape: str) -> Anchor | None:
+    """The anchor of a box a file gives no x:Anchor, as openpyxl writes one: Excel reads its place and size from its
+    style, in points or pixels, and saves the anchor they come to (tests/fixtures/tool_books/tool_books.json)."""
+    from pyopenvba.apps.excel._notes import anchor_around
+
+    style = re.search(r"""\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')""", shape)
+    if style is None:
+        return None
+    sizes: list[int] = []
+    for part in ("margin-left", "margin-top", "width", "height"):
+        found = re.search(rf"(?<![-\w]){part}:\s*([\d.]+)(pt|px)", style.group(1) or style.group(2) or "")
+        if found is None:
+            return None
+        sizes.append(round(float(found.group(1)) * (4 / 3 if found.group(2) == "pt" else 1)))
+    left, top, width, height = sizes
+    return anchor_around(sheet, left, top, left + width, top + height)
+
+
 def read(sheet: Worksheet, comments: str, vml: str) -> None:
     """The notes a sheet's comments and VML parts hold, and the block of ids and the last id its VML part used."""
     from pyopenvba.apps.excel._notes import BLOCK, Note, size_of
@@ -288,13 +306,14 @@ def read(sheet: Worksheet, comments: str, vml: str) -> None:
         row = re.search(r"<x:Row>\s*(\d+)\s*</x:Row>", shape)
         column = re.search(r"<x:Column>\s*(\d+)\s*</x:Column>", shape)
         anchor = re.search(r"<x:Anchor>\s*([\d\s,]+?)\s*</x:Anchor>", shape)
-        if row is None or column is None or anchor is None:
+        if row is None or column is None:
             continue
-        numbers = [int(number) for number in anchor.group(1).split(",")]
-        if len(numbers) != 8:
-            continue
-        corners: Anchor = (numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6],
-                           numbers[7])
+        corners = _style_anchor(sheet, shape) if anchor is None else None
+        if corners is None:
+            numbers = [int(number) for number in anchor.group(1).split(",")] if anchor is not None else []
+            if len(numbers) != 8:
+                continue
+            corners = (numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6], numbers[7])
         visible = re.search(r"<x:Visible\s*/>", shape) is not None
         boxes[(int(row.group(1)) + 1, int(column.group(1)) + 1)] = (shape, shape_id, visible, corners)
     start = sheet.vml_block * BLOCK

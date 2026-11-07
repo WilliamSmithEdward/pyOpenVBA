@@ -608,6 +608,14 @@ def points(emu: str | int | float) -> float:
         return 0.0
 
 
+#: The largest number a Single holds, past which a parameter of the type overflows.
+SINGLE_LARGEST = 3.4028235677973366e38
+#: The first size measured refused: Excel took 100000 points and refused 169093 (tests/fixtures/excel_huge_numbers.json).
+MOST_POINTS = 169093.0
+#: The first place measured refused: Excel took 1E+9 points, stopping at the sheet's end, and refused 2147483647.
+MOST_PLACE = 2147483647.0
+
+
 def emu(value: float) -> int:
     """Points as the EMU the file holds, rounded as Office rounds."""
     return int(round(value * EMU_PER_POINT))

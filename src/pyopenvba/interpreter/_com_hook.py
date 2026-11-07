@@ -93,7 +93,7 @@ def gated(interpreter: Interpreter, prog_id: str, path: str) -> Path:
     from pyopenvba.interpreter._files import final_path, is_inside
 
     # One conversion, checked and then handed on: the factory opens exactly what the gate let through.
-    final = final_path(path)
+    final = Path(final_path(path))
     if interpreter.sandbox and interpreter.frames:
         folders = interpreter.com_classes[prog_id.lower()][1]
         if not folders:

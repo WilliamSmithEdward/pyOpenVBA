@@ -27,9 +27,6 @@ _SPEC.loader.exec_module(MEASURE)
 RECORD = json.loads((ROOT / 'tests/fixtures/com_objects.json').read_text(encoding='utf-8'))
 #: Names Excel answered 429 for, where the model cannot know what a machine has: here a host says, through its factory, that there is none.
 NONE_HERE = ('No.Such.Class', 'NoDots', '5')
-#: A known gap of the binding model, not of the hook: a Set of an object of another class into a typed variable is 13 in Excel, and the model takes
-#: it, for its own classes as for this one.
-GAPS = ('Set c = CreateObject("Scripting.Dictionary")',)
 
 
 def _app(*, sandbox: bool = True) -> ExcelApplication:
@@ -47,8 +44,7 @@ def test_what_the_model_answers_around_the_hook_is_what_excel_did(declared: str)
     found = str(app.run('H.Probe')).split(MEASURE.SEPARATOR)
     wanted = RECORD['answers'][declared].split(MEASURE.SEPARATOR)
     assert len(found) == len(wanted)
-    assert not [(line[0], excel, model) for line, excel, model in zip(MEASURE.LINES, wanted, found) if excel != model and line[0] not in GAPS]
-    assert [(excel, model) for line, excel, model in zip(MEASURE.LINES, wanted, found) if line[0] in GAPS] == [('13=Nothing', '0=Dictionary')]
+    assert not [(line[0], excel, model) for line, excel, model in zip(MEASURE.LINES, wanted, found) if excel != model]
 
 
 def test_with_nothing_registered_an_unknown_class_is_refused_as_before() -> None:

@@ -190,6 +190,24 @@ files reports itself, as `SaveCopyAs` elsewhere does.
 `PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
 printer's name were never run in Excel, so what the function does with them is unmeasured.
 
+### Linked files
+
+A macro reads another workbook's file in four places: `UpdateLink`, `ChangeLink`, `LinkInfo`'s status, and a formula naming a closed workbook the file has no
+link to yet. Under the sandbox all four are refused, as any file is. `allow_link_reads` grants folders for them without turning the sandbox off:
+
+```python
+app.allow_link_reads(["C:/reports/sources"])
+```
+
+A file passes only if it lies inside one of the folders, by the same check as `set_hook`'s `folders`: links, junctions and `..` resolved, parts compared whole, UNC
+and device paths refused unless the folder is one. A file outside raises `VBASandboxError`, which does not say where the path led, and nothing on disk is looked at
+before the check. Each call replaces the folders; `allow_link_reads(())` takes them all away. `Workbook.OpenLinks` opens workbooks rather than reading them, and
+stays refused.
+
+A formula that names a workbook by its file alone, `=[Alpha.xlsx]Sheet1!A1`, makes Excel look for it in the current folder. A macro under the sandbox cannot
+change the current folder, so it is the folder your process was in when you made the `ExcelApplication`. The file is read only if that folder, or one above it, is
+granted. If you do not want bare names read at all, grant only folders other than that one.
+
 ## COM classes the host supplies
 
 pyOpenVBA starts no COM server and never looks at what is running on the machine. A macro's `CreateObject` and `GetObject` make what a factory the

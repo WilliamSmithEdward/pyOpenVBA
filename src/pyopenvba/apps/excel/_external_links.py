@@ -14,9 +14,10 @@ of the workbook it points at, ``'C:\\dir\\[Source.xlsx]Sheet1'!A1``
 from __future__ import annotations
 
 import ntpath
+import os
 import posixpath
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.formula._values import ERRORS, ExcelError
@@ -30,6 +31,7 @@ _MAIN = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 _RELATIONSHIPS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 _PACKAGE = "{http://schemas.openxmlformats.org/package/2006/relationships}"
 _LINK_PATH = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath"
+_PATH_MISSING = "http://schemas.microsoft.com/office/2006/relationships/xlExternalLinkPath/xlPathMissing"
 _CELL = re.compile(r"([A-Za-z]{1,3})([0-9]{1,7})")
 
 
@@ -50,17 +52,33 @@ class LinkedBook:
     kept: bool = True
     #: The sheets a save lists after the workbook's own once ChangeLink has pointed the link at it (see _link_edits).
     extra_sheets: tuple[str, ...] = ()
+    #: Made this session by a formula naming a workbook the file had no link to (see _new_links).
+    made: bool = False
+    #: Known by its file's name alone: a workbook never saved, or one a formula named whose file was not found.
+    pathless: bool = False
 
     def folder(self, here: str) -> str:
         """The folder the linked workbook is in, ``here`` being this workbook's own."""
+        if self.pathless:
+            return ""
+        # A POSIX path by its spelling: this workbook's folder from the root, or, for a workbook never saved, the system's own. A drive-less
+        # target under a Windows folder takes that folder's drive on any system.
+        posix = here.startswith("/") if here else os.name != "nt"
+        if posix and self.target.startswith("/"):
+            return posixpath.dirname(self.target)
         target = self.target.removeprefix("file:///").replace("/", "\\")
         head = target.rpartition("\\")[0]
         if re.match(r"[A-Za-z]:\\|\\\\", target) or not here:
             return head
+        if here.startswith("/"):
+            # A relative folder joins a POSIX folder as one, not turned into \tmp\x\Sub.
+            return posixpath.normpath(posixpath.join(here, head.replace("\\", "/"))) if head else here.rstrip("/")
         return ntpath.normpath(ntpath.join(here, head)) if head else here.rstrip("\\")
 
     def path(self, here: str) -> str:
-        """The linked workbook's full name, as LinkSources gives it."""
+        """The linked workbook's full name, as LinkSources gives it: the file after a backslash, as Excel writes it, whatever the folder,
+        so a macro finds the file's name after the last \\. What reads the file turns this into the system's path once, at the gate
+        (interpreter._files.final_path), and opens that."""
         folder = self.folder(here)
         return f"{folder}\\{self.file}" if folder else self.file
 
@@ -92,7 +110,9 @@ def read(book: Workbook, package: OpcFile, workbook: XmlElement) -> None:
             continue
         paths = _relationships(package, part) if package.has(rels_part(part)) else {}
         kind, target = paths.get(linked.get(_RELATIONSHIPS + "id", ""), ("", ""))
-        book.linked_books[number] = _linked(number, target if kind == _LINK_PATH else "", linked, part)
+        found = _linked(number, target if kind in (_LINK_PATH, _PATH_MISSING) else "", linked, part)
+        # A workbook Excel knew by its name alone: one never saved, or not found (tests/fixtures/book_refs.json).
+        book.linked_books[number] = replace(found, pathless=True) if kind == _PATH_MISSING else found
 
 
 def _relationships(package: OpcFile, part: str) -> dict[str, tuple[str, str]]:
@@ -165,24 +185,24 @@ def linked_sheet(book: Workbook, name: str) -> str:
     """Another workbook's sheet a macro's formula names, by its path, C:\\dir\\[Source.xlsx]Sheet1, or its file's name,
     [Source.xlsx]Sheet1, as the file names it by its link, [1]Sheet1; a workbook alone, C:\\dir\\Source.xlsx for one of
     its names, is [1]. Excel takes either for a workbook it has a link to (tests/fixtures/external_links.json); one it
-    has none to would be a new link, which the model does not make."""
-    from pyopenvba.exceptions import VBAUnsupportedError
+    has none to makes a new link (see _new_links)."""
+    from pyopenvba.apps.excel._new_links import made
 
     if name.startswith("[") and name[1:].partition("]")[0].isdigit():
         return name
-    folder, bracket, rest = name.partition("[")
+    given, bracket, rest = name.partition("[")
     if bracket:
         file, _, sheet = rest.partition("]")
     else:
-        folder, file = ntpath.split(name)
+        given, file = ntpath.split(name)
         sheet = ""
     # Off Windows the folder a macro names has / in it, and so does the one a link's relative target comes to.
-    folder = folder.replace("/", "\\").rstrip("\\").casefold()
+    folder = given.replace("/", "\\").rstrip("\\").casefold()
     for linked in book.linked_books.values():
         if linked.file.casefold() == file.casefold() \
                 and (not folder or linked.folder(book.path).replace("/", "\\").casefold() == folder):
             return f"[{linked.number}]{sheet}"
-    raise VBAUnsupportedError("a formula reading a workbook the file has no link to is not implemented")
+    return made(book, given, file, sheet)
 
 
 def shown(book: Workbook, formula: str) -> str:
@@ -212,7 +232,8 @@ def shown(book: Workbook, formula: str) -> str:
         linked = book.linked_books.get(int(found.group(1))) if found is not None else None
         if found is not None and linked is not None:
             sheet = found.group(2)
-            if source_is_open(book, linked):
+            if source_is_open(book, linked) or linked.pathless:
+                # A workbook known by its name alone is shown so even once closed (tests/fixtures/book_refs.json).
                 place = f"[{linked.file}]{sheet}" if sheet else linked.file
                 quoted = re.search(r"[^A-Za-z0-9_.\[\]]", place) is not None
                 text = ("'" + place.replace("'", "''") + "'" if quoted else place) + "!" + text[found.end():]

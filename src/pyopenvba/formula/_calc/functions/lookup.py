@@ -202,6 +202,10 @@ def MATCH(context: Context, value: Scalar, array: Value, kind: Scalar | None = N
 def XMATCH(
     context: Context, value: Scalar, array: Value, match_mode: Scalar | None = None, search_mode: Scalar | None = None
 ) -> Value:
+    grid = matrix(context, array)
+    if grid.height != 1 and grid.width != 1:
+        # Only a row or a column is searched (tests/fixtures/xlookup_rounds.json).
+        return VALUE
     values = _vector(context, array)
     position = _x_search(context, values, _lookup_value(value), match_mode, search_mode)
     return NA if position is None else float(position + 1)
@@ -221,22 +225,34 @@ def _x_search(
         expression = regular_expression(context, target, None)
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
         return next((index for index in order if not isinstance(values[index], CellError) and expression.search(context.text(values[index]))), None)
-    if isinstance(target, Empty):
-        # Nothing to look for: only a blank is the same, and nothing is near it.
-        if mode != 0:
+    if isinstance(target, Empty) and search not in (2, -2):
+        # A blank is the largest value there is, so a blank matches it, and next smaller is the largest of the rest; in
+        # halves the search below sees the same (tests/fixtures/xlookup_rounds.json).
+        if mode == 2:
             return None
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
-        return next((index for index in order if isinstance(values[index], Empty)), None)
-    if search in (2, -2) and mode != 2:
+        blank = next((index for index in order if isinstance(values[index], Empty)), None)
+        if blank is not None or mode in (0, 1):
+            return blank
+        return _nearest(values, target, mode, search)
+    if search in (2, -2):
+        if mode == 2:
+            # Wildcards cannot be searched for in halves (tests/fixtures/xlookup_rounds.json).
+            raise ExcelError(VALUE)
         return _x_binary(values, target, mode, descending=search == -2)
     exact = _exact(values, target, wildcards=mode == 2, last=search == -1)
     if exact is not None or mode in (0, 2):
         return exact
+    return _nearest(values, target, mode, search)
+
+
+def _nearest(values: list[Scalar], target: Scalar, mode: int, search: int) -> int | None:
+    """The next smaller, or larger, of ``values`` to ``target``, the first met in the search's order on a tie."""
     best: int | None = None
     order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
     for index in order:
         candidate = values[index]
-        if isinstance(candidate, Empty):
+        if isinstance(candidate, Empty) and mode != 1:
             continue
         direction = _x_order(candidate, target)
         if (mode == -1 and direction < 0) or (mode == 1 and direction > 0):
@@ -250,28 +266,37 @@ def _x_search(
 
 
 def _x_order(value: Scalar, target: Scalar) -> int:
-    """How XLOOKUP's nearest match orders any two values: numbers, then text, then logicals, then errors."""
+    """How XLOOKUP's nearest match orders any two values: numbers, then text, then logicals, then errors, then blanks,
+    which only the next larger reaches (tests/fixtures/xlookup_rounds.json)."""
+    if isinstance(value, Empty) or isinstance(target, Empty):
+        return isinstance(value, Empty) - isinstance(target, Empty)
     if isinstance(value, CellError) or isinstance(target, CellError):
         return isinstance(value, CellError) - isinstance(target, CellError)
     return _order(value, target)
 
 
 def _x_binary(values: list[Scalar], target: Scalar, mode: int, *, descending: bool) -> int | None:
-    """A plain binary search, in order or not, past blanks: where it stops, the next one
-    down or up is whichever its bounds left on that side."""
-    positions = [index for index, value in enumerate(values) if not isinstance(value, Empty)]
+    """A binary search, in order or not, halving at the lower middle. A blank is the largest value. A match is kept and the
+    search goes on toward the start, or toward the end searching from the bottom, so the one kept is the last met. Where it
+    stops, the next one down or up is whichever its bounds left on that side (tests/fixtures/xlookup_rounds.json)."""
+    positions = list(range(len(values)))
     low, high = 0, len(positions) - 1
+    found: int | None = None
     while low <= high:
         middle = (low + high) // 2
         order = _x_order(values[positions[middle]], target)
         if order == 0:
-            return positions[middle]
-        if (order > 0) != descending:
+            found = positions[middle]
+            if descending:
+                low = middle + 1
+            else:
+                high = middle - 1
+        elif (order > 0) != descending:
             high = middle - 1
         else:
             low = middle + 1
-    if mode == 0:
-        return None
+    if found is not None or mode == 0:
+        return found
     # Ascending, what is above stands at low and below at high; descending, the other way about.
     place = high if (mode == -1) != descending else low
     return positions[place] if 0 <= place < len(positions) else None

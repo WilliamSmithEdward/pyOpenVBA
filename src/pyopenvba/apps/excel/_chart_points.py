@@ -249,7 +249,9 @@ class Point(ElementProperties, PictureMembers, Created):
     def kind(self) -> str:
         self.series.position()
         state = self.series.chart.state
-        if state.original:
+        entry = self.series.entry
+        # A loaded point shows its series' look while it holds none of its own (tests/fixtures/loaded_chart_looks.json).
+        if state.original and (not entry.look_read or entry.points_unread):
             raise unmeasured("A point of an imported chart")
         return CHART_TYPES.get(shown_type(state), "")
 

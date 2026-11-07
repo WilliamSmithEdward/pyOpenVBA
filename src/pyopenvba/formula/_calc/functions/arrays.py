@@ -16,6 +16,7 @@ import math
 import random
 
 from pyopenvba.formula._calc import collate as _collate
+from pyopenvba.formula._calc.cells import UnsupportedFormulaError
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.arithmetic import checked
 from pyopenvba.formula._calc.functions.common import matrix
@@ -100,6 +101,18 @@ def _same_key(value: Scalar) -> Key:
 # ----------------------------------------------------------------------
 
 
+def _too_vast(height: int, width: int) -> bool:
+    """Whether Excel refuses an array this size at once, as past the sheet's rows and at 1.6 billion cells it does
+    (docs/formula_engine.md). Past 4 million, which take seconds here, this engine says openly that it will not build it,
+    though Excel built 25 million in a second: a number in a workbook must not hold the host for minutes."""
+    cells = height * width
+    if height > 1048576 or cells >= 1_600_000_000:
+        return True
+    if cells > 4_000_000:
+        raise UnsupportedFormulaError(f"an array of {height} by {width} is larger than this engine builds")
+    return False
+
+
 @function("SEQUENCE", V, V, V, V, minimum=1)
 def SEQUENCE(
     context: Context,
@@ -116,6 +129,8 @@ def SEQUENCE(
         return VALUE
     if height == 0 or width == 0:
         return CALC
+    if _too_vast(height, width):
+        return VALUE
     return Array([[checked(first + by * (row * width + column)) for column in range(width)] for row in range(height)])
 
 
@@ -136,6 +151,8 @@ def RANDARRAY(
         return VALUE
     if height == 0 or width == 0:
         return CALC
+    if _too_vast(height, width):
+        return VALUE
     if _flag(context, whole):
         if not (bottom.is_integer() and top.is_integer()):
             return VALUE

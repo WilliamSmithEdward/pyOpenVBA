@@ -76,6 +76,8 @@ if TYPE_CHECKING:
 Intrinsic = Callable[["Interpreter", list[object], dict[str, object]], object]
 
 INTRINSICS: dict[str, Intrinsic] = {}
+#: How many of each built-in function's arguments a call must give, which the compiler checks of an empty one: Mid("abc", , 2).
+INTRINSIC_MINIMUMS: dict[str, int] = {}
 
 #: The names VBA defines that this does not implement, and the reason.
 UNIMPLEMENTED: Final[dict[str, str]] = {
@@ -129,6 +131,7 @@ def intrinsic(name: str, *parameters: str, minimum: int = 0) -> Callable[..., An
             return function(interpreter, *laid[: len(parameters)])
 
         INTRINSICS[name.lower()] = dispatch
+        INTRINSIC_MINIMUMS[name.lower()] = minimum
         return function
 
     return register
@@ -196,7 +199,14 @@ def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str,
     strict = getattr(target, "vba_strict_call_types", False)
     if strict and kind == _GET and spec is not None and spec.kind == "method":
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
-    return _answered(target, name, rest)
+    answer = _answered(target, name, rest)
+    # It goes through IDispatch as a call on an Object does, so what is a Double late is one here (tests/fixtures/page_setup/).
+    from pyopenvba.interpreter._type_library import find_class, reads_double_late
+
+    library = getattr(interpreter.host, "vba_type_library", None)
+    found = find_class(library, target.vba_type_name) if library is not None else None
+    numeric = isinstance(answer, int | float) and not isinstance(answer, bool)
+    return float(answer) if numeric and found is not None and reads_double_late(found, name) else answer  # type: ignore[arg-type]
 
 
 INTRINSICS["callbyname"] = _call_by_name
@@ -1094,7 +1104,8 @@ def vba_format_datetime(interpreter: Interpreter, value: object, named: object) 
 
 @intrinsic("Now")
 def vba_now(interpreter: Interpreter) -> object:
-    return VBADate.from_datetime(interpreter.clock())
+    # Whole seconds, as Excel's Now is: what the clock holds below a second is dropped, as oleaut32 drops it (tests/test_vba_now_whole_seconds.py).
+    return VBADate.from_datetime(interpreter.clock().replace(microsecond=0))
 
 
 @intrinsic("Date")
@@ -1104,7 +1115,7 @@ def vba_date(interpreter: Interpreter) -> object:
 
 @intrinsic("Time")
 def vba_time(interpreter: Interpreter) -> object:
-    return VBADate.from_datetime(interpreter.clock().time())
+    return VBADate.from_datetime(interpreter.clock().time().replace(microsecond=0))
 
 
 @intrinsic("Timer")

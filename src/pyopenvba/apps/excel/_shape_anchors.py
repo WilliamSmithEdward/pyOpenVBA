@@ -7,7 +7,7 @@ offset the cell no longer has room for shrinks to the cell's width or height.
 """
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -18,6 +18,8 @@ if TYPE_CHECKING:
     from pyopenvba.shapes._values import Shape
 
 Sizes = Callable[[int], float]
+#: Excel took a place of 100000 points as it was.
+FAR_ENOUGH = 100000.0
 
 
 @dataclass(frozen=True)
@@ -34,8 +36,61 @@ class Anchor:
     bottom_down: float
 
 
+class RowSizes:
+    """The heights of a sheet's rows, gone through by runs: a sheet has a million rows and few of them differ, and a shape
+    near the bottom must not cost a million lookups. The answers are those of a walk row by row, as a row is a whole number
+    of pixels of 0.75 points, which adds up exactly."""
+
+    def __init__(self, sheet: Worksheet) -> None:
+        self.sheet = sheet
+        sheet.dims.settle_shapes()
+        self.own = sheet.dims.rows_of_their_own()
+        self.plain = sheet.row_height_points(MAX_ROWS + 1)
+
+    def __call__(self, row: int) -> float:
+        return self.sheet.row_height_points(row)
+
+    def runs(self, last: int) -> Iterator[tuple[int, int, float]]:
+        """First row, how many, and the height of each, up to but not including ``last``."""
+        index = 1
+        for row in self.own:
+            if row >= last:
+                break
+            if row > index:
+                yield index, row - index, self.plain
+            yield row, 1, self(row)
+            index = row + 1
+        if index < last:
+            yield index, last - index, self.plain
+
+    def located(self, at: float, last: int) -> tuple[int, float]:
+        start = 0.0
+        for first, count, height in self.runs(last):
+            if height <= 0:
+                continue
+            passed = min(count, int((at + 1e-9 - start) // height)) if start + height <= at + 1e-9 else 0
+            if passed < count:
+                return first + passed, at - (start + passed * height)
+            start += count * height
+        return last, at - start
+
+    def start(self, index: int) -> float:
+        return sum(count * height for _, count, height in self.runs(index))
+
+
+def keep_on_sheet(sheet: Worksheet, shape: Shape) -> None:
+    """A place past the sheet's end stops where the shape still fits on it, as Excel has it (tests/fixtures/excel_huge_numbers.json). Only a place too far for a
+    sheet of ordinary rows and columns goes through the sheet to find out; a sheet of narrow ones keeps what it was given, as ever."""
+    if shape.top > FAR_ENOUGH:
+        shape.top = max(min(shape.top, RowSizes(sheet).start(MAX_ROWS + 1) - shape.height), 0.0)
+    if shape.left > FAR_ENOUGH:
+        shape.left = max(min(shape.left, sum(sheet.column_width_points(column) for column in range(1, MAX_COLUMNS + 1)) - shape.width), 0.0)
+
+
 def _located(sizes: Sizes, at: float, last: int) -> tuple[int, float]:
     """The line a distance falls in, and how far into it: a point on a boundary is in the line after it."""
+    if isinstance(sizes, RowSizes):
+        return sizes.located(at, last)
     index, start = 1, 0.0
     while index < last and start + sizes(index) <= at + 1e-9:
         start += sizes(index)
@@ -44,13 +99,15 @@ def _located(sizes: Sizes, at: float, last: int) -> tuple[int, float]:
 
 
 def _start(sizes: Sizes, index: int) -> float:
+    if isinstance(sizes, RowSizes):
+        return sizes.start(index)
     return sum(sizes(line) for line in range(1, index))
 
 
 def anchors(sheet: Worksheet) -> list[tuple[Shape, Anchor]]:
     """The anchors of the sheet's shapes that follow their cells."""
     sheet.dims.settle_shapes()
-    widths, heights = sheet.column_width_points, sheet.row_height_points
+    widths, heights = sheet.column_width_points, RowSizes(sheet)
     held: list[tuple[Shape, Anchor]] = []
     for shape in sheet.shapes_:
         if shape.edit_as == 'absolute':
@@ -76,7 +133,7 @@ def placed(sheet: Worksheet, held: list[tuple[Shape, Anchor]], *, rewrite: bool 
 def _place(sheet: Worksheet, held: list[tuple[Shape, Anchor]], rewrite: bool) -> None:
     from pyopenvba.apps.excel._shapes import ShapeObject
 
-    widths, heights = sheet.column_width_points, sheet.row_height_points
+    widths, heights = sheet.column_width_points, RowSizes(sheet)
 
     def edge(sizes: Sizes, index: int, offset: float) -> float:
         return _start(sizes, index) + min(offset, sizes(index))

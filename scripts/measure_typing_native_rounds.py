@@ -120,6 +120,14 @@ def model(cases: list[dict[str, Any]]) -> list[str]:
     return answers
 
 
+def answer_of(text: str) -> str:
+    """An answer as it is compared: a run-time error, the model's or Excel's, as its number alone."""
+    import re
+
+    found = re.search(r'run-time error (\d+)', text) if text.startswith('model ') else re.search(r"VbaError\(number=(\d+)", text)
+    return f'error {found.group(1)}' if found else text
+
+
 def digest(cases: list[dict[str, Any]]) -> str:
     return hashlib.sha256(json.dumps([[c['text'], c['typed'], c['model']] for c in cases], ensure_ascii=False).encode()).hexdigest()[:16]
 
@@ -163,15 +171,21 @@ def measure(seed: int) -> None:
             for at in range(0, len(cases), CHUNK):
                 chunk = cases[at:at + CHUNK]
                 done = excel.run_vba(source(chunk), 'One', (), timeout=120.0, line_numbers=False)
-                answers += str(done.value).split('|')[:-1] if done.ok else [f'no answer: {str(done)[:200]}'] * len(chunk)
+                if done.ok:
+                    answers += str(done.value).split('|')[:-1]
+                    continue
+                # A run-time error stops the run: each case of it again on its own.
+                for case in chunk:
+                    alone = excel.run_vba(source([case]), 'One', (), timeout=60.0, line_numbers=False)
+                    answers += str(alone.value).split('|')[:-1] if alone.ok else [f'no answer: {str(alone)[:300]}']
     finally:
         os.rmdir(lock)
     for case, answer in zip(cases, answers):
         case['excel'] = answer
     record['measured_at'] = datetime.now(timezone.utc).isoformat()
     path.write_text(json.dumps(record, indent=1, ensure_ascii=False) + '\n', encoding='utf-8')
-    refused = [c for c in cases if c['model'].startswith('model ')]
-    wrong = [c for c in cases if c not in refused and c['model'] != c['excel']]
+    refused = [c for c in cases if c['model'].startswith('model VBAUnsupportedError')]
+    wrong = [c for c in cases if c not in refused and answer_of(c['model']) != answer_of(c['excel'])]
     print(f'{len(cases) - len(refused) - len(wrong)} right, {len(wrong)} wrong, {len(refused)} refused')
     for c in wrong + refused:
         print(c['zero'], repr(c['shape']), ' '.join(f'{ord(ch):04X}' for ch in c['text']), c['typed'], '| Excel', c['excel'],

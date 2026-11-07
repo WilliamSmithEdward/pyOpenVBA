@@ -27,7 +27,7 @@ CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumer
 
 @pytest.mark.parametrize(('seed', 'at', 'case'), CASES, ids=[f'{seed}-{at}' for seed, at, _ in CASES])
 def test_each_write_as_excel_answered(seed: int, at: int, case: dict[str, Any]) -> None:
-    assert ROUNDS.model([case]) == [case['excel']]
+    assert [ROUNDS.answer_of(answer) for answer in ROUNDS.model([case])] == [ROUNDS.answer_of(case['excel'])]
 
 
 @pytest.mark.parametrize('record', RECORDS, ids=lambda record: str(record['seed']))

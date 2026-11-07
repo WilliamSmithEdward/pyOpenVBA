@@ -1855,6 +1855,8 @@ class Workbook(ExcelObject):
         self.workbook_pr_changed: set[str] = set()
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
+        #: Whether a sheet of the file it was opened from held a link, which lists two more styles (_cell_styles._LINK_STYLES).
+        self.opened_with_links = False
         #: The hidden names the workbook's formulas have brought into Names (see _hidden_names).
         self.hidden_names: set[str] = set()
         self.hidden_entries: dict[str, NameEntry] = {}
@@ -2709,6 +2711,9 @@ class Workbook(ExcelObject):
                 _events.after_save(self, False)
                 return False
             raise VBAUnsupportedError("SaveAs without a filename is not implemented; supply Filename")
+        if not to_text(Filename):
+            # Excel would save under a name it chooses, which no probe should write, so this is not measured.
+            raise VBAUnsupportedError("SaveAs with a blank file name is not implemented; supply Filename")
         target = Path(native_path(to_text(Filename)))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
         writer = text_writer(chosen)
@@ -3420,9 +3425,7 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
         if len(self.book.selected()) > 1:
             # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
             raise error(1004, "Add method of Sheets class failed")
-        count = 1 if Count is MISSING else int(to_number(Count))
-        if count <= 0:
-            raise error(1004, "Count must be positive")
+        count = _sheets_to_add(Count)
         if Type is not MISSING and to_integer(Type, "Long") != -4167:
             raise VBAUnsupportedError("Worksheets.Add supports worksheet Type only")
         at: int | None = None
@@ -7716,6 +7719,9 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._visible import visible_areas
         from pyopenvba.formula._values import NA
 
+        if not array.bounds:
+            # An array with no bounds yet is no value (tests/fixtures/excel_huge_numbers.json).
+            raise error(13, "Type mismatch")
         if not array.size:
             return
         for place, area in enumerate(visible_areas(self) or self.areas):
@@ -8675,6 +8681,20 @@ class _BookNames:
                     for one in remembered_names(cell.formula, names) if cell.formula else []:
                         spellings.setdefault(one.lower(), one)
         return spellings.setdefault(name.lower(), name)
+
+
+def _sheets_to_add(count: object) -> int:
+    """Sheets.Add's Count: 1 to 255 with any fraction cut, True as 1 and Null as left out, and anything else 1004 before a sheet is
+    added, where a macro's huge number must cost nothing (tests/fixtures/excel_huge_numbers.json)."""
+    if count is MISSING or count is NULL or count is True:
+        return 1
+    try:
+        wanted = 0.0 if count is EMPTY else float(to_number(count))
+    except (VBARuntimeError, OverflowError):
+        wanted = 0.0
+    if not 1 <= wanted < 256:
+        raise error(1004, "Add method of Sheets class failed")
+    return int(wanted)
 
 
 def _value_data_type(kind: object) -> None:

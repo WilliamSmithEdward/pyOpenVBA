@@ -26,7 +26,8 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAErrorValue, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
-from pyopenvba.shapes._values import FillLine, Shape, emu, points
+from pyopenvba.apps.excel._shape_anchors import keep_on_sheet
+from pyopenvba.shapes._values import MOST_PLACE, MOST_POINTS, SINGLE_LARGEST, FillLine, Shape, emu, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
@@ -143,6 +144,8 @@ class SeriesState:
     label_generation: int = 0
     #: What Series.Format set, None until then (tests/fixtures/series_format.json).
     format_look: FillLine | None = None
+    #: Whether a loaded series holds a label of one of its points, which its DataLabels answer from but is not read.
+    labels_unread: bool = False
     #: What was set of its points, by their index from 0 (tests/fixtures/series_points.json).
     points: dict[int, PointState] = field(default_factory=lambda: {})
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
@@ -885,8 +888,11 @@ class ChartObjects(VBACollection, ItemDefault, Created):
             raise VBAUnsupportedError('Chart placement centered in a native window is not implemented')
         if width < 0 or height < 0:
             width, height = 360, 216
+        if max(width, height) >= MOST_POINTS or max(left, top) >= MOST_PLACE:
+            raise error(-2147024809, 'The specified value is out of range.')
         left, top, width, height = (float(VBASingle(points(emu(value)))) for value in (left, top, width, height))
         shape = Shapes(self.sheet).new_chart_shape(left, top, width, height)
+        keep_on_sheet(self.sheet, shape)
         base = plotted_before(self.sheet)
         self.sheet.chart_states[shape.shape_id] = ChartState(unique_base=base, next_unique=base)
         made = ChartObject(self.sheet, shape)
@@ -1831,8 +1837,15 @@ class ChartObject(HeldPart):
         number = float(to_number(value))
         if not math.isfinite(number):
             raise error(1004, 'Invalid chart geometry')
+        # A size is refused by 169093 points and a place by 2^31, both ways for a place, and a vast negative size is none at all
+        # (tests/fixtures/excel_huge_numbers.json).
+        if name in ('width', 'height') and number < -SINGLE_LARGEST:
+            number = 0.0
+        if number >= (MOST_POINTS if name in ('width', 'height') else MOST_PLACE) or abs(number) > SINGLE_LARGEST:
+            raise error(-2147024809, 'The specified value is out of range.')
         quantized = float(VBASingle(points(emu(number))))
         setattr(self.shape, name, quantized)
+        keep_on_sheet(self.sheet, self.shape)
         self.sheet.drawing_changed()
 
     @method
@@ -4805,6 +4818,9 @@ class Series(PictureMembers, Created):
         from pyopenvba.apps.excel._chart_data_labels import DataLabels
 
         self.position()
+        if self.chart.state.original and self.entry.labels_unread:
+            # Excel answers from the point's label, where the series has none of its own (tests/fixtures/loaded_chart_labels.json).
+            raise VBAUnsupportedError("The data labels of an imported chart's series with a point's label are not implemented")
         if not self.has_labels():
             raise error(-2147467259, 'Automation error\nUnspecified error')
         labels = DataLabels(self, self.entry.label_generation)

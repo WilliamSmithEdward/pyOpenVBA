@@ -26,7 +26,7 @@ from functools import lru_cache
 from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
-from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
+from pyopenvba.exceptions import VBACompileError, VBADialogError, VBARuntimeError, VBASandboxError, VBAStepLimitError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
@@ -1097,6 +1097,17 @@ class EachLoop:
 # --- the interpreter -------------------------------------------------------------------
 
 
+class StepBudget:
+    """What is left of a run's steps: one for a host and every interpreter of its projects."""
+
+    __slots__ = ("left", "limit", "running")
+
+    def __init__(self) -> None:
+        self.limit: int | None = None
+        self.left = 0
+        self.running = False
+
+
 class Interpreter:
     """Runs VBA against a host object model."""
 
@@ -1118,6 +1129,8 @@ class Interpreter:
         self.internet_sessions: dict[str, Sessions] = {}
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
+        #: How many steps a run of VBA may take, shared with every interpreter of the host's projects (see step_limit).
+        self.steps = StepBudget()
         #: Every dialog the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
@@ -1245,6 +1258,19 @@ class Interpreter:
 
     # --- running ---------------------------------------------------------------------
 
+    @property
+    def step_limit(self) -> int | None:
+        """The most steps one run of VBA may take, or None for no limit, which is the default. A run is everything one entry
+        from the host sets off: a procedure called from Python, an event raised from Python, a recalculation that calls VBA,
+        with whatever those call, raise or evaluate in turn. Past it VBAStepLimitError, which On Error cannot trap."""
+        return self.steps.limit
+
+    @step_limit.setter
+    def step_limit(self, value: object) -> None:
+        if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
+            raise ValueError(f"step_limit must be a whole number of at least 1, or None for no limit, not {value!r}")
+        self.steps.limit = value
+
     def outside(self, what: str) -> None:
         """The gate on everything that reaches outside the engine, to run before it looks at anything out there:
         refused while VBA is running with the sandbox on. Python calling the same code is not VBA, and passes."""
@@ -1298,6 +1324,15 @@ class Interpreter:
         reset_error: bool = False,
     ) -> object:
         """Call one procedure and give back what it returns."""
+        steps = self.steps
+        if steps.limit is not None and not steps.running:
+            # The host's entry into VBA: whatever it sets off draws on one budget, however many interpreters it passes
+            # through, and the next entry starts afresh.
+            steps.running, steps.left = True, steps.limit
+            try:
+                return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
+            finally:
+                steps.running = False
         if not self.frames and _locale.current() is not self.locale:
             # The outermost call runs everything under the project's locale.
             with _locale.active(self.locale):
@@ -1454,7 +1489,13 @@ class Interpreter:
         assert program is not None
         pc = start
         scopes: tuple[int, ...] | None = None
+        steps = self.steps
         while pc < len(program.instructions):
+            if steps.limit is not None:
+                steps.left -= 1
+                if steps.left < 0:
+                    # Spent stays spent until the host's next entry, so a caller that swallows this cannot run on.
+                    raise VBAStepLimitError(f"the run took more than step_limit={steps.limit} steps", where=self.current_where())
             instruction = program.instructions[pc]
             # Lexical With context is independent of the path used to reach
             # this instruction. A skipped initializer leaves a Nothing slot.

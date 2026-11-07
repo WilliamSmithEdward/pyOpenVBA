@@ -6834,7 +6834,8 @@ class Range(ExcelObject):
                 # answer it takes with DisplayAlerts off is what follows.
                 raise VBAUnsupportedError("Range.Delete with no Shift on a filtered sheet with DisplayAlerts on, where "
                                           "Excel asks first, is not implemented")
-            up = filtered or self._pulls_up(self.first)
+            # Several areas go by the first one's shape alone: what lies beside them is not measured.
+            up = filtered or (self._pulls_up(self.first) if len(self.areas) == 1 else self.first.rows <= self.first.columns)
         else:
             # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on
             # cells, and whole rows and columns do not look (tests/fixtures/range_methods_moves.json).

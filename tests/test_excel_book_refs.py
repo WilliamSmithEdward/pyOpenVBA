@@ -95,22 +95,29 @@ def test_a_name_alone_is_not_looked_for_under_the_sandbox() -> None:
     assert app.workbook.linked_books == {}
 
 
-@pytest.mark.parametrize(('target', 'here', 'folder'), [
+#: Each link's target, its workbook's folder, and the folder and full name the link gives: a POSIX folder joined with /, a Windows one with \\.
+#: The full name is what a linked file is read and checked against granted folders by (see _hooks.link_gate).
+SPELLINGS = [
     # Off Windows: a link saved relative to its workbook, read back in a POSIX folder, stays a POSIX folder (cases 15 and 25 on Linux).
-    ('Sub/Deep.xlsx', '/tmp/x', '/tmp/x/Sub'),
-    ('../Alpha.xlsx', '/tmp/x/Sub', '/tmp/x'),
-    ('Alpha.xlsx', '/tmp/x', '/tmp/x'),
-    ('/tmp/y/Alpha.xlsx', '/tmp/x', '/tmp/y'),
+    ('Sub/Deep.xlsx', '/tmp/x', '/tmp/x/Sub', '/tmp/x/Sub/Deep.xlsx'),
+    ('../Alpha.xlsx', '/tmp/x/Sub', '/tmp/x', '/tmp/x/Alpha.xlsx'),
+    ('Alpha.xlsx', '/tmp/x', '/tmp/x', '/tmp/x/Alpha.xlsx'),
+    ('/tmp/y/Alpha.xlsx', '/tmp/x', '/tmp/y', '/tmp/y/Alpha.xlsx'),
     # On Windows the same links, as before.
-    ('Sub/Deep.xlsx', 'C:\\x', 'C:\\x\\Sub'),
-    ('../Alpha.xlsx', 'C:\\x\\Sub', 'C:\\x'),
-    ('Alpha.xlsx', 'C:\\x', 'C:\\x'),
-    ('/Users/y/Alpha.xlsx', 'C:\\x', 'C:\\Users\\y'),
-    ('file:///C:\\y\\Alpha.xlsx', 'C:\\x', 'C:\\y'),
-])
+    ('Sub/Deep.xlsx', 'C:\\x', 'C:\\x\\Sub', 'C:\\x\\Sub\\Deep.xlsx'),
+    ('../Alpha.xlsx', 'C:\\x\\Sub', 'C:\\x', 'C:\\x\\Alpha.xlsx'),
+    ('Alpha.xlsx', 'C:\\x', 'C:\\x', 'C:\\x\\Alpha.xlsx'),
+    ('/Users/y/Alpha.xlsx', 'C:\\x', 'C:\\Users\\y', 'C:\\Users\\y\\Alpha.xlsx'),
+    ('file:///C:\\y\\Alpha.xlsx', 'C:\\x', 'C:\\y', 'C:\\y\\Alpha.xlsx'),
+]
+
+
+@pytest.mark.parametrize(('target', 'here', 'folder', 'whole'), SPELLINGS)
 @pytest.mark.parametrize('system', ['nt', 'posix'])
-def test_a_link_s_folder_keeps_the_spelling_of_its_workbook_s(target: str, here: str, folder: str, system: str, monkeypatch: pytest.MonkeyPatch) -> None:
-    """The answer goes by the spellings alone, so it is the same as if each system ran it."""
+def test_a_link_s_folder_and_full_name_keep_the_spelling_of_its_workbook_s(target: str, here: str, folder: str, whole: str, system: str,
+                                                                            monkeypatch: pytest.MonkeyPatch) -> None:
+    """The answers go by the spellings alone, so they are the same as if each system ran them. On Linux the full name once came out as
+    /tmp/x\\Alpha.xlsx, a file named x\\Alpha.xlsx in /tmp, so UpdateLink was refused a file in its granted folder."""
     import ntpath
     import posixpath
 
@@ -120,5 +127,5 @@ def test_a_link_s_folder_keeps_the_spelling_of_its_workbook_s(target: str, here:
     with monkeypatch.context() as patched:
         patched.setattr(os, 'name', system)
         patched.setattr(os, 'path', ntpath if system == 'nt' else posixpath)
-        found = linked.folder(here)
-    assert found == folder
+        found, named = linked.folder(here), linked.path(here)
+    assert (found, named) == (folder, whole)

@@ -76,9 +76,12 @@ class LinkedBook:
         return ntpath.normpath(ntpath.join(here, head)) if head else here.rstrip("\\")
 
     def path(self, here: str) -> str:
-        """The linked workbook's full name, as LinkSources gives it."""
+        """The linked workbook's full name, as LinkSources gives it, joined as its folder is spelled: a POSIX folder with /, as folder()
+        keeps it, so a path checked against granted folders is the file read (see _hooks.link_gate)."""
         folder = self.folder(here)
-        return f"{folder}\\{self.file}" if folder else self.file
+        if not folder:
+            return self.file
+        return f"{folder.rstrip('/')}/{self.file}" if folder.startswith("/") else f"{folder}\\{self.file}"
 
     @property
     def file(self) -> str:

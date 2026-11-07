@@ -6827,6 +6827,11 @@ class Range(ExcelObject):
         shift = given(Shift)
         lines = all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas)
         if shift is MISSING:
+            if filtered and not lines and self.sheet.book.application.display_alerts:
+                # Excel asks whether to delete the whole rows first (tests/fixtures/filter_shifts_c.json); the
+                # answer it takes with DisplayAlerts off is what follows.
+                raise VBAUnsupportedError("Range.Delete with no Shift on a filtered sheet with DisplayAlerts on, where "
+                                          "Excel asks first, is not implemented")
             up = filtered or self.first.rows <= self.first.columns
         else:
             # By name or by Excel's own number, 3 and 4 taking the whole rows or columns; anything else is 1004 on
@@ -6993,6 +6998,9 @@ class Range(ExcelObject):
             if which not in (-4121, -4161, 1, 2):
                 raise error(1004, refusal)
             down = which in (-4121, 2)
+        from pyopenvba.apps.excel._autofilter import insert_admitted
+
+        insert_admitted(self.sheet, area, down=down)
         self.shifting_cells(area, vertical=down, delete=False)
         shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(where, calculate_first=False)
@@ -8043,22 +8051,32 @@ class Names(VBACollection, ItemDefault, ExcelObject):
     def Application(self) -> object:
         return self.book.application
 
-    def vba_items(self) -> list[object]:
+    def _listed(self) -> list[NameEntry]:
+        """The names the collection holds, in no order: a sheet's its own, the workbook's every name and the hidden ones."""
         from pyopenvba._a1 import split_sheet
 
         self._check_alive()
         entries = [entry for entry in self.entries if self.sheet is None or split_sheet(entry.name)[0].casefold() == self.sheet.name.casefold()]
+        if self.sheet is None:
+            held = {entry.name.casefold() for entry in entries}
+            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
+                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
+        return entries
+
+    def vba_items(self) -> list[object]:
+        from pyopenvba._a1 import split_sheet
         from pyopenvba.apps.excel._names import collation
 
         def order(entry: NameEntry) -> tuple[object, ...]:
             scope, bare = split_sheet(entry.name)
             return (collation(bare), 0 if scope else 1, collation(scope))
 
-        if self.sheet is None:
-            held = {entry.name.casefold() for entry in entries}
-            entries += [self.book.hidden_entries.setdefault(name, NameEntry(name, "=#NAME?", self.book, visible=False))
-                        for name in sorted(self.book.hidden_names) if name.casefold() not in held]
-        return [DefinedName(entry) for entry in sorted(entries, key=order)]
+        return [DefinedName(entry) for entry in sorted(self._listed(), key=order)]
+
+    @member
+    def Count(self) -> object:
+        """How many names there are, which needs no order, so names in any script count (tests/fixtures/names_count_scripts.json)."""
+        return VBAInt(len(self._listed()), "Long")
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         self.book.names_fetched = True
@@ -8726,7 +8744,7 @@ class _BookNames:
                 # Another workbook's name, Alpha.xlsx!Rate: as that workbook spells it, if its link has it.
                 number = linked[1:-1]
                 held = self.book.linked_books.get(int(number)) if number.isdigit() else None
-                if held is not None and held.made and not held.sheets and not held.extra_sheets:
+                if held is not None and held.made and not held.sheets:
                     # A workbook whose file was not there: the name as written, which the link keeps with nothing it refers to (see _new_links).
                     return next((own for own in held.names if own.casefold() == name.casefold()), None) or held.names.setdefault(name, '') or name
                 return None if held is None else next((own for own in held.names if own.casefold() == name.casefold()), None)

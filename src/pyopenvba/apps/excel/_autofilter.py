@@ -85,7 +85,7 @@ matches one character at a time, each by its word-sort key, so ae* leaves
 out the ash's spelling and k* keeps the Kelvin sign's.
 
 What is not modelled reports itself: AutoFilter.Sort, a hidden drop-down,
-and text beyond Latin, Greek and Cyrillic where it is compared.
+and text beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai and Hangul where it is compared.
 
 A table has a filter of its own, which a range inside it reaches; the
 sheet's members reach whichever filter the active cell is in. Both are
@@ -263,9 +263,9 @@ def ordered(text: str) -> bytes:
     try:
         return ordering_key(text, False)
     except VBAUnsupportedError:
-        raise VBAUnsupportedError("filtering text with characters beyond Latin, Greek and Cyrillic, their marks and "
-                                  "punctuation, or with a combining mark before anything word sort weighs, is not "
-                                  "implemented") from None
+        raise VBAUnsupportedError("filtering text with characters beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai "
+                                  "and Hangul, their marks and punctuation, or with a combining mark before anything "
+                                  "word sort weighs, is not implemented") from None
 
 
 def letter(char: str) -> bytes | str:
@@ -987,6 +987,40 @@ def filter_edited(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
     _changed(sheet)
 
 
+def insert_admitted(sheet: Worksheet, area: Area, *, down: bool) -> None:
+    """Whether cells may go in at ``area`` beside a filter with no criteria, which Excel refuses with 1004 when they
+    would part its header from its columns or cut its first column (tests/fixtures/filter_shifts_e.json, _f).
+
+    Down: an insert that pushes the header row through some, not all, of its columns fails. Right: one that starts
+    past its first column and takes the header row in fails, even over its whole height; one a single column wide at its
+    first column, over part of its height, changes "a filtered range". Wider ones there, and any below the header row,
+    go in. Inserts that start above it or to its left, through part of it, were not measured.
+    """
+    found = sheet.auto_filter
+    if found is None:
+        return
+    box = found.area
+    failed = "Insert method of Range class failed"
+    if down:
+        if area.right < box.left or box.right < area.left or box.top < area.top or box.bottom < area.top:
+            return
+        if area.left <= box.left and box.right <= area.right:
+            return
+        if area.top == box.top:
+            raise error(1004, failed)
+        raise VBAUnsupportedError("inserting cells above a filter, through some of its columns, is not implemented")
+    if area.bottom < box.top or box.bottom < area.top or box.right < area.left:
+        return
+    if area.top <= box.top and box.left < area.left:
+        raise error(1004, failed)
+    if area.top <= box.top and box.bottom <= area.bottom:
+        return
+    if area.left < box.left:
+        raise VBAUnsupportedError("inserting cells to the left of a filter, over part of its height, is not implemented")
+    if area.left == box.left and area.columns == 1:
+        raise error(1004, "This will change a filtered range on your worksheet. To complete this task, please remove AutoFilters.")
+
+
 def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
     """What a cell shift does to the sheet's filter: worked out before any cell moves, done by what it returns.
 
@@ -1018,10 +1052,14 @@ def filter_shifted(sheet: Worksheet, shift: CellShift) -> Callable[[], None]:
     left = not shift.vertical and shift.delete and box.left < start + shift.count
     if left and moved is not None and moved[0] == box.top:
         return lambda: None
-    if found.fields:
+    if found.fields and shift.vertical:
+        # A sheet in filter mode takes no insert, and a delete up there takes whole rows (_model's Range.Delete), so
+        # only a table's edits come this way.
         raise VBAUnsupportedError("a cell shift that moves a filter with criteria is not implemented")
     if moved is None or header or left:
-        return lambda: _drop(sheet)
+        # With criteria its rows show as it goes (tests/fixtures/filter_shifts_d.json); a delete left wholly before
+        # it moves it, criteria and all.
+        return lambda: (found.show_all(sheet), _drop(sheet)) and None
     after = moved
 
     def follow() -> None:

@@ -9,7 +9,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/merge_structure_edits.json').read_text(encoding='utf-8'))
@@ -43,11 +42,16 @@ def test_a_moved_merge_saves_where_it_went(tmp_path: Path) -> None:
     assert str(app.run('Trip.Trip', path)) == 'B2:C4=m'
 
 
-def test_a_shift_that_unmerges_is_refused_while_excel_would_ask() -> None:
-    # The probe turns DisplayAlerts off; with it on, Excel asks before it unmerges, which is not measured.
-    app = ExcelApplication(sandbox=False)
-    app.add_workbook()
-    app.add_module('Public Sub Cut()\n    Range("B2:C3").Merge\n    Range("B1").Insert xlShiftDown\nEnd Sub\n',
-                   name='Cut')
-    with pytest.raises(VBAUnsupportedError, match='DisplayAlerts'):
-        app.run('Cut.Cut')
+def test_a_shift_that_unmerges_asks_first_while_excel_would() -> None:
+    # The probe turns DisplayAlerts off; with it on, Excel asks before it unmerges (tests/test_excel_merge_shifts.py has it
+    # measured): with nothing queued the prompt takes OK and unmerges, and Cancel is 1004 with the area kept.
+    source = ('Public Function Cut() As String\n    Range("B2:C3").Merge\n    On Error Resume Next\n    Range("B1").Insert xlShiftDown\n'
+              '    Cut = Err.Number & ":" & Range("B3").MergeCells & ":" & Range("B2").MergeCells\nEnd Function\n')
+    for queued, expected in ((None, '0:False:False'), (2, '1004:True:True')):
+        app = ExcelApplication(sandbox=False)
+        app.add_workbook()
+        app.add_module(source, name='Cut')
+        if queued is not None:
+            app.answer_dialogs(queued)
+        assert str(app.run('Cut.Cut')) == expected
+        assert [one[0] for one in app.interpreter.dialogs] == ['MsgBox']

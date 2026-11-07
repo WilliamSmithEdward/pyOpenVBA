@@ -1730,7 +1730,9 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             book = reader(path)
         else:
             book = open_text(self.application, path, format_code) if text else load_workbook(self.application, path)
-        book.read_only = read_only
+        # A workbook file the system will not let this process write, as one with its read-only attribute set, opens read-only
+        # (tests/fixtures/workbook_status_reads.json). A text file is not measured.
+        book.read_only = read_only or (not text and not os.access(path, os.W_OK))
         self.books.append(book)
         try:
             if with_vba and not text:

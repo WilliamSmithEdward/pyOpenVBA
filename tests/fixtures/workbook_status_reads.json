@@ -18,5 +18,26 @@
    "read-only saved as Boolean:False",
    "attribute Boolean:False"
   ]
+ },
+ "measured_at": "2026-11-07T15:55:07.326945+00:00",
+ "excel": {
+  "Workbook": [
+   "new 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "saved 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "read-write 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "to read-only e0 Boolean:True",
+   "read-only Boolean:True",
+   "read-only saved as Boolean:False",
+   "attribute Boolean:True"
+  ],
+  "Object": [
+   "new 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "saved 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "read-write 1-1x1-3/String:True/String:True/Long:1 Boolean:False",
+   "to read-only e0 Boolean:True",
+   "read-only Boolean:True",
+   "read-only saved as Boolean:False",
+   "attribute Boolean:True"
+  ]
  }
 }

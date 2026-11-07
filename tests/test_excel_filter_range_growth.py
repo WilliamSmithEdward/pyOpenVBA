@@ -11,7 +11,7 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = tuple(stem for stem in ('filter_range_growth', 'filter_range_growth2') if (FIXTURES / f'{stem}.json').exists())
+ROUNDS = tuple(stem for stem in ('filter_range_growth', 'filter_range_growth2', 'filter_range_growth3') if (FIXTURES / f'{stem}.json').exists())
 
 
 def _cases() -> list[tuple[str, list[Any], str, str]]:

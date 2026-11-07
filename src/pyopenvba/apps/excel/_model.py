@@ -1853,6 +1853,8 @@ class Workbook(ExcelObject):
         #: (_workbook_settings), which a save writes.
         self.workbook_pr: dict[str, str] = {}
         self.workbook_pr_changed: set[str] = set()
+        #: ChartDataPointTrack: True for a new book, and what the file says for one opened (_date_system).
+        self.chart_data_point_track = True
         #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
         self.session_properties: dict[str, object] = {}
         #: Whether a sheet of the file it was opened from held a link, which lists two more styles (_cell_styles._LINK_STYLES).
@@ -2104,7 +2106,9 @@ class Workbook(ExcelObject):
 
     @member
     def CreateBackup(self) -> object:
-        return False
+        """What the file says, as workbookPr's backupFile: a book Excel saved with CreateBackup reads True when opened again
+        (tests/fixtures/workbook_reads.json)."""
+        return self.workbook_pr.get("backupFile") in ("1", "true")
 
     @setter("CreateBackup")
     def _set_create_backup(self, value: object) -> None:
@@ -2167,7 +2171,7 @@ class Workbook(ExcelObject):
 
     @member
     def ChartDataPointTrack(self) -> object:
-        return True
+        return self.chart_data_point_track
 
     @setter("ChartDataPointTrack")
     def _set_chart_data_point_track(self, value: object) -> None:
@@ -2319,6 +2323,11 @@ class Workbook(ExcelObject):
 
     @member
     def CodeName(self) -> object:
+        return self.code_name
+
+    @member(name="_CodeName")
+    def hidden_code_name(self) -> object:
+        """The hidden twin of CodeName (tests/fixtures/workbook_reads.json)."""
         return self.code_name
 
     @member
@@ -3062,10 +3071,12 @@ class Workbook(ExcelObject):
 
     @member
     def DisplayDrawingObjects(self) -> object:
-        """xlDisplayShapes is a Long; anything else reads as a Double, its 32 bits unsigned
-        (tests/fixtures/settable_audit.json)."""
-        if self.drawing_objects == -4104:
-            return VBAInt(-4104, "Long")
+        """Typed, a Long. Bound late, xlDisplayShapes is a Long and anything else reads as a Double, its 32 bits unsigned
+        (tests/fixtures/settable_audit.json, tests/fixtures/workbook_reads.json)."""
+        from pyopenvba.interpreter._objects import BINDING
+
+        if self.drawing_objects == -4104 or not BINDING.late:
+            return VBAInt(self.drawing_objects, "Long")
         return float(self.drawing_objects & 0xFFFFFFFF)
 
     @setter("DisplayDrawingObjects")

@@ -34,6 +34,10 @@ def read(book: Workbook, raw: bytes) -> None:
         raise VBAUnsupportedError('Invalid workbook date-system flag')
     book.epoch_1904 = flag in ('1', 'true')
     book.workbook_pr = dict(properties[0]) if properties else {}
+    # ChartDataPointTrack is x15:workbookPr's chartTrackingRefBase in the part's extLst: Excel writes it "1" for a new book and leaves it
+    # out once the setting is False, which then reads False (tests/fixtures/workbook_reads.json).
+    tracked = [one.get('chartTrackingRefBase') for one in root.iter('{http://schemas.microsoft.com/office/spreadsheetml/2010/11/main}workbookPr')]
+    book.chart_data_point_track = bool(tracked) and tracked[0] in ('1', 'true')
 
 
 #: workbookPr's attributes in the order the schema, and Excel, writes them.

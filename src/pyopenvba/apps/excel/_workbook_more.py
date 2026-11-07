@@ -326,9 +326,12 @@ def change_file_access(book: Workbook, mode: object) -> object:
 
 
 def user_status(book: Workbook) -> object:
-    """Workbook.UserStatus: this user, the time and xlUserStatus's exclusive, in an array from 1 by 1 to 3."""
+    """Workbook.UserStatus: this user, the time and xlUserStatus's exclusive, in an array from 1 by 1 to 3. A workbook opened read-only has
+    no user holding it, and Excel answers 1004: new, saved and opened read-write it answers (tests/fixtures/workbook_reads.json)."""
     from datetime import datetime
 
+    if book.read_only:
+        raise error(1004, _APP_DEFINED)
     now = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     return VBAArray([(1, 1), (1, 3)], items=[book.application.user_name, now, VBAInt(1, "Long")])
 

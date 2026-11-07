@@ -1,0 +1,1268 @@
+{
+"measured_at": "2026-11-07T11:15:07.992520+00:00",
+"source": "Private Function Dump(ws As Object) As String\n    Dim out As String, i As Long, c As Object, f As Object, one As String\n    On Error Resume Next\n    out = \"mode=\" & ws.AutoFilterMode & \" fm=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        out = out & \" range=\" & ws.AutoFilter.Range.Address(False, False)\n        For i = 1 To ws.AutoFilter.Filters.Count\n            Set f = ws.AutoFilter.Filters(i)\n            If f.On Then\n                one = \"\"\n                one = Show(f.Criteria1)\n                out = out & \" f\" & i & \"=\" & f.Operator & \":\" & one\n                one = \"\"\n                one = Show(f.Criteria2)\n                If one <> \"\" Then out = out & \"|\" & one\n            End If\n        Next\n    End If\n    out = out & \" hidden=\"\n    For i = 1 To 16\n        If ws.Rows(i).Hidden Then out = out & i & \",\"\n    Next\n    one = \"\"\n    one = ws.Names(\"_FilterDatabase\").RefersTo\n    out = out & \" db=\" & one & \" cells=\"\n    For Each c In ws.Range(\"A1:D14\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    Dump = out\nEnd Function\n\nPrivate Function Show(v As Variant) As String\n    Dim i As Long, out As String\n    If IsArray(v) Then\n        For i = LBound(v) To UBound(v)\n            out = out & \"[\" & v(i) & \"]\"\n        Next\n        Show = out\n    Else\n        Show = CStr(v)\n    End If\nEnd Function\n\nPublic Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Boolean) As String\n    Dim wb As Object, ws As Object, wt As Worksheet, i As Long, out As String, path As String\n    Set wb = Workbooks.Add\n    Set ws = wb.Worksheets(1)\n    Set wt = ws\n    ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Num\", \"Cat\")\n    For i = 2 To 12\n        ws.Cells(i, 1).Value = \"n\" & (i - 1)\n        ws.Cells(i, 2).Value = i - 1\n        ws.Cells(i, 3).Value = Mid(\"xyz\", ((i - 2) Mod 3) + 1, 1)\n    Next\n    Select Case kind\n        Case \"values\": ws.Range(\"A1:C12\").AutoFilter Field:=3, Criteria1:=Array(\"x\", \"z\"), Operator:=xlFilterValues\n        Case \"greater\": ws.Range(\"A1:C12\").AutoFilter Field:=2, Criteria1:=\">5\"\n        Case \"or\": ws.Range(\"A1:C12\").AutoFilter Field:=2, Criteria1:=\"<3\", Operator:=xlOr, Criteria2:=\">9\"\n        Case \"top\": ws.Range(\"A1:C12\").AutoFilter Field:=2, Criteria1:=\"3\", Operator:=xlTop10Items\n        Case \"two\"\n            ws.Range(\"A1:C12\").AutoFilter Field:=2, Criteria1:=\">5\"\n            ws.Range(\"A1:C12\").AutoFilter Field:=3, Criteria1:=\"x\"\n        Case \"above\": ws.Range(\"A1:C12\").AutoFilter Field:=2, Criteria1:=xlFilterAboveAverage, Operator:=xlFilterDynamic\n        Case \"none\": ws.Range(\"A1:C12\").AutoFilter Field:=2, Criteria1:=\">0\"\n        Case \"plain\": ws.Range(\"A1:C12\").AutoFilter\n        Case \"hidden\"\n            ws.Range(\"A1:C12\").AutoFilter\n            ws.Rows(5).Hidden = True\n            ws.Rows(6).Hidden = True\n    End Select\n    On Error Resume Next\n    Err.Clear\n    Dim target As String, how As String, parts() As String, place As Object, placeTyped As Worksheet\n    parts = Split(edit, \" \")\n    target = parts(1)\n    how = parts(2)\n    Set place = ws\n    If Left(parts(0), 5) = \"other\" Then\n        Set place = wb.Worksheets.Add(After:=ws)\n        place.Range(\"A1:C3\").Value = 7\n        parts(0) = Mid(parts(0), 6)\n    End If\n    Set placeTyped = place\n    If typed Then\n        If parts(0) = \"insert\" Then\n            placeTyped.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            placeTyped.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    Else\n        If parts(0) = \"insert\" Then\n            place.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            place.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    End If\n    out = \"err=\" & Err.Number & \":\" & Err.Description & \" \" & Dump(ws)\n    Err.Clear\n    path = Environ(\"TEMP\") & \"\\pyovba_filter_shift.xlsx\"\n    Kill path\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    Application.DisplayAlerts = True\n    out = out & \" save=\" & Err.Number\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    out = out & \" ~ \" & Dump(wb.Worksheets(1))\n    wb.Close False\n    Kill path\n    Go = out\nEnd Function\n",
+"cases": [
+[
+"greater",
+"insert Z100 down",
+true
+],
+[
+"greater",
+"insert Z100 down",
+false
+],
+[
+"greater",
+"insert Z100 right",
+true
+],
+[
+"greater",
+"insert Z100 right",
+false
+],
+[
+"greater",
+"delete Z100 up",
+true
+],
+[
+"greater",
+"delete Z100 up",
+false
+],
+[
+"greater",
+"delete Z100 left",
+true
+],
+[
+"greater",
+"delete Z100 left",
+false
+],
+[
+"greater",
+"insert A14:C14 down",
+true
+],
+[
+"greater",
+"insert A14:C14 down",
+false
+],
+[
+"greater",
+"insert E3 down",
+true
+],
+[
+"greater",
+"insert E3 down",
+false
+],
+[
+"greater",
+"delete E3 up",
+true
+],
+[
+"greater",
+"delete E3 up",
+false
+],
+[
+"greater",
+"delete A5:C8 up",
+true
+],
+[
+"greater",
+"delete A5:C8 up",
+false
+],
+[
+"greater",
+"delete A6:C9 up",
+true
+],
+[
+"greater",
+"delete A6:C9 up",
+false
+],
+[
+"greater",
+"delete A2:A4 left",
+true
+],
+[
+"greater",
+"delete A2:A4 left",
+false
+],
+[
+"greater",
+"delete B5:B8 left",
+true
+],
+[
+"greater",
+"delete B5:B8 left",
+false
+],
+[
+"greater",
+"delete A20:C20 up",
+true
+],
+[
+"greater",
+"delete A20:C20 up",
+false
+],
+[
+"greater",
+"delete D1:D12 left",
+true
+],
+[
+"greater",
+"delete D1:D12 left",
+false
+],
+[
+"greater",
+"delete A5:D5 up",
+true
+],
+[
+"greater",
+"delete A5:D5 up",
+false
+],
+[
+"greater",
+"delete A13:C13 up",
+true
+],
+[
+"greater",
+"delete A13:C13 up",
+false
+],
+[
+"greater",
+"delete B5:B6 up",
+true
+],
+[
+"greater",
+"delete B5:B6 up",
+false
+],
+[
+"greater",
+"delete A7:B8 up",
+true
+],
+[
+"greater",
+"delete A7:B8 up",
+false
+],
+[
+"greater",
+"otherinsert A1:C1 down",
+true
+],
+[
+"greater",
+"otherinsert A1:C1 down",
+false
+],
+[
+"greater",
+"otherdelete A1:C1 up",
+true
+],
+[
+"greater",
+"otherdelete A1:C1 up",
+false
+],
+[
+"greater",
+"insert A5:C5 down",
+true
+],
+[
+"greater",
+"insert A5:C5 down",
+false
+],
+[
+"greater",
+"delete A5:C5 up",
+true
+],
+[
+"greater",
+"delete A5:C5 up",
+false
+],
+[
+"values",
+"insert Z100 down",
+true
+],
+[
+"values",
+"insert Z100 down",
+false
+],
+[
+"values",
+"insert Z100 right",
+true
+],
+[
+"values",
+"insert Z100 right",
+false
+],
+[
+"values",
+"delete Z100 up",
+true
+],
+[
+"values",
+"delete Z100 up",
+false
+],
+[
+"values",
+"delete Z100 left",
+true
+],
+[
+"values",
+"delete Z100 left",
+false
+],
+[
+"values",
+"insert A14:C14 down",
+true
+],
+[
+"values",
+"insert A14:C14 down",
+false
+],
+[
+"values",
+"insert E3 down",
+true
+],
+[
+"values",
+"insert E3 down",
+false
+],
+[
+"values",
+"delete E3 up",
+true
+],
+[
+"values",
+"delete E3 up",
+false
+],
+[
+"values",
+"delete A5:C8 up",
+true
+],
+[
+"values",
+"delete A5:C8 up",
+false
+],
+[
+"values",
+"delete A6:C9 up",
+true
+],
+[
+"values",
+"delete A6:C9 up",
+false
+],
+[
+"values",
+"delete A2:A4 left",
+true
+],
+[
+"values",
+"delete A2:A4 left",
+false
+],
+[
+"values",
+"delete B5:B8 left",
+true
+],
+[
+"values",
+"delete B5:B8 left",
+false
+],
+[
+"values",
+"delete A20:C20 up",
+true
+],
+[
+"values",
+"delete A20:C20 up",
+false
+],
+[
+"values",
+"delete D1:D12 left",
+true
+],
+[
+"values",
+"delete D1:D12 left",
+false
+],
+[
+"values",
+"delete A5:D5 up",
+true
+],
+[
+"values",
+"delete A5:D5 up",
+false
+],
+[
+"values",
+"delete A13:C13 up",
+true
+],
+[
+"values",
+"delete A13:C13 up",
+false
+],
+[
+"values",
+"delete B5:B6 up",
+true
+],
+[
+"values",
+"delete B5:B6 up",
+false
+],
+[
+"values",
+"delete A7:B8 up",
+true
+],
+[
+"values",
+"delete A7:B8 up",
+false
+],
+[
+"values",
+"otherinsert A1:C1 down",
+true
+],
+[
+"values",
+"otherinsert A1:C1 down",
+false
+],
+[
+"values",
+"otherdelete A1:C1 up",
+true
+],
+[
+"values",
+"otherdelete A1:C1 up",
+false
+],
+[
+"values",
+"insert A5:C5 down",
+true
+],
+[
+"values",
+"insert A5:C5 down",
+false
+],
+[
+"values",
+"delete A5:C5 up",
+true
+],
+[
+"values",
+"delete A5:C5 up",
+false
+],
+[
+"none",
+"insert Z100 down",
+true
+],
+[
+"none",
+"insert Z100 down",
+false
+],
+[
+"none",
+"insert Z100 right",
+true
+],
+[
+"none",
+"insert Z100 right",
+false
+],
+[
+"none",
+"delete Z100 up",
+true
+],
+[
+"none",
+"delete Z100 up",
+false
+],
+[
+"none",
+"delete Z100 left",
+true
+],
+[
+"none",
+"delete Z100 left",
+false
+],
+[
+"none",
+"insert A14:C14 down",
+true
+],
+[
+"none",
+"insert A14:C14 down",
+false
+],
+[
+"none",
+"insert E3 down",
+true
+],
+[
+"none",
+"insert E3 down",
+false
+],
+[
+"none",
+"delete E3 up",
+true
+],
+[
+"none",
+"delete E3 up",
+false
+],
+[
+"none",
+"delete A5:C8 up",
+true
+],
+[
+"none",
+"delete A5:C8 up",
+false
+],
+[
+"none",
+"delete A6:C9 up",
+true
+],
+[
+"none",
+"delete A6:C9 up",
+false
+],
+[
+"none",
+"delete A2:A4 left",
+true
+],
+[
+"none",
+"delete A2:A4 left",
+false
+],
+[
+"none",
+"delete B5:B8 left",
+true
+],
+[
+"none",
+"delete B5:B8 left",
+false
+],
+[
+"none",
+"delete A20:C20 up",
+true
+],
+[
+"none",
+"delete A20:C20 up",
+false
+],
+[
+"none",
+"delete D1:D12 left",
+true
+],
+[
+"none",
+"delete D1:D12 left",
+false
+],
+[
+"none",
+"delete A5:D5 up",
+true
+],
+[
+"none",
+"delete A5:D5 up",
+false
+],
+[
+"none",
+"delete A13:C13 up",
+true
+],
+[
+"none",
+"delete A13:C13 up",
+false
+],
+[
+"none",
+"delete B5:B6 up",
+true
+],
+[
+"none",
+"delete B5:B6 up",
+false
+],
+[
+"none",
+"delete A7:B8 up",
+true
+],
+[
+"none",
+"delete A7:B8 up",
+false
+],
+[
+"none",
+"otherinsert A1:C1 down",
+true
+],
+[
+"none",
+"otherinsert A1:C1 down",
+false
+],
+[
+"none",
+"otherdelete A1:C1 up",
+true
+],
+[
+"none",
+"otherdelete A1:C1 up",
+false
+],
+[
+"none",
+"insert A5:C5 down",
+true
+],
+[
+"none",
+"insert A5:C5 down",
+false
+],
+[
+"none",
+"delete A5:C5 up",
+true
+],
+[
+"none",
+"delete A5:C5 up",
+false
+],
+[
+"plain",
+"insert Z100 down",
+true
+],
+[
+"plain",
+"insert Z100 down",
+false
+],
+[
+"plain",
+"insert Z100 right",
+true
+],
+[
+"plain",
+"insert Z100 right",
+false
+],
+[
+"plain",
+"delete Z100 up",
+true
+],
+[
+"plain",
+"delete Z100 up",
+false
+],
+[
+"plain",
+"delete Z100 left",
+true
+],
+[
+"plain",
+"delete Z100 left",
+false
+],
+[
+"plain",
+"insert A14:C14 down",
+true
+],
+[
+"plain",
+"insert A14:C14 down",
+false
+],
+[
+"plain",
+"insert E3 down",
+true
+],
+[
+"plain",
+"insert E3 down",
+false
+],
+[
+"plain",
+"delete E3 up",
+true
+],
+[
+"plain",
+"delete E3 up",
+false
+],
+[
+"plain",
+"delete A5:C8 up",
+true
+],
+[
+"plain",
+"delete A5:C8 up",
+false
+],
+[
+"plain",
+"delete A6:C9 up",
+true
+],
+[
+"plain",
+"delete A6:C9 up",
+false
+],
+[
+"plain",
+"delete A2:A4 left",
+true
+],
+[
+"plain",
+"delete A2:A4 left",
+false
+],
+[
+"plain",
+"delete B5:B8 left",
+true
+],
+[
+"plain",
+"delete B5:B8 left",
+false
+],
+[
+"plain",
+"delete A20:C20 up",
+true
+],
+[
+"plain",
+"delete A20:C20 up",
+false
+],
+[
+"plain",
+"delete D1:D12 left",
+true
+],
+[
+"plain",
+"delete D1:D12 left",
+false
+],
+[
+"plain",
+"delete A5:D5 up",
+true
+],
+[
+"plain",
+"delete A5:D5 up",
+false
+],
+[
+"plain",
+"delete A13:C13 up",
+true
+],
+[
+"plain",
+"delete A13:C13 up",
+false
+],
+[
+"plain",
+"delete B5:B6 up",
+true
+],
+[
+"plain",
+"delete B5:B6 up",
+false
+],
+[
+"plain",
+"delete A7:B8 up",
+true
+],
+[
+"plain",
+"delete A7:B8 up",
+false
+],
+[
+"plain",
+"otherinsert A1:C1 down",
+true
+],
+[
+"plain",
+"otherinsert A1:C1 down",
+false
+],
+[
+"plain",
+"otherdelete A1:C1 up",
+true
+],
+[
+"plain",
+"otherdelete A1:C1 up",
+false
+],
+[
+"plain",
+"insert A5:C5 down",
+true
+],
+[
+"plain",
+"insert A5:C5 down",
+false
+],
+[
+"plain",
+"delete A5:C5 up",
+true
+],
+[
+"plain",
+"delete A5:C5 up",
+false
+],
+[
+"hidden",
+"insert Z100 down",
+true
+],
+[
+"hidden",
+"insert Z100 down",
+false
+],
+[
+"hidden",
+"insert Z100 right",
+true
+],
+[
+"hidden",
+"insert Z100 right",
+false
+],
+[
+"hidden",
+"delete Z100 up",
+true
+],
+[
+"hidden",
+"delete Z100 up",
+false
+],
+[
+"hidden",
+"delete Z100 left",
+true
+],
+[
+"hidden",
+"delete Z100 left",
+false
+],
+[
+"hidden",
+"insert A14:C14 down",
+true
+],
+[
+"hidden",
+"insert A14:C14 down",
+false
+],
+[
+"hidden",
+"insert E3 down",
+true
+],
+[
+"hidden",
+"insert E3 down",
+false
+],
+[
+"hidden",
+"delete E3 up",
+true
+],
+[
+"hidden",
+"delete E3 up",
+false
+],
+[
+"hidden",
+"delete A5:C8 up",
+true
+],
+[
+"hidden",
+"delete A5:C8 up",
+false
+],
+[
+"hidden",
+"delete A6:C9 up",
+true
+],
+[
+"hidden",
+"delete A6:C9 up",
+false
+],
+[
+"hidden",
+"delete A2:A4 left",
+true
+],
+[
+"hidden",
+"delete A2:A4 left",
+false
+],
+[
+"hidden",
+"delete B5:B8 left",
+true
+],
+[
+"hidden",
+"delete B5:B8 left",
+false
+],
+[
+"hidden",
+"delete A20:C20 up",
+true
+],
+[
+"hidden",
+"delete A20:C20 up",
+false
+],
+[
+"hidden",
+"delete D1:D12 left",
+true
+],
+[
+"hidden",
+"delete D1:D12 left",
+false
+],
+[
+"hidden",
+"delete A5:D5 up",
+true
+],
+[
+"hidden",
+"delete A5:D5 up",
+false
+],
+[
+"hidden",
+"delete A13:C13 up",
+true
+],
+[
+"hidden",
+"delete A13:C13 up",
+false
+],
+[
+"hidden",
+"delete B5:B6 up",
+true
+],
+[
+"hidden",
+"delete B5:B6 up",
+false
+],
+[
+"hidden",
+"delete A7:B8 up",
+true
+],
+[
+"hidden",
+"delete A7:B8 up",
+false
+],
+[
+"hidden",
+"otherinsert A1:C1 down",
+true
+],
+[
+"hidden",
+"otherinsert A1:C1 down",
+false
+],
+[
+"hidden",
+"otherdelete A1:C1 up",
+true
+],
+[
+"hidden",
+"otherdelete A1:C1 up",
+false
+],
+[
+"hidden",
+"insert A5:C5 down",
+true
+],
+[
+"hidden",
+"insert A5:C5 down",
+false
+],
+[
+"hidden",
+"delete A5:C5 up",
+true
+],
+[
+"hidden",
+"delete A5:C5 up",
+false
+]
+],
+"answers": [
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C9 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C9 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C9 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C9 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>5 hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>5 hidden=2,3,4,5, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C9 f3=2:=x|=z hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C9 f3=2:=x|=z hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C9 f3=2:=x|=z hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C9 f3=2:=x|=z hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,n2,2,y,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,n2,2,y,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,n2,2,y,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,n2,2,y,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,5,y,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f3=2:=x|=z hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f3=2:=x|=z hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f3=2:=x|=z hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C8 f2=0:>0 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C10 f2=0:>0 hidden= db==Sheet1!$A$1:$C$10 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=1004:Insert method of Range class failed mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C12 f2=0:>0 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=True range=A1:C11 f2=0:>0 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden= db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden= db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C13 hidden= db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,, save=0 ~ mode=True fm=False range=A1:C13 hidden= db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,",
+"err=0: mode=True fm=False range=A1:C13 hidden= db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,, save=0 ~ mode=True fm=False range=A1:C13 hidden= db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden= db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C8 hidden=5,6, db==Sheet1!$A$1:$C$8 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,1,x,,,2,y,,,3,z,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,x,,,n5,y,,,n6,z,,,n7,x,,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,6,x,,n5,7,y,,n6,8,z,,n7,9,x,,n8,10,y,,n9,11,z,,n10,,x,,n11,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,z,,,,x,,,,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C12 hidden=5,6, db==Sheet1!$A$1:$C$12 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C13 hidden=5,6, db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,, save=0 ~ mode=True fm=False range=A1:C13 hidden=5,6, db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,",
+"err=0: mode=True fm=False range=A1:C13 hidden=5,6, db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,, save=0 ~ mode=True fm=False range=A1:C13 hidden=5,6, db==Sheet1!$A$1:$C$13 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,,,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,",
+"err=0: mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, save=0 ~ mode=True fm=False range=A1:C11 hidden=5,6, db==Sheet1!$A$1:$C$11 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,"
+]
+}

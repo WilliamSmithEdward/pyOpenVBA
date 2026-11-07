@@ -285,6 +285,13 @@ def _range(boxes: list[Box], edit: Edit, below: bool, whole_blocks: bool) -> _Ra
     return result
 
 
+def range_through(boxes: list[Box], edit: Edit, *, whole_blocks: bool = False) -> tuple[list[Box], list[str], bool]:
+    """A range's blocks through an edit, as conditional formats take them, for other kinds of rule that keep a range the
+    same way (data validation): the blocks in Excel's order, what the edit did to each, and whether any went."""
+    result = _range(boxes, edit, False, whole_blocks)
+    return result.areas, result.kinds, result.removed
+
+
 # --- what formulas become -------------------------------------------------------------------------------------
 
 

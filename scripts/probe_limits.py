@@ -13,7 +13,8 @@ RIGHTS = frozenset({'Permission', 'Signatures', 'SensitivityLabel', 'WorkIdentit
 #: Kept for the user, in the registry, across workbooks and sessions: a probe that sets one changes William's Excel. Only a probe that reads
 #: it first and puts it back may set it (tests/test_probes_leave_user_settings_alone.py). DoNotPromptForConvert is DisplayConversionAlert.
 USER_LEVEL = frozenset({'DoNotPromptForConvert'})
-#: Never set by a probe: a mail envelope on the screen, saving to the cloud, and a password a save encrypts or locks the file with.
-NEVER_SET = frozenset({'EnvelopeVisible', 'AutoSaveOn', 'Password', 'WritePassword'})
+#: Never set by a probe: a mail envelope on the screen, saving to the cloud, a password a save encrypts or locks the file with, and the
+#: provider it encrypts with, which names a cryptographic provider.
+NEVER_SET = frozenset({'EnvelopeVisible', 'AutoSaveOn', 'Password', 'WritePassword', 'EncryptionProvider'})
 #: Servers, shared spaces and panes a workbook on a local disk has none of.
 SERVERS = frozenset({'ServerPolicy', 'SharedWorkspace', 'DocumentLibraryVersions', 'ContentTypeProperties', 'Research', 'SmartDocument'})

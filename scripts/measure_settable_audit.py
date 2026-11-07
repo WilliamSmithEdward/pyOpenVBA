@@ -12,8 +12,9 @@ replay. AutoSaveOn is left out, as it can reach the cloud, and Colors, which tak
 probe touches it, with rights, encryption and signing (tests/test_probes_leave_crypto_alone.py). The fixture keeps what an earlier run
 recorded for it: do not remeasure it.
 
-EnvelopeVisible, Password and WritePassword are no longer set: no live probe sets a user-level setting it does not put back, a mail envelope, the cloud save or a password
-(tests/test_probes_leave_user_settings_alone.py). The fixture keeps what an earlier run recorded for them: do not remeasure them.
+EnvelopeVisible, Password, WritePassword and EncryptionProvider are no longer set: no live probe sets a user-level setting it does not put
+back, a mail envelope, the cloud save, a password or an encryption provider (tests/test_probes_leave_user_settings_alone.py,
+tests/test_probes_leave_crypto_alone.py). The fixture keeps what an earlier run recorded for them: do not remeasure them.
 """
 from __future__ import annotations
 
@@ -53,7 +54,6 @@ WORKBOOK = {
     "RemovePersonalInformation": BOOLEAN, "Saved": BOOLEAN, "SaveLinkValues": BOOLEAN, "ShowConflictHistory": BOOLEAN,
     "ShowPivotChartActiveFields": BOOLEAN, "ShowPivotTableFieldList": BOOLEAN, "TemplateRemoveExtData": BOOLEAN,
     "UpdateLinks": NUMBER, "UpdateRemoteReferences": BOOLEAN,
-    "EncryptionProvider": TEXT,
 }
 APPLICATION = {
     "ScreenUpdating": BOOLEAN, "DisplayAlerts": BOOLEAN, "EnableEvents": BOOLEAN,

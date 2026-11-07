@@ -226,12 +226,15 @@ def _x_search(
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
         return next((index for index in order if not isinstance(values[index], CellError) and expression.search(context.text(values[index]))), None)
     if isinstance(target, Empty) and search not in (2, -2):
-        # Nothing to look for: only a blank is the same, and nothing is near it. In halves a blank is the largest value
-        # there is (tests/fixtures/xlookup_rounds.json).
-        if mode != 0:
+        # A blank is the largest value there is, so a blank matches it, and next smaller is the largest of the rest; in
+        # halves the search below sees the same (tests/fixtures/xlookup_rounds.json).
+        if mode == 2:
             return None
         order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
-        return next((index for index in order if isinstance(values[index], Empty)), None)
+        blank = next((index for index in order if isinstance(values[index], Empty)), None)
+        if blank is not None or mode in (0, 1):
+            return blank
+        return _nearest(values, target, mode, search)
     if search in (2, -2):
         if mode == 2:
             # Wildcards cannot be searched for in halves (tests/fixtures/xlookup_rounds.json).
@@ -240,6 +243,11 @@ def _x_search(
     exact = _exact(values, target, wildcards=mode == 2, last=search == -1)
     if exact is not None or mode in (0, 2):
         return exact
+    return _nearest(values, target, mode, search)
+
+
+def _nearest(values: list[Scalar], target: Scalar, mode: int, search: int) -> int | None:
+    """The next smaller, or larger, of ``values`` to ``target``, the first met in the search's order on a tie."""
     best: int | None = None
     order = range(len(values) - 1, -1, -1) if search == -1 else range(len(values))
     for index in order:

@@ -129,7 +129,8 @@ def _arguments(case: dict[str, Any]) -> str:
         tail = [case["nf"], case["match"], case["search"]]
     else:
         tail = [case["match"], case["search"]]
-    while tail and tail[-1] is None:
+    # A call cannot end on an argument left empty: Excel's VBA refuses f(a, ) to compile.
+    while tail and tail[-1] in (None, ""):
         tail.pop()
     args += ["" if part is None else part for part in tail]
     return ", ".join(args)
@@ -206,6 +207,9 @@ def main() -> None:
                         answer = excel.run_vba(case_source(case), "Probe", (), timeout=60.0, line_numbers=False)
                         case["excel"] = str(answer.value) if answer.ok else f"no answer {answer.outcome}"
                         todo.remove(case)
+            except Exception as failure:  # noqa: BLE001 - a case that ends Excel is recorded, and the rest go on
+                todo[0]["excel"] = f"no answer, Excel ended: {str(failure)[:80]}"
+                todo.pop(0)
             finally:
                 os.rmdir(LOCK)
             file.write_text(json.dumps(cases, indent=0), encoding="utf-8")

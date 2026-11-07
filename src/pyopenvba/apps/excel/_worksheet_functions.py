@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING, Any, Final
 from pyopenvba.apps.excel._engine_book import EngineBook
 from pyopenvba.apps.excel._given_values import currency_text
 from pyopenvba.apps.excel._worksheet_function_refusals import REFUSALS
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.nodes import Given, Missing, Node
@@ -147,6 +148,7 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     single = not any(isinstance(value, (Range, VBAArray)) for value in values)
     now = calculator.now()
     context = Context(books, sheet.name, 1, 1, array=True, today=now.date(), now=now)
+    context.from_macro = True
     if lifted_year_frac:
         return _year_frac_lifted(given, entry, context, books, late=late)
     if not entry.minimum <= len(nodes) <= entry.maximum:
@@ -157,6 +159,9 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         found = registry.call(entry, context, nodes)
     except EngineError as failure:
         found = failure.error
+    except registry.LiftedRangeError:
+        raise VBAUnsupportedError(f"WorksheetFunction.{name} over an array whose items each find several cells is not "
+                                  "implemented") from None
     if raising and late and isinstance(found, CellError) and _text_cell_for_switch(name, values):
         # Excel's own conversion fails item by item, so the answer is an array (tests/fixtures/worksheet_function_types.json).
         found = Array([[found]])

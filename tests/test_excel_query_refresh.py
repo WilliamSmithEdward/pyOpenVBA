@@ -11,6 +11,7 @@ import importlib.util
 import json
 import re
 import sys
+import zipfile
 from collections.abc import Callable
 from decimal import Decimal
 from pathlib import Path
@@ -245,3 +246,31 @@ def test_a_deferred_refresh_is_outside_the_run_step_budget() -> None:
     assert app.run("GoAndSpend") == "Empty True 100"
     assert spent == [100]
     assert app.run("Read") == "1 False"
+
+
+SAVING = """Sub Save(ByVal keep As Boolean, ByVal out As String)
+    Dim q As QueryTable
+    Set q = ActiveSheet.QueryTables.Add("OLEDB;Provider=X;Pwd=hunter2;Data Source=C:\\data\\rows.accdb;Jet OLEDB:Database Password=hunter3", _
+        ActiveSheet.Range("A1"), "SELECT * FROM T WHERE Id <= 2")
+    q.SavePassword = keep
+    q.Refresh False
+    ActiveWorkbook.SaveAs out, 51
+End Sub
+Function Shown() As String
+    Shown = ActiveSheet.QueryTables(1).Connection
+End Function
+"""
+
+
+@pytest.mark.parametrize("keep", [False, True])
+def test_a_saved_file_holds_a_password_only_when_save_password_says_so(keep: bool, tmp_path: Path) -> None:
+    """Measured: with SavePassword False Excel writes no password, with True it writes it in plain text (tests/fixtures/query_refresh.json)."""
+    out = tmp_path / "saved.xlsx"
+    app = _app()
+    app.add_module(SAVING, name="M")
+    app.run("Save", keep, out.as_posix())
+    with zipfile.ZipFile(out) as package:
+        everything = b"".join(package.read(name) for name in package.namelist())
+    for secret in (b"hunter2", b"hunter3"):
+        assert (secret in everything) is keep
+    assert ("hunter2" in str(app.run("Shown"))) is keep

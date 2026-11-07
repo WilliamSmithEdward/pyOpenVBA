@@ -1,0 +1,207 @@
+{
+"measured_at": "2026-11-04T23:02:50.741251+00:00",
+"cases": {
+"wrapped": {
+"model read": "60/15",
+"excel read": "60/15",
+"excel opening the model": "60/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"wider after": {
+"model read": "60/15",
+"excel read": "60/15",
+"excel opening the model": "60/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"narrower after": {
+"model read": "15/15",
+"excel read": "15/15",
+"excel opening the model": "15/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"big font": {
+"model read": "147/15",
+"excel read": "147/15",
+"excel opening the model": "147/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"147\" x14ac:dyDescent=\"0.35\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"147\" x14ac:dyDescent=\"0.35\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"147\" x14ac:dyDescent=\"0.35\">"
+]
+},
+"small font": {
+"model read": "34.5/15",
+"excel read": "34.5/15",
+"excel opening the model": "34.5/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"34.5\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"34.5\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"34.5\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"bold": {
+"model read": "75/15",
+"excel read": "75/15",
+"excel opening the model": "75/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"75\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"75\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"75\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"italic": {
+"model read": "60/15",
+"excel read": "60/15",
+"excel opening the model": "60/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"indented": {
+"model read": "105/15",
+"excel read": "105/15",
+"excel opening the model": "105/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"105\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"105\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"105\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"custom": {
+"model read": "40/15",
+"excel read": "40/15",
+"excel opening the model": "40/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"39.950000000000003\" customHeight=\"1\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"39.950000000000003\" customHeight=\"1\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"39.950000000000003\" customHeight=\"1\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"line feeds": {
+"model read": "45/15",
+"excel read": "45/15",
+"excel opening the model": "45/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"45\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"45\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"45\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"capped": {
+"model read": "409.5/15",
+"excel read": "409.5/15",
+"excel opening the model": "409.5/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"409.5\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"409.5\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"409.5\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"two cells": {
+"model read": "120/15",
+"excel read": "120/15",
+"excel opening the model": "120/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:2\" ht=\"120\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:2\" ht=\"120\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:2\" ht=\"120\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"formula after autofit": {
+"model read": "60/60",
+"excel read": "60/60",
+"excel opening the model": "60/60",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">",
+"<row r=\"2\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+"<row r=\"3\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">",
+"<row r=\"2\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+"<row r=\"3\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">",
+"<row r=\"2\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+"<row r=\"3\" spans=\"1:1\" ht=\"60\" x14ac:dyDescent=\"0.25\">"
+]
+},
+"wrap off": {
+"model read": "15/15",
+"excel read": "15/15",
+"excel opening the model": "15/15",
+"model rows": [
+"<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">"
+],
+"excel rows": [
+"<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">"
+],
+"excel saving the model": [
+"<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">"
+]
+}
+}
+}

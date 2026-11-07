@@ -37,7 +37,6 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel import _styles as S
-from pyopenvba.exceptions import VBAUnsupportedError
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Worksheet
@@ -451,25 +450,23 @@ def _touch(style: S.Style) -> S.Style:
     return S.applying(style, "border")
 
 
-def _current(found: Iterable[S.Side]) -> S.Side:
+def current_side(found: Iterable[S.Side], *, last: bool = False) -> S.Side:
     """What a border along many cells is before a change.
 
-    The line they share, or, where only some show one, that line in the
-    automatic colour.
+    The line they share; where they show different ones, the first one's, or
+    the last one's for a bottom or right edge, which is where such an edge
+    reads from, or a thin one if that shows none, in the automatic colour
+    (tests/fixtures/border_gaps.json).
     """
-    distinct = set(found)
-    if len(distinct) == 1:
-        return distinct.pop()
-    lines = [side for side in distinct if side.style]
-    if len(distinct) == 2 and len(lines) == 1:
-        return S.Side(lines[0].style, S.Color("auto"))
-    raise VBAUnsupportedError("a border along whole rows or columns whose cells show different lines is not "
-                              "implemented")
+    sides = list(found)
+    if len(set(sides)) == 1:
+        return sides[0]
+    return S.Side(sides[-1 if last else 0].style or "thin", S.Color("auto"))
 
 
 def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Side], S.Side]) -> bool:
     """A border set on whole rows, whole columns or the sheet; False for any other area."""
-    from pyopenvba.apps.excel._formats import change_side, effective_side, with_diagonal
+    from pyopenvba.apps.excel._formats import change_side, effective_side, own_side, with_diagonal
 
     kind = whole(area)
     if not kind:
@@ -483,7 +480,7 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
         if index in (8, 9):
             row = area.top if index == 8 else area.bottom
             name, opposite, beyond = ("top", "bottom", row - 1) if index == 8 else ("bottom", "top", row + 1)
-            new = change(_current(effective_side(sheet, row, column, name) for column in columns))
+            new = change(current_side((effective_side(sheet, row, column, name) for column in columns), last=index == 9))
             format_rows(sheet, row, row, lambda style: _sides(style, **{name: new}))
             if 1 <= beyond <= MAX_ROWS:
                 format_rows(sheet, beyond, beyond, lambda style: _sides(style, **{opposite: S.NO_SIDE})
@@ -498,20 +495,31 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
             pairs = [(row, column, row, column + 1) for row in range(area.top, area.bottom + 1)
                      for column in columns if column < MAX_COLUMNS]
             new = change(_current_pair(sheet, pairs, "right", "left"))
+            # A cell in the first column keeps what it has on its left (tests/fixtures/border_gaps.json).
+            kept = {row: own_side(sheet, row, 1, "left") for row in range(area.top, area.bottom + 1)} if _along_first_column(sheet) else {}
             format_rows(sheet, area.top, area.bottom, lambda style: _sides(style, left=new, right=new))
+            for row, side in kept.items():
+                change_side(sheet, row, 1, 7, lambda _: side, clear_neighbour=False)  # noqa: B023
         else:
             format_rows(sheet, area.top, area.bottom, _touch)
             if index == 7:
-                for row in range(area.top, area.bottom + 1):
-                    change_side(sheet, row, 1, 7, change)
-            elif any(area.top <= row <= area.bottom for row, column in sheet.cells_ if column == MAX_COLUMNS):
-                raise VBAUnsupportedError("the right edge of whole rows with cells in column XFD is not implemented")
+                # A colour on the left edge of the sheet shows only with something in the first column; a line or a weight
+                # always does (tests/fixtures/border_gaps.json).
+                if _along_first_column(sheet) or changes_line(change):
+                    new = change(current_side(effective_side(sheet, row, 1, "left") for row in range(area.top, area.bottom + 1)))
+                    for row in range(area.top, area.bottom + 1):
+                        change_side(sheet, row, 1, 7, lambda _: new)  # noqa: B023
+            else:
+                # Past the last column nothing shows, and a cell in that column loses any line it had there
+                # (tests/fixtures/border_gaps.json).
+                for row, column in [place for place in sheet.cells_ if place[1] == MAX_COLUMNS and area.top <= place[0] <= area.bottom]:
+                    change_side(sheet, row, column, 10, lambda _: S.NO_SIDE)
     elif kind == "columns":
         rows = sample_rows(sheet, 1, MAX_ROWS, area.left - 1, area.right + 1)
         if index in (7, 10):
             column = area.left if index == 7 else area.right
             name, opposite, beyond = ("left", "right", column - 1) if index == 7 else ("right", "left", column + 1)
-            new = change(_current(effective_side(sheet, row, column, name) for row in rows))
+            new = change(current_side((effective_side(sheet, row, column, name) for row in rows), last=index == 10))
             format_columns(sheet, column, column, lambda style: _sides(style, **{name: new}))
             if 1 <= beyond <= MAX_COLUMNS:
                 format_columns(sheet, beyond, beyond, lambda style: _sides(style, **{opposite: S.NO_SIDE})
@@ -525,31 +533,68 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
             pairs = [(row, column, row + 1, column) for column in range(area.left, area.right + 1)
                      for row in rows if row < MAX_ROWS]
             new = change(_current_pair(sheet, pairs, "bottom", "top"))
+            # What stands in the first row keeps what it has above it (tests/fixtures/border_gaps.json).
+            kept = {column: own_side(sheet, 1, column, "top") for column in range(area.left, area.right + 1)} if _along_first_row(sheet) else {}
             format_columns(sheet, area.left, area.right, lambda style: _sides(style, top=new, bottom=new))
+            for column, side in kept.items():
+                change_side(sheet, 1, column, 8, lambda _: side, clear_neighbour=False)  # noqa: B023
         else:
             edge_row = 1 if index == 8 else MAX_ROWS
             record = sheet.dims.rows.get(edge_row)
-            edge_cells = [column for row, column in sheet.cells_
-                          if row == edge_row and area.left <= column <= area.right]
-            if (record is not None and record.style is not None) or (edge_cells and index == 9):
-                raise VBAUnsupportedError("the top or bottom edge of whole columns across a formatted row or cells in "
-                                          "the last row is not implemented")
+            along = (record is not None and record.style is not None) or any(row == edge_row for row, _ in sheet.cells_)
             format_columns(sheet, area.left, area.right, _touch)
-            for column in edge_cells:
-                change_side(sheet, edge_row, column, index, change)
+            if along:
+                # A cell or a format along that row brings the border to every column's cell there; past the last row nothing
+                # shows, and any line goes (tests/fixtures/border_gaps.json).
+                new = change(current_side(own_side(sheet, edge_row, column, "top") for column in range(area.left, area.right + 1))) if index == 8 else S.NO_SIDE
+                for column in range(area.left, area.right + 1):
+                    change_side(sheet, edge_row, column, index, lambda _: new)  # noqa: B023
     else:
         if index in (7, 8, 9, 10):
-            if any(_on_edge(index, row, column) for row, column in sheet.cells_):
-                raise VBAUnsupportedError("an edge of the whole sheet with cells along it is not implemented")
+            along = any(_on_edge(index, row, column) for row, column in sheet.cells_)
             format_sheet(sheet, _touch)
+            if along and index == 7:
+                # With a cell along it the first column takes the sheet's left edge, and the first row its top. Past the last
+                # column or row nothing shows (tests/fixtures/border_gaps.json).
+                new = change(current_side(effective_side(sheet, row, 1, "left") for row in sample_rows(sheet, 1, MAX_ROWS, 0, 2)))
+                format_columns(sheet, 1, 1, lambda style: _sides(style, left=new))
+            elif along and index == 8:
+                new = change(current_side(effective_side(sheet, 1, column, "top") for column in sample_columns(sheet, 1, MAX_COLUMNS, 0, 2)))
+                format_rows(sheet, 1, 1, lambda style: _sides(style, top=new))
         else:
             styles = _shown_styles(sheet)
             first, second = ("bottom", "top") if index == 12 else ("right", "left")
-            new = change(_current(side for style in styles
-                                  for side in (getattr(style.border, first), getattr(style.border, second))))
+            # The first cell's line leads, the rest being in no order.
+            lead = [own_side(sheet, 1, 1, first)]
+            new = change(current_side(lead + [side for style in styles
+                                              for side in (getattr(style.border, first), getattr(style.border, second))]))
+            along = _along_first_row(sheet) if index == 12 else _along_first_column(sheet)
+            # What stands along the first row or column keeps what it has there, and the rest of that row or column shows none.
+            kept = {place: own_side(sheet, *place, "top" if index == 12 else "left") for place in sheet.cells_ if place[0 if index == 12 else 1] == 1}
             format_sheet(sheet, lambda style: _sides(style, **{first: new, second: new}))
+            if along and index == 12:
+                format_rows(sheet, 1, 1, lambda style: _sides(style, top=S.NO_SIDE))
+            elif along:
+                format_columns(sheet, 1, 1, lambda style: _sides(style, left=S.NO_SIDE))
+            if along:
+                for (row, column), side in kept.items():
+                    change_side(sheet, row, column, 8 if index == 12 else 7, lambda _: side, clear_neighbour=False)  # noqa: B023
     sheet.touched()
     return True
+
+
+def changes_line(change: Callable[[S.Side], S.Side]) -> bool:
+    """Whether a change is to a line or its weight, rather than its colour or nothing."""
+    return any(change(S.Side(style, S.Color("auto"))).style != style for style in ("thin", "medium", "dashDot"))
+
+
+def _along_first_column(sheet: Worksheet) -> bool:
+    return sheet.dims.column_style(1) not in (None, sheet.book.stylesheet.default) or any(column == 1 for _, column in sheet.cells_)
+
+
+def _along_first_row(sheet: Worksheet) -> bool:
+    record = sheet.dims.rows.get(1)
+    return (record is not None and record.style is not None) or any(row == 1 for row, _ in sheet.cells_)
 
 
 def _on_edge(index: int, row: int, column: int) -> bool:
@@ -559,11 +604,20 @@ def _on_edge(index: int, row: int, column: int) -> bool:
 
 def _current_pair(sheet: Worksheet, pairs: Iterable[tuple[int, int, int, int]], first: str, second: str) -> S.Side:
     """What an inside border is along many pairs of cells: each pair's line, which must agree."""
-    from pyopenvba.apps.excel._formats import inside_current, own_side
+    from pyopenvba.apps.excel._formats import own_side
 
-    return _current(inside_current(own_side(sheet, row, column, first),
-                                   own_side(sheet, other_row, other_column, second))
-                    for row, column, other_row, other_column in pairs)
+    return pairs_current([(own_side(sheet, row, column, first), own_side(sheet, other_row, other_column, second))
+                          for row, column, other_row, other_column in pairs])
+
+
+def pairs_current(pairs: list[tuple[S.Side, S.Side]]) -> S.Side:
+    """What an inside border is before a change, from what each pair of cells stores. Along more than one pair it starts
+    from the first cell's own, as it reads (tests/fixtures/border_gaps.json)."""
+    from pyopenvba.apps.excel._formats import inside_current
+
+    if len(pairs) > 1 and not pairs[0][0].style:
+        return S.NO_SIDE
+    return current_side(inside_current(upper, lower) for upper, lower in pairs)
 
 
 def _shown_styles(sheet: Worksheet) -> set[S.Style]:

@@ -26,7 +26,8 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._held import HeldPart, shape_here
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAErrorValue, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
-from pyopenvba.shapes._values import FillLine, Shape, emu, points
+from pyopenvba.apps.excel._shape_anchors import keep_on_sheet
+from pyopenvba.shapes._values import MOST_PLACE, MOST_POINTS, SINGLE_LARGEST, FillLine, Shape, emu, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
@@ -884,8 +885,11 @@ class ChartObjects(VBACollection, ItemDefault, Created):
             raise VBAUnsupportedError('Chart placement centered in a native window is not implemented')
         if width < 0 or height < 0:
             width, height = 360, 216
+        if max(width, height) >= MOST_POINTS or max(left, top) >= MOST_PLACE:
+            raise error(-2147024809, 'The specified value is out of range.')
         left, top, width, height = (float(VBASingle(points(emu(value)))) for value in (left, top, width, height))
         shape = Shapes(self.sheet).new_chart_shape(left, top, width, height)
+        keep_on_sheet(self.sheet, shape)
         base = plotted_before(self.sheet)
         self.sheet.chart_states[shape.shape_id] = ChartState(unique_base=base, next_unique=base)
         made = ChartObject(self.sheet, shape)
@@ -1830,8 +1834,15 @@ class ChartObject(HeldPart):
         number = float(to_number(value))
         if not math.isfinite(number):
             raise error(1004, 'Invalid chart geometry')
+        # A size is refused by 169093 points and a place by 2^31, both ways for a place, and a vast negative size is none at all
+        # (tests/fixtures/excel_huge_numbers.json).
+        if name in ('width', 'height') and number < -SINGLE_LARGEST:
+            number = 0.0
+        if number >= (MOST_POINTS if name in ('width', 'height') else MOST_PLACE) or abs(number) > SINGLE_LARGEST:
+            raise error(-2147024809, 'The specified value is out of range.')
         quantized = float(VBASingle(points(emu(number))))
         setattr(self.shape, name, quantized)
+        keep_on_sheet(self.sheet, self.shape)
         self.sheet.drawing_changed()
 
     @method

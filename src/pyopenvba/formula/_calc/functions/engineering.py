@@ -28,6 +28,7 @@ from decimal import Decimal
 from fractions import Fraction
 
 from pyopenvba.formula._calc import precise, special
+from pyopenvba.formula._calc.cells import UnsupportedFormulaError
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.arithmetic import checked
 from pyopenvba.formula._calc.functions.common import numbers
@@ -699,6 +700,12 @@ def _bessel(name: str, evaluate: Callable[[int, float], float], *, positive: boo
         n = context.integer(order)
         if n < 0 or (positive and value <= 0):
             return NUM
+        # Each goes up the orders one by one. Excel said #NUM! at an order of 1E+8 and answered 1E+7 in a fraction of a second, which
+        # would take minutes here, so past 1E+5 this engine says openly that it will not (docs/formula_engine.md).
+        if n >= 100_000_000:
+            return NUM
+        if n > 100_000:
+            raise UnsupportedFormulaError(f"{name} of order {n} is larger than this engine works out")
         try:
             return checked(evaluate(n, value))
         except (OverflowError, ZeroDivisionError):

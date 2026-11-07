@@ -13,13 +13,33 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/worksheet_function_four.json').read_text(encoding='utf-8'))
 KNOWN: set[str] = set(json.loads((Path(__file__).parent / 'fixtures/worksheet_function_four_known.json').read_text(encoding='utf-8')))
 BATCH = 300
 
 
+#: An XLookup over an array whose items find several cells reports itself: Excel answers each item's first cell, or #VALUE!
+#: once a formula was calculated before, and what resets that is not known (tests/fixtures/xlookup_rounds.json).
+REFUSED = 'REFUSED'
+
+
 def _answers(calls: list[str], fill: str, typed: bool) -> list[str]:
+    try:
+        return _batch(calls, fill, typed)
+    except VBAUnsupportedError:
+        found: list[str] = []
+        for call in calls:
+            try:
+                found += _batch([call], fill, typed)
+            except VBAUnsupportedError as refusal:
+                assert 'whose items each find several cells' in str(refusal), call
+                found.append(REFUSED)
+        return found
+
+
+def _batch(calls: list[str], fill: str, typed: bool) -> list[str]:
     kind = 'WorksheetFunction' if typed else 'Object'
     lines = ['Public Function Probe() As String', f'    Dim wb As Object, ws As Object, f As {kind}, v As Variant, x As Variant, s As String',
              '    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)', '    Fill ws', '    Fresh ws', '    Set f = Application.WorksheetFunction', '    On Error Resume Next']
@@ -41,7 +61,7 @@ def test_each_call_as_excel_answered_but_the_known(name: str, binding: str) -> N
         part = cases[start:start + BATCH]
         got = _answers([case['call'] for case in part], round_['fill'], binding == 'typed')
         wrong += [(case['call'], case[binding], one) for case, one in zip(part, got, strict=True)
-                  if one != case[binding] and case['call'] not in KNOWN]
+                  if one != case[binding] and case['call'] not in KNOWN and not (one == REFUSED and 'XLookup(Array(' in case['call'])]
     assert wrong == []
 
 

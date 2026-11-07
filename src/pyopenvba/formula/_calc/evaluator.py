@@ -229,6 +229,9 @@ class Context:
         #: an array formula is one: Range.Formula writes them, and a file keeps a formula that needs dynamic arrays
         #: as an array formula.
         self.legacy = not array
+        #: A macro's WorksheetFunction call, where an item of an array lifted over that answers several cells is not modelled
+        #: (tests/fixtures/xlookup_rounds.json).
+        self.from_macro = False
         self.now = now or dt.datetime.now()
         self.today = today or self.now.date()
         #: Names bound by LET and by a LAMBDA's call, innermost last.

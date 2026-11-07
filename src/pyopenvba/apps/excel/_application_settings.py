@@ -45,11 +45,12 @@ back what it set. FixedDecimal changes no value a macro writes, measured.
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBARuntimeError
-from pyopenvba.interpreter._objects import MemberSpec
-from pyopenvba.interpreter._values import VBAInt, error, to_bool, to_integer, to_text
+from pyopenvba.interpreter._objects import BINDING, MemberSpec
+from pyopenvba.interpreter._values import MISSING, NULL, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Worksheet
@@ -210,7 +211,19 @@ READ_ONLY: dict[str, object] = {
     'DefaultSaveFormat': VBAInt(51, 'Long'),
     'CanPlaySounds': True, 'CanRecordSounds': False, 'MathCoprocessorAvailable': True, 'MouseAvailable': True,
     'Ready': True, 'ArbitraryXMLSupportAvailable': True, 'IsSandboxed': False, 'RecordRelative': False,
+    # Names a fresh install gives no value, and the product code of the Office the measurements ran on
+    # (tests/fixtures/application_identity.json).
+    'NetworkTemplatesPath': '', 'OrganizationName': '', 'ProductCode': '{90160000-000F-0000-1000-0000000FF1CE}',
+    # Folders in a user's profile, chosen as Path is: a real one names the machine and its user.
+    'StartupPath': '<PROFILE>\\AppData\\Roaming\\Microsoft\\Excel\\XLSTART',
+    'TemplatesPath': '<PROFILE>\\AppData\\Roaming\\Microsoft\\Templates\\',
+    'UserLibraryPath': '<PROFILE>\\AppData\\Roaming\\Microsoft\\AddIns\\',
 }
+#: The profile the chosen folders above sit in.
+PROFILE = 'C:\\Users\\User'
+READ_ONLY.update({name: value.replace('<PROFILE>', PROFILE) for name, value in READ_ONLY.items() if isinstance(value, str)})
+#: The printer ActivePrinter names: one every Windows install has. The model prints to no printer, so a set of any is refused.
+PRINTER = 'Microsoft Print to PDF on Ne00:'
 
 
 def _read_only(name: str, value: object) -> MemberSpec:
@@ -220,10 +233,58 @@ def _read_only(name: str, value: object) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get)
 
 
+def _feature_install() -> MemberSpec:
+    """msoFeatureInstallNone to msoFeatureInstallOnDemandWithUI, rounded as VBA rounds; 1004 beyond, True as -1 among them, and
+    Null 13 bound late (tests/fixtures/application_identity.json)."""
+
+    def get(application: Application) -> object:
+        return VBAInt(int(application.settings.get('FeatureInstall', 0)), 'Long')  # type: ignore[arg-type]
+
+    def put(application: Application, value: object) -> None:
+        if value is NULL and BINDING.late:
+            raise error(13)
+        given = number(value)
+        if not 0 <= given <= 2:
+            raise _failed('FeatureInstall')
+        application.settings['FeatureInstall'] = given
+
+    return MemberSpec(name='FeatureInstall', kind='property', getter=get, setter=put)
+
+
+def _active_printer() -> MemberSpec:
+    """The printer; a set names one the model does not have, which is 1004 in Excel for any name it lacks. Null is ignored
+    bound late (tests/fixtures/application_identity.json)."""
+
+    def get(application: Application) -> object:
+        return PRINTER
+
+    def put(application: Application, value: object) -> None:
+        if value is NULL:
+            if BINDING.late:
+                return
+            raise error(94)
+        raise error(1004, "Method 'ActivePrinter' of object '_Application' failed")
+
+    return MemberSpec(name='ActivePrinter', kind='property', getter=get, setter=put)
+
+
+def _sharepoint_version() -> MemberSpec:
+    """The SharePoint version a site at a URL runs: 0 for one it cannot reach, -1 for text that is no URL. The model reaches
+    no site (tests/fixtures/application_identity.json)."""
+
+    def call(application: Application, bstrUrl: object = MISSING) -> object:  # noqa: N803 - the parameter's name in Excel
+        if bstrUrl is MISSING:
+            raise error(449, 'Argument not optional')
+        return VBAInt(0 if re.match(r'https?://', to_text(bstrUrl), re.IGNORECASE) else -1, 'Long')
+
+    return MemberSpec(name='SharePointVersion', kind='method', getter=call, parameters=('bstrUrl',))
+
+
 def application_members() -> list[MemberSpec]:
     """Every Application setting this module keeps, as a member."""
     return [*(_switch(name) for name in SWITCHES), *(_numbered_setting(name) for name in STARTS), _note_indicator(),
-            _caption(), _print_communication(), *(_read_only(name, value) for name, value in READ_ONLY.items())]
+            _caption(), _print_communication(), *(_read_only(name, value) for name, value in READ_ONLY.items()),
+            _feature_install(), _active_printer(), _sharepoint_version()]
 
 
 def worksheet_members() -> list[MemberSpec]:

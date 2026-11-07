@@ -5,6 +5,7 @@ those, and "books" for the rest; each writes its own part of the fixture.
 
     python scripts/measure_settable_audit.py books
     python scripts/measure_settable_audit.py application
+    python scripts/measure_settable_audit.py sort
 
 writes tests/fixtures/settable_audit.json, which scripts/compare_settable_audit.py and tests/test_excel_settable_audit.py
 replay. AutoSaveOn is left out, as it can reach the cloud, and Colors, which takes an index.
@@ -56,8 +57,21 @@ APPLICATION = {
 }
 #: A Workbook property that outlasts its workbook, in the user's registry: put back like Application's.
 USER_LEVEL = {"DoNotPromptForConvert"}
-TARGETS = {"Worksheet": "ws", "Workbook": "wb", "Application": "Application"}
-OBJECTS = {"Worksheet": WORKSHEET, "Workbook": WORKBOOK, "Application": APPLICATION}
+#: The worksheet's sort settings, each a choice of two or three values.
+SORT = {
+    "Header": NUMBER + ["xlYes", "xlNo", "xlGuess"], "MatchCase": BOOLEAN,
+    "Orientation": NUMBER + ["xlTopToBottom", "xlLeftToRight"], "SortMethod": NUMBER + ["xlPinYin", "xlStroke"],
+}
+#: A sort field's settings, on the field Add makes on A1.
+SORT_FIELD = {
+    "Order": NUMBER + ["xlAscending", "xlDescending"], "DataOption": NUMBER + ["xlSortNormal", "xlSortTextAsNumbers"],
+    "SubField": TEXT,
+}
+TARGETS = {"Worksheet": "ws", "Workbook": "wb", "Application": "Application", "Sort": "ws.Sort",
+           "SortField": 'ws.Sort.SortFields.Add(ws.Range("A1"))'}
+#: Where the typed half reaches the object, where that differs from how the object is made.
+TYPED = {"SortField": "ws.Sort.SortFields(1)"}
+OBJECTS = {"Worksheet": WORKSHEET, "Workbook": WORKBOOK, "Application": APPLICATION, "Sort": SORT, "SortField": SORT_FIELD}
 
 TEMPLATE = '''Private Function Read1(o As Object) As String
     On Error GoTo Failed
@@ -109,7 +123,7 @@ End Function
 
 def source(obj: str, prop: str, values: list[str]) -> str:
     late = [f"    Case {index}\n        o.{prop} = {value}" for index, value in enumerate(values)]
-    typed = [f"    Case {index + len(values)}\n        {TARGETS[obj]}.{prop} = {value}" for index, value in enumerate(values)]
+    typed = [f"    Case {index + len(values)}\n        {TYPED.get(obj, TARGETS[obj])}.{prop} = {value}" for index, value in enumerate(values)]
     cases = "\n".join([*late, *typed])
     keep = restore = ""
     if obj == "Application" or prop in USER_LEVEL:
@@ -150,7 +164,7 @@ def main() -> None:
     data: dict[str, dict[str, object]] = {}
     if OUT.exists():
         data = json.loads(OUT.read_text(encoding="utf-8"))["rows"]
-    measure(["Application"] if which == "application" else ["Worksheet", "Workbook"], data)
+    measure({"application": ["Application"], "sort": ["Sort", "SortField"]}.get(which, ["Worksheet", "Workbook"]), data)
 
 
 if __name__ == "__main__":

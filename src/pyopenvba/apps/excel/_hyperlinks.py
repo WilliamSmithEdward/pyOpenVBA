@@ -614,11 +614,19 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
     def __init__(self, sheet: Worksheet, areas: list[Area] | None = None) -> None:
         self.sheet = sheet
         self.areas = None if areas is None else [Area(one.top, one.left, one.bottom, one.right) for one in areas]
-        #: Whether the range held any link when this was fetched: with none, Delete has nothing to do; with none left, it fails.
-        self.held_some = bool(links_of(sheet, self.areas)) if self.areas is not None else False
+        #: A range's are the links it held when it was asked: held while rows or columns go in, they are the same links
+        #: where they now stand, a link added later is not among them, and one taken away is still counted, answering as a
+        #: link that has gone (tests/fixtures/held_range_collections.json, range_links_delete.json).
+        self.held = None if areas is None else links_of(sheet, self.areas)
+
+    def _links(self) -> list[Link]:
+        return links_of(self.sheet, None) if self.held is None else list(self.held)
+
+    def _on_sheet(self, links: list[Link]) -> list[Link]:
+        return [link for link in links if any(link is one for one in self.sheet.hyperlinks)]
 
     def vba_items(self) -> list[object]:
-        found: list[object] = [Hyperlink(self.sheet, link) for link in links_of(self.sheet, self.areas)]
+        found: list[object] = [Hyperlink(self.sheet, link) for link in self._links()]
         if self.areas is None:
             found += [shape_link(self.sheet, shape) for shape in _shapes_with_links(self.sheet.shapes_)]
         return found
@@ -645,12 +653,14 @@ class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Delete(self) -> object:
-        links = links_of(self.sheet, self.areas)
-        if self.areas is not None and not links and self.held_some:
-            # A range's links, none left, unlike a sheet's (tests/fixtures/held_objects.json).
-            raise error(1004, "Delete method of Hyperlinks class failed")
+        held = self._links()
+        links = self._on_sheet(held)
         _refuse_locked(self.sheet, links)
         _take(self.sheet, links, formats=True)
+        if len(links) < len(held):
+            # A range's links, one it held gone: those still there go, then the call fails, unlike a sheet's or a range's
+            # that held none (tests/fixtures/held_objects.json, range_links_delete.json).
+            raise error(1004, "Delete method of Hyperlinks class failed")
         return EMPTY
 
     @member

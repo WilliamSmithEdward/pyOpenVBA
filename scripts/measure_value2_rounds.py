@@ -1,6 +1,7 @@
 """Held-out rounds for Range.Value2: values written by Value2 and read back by it, on new workbooks, typed and late. Numbers,
 Currency, Dates, logicals, errors, Empty, text Excel types as numbers, dates or times, text it keeps, formulas, and formulas
-naming another workbook: open, closed and missing, by file name and by path. Each case writes one value or an array to one
+naming another workbook: open, closed and missing, by file name and by path, and from round 14004 on, text in the digits
+of 17 other scripts. Each case writes one value or an array to one
 cell or several, reads every cell back with its type, its formula and its text, reads Value2 of the whole range, and then,
 where a source book was open, closes it and reads again.
 

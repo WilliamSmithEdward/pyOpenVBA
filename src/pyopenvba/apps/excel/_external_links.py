@@ -61,13 +61,18 @@ class LinkedBook:
         """The folder the linked workbook is in, ``here`` being this workbook's own."""
         if self.pathless:
             return ""
-        if os.name != "nt" and self.target.startswith("/"):
-            # Off Windows a full path, as a link a formula made keeps one (see _new_links).
+        # A POSIX path by its spelling: this workbook's folder from the root, or, for a workbook never saved, the system's own. A drive-less
+        # target under a Windows folder takes that folder's drive on any system.
+        posix = here.startswith("/") if here else os.name != "nt"
+        if posix and self.target.startswith("/"):
             return posixpath.dirname(self.target)
         target = self.target.removeprefix("file:///").replace("/", "\\")
         head = target.rpartition("\\")[0]
         if re.match(r"[A-Za-z]:\\|\\\\", target) or not here:
             return head
+        if here.startswith("/"):
+            # A relative folder joins a POSIX folder as one, not turned into \tmp\x\Sub.
+            return posixpath.normpath(posixpath.join(here, head.replace("\\", "/"))) if head else here.rstrip("/")
         return ntpath.normpath(ntpath.join(here, head)) if head else here.rstrip("\\")
 
     def path(self, here: str) -> str:

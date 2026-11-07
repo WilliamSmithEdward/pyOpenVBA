@@ -30,6 +30,8 @@ class Program:
     late_bound_members: set[int] = field(default_factory=lambda: set())
     #: Each member call made through a library class the compiler knows, with that class. Any other call is bound late.
     early_bound_members: dict[int, str] = field(default_factory=lambda: {})
+    #: The declared type of what Len reads as storage where that is no plain variable: an array's element, a Type's field.
+    stored_len_arguments: dict[int, str] = field(default_factory=lambda: {})
 
 
 @dataclass(slots=True)

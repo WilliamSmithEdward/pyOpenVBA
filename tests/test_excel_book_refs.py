@@ -93,3 +93,32 @@ def test_a_name_alone_is_not_looked_for_under_the_sandbox() -> None:
     with pytest.raises(VBASandboxError):
         app.run('Writer.Put')
     assert app.workbook.linked_books == {}
+
+
+@pytest.mark.parametrize(('target', 'here', 'folder'), [
+    # Off Windows: a link saved relative to its workbook, read back in a POSIX folder, stays a POSIX folder (cases 15 and 25 on Linux).
+    ('Sub/Deep.xlsx', '/tmp/x', '/tmp/x/Sub'),
+    ('../Alpha.xlsx', '/tmp/x/Sub', '/tmp/x'),
+    ('Alpha.xlsx', '/tmp/x', '/tmp/x'),
+    ('/tmp/y/Alpha.xlsx', '/tmp/x', '/tmp/y'),
+    # On Windows the same links, as before.
+    ('Sub/Deep.xlsx', 'C:\\x', 'C:\\x\\Sub'),
+    ('../Alpha.xlsx', 'C:\\x\\Sub', 'C:\\x'),
+    ('Alpha.xlsx', 'C:\\x', 'C:\\x'),
+    ('/Users/y/Alpha.xlsx', 'C:\\x', 'C:\\Users\\y'),
+    ('file:///C:\\y\\Alpha.xlsx', 'C:\\x', 'C:\\y'),
+])
+@pytest.mark.parametrize('system', ['nt', 'posix'])
+def test_a_link_s_folder_keeps_the_spelling_of_its_workbook_s(target: str, here: str, folder: str, system: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The answer goes by the spellings alone, so it is the same as if each system ran it."""
+    import ntpath
+    import posixpath
+
+    from pyopenvba.apps.excel._external_links import LinkedBook
+
+    linked = LinkedBook(1, target, ('Sheet1',), ({},), {})
+    with monkeypatch.context() as patched:
+        patched.setattr(os, 'name', system)
+        patched.setattr(os, 'path', ntpath if system == 'nt' else posixpath)
+        found = linked.folder(here)
+    assert found == folder

@@ -610,7 +610,7 @@ def m_number_round(value: object, *rest: object) -> object:
     """M rounds a half to even, where Excel's own ROUND rounds away."""
     if value is None:
         return None
-    from decimal import ROUND_HALF_EVEN, Decimal
+    from decimal import ROUND_HALF_EVEN
 
     from decimal import ROUND_HALF_DOWN, ROUND_HALF_UP
 

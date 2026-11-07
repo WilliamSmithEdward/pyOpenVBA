@@ -34,7 +34,7 @@ def _error(answer: str) -> str | None:
 
 def _answer(case: str) -> str:
     try:
-        return evaluate_query(MEASURE.formula(case))
+        return str(evaluate_query(MEASURE.formula(case)))
     except MError as failed:
         return f'[{failed.reason}] {failed.message}'
 

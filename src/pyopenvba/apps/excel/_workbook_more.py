@@ -86,7 +86,7 @@ class ThemeColorScheme(_Owned):
     def Count(self) -> object:
         return VBAInt(len(_SCHEME), "Long")
 
-    @method
+    @method(default=True)
     def Colors(self, Index: object = MISSING) -> object:
         place = int(to_integer(Index, "Long"))
         if not 1 <= place <= len(_SCHEME):

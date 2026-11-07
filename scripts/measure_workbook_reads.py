@@ -5,7 +5,8 @@ closes it and opens it again, then reads each property: its TypeName and value, 
 or the error it raises. The model opens the same file and runs the same macro, and tests/test_excel_workbook_reads.py compares the two.
 
 Left out: what reaches mail or a mail envelope (Mailer, EnvelopeVisible), servers and rights (Permission, ServerPolicy, SharedWorkspace,
-DocumentLibraryVersions, ContentTypeProperties, SensitivityLabel), the Research pane and SmartDocument. Paths and the user's name are recorded
+DocumentLibraryVersions, ContentTypeProperties, SensitivityLabel), signing and identity (Signatures, WorkIdentity: see
+tests/test_probes_leave_crypto_alone.py), the Research pane and SmartDocument. Paths and the user's name are recorded
 as a yes or no, never as what they are on this machine.
 
     python scripts/measure_workbook_reads.py
@@ -26,7 +27,7 @@ OUT = ROOT / 'tests/fixtures/workbook_reads.json'
 SEPARATOR = '%%'
 #: Not read: mail, servers and rights, panes, and SmartDocument. See the docstring.
 LEFT_OUT = frozenset({'Mailer', 'EnvelopeVisible', 'Permission', 'ServerPolicy', 'SharedWorkspace', 'DocumentLibraryVersions', 'ContentTypeProperties',
-                      'SensitivityLabel', 'Research', 'SmartDocument'})
+                      'SensitivityLabel', 'Research', 'SmartDocument', 'Signatures', 'WorkIdentity'})
 #: Read as whether they are blank, since their text is this machine's folder or user.
 PRIVATE = frozenset({'FullName', 'FullNameURLEncoded', 'Path', 'UserStatus', 'WriteReservedBy'})
 
@@ -58,7 +59,7 @@ def _kind(name: str) -> str:
 #: The collections, whose Count is read too. Only these: Count of another object is a member it does not have.
 COLLECTIONS = frozenset({'BuiltinDocumentProperties', 'Charts', 'CommandBars', 'Connections', 'CustomDocumentProperties', 'CustomViews', 'CustomXMLParts',
                          'DocumentInspectors', 'Excel4IntlMacroSheets', 'Excel4MacroSheets', 'IconSets', 'Names', 'PivotTables', 'PublishObjects',
-                         'Queries', 'Sheets', 'Signatures', 'SlicerCaches', 'Styles', 'TableStyles', 'Windows', 'Worksheets', 'XmlMaps',
+                         'Queries', 'Sheets', 'SlicerCaches', 'Styles', 'TableStyles', 'Windows', 'Worksheets', 'XmlMaps',
                          'XmlNamespaces'})
 #: Reads per procedure, so none is too large to compile.
 PART = 20

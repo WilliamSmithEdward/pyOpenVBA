@@ -76,6 +76,8 @@ if TYPE_CHECKING:
 Intrinsic = Callable[["Interpreter", list[object], dict[str, object]], object]
 
 INTRINSICS: dict[str, Intrinsic] = {}
+#: How many of each built-in function's arguments a call must give, which the compiler checks of an empty one: Mid("abc", , 2).
+INTRINSIC_MINIMUMS: dict[str, int] = {}
 
 #: The names VBA defines that this does not implement, and the reason.
 UNIMPLEMENTED: Final[dict[str, str]] = {
@@ -130,6 +132,7 @@ def intrinsic(name: str, *parameters: str, minimum: int = 0) -> Callable[..., An
             return function(interpreter, *laid[: len(parameters)])
 
         INTRINSICS[name.lower()] = dispatch
+        INTRINSIC_MINIMUMS[name.lower()] = minimum
         return function
 
     return register

@@ -180,6 +180,7 @@ class ChartState:
     #: So with its legend element, and each axis's gridlines by the axis and whether major.
     legend_taken: str = ''
     gridlines_taken: dict[tuple[int, bool], str] = field(default_factory=lambda: {})
+    axis_titles_taken: dict[int, str] = field(default_factory=lambda: {})
     #: Whether a loaded chart has a style part: what it gains takes that style's look, which is not read here.
     style_part: bool = False
     #: Whether a loaded legend has a layout of its own, which makes its position custom.
@@ -2940,7 +2941,12 @@ class ChartTitle(ElementProperties, TitleMembers):
         return self.chart.state.title_look
 
     def title_sheet(self) -> Worksheet:
-        self.chart.admit_change()
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import admit
+
+            admit(self.chart)
+        else:
+            self.chart.admit_change()
         return self.chart.sheet
 
     @method
@@ -2975,6 +2981,11 @@ class ChartTitle(ElementProperties, TitleMembers):
         return self.chart.font_of(self, 'title', size=18.0, bold=True)
 
     def title_link(self, formula: str) -> None:
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import link_title
+
+            link_title(self.chart, formula, linked_title(self.chart.sheet, formula))
+            return
         self.chart.changed()
         self.chart.state.title_typed = False
         self.chart.state.title_look.formula = formula
@@ -2999,6 +3010,11 @@ class ChartTitle(ElementProperties, TitleMembers):
 
     @setter('Text')
     def _text(self, value: object) -> None:
+        if self.chart.state.original:
+            from pyopenvba.apps.excel._chart_loaded import type_title
+
+            type_title(self.chart, to_text(value))
+            return
         self.chart.admit_change()
         wanted = to_text(value)
         self.chart.changed()

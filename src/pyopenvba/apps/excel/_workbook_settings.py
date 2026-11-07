@@ -66,9 +66,9 @@ def table_style_named(book: Workbook, name: str) -> TableStyle | None:
 
 def _own_style_names(book: Workbook) -> list[str]:
     """The names of the table styles the workbook's stylesheet holds of its own."""
-    from xml.sax.saxutils import unescape
+    from pyopenvba._xml import unescape
 
-    return [unescape(name, {"&quot;": '"', "&apos;": "'"}) for name in
+    return [unescape(name) for name in
             re.findall(r'<(?:[\w.-]+:)?tableStyle\b[^>]*?\bname="([^"]*)"', book.stylesheet.xml)]
 
 

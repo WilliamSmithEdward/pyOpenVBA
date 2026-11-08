@@ -1,0 +1,1154 @@
+{
+ "cases": [
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "read",
+   "tr.Sentences(2).Text"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\") Is Nothing"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Text"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Count"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Characters(3, 6).Find(\"o\").Start"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Find(\"HELLO\").Start"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Find(\"o\", After:=100).Start"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Find(\"o\").Count"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Replace(\"hello\", \"bye\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 5).Replace(\"o\", \"0\").Start"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.TrimText.Count"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Font.Name"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.Characters(2, 2).InsertSymbol(\"Symbol\", 66).Start"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 200).Text"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"first one. second two? third\" & vbCr & \"next para\"",
+   null,
+   "do",
+   "v = tr.MathZones(1).Text"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "read",
+   "tr.Sentences(2).Text"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"zzz\") Is Nothing"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"zzz\").Text"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"zzz\").Count"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(3, 6).Find(\"o\").Start"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"HELLO\").Start"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"o\", After:=100).Start"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"o\").Count"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Replace(\"hello\", \"bye\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(1, 5).Replace(\"o\", \"0\").Start"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.TrimText.Count"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Font.Name"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(2, 2).InsertSymbol(\"Symbol\", 66).Start"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 200).Text"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"ab cd\" & vbCr & \"ef.\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.MathZones(1).Text"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "read",
+   "tr.Sentences(2).Text"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\") Is Nothing"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Text"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Count"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(3, 6).Find(\"o\").Start"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"HELLO\").Start"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"o\", After:=100).Start"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"o\").Count"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Replace(\"hello\", \"bye\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(1, 5).Replace(\"o\", \"0\").Start"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.TrimText.Count"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Font.Name"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(2, 2).InsertSymbol(\"Symbol\", 66).Start"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 200).Text"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"x  y\" & vbTab",
+   null,
+   "do",
+   "v = tr.MathZones(1).Text"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "read",
+   "tr.Sentences(2).Text"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Find(\"zzz\") Is Nothing"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Find(\"zzz\").Text"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Find(\"zzz\").Count"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Characters(3, 6).Find(\"o\").Start"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Find(\"HELLO\").Start"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Find(\"o\", After:=100).Start"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Find(\"o\").Count"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Replace(\"hello\", \"bye\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Characters(1, 5).Replace(\"o\", \"0\").Start"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.TrimText.Count"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Font.Name"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.Characters(2, 2).InsertSymbol(\"Symbol\", 66).Start"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 200).Text"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"Hello world hello\"",
+   [
+    7,
+    5
+   ],
+   "do",
+   "v = tr.MathZones(1).Text"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "read",
+   "tr.Sentences(2).Text"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\") Is Nothing"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Text"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Count"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Characters(3, 6).Find(\"o\").Start"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Find(\"HELLO\").Start"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Find(\"o\", After:=100).Start"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Find(\"o\").Count"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Replace(\"hello\", \"bye\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 5).Replace(\"o\", \"0\").Start"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.Characters(2, 4).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.TrimText.Count"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Font.Name"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.Characters(2, 2).InsertSymbol(\"Symbol\", 66).Start"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 200).Text"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"don't stop-now (x)\"",
+   null,
+   "do",
+   "v = tr.MathZones(1).Text"
+  ]
+ ],
+ "model": [
+  "Long:9",
+  "String:first ",
+  "Long:4",
+  "String:second two? ",
+  "e0=Boolean:False|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=String:|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Long:1|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Long:7|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Long:1|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "refused",
+  "e0=Long:1|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e91=e91|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e91=e91|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Empty:|String:fIRST one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "refused",
+  "refused",
+  "e0=Empty:|String:First One. Second Two? Third<LF>Next Para|Long:38|Long:1|Long:2",
+  "e0=Long:38|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Long:1|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Empty:|String:first one. second two? third.<LF>next para.|Long:40|Long:1|Long:2",
+  "e0=Empty:|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=String:Arial|String:A|Long:1|Long:1|Long:1",
+  "refused",
+  "refused",
+  "e0=String:Rectangle|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Long:-2|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=Long:-2|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "e0=String:first one. second two? third<LF>next para|String:first one. second two? third<LF>next para|Long:38|Long:1|Long:2",
+  "Long:4",
+  "String:ab ",
+  "Long:2",
+  "String:ef.",
+  "e0=Boolean:False|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=String:|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=Long:1|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=Long:1|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=Long:1|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "refused",
+  "e0=Long:1|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e91=e91|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e91=e91|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=Empty:|String:aB CD<LF>ef.|Long:9|Long:2|Long:2",
+  "refused",
+  "e0=Empty:|String:Ab cd<LF>Ef.|Long:9|Long:2|Long:2",
+  "e0=Empty:|String:Ab Cd<LF>Ef.|Long:9|Long:2|Long:2",
+  "e0=Long:9|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=Long:1|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "refused",
+  "refused",
+  "e0=String:Arial|String:A|Long:1|Long:1|Long:1",
+  "refused",
+  "refused",
+  "e0=String:Rectangle|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=Long:-2|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=Long:-2|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "e0=String:ab cd<LF>ef.|String:ab cd<LF>ef.|Long:9|Long:2|Long:2",
+  "Long:2",
+  "String:x  ",
+  "Long:1",
+  "e-2147024809",
+  "e0=Boolean:False|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=String:|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=Long:1|String:x  y\t|Long:5|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=Long:1|String:x  y\t|Long:5|Long:1|Long:1",
+  "refused",
+  "e0=Long:1|String:x  y\t|Long:5|Long:1|Long:1",
+  "e91=e91|String:x  y\t|Long:5|Long:1|Long:1",
+  "e91=e91|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=Empty:|String:x  Y\t|Long:5|Long:1|Long:1",
+  "refused",
+  "e0=Empty:|String:X  y\t|Long:5|Long:1|Long:1",
+  "e0=Empty:|String:X  Y\t|Long:5|Long:1|Long:1",
+  "refused",
+  "refused",
+  "e0=Empty:|String:x  y\t.|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=String:Arial|String:A|Long:1|Long:1|Long:1",
+  "refused",
+  "refused",
+  "e0=String:Rectangle|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=Long:-2|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=Long:-2|String:x  y\t|Long:5|Long:1|Long:1",
+  "e0=String:x  y\t|String:x  y\t|Long:5|Long:1|Long:1",
+  "Long:3",
+  "String:Hello ",
+  "Long:1",
+  "e-2147024809",
+  "e0=Boolean:False|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=String:|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Long:1|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Long:5|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Long:1|String:Hello world hello|Long:17|Long:3|Long:1",
+  "refused",
+  "e0=Long:1|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Long:1|String:bye world hello|Long:15|Long:3|Long:1",
+  "e0=Long:5|String:Hell0 world hello|Long:17|Long:3|Long:1",
+  "e0=Empty:|String:HELLO world hello|Long:17|Long:3|Long:1",
+  "refused",
+  "e0=Empty:|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Empty:|String:Hello World Hello|Long:17|Long:3|Long:1",
+  "e0=Long:17|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Long:1|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Empty:|String:Hello world hello.|Long:18|Long:3|Long:1",
+  "e0=Empty:|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=String:Arial|String:A|Long:1|Long:1|Long:1",
+  "refused",
+  "refused",
+  "e0=String:Rectangle|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Long:-2|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=Long:-2|String:Hello world hello|Long:17|Long:3|Long:1",
+  "e0=String:Hello world hello|String:Hello world hello|Long:17|Long:3|Long:1",
+  "Long:5",
+  "String:don't ",
+  "Long:1",
+  "e-2147024809",
+  "e0=Boolean:False|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=String:|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Long:1|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Long:1|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Long:1|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "refused",
+  "e0=Long:1|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e91=e91|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Long:2|String:d0n't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Empty:|String:dON'T stop-now (x)|Long:18|Long:1|Long:1",
+  "refused",
+  "e0=Empty:|String:Don't stop-now (x)|Long:18|Long:1|Long:1",
+  "refused",
+  "e0=Long:18|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Long:1|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Empty:|String:don't stop-now (x).|Long:19|Long:1|Long:1",
+  "e0=Empty:|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=String:Arial|String:A|Long:1|Long:1|Long:1",
+  "refused",
+  "refused",
+  "e0=String:Rectangle|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Long:-2|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=Long:-2|String:don't stop-now (x)|Long:18|Long:1|Long:1",
+  "e0=String:don't stop-now (x)|String:don't stop-now (x)|Long:18|Long:1|Long:1"
+ ]
+}

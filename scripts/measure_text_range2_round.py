@@ -8,8 +8,10 @@ A paragraph end reads as <CR>, a line break as <VT>.
 
     python scripts/measure_text_range2_round.py predict
     python scripts/measure_text_range2_round.py measure
+    python scripts/measure_text_range2_round.py predict 2
+    python scripts/measure_text_range2_round.py measure 2
 
-writes tests/fixtures/text_range2_round.json, which tests/test_excel_text_range2_round.py replays.
+writes tests/fixtures/text_range2_round.json, and text_range2_round_2.json for round 2, which tests/test_excel_text_range2_round.py replays.
 """
 from __future__ import annotations
 
@@ -42,13 +44,30 @@ STATEMENTS = ['v = tr.InsertAfter("X").Text', 'v = tr.InsertBefore("Y").Start', 
               'v = tr.Replace("e", "EE").Start', 'v = tr.Replace("e", "EE", MatchCase:=msoTrue).Text', 'v = tr.Replace("zzz", "q") Is Nothing',
               'v = tr.InsertSymbol("Arial", 65).Text', 'v = tr.InsertSymbol("Arial", 945, msoTrue).Start', 'tr.LtrRun', 'tr.RtlRun',
               'v = tr.MathZones.Count', 'tr.Select']
+#: Round 2, on new texts: what round 1 left to the model's own rule (a Find with no match, a part's Find and Replace, case on a part,
+#: sentence case after a stop, periods already there, trailing tabs and paragraph ends, the symbol's font, what Select selects, and the
+#: direction RtlRun gives).
+TEXTS_2 = [('"first one. second two? third" & vbCr & "next para"', None), ('"ab cd" & vbCr & "ef."', (1, 2)),
+           ('"x  y" & vbTab', None), ('"Hello world hello"', (7, 5)), ('"don\'t stop-now (x)"', None)]
+READS_2 = ['tr.Words.Count', 'tr.Words(1).Text', 'tr.Sentences.Count', 'tr.Sentences(2).Text']
+STATEMENTS_2 = ['v = tr.Find("zzz") Is Nothing', 'v = tr.Find("zzz").Text', 'v = tr.Find("zzz").Count', 'v = tr.Characters(3, 6).Find("o").Start',
+                'v = tr.Find("HELLO").Start', 'v = tr.Find("o", After:=100).Start', 'v = tr.Find("o").Count',
+                'v = tr.Replace("hello", "bye", WholeWords:=msoTrue).Start', 'v = tr.Characters(1, 5).Replace("o", "0").Start',
+                'tr.Characters(2, 4).ChangeCase msoCaseUpper', 'tr.Characters(2, 4).ChangeCase msoCaseTitle', 'tr.ChangeCase msoCaseSentence',
+                'tr.ChangeCase msoCaseTitle', 'v = tr.TrimText.Length', 'v = tr.TrimText.Count', 'tr.AddPeriods', 'tr.RemovePeriods',
+                'v = tr.InsertSymbol("Arial", 65).Font.Name', 'v = tr.Characters(2, 2).InsertSymbol("Symbol", 66).Start',
+                'v = tr.InsertSymbol("Arial", 200).Text', 'tr.Select: v = TypeName(Selection)', 'tr.RtlRun: v = tr.ParagraphFormat.TextDirection',
+                'tr.LtrRun: v = tr.ParagraphFormat.TextDirection', 'v = tr.MathZones(1).Text']
+ROUNDS = {1: (TEXTS, READS, STATEMENTS, OUT), 2: (TEXTS_2, READS_2, STATEMENTS_2, OUT.with_name('text_range2_round_2.json'))}
+ROUND = 1
 
 
 def cases() -> list[list[Any]]:
+    texts, reads, statements, _out = ROUNDS[ROUND]
     every: list[list[Any]] = []
-    for text, bold in TEXTS:
-        every += [[text, bold, 'read', read] for read in READS]
-        every += [[text, bold, 'do', statement] for statement in STATEMENTS]
+    for text, bold in texts:
+        every += [[text, bold, 'read', read] for read in reads]
+        every += [[text, bold, 'do', statement] for statement in statements]
     return every
 
 
@@ -108,14 +127,14 @@ def predict() -> None:
     sys.path.insert(0, str(ROOT / 'src'))
     every = cases()
     text = json.dumps({'cases': every, 'model': [alone(case) for case in every]}, indent=1) + '\n'
-    OUT.write_text(text, encoding='utf-8', newline='\n')
+    ROUNDS[ROUND][3].write_text(text, encoding='utf-8', newline='\n')
     print(len(every), 'cases; predictions sha256', hashlib.sha256(text.encode('utf-8')).hexdigest())
 
 
 def measure() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
-    record: dict[str, Any] = json.loads(OUT.read_text(encoding='utf-8'))
+    record: dict[str, Any] = json.loads(ROUNDS[ROUND][3].read_text(encoding='utf-8'))
     every: list[list[Any]] = record['cases']
     answers: list[str] = []
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
@@ -126,10 +145,11 @@ def measure() -> None:
             answers += str(result.value).split(SEPARATOR)
             print(at + 60, 'cases', flush=True)
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})
-    OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
+    ROUNDS[ROUND][3].write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
     wrong = sum(model != excel and model != 'refused' for model, excel in zip(record['model'], answers))
     print('model wrong', wrong, 'refused', record['model'].count('refused'), 'of', len(answers))
 
 
 if __name__ == '__main__':
+    ROUND = int(sys.argv[2]) if len(sys.argv) > 2 else 1
     {'predict': predict, 'measure': measure}[sys.argv[1]]()

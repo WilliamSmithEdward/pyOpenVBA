@@ -23,8 +23,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_label_data.json').read_text(encoding='utf-8'))
 LABELLED = 'loaded_chart_labelled.xlsx'
-#: Refused on each book: the two cases no rule explains, and Chart.PlotBy, which the model does not set.
-REFUSED = ('source columns and back', 'values array', 'plot by columns')
+#: Refused on each book: the two cases no rule explains.
+REFUSED = ('source columns and back', 'values array')
 
 
 def what(case: list[Any]) -> str:

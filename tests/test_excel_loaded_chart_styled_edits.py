@@ -26,11 +26,11 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_styled_edits.json'
 BOOK = 'loaded_chart_styled.xlsx'
 #: Refused on the loaded book: a title of several lines, which the model writes otherwise on a new chart too; a Series.Formula
 #: changing categories; the Interior of a styled chart's element, which Excel reads as the element's own; the series' labels
-#: going with a point's label of its own; and Chart.PlotBy.
+#: going with a point's label of its own.
 REFUSED_LOADED = ('element series formula', 'element title text two lines', 'element title text cr', 'look interior colour',
-                  'labels point label then labels off', 'structure plot by columns')
+                  'labels point label then labels off')
 #: Refused on the new chart too.
-REFUSED_NEW = ('labels point label then labels off', 'structure plot by columns')
+REFUSED_NEW = ('labels point label then labels off',)
 #: What the model answers on the new chart otherwise than Excel: a title of several lines or none. Held so that a fix moves them.
 GAPS_NEW = ('element title text two lines', 'element title text cr', 'element title text empty')
 _UNIQUE = re.compile(r'(uniqueId val="\{[0-9A-F]{8})-[0-9A-F-]+')

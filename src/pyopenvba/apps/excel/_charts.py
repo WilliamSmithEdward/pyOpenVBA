@@ -2853,6 +2853,41 @@ class Chart(ElementProperties, HeldPart):
         self.admit_read()
         return VBAInt(plot_by(self.state), 'Long')
 
+    @setter('PlotBy')
+    def _plot_by(self, value: object) -> None:
+        """PlotBy: SetSourceData on the chart's own cells, the other way; Excel saves them alike
+        (tests/fixtures/loaded_chart_structure_edits.json)."""
+        from pyopenvba.apps.excel._model import Range
+
+        self.admit_read()
+        wanted = int(to_integer(value, 'Long'))
+        if wanted not in (1, 2):
+            raise VBAUnsupportedError(f'Chart.PlotBy = {wanted} is not implemented')
+        sheet, area = self._own_source()
+        self.SetSourceData(Range(sheet, [area]), VBAInt(wanted, 'Long'))
+
+    def _own_source(self) -> tuple[Worksheet, Area]:
+        """The block of cells the chart's series are, as SetSourceData plots it the way the chart is plotted now."""
+        state = self.state
+        current = plot_by(state)
+        references = [one for entry in state.series for one in (entry.name_reference, entry.category_reference, entry.value_reference)
+                      if one]
+        if current not in (1, 2) or state.full_series or state.out_of_sight or not references:
+            raise VBAUnsupportedError('Chart.PlotBy on a chart whose series are not one block of cells is not implemented')
+        areas = [area for one in references for area in parse_reference(one)]
+        names = {area.sheet for area in areas}
+        if len(areas) != len(references) or len(names) != 1:
+            raise VBAUnsupportedError('Chart.PlotBy on a chart whose series are not one block of cells is not implemented')
+        name = next(iter(names))
+        sheet = self.sheet.book.sheet_named(name) if name else self.sheet
+        block = Area(min(area.top for area in areas), min(area.left for area in areas), max(area.bottom for area in areas),
+                     max(area.right for area in areas))
+        planned = plan_series(sheet, block, current)
+        if [(one.name_reference, one.category_reference, one.value_reference) for one in planned] != [
+                (one.name_reference, one.category_reference, one.value_reference) for one in state.series]:
+            raise VBAUnsupportedError('Chart.PlotBy on a chart whose series are not one block of cells is not implemented')
+        return sheet, block
+
     def display(self) -> ChartState:
         self.admit_read()
         if not self.state.display_readable:

@@ -1026,5 +1026,162 @@
   [
    "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
   ]
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "measured_at": "2026-11-08T01:40:30.144162+00:00",
+ "excel": [
+  "Long:10",
+  "String:one ",
+  "Long:5",
+  "Long:4",
+  "String:six-seven eight's nine",
+  "Long:3",
+  "e0=Empty:|String:One two. Three four? Five<LF>Six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Empty:|String:One Two. Three Four? Five<LF>Six-seven Eight's Nine|Long:48|Long:3|Long:2",
+  "e0=Empty:|String:ONE TWO. THREE FOUR? FIVE<LF>SIX-SEVEN EIGHT'S NINE|Long:48|Long:3|Long:2",
+  "e0=Empty:|String:one Two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Empty:|String:oNE TWo. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:48|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=String:ne|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Empty:|String:one two. three four? five.<LF>six-seven eight's nine.|Long:50|Long:3|Long:2",
+  "e0=Empty:|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:27|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:1|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:3|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:1|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:1|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:3|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=String:$|String:one two. three four? five<LF>$ix-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Boolean:True|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:5|String:one Two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=String:Rectangle|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "e0=Long:-2|String:one two. three four? five<LF>six-seven eight's nine|Long:48|Long:3|Long:2",
+  "Long:2",
+  "String:  ",
+  "Long:3",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:  Ab|Long:4|Long:1|Long:1",
+  "e0=Empty:|String:  Ab|Long:4|Long:1|Long:1",
+  "e0=Empty:|String:  AB|Long:4|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:  ab|Long:4|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:4|String:  ab|Long:4|Long:1|Long:1",
+  "e0=String: ab|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Empty:|String:  ab.|Long:5|Long:1|Long:1",
+  "e0=Empty:|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:1|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:1|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:3|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:1|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:1|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:3|String:  ab|Long:4|Long:1|Long:1",
+  "e91=e91|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Boolean:True|String:  ab|Long:4|Long:1|Long:1",
+  "e91=e91|String:  ab|Long:4|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:  ab|Long:4|Long:1|Long:1",
+  "e0=String:Rectangle|String:  ab|Long:4|Long:1|Long:1",
+  "e0=Long:-2|String:  ab|Long:4|Long:1|Long:1",
+  "Long:1",
+  "String:Zed  ",
+  "e-2147024809",
+  "Long:1",
+  "e-2147024809",
+  "Long:2",
+  "e0=Empty:|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Empty:|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Empty:|String:zED  \t|Long:6|Long:2|Long:1",
+  "e-2147024809=e-2147024809|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Empty:|String:ZED  \t|Long:6|Long:2|Long:1",
+  "e0=Long:3|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=String:ed|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Empty:|String:Zed  \t.|Long:7|Long:2|Long:1",
+  "e0=Empty:|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Long:1|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Long:1|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Long:3|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Long:1|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Long:1|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Long:3|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e91=e91|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Boolean:True|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e91=e91|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=String:Rectangle|String:Zed  \t|Long:6|Long:2|Long:1",
+  "e0=Long:-2|String:Zed  \t|Long:6|Long:2|Long:1",
+  "Long:5",
+  "String:p",
+  "Long:2",
+  "Long:3",
+  "String:Q<LF>",
+  "Long:1",
+  "e0=Empty:|String:P.<LF>Q<LF>R?|Long:7|Long:1|Long:3",
+  "e0=Empty:|String:P.<LF>Q<LF>R?|Long:7|Long:1|Long:3",
+  "e0=Empty:|String:P.<LF>q<LF>R?|Long:7|Long:1|Long:3",
+  "e-2147024809=e-2147024809|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Empty:|String:p.<LF>Q<LF>R?|Long:7|Long:1|Long:3",
+  "e0=Long:7|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=String:.<LF>Q|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Empty:|String:p.<LF>Q.<LF>r?.|Long:9|Long:1|Long:3",
+  "e0=Empty:|String:p<LF>Q<LF>r?|Long:6|Long:1|Long:3",
+  "e0=Long:1|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Long:1|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Long:3|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Long:1|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Long:1|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Long:3|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e91=e91|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Boolean:True|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e91=e91|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=String:Rectangle|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3",
+  "e0=Long:-2|String:p.<LF>Q<LF>r?|Long:7|Long:1|Long:3"
  ]
 }

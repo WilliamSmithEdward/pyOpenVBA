@@ -86,7 +86,12 @@ TEXTS_5 = [('"one two. three four? five" & vbCr & "six-seven eight\'s nine"', (5
 ROUNDS = {1: (TEXTS, READS, STATEMENTS, OUT), 2: (TEXTS_2, READS_2, STATEMENTS_2, OUT.with_name('text_range2_round_2.json')),
           3: (TEXTS_3, READS_3, STATEMENTS_3, OUT.with_name('text_range2_round_3.json')),
           4: (TEXTS_4, READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_4.json')),
-          5: (TEXTS_5, READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_5.json'))}
+          5: (TEXTS_5, READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_5.json')),
+          # Rounds 6 and 7, held out on the code after round 5's two misses.
+          6: ([('"big dog. small CAT ran" & vbCr & "it is so"', (1, 3)), ('"  lone"', None), ('"ends with tab" & vbTab', (6, 4)),
+               ('"Fine?" & vbCr & "maybe." & vbCr & "sure"', None)], READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_6.json')),
+          7: ([('"wet sand. dry rock! cold sea" & vbCr & "warm wind"', (6, 4)), ('"  xy  z"', None), ('"NASA team" & vbTab', None),
+               ('"a." & vbCr & "bb?" & vbCr & "cc"', (2, 2))], READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_7.json'))}
 ROUND = 1
 
 

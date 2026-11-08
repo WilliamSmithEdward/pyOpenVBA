@@ -4323,12 +4323,13 @@ class TextRange2(_ShapeText):
             self._whole("ChangeCase msoCaseSentence")
         letters = list(text)
         capitals: set[int] = set()  # the places of words of two letters or more all in capitals
+        lone: set[int] = set()  # the places of capitals that are a word's one letter, unmeasured inside a sentence
         for word in re.finditer(r"[^ \n\x0b\t]+", text):
             found = [one for one in word.group() if one.isalpha()]
             if len(found) > 1 and all(one.isupper() for one in found):
                 capitals.update(range(word.start(), word.end()))
-            elif number == 1 and found == [one for one in word.group() if one.isupper()] and len(found) == 1:
-                raise _unsupported("ChangeCase msoCaseSentence on a word of one capital letter")
+            elif len(found) == 1 and found[0].isupper():
+                lone.add(word.start() + word.group().index(found[0]))
         starting, stopped = True, False
         for place, letter in enumerate(text):
             if letter.isalpha():
@@ -4336,6 +4337,8 @@ class TextRange2(_ShapeText):
                     starting = not any(one.isalpha() for one in re.split(r"[ \n\x0b\t]", text[:place])[-1])
                 elif stopped and text[place - 1] in ".!?":
                     raise _unsupported("ChangeCase msoCaseSentence on a letter right after a stop")
+                elif place in lone and not starting:
+                    raise _unsupported("ChangeCase msoCaseSentence on a word of one capital letter inside a sentence")
                 letters[place] = letter.upper() if starting else letter if place in capitals else letter.lower()
                 starting = stopped = False
             elif number == 1 and letter == "\n":
@@ -4449,12 +4452,15 @@ class TextRange2(_ShapeText):
         _edit_text(self.owner, at, count, symbol_text)
         if ending is not None:
             shape.text_end = ending
-        symbol = TextRange2(self.owner, at, 1)
-        written = ShapeFont2(symbol)
-        written.vba_set("Name", FontName)
-        look = written.changed()
-        look.font_cs = (look.font_latin or "").replace("<a:latin ", "<a:cs ", 1)
-        return symbol
+        # The font goes on the symbol only: the paragraph's end keeps the settings it had (tests/fixtures/text_range2_round_5.json).
+        latin = _FONT_LATIN.get(font)
+        if latin is None or not font:
+            raise _unsupported(f"the font {font!r} in a shape")
+        if not shape.text_marks:
+            shape.text_marks = [{} for _ in shape.text]
+        shape.text_marks[at] = {**shape.text_marks[at], "font_latin": latin, "font_cs": latin.replace("<a:latin ", "<a:cs ", 1)}
+        self.owner.sheet.drawing_changed()
+        return TextRange2(self.owner, at, 1)
 
     @method
     def LtrRun(self) -> object:

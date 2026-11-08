@@ -1,0 +1,1030 @@
+{
+ "cases": [
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"wet sand. dry rock! cold sea\" & vbCr & \"warm wind\"",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"  xy  z\"",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"NASA team\" & vbTab",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"a.\" & vbCr & \"bb?\" & vbCr & \"cc\"",
+   [
+    2,
+    2
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ]
+ ],
+ "model": [
+  "Long:10",
+  "String:wet ",
+  "Long:5",
+  "Long:4",
+  "String:warm wind",
+  "Long:3",
+  "e0=Empty:|String:Wet sand. Dry rock! Cold sea<LF>Warm wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:Wet Sand. Dry Rock! Cold Sea<LF>Warm Wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:WET SAND. DRY ROCK! COLD SEA<LF>WARM WIND|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:wet Sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:wET SAnd. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:38|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:et|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:wet sand. dry rock! cold sea.<LF>warm wind.|Long:40|Long:3|Long:2",
+  "e0=Empty:|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:5|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:1|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:3|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:1|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:1|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:6|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:$|String:wet $and. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Boolean:True|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e91=e91|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:Rectangle|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:-2|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "Long:3",
+  "String:  ",
+  "Long:3",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:  Xy  z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  Xy  Z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  XY  Z|Long:7|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  XY  z|Long:7|Long:1|Long:1",
+  "e0=Long:7|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=String: xy|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  xy  z.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:3|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:3|String:  xy  z|Long:7|Long:1|Long:1",
+  "e91=e91|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Boolean:False|String:  yy  z|Long:7|Long:1|Long:1",
+  "e91=e91|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=String:Rectangle|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:-2|String:  xy  z|Long:7|Long:1|Long:1",
+  "Long:2",
+  "String:NASA ",
+  "Long:6",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:nasa TEAM\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=Long:9|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=String:ASA|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA team\t.|Long:11|Long:1|Long:1",
+  "e0=Empty:|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:3|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:3|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:3|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:1|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:1|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:4|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=String:$|String:NA$A team\t|Long:10|Long:1|Long:1",
+  "e0=Boolean:True|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:6|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=String:Rectangle|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:-2|String:NASA team\t|Long:10|Long:1|Long:1",
+  "Long:5",
+  "String:a",
+  "Long:2",
+  "Long:3",
+  "String:bb?<LF>",
+  "Long:3",
+  "e0=Empty:|String:A.<LF>Bb?<LF>Cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:A.<LF>Bb?<LF>Cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:A.<LF>BB?<LF>CC|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:a.<LF>Bb?<LF>Cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:a.<LF>BB?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:9|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=String:.<LF>b|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:a.<LF>bb?.<LF>cc.|Long:11|Long:3|Long:3",
+  "e0=Empty:|String:a<LF>bb?<LF>cc|Long:8|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:3|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:3|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e91=e91|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Boolean:True|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e91=e91|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=String:Rectangle|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:-2|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3"
+ ],
+ "model_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ]
+}

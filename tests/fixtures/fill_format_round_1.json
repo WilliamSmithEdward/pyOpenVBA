@@ -1322,5 +1322,584 @@
    "refused",
    ""
   ]
+ ],
+ "measured_at": "2026-11-08T02:29:00.273837+00:00",
+ "excel": [
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:3|Long:2|Long:2|Single:225|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:3|rLong:2|rLong:2|rSingle:225|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"13500000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:6703886|Single:0|Long:-2|Long:1|Long:1|Long:1|Single:90|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:6703886|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:1|rSingle:90|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"accent1\"><a:shade val=\"60000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:62207|Long:1023|Single:0|Long:-2|Long:2|Long:3|Long:4|Single:0|Long:-1|Long:7|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:62207|rLong:1023|rSingle:0|rLong:-2|rLong:2|rLong:3|rLong:4|rSingle:0|rLong:-1|rLong:7|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"22500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"35000\"><a:srgbClr val=\"FF0300\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"4D0808\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"77500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"65000\"><a:srgbClr val=\"FF0300\"/></a:gs></a:gsLst><a:lin ang=\"0\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:2|Single:33|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:2|rSingle:33|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"1980000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:1|Long:1|Long:2|Single:90|Long:0|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:2|rSingle:90|rLong:0|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"0\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:5|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:5|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct30\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:3|Long:2|Long:2|Single:225|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:3|rLong:2|rLong:2|rSingle:225|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"13500000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:6703886|Single:0|Long:-2|Long:1|Long:1|Long:1|Single:90|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:6703886|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:1|rSingle:90|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"accent1\"><a:shade val=\"60000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:62207|Long:1023|Single:0|Long:-2|Long:2|Long:3|Long:4|Single:0|Long:-1|Long:7|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:62207|rLong:1023|rSingle:0|rLong:-2|rLong:2|rLong:3|rLong:4|rSingle:0|rLong:-1|rLong:7|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"22500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"35000\"><a:srgbClr val=\"FF0300\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"4D0808\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"77500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"65000\"><a:srgbClr val=\"FF0300\"/></a:gs></a:gsLst><a:lin ang=\"0\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:2|Single:33|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:2|rSingle:33|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"1980000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:1|Long:1|Long:2|Single:90|Long:0|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:2|rSingle:90|rLong:0|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"0\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:5|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:5|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct30\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:16777215|Single:0|Long:-2|Long:3|Long:2|Long:2|Single:225|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:3|rLong:2|rLong:2|rSingle:225|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"13500000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:13355979|Single:0|Long:-2|Long:1|Long:1|Long:1|Single:90|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:13355979|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:1|rSingle:90|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"lt1\"><a:shade val=\"60000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:62207|Long:1023|Single:0|Long:-2|Long:2|Long:3|Long:4|Single:0|Long:-1|Long:7|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:62207|rLong:1023|rSingle:0|rLong:-2|rLong:2|rLong:3|rLong:4|rSingle:0|rLong:-1|rLong:7|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"22500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"35000\"><a:srgbClr val=\"FF0300\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"4D0808\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"77500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"65000\"><a:srgbClr val=\"FF0300\"/></a:gs></a:gsLst><a:lin ang=\"0\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:2|Single:33|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:2|rSingle:33|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"1980000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:16777215|Single:0|Long:-2|Long:1|Long:1|Long:2|Single:90|Long:0|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:2|rSingle:90|rLong:0|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"0\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:5|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:5|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct30\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147467259|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:3|Long:2|Long:2|Single:225|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:3|rLong:2|rLong:2|rSingle:225|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"13500000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:6703886|Single:0|Long:-2|Long:1|Long:1|Long:1|Single:90|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:6703886|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:1|rSingle:90|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"accent1\"><a:shade val=\"60000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:62207|Long:1023|Single:0|Long:-2|Long:2|Long:3|Long:4|Single:0|Long:-1|Long:7|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:62207|rLong:1023|rSingle:0|rLong:-2|rLong:2|rLong:3|rLong:4|rSingle:0|rLong:-1|rLong:7|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"22500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"35000\"><a:srgbClr val=\"FF0300\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"4D0808\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"77500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"65000\"><a:srgbClr val=\"FF0300\"/></a:gs></a:gsLst><a:lin ang=\"0\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:2|Single:33|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:2|rSingle:33|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"1980000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:1|Long:1|Long:2|Single:90|Long:0|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:2|rSingle:90|rLong:0|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"0\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:5|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:5|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct30\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:3|Long:2|Long:2|Single:225|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:3|rLong:2|rLong:2|rSingle:225|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"13500000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:6703886|Single:0|Long:-2|Long:1|Long:1|Long:1|Single:90|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:6703886|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:1|rSingle:90|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"accent1\"><a:shade val=\"60000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:62207|Long:1023|Single:0|Long:-2|Long:2|Long:3|Long:4|Single:0|Long:-1|Long:7|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:62207|rLong:1023|rSingle:0|rLong:-2|rLong:2|rLong:3|rLong:4|rSingle:0|rLong:-1|rLong:7|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"22500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"35000\"><a:srgbClr val=\"FF0300\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"4D0808\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"77500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"65000\"><a:srgbClr val=\"FF0300\"/></a:gs></a:gsLst><a:lin ang=\"0\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:2|Single:33|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:2|rSingle:33|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"1980000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:8544277|Long:16777215|Single:0|Long:-2|Long:1|Long:1|Long:2|Single:90|Long:0|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:2|rSingle:90|rLong:0|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"0\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"accent1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:5|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:5|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct30\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:16777215|Single:0|Long:-2|Long:3|Long:2|Long:2|Single:225|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:3|rLong:2|rLong:2|rSingle:225|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"13500000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:13355979|Single:0|Long:-2|Long:1|Long:1|Long:1|Single:90|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:13355979|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:1|rSingle:90|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"lt1\"><a:shade val=\"60000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:62207|Long:1023|Single:0|Long:-2|Long:2|Long:3|Long:4|Single:0|Long:-1|Long:7|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:62207|rLong:1023|rSingle:0|rLong:-2|rLong:2|rLong:3|rLong:4|rSingle:0|rLong:-1|rLong:7|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"22500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"35000\"><a:srgbClr val=\"FF0300\"/></a:gs><a:gs pos=\"50000\"><a:srgbClr val=\"4D0808\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFF200\"/></a:gs><a:gs pos=\"77500\"><a:srgbClr val=\"FF7A00\"/></a:gs><a:gs pos=\"65000\"><a:srgbClr val=\"FF0300\"/></a:gs></a:gsLst><a:lin ang=\"0\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:2|Single:33|Long:-1|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:2|rSingle:33|rLong:-1|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"1980000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:3|Long:16777215|Long:16777215|Single:0|Long:-2|Long:1|Long:1|Long:2|Single:90|Long:0|Long:2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:3|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:1|rLong:1|rLong:2|rSingle:90|rLong:0|rLong:2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:gradFill flip=\"none\" rotWithShape=\"0\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"lt1\"/></a:gs><a:gs pos=\"100000\"><a:srgbClr val=\"FFFFFF\"/></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"1\"/><a:tileRect/></a:gradFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:5|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:5|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct30\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147467259|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ]
  ]
 }

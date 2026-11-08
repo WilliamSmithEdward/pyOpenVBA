@@ -50,23 +50,25 @@ def test_each_save_writes_the_extension_excel_wrote(run: tuple[list[str], Path],
 
 @pytest.mark.parametrize('saved', ['two.xlsx', 'three.xlsx', 'styled.xlsx', 'elsewhere.xlsx'])
 def test_a_saved_file_gives_its_groups_back(run: tuple[list[str], Path], saved: str) -> None:
-    """Reopened, a file's groups read as they did before the save, and an unchanged save keeps the extension."""
+    """Reopened, a file's groups read as they did before the save, except their order: a session reads its groups
+    newest first, a reopened book oldest first (tests/fixtures/sparkline_shifts_d.json, measured live)."""
     app = ExcelApplication.open(run[1] / saved, sandbox=False)
     app.add_module('Function P() As String\n    Dim g As Object, s As String\n'
                    '    For Each g In Worksheets(1).Cells.SparklineGroups\n'
                    '        s = s & "|" & g.Type & " " & g.SourceData & " " & g.Location.Address & " " & g.LineWeight & '
                    '" " & g.SeriesColor.Color\n    Next\n    P = Mid(s, 2)\nEnd Function\n', name='Reading')
-    expected = {'two.xlsx': '2 A2:D2 $E$3 0.75 9592887|1 A1:D1 $E$1 0.75 9592887',
+    expected = {'two.xlsx': '1 A1:D1 $E$1 0.75 9592887|2 A2:D2 $E$3 0.75 9592887',
                 'three.xlsx': '2 A1:D3 $E$1:$E$3 0.75 9592887', 'styled.xlsx': '1 A1:D1 $E$1 1.5 255',
                 'elsewhere.xlsx': '1 Sheet2!A1:D1 $E$1 0.75 9592887'}
     assert app.run('Reading.P') == expected[saved]
 
 
-def test_a_row_put_in_on_a_sheet_with_sparklines_is_refused() -> None:
-    """The model moves no sparkline."""
+def test_a_cell_put_in_taking_a_sparkline_from_below_is_refused() -> None:
+    """Inserts carry sparklines (tests/test_excel_sparkline_shifts.py), but one taking its formats from below, beside
+    a sparkline, was not measured."""
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
-    app.add_module('Sub S()\n    ActiveSheet.Range("E1").SparklineGroups.Add xlSparkLine, "A1:D1"\n'
-                   '    ActiveSheet.Rows(1).Insert\nEnd Sub\n', name='Edit')
+    app.add_module('Sub S()\n    ActiveSheet.Range("E2").SparklineGroups.Add xlSparkLine, "A2:D2"\n'
+                   '    ActiveSheet.Range("E1").Insert xlShiftDown, xlFormatFromRightOrBelow\nEnd Sub\n', name='Edit')
     with pytest.raises(VBAUnsupportedError, match='sparkline'):
         app.run('Edit.S')

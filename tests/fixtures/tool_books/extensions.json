@@ -23,7 +23,7 @@
  ],
  "edits": {
   "as_written|row_inserted": {
-   "reported": "reports: Inserting or deleting rows or columns on a sheet a sparkline sits on or reads is not implemented",
+   "reported": "",
    "excel": [
     "Long:0",
     "E1004",
@@ -46,7 +46,28 @@
     "Double:2",
     "Long:1"
    ],
-   "model": []
+   "model": [
+    "Long:0",
+    "E1004",
+    "E1004",
+    "E1004",
+    "E1004",
+    "Long:2",
+    "Long:0",
+    "Long:2",
+    "Long:0",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "Empty",
+    "Double:2",
+    "Long:1"
+   ]
   },
   "as_written|sparkline_type": {
    "reported": "",
@@ -331,7 +352,7 @@
    ]
   },
   "all_prefixed|row_inserted": {
-   "reported": "reports: Inserting or deleting rows or columns on a sheet a sparkline sits on or reads is not implemented",
+   "reported": "",
    "excel": [
     "Long:0",
     "E1004",
@@ -354,7 +375,28 @@
     "Double:2",
     "Long:1"
    ],
-   "model": []
+   "model": [
+    "Long:0",
+    "E1004",
+    "E1004",
+    "E1004",
+    "E1004",
+    "Long:2",
+    "Long:0",
+    "Long:2",
+    "Long:0",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "E9",
+    "Empty",
+    "Double:2",
+    "Long:1"
+   ]
   },
   "all_prefixed|sparkline_type": {
    "reported": "",

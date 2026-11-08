@@ -76,12 +76,14 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
     if delete and _inside(whole, area):
         return None
     if vertical and delete:
+        if area.left < whole.left or whole.right < area.right:
+            # Past the table's columns: from left of them into them, short of its right edge, it fails as the method
+            # does; otherwise it would move the table, header row or not (tests/fixtures/table_shifts5.json, _7).
+            raise error(1004, refusal if area.left < whole.left and area.right < whole.right else MOVES_A_TABLE)
         if table.headers and area.top <= whole.top:
             raise error(1004, refusal)
-        if not (area.bottom <= whole.bottom and whole.left <= area.left and area.right <= whole.right):
-            # From left of the table's columns into them, short of its right edge, it fails as the method does;
-            # otherwise it would move the table (tests/fixtures/table_shifts5.json).
-            raise error(1004, refusal if area.left < whole.left and area.right < whole.right else MOVES_A_TABLE)
+        if whole.bottom < area.bottom:
+            raise error(1004, MOVES_A_TABLE)
         if _filtered(table):
             hidden = all(sheet.dims.row_hidden(row) for row in range(area.top, area.bottom + 1))
             raise error(1004, 'No cells were found.' if hidden else FILTERED)

@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import re
 import uuid
+from itertools import pairwise
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -171,7 +172,7 @@ def _loaded(sheet: Worksheet) -> list[Group]:
                     continue
                 for line in child:
                     formula, where = line.find(xm + 'f'), line.find(xm + 'sqref')
-                    if where is None or ' ' in (where.text or '') or formula is not None and not formula.text:
+                    if where is None or ' ' in (where.text or '') or (formula is not None and not formula.text):
                         raise VBAUnsupportedError('a sparkline with an empty source or several cells is not implemented')
                     # One whose source was deleted keeps no formula (tests/fixtures/sparkline_shifts_c.json).
                     source = (Source(None, ('', ''), ('', ''), broken=True) if formula is None
@@ -256,15 +257,15 @@ def _regular(lines: list[Sparkline]) -> bool:
     if any(line.source.broken for line in lines) or len({line.source.sheet for line in lines}) != 1:
         return False
     cells = [line.at for line in lines]
-    steps = {(second[0] - first[0], second[1] - first[1]) for first, second in zip(cells, cells[1:])}
+    steps = {(second[0] - first[0], second[1] - first[1]) for first, second in pairwise(cells)}
     if steps not in ({(1, 0)}, {(0, 1)}):
         return False
     areas = [line.source.area() for line in lines]
     by_rows = all(area.rows == 1 and (area.left, area.right) == (areas[0].left, areas[0].right) for area in areas)
     by_columns = all(area.columns == 1 and (area.top, area.bottom) == (areas[0].top, areas[0].bottom)
                      for area in areas)
-    return (by_rows and all(second.top == first.top + 1 for first, second in zip(areas, areas[1:]))
-            or by_columns and all(second.left == first.left + 1 for first, second in zip(areas, areas[1:])))
+    return ((by_rows and all(second.top == first.top + 1 for first, second in pairwise(areas)))
+            or (by_columns and all(second.left == first.left + 1 for first, second in pairwise(areas))))
 
 
 def shifted(sheet: Worksheet, shift: CellShift, rewrite: Callable[[str, str], str], *, below: bool = False

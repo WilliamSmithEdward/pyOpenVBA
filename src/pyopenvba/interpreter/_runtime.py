@@ -18,6 +18,7 @@ gets the semantics wrong:
 
 from __future__ import annotations
 
+import re
 import sys
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
@@ -3214,6 +3215,13 @@ class Interpreter:
             return declared
         if self.is_enum_type(declared, module):
             return 'Long'
+        if re.fullmatch(r'(?:Xl|Mso|Vb)[A-Z]\w*', declared) and self.record_type(declared, module) is None and not any(
+                runtime.is_class and runtime.name.casefold() == declared.casefold() for runtime in self.modules.values()):
+            library = getattr(self.host, "vba_type_library", None)
+            if library is None or find_class(library, declared) is None:
+                # An Excel, Office or VBA enumeration, which VBA holds as the Long it is: a handler's ByVal Result As
+                # XlXmlImportResult (tests/fixtures/xml_map_events.json).
+                return 'Long'
         if declared.startswith('String*'):
             from pyopenvba.interpreter._parse import parse_expression
 

@@ -45,7 +45,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._runtime import Slot
-from pyopenvba.interpreter._values import to_bool
+from pyopenvba.interpreter._values import VBAInt, to_bool
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Range, Workbook, Worksheet
@@ -151,6 +151,27 @@ def new_workbook(book: Workbook) -> None:
 
 def new_chart(book: Workbook, chart: VBAObject) -> None:
     _workbook(book, "NewChart", [chart])
+
+
+def before_xml_import(book: Workbook, xml_map: VBAObject, url: str) -> bool:
+    """BeforeXmlImport, False where a handler cancels it (tests/fixtures/xml_map_events.json)."""
+    cancel = Slot(False, "Boolean")
+    _workbook(book, "BeforeXmlImport", [xml_map, url, False, cancel])
+    return not to_bool(cancel.get())
+
+
+def after_xml_import(book: Workbook, xml_map: VBAObject, result: int) -> None:
+    _workbook(book, "AfterXmlImport", [xml_map, False, VBAInt(result, "Long")])
+
+
+def before_xml_export(book: Workbook, xml_map: VBAObject, url: str) -> bool:
+    cancel = Slot(False, "Boolean")
+    _workbook(book, "BeforeXmlExport", [xml_map, url, cancel])
+    return not to_bool(cancel.get())
+
+
+def after_xml_export(book: Workbook, xml_map: VBAObject, url: str, result: int) -> None:
+    _workbook(book, "AfterXmlExport", [xml_map, url, VBAInt(result, "Long")])
 
 
 def before_print(book: Workbook) -> bool:

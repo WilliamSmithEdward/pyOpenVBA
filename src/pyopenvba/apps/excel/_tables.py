@@ -100,6 +100,10 @@ class TableColumn:
     totals_formula: str = ""
     #: A calculated column's formula, which a row the table gains takes; "" for a column of values.
     calculated: str = ""
+    #: The XML map and leaf the column is mapped to (see _xml_maps), or None, and the leaf's name, which it keeps as its
+    #: uniqueName once cleared.
+    xml: Any = None
+    xml_name: str = ""
 
 
 @dataclass
@@ -280,6 +284,14 @@ def base_table_xml(table: Table) -> str:
                                           f'name="" queryTableFieldId="{field}"/>', column, names)
                           for column, field in zip(table.columns, fields, strict=True))
         typed = ' tableType="queryTable"' + (' insertRow="1"' if query.placeholder else "")
+    elif table.kind == "xml":
+        # A table mapped to XML: each column named uniquely by its leaf, or by its id where it has none, and its mapping
+        # (tests/fixtures/xml_maps.json).
+        typed = ' tableType="xml"'
+        columns = "".join(_patched_column(
+            f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" uniqueName="{escape(column.xml_name) if column.xml_name else column.id}" '
+            f'name="">' + (f'<xmlColumnPr mapId="{column.xml[0].id}" xpath="{escape(column.xml[1].path)}" xmlDataType="{column.xml[1].kind}"/>'
+                           if column.xml else "") + '</tableColumn>', column, names) for column in table.columns)
     else:
         typed = ""
         columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column,
@@ -1312,7 +1324,10 @@ class ListObject(HeldPart, ExcelObject):
 
     @member
     def XmlMap(self) -> object:
-        return NOTHING
+        """The XML map its columns are mapped to, or Nothing (see _xml_maps)."""
+        from pyopenvba.apps.excel._xml_maps import table_map
+
+        return table_map(self.table)
 
     @method
     def Unlink(self) -> object:
@@ -1434,34 +1449,15 @@ class ListColumns(VBACollection, ItemDefault, _TablePart, ExcelObject):
         return ListColumn(self.table, add_column(self.table, where))
 
 
-class XPathOfCells(ExcelObject):
-    """The XML mapping of cells with none (tests/fixtures/small_rows.json)."""
-
-    vba_type_name = "XPath"
-
-    @member(default=True)
-    def Value(self) -> object:
-        return ""
-
-    @member
-    def Repeating(self) -> object:
-        raise error(1004, "Unable to get the Repeating property of the XPath class")
-
-    @member
-    def Map(self) -> object:
-        raise error(-2147467259, "Automation error\nUnspecified error")
-
-    @method
-    def Clear(self) -> object:
-        return EMPTY
-
-
 class ListColumn(HeldPart, ExcelObject):
     vba_type_name = "ListColumn"
 
     @member
     def XPath(self) -> object:
-        return XPathOfCells()
+        """The column's XML mapping (see _xml_maps)."""
+        from pyopenvba.apps.excel._xml_maps import column_xpath
+
+        return column_xpath(self.table, self.held)
 
     def __init__(self, table: Table, index: int) -> None:
         self.table = table

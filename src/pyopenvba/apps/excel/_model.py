@@ -373,7 +373,8 @@ class Application(ExcelObject):
         "WorkbookActivate", "WorkbookDeactivate", "WorkbookNewSheet", "SheetChange", "SheetCalculate",
         "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate",
         "NewWorkbook", "SheetBeforeDelete", "SheetFollowHyperlink", "WindowActivate", "WindowDeactivate",
-        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart", "AfterCalculate"})
+        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart", "AfterCalculate", "WorkbookBeforeXmlImport", "WorkbookAfterXmlImport",
+        "WorkbookBeforeXmlExport", "WorkbookAfterXmlExport"})
 
     def vba_information_value(self) -> object:
         return self.Name()
@@ -1855,7 +1856,7 @@ class Workbook(ExcelObject):
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
         "SheetPivotTableUpdate", "SheetPivotTableChangeSync", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
-        "WindowActivate", "WindowDeactivate", "WindowResize"})
+        "WindowActivate", "WindowDeactivate", "WindowResize", "BeforeXmlImport", "AfterXmlImport", "BeforeXmlExport", "AfterXmlExport"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
@@ -1952,6 +1953,13 @@ class Workbook(ExcelObject):
         #: The kinds of part a loaded workbook came with, its relationships' types and a few markers, which the
         #: collections the model holds nothing in refuse to read as empty (see _empty_collections).
         self.held_kinds: set[str] = set()
+        #: The XML maps (see _xml_maps), how many maps and schemas have been numbered, and whether the parts need writing.
+        self.xml_maps: list[object] = []
+        self.xml_maps_made = 0
+        self.xml_schemas_made = 0
+        self.xml_maps_changed = False
+        #: Why a file's XML maps were left unread, which every XML map member then reports; "" where they were read.
+        self.xml_maps_unread = ""
         #: What the file's query tables said when read or last saved, None where it has none (see _query_tables).
         self.query_baseline: list[str] | None = None
         #: The connections of the workbook's query tables, and the names a deletion cost the file (see _query_tables).
@@ -2513,13 +2521,49 @@ class Workbook(ExcelObject):
     def Excel4IntlMacroSheets(self, Index: object = MISSING) -> object:
         return self._empty("Excel4IntlMacroSheets", Index)
 
+    #: XmlImportXml's ImportMap and an ExportXml's Data are written back to the caller's variable (see _xml_maps).
+    vba_slot_arguments = frozenset({"xmlimportxml", "xmlimport"})
+
     @member
     def XmlMaps(self, Index: object = MISSING) -> object:
-        return self._empty("XmlMaps", Index)
+        from pyopenvba.apps.excel._xml_maps import XmlMaps
+
+        found = XmlMaps(self)
+        return found if Index is MISSING else found.vba_get("Item", [Index])
 
     @member
     def XmlNamespaces(self, Index: object = MISSING) -> object:
-        return self._empty("XmlNamespaces", Index)
+        from pyopenvba.apps.excel._xml_maps import XmlNamespaces
+
+        found = XmlNamespaces(self)
+        return found if Index is MISSING else found.vba_get("Item", [Index])
+
+    @method
+    def XmlImportXml(self, Data: object = MISSING, ImportMap: object = MISSING, Overwrite: object = MISSING,  # noqa: N803
+                     Destination: object = MISSING) -> object:
+        """With a map, its ImportXml (tests/fixtures/xml_maps.json); with none, which Excel infers a schema for, it reports itself."""
+        from pyopenvba.apps.excel._xml_maps import plain, workbook_import
+
+        if Data is MISSING or ImportMap is MISSING:
+            raise error(449, "Argument not optional")
+        return workbook_import(self, to_text(plain(Data)), ImportMap, plain(Overwrite), plain(Destination))
+
+    @method
+    def XmlImport(self, Url: object = MISSING, ImportMap: object = MISSING, Overwrite: object = MISSING,  # noqa: N803
+                  Destination: object = MISSING) -> object:
+        from pyopenvba.apps.excel._xml_maps import plain, read_url, workbook_import
+
+        if ImportMap is MISSING:
+            raise error(449, "Argument not optional")
+        text, url = read_url(self, plain(Url), "Workbook.XmlImport")
+        return workbook_import(self, text, ImportMap, plain(Overwrite), plain(Destination), url=url)
+
+    @method
+    def SaveAsXMLData(self, Filename: object = MISSING, Map: object = MISSING) -> object:  # noqa: N803 - native names
+        from pyopenvba.apps.excel._xml_maps import save_as_xml_data
+
+        save_as_xml_data(self, Filename, Map)
+        return EMPTY
 
     @member
     def CustomViews(self, Index: object = MISSING) -> object:
@@ -3738,6 +3782,9 @@ class Worksheet(ExcelObject):
         self.notes: dict[tuple[int, int], Note] = {}
         #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
         self.held_kinds: set[str] = set()
+        #: The cells mapped one by one to XML (see _xml_maps), and the part a file keeps them in.
+        self.xml_cells: dict[tuple[int, int], Any] = {}
+        self.xml_cells_part = ""
         #: The chart sheet this sheet carries the chart of, which no tab shows (see _chart_sheets).
         self.chart_sheet: ChartSheet | None = None
         #: The sheet's query tables, the newest first (see _query_tables).
@@ -4269,14 +4316,14 @@ class Worksheet(ExcelObject):
     @method
     def XmlDataQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
                      Map: object = MISSING) -> object:
-        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+        if self.book.xml_maps:
             raise VBAUnsupportedError("XmlDataQuery in a workbook with XML maps is not implemented")
         return NOTHING
 
     @method
     def XmlMapQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
                     Map: object = MISSING) -> object:
-        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+        if self.book.xml_maps:
             raise VBAUnsupportedError("XmlMapQuery in a workbook with XML maps is not implemented")
         return NOTHING
 
@@ -6642,12 +6689,10 @@ class Range(ExcelObject):
 
     @member
     def XPath(self) -> object:
-        from pyopenvba.apps.excel._range_members import XPath
+        """The cells' XML mapping (see _xml_maps): of one cell, or one column of them; a wider block is out of range."""
+        from pyopenvba.apps.excel._xml_maps import cell_xpath
 
-        # Of one cell only (tests/fixtures/unassessed_more.json, xpath_block).
-        if len(self.areas) != 1 or self.first.top != self.first.bottom or self.first.left != self.first.right:
-            raise error(-2147024809, "The specified value is out of range.")
-        return XPath(self)
+        return cell_xpath(self)
 
     @member
     def CellControl(self) -> object:

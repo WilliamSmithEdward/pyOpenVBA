@@ -12,6 +12,7 @@ The style's colours are the default Office theme's; a workbook with another them
 that were not measured report themselves unsupported."""
 from __future__ import annotations
 
+import os
 import re
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import replace
@@ -22,7 +23,7 @@ from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._styles import DEFAULT_THEME
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import MISSING, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number
+from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number, to_text
 from pyopenvba.shapes._read_look import Paint, read_look, read_style
 from pyopenvba.shapes._values import FillGradient, FillLine, GradientPoint, emu, points
 
@@ -421,6 +422,33 @@ class FillFormat(_Format):
         self.look()
         return VBAInt(-2, "Long")
 
+    @method
+    def PresetTextured(self, PresetTexture: object = MISSING) -> object:
+        # Excel's preset textures are its own pictures, written into the file: the model carries no copy of them.
+        raise VBAUnsupportedError("FillFormat.PresetTextured is not implemented: Excel's texture pictures are not part of pyOpenVBA")
+
+    def _picture_file(self, member: str, path: object) -> None:
+        """A picture a macro names is a file read, which the sandbox refuses like any other. Past it, a file that is not there is
+        error -2147024894, and then a line, which has no fill, -2147024809 (tests/fixtures/fill_format_round_2.json, which also measured what
+        Excel makes of a picture: its bytes kept, its content type from what it holds)."""
+        self.owner.sheet.book.application.outside(f"FillFormat.{member}")
+        self.look()
+        from pyopenvba.interpreter._files import final_path
+
+        if not os.path.isfile(final_path(to_text(path))):
+            raise error(-2147024894, "The system cannot find the file specified.")
+        if not self.filled():
+            raise error(*_INVALID)
+        raise _unmeasured(f"FillFormat.{member}, a fill of a picture from a file,")
+
+    @method
+    def UserPicture(self, PictureFile: object = MISSING) -> object:
+        self._picture_file("UserPicture", PictureFile)
+
+    @method
+    def UserTextured(self, TextureFile: object = MISSING) -> object:
+        self._picture_file("UserTextured", TextureFile)
+
     @member
     def Transparency(self) -> object:
         if not self.filled() or self.look().fill_bare:
@@ -664,6 +692,11 @@ class FillFormat(_Format):
     def GradientStops(self) -> object:
         self.alone()
         return GradientStops(self)
+
+    @member
+    def PictureEffects(self) -> object:
+        self.look()
+        return PictureEffects(self)
 
     @member
     def Pattern(self) -> object:
@@ -1307,6 +1340,21 @@ class ColorFormat(HeldPart):
             raise _unmeasured("The SchemeColor of a text box, or one of Windows' own colours,")
         palette = self.owner.owner.sheet.book.stylesheet.colors.indexed
         self.set_own(_SCHEME_EXTRAS.get(wanted) or palette[wanted], None, wanted)
+
+
+class PictureEffects(HeldPart):
+    """A fill's picture effects. Every fill gives this object, and on one with no picture, which is every fill the model makes or
+    reads, counting them is error -2147024809 (tests/fixtures/fill_format_round_2.json). The rest of it was not measured."""
+
+    vba_type_name = "PictureEffects"
+
+    def __init__(self, fill: FillFormat) -> None:
+        self.fill = fill
+
+    @member
+    def Count(self) -> object:
+        self.fill.look()
+        raise error(*_INVALID)
 
 
 class GradientStops(HeldPart):

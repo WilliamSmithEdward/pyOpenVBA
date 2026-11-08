@@ -794,7 +794,7 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
     """Refresh only changed reference caches; leave every other chart byte alone, but for the references a chart read
     from a file has had rewritten as its cells moved."""
     for shape_id, chart in sheet.chart_states.items():
-        if chart.parts_pending or chart.plot_pending:
+        if chart.parts_pending or chart.plot_pending or chart.whole_pending:
             from pyopenvba.apps.excel._chart_loaded import write_parts
 
             write_parts(sheet.chart_sheet or Chart(sheet, next(item for item in sheet.shapes_ if item.shape_id == shape_id)))

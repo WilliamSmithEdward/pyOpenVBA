@@ -375,7 +375,12 @@ class Axis(ElementProperties, Created):
         if self.chart.state.original:
             from pyopenvba.apps.excel._chart_loaded import set_axis_title
 
-            set_axis_title(self.chart, self.entry, wanted)
+            try:
+                set_axis_title(self.chart, self.entry, wanted)
+            except VBAUnsupportedError:
+                # A new one on a chart with a style, as a new chart of its style takes it.
+                if not self.chart.whole_changed('Axis.HasTitle'):
+                    raise
         else:
             self.chart.keeps_look(f"title{self.entry.kind}", wanted)
             self.chart.changed()
@@ -561,7 +566,12 @@ class Axis(ElementProperties, Created):
         if self.chart.state.original:
             from pyopenvba.apps.excel._chart_loaded import set_gridlines
 
-            set_gridlines(self.chart, self.entry, True, wanted)
+            try:
+                set_gridlines(self.chart, self.entry, True, wanted)
+            except VBAUnsupportedError:
+                # New ones on a chart with a style, as a new chart of its style takes them.
+                if not self.chart.whole_changed('Axis.HasMajorGridlines'):
+                    raise
         else:
             self.chart.keeps_look(f"grid{self.entry.tag}", wanted)
             self.chart.changed()
@@ -579,7 +589,12 @@ class Axis(ElementProperties, Created):
         if self.chart.state.original:
             from pyopenvba.apps.excel._chart_loaded import set_gridlines
 
-            set_gridlines(self.chart, self.entry, False, wanted)
+            try:
+                set_gridlines(self.chart, self.entry, False, wanted)
+            except VBAUnsupportedError:
+                # New ones on a chart with a style, as a new chart of its style takes them.
+                if not self.chart.whole_changed('Axis.HasMinorGridlines'):
+                    raise
         else:
             self.chart.changed()
         self.entry.minor_gridlines = wanted
@@ -975,7 +990,12 @@ class AxisTitle(ElementProperties, TitleMembers):
         if self.axis.chart.state.original:
             from pyopenvba.apps.excel._chart_loaded import type_axis_title
 
-            type_axis_title(self.axis.chart, self.axis.entry, wanted)
+            try:
+                type_axis_title(self.axis.chart, self.axis.entry, wanted)
+            except VBAUnsupportedError:
+                # A title on one line takes it as a new chart of its style does; one of several lines was not measured so.
+                if not wanted or '\r' in wanted or '\n' in wanted or not self.axis.chart.whole_changed('AxisTitle.Text'):
+                    raise
         else:
             self.axis.chart.keeps_look(f"title{self.axis.entry.kind}", bool(wanted))
             self.axis.chart.changed()

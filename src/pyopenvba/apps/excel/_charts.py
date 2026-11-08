@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 import math
 import re
@@ -263,6 +263,14 @@ class ChartState:
     parts_pending: list[tuple[SeriesState, str]] = field(default_factory=lambda: [])
     #: Whether a loaded chart's plot area changed as a whole, written into original at save (see _chart_loaded).
     plot_pending: bool = False
+    #: The idx of each series of a loaded chart deleted since its plot area was last written: a new series that takes the idx
+    #: takes a new unique id too (tests/fixtures/loaded_chart_styled_edits.json).
+    plot_dropped: set[int] = field(default_factory=lambda: set[int]())
+    #: Whether a loaded chart with a style is written whole at save, as a new chart of its style (see _chart_loaded.admit_whole).
+    whole_pending: bool = False
+    #: Whether a data change took a loaded series' labels away: what a later one gives back was not measured
+    #: (tests/fixtures/loaded_chart_label_data.json).
+    labels_data_dropped: bool = False
     dirty: bool = True
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
@@ -809,6 +817,20 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
             fresh.legend_position = said[1] or 'b'
     _events.new_chart(sheet.book, ChartObject(sheet, shape).Chart())
     return shape
+
+
+def _labels_alone(entry: SeriesState) -> bool:
+    """Whether what the series' points hold of their own is their labels alone."""
+    return all(PointState(unique=point.unique) == replace(point, label=None, label_own=PointLabel(), label_unique=-1)
+               for point in entry.points.values())
+
+
+def _labels_taken(entry: SeriesState) -> None:
+    """A loaded series' labels gone with its values, its own and its points', as Excel's save leaves none
+    (tests/fixtures/loaded_chart_label_data.json)."""
+    entry.data_labels, entry.label_look = False, LabelLook()
+    entry.label_generation += 1
+    entry.points = {key: point for key, point in entry.points.items() if point.label is None and point.label_own.empty()}
 
 
 def _labelled(chart: ChartState) -> None:
@@ -2072,6 +2094,17 @@ class Chart(ElementProperties, HeldPart):
         self.state.dirty = True
         self.sheet.drawing_changed()
 
+    def whole_changed(self, member: str) -> bool:
+        """Whether a loaded chart takes this member's edit, refused in place, as a new chart of its style does, its part
+        written whole at save (see _chart_loaded.admit_whole)."""
+        from pyopenvba.apps.excel._chart_loaded import admit_whole
+
+        if not admit_whole(self, member):
+            return False
+        self.state.dirty = True
+        self.sheet.drawing_changed()
+        return True
+
     def plot_admitted(self, member: str) -> None:
         """Whether this member may change the chart's series or type, before anything changes. A loaded chart takes it
         where its plot area is written as the file holds it, and writes the plot area whole at save (see _chart_loaded)."""
@@ -2640,12 +2673,21 @@ class Chart(ElementProperties, HeldPart):
             return VBAInt(74, 'Long')
         return VBAInt(shown_type(self.state), 'Long')
 
+    def _own_fonts(self) -> list[str]:
+        """The elements whose text has a font set. A loaded chart with a style spells out the style's font on each element,
+        which Excel reads as the element's own, and turns as a new chart of the style (tests/fixtures/loaded_chart_styled_edits.json)."""
+        from pyopenvba.apps.excel._chart_styled import style_font
+
+        state = self.state
+        styled = bool(state.original and state.style_part)
+        return [key for key, look in state.element_fonts.items() if not (styled and look == style_font(state.chart_style, key))]
+
     @setter('ChartType')
     def _chart_type(self, value: object) -> None:
         wanted = int(to_number(value))
         if wanted not in CHART_TYPES:
             raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
-        if self.state.element_looks or self.state.element_fonts or any(
+        if self.state.element_looks or self._own_fonts() or any(
                 one.format_look is not None or one.points or one.label_look.font is not None
                 for one in self.state.series):
             raise VBAUnsupportedError('Changing the type of a chart with a look of its own is not implemented')
@@ -2668,9 +2710,9 @@ class Chart(ElementProperties, HeldPart):
             self.state.style_labels = [*self.state.style_labels[:4], '']
             for entry in self.state.series:
                 entry.label_look.position = None
-        if (self.state.chart_style > 48 and wanted not in STACKED and self.state.chart_type not in STACKED
-                and {CHART_TYPES[wanted], CHART_TYPES.get(self.state.chart_type)} == {'column', 'bar'}):
-            # A style's overlap does not survive its bars turning (tests/fixtures/add_chart2.json).
+        if self.state.chart_style > 48 and wanted not in STACKED and CHART_TYPES[wanted] in ('column', 'bar'):
+            # A style's overlap does not survive a turn to unstacked bars, from bars, the same type, a line or an area alike
+            # (tests/fixtures/add_chart2.json, tests/fixtures/loaded_chart_styled_edits.json).
             self.state.overlap = 0
         self.state.chart_type = wanted
         if self.sheet.active_chart is self.shape:
@@ -2840,6 +2882,41 @@ class Chart(ElementProperties, HeldPart):
         self.admit_read()
         return VBAInt(plot_by(self.state), 'Long')
 
+    @setter('PlotBy')
+    def _plot_by(self, value: object) -> None:
+        """PlotBy: SetSourceData on the chart's own cells, the other way; Excel saves them alike
+        (tests/fixtures/loaded_chart_structure_edits.json)."""
+        from pyopenvba.apps.excel._model import Range
+
+        self.admit_read()
+        wanted = int(to_integer(value, 'Long'))
+        if wanted not in (1, 2):
+            raise VBAUnsupportedError(f'Chart.PlotBy = {wanted} is not implemented')
+        sheet, area = self._own_source()
+        self.SetSourceData(Range(sheet, [area]), VBAInt(wanted, 'Long'))
+
+    def _own_source(self) -> tuple[Worksheet, Area]:
+        """The block of cells the chart's series are, as SetSourceData plots it the way the chart is plotted now."""
+        state = self.state
+        current = plot_by(state)
+        references = [one for entry in state.series for one in (entry.name_reference, entry.category_reference, entry.value_reference)
+                      if one]
+        if current not in (1, 2) or state.full_series or state.out_of_sight or not references:
+            raise VBAUnsupportedError('Chart.PlotBy on a chart whose series are not one block of cells is not implemented')
+        areas = [area for one in references for area in parse_reference(one)]
+        names = {area.sheet for area in areas}
+        if len(areas) != len(references) or len(names) != 1:
+            raise VBAUnsupportedError('Chart.PlotBy on a chart whose series are not one block of cells is not implemented')
+        name = next(iter(names))
+        sheet = self.sheet.book.sheet_named(name) if name else self.sheet
+        block = Area(min(area.top for area in areas), min(area.left for area in areas), max(area.bottom for area in areas),
+                     max(area.right for area in areas))
+        planned = plan_series(sheet, block, current)
+        if [(one.name_reference, one.category_reference, one.value_reference) for one in planned] != [
+                (one.name_reference, one.category_reference, one.value_reference) for one in state.series]:
+            raise VBAUnsupportedError('Chart.PlotBy on a chart whose series are not one block of cells is not implemented')
+        return sheet, block
+
     def display(self) -> ChartState:
         self.admit_read()
         if not self.state.display_readable:
@@ -2989,11 +3066,10 @@ class Chart(ElementProperties, HeldPart):
         if orientation not in (1, 2):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.plot_admitted('Chart.SetSourceData')
-        if self.state.original and any(Series(self, entry).has_labels() for entry in self.state.series):
-            # Excel's save kept a loaded chart's labels on the same source and took them away on others
-            # (tests/fixtures/loaded_chart_structure_edits.json).
-            raise VBAUnsupportedError('SetSourceData on an imported chart with data labels is not implemented')
+        if self.state.original and self.state.labels_data_dropped:
+            raise VBAUnsupportedError('Changing the data of an imported chart after its labels went with its data is not implemented')
         series_plan = plan_series(Source.sheet, area, orientation, at)
+        dropped = self._labels_across(series_plan) if self.state.original else False
         kept = [(entry.own_type, entry.axis_group, entry.marker) for entry in self.state.series]
         if is_combo(self.state) and len(series_plan) > len(kept):
             raise VBAUnsupportedError('SetSourceData giving a combo chart more series is not implemented')
@@ -3003,6 +3079,7 @@ class Chart(ElementProperties, HeldPart):
             raise VBAUnsupportedError('SetSourceData giving an imported chart more series is not implemented')
         self.state.plot_by = orientation
         self.state.source = KeptSource(Source, orientation)
+        self.state.labels_data_dropped = self.state.labels_data_dropped or dropped
         for index, series in enumerate(series_plan):
             series.unique = self.state.unique_base + index
             series.marker = default_marker(self.state)
@@ -3022,6 +3099,27 @@ class Chart(ElementProperties, HeldPart):
             # What is selected stays selected, in the same place among the new series.
             selected.entry = series_plan[place]
         return EMPTY
+
+    def _labels_across(self, series_plan: list[SeriesState]) -> bool:
+        """A loaded chart's data labels across SetSourceData: a series in the same place with the same cells keeps them, and
+        one whose cells change loses them, as Excel's save does (tests/fixtures/loaded_chart_label_data.json). Whether any
+        were lost so."""
+        dropped = False
+        for index, old in enumerate(self.state.series):
+            if not Series(self, old).has_labels():
+                continue
+            if not _labels_alone(old):
+                raise VBAUnsupportedError("SetSourceData on an imported chart whose labelled points have a look is not implemented")
+            if index >= len(series_plan):
+                continue
+            new = series_plan[index]
+            if (new.name_reference, new.category_reference, new.value_reference) != (
+                    old.name_reference, old.category_reference, old.value_reference):
+                dropped = True
+                continue
+            new.data_labels, new.leader_lines, new.label_look = old.data_labels, old.leader_lines, old.label_look
+            new.labels_read, new.labels_unread, new.points = old.labels_read, old.labels_unread, old.points
+        return dropped
 
     def element_there(self) -> bool:
         """Whether the element selected is still in the chart: its series, or for the ones that come and go, itself."""
@@ -3142,7 +3240,16 @@ class ChartTitle(ElementProperties, TitleMembers):
         if self.chart.state.original:
             from pyopenvba.apps.excel._chart_loaded import type_title
 
-            type_title(self.chart, to_text(value))
+            wanted = to_text(value)
+            try:
+                type_title(self.chart, wanted)
+                return
+            except VBAUnsupportedError:
+                # A title on one line takes it as a new chart of its style does; one of several lines was not measured so.
+                if '\r' in wanted or '\n' in wanted or not self.chart.whole_changed('ChartTitle.Text'):
+                    raise
+            self.chart.state.title, self.chart.state.title_typed = wanted, True
+            self.chart.state.title_look.formula = ''
             return
         self.chart.admit_change()
         wanted = to_text(value)
@@ -4660,6 +4767,8 @@ class Series(PictureMembers, Created):
         self.position()
         self.chart.plot_changed('Series.Delete')
         state = self.chart.state
+        if state.original:
+            state.plot_dropped.add(self.entry.series_id)
         state.series[:] = [entry for entry in state.series if entry is not self.entry]
         state.full_series = [entry for entry in state.full_series if entry is not self.entry]
         if len(state.full_series) == len(state.series):
@@ -4719,13 +4828,23 @@ class Series(PictureMembers, Created):
     def _values(self, value: object) -> None:
         self.position()
         self.chart.plot_admitted('Series.Values')
-        if self.chart.state.original and self.has_labels():
-            # Excel's save took a loaded series' labels away with new values (tests/fixtures/loaded_chart_structure_edits.json).
-            raise VBAUnsupportedError('Setting the values of an imported chart series with data labels is not implemented')
+        state = self.chart.state
+        if state.original and state.labels_data_dropped:
+            raise VBAUnsupportedError('Changing the data of an imported chart after its labels went with its data is not implemented')
         reference, values = series_input(value, sheet=self.chart.sheet)
+        # A loaded series' labels stay with the same cells and go with others (tests/fixtures/loaded_chart_label_data.json).
+        taken = bool(state.original and self.has_labels() and reference.lstrip('=') != self.entry.value_reference)
+        if taken and not reference:
+            # Excel kept them with a literal array, in the one case measured.
+            raise VBAUnsupportedError('Setting a literal array as the values of an imported chart series with labels is not implemented')
+        if taken and not _labels_alone(self.entry):
+            raise VBAUnsupportedError('Setting the values of an imported chart series whose labelled points have a look is not implemented')
         self.position()
         self.chart.plot_changed('Series.Values')
         self.entry.value_reference, self.entry.values = reference, values
+        if taken:
+            _labels_taken(self.entry)
+            state.labels_data_dropped = True
 
     @member
     def XValues(self) -> object:

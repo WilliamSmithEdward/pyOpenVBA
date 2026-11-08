@@ -457,6 +457,11 @@ def read_chart(xml: str, part: str) -> ChartState:
     legend = root.find('c:chart/c:legend', NS)
     result.legend = legend is not None
     result.legend_manual = legend is not None and legend.find('c:layout/c:manualLayout', NS) is not None
+    # Manual layouts, kept as the file spells them for the part to be written as it came.
+    placed = re.search(r'<c:plotArea>(<c:layout><c:manualLayout>.*?</c:manualLayout></c:layout>)', xml, re.DOTALL)
+    result.plot_layout = placed.group(1) if placed else ''
+    placed = re.search(r'<c:legend>(?:(?!</c:legend>).)*?(<c:layout><c:manualLayout>.*?</c:manualLayout></c:layout>)', xml, re.DOTALL)
+    result.legend_layout = placed.group(1) if placed and result.legend_manual else ''
     if legend is not None:
         position = legend.find('c:legendPos', NS)
         if position is not None and position.get('val', 'r') in ('b', 't', 'l', 'r', 'tr'):
@@ -613,6 +618,9 @@ def read_chart(xml: str, part: str) -> ChartState:
                 result.plot_by = 1
         except ValueError:
             pass
+    # What Excel adds to a loaded chart, a point's label or fill or a series, is numbered from its count of trendlines
+    # (tests/fixtures/loaded_chart_new_ids.json).
+    result.next_unique = sum(len(item.trendlines) for item in result.series)
     if len(plots) == 1:
         _defaults_as_unset(result)
     return result
@@ -934,6 +942,19 @@ def shown_points(sheet: Worksheet, state: ChartState, item: SeriesState) -> Seri
                                  if place in places})
 
 
+def written_label_look(state: ChartState, item: SeriesState) -> LabelLook:
+    """A series' labels' look as written: on a chart with a style, a font that is the style's own spelled out is the
+    style's, which dresses the labels in full (tests/fixtures/loaded_chart_label_edits.json)."""
+    from dataclasses import replace
+
+    from pyopenvba.apps.excel._chart_styled import is_styled, style_font
+
+    look = item.label_look
+    if look.font is not None and is_styled(state.chart_style) and look.font == style_font(state.chart_style, 'labels'):
+        return replace(look, font=None)
+    return look
+
+
 def series_parts(sheet: Worksheet, chart: Chart, item: SeriesState) -> tuple[str, str, str]:
     """A series' own spPr, its points' dPt elements and its dLbls, as the writer writes them."""
     from pyopenvba.apps.excel._chart_format import markup as series_look
@@ -949,7 +970,7 @@ def series_parts(sheet: Worksheet, chart: Chart, item: SeriesState) -> tuple[str
     shown = shown_points(sheet, chart.state, item)
     labels = ''
     if kind in CHART_KINDS:
-        labels = labels_markup(kind, item.data_labels, item.leader_lines, item.label_look, point_labels_markup(shown))
+        labels = labels_markup(kind, item.data_labels, item.leader_lines, written_label_look(chart.state, item), point_labels_markup(shown))
     return look, points_markup(shown, kind, place, theme), labels
 
 
@@ -1033,6 +1054,17 @@ def _with_element_labels(xml: str, shown: bool, place: int | None) -> str:
     return xml[:at] + tail
 
 
+
+def _laid_out(xml: str, state: ChartState) -> str:
+    """The part with a loaded chart's manual layouts as its file spells them: the plot area's in place of its automatic
+    one, and the legend's after its position and entries, before its overlay."""
+    if state.plot_layout:
+        xml = xml.replace('<c:plotArea><c:layout/>', '<c:plotArea>' + state.plot_layout, 1)
+    if state.legend_layout and state.legend_manual and state.legend:
+        at = xml.find('<c:overlay', xml.find('<c:legend>'))
+        xml = xml[:at] + state.legend_layout + xml[at:]
+    return xml
+
 def markup(sheet: Worksheet, shape_id: int) -> str:
     shape = next(item for item in sheet.shapes_ if item.shape_id == shape_id)
     from pyopenvba.apps.excel._chart_format import element_markup
@@ -1070,7 +1102,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
                                points=parts[1],
                                point_labels=point_labels_markup(shown_points(sheet, chart.state, item)),
-                               labels=item.data_labels, leader_lines=item.leader_lines, label_look=item.label_look,
+                               labels=item.data_labels, leader_lines=item.leader_lines, label_look=written_label_look(chart.state, item),
                                error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(series_type(chart.state, item), ''),
                                                             lambda element, given: _bar_values(sheet, element, given)),
                                trendlines=trendlines_markup(item.trendlines)))
@@ -1199,7 +1231,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     if sheet.chart_sheet is not None:
         # A chart sheet's chart leaves its page to the sheet (tests/fixtures/chart_location.json).
         xml = re.sub(r'<c:printSettings>.*?</c:printSettings>', '', xml, count=1, flags=re.S)
-    return xml
+    return _laid_out(xml, state)
 
 CT_CHART_STYLE = 'application/vnd.ms-office.chartstyle+xml'
 CT_CHART_COLORS = 'application/vnd.ms-office.chartcolorstyle+xml'

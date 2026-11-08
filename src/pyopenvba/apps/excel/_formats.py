@@ -1417,14 +1417,11 @@ class Border(ExcelObject):
             return
         parts = [area for area in areas if not _row_formats.border_area(sheet, area, self.index, change, together=self.together)]
         _within_limit(parts)
-        if self.index in EDGES or self.index in (11, 12):
-            # Every cell of the range takes the border part, along the border or not, so each counts toward UsedRange
-            # until a save (tests/fixtures/used_range.json).
-            for area in parts:
-                _touch_cells(sheet, area)
         if self.index in EDGES and len(parts) > 1:
             self._across_areas(parts, change)
             return
+        if self.index in EDGES or self.index in (11, 12):
+            self._touch(parts)
         for area in parts:
             if self.index in (5, 6):
                 for row in range(area.top, area.bottom + 1):
@@ -1467,13 +1464,22 @@ class Border(ExcelObject):
         first_places = _edge_places(parts[0], name)
         reads = first_places[-1] if name in ("bottom", "right") else first_places[0]
         if _leaves_lines(change) and effective_side(sheet, *reads, name).style:
+            self._touch(parts)
             return
+        # The later areas copy from the sheet as it stood, before the set made cells of them.
         self._copy_outlines(parts)
+        self._touch(parts)
         found = [effective_side(sheet, row, column, name) for row, column in places]
         current = found[0] if len(set(found)) == 1 else S.Side(effective_side(sheet, *reads, name).style or "thin", S.Color("auto"))
         new = S.NO_SIDE if _leaves_lines(change) else change(current)
         for row, column in places:
             change_side(sheet, row, column, self.index, _exactly(new))
+
+    def _touch(self, parts: list[Area]) -> None:
+        """Every cell of the range takes the border part, along the border or not, so each counts toward UsedRange until
+        a save (tests/fixtures/used_range.json)."""
+        for area in parts:
+            _touch_cells(self.target.sheet, area)
 
     def _copy_outlines(self, parts: list[Area]) -> None:
         """Each later area of a union takes the edges of the area before it that show one line all along, as

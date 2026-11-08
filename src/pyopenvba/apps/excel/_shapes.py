@@ -4305,8 +4305,9 @@ class TextRange2(_ShapeText):
     @method
     def ChangeCase(self, Type: object = MISSING) -> object:
         """Lower, upper and toggle change every letter. Title raises the first letter of each word between spaces, so "(x)" is "(X)" and
-        "stop-now" and "don't" keep their letters inside; the range's own start counts as a word's. Sentence raises the first letter of
-        each paragraph and of each sentence after a stop and a space, over the whole text. Neither lowers a letter."""
+        "stop-now" "Stop-now"; the range's own start counts as a word's. Sentence raises the first letter of each paragraph and of each
+        sentence after a stop and a space, "(yes)" included, over the whole text. Both lower the other letters, but for a word all in
+        capitals, which keeps them."""
         if Type is MISSING:
             raise error(449, "Argument not optional")
         number = int(to_number(Type))
@@ -4321,22 +4322,30 @@ class TextRange2(_ShapeText):
         if number == 1:
             self._whole("ChangeCase msoCaseSentence")
         letters = list(text)
+        capitals: set[int] = set()  # the places of words of two letters or more all in capitals
+        for word in re.finditer(r"[^ \n\x0b\t]+", text):
+            found = [one for one in word.group() if one.isalpha()]
+            if len(found) > 1 and all(one.isupper() for one in found):
+                capitals.update(range(word.start(), word.end()))
+            elif number == 1 and found == [one for one in word.group() if one.isupper()] and len(found) == 1:
+                raise _unsupported("ChangeCase msoCaseSentence on a word of one capital letter")
+        starting, stopped = True, False
         for place, letter in enumerate(text):
-            if not letter.isalpha():
-                continue
-            if number == 4:
-                word = re.split(r"[ \n\x0b\t]", text[:place])[-1]
-                if not any(one.isalpha() for one in word):
-                    letters[place] = letter.upper()
-                continue
-            leading = text[:place].rsplit("\n", 1)[-1]
-            stopped = leading.rstrip(" ")
-            if not stopped:
-                letters[place] = letter.upper()
-            elif stopped[-1] in ".!?":
-                if leading == stopped:
+            if letter.isalpha():
+                if number == 4:
+                    starting = not any(one.isalpha() for one in re.split(r"[ \n\x0b\t]", text[:place])[-1])
+                elif stopped and text[place - 1] in ".!?":
                     raise _unsupported("ChangeCase msoCaseSentence on a letter right after a stop")
-                letters[place] = letter.upper()
+                letters[place] = letter.upper() if starting else letter if place in capitals else letter.lower()
+                starting = stopped = False
+            elif number == 1 and letter == "\n":
+                starting, stopped = True, False
+            elif number == 1 and letter in ".!?":
+                stopped = True
+            elif number == 1 and letter == " " and stopped:
+                starting = True
+            elif number == 1 and not starting:
+                stopped = False
         self._respell(at, text, "".join(letters))
         return EMPTY
 
@@ -4422,28 +4431,29 @@ class TextRange2(_ShapeText):
 
     @method
     def InsertSymbol(self, FontName: object = MISSING, CharNumber: object = MISSING, Unicode: object = MISSING) -> object:
-        """The range's text becomes the one character, in the font named. Without Unicode the number is a Windows-1252 code, and in the
-        Symbol font a place in its own private range, U+F000 on."""
+        """The range's text becomes the one character, in the font named as its Latin and complex-script font. Without Unicode the number
+        is the character of that code, 128 being U+0080, and in the Symbol font a place in its own private range, U+F000 on. A part at the
+        end of the text leaves its last character's settings on the paragraph's end."""
         number = int(to_number(CharNumber))
         wide = Unicode is not MISSING and bool(to_number(Unicode))
         font = _shape_text(FontName)
-        if wide:
-            if not 0 < number < 0x10000:
-                raise _unsupported(f"InsertSymbol of character {number}")
-            symbol_text = chr(number)
-        elif font.lower() == "symbol" and 0x20 <= number < 0x100:
-            symbol_text = chr(0xF000 + number)
-        elif font.lower() in ("wingdings", "wingdings 2", "wingdings 3", "webdings", "marlett") or not 0 < number < 0x100:
+        if wide and not 0 < number < 0x10000:
+            raise _unsupported(f"InsertSymbol of character {number}")
+        if not wide and (font.lower() in ("wingdings", "wingdings 2", "wingdings 3", "webdings", "marlett") or not 0 < number < 0x100):
             raise _unsupported(f"InsertSymbol of character {number} in {font}")
-        else:
-            try:
-                symbol_text = bytes([number]).decode("cp1252")
-            except UnicodeDecodeError:
-                raise _unsupported(f"InsertSymbol of character {number}") from None
+        symbol_text = chr(0xF000 + number) if not wide and font.lower() == "symbol" else chr(number)
         at, count = self.span()
+        shape = self.owner.shape
+        ending = (dict(shape.text_marks[at + count - 1]) if self.at is not None and count and shape.text_marks and at + count == len(shape.text)
+                  and shape.text_end is None else None)
         _edit_text(self.owner, at, count, symbol_text)
+        if ending is not None:
+            shape.text_end = ending
         symbol = TextRange2(self.owner, at, 1)
-        ShapeFont2(symbol).vba_set("Name", FontName)
+        written = ShapeFont2(symbol)
+        written.vba_set("Name", FontName)
+        look = written.changed()
+        look.font_cs = (look.font_latin or "").replace("<a:latin ", "<a:cs ", 1)
         return symbol
 
     @method

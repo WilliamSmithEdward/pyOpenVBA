@@ -153,7 +153,10 @@ def alone(case: list[Any]) -> str:
 
 #: From round 4, what a statement writes to the file: each saved with a text of two runs, and the shape's txBody read back.
 MARKUP = ['', 'tr.RtlRun', 'tr.LtrRun', 'tr.Paragraphs(1).RtlRun', 'tr.ChangeCase msoCaseUpper', 'tr.AddPeriods',
-          'tr.Characters(5, 3).InsertSymbol "Arial", 66', 'tr.Replace "def", "xyz"']
+          'tr.Characters(5, 3).InsertSymbol "Arial", 66', 'tr.Replace "def", "xyz"',
+          # From round 5.
+          'tr.InsertSymbol "Arial", 66', 'tr.Characters(2, 2).InsertSymbol "Arial", 66', 'tr.ChangeCase msoCaseTitle',
+          'tr.InsertAfter ".": tr.RemovePeriods']
 
 
 def markup_macro() -> str:

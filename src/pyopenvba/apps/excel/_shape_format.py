@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._held import HeldPart
@@ -349,6 +349,77 @@ class FillFormat(_Format):
         if self.filled() and self.look().fill_pattern is not None:
             return VBAInt(2, "Long")
         return VBAInt(1 if self.filled() and not self.look().fill_bare else -2, "Long")
+
+    # -- textures. No fill the model makes or reads holds one: on a solid, patterned, gradient, hidden or line fill, typed and late and
+    # in a book opened again, the texture's place and scales raise, its name is error 70 and its kinds read mixed
+    # (tests/fixtures/fill_format_round_1.json).
+
+    def _untextured(self) -> NoReturn:
+        self.look()
+        raise error(*_INVALID)
+
+    @member
+    def TextureAlignment(self) -> object:
+        self._untextured()
+
+    @setter("TextureAlignment")
+    def _texture_alignment(self, value: object) -> None:
+        self._untextured()
+
+    @member
+    def TextureHorizontalScale(self) -> object:
+        self._untextured()
+
+    @setter("TextureHorizontalScale")
+    def _texture_horizontal_scale(self, value: object) -> None:
+        self._untextured()
+
+    @member
+    def TextureVerticalScale(self) -> object:
+        self._untextured()
+
+    @setter("TextureVerticalScale")
+    def _texture_vertical_scale(self, value: object) -> None:
+        self._untextured()
+
+    @member
+    def TextureOffsetX(self) -> object:
+        self._untextured()
+
+    @setter("TextureOffsetX")
+    def _texture_offset_x(self, value: object) -> None:
+        self._untextured()
+
+    @member
+    def TextureOffsetY(self) -> object:
+        self._untextured()
+
+    @setter("TextureOffsetY")
+    def _texture_offset_y(self, value: object) -> None:
+        self._untextured()
+
+    @member
+    def TextureTile(self) -> object:
+        self._untextured()
+
+    @setter("TextureTile")
+    def _texture_tile(self, value: object) -> None:
+        self._untextured()
+
+    @member
+    def TextureName(self) -> object:
+        self.look()
+        raise error(70, "Permission denied")
+
+    @member
+    def TextureType(self) -> object:
+        self.look()
+        return VBAInt(-2, "Long")
+
+    @member
+    def PresetTexture(self) -> object:
+        self.look()
+        return VBAInt(-2, "Long")
 
     @member
     def Transparency(self) -> object:

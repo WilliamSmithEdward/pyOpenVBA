@@ -88,7 +88,8 @@ app = ExcelApplication(sandbox=False)   # VBA may save, open and export files
 ```
 
 That covers `Workbook.Save`, `SaveAs` and `SaveCopyAs`, `Workbooks.Open` and
-`OpenText`, `Worksheet.SetBackgroundPicture`, `VBComponent.Export`,
+`OpenText`, `Worksheet.SetBackgroundPicture`, `FillFormat.UserPicture` and
+`UserTextured`, `VBComponent.Export`,
 `VBComponents.Import`, `CodeModule.AddFromFile`, a workbook link's status, and
 the same open and save members in Word and PowerPoint. It also covers what
 pyOpenVBA implements only with it off, such as `Open`, `Kill`, `Dir`, `Environ` and the HTTP
@@ -3144,6 +3145,12 @@ not establish complete calculation scheduling, iteration, or event conformance.
   members are reachable through `GroupItems`, but `ShapeRange.Group`
   reports itself rather than making one.
 - **Pictures cannot yet be created.** `AddPicture` reports itself unsupported.
+  A shape's fill can hold one: `FillFormat.UserPicture` stretches a PNG, JPEG
+  or GIF over it and `UserTextured` tiles one, as Excel does. The file goes
+  into the workbook as it is, however large; only its first bytes are read,
+  to name its content type. A BMP or anything else Excel converts reports
+  itself unsupported, as does `PresetTextured`, whose textures are Excel's
+  own pictures.
   Excel embedded charts can be created and saved for eight common chart kinds;
   editing imported chart contents and broader chart formatting remain incomplete.
 - A type-suffixed name is the same variable as the name without it, so

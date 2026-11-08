@@ -16,7 +16,7 @@ import os
 import re
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import replace
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._held import HeldPart
@@ -25,7 +25,7 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import MISSING, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number, to_text
 from pyopenvba.shapes._read_look import Paint, read_look, read_style
-from pyopenvba.shapes._values import FillGradient, FillLine, GradientPoint, emu, points
+from pyopenvba.shapes._values import FillGradient, FillLine, FillPicture, GradientPoint, emu, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -46,6 +46,31 @@ _DASH_READS = {4: "dash", 3: "dot", 7: "lgDash"}
 _INVALID = (-2147024809, "The specified value is out of range.")
 #: What Excel's mixed value reads as in a Single.
 _MIXED = -2147483648.0
+#: A stretched picture's tile settings, which it has none of (tests/fixtures/fill_format_round_2.json).
+_MIXED_TILE = VBASingle(_MIXED)
+#: msoTextureAlignment in order, as a tile's algn.
+_ALIGNMENTS = ("tl", "t", "tr", "l", "ctr", "r", "bl", "b", "br")
+
+
+def _scale(value: object) -> int:
+    """A texture's scale in thousandths of a percent; one that is not more than none was not measured."""
+    wanted = float(to_number(value))
+    if not wanted > 0:
+        raise _unmeasured(f"A texture scale of {wanted}")
+    return round(wanted * 100000)
+
+
+def _picture_kind(head: bytes) -> str | None:
+    """What a file's first bytes say it holds."""
+    if head[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png"
+    if head[:3] == b"\xff\xd8\xff":
+        return "jpg"
+    if head[:4] in (b"GIF8",):
+        return "gif"
+    if head[:2] == b"BM":
+        return "bmp"
+    return None
 #: The colour a fill hidden bare comes back as (tests/fixtures/shape_range_fill_line.json).
 BARE_COLOUR = "BBE0E3"
 #: LineFormat's arrowhead values and what the file writes for each (tests/fixtures/shape_line_ends.json).
@@ -345,67 +370,97 @@ class FillFormat(_Format):
     def Type(self) -> object:
         # msoFillSolid, msoFillPatterned or msoFillGradient, or the mixed value for a line, which has no fill, or one
         # hidden bare.
+        picture = self.look().fill_picture
+        if self.filled() and picture is not None:
+            # msoFillTextured tiled, msoFillPicture stretched (tests/fixtures/fill_format_round_2.json).
+            return VBAInt(4 if picture.tiled else 6, "Long")
         if self.filled() and self.look().fill_gradient is not None:
             return VBAInt(3, "Long")
         if self.filled() and self.look().fill_pattern is not None:
             return VBAInt(2, "Long")
         return VBAInt(1 if self.filled() and not self.look().fill_bare else -2, "Long")
 
-    # -- textures. No fill the model makes or reads holds one: on a solid, patterned, gradient, hidden or line fill, typed and late and
-    # in a book opened again, the texture's place and scales raise, its name is error 70 and its kinds read mixed
-    # (tests/fixtures/fill_format_round_1.json).
+    # -- textures and pictures. A fill of a picture from a file stretches it, or tiles it as a texture; the texture's place, scales and
+    # tile read from the tile, a stretched picture's as mixed. On any other fill, typed and late and in a book opened again, those raise,
+    # the texture's name is error 70 and its kinds read mixed (tests/fixtures/fill_format_round_1.json, fill_format_round_2.json).
 
-    def _untextured(self) -> NoReturn:
-        self.look()
-        raise error(*_INVALID)
+    def _picture(self) -> FillPicture | None:
+        """The picture the fill holds, or the error Excel gives a fill with none."""
+        return self.look().fill_picture
+
+    def _tiled(self) -> FillPicture:
+        picture = self._picture()
+        if picture is None:
+            raise error(*_INVALID)
+        return picture
+
+    def _tile_read(self, read: Callable[[FillPicture], object]) -> object:
+        picture = self._tiled()
+        return read(picture) if picture.tiled else _MIXED_TILE
+
+    def _tile_set(self, change: Callable[[FillPicture], FillPicture]) -> None:
+        """A texture setting on a picture: it writes the tile's settings out, and tiles a stretched picture, turned both ways."""
+        picture = self._tiled()
+        if not picture.tiled:
+            picture = replace(picture, tiled=True, flip="xy")
+        self.change(picture=True).fill_picture = change(replace(picture, edited=True))
 
     @member
     def TextureAlignment(self) -> object:
-        self._untextured()
+        picture = self._tiled()
+        return VBAInt(_ALIGNMENTS.index(picture.align) if picture.tiled else -2, "Long")
 
     @setter("TextureAlignment")
     def _texture_alignment(self, value: object) -> None:
-        self._untextured()
+        number = to_integer(value)
+        self._tiled()
+        if not 0 <= number < len(_ALIGNMENTS):
+            raise _unmeasured(f"TextureAlignment {number}")
+        self._tile_set(lambda picture: replace(picture, align=_ALIGNMENTS[number]))
 
     @member
     def TextureHorizontalScale(self) -> object:
-        self._untextured()
+        return self._tile_read(lambda picture: VBASingle(picture.sx / 100000))
 
     @setter("TextureHorizontalScale")
     def _texture_horizontal_scale(self, value: object) -> None:
-        self._untextured()
+        self._tile_set(lambda picture: replace(picture, sx=_scale(value)))
 
     @member
     def TextureVerticalScale(self) -> object:
-        self._untextured()
+        return self._tile_read(lambda picture: VBASingle(picture.sy / 100000))
 
     @setter("TextureVerticalScale")
     def _texture_vertical_scale(self, value: object) -> None:
-        self._untextured()
+        self._tile_set(lambda picture: replace(picture, sy=_scale(value)))
 
     @member
     def TextureOffsetX(self) -> object:
-        self._untextured()
+        return self._tile_read(lambda picture: VBASingle(points(picture.tx)))
 
     @setter("TextureOffsetX")
     def _texture_offset_x(self, value: object) -> None:
-        self._untextured()
+        self._tile_set(lambda picture: replace(picture, tx=emu(float(to_number(value)))))
 
     @member
     def TextureOffsetY(self) -> object:
-        self._untextured()
+        return self._tile_read(lambda picture: VBASingle(points(picture.ty)))
 
     @setter("TextureOffsetY")
     def _texture_offset_y(self, value: object) -> None:
-        self._untextured()
+        self._tile_set(lambda picture: replace(picture, ty=emu(float(to_number(value)))))
 
     @member
     def TextureTile(self) -> object:
-        self._untextured()
+        return VBAInt(-1 if self._tiled().tiled else 0, "Long")
 
     @setter("TextureTile")
     def _texture_tile(self, value: object) -> None:
-        self._untextured()
+        picture = self._tiled()
+        if _shown(value) or not picture.tiled:
+            raise _unmeasured("TextureTile = msoTrue, or msoFalse on a stretched picture,")
+        # Stretched again, with the tile's settings written out.
+        self.change(picture=True).fill_picture = replace(picture, tiled=False, edited=True)
 
     @member
     def TextureName(self) -> object:
@@ -414,35 +469,63 @@ class FillFormat(_Format):
 
     @member
     def TextureType(self) -> object:
-        self.look()
-        return VBAInt(-2, "Long")
+        # msoTextureUserDefined on a stretched picture, mixed on a texture and on every other fill.
+        picture = self._picture()
+        return VBAInt(2 if picture is not None and not picture.tiled else -2, "Long")
 
     @member
     def PresetTexture(self) -> object:
         self.look()
         return VBAInt(-2, "Long")
 
-    def _picture_file(self, member: str, path: object) -> None:
+    def _picture_file(self, member: str, path: object, tiled: bool) -> object:
         """A picture a macro names is a file read, which the sandbox refuses like any other. Past it, a file that is not there is
-        error -2147024894, and then a line, which has no fill, -2147024809 (tests/fixtures/fill_format_round_2.json, which also measured what
-        Excel makes of a picture: its bytes kept, its content type from what it holds)."""
+        error -2147024894, and then a line, which has no fill, -2147024809. Excel keeps a PNG, JPEG or GIF as its bytes are, in a part
+        with the file's own extension, its content type from what it holds, and takes a file named .png that holds no picture as it is;
+        it converts a BMP, and other kinds, which the model does not, so those report themselves. Only the file's first bytes are looked
+        at, and the file goes into the workbook as it is, however large (tests/fixtures/fill_format_round_2.json)."""
         self.owner.sheet.book.application.outside(f"FillFormat.{member}")
         self.look()
         from pyopenvba.interpreter._files import final_path
 
-        if not os.path.isfile(final_path(to_text(path))):
+        source = final_path(to_text(path))
+        if not os.path.isfile(source):
             raise error(-2147024894, "The system cannot find the file specified.")
         if not self.filled():
             raise error(*_INVALID)
-        raise _unmeasured(f"FillFormat.{member}, a fill of a picture from a file,")
+        extension = os.path.splitext(source)[1][1:].lower()
+        with open(source, "rb") as handle:
+            head = handle.read(8)
+        kind = _picture_kind(head)
+        if kind == "bmp":
+            raise _unmeasured(f"FillFormat.{member} of a BMP, which Excel converts to a PNG,")
+        if not ((kind == "png" and extension in ("png", "jpg", "jpeg", "gif")) or (kind == "jpg" and extension in ("jpg", "jpeg"))
+                or (kind == "gif" and extension == "gif") or (kind is None and extension == "png")):
+            raise _unmeasured(f"FillFormat.{member} of a .{extension} file holding {kind or 'no picture'}")
+        if self.shape.kind != "shape" and self.shape.kind != "textBox":
+            raise _unmeasured(f"FillFormat.{member} on a {self.shape.kind}")
+        with open(source, "rb") as handle:
+            data = handle.read()
+        look = self.change(picture=True)
+        look.fill_picture = FillPicture(tiled=tiled)
+        # Its colours read white, and Solid then makes it white.
+        look.fill_rgb, look.fill_back_rgb, look.fill_hidden = "FFFFFF", "FFFFFF", False
+        self.shape.image, self.shape.image_extension, self.shape.image_relationship = data, extension, ""
+        return EMPTY
 
     @method
     def UserPicture(self, PictureFile: object = MISSING) -> object:
-        self._picture_file("UserPicture", PictureFile)
+        return self._picture_file("UserPicture", PictureFile, False)
 
     @method
     def UserTextured(self, TextureFile: object = MISSING) -> object:
-        self._picture_file("UserTextured", TextureFile)
+        return self._picture_file("UserTextured", TextureFile, True)
+
+    def change(self, *, picture: bool = False) -> FillLine:
+        """A change to the fill; on a fill of a picture, only Solid and the texture's settings were measured."""
+        if not picture and self.look().fill_picture is not None:
+            raise _unmeasured("Changing a fill of a picture from a file other than by Solid or its texture settings")
+        return super().change()
 
     @member
     def Transparency(self) -> object:
@@ -485,6 +568,12 @@ class FillFormat(_Format):
         if self.shape.kind == "line":
             # A line has no fill to make solid (tests/fixtures/fill_format_round_1.json).
             raise error(*_INVALID)
+        if before.fill_picture is not None and self.shape.kind in ("shape", "textBox") and not before.line_hidden:
+            # A picture gives way to white, its image gone from the file (tests/fixtures/fill_format_round_2.json).
+            look = self.change(picture=True)
+            look.fill_picture, look.fill_solid = None, True
+            self.shape.image, self.shape.image_relationship = None, ""
+            return EMPTY
         if self.shape.kind != "shape" or before.fill_hidden or before.line_hidden or before.fill_bare:
             raise _unmeasured("Solid on this kind of shape, or with the fill or line hidden,")
         if before.fill_gradient is not None and any(stop.alpha is not None for stop in before.fill_gradient.stops):
@@ -680,6 +769,8 @@ class FillFormat(_Format):
         found = self.look().fill_gradient
         if not self.filled():
             return VBAInt(-2, "Long")
+        if self.look().fill_picture is not None:
+            return VBAInt(-1, "Long")
         return VBAInt(-1 if found is not None and found.rotate else 0, "Long")
 
     @setter("RotateWithObject")
@@ -1344,8 +1435,8 @@ class ColorFormat(HeldPart):
 
 
 class PictureEffects(HeldPart):
-    """A fill's picture effects. Every fill gives this object, and on one with no picture, which is every fill the model makes or
-    reads, counting them is error -2147024809 (tests/fixtures/fill_format_round_2.json). The rest of it was not measured."""
+    """A fill's picture effects. Every fill gives this object: a picture from a file has none to begin with, and counting them on a
+    fill with no picture is error -2147024809 (tests/fixtures/fill_format_round_2.json). The rest of it was not measured."""
 
     vba_type_name = "PictureEffects"
 
@@ -1354,8 +1445,9 @@ class PictureEffects(HeldPart):
 
     @member
     def Count(self) -> object:
-        self.fill.look()
-        raise error(*_INVALID)
+        if self.fill.look().fill_picture is None:
+            raise error(*_INVALID)
+        return VBAInt(0, "Long")
 
 
 class GradientStops(HeldPart):

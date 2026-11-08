@@ -55,6 +55,14 @@ ROUNDS[4] = ['f.Solid: f.Transparency = 0.1', 'f.Patterned msoPatternHorizontalB
              'f.Visible = msoFalse: f.Visible = msoTrue: f.TextureTile = msoTrue', 'f.TextureHorizontalScale = 1',
              'f.TextureAlignment = msoTextureBottomLeft', 'f.Patterned 40: f.TextureOffsetY = 0', 'f.UserTextured At("absent.png")',
              'f.UserPicture At("void.jpg")', 'f.ForeColor.Brightness = -0.25', 'v = f.TextureType']
+#: Round 5, held out on the picture fills: a JPEG and a GIF stretched and tiled, a picture under another kind's name, texture settings
+#: in new orders, and a picture's fill changed by members only Solid was measured against.
+ROUNDS[5] = ['f.UserPicture At("p.jpg")', 'f.UserTextured At("p.gif")', 'f.UserPicture At("p.jpeg")', 'f.UserTextured At("jpg_named.png")',
+             'f.UserPicture At("gif_named.png")', 'f.UserPicture At("png_named.gif")',
+             'f.UserTextured At("p.jpg"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4',
+             'f.UserPicture At("p.gif"): f.TextureAlignment = msoTextureCenter', 'f.UserTextured At("p.png"): f.TextureTile = msoTrue',
+             'f.UserPicture At("p.jpg"): f.TextureTile = msoFalse', 'f.UserTextured At("p.gif"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)',
+             'f.UserPicture At("p.png"): f.UserTextured At("p.jpg")', 'f.Patterned msoPatternWeave: f.UserPicture At("p.gif")']
 #: What round 2 adds to READS: whether PictureEffects itself answers, which round 1's PictureEffects.Count could not tell.
 READS_2 = ['TypeName(f.PictureEffects)']
 
@@ -71,9 +79,29 @@ def _png(width: int, height: int, pixels: bytes) -> bytes:
             + chunk(b'IEND', b''))
 
 
+#: Round 2's 4 by 4 pixels as a JPEG and a GIF, made once with Pillow (JPEG at quality 90, GIF as it saves them), so a run needs no
+#: Pillow.
+JPEG = bytes.fromhex(
+    'ffd8ffe000104a46494600010100000100010000ffdb0043000302020302020303030304030304050805050404050a070706080c0a0c0c0b0a0b0b0d0e12100d'
+    '0e110e0b0b1016101113141515150c0f171816141812141514ffdb00430103040405040509050509140d0b0d1414141414141414141414141414141414141414'
+    '141414141414141414141414141414141414141414141414141414141414ffc00011080004000403012200021101031101ffc4001f0000010501010101010100'
+    '000000000000000102030405060708090a0bffc400b5100002010303020403050504040000017d01020300041105122131410613516107227114328191a10823'
+    '42b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a'
+    '838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1'
+    'f2f3f4f5f6f7f8f9faffc4001f0100030101010101010101010000000000000102030405060708090a0bffc400b5110002010204040304070504040001027700'
+    '0102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a43444546474849'
+    '4a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4'
+    'c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f0097f67ef883adff00c2b0d37fd27d7b1f41'
+    'ef451457939a50a5f5eadee2f89f45dcf94ce735cc3fb4b11fed13f8a5f6a5dfd4ffd9')
+GIF = bytes.fromhex(
+    '47494638376104000400830000ffb480c3b480ff7880c3788087b4808778804bb4804b7880ff3c80c33c80873c804b3c80ff0080c300808700804b00802c0000'
+    '0000040004000008150019201000a0418201011c282840e0c18203060202003b')
+
+
 def files() -> dict[str, bytes]:
-    """The probe's own pictures: a 4 by 4 PNG, the same bytes named .jpg, a 4 by 4 BMP, text named .png, and a 2048 by 2048 PNG of
-    pixels that do not compress, about 12 MB, the same on every run."""
+    """The probe's own pictures: a 4 by 4 PNG, the same bytes named .jpg, a 4 by 4 BMP, text named .png, a 2048 by 2048 PNG of
+    pixels that do not compress, about 12 MB, the same on every run, and from round 5 the 4 by 4 JPEG and GIF under their own names
+    and under others."""
     import hashlib as digest
     import struct
 
@@ -82,7 +110,8 @@ def files() -> dict[str, bytes]:
     rows = b''.join(bytes(small[(3 - row) * 12 + column * 3 + 2 - channel] for column in range(4) for channel in range(3)) for row in range(4))
     bmp = b'BM' + struct.pack('<IHHI', 54 + len(rows), 0, 0, 54) + struct.pack('<IiiHHIIiiII', 40, 4, 4, 1, 24, 0, len(rows), 2835, 2835, 0, 0) + rows
     return {'p.png': _png(4, 4, small), 'png_named.jpg': _png(4, 4, small), 'p.bmp': bmp, 'text.png': b'not a picture\r\n',
-            'big.png': _png(2048, 2048, stream)}
+            'big.png': _png(2048, 2048, stream), 'p.jpg': JPEG, 'p.jpeg': JPEG, 'p.gif': GIF, 'jpg_named.png': JPEG,
+            'gif_named.png': GIF, 'png_named.gif': _png(4, 4, small)}
 
 
 def package(folder: Path, index: int) -> list[Any]:
@@ -97,6 +126,8 @@ def package(folder: Path, index: int) -> list[Any]:
 ROUND = 1
 #: The reads a model run makes, where it reads some of READS only.
 CHOSEN: list[str] = []
+#: Whether a case opens its saved book again and reads it there; a model run that refuses the book opened again leaves it out.
+REOPEN = True
 
 
 def out() -> Path:
@@ -119,8 +150,9 @@ def _case(case: list[Any], index: int) -> str:
     lines = ['    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)', f'    Set sh = {SHAPES[shape]}', '    sh.Name = "S"',
              '    Set f = sh.Fill', '    Err.Clear', f'    {statement}', '    s = "e" & Err.Number', *_reads(''),
              f'    wb.SaveAs folder & Application.PathSeparator & "f{index}.xlsx", xlOpenXMLWorkbook', '    wb.Close SaveChanges:=False',
-             f'    Set wb = Workbooks.Open(folder & Application.PathSeparator & "f{index}.xlsx")', '    Set f = wb.Worksheets(1).Shapes("S").Fill',
-             *_reads('r'), '    Set f = Nothing: Set sh = Nothing', '    wb.Close SaveChanges:=False', f'    out = out & "{SEPARATOR}" & s']
+             *([f'    Set wb = Workbooks.Open(folder & Application.PathSeparator & "f{index}.xlsx")', '    Set f = wb.Worksheets(1).Shapes("S").Fill',
+                *_reads('r'), '    wb.Close SaveChanges:=False'] if REOPEN else []),
+             '    Set f = Nothing: Set sh = Nothing', f'    out = out & "{SEPARATOR}" & s']
     return '\n'.join(lines) + '\n'
 
 
@@ -158,24 +190,26 @@ def shape_xml(folder: Path, index: int) -> str:
     return found[0] if found else ''
 
 
-def _run(case: list[Any], index: int, folder: Path, reads: list[str]) -> list[str] | None:
-    """The model's answer to the case with these reads, its segments split, or None where it refuses."""
-    global CHOSEN
+def _run(case: list[Any], index: int, folder: Path, reads: list[str], reopen: bool = True) -> list[str] | None:
+    """The model's answer to the case with these reads, its segments split, or None where it refuses. Without reopen, the reads of
+    the book opened again answer "refused"."""
+    global CHOSEN, REOPEN
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBACompileError, VBAUnsupportedError
 
-    CHOSEN = reads
+    CHOSEN, REOPEN = reads, reopen
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     try:
         app.add_module(macro([(index, case)]), name='H')
-        return str(app.run('H.Probe', str(folder))).split('|')
+        got = str(app.run('H.Probe', str(folder))).split('|')
+        return got if reopen else [*got, *(['refused'] * len(reads))]
     except VBACompileError:
         return ['does not compile']
     except VBAUnsupportedError:
         return None
     finally:
-        CHOSEN = []
+        CHOSEN, REOPEN = [], True
 
 
 def alone(case: list[Any], index: int, folder: Path) -> list[str]:
@@ -187,13 +221,13 @@ def alone(case: list[Any], index: int, folder: Path) -> list[str]:
         if whole == ['does not compile']:
             return ['does not compile', '', *([[]] * extra)]
         return ['|'.join(whole), shape_xml(folder, index), *([package(folder, index)] * extra)]
-    first = _run(case, index, folder, READS[:1])
+    first = _run(case, index, folder, READS[:1]) or _run(case, index, folder, READS[:1], reopen=False)
     if first is None:
         return ['refused', '', *([[]] * extra)]
     xml, held = shape_xml(folder, index), package(folder, index) if extra else []
     before, after = [], []
     for read in READS:
-        got = _run(case, index, folder, [read])
+        got = _run(case, index, folder, [read]) or _run(case, index, folder, [read], reopen=False)
         before.append('refused' if got is None else got[1])
         after.append('refused' if got is None else got[2])
     return ['|'.join([first[0], *before, *after]), xml, *([held] * extra)]

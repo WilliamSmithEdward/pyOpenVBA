@@ -18,7 +18,8 @@ from typing import Any
 import pytest
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = tuple(stem for stem in ('chart_shift_losses', 'chart_shift_losses1', 'chart_shift_losses2')
+ROUNDS = tuple(stem for stem in ('chart_shift_losses', 'chart_shift_losses1', 'chart_shift_losses2',
+                                  'chart_shift_losses3', 'chart_shift_losses4', 'chart_shift_losses5')
                if (FIXTURES / f'{stem}.json').exists())
 
 

@@ -70,36 +70,51 @@ def _single(reference: str) -> tuple[str, int, int, int, int] | None:
     return reference.rsplit('!', 1)[0] + '!', area.top, area.left, area.bottom, area.right
 
 
-def _points_step(entry: SeriesState, turned: str, sheet: str, change: Change) -> Step | None:
-    """The series' points going with their cells, when its values have moved."""
-    before, after = _single(entry.value_reference), _single(turned)
-    if before is None or after is None or not entry.points:
+def _points_step(state: ChartState, sheet: str, change: Change) -> Step | None:
+    """Each point's look and label going with its cell: to the place among a series' cells it lands on, that
+    series' or another's, and gone where it lands among none (tests/fixtures/chart_shift_losses*.json)."""
+    entries = state.full_series or state.series
+    if not any(entry.points for entry in entries):
         return None
-    prefix, top, left, bottom, right = before
-    _, new_top, new_left, new_bottom, new_right = after
-    down = bottom > top
-    places: dict[int, int] = {}
-    for index in entry.points:
-        row, column = (top + index, left) if down else (top, left + index)
-        if row > bottom or column > right:
+    after = [_single(change(f'={entry.value_reference}', sheet)[1:]) if entry.value_reference else None
+             for entry in entries]
+    landings: list[tuple[SeriesState, int, SeriesState, int]] = []
+    for entry in entries:
+        before = _single(entry.value_reference) if entry.points else None
+        if before is None:
             continue
-        cell = _single(change(f'={prefix}${column_letter(column)}${row}', sheet)[1:])
-        # A point whose cell moves out of the series' cells loses its look and label (chart_shift_losses1.json).
-        if cell is not None and new_top <= cell[1] <= new_bottom and new_left <= cell[2] <= new_right:
-            places[index] = cell[1] - new_top if down or new_bottom > new_top else cell[2] - new_left
-    if all(places.get(index) == index for index in entry.points):
+        prefix, top, left, bottom, right = before
+        down = bottom > top
+        for index in entry.points:
+            row, column = (top + index, left) if down else (top, left + index)
+            if row > bottom or column > right:
+                continue
+            cell = _single(change(f'={prefix}${column_letter(column)}${row}', sheet)[1:])
+            if cell is None:
+                continue
+            for target, area in zip(entries, after, strict=True):
+                if area is None or area[0] != cell[0]:
+                    continue
+                _, new_top, new_left, new_bottom, new_right = area
+                if new_top <= cell[1] <= new_bottom and new_left <= cell[2] <= new_right:
+                    place = cell[1] - new_top if new_bottom > new_top else cell[2] - new_left
+                    landings.append((entry, index, target, place))
+                    break
+    if len(landings) == sum(len(entry.points) for entry in entries) and all(
+            entry is target and index == place for entry, index, target, place in landings):
         return None
 
     def step() -> None:
-        kept = {}
-        for index, point in entry.points.items():
-            if index in places:
-                if places[index] != index:
-                    point.unique = -1
-                    if point.label_unique >= 0:
-                        point.label_unique = NO_ID
-                kept[places[index]] = point
-        entry.points = kept
+        moved = [(target, place, entry.points[index], entry is target and index == place)
+                 for entry, index, target, place in landings]
+        for entry in entries:
+            entry.points = {}
+        for target, place, point, kept in moved:
+            if not kept:
+                point.unique = -1
+                if point.label_unique >= 0:
+                    point.label_unique = NO_ID
+            target.points[place] = point
     return step
 
 
@@ -179,17 +194,16 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
             changed()
         return step
 
+    if not state.original:
+        # Points first: a series whose values go takes its points with it afterwards (_values_gone).
+        moving = _points_step(state, sheet.name, change)
+        if moving is not None:
+            steps += [moving, changed]
     for holder, field in _slots(state):
         text: str = getattr(holder, field)
         if not text:
             continue
         turned = turned_text(text)
-        if turned == text and field == 'value_reference' and not state.original:
-            # Its cells can move inside it, or out of it, with the reference as it was.
-            moving = _points_step(holder, turned, sheet.name, change)  # pyright: ignore[reportArgumentType]
-            if moving is not None:
-                steps.append(moving)
-                steps.append(changed)
         if turned == text or (state.original and '#REF!' in turned):
             # A chart from a file goes on reading a reference whose cells went as it was; its part says #REF!.
             continue
@@ -197,10 +211,6 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
             steps.append(_categories_gone(sheet, holder))  # pyright: ignore[reportArgumentType]
         if field == 'value_reference' and '#REF!' in turned:
             steps.append(_values_gone(holder))  # pyright: ignore[reportArgumentType]
-        elif field == 'value_reference':
-            moving = _points_step(holder, turned, sheet.name, change)  # pyright: ignore[reportArgumentType]
-            if moving is not None:
-                steps.append(moving)
         steps.append(setting(holder, field, turned))
     for entry in state.full_series or state.series:
         for bar in entry.error_bars:

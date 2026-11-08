@@ -8,8 +8,9 @@ filtered table, ListRows.Add inside it, ListRow.Delete and a Delete up are 1004.
 
 Where the model refuses, it is for a reason named in REFUSALS, none of them measured: a Delete of every column of a
 table by its cells; a Delete with no Shift in a filtered table, where Excel asks first with DisplayAlerts on; cells
-moved across a table with no Shift, or put in across its columns and past its rows; one edit across several tables;
-and, as before, whole columns through a table and a table's header row taken by whole rows.
+moved across a table with no Shift, put in across its columns and past its rows, or deleted left past its edge; one
+edit across several tables; and, as before, whole columns through a table and a table's header row taken by whole
+rows.
 """
 from __future__ import annotations
 
@@ -24,11 +25,12 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 ROUNDS = tuple(stem for stem in ('table_shifts_a', 'table_shifts_b', 'table_shifts_c', 'table_shifts1',
-                                  'table_shifts2', 'table_shifts3')
+                                  'table_shifts2', 'table_shifts3', 'table_shifts4', 'table_shifts5')
                if (FIXTURES / f'{stem}.json').exists())
 REFUSALS = ("deleting all of a table's columns by deleting cells", 'where Excel asks first',
             'across a table with no Shift', 'across several tables', 'across a table and beyond its rows',
-            'inserting or deleting columns through a table', "deleting a table's header row")
+            'inserting or deleting columns through a table', "deleting a table's header row",
+            'deleting cells left past the edge of a table')
 
 
 def _cases() -> list[tuple[str, list[Any], str, str]]:

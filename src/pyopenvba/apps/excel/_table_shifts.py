@@ -99,6 +99,9 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
     if auto:
         raise VBAUnsupportedError('cells put in or taken away across a table with no Shift are not implemented')
     if delete:
+        if table.headers and area.top <= whole.top < area.bottom + 1 and area.bottom < whole.bottom:
+            # Its header cells short of its whole height (tests/fixtures/table_shifts3.json).
+            raise error(1004, refusal)
         if not _inside(area, whole):
             raise VBAUnsupportedError('deleting cells left past the edge of a table is not implemented')
         if (area.left, area.right) == (whole.left, whole.right):

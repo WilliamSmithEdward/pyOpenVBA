@@ -22,7 +22,9 @@ RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8'))
                                  for path in sorted((ROOT / 'tests/fixtures/format_condition_rounds').glob('round_*.json'))]
 USED_UP = {56101: "a rule's Font.Size set was refused where Excel raises 1004, a refused NumberFormat left the old code where "
                   "Excel leaves none, and Bold set on a rule reached through the sheet's cells took "
-                  '(tests/fixtures/format_condition_font.json)'}
+                  '(tests/fixtures/format_condition_font.json)',
+           56102: "a font set on a rule held while rows went in above it was reported as reached through other cells, and a "
+                  "refused NumberFormat took away a format the file gave the rule (tests/fixtures/format_condition_font.json)"}
 #: The refusals the model gives where Excel's answer is one it does not copy (tests/test_excel_format_condition_font.py).
 REPORTED = ('model VBAUnsupportedError: Font.Bold set on a rule reached through other cells',
             'model VBAUnsupportedError: Font.Italic set on a rule reached through other cells',
@@ -32,8 +34,10 @@ CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumer
 
 
 def _as_answered(model: str, excel: str, case: dict[str, str]) -> bool:
-    """The model's answer is Excel's, or it reports a font set on a rule reached through cells not its own."""
-    return model == excel or (model.startswith(REPORTED) and not case['reach'].startswith('wsL.Range(fcells)'))
+    """The model's answer is Excel's, or it reports a font set on a rule reached through cells not its own: the sheet's,
+    or the rules' cells once rows went in above them before they were reached."""
+    moved = case['held'] == 'False' and case['edit'].startswith('wsL.')
+    return model == excel or (model.startswith(REPORTED) and (moved or not case['reach'].startswith('wsL.Range(fcells)')))
 
 
 @pytest.mark.parametrize(('seed', 'at', 'case'), CASES, ids=[f'{seed}-{at}' for seed, at, _ in CASES])

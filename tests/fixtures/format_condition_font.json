@@ -63,8 +63,8 @@
    "value": "14",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -74,8 +74,8 @@
    "value": "\"Arial\"",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -96,8 +96,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 2 E0",
    "typed": "0 | Null: | Boolean:True | 2 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -107,8 +107,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 2 E0",
    "typed": "0 | Null: | Boolean:True | 2 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -129,8 +129,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 2 E0",
    "typed": "0 | Null: | Boolean:True | 2 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -140,8 +140,8 @@
    "value": "xlUnderlineStyleSingle",
    "late": "0 | Null: | Long:2 | 2 E0",
    "typed": "0 | Null: | Long:2 | 2 E0",
-   "model_late": "0 | Long:2 | Long:2 | 2 E0",
-   "model_typed": "0 | Long:2 | Long:2 | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -151,8 +151,8 @@
    "value": "14",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -162,8 +162,8 @@
    "value": "\"Arial\"",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -184,8 +184,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 2 E0",
    "typed": "0 | Null: | Boolean:True | 2 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -195,8 +195,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 2 E0",
    "typed": "0 | Null: | Boolean:True | 2 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -217,8 +217,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 2 E0",
    "typed": "0 | Null: | Boolean:True | 2 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -228,8 +228,8 @@
    "value": "xlUnderlineStyleSingle",
    "late": "0 | Null: | Long:2 | 2 E0",
    "typed": "0 | Null: | Long:2 | 2 E0",
-   "model_late": "0 | Long:2 | Long:2 | 2 E0",
-   "model_typed": "0 | Long:2 | Long:2 | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -239,8 +239,8 @@
    "value": "14",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -250,8 +250,8 @@
    "value": "\"Arial\"",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -272,8 +272,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 4 E0",
    "typed": "0 | Null: | Boolean:True | 4 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -283,8 +283,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 4 E0",
    "typed": "0 | Null: | Boolean:True | 4 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -305,8 +305,8 @@
    "value": "True",
    "late": "0 | Null: | Boolean:True | 4 E0",
    "typed": "0 | Null: | Boolean:True | 4 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 2 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -316,8 +316,8 @@
    "value": "xlUnderlineStyleSingle",
    "late": "0 | Null: | Long:2 | 4 E0",
    "typed": "0 | Null: | Long:2 | 4 E0",
-   "model_late": "0 | Long:2 | Long:2 | 2 E0",
-   "model_typed": "0 | Long:2 | Long:2 | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -327,8 +327,8 @@
    "value": "14",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -338,8 +338,8 @@
    "value": "\"Arial\"",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -415,8 +415,8 @@
    "value": "14",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -426,8 +426,8 @@
    "value": "\"Arial\"",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -448,8 +448,8 @@
    "value": "True",
    "late": "0 | Null: | Null: | 2 E0",
    "typed": "0 | Null: | Null: | 2 E0",
-   "model_late": "0 | Boolean:True | Null: | 2 E0",
-   "model_typed": "0 | Boolean:True | Null: | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -459,8 +459,8 @@
    "value": "True",
    "late": "0 | Null: | Null: | 2 E0",
    "typed": "0 | Null: | Null: | 2 E0",
-   "model_late": "0 | Boolean:True | Null: | 2 E0",
-   "model_typed": "0 | Boolean:True | Null: | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -481,8 +481,8 @@
    "value": "True",
    "late": "0 | Null: | Null: | 2 E0",
    "typed": "0 | Null: | Null: | 2 E0",
-   "model_late": "0 | Boolean:True | Null: | 2 E0",
-   "model_typed": "0 | Boolean:True | Null: | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -492,8 +492,8 @@
    "value": "xlUnderlineStyleSingle",
    "late": "0 | Null: | Null: | 2 E0",
    "typed": "0 | Null: | Null: | 2 E0",
-   "model_late": "0 | Long:2 | Null: | 2 E0",
-   "model_typed": "0 | Long:2 | Null: | 2 E0"
+   "model_late": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Underline set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -503,8 +503,8 @@
    "value": "14",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -514,8 +514,8 @@
    "value": "\"Arial\"",
    "late": "1004 | Null: | Null: | 2 E0",
    "typed": "1004 | Null: | Null: | 2 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Name is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 2 E0",
+   "model_typed": "1004 | Null: | Null: | 2 E0"
   },
   {
    "group": "reach",
@@ -547,8 +547,8 @@
    "value": "True",
    "late": "0 | Boolean:False | Boolean:True | 1 E0",
    "typed": "0 | Boolean:False | Boolean:True | 1 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 1 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 1 E0"
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -558,8 +558,8 @@
    "value": "True",
    "late": "0 | Boolean:False | Boolean:True | 1 E0",
    "typed": "0 | Boolean:False | Boolean:True | 1 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 1 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 1 E0"
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -569,8 +569,8 @@
    "value": "True",
    "late": "0 | Boolean:False | Boolean:True | 2 E0",
    "typed": "0 | Boolean:False | Boolean:True | 2 E0",
-   "model_late": "0 | Boolean:True | Boolean:True | 1 E0",
-   "model_typed": "0 | Boolean:True | Boolean:True | 1 E0"
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -591,8 +591,8 @@
    "value": "False",
    "late": "0 | Boolean:True | Boolean:False | 1 E0",
    "typed": "0 | Boolean:True | Boolean:False | 1 E0",
-   "model_late": "0 | Boolean:False | Boolean:False | 1 E0",
-   "model_typed": "0 | Boolean:False | Boolean:False | 1 E0"
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -602,8 +602,8 @@
    "value": "False",
    "late": "0 | Boolean:True | Boolean:False | 1 E0",
    "typed": "0 | Boolean:True | Boolean:False | 1 E0",
-   "model_late": "0 | Boolean:False | Boolean:False | 1 E0",
-   "model_typed": "0 | Boolean:False | Boolean:False | 1 E0"
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "reach",
@@ -613,8 +613,8 @@
    "value": "False",
    "late": "0 | Boolean:True | Boolean:False | 2 E0",
    "typed": "0 | Boolean:True | Boolean:False | 2 E0",
-   "model_late": "0 | Boolean:False | Boolean:False | 1 E0",
-   "model_typed": "0 | Boolean:False | Boolean:False | 1 E0"
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
   },
   {
    "group": "size",
@@ -624,8 +624,8 @@
    "value": "14",
    "late": "1004 | Null: | Null: | 1 E0",
    "typed": "1004 | Null: | Null: | 1 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 1 E0",
+   "model_typed": "1004 | Null: | Null: | 1 E0"
   },
   {
    "group": "size",
@@ -635,8 +635,8 @@
    "value": "\"x\"",
    "late": "1004 | Null: | Null: | 1 E0",
    "typed": "1004 | Null: | Null: | 1 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 1 E0",
+   "model_typed": "1004 | Null: | Null: | 1 E0"
   },
   {
    "group": "size",
@@ -646,8 +646,8 @@
    "value": "Null",
    "late": "1004 | Null: | Null: | 1 E0",
    "typed": "1004 | Null: | Null: | 1 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 1 E0",
+   "model_typed": "1004 | Null: | Null: | 1 E0"
   },
   {
    "group": "size",
@@ -657,8 +657,8 @@
    "value": "0",
    "late": "1004 | Null: | Null: | 1 E0",
    "typed": "1004 | Null: | Null: | 1 E0",
-   "model_late": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA",
-   "model_typed": "model VBAUnsupportedError: Setting Font.Size is not implemented by pyOpenVBA"
+   "model_late": "1004 | Null: | Null: | 1 E0",
+   "model_typed": "1004 | Null: | Null: | 1 E0"
   },
   {
    "group": "format",
@@ -668,8 +668,8 @@
    "value": "\"nonsense[\"",
    "late": "1004 | Empty: | Empty: | 1 E0",
    "typed": "1004 | Empty: | Empty: | 1 E0",
-   "model_late": "1004 | String: | String: | 1 E0",
-   "model_typed": "1004 | String: | String: | 1 E0"
+   "model_late": "1004 | Empty: | Empty: | 1 E0",
+   "model_typed": "1004 | Empty: | Empty: | 1 E0"
   },
   {
    "group": "format",
@@ -690,8 +690,8 @@
    "value": "\"nonsense[\"",
    "late": "1004 | Empty: | Empty: | 1 E0",
    "typed": "1004 | Empty: | Empty: | 1 E0",
-   "model_late": "1004 | String:0.00 | String:0.00 | 1 E0",
-   "model_typed": "1004 | String:0.00 | String:0.00 | 1 E0"
+   "model_late": "1004 | Empty: | Empty: | 1 E0",
+   "model_typed": "1004 | Empty: | Empty: | 1 E0"
   },
   {
    "group": "format",
@@ -701,8 +701,8 @@
    "value": "\"\"",
    "late": "0 | String:;; | String:;; | 1 E0",
    "typed": "0 | String:;; | String:;; | 1 E0",
-   "model_late": "0 | String: | String: | 1 E0",
-   "model_typed": "0 | String: | String: | 1 E0"
+   "model_late": "0 | String:;; | String:;; | 1 E0",
+   "model_typed": "0 | String:;; | String:;; | 1 E0"
   },
   {
    "group": "format",
@@ -723,8 +723,161 @@
    "value": "Empty",
    "late": "0 | String:;; | String:;; | 1 E0",
    "typed": "0 | String:;; | String:;; | 1 E0",
-   "model_late": "0 | String: | String: | 1 E0",
-   "model_typed": "0 | String: | String: | 1 E0"
+   "model_late": "0 | String:;; | String:;; | 1 E0",
+   "model_typed": "0 | String:;; | String:;; | 1 E0"
+  },
+  {
+   "group": "overlap",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlLess, \"=1\"\n",
+   "reach": "ws.Range(\"D2:D6\").FormatConditions(1)",
+   "member": "Font.Bold",
+   "value": "True",
+   "late": "0 | Null: | Boolean:True | 4 E0",
+   "typed": "0 | Null: | Boolean:True | 4 E0",
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
+  },
+  {
+   "group": "overlap",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlLess, \"=1\"\n",
+   "reach": "ws.Range(\"D3:D9\").FormatConditions(1)",
+   "member": "Font.Bold",
+   "value": "True",
+   "late": "0 | Null: | Boolean:True | 4 E0",
+   "typed": "0 | Null: | Boolean:True | 4 E0",
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
+  },
+  {
+   "group": "overlap",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlLess, \"=1\"\n",
+   "reach": "ws.Range(\"C1:D5\").FormatConditions(1)",
+   "member": "Font.Bold",
+   "value": "True",
+   "late": "0 | Null: | Boolean:True | 2 E0",
+   "typed": "0 | Null: | Boolean:True | 2 E0",
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
+  },
+  {
+   "group": "overlap",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlLess, \"=1\"\n",
+   "reach": "ws.Range(\"D1:D4\").FormatConditions(1)",
+   "member": "Font.Bold",
+   "value": "True",
+   "late": "0 | Null: | Boolean:True | 4 E0",
+   "typed": "0 | Null: | Boolean:True | 4 E0",
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
+  },
+  {
+   "group": "overlap",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlLess, \"=1\"\n    ws.Rows(1).Insert\n",
+   "reach": "ws.Range(\"D1:D5\").FormatConditions(1)",
+   "member": "Font.Bold",
+   "value": "True",
+   "base": "D2:D6",
+   "late": "0 | Null: | Boolean:True | 4 E0",
+   "typed": "0 | Null: | Boolean:True | 4 E0",
+   "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
+  },
+  {
+   "group": "overlap",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlLess, \"=1\"\n    ws.Rows(1).Insert\n",
+   "reach": "ws.Range(\"D1:D5\").FormatConditions(1)",
+   "member": "Font.Italic",
+   "value": "True",
+   "base": "D2:D6",
+   "late": "0 | Null: | Boolean:True | 4 E0",
+   "typed": "0 | Null: | Boolean:True | 4 E0",
+   "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
+  },
+  {
+   "group": "origin",
+   "make": "",
+   "book": "file",
+   "reach": "ws.Range(\"D10:D12\").FormatConditions(1)",
+   "member": "NumberFormat",
+   "value": "\"nonsense[\"",
+   "base": "D10:D12",
+   "late": "1004 | String:0.00 | String:0.00 | 11 E0",
+   "typed": "1004 | String:0.00 | String:0.00 | 11 E0",
+   "model_late": "1004 | Empty: | Empty: | 11 E0",
+   "model_typed": "1004 | Empty: | Empty: | 11 E0"
+  },
+  {
+   "group": "origin",
+   "make": "",
+   "book": "file",
+   "reach": "ws.Cells.FormatConditions(1)",
+   "member": "NumberFormat",
+   "value": "\"nonsense[\"",
+   "base": "D10:D12",
+   "late": "1004 | String:0.00 | String:0.00 | 11 E0",
+   "typed": "1004 | String:0.00 | String:0.00 | 11 E0",
+   "model_late": "1004 | Empty: | Empty: | 11 E0",
+   "model_typed": "1004 | Empty: | Empty: | 11 E0"
+  },
+  {
+   "group": "origin",
+   "make": "",
+   "book": "file",
+   "reach": "ws.Range(\"A1:H30\").FormatConditions(1)",
+   "member": "NumberFormat",
+   "value": "\"nonsense[\"",
+   "base": "D10:D12",
+   "late": "1004 | String:0.00 | String:0.00 | 11 E0",
+   "typed": "1004 | String:0.00 | String:0.00 | 11 E0",
+   "model_late": "1004 | Empty: | Empty: | 11 E0",
+   "model_typed": "1004 | Empty: | Empty: | 11 E0"
+  },
+  {
+   "group": "origin",
+   "make": "",
+   "book": "file",
+   "reach": "ws.Range(\"D10:D12\").FormatConditions(1)",
+   "member": "NumberFormat",
+   "value": "\"0.0\"",
+   "base": "D10:D12",
+   "late": "0 | String:0.0 | String:0.0 | 11 E0",
+   "typed": "0 | String:0.0 | String:0.0 | 11 E0",
+   "model_late": "0 | String:0.0 | String:0.0 | 11 E0",
+   "model_typed": "0 | String:0.0 | String:0.0 | 11 E0"
+  },
+  {
+   "group": "origin",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions(1).NumberFormat = \"0.00\"\n",
+   "reach": "ws.Cells.FormatConditions(1)",
+   "member": "NumberFormat",
+   "value": "\"nonsense[\"",
+   "late": "1004 | Empty: | Empty: | 1 E0",
+   "typed": "1004 | Empty: | Empty: | 1 E0",
+   "model_late": "1004 | Empty: | Empty: | 1 E0",
+   "model_typed": "1004 | Empty: | Empty: | 1 E0"
+  },
+  {
+   "group": "origin",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions(1).NumberFormat = \"0.00\"\n",
+   "reach": "ws.Range(\"A1:E9\").FormatConditions(1)",
+   "member": "NumberFormat",
+   "value": "\"nonsense[\"",
+   "late": "1004 | Empty: | Empty: | 1 E0",
+   "typed": "1004 | Empty: | Empty: | 1 E0",
+   "model_late": "1004 | Empty: | Empty: | 1 E0",
+   "model_typed": "1004 | Empty: | Empty: | 1 E0"
+  },
+  {
+   "group": "origin",
+   "make": "    ws.Range(\"D1:D5\").FormatConditions.Add xlCellValue, xlGreater, \"=3\"\n    ws.Range(\"D1:D5\").FormatConditions(1).NumberFormat = \"0.00\"\n",
+   "reach": "ws.Range(\"D2\").FormatConditions(1)",
+   "member": "NumberFormat",
+   "value": "\"nonsense[\"",
+   "late": "1004 | Empty: | Empty: | 1 E0",
+   "typed": "1004 | Empty: | Empty: | 1 E0",
+   "model_late": "1004 | Empty: | Empty: | 1 E0",
+   "model_typed": "1004 | Empty: | Empty: | 1 E0"
   }
  ]
 }

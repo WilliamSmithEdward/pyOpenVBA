@@ -53,7 +53,7 @@ def number_format(root: XmlElement) -> object:
 def set_number_format(root: XmlElement, value: object, stylesheet: styles.Stylesheet) -> None:
     """Give a rule a number format: the code as NumberFormat keeps it, numbered and spelled as Excel writes a rule's
     (tests/fixtures/conditional_number_formats/). Empty text is ";;"; a code Excel refuses is error 1004 and leaves the rule
-    with no format at all, whatever it had (tests/fixtures/format_condition_font.json)."""
+    with no format at all (tests/fixtures/format_condition_font.json), but for one its file gave it, which the caller keeps."""
     text = to_text(value)
     try:
         stylesheet.spell_rule_format(child(root, 'numFmt'), normalized(text) if text else ';;')
@@ -132,8 +132,10 @@ class ConditionalFont(_Patch):
         rule = self.parent
         if not isinstance(rule, RuleObject) or rule.through is None:
             return
+        # The range that reached the rule, as it stands now: held while rows go in above both, it is still the rule's own.
+        through = rule.reached.areas if rule.reached is not None else rule.through
         own = sorted((area.top, area.left, area.bottom, area.right) for area in projected_areas(rule.rule))
-        reached = sorted((area.top, area.left, area.bottom, area.right) for area in rule.through)
+        reached = sorted((area.top, area.left, area.bottom, area.right) for area in through)
         if own != reached:
             raise VBAUnsupportedError(f"Font.{member} set on a rule reached through other cells than its own is not implemented")
 

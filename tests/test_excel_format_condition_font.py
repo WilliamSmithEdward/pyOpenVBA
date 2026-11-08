@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -23,13 +24,21 @@ OWN = ('ws.Range("D1:D5").FormatConditions(1)', 'ws.Range("D1:D5").FormatConditi
 
 
 def _reported(case: dict[str, Any]) -> bool:
-    return case['member'] in STYLES and case['reach'] not in OWN
+    """A style set through cells other than the rule's own, which a reach of D1:D5 after rows went in above is too."""
+    return case['member'] in STYLES and (case['reach'] not in OWN or 'Rows(1).Insert' in case['make'])
+
+
+@pytest.fixture(scope='module')
+def folder() -> Any:
+    with tempfile.TemporaryDirectory() as held:
+        PROBE.rounds.books(Path(held))
+        yield held
 
 
 @pytest.mark.parametrize('case', CASES, ids=[f'{at}-{case["member"]}' for at, case in enumerate(CASES)])
-def test_each_case_as_excel_answered(case: dict[str, Any]) -> None:
+def test_each_case_as_excel_answered(case: dict[str, Any], folder: str) -> None:
     for tag, typed in (('late', False), ('typed', True)):
-        answer = PROBE.model(case, typed)
+        answer = PROBE.model(case, typed, folder)
         if _reported(case):
             assert answer.startswith('model VBAUnsupportedError: ' + case['member'] + ' set on a rule reached through other cells')
         else:

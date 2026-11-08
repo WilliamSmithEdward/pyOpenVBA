@@ -2671,6 +2671,9 @@ class Interpreter:
             if evaluating is not None:
                 if not evaluating.evaluates:
                     raise error(ERR_MEMBER_NOT_FOUND)
+                if positional or named:
+                    # Its DISPID_EVALUATE takes the name alone: o.[_Run2]("Twice", 4) is 450 (tests/fixtures/run2.json).
+                    raise error(450)
                 return _call_value(_dispatch_get(target, "Evaluate", [callee.name], {}), positional, named)
             if BINDING.late:
                 self._check_late_call(target, callee.name, positional, named)

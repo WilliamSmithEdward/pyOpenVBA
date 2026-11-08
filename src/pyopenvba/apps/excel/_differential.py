@@ -127,16 +127,10 @@ class ConditionalFont(_Patch):
     vba_type_name = 'Font'
 
     def own_reach(self, member: str) -> None:
-        from pyopenvba.apps.excel._conditional import RuleObject, projected_areas
+        from pyopenvba.apps.excel._conditional import RuleObject
 
         rule = self.parent
-        if not isinstance(rule, RuleObject) or rule.through is None:
-            return
-        # The range that reached the rule, as it stands now: held while rows go in above both, it is still the rule's own.
-        through = rule.reached.areas if rule.reached is not None else rule.through
-        own = sorted((area.top, area.left, area.bottom, area.right) for area in projected_areas(rule.rule))
-        reached = sorted((area.top, area.left, area.bottom, area.right) for area in through)
-        if own != reached:
+        if isinstance(rule, RuleObject) and rule.reached_elsewhere():
             raise VBAUnsupportedError(f"Font.{member} set on a rule reached through other cells than its own is not implemented")
 
     def flag(self, name: str) -> object:

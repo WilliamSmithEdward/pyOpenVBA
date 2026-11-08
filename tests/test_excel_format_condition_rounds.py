@@ -24,19 +24,23 @@ USED_UP = {56101: "a rule's Font.Size set was refused where Excel raises 1004, a
                   "Excel leaves none, and Bold set on a rule reached through the sheet's cells took "
                   '(tests/fixtures/format_condition_font.json)',
            56102: "a font set on a rule held while rows went in above it was reported as reached through other cells, and a "
-                  "refused NumberFormat took away a format the file gave the rule (tests/fixtures/format_condition_font.json)"}
+                  "refused NumberFormat took away a format the file gave the rule (tests/fixtures/format_condition_font.json)",
+           56104: 'Modify on a rule reached through other cells than its own changed what the object read, where Excel '
+                  'read Formula2 as error 1004'}
 #: The refusals the model gives where Excel's answer is one it does not copy (tests/test_excel_format_condition_font.py).
 REPORTED = ('model VBAUnsupportedError: Font.Bold set on a rule reached through other cells',
             'model VBAUnsupportedError: Font.Italic set on a rule reached through other cells',
             'model VBAUnsupportedError: Font.Strikethrough set on a rule reached through other cells',
-            'model VBAUnsupportedError: Font.Underline set on a rule reached through other cells')
+            'model VBAUnsupportedError: Font.Underline set on a rule reached through other cells',
+            'model VBAUnsupportedError: Modify on a rule reached through other cells')
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
 
 
 def _as_answered(model: str, excel: str, case: dict[str, str]) -> bool:
     """The model's answer is Excel's, or it reports a font set on a rule reached through cells not its own: the sheet's,
     or the rules' cells once rows went in above them before they were reached."""
-    moved = case['held'] == 'False' and case['edit'].startswith('wsL.')
+    # On a new or reopened book, ws is the rules' sheet too.
+    moved = case['held'] == 'False' and (case['edit'].startswith('wsL.') or (case['kind'] != 'file' and case['edit'].startswith('ws.')))
     return model == excel or (model.startswith(REPORTED) and (moved or not case['reach'].startswith('wsL.Range(fcells)')))
 
 

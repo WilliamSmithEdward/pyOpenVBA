@@ -1,0 +1,2250 @@
+{
+ "measured_at": "2026-11-08T01:12:56.765402+00:00",
+ "source": "Public Function Row(ByVal path As String, ByVal saved As String, ByVal kind As String, ByVal member As String, ByVal value As Variant, ByVal change As Boolean) As String\n    Dim wb As Workbook, o As Object, e As Long, s As String, during As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set o = CallByName(wb.Worksheets(1), kind, VbMethod, 1)\n    If change Then\n        On Error Resume Next\n        CallByName o, member, VbLet, value\n        e = Err.Number\n        Err.Clear\n        during = TypeName(CallByName(o, member, VbGet)) & \" \" & CStr(CallByName(o, member, VbGet))\n        If Err.Number Then during = \"E\" & Err.Number\n        On Error GoTo 0\n    End If\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    Set o = CallByName(wb.Worksheets(1), kind, VbMethod, 1)\n    On Error Resume Next\n    s = TypeName(CallByName(o, member, VbGet)) & \" \" & CStr(CallByName(o, member, VbGet))\n    If Err.Number Then s = \"E\" & Err.Number\n    On Error GoTo 0\n    wb.Close False\n    Row = \"E\" & e & \"|during \" & during & \"|reopened \" & s\nEnd Function\n\nPublic Function RowHeight() As String\n    RowHeight = CStr(ActiveSheet.StandardHeight)\nEnd Function\n",
+ "cases": [
+  {
+   "kind": "Rectangles",
+   "member": "HorizontalAlignment",
+   "value": "xlLeft",
+   "excel": "E0|during Long -4131|reopened Long -4131",
+   "parts": {}
+  },
+  {
+   "kind": "Rectangles",
+   "member": "HorizontalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "HorizontalAlignment",
+   "value": "xlRight",
+   "excel": "E0|during Long -4152|reopened Long -4152",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"r\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "HorizontalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4130|reopened Long -4130",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"just\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "HorizontalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4117|reopened Long -4117",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"justLow\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "VerticalAlignment",
+   "value": "xlTop",
+   "excel": "E0|during Long -4160|reopened Long -4160",
+   "parts": {}
+  },
+  {
+   "kind": "Rectangles",
+   "member": "VerticalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "VerticalAlignment",
+   "value": "xlBottom",
+   "excel": "E0|during Long -4107|reopened Long -4107",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"b\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "VerticalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "VerticalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Orientation",
+   "value": "xlHorizontal",
+   "excel": "E0|during Long -4128|reopened Long -4128",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Orientation",
+   "value": "xlUpward",
+   "excel": "E0|during Long -4171|reopened Long -4171",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert270\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Orientation",
+   "value": "xlDownward",
+   "excel": "E0|during Long -4170|reopened Long -4170",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Orientation",
+   "value": "xlVertical",
+   "excel": "E0|during Long -4166|reopened Long -4166",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"wordArtVert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "ReadingOrder",
+   "value": "xlRTL",
+   "excel": "E0|during Long -5004|reopened Long -5004",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"l\" rtl=\"1\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "ReadingOrder",
+   "value": "xlLTR",
+   "excel": "E0|during Long -5003|reopened Long -5003",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"l\" rtl=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "ReadingOrder",
+   "value": "xlContext",
+   "excel": "E1004|during Long -2|reopened Long -2",
+   "parts": {}
+  },
+  {
+   "kind": "Rectangles",
+   "member": "AddIndent",
+   "value": "True",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {}
+  },
+  {
+   "kind": "Rectangles",
+   "member": "LockedText",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"\" fLocksText=\"0\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "RoundedCorners",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:cNvPr id=\"5\" name=\"Rectangle 4\">"
+      ],
+      [
+       "<xdr:cNvPr id=\"5\" name=\"Rectangle: Rounded Corners 4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:prstGeom prst=\"rect\">"
+      ],
+      [
+       "<a:prstGeom prst=\"roundRect\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Shadow",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:effectLst>",
+       "<a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\">",
+       "<a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/>",
+       "</a:outerShdw>",
+       "</a:effectLst>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "AutoSize",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "15"
+      ],
+      [
+       "14"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "0"
+      ],
+      [
+       "288490"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "127000"
+      ],
+      [
+       "10560"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:ext cx=\"762000\" cy=\"381000\"/>"
+      ],
+      [
+       "<a:ext cx=\"440890\" cy=\"264560\"/>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" wrap=\"none\" rtlCol=\"0\" anchor=\"t\">",
+       "<a:spAutoFit/>",
+       "</a:bodyPr>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Caption",
+   "value": "\"Fresh\"",
+   "excel": "E0|during String Fresh|reopened String Fresh",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "Fresh"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Locked",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fLocksWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Placement",
+   "value": "xlFreeFloating",
+   "excel": "E0|during Long 3|reopened Long 3",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"absolute\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Placement",
+   "value": "xlMove",
+   "excel": "E0|during Long 2|reopened Long 2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"oneCell\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Visible",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:cNvPr id=\"5\" name=\"Rectangle 4\">"
+      ],
+      [
+       "<xdr:cNvPr id=\"5\" name=\"Rectangle 4\" hidden=\"1\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "PrintObject",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fPrintsWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Enabled",
+   "value": "False",
+   "excel": "E1004|during E1004|reopened E1004",
+   "parts": {}
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Formula",
+   "value": "\"=$A$1\"",
+   "excel": "E0|during String $A$1 |reopened String $A$1 ",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{D5707712-FC14-44BC-BECD-D27764FF6737}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       " "
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "member": "Accelerator",
+   "value": "\"K\"",
+   "excel": "E438|during E438|reopened E438",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "member": "HorizontalAlignment",
+   "value": "xlLeft",
+   "excel": "E0|during Long -4131|reopened Long -4131",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "member": "HorizontalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "HorizontalAlignment",
+   "value": "xlRight",
+   "excel": "E0|during Long -4152|reopened Long -4152",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"r\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "HorizontalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4130|reopened Long -4130",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"just\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "HorizontalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4117|reopened Long -4117",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"justLow\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "VerticalAlignment",
+   "value": "xlTop",
+   "excel": "E0|during Long -4160|reopened Long -4160",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "member": "VerticalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "VerticalAlignment",
+   "value": "xlBottom",
+   "excel": "E0|during Long -4107|reopened Long -4107",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"b\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "VerticalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "VerticalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Orientation",
+   "value": "xlHorizontal",
+   "excel": "E0|during Long -4128|reopened Long -4128",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Orientation",
+   "value": "xlUpward",
+   "excel": "E0|during Long -4171|reopened Long -4171",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert270\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Orientation",
+   "value": "xlDownward",
+   "excel": "E0|during Long -4170|reopened Long -4170",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Orientation",
+   "value": "xlVertical",
+   "excel": "E0|during Long -4166|reopened Long -4166",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"wordArtVert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "ReadingOrder",
+   "value": "xlRTL",
+   "excel": "E0|during Long -5004|reopened Long -5004",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"l\" rtl=\"1\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "ReadingOrder",
+   "value": "xlLTR",
+   "excel": "E0|during Long -5003|reopened Long -5003",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"l\" rtl=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "ReadingOrder",
+   "value": "xlContext",
+   "excel": "E1004|during Long -2|reopened Long -2",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "member": "AddIndent",
+   "value": "True",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "member": "LockedText",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"\" fLocksText=\"0\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "RoundedCorners",
+   "value": "True",
+   "excel": "E438|during E438|reopened E438",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "member": "Shadow",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:effectLst>",
+       "<a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\">",
+       "<a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/>",
+       "</a:outerShdw>",
+       "</a:effectLst>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "AutoSize",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "203200"
+      ],
+      [
+       "214907"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "127000"
+      ],
+      [
+       "118021"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:ext cx=\"762000\" cy=\"381000\"/>"
+      ],
+      [
+       "<a:ext cx=\"773707\" cy=\"372021\"/>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" wrap=\"none\" rtlCol=\"0\" anchor=\"t\">",
+       "<a:spAutoFit/>",
+       "</a:bodyPr>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Caption",
+   "value": "\"Fresh\"",
+   "excel": "E0|during String Fresh|reopened String Fresh",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "Fresh"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Locked",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fLocksWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Placement",
+   "value": "xlFreeFloating",
+   "excel": "E0|during Long 3|reopened Long 3",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"absolute\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Placement",
+   "value": "xlMove",
+   "excel": "E0|during Long 2|reopened Long 2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"oneCell\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Visible",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:cNvPr id=\"4\" name=\"Oval 3\">"
+      ],
+      [
+       "<xdr:cNvPr id=\"4\" name=\"Oval 3\" hidden=\"1\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "PrintObject",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fPrintsWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Enabled",
+   "value": "False",
+   "excel": "E1004|during E1004|reopened E1004",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "member": "Formula",
+   "value": "\"=$A$1\"",
+   "excel": "E0|during String $A$1 |reopened String $A$1 ",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{4B99CDF3-C739-4725-8F9C-C297EBDC65E0}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       " "
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "member": "Accelerator",
+   "value": "\"K\"",
+   "excel": "E438|during E438|reopened E438",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "HorizontalAlignment",
+   "value": "xlLeft",
+   "excel": "E0|during Long -4131|reopened Long -4131",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "HorizontalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "HorizontalAlignment",
+   "value": "xlRight",
+   "excel": "E0|during Long -4152|reopened Long -4152",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"r\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "HorizontalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4130|reopened Long -4130",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"just\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "HorizontalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4117|reopened Long -4117",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"justLow\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "VerticalAlignment",
+   "value": "xlTop",
+   "excel": "E0|during Long -4160|reopened Long -4160",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "VerticalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "VerticalAlignment",
+   "value": "xlBottom",
+   "excel": "E0|during Long -4107|reopened Long -4107",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"b\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "VerticalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "VerticalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Orientation",
+   "value": "xlHorizontal",
+   "excel": "E0|during Long -4128|reopened Long -4128",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Orientation",
+   "value": "xlUpward",
+   "excel": "E0|during Long -4171|reopened Long -4171",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert270\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Orientation",
+   "value": "xlDownward",
+   "excel": "E0|during Long -4170|reopened Long -4170",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Orientation",
+   "value": "xlVertical",
+   "excel": "E0|during Long -4166|reopened Long -4166",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"wordArtVert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "ReadingOrder",
+   "value": "xlRTL",
+   "excel": "E0|during Long -5004|reopened Long -5004",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"l\" rtl=\"1\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "ReadingOrder",
+   "value": "xlLTR",
+   "excel": "E0|during Long -5003|reopened Long -5003",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:pPr algn=\"l\"/>"
+      ],
+      [
+       "<a:pPr algn=\"l\" rtl=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "ReadingOrder",
+   "value": "xlContext",
+   "excel": "E1004|during Long -2|reopened Long -2",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "AddIndent",
+   "value": "True",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "LockedText",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"\" fLocksText=\"0\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "RoundedCorners",
+   "value": "True",
+   "excel": "E438|during E438|reopened E438",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "Shadow",
+   "value": "True",
+   "excel": "E438|during E438|reopened E438",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "AutoSize",
+   "value": "True",
+   "excel": "E1004|during E1004|reopened E1004",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "Caption",
+   "value": "\"Fresh\"",
+   "excel": "E0|during String Fresh|reopened String Fresh",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>",
+       "<a:t>",
+       "Fresh",
+       "</a:t>",
+       "</a:r>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Locked",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fLocksWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Placement",
+   "value": "xlFreeFloating",
+   "excel": "E0|during Long 3|reopened Long 3",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"absolute\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Placement",
+   "value": "xlMove",
+   "excel": "E0|during Long 2|reopened Long 2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"oneCell\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Visible",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:cNvPr id=\"2\" name=\"Arc 1\">"
+      ],
+      [
+       "<xdr:cNvPr id=\"2\" name=\"Arc 1\" hidden=\"1\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "PrintObject",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fPrintsWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Enabled",
+   "value": "False",
+   "excel": "E1004|during E1004|reopened E1004",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "member": "Formula",
+   "value": "\"=$A$1\"",
+   "excel": "E0|during String $A$1 |reopened String $A$1 ",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{A288ECE2-F4B7-47DF-ACEE-2C9EBD558977}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       " ",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "member": "Accelerator",
+   "value": "\"K\"",
+   "excel": "E438|during E438|reopened E438",
+   "parts": {}
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "HorizontalAlignment",
+   "value": "xlLeft",
+   "excel": "E0|during Long -4131|reopened Long -4131",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:pPr algn=\"l\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "HorizontalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:pPr algn=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "HorizontalAlignment",
+   "value": "xlRight",
+   "excel": "E0|during Long -4152|reopened Long -4152",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:pPr algn=\"r\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "HorizontalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4130|reopened Long -4130",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:pPr algn=\"just\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "HorizontalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4117|reopened Long -4117",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:pPr algn=\"justLow\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "VerticalAlignment",
+   "value": "xlTop",
+   "excel": "E0|during Long -4160|reopened Long -4160",
+   "parts": {}
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "VerticalAlignment",
+   "value": "xlCenter",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "VerticalAlignment",
+   "value": "xlBottom",
+   "excel": "E0|during Long -4107|reopened Long -4107",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"b\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "VerticalAlignment",
+   "value": "xlJustify",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "VerticalAlignment",
+   "value": "xlDistributed",
+   "excel": "E0|during Long -4108|reopened Long -4108",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"ctr\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Orientation",
+   "value": "xlHorizontal",
+   "excel": "E0|during Long -4128|reopened Long -4128",
+   "parts": {}
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Orientation",
+   "value": "xlUpward",
+   "excel": "E0|during Long -4171|reopened Long -4171",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert270\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Orientation",
+   "value": "xlDownward",
+   "excel": "E0|during Long -4170|reopened Long -4170",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Orientation",
+   "value": "xlVertical",
+   "excel": "E0|during Long -4166|reopened Long -4166",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"wordArtVert\" rtlCol=\"0\" anchor=\"t\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "ReadingOrder",
+   "value": "xlRTL",
+   "excel": "E0|during Long -5004|reopened Long -5004",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:pPr rtl=\"1\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "ReadingOrder",
+   "value": "xlLTR",
+   "excel": "E0|during Long -5003|reopened Long -5003",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:pPr rtl=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "ReadingOrder",
+   "value": "xlContext",
+   "excel": "E1004|during Long -2|reopened Long -2",
+   "parts": {}
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "AddIndent",
+   "value": "True",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {}
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "LockedText",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"\" fLocksText=\"0\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "RoundedCorners",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:prstGeom prst=\"rect\">"
+      ],
+      [
+       "<a:prstGeom prst=\"roundRect\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Shadow",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:effectLst>",
+       "<a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\">",
+       "<a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/>",
+       "</a:outerShdw>",
+       "</a:effectLst>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "AutoSize",
+   "value": "True",
+   "excel": "E0|during Boolean True|reopened Boolean True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "406400"
+      ],
+      [
+       "176533"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "127000"
+      ],
+      [
+       "10560"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:ext cx=\"762000\" cy=\"381000\"/>"
+      ],
+      [
+       "<a:ext cx=\"532133\" cy=\"264560\"/>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+      ],
+      [
+       "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" wrap=\"none\" rtlCol=\"0\" anchor=\"t\">",
+       "<a:spAutoFit/>",
+       "</a:bodyPr>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Caption",
+   "value": "\"Fresh\"",
+   "excel": "E0|during String Fresh|reopened String Fresh",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "Fresh"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Locked",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fLocksWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Placement",
+   "value": "xlFreeFloating",
+   "excel": "E0|during Long 3|reopened Long 3",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"absolute\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Placement",
+   "value": "xlMove",
+   "excel": "E0|during Long 2|reopened Long 2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:twoCellAnchor>"
+      ],
+      [
+       "<xdr:twoCellAnchor editAs=\"oneCell\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Visible",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:cNvPr id=\"6\" name=\"TextBox 5\">"
+      ],
+      [
+       "<xdr:cNvPr id=\"6\" name=\"TextBox 5\" hidden=\"1\">"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "PrintObject",
+   "value": "False",
+   "excel": "E0|during Boolean False|reopened Boolean False",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:clientData/>"
+      ],
+      [
+       "<xdr:clientData fPrintsWithSheet=\"0\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Enabled",
+   "value": "False",
+   "excel": "E1004|during E1004|reopened E1004",
+   "parts": {}
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Formula",
+   "value": "\"=$A$1\"",
+   "excel": "E0|during String $A$1 |reopened String $A$1 ",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{3769F11C-AE79-4B3E-A461-35607B677840}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       " "
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "member": "Accelerator",
+   "value": "\"K\"",
+   "excel": "E438|during E438|reopened E438",
+   "parts": {}
+  }
+ ]
+}

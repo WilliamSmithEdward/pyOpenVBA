@@ -24,7 +24,6 @@ tiny_png: Any = getattr(_script, 'tiny_png')
 SCALAR: dict[tuple[str, str], bool] = {(collection, member): scalar for collection, found in members().items() for member, scalar in found}
 #: Members the model does not yet answer as Excel did in every state and binding, each with why (step (b) of the old collections lane).
 NOT_YET: dict[str, str] = {
-    'Arcs.AddIndent': 'an item setter it needs reports itself',
     'Arcs.AutoScaleFont': 'the item read reports itself',
     'Arcs.Formula': 'an item setter it needs reports itself',
     'Arcs.LockedText': 'an item setter it needs reports itself',
@@ -32,7 +31,6 @@ NOT_YET: dict[str, str] = {
     'Buttons.AutoScaleFont': 'an item setter it needs reports itself',
     'Buttons.AutoSize': 'an item setter it needs reports itself',
     'Buttons.Formula': 'an item setter it needs reports itself',
-    'DrawingObjects.AddIndent': 'an item setter it needs reports itself',
     'DrawingObjects.ArrowHeadLength': 'an item setter it needs reports itself',
     'DrawingObjects.ArrowHeadStyle': 'an item setter it needs reports itself',
     'DrawingObjects.ArrowHeadWidth': 'an item setter it needs reports itself',
@@ -48,7 +46,6 @@ NOT_YET: dict[str, str] = {
     'Lines.ArrowHeadLength': 'an item setter it needs reports itself',
     'Lines.ArrowHeadStyle': 'an item setter it needs reports itself',
     'Lines.ArrowHeadWidth': 'an item setter it needs reports itself',
-    'Ovals.AddIndent': 'an item setter it needs reports itself',
     'Ovals.AutoScaleFont': 'the item read reports itself',
     'Ovals.Formula': 'an item setter it needs reports itself',
     'Ovals.LockedText': 'an item setter it needs reports itself',
@@ -56,14 +53,12 @@ NOT_YET: dict[str, str] = {
     'Ovals.Shadow': 'an item setter it needs reports itself',
     'Pictures.Formula': 'an item setter it needs reports itself',
     'Pictures.Shadow': 'an item setter it needs reports itself',
-    'Rectangles.AddIndent': 'an item setter it needs reports itself',
     'Rectangles.AutoScaleFont': 'the item read reports itself',
     'Rectangles.Formula': 'an item setter it needs reports itself',
     'Rectangles.LockedText': 'an item setter it needs reports itself',
     'Rectangles.ReadingOrder': 'an item setter it needs reports itself',
     'Rectangles.RoundedCorners': 'an item setter it needs reports itself',
     'Rectangles.Shadow': 'an item setter it needs reports itself',
-    'TextBoxes.AddIndent': 'an item setter it needs reports itself',
     'TextBoxes.AutoScaleFont': 'the item read reports itself',
     'TextBoxes.AutoSize': 'an item setter it needs reports itself',
     'TextBoxes.Formula': 'an item setter it needs reports itself',

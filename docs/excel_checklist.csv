@@ -352,14 +352,14 @@ Application,Workbooks,"property, read-only",As Workbooks,,PARTIAL,tests/fixtures
 Application,WorkbookSync,event,"WorkbookSync(Wb As Workbook, SyncEventType As MsoSyncEventType)",,MISSING,,
 Application,WorksheetFunction,"property, read-only",As WorksheetFunction,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Application,Worksheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Arc,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads False. Set on a drawing loaded from a file, it is taken and kept nowhere, reading False and writing nothing, as Excel does (tests/fixtures/loaded_drawing_edits.json)."
 Arc,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,AutoScaleFont,property,As Variant,,MISSING,,
-Arc,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
+Arc,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,Reads False. Fitting a text box reports itself.
 Arc,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
 Arc,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Arc,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 Arc,Copy,method,Copy() As Variant,,MISSING,,
@@ -368,22 +368,22 @@ Arc,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_draw
 Arc,Cut,method,Cut() As Variant,,MISSING,,
 Arc,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
-Arc,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Arc,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
 Arc,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Arc,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
 Arc,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Arc,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
 Arc,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads its text frame's orientation as Excel names it: xlHorizontal, xlUpward, xlDownward or xlVertical. Set on a drawing loaded from a file to xlUpward, xlDownward or xlVertical, it is written as Excel writes it (tests/fixtures/loaded_drawing_edits.json); xlHorizontal on text already horizontal writes nothing, where Excel writes vert=""horz"", and is not replayed."
 Arc,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+Arc,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Arc,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -391,13 +391,13 @@ Arc,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_d
 Arc,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arc,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Arc,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+Arc,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Arc,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arc,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arcs,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Arcs,Add,method,"Add(X1 As Double, Y1 As Double, X2 As Double, Y2 As Double) As Arc",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Arcs,AddIndent,property,As Boolean,,MISSING,,
+Arcs,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py; tests/fixtures/old_collection_lets.json; tests/test_excel_old_collection_lets.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Set on the collection as Excel answers it, typed and late, in the session and after a save and a reopen (tests/fixtures/old_collection_lets.json)."
 Arcs,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Arcs,AutoScaleFont,property,As Variant,,MISSING,,
 Arcs,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py; tests/fixtures/old_collection_lets.json; tests/test_excel_old_collection_lets.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Set on the collection as Excel answers it, typed and late, in the session and after a save and a reopen (tests/fixtures/old_collection_lets.json)."
@@ -1480,7 +1480,7 @@ DrawingObjects,_Default,property,As Long,,MISSING,,
 DrawingObjects,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 DrawingObjects,Accelerator,property,As Variant,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DrawingObjects,Add,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-DrawingObjects,AddIndent,property,As Boolean,,MISSING,,
+DrawingObjects,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
 DrawingObjects,AddItem,method,"AddItem(Text As Variant, [Index As Variant]) As Variant",,PARTIAL,tests/fixtures/old_collection_methods.json; tests/test_excel_old_collection_methods.py,"Called on each list the collection holds, as on the item, typed and late, in the session and after a save and a reopen (tests/fixtures/old_collection_methods.json). A list filled from cells keeps only the added entry, and RemoveItem there is 1004 with no list changed."
 DrawingObjects,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 DrawingObjects,ArrowHeadLength,property,As Variant,,MISSING,,
@@ -2597,14 +2597,14 @@ Outline,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_t
 Outline,ShowLevels,method,"ShowLevels([RowLevels As Variant], [ColumnLevels As Variant]) As Variant",,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,SummaryColumn,property,As XlSummaryColumn,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,SummaryRow,property,As XlSummaryRow,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
-Oval,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads False. Set on a drawing loaded from a file, it is taken and kept nowhere, reading False and writing nothing, as Excel does (tests/fixtures/loaded_drawing_edits.json)."
 Oval,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,AutoScaleFont,property,As Variant,,MISSING,,
 Oval,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
 Oval,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
 Oval,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Oval,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 Oval,Copy,method,Copy() As Variant,,MISSING,,
@@ -2613,22 +2613,22 @@ Oval,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_dra
 Oval,Cut,method,Cut() As Variant,,MISSING,,
 Oval,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
-Oval,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Oval,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
 Oval,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Oval,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
 Oval,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Oval,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
 Oval,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads its text frame's orientation as Excel names it: xlHorizontal, xlUpward, xlDownward or xlVertical. Set on a drawing loaded from a file to xlUpward, xlDownward or xlVertical, it is written as Excel writes it (tests/fixtures/loaded_drawing_edits.json); xlHorizontal on text already horizontal writes nothing, where Excel writes vert=""horz"", and is not replayed."
 Oval,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+Oval,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Oval,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -2637,13 +2637,13 @@ Oval,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/old_
 Oval,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Oval,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Oval,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+Oval,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Oval,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Oval,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Ovals,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Ovals,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Oval",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Ovals,AddIndent,property,As Boolean,,MISSING,,
+Ovals,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py; tests/fixtures/old_collection_lets.json; tests/test_excel_old_collection_lets.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Set on the collection as Excel answers it, typed and late, in the session and after a save and a reopen (tests/fixtures/old_collection_lets.json)."
 Ovals,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Ovals,AutoScaleFont,property,As Variant,,MISSING,,
 Ovals,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
@@ -3580,14 +3580,14 @@ Range,Width,"property, read-only",As Variant,,PARTIAL,tests/fixtures/dimensions.
 Range,Worksheet,"property, read-only",As Worksheet,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,WrapText,property,As Variant,,VERIFIED,tests/fixtures/given_value_rounds.json; tests/test_excel_given_values.py; tests/fixtures/range_held_kinds.json; tests/fixtures/format_properties.json; tests/test_excel_format_properties.py; tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Each kind of value, Currency, Date, Single, Decimal and ranges among them, typed and late bound, on two rounds of new values with the model's answers written down first and no difference. Every kind of value on fresh and changed objects, both bindings, a save and reopen, and a save live Excel reads back. Late and early binding answer alike. Back to PARTIAL: a held-out test found it wrong. A Currency or Date given as the value is converted by Excel at the property (text like $1.50 for a String, 1004 for a Boolean), which the model does not do."
 Range,XPath,"property, read-only",As XPath,,PARTIAL,tests/fixtures/range_missing.json,An empty path; the model has no XML maps
-Rectangle,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads False. Set on a drawing loaded from a file, it is taken and kept nowhere, reading False and writing nothing, as Excel does (tests/fixtures/loaded_drawing_edits.json)."
 Rectangle,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,AutoScaleFont,property,As Variant,,MISSING,,
 Rectangle,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
 Rectangle,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
 Rectangle,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Rectangle,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 Rectangle,Copy,method,Copy() As Variant,,MISSING,,
@@ -3596,22 +3596,22 @@ Rectangle,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/ol
 Rectangle,Cut,method,Cut() As Variant,,MISSING,,
 Rectangle,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
-Rectangle,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Rectangle,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
 Rectangle,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Rectangle,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
 Rectangle,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Rectangle,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
 Rectangle,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads its text frame's orientation as Excel names it: xlHorizontal, xlUpward, xlDownward or xlVertical. Set on a drawing loaded from a file to xlUpward, xlDownward or xlVertical, it is written as Excel writes it (tests/fixtures/loaded_drawing_edits.json); xlHorizontal on text already horizontal writes nothing, where Excel writes vert=""horz"", and is not replayed."
 Rectangle,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+Rectangle,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Rectangle,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,RoundedCorners,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads the shape. Setting reports itself.
 Rectangle,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -3621,13 +3621,13 @@ Rectangle,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures
 Rectangle,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangle,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+Rectangle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+Rectangle,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 Rectangle,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangle,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangles,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 Rectangles,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As Rectangle",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-Rectangles,AddIndent,property,As Boolean,,MISSING,,
+Rectangles,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py; tests/fixtures/old_collection_lets.json; tests/test_excel_old_collection_lets.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Set on the collection as Excel answers it, typed and late, in the session and after a save and a reopen (tests/fixtures/old_collection_lets.json)."
 Rectangles,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 Rectangles,AutoScaleFont,property,As Variant,,MISSING,,
 Rectangles,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Setting it on the collection is measured in tests/fixtures/old_collection_lets.json, not yet replayed."
@@ -4249,14 +4249,14 @@ TableStyles,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/collecti
 TableStyles,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,"xlCreatorCode, 1480803660, a Long, on each way measured; assigning to it is error 450."
 TableStyles,Item,method,Item(Index As Variant) As TableStyle,,PARTIAL,tests/fixtures/collection_items.json; tests/test_excel_collection_items.py; tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Built-in styles are measured. A workbook with table styles of its own reports a gap.
 TableStyles,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,"Workbook, by the way it is reached; Set o.Parent is the error set_parent_error gives."
-TextBox,AddIndent,property,As Boolean,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads False. Set on a drawing loaded from a file, it is taken and kept nowhere, reading False and writing nothing, as Excel does (tests/fixtures/loaded_drawing_edits.json)."
 TextBox,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,AutoScaleFont,property,As Variant,,MISSING,,
 TextBox,AutoSize,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads False. Fitting a text box reports itself.
 TextBox,Border,"property, read-only",As Border,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex, LineStyle and Weight xlThick over the shape's line. A picture's and a text box's colour report themselves."
 TextBox,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Caption,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 TextBox,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 TextBox,Copy,method,Copy() As Variant,,MISSING,,
@@ -4265,22 +4265,22 @@ TextBox,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/old_
 TextBox,Cut,method,Cut() As Variant,,MISSING,,
 TextBox,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,Duplicate,method,Duplicate() As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,A line's and an arc's report themselves.
-TextBox,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 TextBox,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,Formula,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads empty. Setting reports itself.
 TextBox,Height,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 TextBox,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,"Color, ColorIndex and Pattern over the shape's fill. A picture's, and a text box's or arc's colour, report themselves."
 TextBox,Left,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Locked,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 TextBox,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads True. Setting reports itself.
 TextBox,Name,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,OnAction,not in the type library,,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Orientation,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,"Reads its text frame's orientation as Excel names it: xlHorizontal, xlUpward, xlDownward or xlVertical. Set on a drawing loaded from a file to xlUpward, xlDownward or xlVertical, it is written as Excel writes it (tests/fixtures/loaded_drawing_edits.json); xlHorizontal on text already horizontal writes nothing, where Excel writes vert=""horz"", and is not replayed."
 TextBox,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,Placement,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+TextBox,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 TextBox,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,RoundedCorners,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,Reads the shape. Setting reports itself.
 TextBox,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
@@ -4290,13 +4290,13 @@ TextBox,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/o
 TextBox,Text,property,As String,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,Top,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBox,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
+TextBox,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
+TextBox,Visible,property,As Boolean,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py; tests/fixtures/loaded_drawing_edits.json; tests/test_excel_loaded_drawing_edits.py,
 TextBox,Width,property,As Double,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBox,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBoxes,_NewEnum,method,_NewEnum() As IUnknown,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,For Each walks the collection. Reading _NewEnum itself is not measured on this collection.
 TextBoxes,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As TextBox",,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
-TextBoxes,AddIndent,property,As Boolean,,MISSING,,
+TextBoxes,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/old_collection_reads.json; tests/test_excel_old_collection_reads.py; tests/fixtures/old_collection_lets.json; tests/test_excel_old_collection_lets.py,"Read on the collection as Excel answers it, typed and late, on a saved and a made workbook, as each is, with every item alike and with one different. Set on the collection as Excel answers it, typed and late, in the session and after a save and a reopen (tests/fixtures/old_collection_lets.json)."
 TextBoxes,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/old_drawings.json; tests/test_excel_old_drawings.py,
 TextBoxes,AutoScaleFont,property,As Variant,,MISSING,,
 TextBoxes,AutoSize,property,As Boolean,,MISSING,,

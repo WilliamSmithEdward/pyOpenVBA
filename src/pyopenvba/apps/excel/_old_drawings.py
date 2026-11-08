@@ -31,7 +31,7 @@ _XL_DASH = -4115
 _BORDER_WIDTHS = {1: 1, 2: 9525, -4138: 17145, 4: 24765}
 _LINE_STYLES = {'lgDash': _XL_DASH}
 #: MsoTextOrientation, which the shape's TextFrame takes, to XlOrientation, for those measured.
-_ORIENTATIONS = {1: -4128, 2: -4171}
+_ORIENTATIONS = {1: -4128, 2: -4171, 3: -4170, 6: -4166}
 #: Interior and Border's ColorIndex while the style still gives the colour, by what the shape is.
 _STYLE_INDEXES = {'shape': (14, 49), 'textBox': (-4105, 15), 'line': (_XL_NONE, 14), 'arc': (_XL_NONE, 14), 'picture': (_XL_NONE, _XL_NONE)}
 
@@ -334,6 +334,11 @@ class _Texted(_Filled):
     def AddIndent(self) -> object:
         return False
 
+    @setter('AddIndent')
+    def _add_indent(self, value: object) -> None:
+        # Taken and kept nowhere: it goes on reading False, and the file is as it was (tests/fixtures/loaded_drawing_edits.json).
+        to_bool(value)
+
     @member
     def LockedText(self) -> object:
         return True
@@ -548,8 +553,8 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
-    spread_reads = frozenset({'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Caption', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Text', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Text', 'Visible'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -562,8 +567,8 @@ class TextBoxes(_BoxAdded):
 
 
 class Rectangles(_BoxAdded):
-    spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -571,16 +576,16 @@ class Rectangles(_BoxAdded):
 
 
 class Ovals(_BoxAdded):
-    spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Ovals'
     item = Oval
     shape_type = 9
 
 
 class Arcs(_Drawings):
-    spread_reads = frozenset({'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Arcs'
     item = Arc
 
@@ -645,7 +650,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

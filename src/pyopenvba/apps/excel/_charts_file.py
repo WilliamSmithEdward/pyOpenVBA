@@ -618,6 +618,9 @@ def read_chart(xml: str, part: str) -> ChartState:
                 result.plot_by = 1
         except ValueError:
             pass
+    # What Excel adds to a loaded chart, a point's label or fill or a series, is numbered from its count of trendlines
+    # (tests/fixtures/loaded_chart_new_ids.json).
+    result.next_unique = sum(len(item.trendlines) for item in result.series)
     if len(plots) == 1:
         _defaults_as_unset(result)
     return result

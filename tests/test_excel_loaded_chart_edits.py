@@ -40,9 +40,9 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'title text', 'title text marks', 'title text two lines', 'title text cr', 'title text empty', 'title text spaces', 'title text twice',
          'title caption', 'title text then gone', 'title text read after back', 'title formula',
          'axis title', 'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
-#: Built, but not for the dressed book: a point on a chart with a trendline and a new series, whose numbering there is not known,
-#: and a turn of a chart whose series have a look of their own.
-NEEDS_NO_STYLE = ('point label', 'chart type', 'new series')
+#: Built, but not for the dressed book: a point's label on a series whose labels have a look, and a turn of a chart whose series
+#: have a look of their own.
+NEEDS_NO_STYLE = ('point label', 'chart type')
 #: Built for the dressed book alone: a chart with a style writes its part whole for these, as a new chart of its style
 #: (see tests/test_excel_loaded_chart_styled_edits.py).
 STYLED_ONLY = ('area font size', 'title font bold')

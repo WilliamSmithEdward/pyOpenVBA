@@ -22,12 +22,10 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_structure_edits.json').read_text(encoding='utf-8'))
 _ALL = tuple(label for label, _ in RECORD['edits'])
 #: The cases the model answers, by book. The rest are refused: a turn of a chart whose series have a look of their own, as the
-#: dressed and labelled books'; and a new series on a chart with a trendline, as the dressed book's, whose numbering is not known.
+#: dressed and labelled books'.
 BUILT: dict[str, tuple[str, ...]] = {
     'loaded_chart_plain.xlsx': _ALL,
-    'loaded_chart_dressed.xlsx': tuple(name for name in _ALL if name not in ('new series', 'new series twice', 'new series filled',
-                                                                       'delete first then new', 'new then delete it')
-                                   and not name.startswith('type ')),
+    'loaded_chart_dressed.xlsx': tuple(name for name in _ALL if not name.startswith('type ')),
     'loaded_chart_labelled.xlsx': tuple(name for name in _ALL if not name.startswith(('type ', 'series type'))),
 }
 

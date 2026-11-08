@@ -4399,10 +4399,6 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
     @method
     def NewSeries(self) -> object:
         self.chart.plot_admitted('SeriesCollection.NewSeries')
-        if self.chart.state.original and any(entry.trendlines for entry in self.chart.state.series):
-            # Excel numbered what it added from 1 on the one book measured with a trendline, from 0 on the others
-            # (tests/fixtures/loaded_chart_structure_edits.json); the rule is not known.
-            raise VBAUnsupportedError('A new series on an imported chart with a trendline is not implemented')
         self.chart.nothing_filtered('NewSeries')
         used = {entry.series_id if entry.series_id >= 0 else index
                 for index, entry in enumerate(self.chart.state.series)}

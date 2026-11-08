@@ -228,12 +228,30 @@ def _painted(spelled: str, colour: str) -> str:
     return spelled.replace('<a:schemeClr val="phClr">', colour[:-2] + '>')
 
 
+_EXTENSIONS = re.compile(r'<a:extLst>.*?</a:extLst>', re.S)
+_LINE_FILL = re.compile(r'<a:(?:noFill/>|solidFill\b.*?</a:solidFill>|gradFill\b.*?</a:gradFill>|pattFill\b.*?</a:pattFill>)', re.S)
+
+
+def _set_line(mine: str, line: str) -> str:
+    """A line with what was set of it, and the style line's fill where nothing set one: a width alone keeps the style's
+    no line (tests/fixtures/loaded_chart_styled_edits.json)."""
+    if not mine or _LINE_FILL.search(mine) or (found := _LINE_FILL.search(line)) is None:
+        return mine
+    if mine.endswith('/>'):
+        return f'{mine[:-2]}>{found.group(0)}</a:ln>'
+    opening = mine.index('>') + 1
+    return mine[:opening] + found.group(0) + mine[opening:]
+
+
 def _point_box(style: int, index: int, own: str = '') -> str:
     fill, line, after = _shape(_entries(style)['dataPoint'])
-    mine_fill, mine_line, _ = _own_shape(own)
+    # What was set keeps its extensions, a hidden fill's or line's, at the end (tests/fixtures/loaded_chart_styled_edits.json).
+    extensions = ''.join(_EXTENSIONS.findall(own))
+    mine_fill, mine_line, _ = _own_shape(_EXTENSIONS.sub('', own))
     colour = _accent(index)
     return _painted(
-        f'<c:spPr>{mine_fill or fill or _NO_FILL}{mine_line or line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr>',
+        f'<c:spPr>{mine_fill or fill or _NO_FILL}{_set_line(mine_line, line or _NO_LINE) or line or _NO_LINE}{after or _NO_EFFECTS}'
+        f'{extensions}</c:spPr>',
         colour,
     )
 
@@ -351,11 +369,45 @@ def _fixed(spelled: str, theme: tuple[str, ...]) -> str:
     return re.sub(r'<a:schemeClr val="(\w+)"(?:(/)>|>(.*?)</a:schemeClr>)', one, spelled, flags=re.S)
 
 
+_POINT_FONT = re.compile(r'<a:pPr><a:defRPr\b(?:[^>]*?/>|.*?</a:defRPr>)</a:pPr>', re.S)
+
+
+def _font_of(spelled: str) -> TextLook | None:
+    """What a written paragraph's default run sets, read as a file's reader reads it."""
+    from pyopenvba.apps.excel._chart_fonts import read_look
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    spaces = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
+    return read_look(xml_tree(f'<c:x xmlns:c="{spaces["c"]}" xmlns:a="{spaces["a"]}"><c:txPr><a:p>{spelled}</a:p></c:txPr></c:x>'),
+                     spaces)
+
+
+def _dressed_point_label(label: str, style: int, index: int) -> str:
+    """A point's label with a font of its own: its text as the style writes a label's, with the font set. Typed text holds
+    the font in its rich body and in a txPr after the box alike (tests/fixtures/loaded_chart_styled_edits.json)."""
+    found = _POINT_FONT.search(label)
+    if found is None:
+        return label
+    text = _painted(_text(style, 'dataLabel', _label_body(style), _font_of(found.group(0))), _accent(index))
+    rich = re.search(r'<c:rich><a:bodyPr\b(?:[^>]*?/>|.*?</a:bodyPr>)<a:lstStyle/>', label, re.S)
+    if rich is not None and rich.end() == found.start() - len('<a:p>'):
+        head = text[len('<c:txPr>'):text.index('<a:endParaRPr')]
+        label = label[:rich.start()] + '<c:rich>' + head + label[found.end():]
+        return label.replace('</c:spPr>', '</c:spPr>' + text, 1)
+    return re.sub(r'<c:txPr>.*?</c:txPr>', lambda _: text, label, count=1, flags=re.S)
+
+
 def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...], font: TextLook | None = None) -> str:
     """Data labels' box and text, with the chart area's font where it has one, and their leader lines."""
 
     def dressed_one(found: re.Match[str]) -> str:
-        labels = found.group(0)
+        whole = found.group(0)
+        # Each point's label comes first; what follows is the series' labels' own.
+        points = re.match(r'<c:dLbls>((?:<c:dLbl>.*?</c:dLbl>)*)', whole, re.S)
+        assert points is not None
+        labels = '<c:dLbls>' + whole[points.end():]
+        mine = re.sub(r'<c:dLbl>.*?</c:dLbl>', lambda hit: _dressed_point_label(hit.group(0), style, index), points.group(1),
+                      flags=re.S)
         if '<c:txPr>' not in labels:
             labels = re.sub(
                 r'<c:spPr>.*?</c:spPr>',
@@ -366,6 +418,7 @@ def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...],
             )
             text = _painted(_text(style, 'dataLabel', _label_body(style), font), _accent(index))
             labels = labels.replace('</c:spPr>', '</c:spPr>' + text, 1)
+        labels = '<c:dLbls>' + mine + labels[len('<c:dLbls>'):]
         return labels.replace(
             '<c15:showLeaderLines val="1"/></c:ext>',
             f'<c15:showLeaderLines val="1"/><c15:leaderLines>{_stroke(style, "leaderLine")}</c15:leaderLines></c:ext>',
@@ -504,7 +557,8 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
             count=1,
             flags=re.S,
         )
-        own = re.search(r'<c:spPr>(?:(?!<c:spPr>).)*?</c:spPr>(?=(?:<c:txPr>.*?</c:txPr>)?<c:crossAx)', axis, re.S)
+        # The axis's own box, just before its text: not its title's, followed by the title's text and then the axis's.
+        own = re.search(r'<c:spPr>(?:(?!<c:spPr>).)*?</c:spPr>(?=(?:<c:txPr>(?:(?!<c:txPr>).)*?</c:txPr>)?<c:crossAx)', axis, re.S)
         mine = own.group(0) if own else ''
         if mine:
             axis = axis.replace(mine, '', 1)
@@ -622,6 +676,18 @@ def _font_entry(key: str) -> str:
     return {'title': 'title', 'legend': 'legend', 'area': 'chartArea'}.get(
         key, 'axisTitle' if key.startswith('title') else 'dataLabel'
     )
+
+
+def style_font(style: int, key: str) -> TextLook | None:
+    """The font the style writes out for the element's text, as a file's reader reads it: a loaded font equal to it is the
+    style's, not one of the element's own (tests/fixtures/loaded_chart_styled_edits.json)."""
+    from pyopenvba.apps.excel._chart_fonts import read_look
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    spaces = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
+    written = (f'<c:x xmlns:c="{spaces["c"]}" xmlns:a="{spaces["a"]}"><c:txPr><a:p><a:pPr>'
+               f'{_paragraph_font(style, _font_entry(key), None)}</a:pPr></a:p></c:txPr></c:x>')
+    return read_look(xml_tree(written), spaces)
 
 
 def font_read(style: int, key: str, theme: tuple[str, ...]) -> tuple[float, bool, str]:

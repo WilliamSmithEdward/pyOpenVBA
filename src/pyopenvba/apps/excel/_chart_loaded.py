@@ -17,7 +17,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._chart_axes import AxisState
-    from pyopenvba.apps.excel._charts import Chart, SeriesState
+    from pyopenvba.apps.excel._charts import Chart, ChartState, SeriesState
 
 #: What Excel writes at the head of a chart part, whatever the chart holds.
 _EXCELS_HEAD = re.compile(r'(?:<\?xml[^>]*\?>\s*)?<c:chartSpace\b[^>]*><c:date1904 val="[01]"/>(?:<c:lang [^>]*/>)?<c:roundedCorners val="[01]"/>')
@@ -182,11 +182,16 @@ def _series_span(chart: Chart, entry: SeriesState) -> tuple[int, int]:
     state = chart.state
     if state.out_of_sight or len(state.full_series) not in (0, len(state.series)):
         raise VBAUnsupportedError('Editing a series of an imported chart with series out of sight is not implemented')
+    return _span_in(state.original, state, entry)
+
+
+def _span_in(xml: str, state: ChartState, entry: SeriesState) -> tuple[int, int]:
+    """Where a series is in a chart part's markup, by its c:order."""
     def order(hit: re.Match[str]) -> int:
         number = _ORDER.search(hit.group(0))
         return int(number.group(1)) if number else -1
 
-    found = sorted(_SERIES.finditer(state.original), key=order)
+    found = sorted(_SERIES.finditer(xml), key=order)
     place = next((at for at, one in enumerate(state.series) if one is entry), None)
     if place is None or len(found) != len(state.series):
         raise VBAUnsupportedError('Finding this series in an imported chart is not implemented')
@@ -355,6 +360,18 @@ def _part_now(chart: Chart, entry: SeriesState, part: str) -> str:
 
     if CHART_TYPES.get(series_type(chart.state, entry), '') not in CHART_KINDS:
         raise VBAUnsupportedError('Editing a series of this kind of imported chart is not implemented')
+    if chart.state.style_part:
+        # A chart with a style gives what it writes the style's look, which the whole chart's writer does at its end
+        # (tests/fixtures/loaded_chart_styled_edits.json).
+        from pyopenvba.apps.excel._charts_file import markup
+
+        if chart.sheet.chart_sheet is not None:
+            raise VBAUnsupportedError('Editing a series of an imported chart sheet with a style is not implemented')
+        written = markup(chart.sheet, chart.shape.shape_id)
+        start, end = _span_in(written, chart.state, entry)
+        series = written[start:end]
+        at, to = _part_span(series, part)
+        return series[at:to]
     return series_parts(chart.sheet, chart, entry)[_PARTS.index(part)]
 
 
@@ -373,7 +390,8 @@ _SERIES_LOOKS = frozenset(f'Series.Format.{member}' for member in (
 EDITS: dict[str, frozenset[str]] = {
     LABELS: frozenset({'Series.HasDataLabels', 'Point.HasDataLabel', 'DataLabels.ShowValue', 'DataLabels.ShowCategoryName',
                        'DataLabels.ShowSeriesName', 'DataLabels.Position', 'DataLabels.NumberFormat', 'DataLabels.Separator',
-                       'DataLabel.Text', 'DataLabel.ShowCategoryName', 'DataLabel.Position'}),
+                       'DataLabel.Text', 'DataLabel.ShowCategoryName', 'DataLabel.Position', 'DataLabel.Font.size',
+                       'DataLabel.Font.bold'}),
     LOOK: _SERIES_LOOKS,
     # A series' look takes what it sets from its points.
     POINTS: _SERIES_LOOKS | {'Point.Format.Fill.ForeColor.RGB', 'Point.Format.Line.ForeColor.RGB'},
@@ -393,14 +411,17 @@ def admit_part(chart: Chart, entry: SeriesState, part: str, member: str) -> None
         if member.startswith(('DataLabel.', 'Point.')) and entry.data_labels and entry.label_look != LabelLook():
             # Excel gives such a point its series' place and the value alone, which the model does not.
             raise VBAUnsupportedError("Changing a point's label on an imported chart whose series' labels have a look is not implemented")
+    if member.startswith(('Point.', 'DataLabel.')) and any(one.trendlines for one in chart.state.series):
+        # Excel numbered the points and labels it added from 1 on the one book measured with a trendline, from 0 on the others
+        # (tests/fixtures/loaded_chart_label_edits.json); the rule is not known.
+        raise VBAUnsupportedError("Changing a point of an imported chart with a trendline is not implemented")
     if part == POINTS and member.startswith('Point.') and entry.format_look is not None:
         # Excel gives such a point the series' look beside what is set, its transparency too, which the model does not.
         raise VBAUnsupportedError("Changing a point's look on an imported chart whose series has a look is not implemented")
     state = chart.state
-    if any(pending is entry and named == part for pending, named in state.parts_pending):
+    if state.whole_pending or any(pending is entry and named == part for pending, named in state.parts_pending):
+        # The whole part, where it is pending, writes the series' part with it.
         return
-    if state.style_part:
-        raise VBAUnsupportedError('Editing a series of an imported chart with a style is not implemented')
     start, end = _series_span(chart, entry)
     series = state.original[start:end]
     at, to = _part_span(series, part)
@@ -419,14 +440,26 @@ def write_parts(chart: Chart) -> None:
     state = chart.state
     # One new end for everything the save adds, as Excel's save gives them.
     tail = '-' + str(uuid.uuid4()).upper().split('-', 1)[1]
-    if state.plot_pending:
-        # The plot area holds every series, so it is written whole and the parts with it.
+    if state.plot_pending or state.whole_pending:
+        # The plot area holds every series, so it is written whole and the parts with it; the whole part, where it is pending.
         _write_plot(chart, tail)
-        state.parts_pending, state.plot_pending = [], False
+        state.parts_pending, state.plot_pending, state.plot_dropped, state.whole_pending = [], False, set(), False
         return
-    for entry, part in state.parts_pending:
-        start, end = _series_span(chart, entry)
-        series = state.original[start:end]
+    state.original = _spliced(chart, tail)
+    state.parts_pending = []
+
+
+#: An end for unique ids in a part spliced only to be compared, which compares ids by their number alone.
+_ANY_END = '-0000-4000-8000-000000000000'
+
+
+def _spliced(chart: Chart, tail: str) -> str:
+    """The part with each changed series part in place of what it held, new ids given this end."""
+    xml = chart.state.original
+    for entry, part in chart.state.parts_pending:
+        _series_span(chart, entry)
+        start, end = _span_in(xml, chart.state, entry)
+        series = xml[start:end]
         at, to = _part_span(series, part)
         kept = {(hit.group(1), hit.group(2)): unique.group(0) for hit in _IDENTIFIED.finditer(series[at:to])
                 if (unique := _UNIQUE.search(hit.group(0))) is not None}
@@ -442,8 +475,8 @@ def write_parts(chart: Chart) -> None:
             return element[:unique.start()] + unique.group(1) + unique.group(2) + tail + unique.group(4) + element[unique.end():]
 
         made = _IDENTIFIED.sub(identified, _part_now(chart, entry, part))
-        state.original = state.original[:start] + series[:at] + made + series[to:] + state.original[end:]
-    state.parts_pending = []
+        xml = xml[:start] + series[:at] + made + series[to:] + xml[end:]
+    return xml
 
 
 _PLOT = re.compile(r'<c:plotArea>.*?</c:plotArea>', re.DOTALL)
@@ -475,11 +508,10 @@ def admit_plot(chart: Chart, member: str) -> None:
     if member not in PLOT_EDITS:
         raise VBAUnsupportedError(f'Changing {member or "this"} on an imported chart is not implemented')
     state = chart.state
-    if state.plot_pending:
+    if state.plot_pending or state.whole_pending:
         return
-    if state.style_part:
-        raise VBAUnsupportedError('Changing the series of an imported chart with a style is not implemented')
-    found = _PLOT.search(state.original)
+    # With series parts changed, the part as they would be written in: the plot area written whole at save holds them.
+    found = _PLOT.search(_spliced(chart, _ANY_END) if state.parts_pending else state.original)
     if found is None or _without_tails(found.group(0)) != _without_tails(_plot_now(chart)):
         raise VBAUnsupportedError('Changing the series of this imported chart is not implemented')
     state.plot_pending = True
@@ -505,7 +537,8 @@ def _write_plot(chart: Chart, tail: str) -> None:
     state = chart.state
     found = _PLOT.search(state.original)
     assert found is not None
-    kept = _ids(found.group(0))
+    dropped = {str(identity) for identity in state.plot_dropped}
+    kept = {key: unique for key, unique in _ids(found.group(0)).items() if key[0] not in dropped}
 
     def fresh(unique: re.Match[str], key: tuple[str, ...]) -> str:
         return kept.get(key) or unique.group(1) + unique.group(2) + tail + unique.group(4)
@@ -528,5 +561,39 @@ def _write_plot(chart: Chart, tail: str) -> None:
             return body
         return body[:last.start()] + fresh(last, (identity, last.group(2))) + body[last.end():]
 
+    if state.whole_pending:
+        # The part as the model writes it, its plot area's ids kept as below.
+        from pyopenvba.apps.excel._charts_file import markup
+
+        written = markup(chart.sheet, chart.shape.shape_id)
+        plot = _PLOT.search(written)
+        assert plot is not None
+        state.original = written[:plot.start()] + _SER.sub(series, plot.group(0)) + written[plot.end():]
+        return
     made = _SER.sub(series, _plot_now(chart))
     state.original = state.original[:found.start()] + made + state.original[found.end():]
+
+
+#: The edits measured that a loaded chart with a style takes as a new chart of its style does, its part written whole at save:
+#: Excel's saves of these are its saves of the new chart (tests/fixtures/loaded_chart_styled_edits.json).
+WHOLE_EDITS = frozenset({'ChartTitle.Text', 'Axis.HasTitle', 'AxisTitle.Text', 'Axis.HasMajorGridlines', 'Axis.HasMinorGridlines',
+                         'area.Font.size', 'title.Font.bold'})
+
+
+def admit_whole(chart: Chart, member: str) -> bool:
+    """Whether this member's edit, refused in place, can be made as on a new chart of the chart's style and the part written
+    whole at save: on a chart with a style, by a member measured so, and only where the model writes the whole part as the
+    file holds it, so that writing it again changes only what the edit did."""
+    from pyopenvba.apps.excel._charts_file import markup
+
+    state = chart.state
+    if not state.original or not state.style_part or member not in WHOLE_EDITS or chart.sheet.chart_sheet is not None:
+        return False
+    if state.whole_pending:
+        return True
+    if state.parts_pending or state.plot_pending:
+        return False
+    if _without_tails(state.original) != _without_tails(markup(chart.sheet, chart.shape.shape_id)):
+        return False
+    state.whole_pending = True
+    return True

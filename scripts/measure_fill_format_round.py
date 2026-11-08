@@ -38,7 +38,54 @@ ROUNDS: dict[int, list[str]] = {
         'f.PresetGradient msoGradientVertical, 3, msoGradientFire', 'f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33',
         'f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse', 'f.TextureTile = msoTrue', 'f.TextureOffsetX = 5',
         'f.TextureHorizontalScale = 2', 'f.TextureAlignment = msoTextureCenter', 'f.Patterned 5: f.TextureTile = msoFalse'],
+    # Round 2: a picture or texture from a file the probe writes itself (FILES), each named relative to the case's folder, and more
+    # of round 1's on new statements.
+    2: ['f.UserPicture At("p.png")', 'f.UserTextured At("p.png")', 'f.UserPicture At("png_named.jpg")', 'f.UserPicture At("p.bmp")',
+        'f.UserPicture At("text.png")', 'f.UserPicture At("big.png")', 'f.UserPicture At("missing.png")',
+        'f.UserTextured At("p.png"): f.TextureTile = msoFalse', 'f.UserPicture At("p.png"): f.TextureOffsetX = 3',
+        'f.UserTextured At("p.png"): f.TextureHorizontalScale = 0.5', 'f.UserTextured At("p.png"): f.TextureAlignment = msoTextureBottomRight',
+        'f.UserPicture At("p.png"): f.Solid', 'f.Patterned msoPatternWeave', 'f.ForeColor.ObjectThemeColor = msoThemeColorAccent3',
+        'f.Transparency = 0.6: f.Solid', 'f.Visible = msoFalse: f.TextureTile = msoTrue'],
 }
+#: What round 2 adds to READS: whether PictureEffects itself answers, which round 1's PictureEffects.Count could not tell.
+READS_2 = ['TypeName(f.PictureEffects)']
+
+
+def _png(width: int, height: int, pixels: bytes) -> bytes:
+    import struct
+    import zlib
+
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data) & 0xFFFFFFFF)
+
+    rows = b''.join(b'\x00' + pixels[row * width * 3:(row + 1) * width * 3] for row in range(height))
+    return (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(rows))
+            + chunk(b'IEND', b''))
+
+
+def files() -> dict[str, bytes]:
+    """The probe's own pictures: a 4 by 4 PNG, the same bytes named .jpg, a 4 by 4 BMP, text named .png, and a 2048 by 2048 PNG of
+    pixels that do not compress, about 12 MB, the same on every run."""
+    import hashlib as digest
+    import struct
+
+    small = bytes(value for row in range(4) for column in range(4) for value in (255 - 60 * row, 60 * column, 128))
+    stream = b''.join(digest.sha256(str(n).encode()).digest() for n in range(2048 * 2048 * 3 // 32 + 1))[:2048 * 2048 * 3]
+    rows = b''.join(bytes(small[(3 - row) * 12 + column * 3 + 2 - channel] for column in range(4) for channel in range(3)) for row in range(4))
+    bmp = b'BM' + struct.pack('<IHHI', 54 + len(rows), 0, 0, 54) + struct.pack('<IiiHHIIiiII', 40, 4, 4, 1, 24, 0, len(rows), 2835, 2835, 0, 0) + rows
+    return {'p.png': _png(4, 4, small), 'png_named.jpg': _png(4, 4, small), 'p.bmp': bmp, 'text.png': b'not a picture\r\n',
+            'big.png': _png(2048, 2048, stream)}
+
+
+def package(folder: Path, index: int) -> list[Any]:
+    """The saved book's pictures: each media part's name, size and digest, the content types its parts are given, and the drawing's
+    picture links."""
+    with zipfile.ZipFile(folder / f'f{index}.xlsx') as book:
+        media = [[name, book.getinfo(name).file_size, hashlib.sha256(book.read(name)).hexdigest()[:16]]
+                 for name in sorted(book.namelist()) if name.startswith('xl/media/')]
+        types = re.findall(r'<(?:Default|Override)\b[^>]*/>', book.read('[Content_Types].xml').decode('utf-8'))
+        rels = book.read('xl/drawings/_rels/drawing1.xml.rels').decode('utf-8') if 'xl/drawings/_rels/drawing1.xml.rels' in book.namelist() else ''
+    return [media, [one for one in types if 'image' in one or 'media' in one], re.findall(r'<Relationship\b[^>]*/>', rels)]
 ROUND = 1
 #: The reads a model run makes, where it reads some of READS only.
 CHOSEN: list[str] = []
@@ -69,7 +116,13 @@ def _case(case: list[Any], index: int) -> str:
     return '\n'.join(lines) + '\n'
 
 
-HELPERS = '''Private Function Show(ByVal v As Variant) As String
+HELPERS = '''Private Base As String
+
+Private Function At(ByVal name As String) As String
+    At = Base & Application.PathSeparator & name
+End Function
+
+Private Function Show(ByVal v As Variant) As String
     If Err.Number Then Show = "e" & Err.Number: Exit Function
     Show = TypeName(v) & ":" & CStr(v)
 End Function
@@ -85,7 +138,8 @@ def macro(chosen: list[tuple[int, list[Any]]]) -> str:
     procedures = ''.join(f'Private Sub Part{n}(ByRef out As String, ByVal folder As String)\n{declare}    On Error Resume Next\n'
                          f'{"".join(_case(case, index) for index, case in part)}End Sub\n' for n, part in enumerate(parts))
     calls = ''.join(f'    Part{n} out, folder\n' for n in range(len(parts)))
-    return (f'{HELPERS}{procedures}Function Probe(ByVal folder As String) As String\n    Dim out As String\n    Application.DisplayAlerts = False\n'
+    return (f'{HELPERS}{procedures}Function Probe(ByVal folder As String) As String\n    Dim out As String\n    Base = folder\n'
+            '    Application.DisplayAlerts = False\n'
             f'{calls}    Application.DisplayAlerts = True\n    Probe = Mid(out, {len(SEPARATOR) + 1})\nEnd Function\n')
 
 
@@ -119,25 +173,34 @@ def _run(case: list[Any], index: int, folder: Path, reads: list[str]) -> list[st
 def alone(case: list[Any], index: int, folder: Path) -> list[str]:
     """The model's answer to one case run by itself, and the shape's saved spPr. A read the model refuses answers "refused" in its own
     place, so the others still answer: the reads go together where none is refused, else one at a time."""
+    extra = 1 if ROUND >= 2 else 0
     whole = _run(case, index, folder, READS)
     if whole is not None:
-        return ['|'.join(whole), shape_xml(folder, index) if whole != ['does not compile'] else '']
+        if whole == ['does not compile']:
+            return ['does not compile', '', *([[]] * extra)]
+        return ['|'.join(whole), shape_xml(folder, index), *([package(folder, index)] * extra)]
     first = _run(case, index, folder, READS[:1])
     if first is None:
-        return ['refused', '']
-    xml = shape_xml(folder, index)
+        return ['refused', '', *([[]] * extra)]
+    xml, held = shape_xml(folder, index), package(folder, index) if extra else []
     before, after = [], []
     for read in READS:
         got = _run(case, index, folder, [read])
         before.append('refused' if got is None else got[1])
         after.append('refused' if got is None else got[2])
-    return ['|'.join([first[0], *before, *after]), xml]
+    return ['|'.join([first[0], *before, *after]), xml, *([held] * extra)]
+
+
+def write_files(folder: Path) -> None:
+    for name, data in files().items():
+        (folder / name).write_bytes(data)
 
 
 def predict() -> None:
     sys.path.insert(0, str(ROOT / 'src'))
     every = cases()
     with tempfile.TemporaryDirectory() as folder:
+        write_files(Path(folder))
         model = [alone(case, index, Path(folder)) for index, case in enumerate(every)]
     text = json.dumps({'reads': READS, 'cases': every, 'model': model}, indent=1) + '\n'
     out().write_text(text, encoding='utf-8', newline='\n')
@@ -152,13 +215,15 @@ def measure() -> None:
     answers: list[list[str]] = []
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel, tempfile.TemporaryDirectory() as folder:
         excel.new_document()
+        write_files(Path(folder))
+        record['files'] = {name: [len(data), hashlib.sha256(data).hexdigest()[:16]] for name, data in files().items()}
         for typed in (False, True):
             chosen = [(index, case) for index, case in enumerate(every) if case[2] is typed]
             for at in range(0, len(chosen), 24):
                 result = excel.run_vba(macro(chosen[at:at + 24]), 'Probe', (folder,), timeout=600, line_numbers=False)
                 assert result.ok, (at, result.error, [one.message for one in result.dialogs])
                 for (index, _case_), value in zip(chosen[at:at + 24], str(result.value).split(SEPARATOR)):
-                    answers.append([value, shape_xml(Path(folder), index)])
+                    answers.append([value, shape_xml(Path(folder), index), *([package(Path(folder), index)] if ROUND >= 2 else [])])
                 print(typed, at + 24, flush=True)
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})
     out().write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
@@ -168,4 +233,6 @@ def measure() -> None:
 
 if __name__ == '__main__':
     ROUND = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    if ROUND >= 2:
+        READS = READS + READS_2
     {'predict': predict, 'measure': measure}[sys.argv[1]]()

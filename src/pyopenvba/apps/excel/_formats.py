@@ -1087,11 +1087,9 @@ def _held_rows_and_columns(sheet: Worksheet) -> tuple[set[int], int, int]:
             rows.add(row + 1)
     columns: list[int] = []
     for column, record in sheet.dims.columns.items():
+        # A formatted column holds the columns beside it, with a line or none (tests/fixtures/border_neighbours.json).
         if record.style is not None:
-            columns.append(column)
-            border = record.style.border
-            if any(side.style for side in (border.left, border.top, border.bottom, border.right)):
-                columns += [max(column - 1, 1), min(column + 1, MAX_COLUMNS)]
+            columns += [max(column - 1, 1), column, min(column + 1, MAX_COLUMNS)]
     for row, column in sheet.cells_:
         rows.add(row)
         columns.append(column)
@@ -1314,9 +1312,12 @@ class Border(ExcelObject):
 
     vba_type_name = "Border"
 
-    def __init__(self, target: Range, index: int) -> None:
+    def __init__(self, target: Range, index: int, *, together: bool = False) -> None:
         self.target = target
         self.index = index
+        # Set as one of the Borders collection's or BorderAround's edges, which on whole rows or columns leave the
+        # neighbours' facing sides alone.
+        self.together = together
 
     def guard_set(self, member: str) -> None:
         from pyopenvba.apps.excel._protection import check_format_set
@@ -1400,9 +1401,12 @@ class Border(ExcelObject):
                 return
             change = _exactly(S.NO_SIDE)
         if self.index in (5, 6) and (len(areas) > 1 or areas[0].rows * areas[0].columns > 1):
+            # A diagonal on a union first copies outlines to its later areas as an edge does, whatever it sets
+            # (tests/fixtures/border_union.json).
+            self._copy_outlines(areas)
             self._many_diagonals(areas, change)
             return
-        parts = [area for area in areas if not _row_formats.border_area(sheet, area, self.index, change)]
+        parts = [area for area in areas if not _row_formats.border_area(sheet, area, self.index, change, together=self.together)]
         _within_limit(parts)
         if self.index in EDGES and len(parts) > 1:
             self._across_areas(parts, change)
@@ -1450,6 +1454,17 @@ class Border(ExcelObject):
         reads = first_places[-1] if name in ("bottom", "right") else first_places[0]
         if _leaves_lines(change) and effective_side(sheet, *reads, name).style:
             return
+        self._copy_outlines(parts)
+        found = [effective_side(sheet, row, column, name) for row, column in places]
+        current = found[0] if len(set(found)) == 1 else S.Side(effective_side(sheet, *reads, name).style or "thin", S.Color("auto"))
+        new = S.NO_SIDE if _leaves_lines(change) else change(current)
+        for row, column in places:
+            change_side(sheet, row, column, self.index, _exactly(new))
+
+    def _copy_outlines(self, parts: list[Area]) -> None:
+        """Each later area of a union takes the edges of the area before it that show one line all along, as
+        _across_areas tells."""
+        sheet = self.target.sheet
         for before, area in zip(parts, parts[1:]):
             outline = {edge: _one_line([effective_side(sheet, row, column, edge) for row, column in _edge_places(before, edge)])
                        for edge in ("left", "top", "bottom", "right")}
@@ -1460,11 +1475,6 @@ class Border(ExcelObject):
                 if taken:
                     for row, column in _edge_places(area, edge):
                         change_side(sheet, row, column, _INDEX_OF_EDGE[edge], _exactly(outline[edge]))
-        found = [effective_side(sheet, row, column, name) for row, column in places]
-        current = found[0] if len(set(found)) == 1 else S.Side(effective_side(sheet, *reads, name).style or "thin", S.Color("auto"))
-        new = S.NO_SIDE if _leaves_lines(change) else change(current)
-        for row, column in places:
-            change_side(sheet, row, column, self.index, _exactly(new))
 
     def sides(self) -> list[S.Side]:
         """Every side along this border, which a property of the whole collection answers over."""
@@ -1582,7 +1592,7 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
     def _all(self, what: str) -> object:
         """Every cell along every edge and inside edge; mixed is Null, and a mixed Color is 0."""
         colors = _colors(self.target)
-        sides = [side for index in self._indexes() for side in Border(self.target, index).sides()]
+        sides = self._record_sides() or [side for index in self._indexes() for side in Border(self.target, index).sides()]
         if what in ("ColorIndex", "ThemeColor", "TintAndShade"):
             # These answer the first edge when the edges differ (tests/fixtures/format_properties.json).
             return side_answer(colors, sides[0], what)
@@ -1591,6 +1601,36 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         found = uniform(side_answer(colors, side, what) for side in sides)
         return 0.0 if found is NULL and what == "Color" else found
 
+    def _record_sides(self) -> list[S.Side]:
+        """Over whole rows or whole columns, the sides their own formats give, which the collection answers over whatever
+        cells across them show (tests/fixtures/border_neighbours.json); none for any other range."""
+        sheet, area = self.target.sheet, self.target.first
+        kind = _row_formats.whole(area)
+        if kind not in ("rows", "columns"):
+            return []
+        base = _row_formats.sheet_format(sheet)
+        if kind == "columns":
+            styles = [sheet.dims.column_style(column) or base for column in range(area.left, area.right + 1)]
+        else:
+            def row_style(row: int) -> S.Style:
+                record = sheet.dims.rows.get(row)
+                return record.style if record is not None and record.style is not None else base
+
+            # The first and last rows in place, the rows between them standing for each other by their formats.
+            between = [record.style for row, record in sorted(sheet.dims.rows.items())
+                       if area.top < row < area.bottom and record.style is not None]
+            styles = [row_style(area.top)] + between + ([base] if len(between) < area.rows - 2 else []) + (
+                [row_style(area.bottom)] if area.rows > 1 else [])
+        borders = [style.border for style in styles]
+        found: dict[int, list[S.Side]] = {
+            7: [borders[0].left] if kind == "columns" else [b.left for b in borders],
+            10: [borders[-1].right] if kind == "columns" else [b.right for b in borders],
+            8: [b.top for b in borders] if kind == "columns" else [borders[0].top],
+            9: [b.bottom for b in borders] if kind == "columns" else [borders[-1].bottom],
+            11: [side for b in borders for side in (b.left, b.right)],
+            12: [side for b in borders for side in (b.top, b.bottom)]}
+        return [side for index in self._indexes() for side in found[index]]
+
     def _set_all(self, what: str, value: object) -> None:
         if what == "ColorIndex" and value is not NULL and _whole(value) in (XL_NONE, -1):
             # Over the whole collection these take the lines away (tests/fixtures/format_properties.json).
@@ -1598,7 +1638,7 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         elif what == "Color" and value is not NULL and value is not True and int(to_integer(value, "Long")) == -1:
             what, value = "ColorIndex", XL_AUTOMATIC
         for index in self._indexes():
-            Border(self.target, index).assign(what, value)
+            Border(self.target, index, together=True).assign(what, value)
 
     @member
     def LineStyle(self) -> object:
@@ -1669,7 +1709,7 @@ def border_around(target: Range, line_style: object, weight: object, color_index
                   theme_color: object) -> None:
     """Range.BorderAround: the four edges, each set to the line, weight and colour given."""
     for index in (7, 8, 9, 10):
-        border = Border(target, index)
+        border = Border(target, index, together=True)
         border.assign("LineStyle", 1 if line_style is MISSING else line_style)
         for what, given in (("Weight", weight), ("ColorIndex", color_index), ("Color", color),
                             ("ThemeColor", theme_color)):

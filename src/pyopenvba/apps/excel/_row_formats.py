@@ -158,13 +158,14 @@ def keep_shown(sheet: Worksheet, area: Area, *, vertical: bool, delete: bool) ->
                 cell.style = shown
 
 
-def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change) -> None:
-    """Whole rows formatted: each row's format and each of its cells change from what they show."""
+def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change, *, crossings: bool = True) -> None:
+    """Whole rows formatted: each row's format and each of its cells change from what they show; with crossings False,
+    the places where a formatted column crosses a row with no format of its own keep what they show."""
     change = shared(change)
     default = sheet.book.stylesheet.default
     base = sheet_format(sheet)
     # Where a row with no format of its own shows something besides the sheet's format.
-    apart = sheet.dims.formatted_columns()
+    apart = sheet.dims.formatted_columns() if crossings else []
     cells = _cells_by_row(sheet, top, bottom)
     for row in range(top, bottom + 1):
         mine = cells.get(row, {})
@@ -190,11 +191,12 @@ def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change) -> None
         sheet.dims.fonts_changed(row)
 
 
-def format_columns(sheet: Worksheet, left: int, right: int, change: Change) -> None:
-    """Whole columns formatted: a formatted row across one keeps its format there only in a cell."""
+def format_columns(sheet: Worksheet, left: int, right: int, change: Change, *, crossings: bool = True) -> None:
+    """Whole columns formatted: a formatted row across one keeps its format there only in a cell; with crossings False,
+    those places keep what they show."""
     change = shared(change)
     default = sheet.book.stylesheet.default
-    styled_rows = [(row, record.style) for row, record in sheet.dims.rows.items() if record.style is not None]
+    styled_rows = [(row, record.style) for row, record in sheet.dims.rows.items() if record.style is not None] if crossings else []
     cells = _cells_by_column(sheet, left, right)
     for column in range(left, right + 1):
         mine = cells.get(column, {})
@@ -464,8 +466,14 @@ def current_side(found: Iterable[S.Side], *, last: bool = False) -> S.Side:
     return S.Side(sides[-1 if last else 0].style or "thin", S.Color("auto"))
 
 
-def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Side], S.Side]) -> bool:
-    """A border set on whole rows, whole columns or the sheet; False for any other area."""
+def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Side], S.Side], *,
+                together: bool = False) -> bool:
+    """A border set on whole rows, whole columns or the sheet; False for any other area.
+
+    An edge set alone clears the side facing it beyond: a bottom or right edge only on that row's or column's own format
+    and its cells, not where a formatted column or row crosses it. Set together, as the Borders collection and
+    BorderAround set them, edges leave every side beyond alone, and the stronger line shows
+    (tests/fixtures/border_neighbours.json)."""
     from pyopenvba.apps.excel._formats import change_side, effective_side, own_side, with_diagonal
 
     kind = whole(area)
@@ -482,9 +490,9 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
             name, opposite, beyond = ("top", "bottom", row - 1) if index == 8 else ("bottom", "top", row + 1)
             new = change(current_side((effective_side(sheet, row, column, name) for column in columns), last=index == 9))
             format_rows(sheet, row, row, lambda style: _sides(style, **{name: new}))
-            if 1 <= beyond <= MAX_ROWS:
+            if 1 <= beyond <= MAX_ROWS and not together:
                 format_rows(sheet, beyond, beyond, lambda style: _sides(style, **{opposite: S.NO_SIDE})
-                            if getattr(style.border, opposite).style else style)
+                            if getattr(style.border, opposite).style else style, crossings=index == 8)
         elif index == 12:
             for row in range(area.top, area.bottom):
                 new = change(_current_pair(sheet, [(row, column, row + 1, column) for column in columns],
@@ -495,8 +503,11 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
             pairs = [(row, column, row, column + 1) for row in range(area.top, area.bottom + 1)
                      for column in columns if column < MAX_COLUMNS]
             new = change(_current_pair(sheet, pairs, "right", "left"))
-            # A cell in the first column keeps what it has on its left (tests/fixtures/border_gaps.json).
-            kept = {row: own_side(sheet, row, 1, "left") for row in range(area.top, area.bottom + 1)} if _along_first_column(sheet) else {}
+            # A cell in the first column keeps what it has on its left (tests/fixtures/border_gaps.json). Where another
+            # column has a format and the first has none, that holds only in the blocks of 16 rows with a cell in the
+            # first column (tests/fixtures/border_neighbours.json).
+            kept = {row: own_side(sheet, row, 1, "left") for row in _first_column_rows(sheet, area.top, area.bottom)} \
+                if _along_first_column(sheet) else {}
             format_rows(sheet, area.top, area.bottom, lambda style: _sides(style, left=new, right=new))
             for row, side in kept.items():
                 change_side(sheet, row, 1, 7, lambda _: side, clear_neighbour=False)  # noqa: B023
@@ -521,9 +532,9 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
             name, opposite, beyond = ("left", "right", column - 1) if index == 7 else ("right", "left", column + 1)
             new = change(current_side((effective_side(sheet, row, column, name) for row in rows), last=index == 10))
             format_columns(sheet, column, column, lambda style: _sides(style, **{name: new}))
-            if 1 <= beyond <= MAX_COLUMNS:
+            if 1 <= beyond <= MAX_COLUMNS and not together:
                 format_columns(sheet, beyond, beyond, lambda style: _sides(style, **{opposite: S.NO_SIDE})
-                               if getattr(style.border, opposite).style else style)
+                               if getattr(style.border, opposite).style else style, crossings=index == 7)
         elif index == 11:
             for column in range(area.left, area.right):
                 new = change(_current_pair(sheet, [(row, column, row, column + 1) for row in rows], "right", "left"))
@@ -601,6 +612,15 @@ def _formats_differently(sheet: Worksheet, style: S.Style | None) -> bool:
 
 def _along_first_column(sheet: Worksheet) -> bool:
     return _formats_differently(sheet, sheet.dims.column_style(1)) or any(column == 1 for _, column in sheet.cells_)
+
+
+def _first_column_rows(sheet: Worksheet, top: int, bottom: int) -> range | list[int]:
+    """The rows from top to bottom whose cell in the first column keeps its left under an inside vertical border."""
+    if _formats_differently(sheet, sheet.dims.column_style(1)) or not any(
+            column > 1 for column in sheet.dims.formatted_columns()):
+        return range(top, bottom + 1)
+    blocks = {(row - 1) // 16 for row, column in sheet.cells_ if column == 1}
+    return [row for block in sorted(blocks) for row in range(max(top, block * 16 + 1), min(bottom, block * 16 + 16) + 1)]
 
 
 def _along_first_row(sheet: Worksheet) -> bool:

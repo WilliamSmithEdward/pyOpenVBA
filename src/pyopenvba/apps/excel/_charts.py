@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 import math
 import re
@@ -244,6 +244,9 @@ class ChartState:
     plot_dropped: set[int] = field(default_factory=lambda: set[int]())
     #: Whether a loaded chart with a style is written whole at save, as a new chart of its style (see _chart_loaded.admit_whole).
     whole_pending: bool = False
+    #: Whether a data change took a loaded series' labels away: what a later one gives back was not measured
+    #: (tests/fixtures/loaded_chart_label_data.json).
+    labels_data_dropped: bool = False
     dirty: bool = True
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
@@ -785,6 +788,20 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
             fresh.legend_position = said[1] or 'b'
     _events.new_chart(sheet.book, ChartObject(sheet, shape).Chart())
     return shape
+
+
+def _labels_alone(entry: SeriesState) -> bool:
+    """Whether what the series' points hold of their own is their labels alone."""
+    return all(PointState(unique=point.unique) == replace(point, label=None, label_own=PointLabel(), label_unique=-1)
+               for point in entry.points.values())
+
+
+def _labels_taken(entry: SeriesState) -> None:
+    """A loaded series' labels gone with its values, its own and its points', as Excel's save leaves none
+    (tests/fixtures/loaded_chart_label_data.json)."""
+    entry.data_labels, entry.label_look = False, LabelLook()
+    entry.label_generation += 1
+    entry.points = {key: point for key, point in entry.points.items() if point.label is None and point.label_own.empty()}
 
 
 def _labelled(chart: ChartState) -> None:
@@ -2985,11 +3002,10 @@ class Chart(ElementProperties, HeldPart):
         if orientation not in (1, 2):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.plot_admitted('Chart.SetSourceData')
-        if self.state.original and any(Series(self, entry).has_labels() for entry in self.state.series):
-            # Excel's save kept a loaded chart's labels on the same source and took them away on others
-            # (tests/fixtures/loaded_chart_structure_edits.json).
-            raise VBAUnsupportedError('SetSourceData on an imported chart with data labels is not implemented')
+        if self.state.original and self.state.labels_data_dropped:
+            raise VBAUnsupportedError('Changing the data of an imported chart after its labels went with its data is not implemented')
         series_plan = plan_series(Source.sheet, area, orientation, at)
+        dropped = self._labels_across(series_plan) if self.state.original else False
         kept = [(entry.own_type, entry.axis_group, entry.marker) for entry in self.state.series]
         if is_combo(self.state) and len(series_plan) > len(kept):
             raise VBAUnsupportedError('SetSourceData giving a combo chart more series is not implemented')
@@ -2998,6 +3014,7 @@ class Chart(ElementProperties, HeldPart):
         if self.state.original and len(series_plan) > len(before):
             raise VBAUnsupportedError('SetSourceData giving an imported chart more series is not implemented')
         self.state.plot_by = orientation
+        self.state.labels_data_dropped = self.state.labels_data_dropped or dropped
         for index, series in enumerate(series_plan):
             series.unique = self.state.unique_base + index
             series.marker = default_marker(self.state)
@@ -3017,6 +3034,27 @@ class Chart(ElementProperties, HeldPart):
             # What is selected stays selected, in the same place among the new series.
             selected.entry = series_plan[place]
         return EMPTY
+
+    def _labels_across(self, series_plan: list[SeriesState]) -> bool:
+        """A loaded chart's data labels across SetSourceData: a series in the same place with the same cells keeps them, and
+        one whose cells change loses them, as Excel's save does (tests/fixtures/loaded_chart_label_data.json). Whether any
+        were lost so."""
+        dropped = False
+        for index, old in enumerate(self.state.series):
+            if not Series(self, old).has_labels():
+                continue
+            if not _labels_alone(old):
+                raise VBAUnsupportedError("SetSourceData on an imported chart whose labelled points have a look is not implemented")
+            if index >= len(series_plan):
+                continue
+            new = series_plan[index]
+            if (new.name_reference, new.category_reference, new.value_reference) != (
+                    old.name_reference, old.category_reference, old.value_reference):
+                dropped = True
+                continue
+            new.data_labels, new.leader_lines, new.label_look = old.data_labels, old.leader_lines, old.label_look
+            new.labels_read, new.labels_unread, new.points = old.labels_read, old.labels_unread, old.points
+        return dropped
 
     def element_there(self) -> bool:
         """Whether the element selected is still in the chart: its series, or for the ones that come and go, itself."""
@@ -4725,13 +4763,23 @@ class Series(PictureMembers, Created):
     def _values(self, value: object) -> None:
         self.position()
         self.chart.plot_admitted('Series.Values')
-        if self.chart.state.original and self.has_labels():
-            # Excel's save took a loaded series' labels away with new values (tests/fixtures/loaded_chart_structure_edits.json).
-            raise VBAUnsupportedError('Setting the values of an imported chart series with data labels is not implemented')
+        state = self.chart.state
+        if state.original and state.labels_data_dropped:
+            raise VBAUnsupportedError('Changing the data of an imported chart after its labels went with its data is not implemented')
         reference, values = series_input(value, sheet=self.chart.sheet)
+        # A loaded series' labels stay with the same cells and go with others (tests/fixtures/loaded_chart_label_data.json).
+        taken = bool(state.original and self.has_labels() and reference.lstrip('=') != self.entry.value_reference)
+        if taken and not reference:
+            # Excel kept them with a literal array, in the one case measured.
+            raise VBAUnsupportedError('Setting a literal array as the values of an imported chart series with labels is not implemented')
+        if taken and not _labels_alone(self.entry):
+            raise VBAUnsupportedError('Setting the values of an imported chart series whose labelled points have a look is not implemented')
         self.position()
         self.chart.plot_changed('Series.Values')
         self.entry.value_reference, self.entry.values = reference, values
+        if taken:
+            _labels_taken(self.entry)
+            state.labels_data_dropped = True
 
     @member
     def XValues(self) -> object:

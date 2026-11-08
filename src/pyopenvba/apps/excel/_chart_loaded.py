@@ -445,9 +445,21 @@ def write_parts(chart: Chart) -> None:
         _write_plot(chart, tail)
         state.parts_pending, state.plot_pending, state.plot_dropped, state.whole_pending = [], False, set(), False
         return
-    for entry, part in state.parts_pending:
-        start, end = _series_span(chart, entry)
-        series = state.original[start:end]
+    state.original = _spliced(chart, tail)
+    state.parts_pending = []
+
+
+#: An end for unique ids in a part spliced only to be compared, which compares ids by their number alone.
+_ANY_END = '-0000-4000-8000-000000000000'
+
+
+def _spliced(chart: Chart, tail: str) -> str:
+    """The part with each changed series part in place of what it held, new ids given this end."""
+    xml = chart.state.original
+    for entry, part in chart.state.parts_pending:
+        _series_span(chart, entry)
+        start, end = _span_in(xml, chart.state, entry)
+        series = xml[start:end]
         at, to = _part_span(series, part)
         kept = {(hit.group(1), hit.group(2)): unique.group(0) for hit in _IDENTIFIED.finditer(series[at:to])
                 if (unique := _UNIQUE.search(hit.group(0))) is not None}
@@ -463,8 +475,8 @@ def write_parts(chart: Chart) -> None:
             return element[:unique.start()] + unique.group(1) + unique.group(2) + tail + unique.group(4) + element[unique.end():]
 
         made = _IDENTIFIED.sub(identified, _part_now(chart, entry, part))
-        state.original = state.original[:start] + series[:at] + made + series[to:] + state.original[end:]
-    state.parts_pending = []
+        xml = xml[:start] + series[:at] + made + series[to:] + xml[end:]
+    return xml
 
 
 _PLOT = re.compile(r'<c:plotArea>.*?</c:plotArea>', re.DOTALL)
@@ -498,7 +510,8 @@ def admit_plot(chart: Chart, member: str) -> None:
     state = chart.state
     if state.plot_pending or state.whole_pending:
         return
-    found = _PLOT.search(state.original)
+    # With series parts changed, the part as they would be written in: the plot area written whole at save holds them.
+    found = _PLOT.search(_spliced(chart, _ANY_END) if state.parts_pending else state.original)
     if found is None or _without_tails(found.group(0)) != _without_tails(_plot_now(chart)):
         raise VBAUnsupportedError('Changing the series of this imported chart is not implemented')
     state.plot_pending = True

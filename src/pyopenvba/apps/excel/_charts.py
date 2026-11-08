@@ -3236,6 +3236,15 @@ class ChartTitle(ElementProperties, TitleMembers):
         return state.title or ''
 
     @setter('Text')
+    def _typed(self, value: object) -> None:
+        """Text set from VBA: empty text takes a new chart's title away, and then raises, as Excel does; Formula and
+        ChartWizard leave the title with no text (tests/fixtures/loaded_chart_styled_edits.json, tests/fixtures/chart_title.json)."""
+        if not self.chart.state.original and to_text(value) == '':
+            self.chart.admit_change()
+            self.Delete()
+            raise error(-2147024809, 'The parameter is incorrect.')
+        self._text(value)
+
     def _text(self, value: object) -> None:
         if self.chart.state.original:
             from pyopenvba.apps.excel._chart_loaded import type_title
@@ -3245,14 +3254,16 @@ class ChartTitle(ElementProperties, TitleMembers):
                 type_title(self.chart, wanted)
                 return
             except VBAUnsupportedError:
-                # A title on one line takes it as a new chart of its style does; one of several lines was not measured so.
-                if '\r' in wanted or '\n' in wanted or not self.chart.whole_changed('ChartTitle.Text'):
+                # As a new chart of its style takes it, lines and paragraphs alike; a CRLF was not measured.
+                if '\r\n' in wanted or not self.chart.whole_changed('ChartTitle.Text'):
                     raise
             self.chart.state.title, self.chart.state.title_typed = wanted, True
             self.chart.state.title_look.formula = ''
             return
         self.chart.admit_change()
         wanted = to_text(value)
+        if '\r\n' in wanted:
+            raise VBAUnsupportedError('A chart title with a CRLF is not implemented')
         self.chart.changed()
         self.chart.state.title, self.chart.state.title_typed = wanted, True
         self.chart.state.title_look.formula = ''

@@ -369,11 +369,46 @@ def _fixed(spelled: str, theme: tuple[str, ...]) -> str:
     return re.sub(r'<a:schemeClr val="(\w+)"(?:(/)>|>(.*?)</a:schemeClr>)', one, spelled, flags=re.S)
 
 
+_POINT_FONT = re.compile(r'<a:pPr><a:defRPr\b(?:[^>]*?/>|.*?</a:defRPr>)</a:pPr>', re.S)
+
+
+def _font_of(spelled: str) -> TextLook | None:
+    """What a written paragraph's default run sets, read as a file's reader reads it."""
+    import xml.etree.ElementTree as ET
+
+    from pyopenvba.apps.excel._chart_fonts import read_look
+
+    spaces = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
+    return read_look(ET.fromstring(f'<c:x xmlns:c="{spaces["c"]}" xmlns:a="{spaces["a"]}"><c:txPr><a:p>{spelled}</a:p></c:txPr></c:x>'),
+                     spaces)
+
+
+def _dressed_point_label(label: str, style: int, index: int) -> str:
+    """A point's label with a font of its own: its text as the style writes a label's, with the font set. Typed text holds
+    the font in its rich body and in a txPr after the box alike (tests/fixtures/loaded_chart_styled_edits.json)."""
+    found = _POINT_FONT.search(label)
+    if found is None:
+        return label
+    text = _painted(_text(style, 'dataLabel', _label_body(style), _font_of(found.group(0))), _accent(index))
+    rich = re.search(r'<c:rich><a:bodyPr\b(?:[^>]*?/>|.*?</a:bodyPr>)<a:lstStyle/>', label, re.S)
+    if rich is not None and rich.end() == found.start() - len('<a:p>'):
+        head = text[len('<c:txPr>'):text.index('<a:endParaRPr')]
+        label = label[:rich.start()] + '<c:rich>' + head + label[found.end():]
+        return label.replace('</c:spPr>', '</c:spPr>' + text, 1)
+    return re.sub(r'<c:txPr>.*?</c:txPr>', lambda _: text, label, count=1, flags=re.S)
+
+
 def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...], font: TextLook | None = None) -> str:
     """Data labels' box and text, with the chart area's font where it has one, and their leader lines."""
 
     def dressed_one(found: re.Match[str]) -> str:
-        labels = found.group(0)
+        whole = found.group(0)
+        # Each point's label comes first; what follows is the series' labels' own.
+        points = re.match(r'<c:dLbls>((?:<c:dLbl>.*?</c:dLbl>)*)', whole, re.S)
+        assert points is not None
+        labels = '<c:dLbls>' + whole[points.end():]
+        mine = re.sub(r'<c:dLbl>.*?</c:dLbl>', lambda hit: _dressed_point_label(hit.group(0), style, index), points.group(1),
+                      flags=re.S)
         if '<c:txPr>' not in labels:
             labels = re.sub(
                 r'<c:spPr>.*?</c:spPr>',
@@ -384,6 +419,7 @@ def _dressed_labels(series: str, style: int, index: int, theme: tuple[str, ...],
             )
             text = _painted(_text(style, 'dataLabel', _label_body(style), font), _accent(index))
             labels = labels.replace('</c:spPr>', '</c:spPr>' + text, 1)
+        labels = '<c:dLbls>' + mine + labels[len('<c:dLbls>'):]
         return labels.replace(
             '<c15:showLeaderLines val="1"/></c:ext>',
             f'<c15:showLeaderLines val="1"/><c15:leaderLines>{_stroke(style, "leaderLine")}</c15:leaderLines></c:ext>',

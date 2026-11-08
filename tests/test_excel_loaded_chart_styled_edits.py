@@ -24,18 +24,15 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_styled_edits.json').read_text(encoding='utf-8'))
 BOOK = 'loaded_chart_styled.xlsx'
-#: Refused on the loaded book: a title of several lines and a label's font, which the model writes otherwise on a new chart
-#: too; a Series.Formula changing categories; the Interior of a styled chart's element, which Excel reads as the element's
-#: own; the series' labels going with a point's label of its own; and Chart.PlotBy.
+#: Refused on the loaded book: a title of several lines, which the model writes otherwise on a new chart too; a Series.Formula
+#: changing categories; the Interior of a styled chart's element, which Excel reads as the element's own; the series' labels
+#: going with a point's label of its own; and Chart.PlotBy.
 REFUSED_LOADED = ('element series formula', 'element title text two lines', 'element title text cr', 'look interior colour',
-                  'labels point label then labels off', 'structure plot by columns', 'turns label text then font',
-                  'turns label font then text', 'turns label font only', 'turns label text then bold')
+                  'labels point label then labels off', 'structure plot by columns')
 #: Refused on the new chart too.
 REFUSED_NEW = ('labels point label then labels off', 'structure plot by columns')
-#: What the model answers on the new chart otherwise than Excel: a title of several lines or none, and a typed label's font.
-#: Held so that a fix moves them.
-GAPS_NEW = ('element title text two lines', 'element title text cr', 'element title text empty', 'turns label text then font',
-            'turns label font then text', 'turns label font only', 'turns label text then bold')
+#: What the model answers on the new chart otherwise than Excel: a title of several lines or none. Held so that a fix moves them.
+GAPS_NEW = ('element title text two lines', 'element title text cr', 'element title text empty')
 _UNIQUE = re.compile(r'(uniqueId val="\{[0-9A-F]{8})-[0-9A-F-]+')
 _AXIS = re.compile(r'(<c:(?:axId|crossAx) val=")\d+')
 

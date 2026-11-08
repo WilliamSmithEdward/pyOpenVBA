@@ -390,7 +390,8 @@ _SERIES_LOOKS = frozenset(f'Series.Format.{member}' for member in (
 EDITS: dict[str, frozenset[str]] = {
     LABELS: frozenset({'Series.HasDataLabels', 'Point.HasDataLabel', 'DataLabels.ShowValue', 'DataLabels.ShowCategoryName',
                        'DataLabels.ShowSeriesName', 'DataLabels.Position', 'DataLabels.NumberFormat', 'DataLabels.Separator',
-                       'DataLabel.Text', 'DataLabel.ShowCategoryName', 'DataLabel.Position'}),
+                       'DataLabel.Text', 'DataLabel.ShowCategoryName', 'DataLabel.Position', 'DataLabel.Font.size',
+                       'DataLabel.Font.bold'}),
     LOOK: _SERIES_LOOKS,
     # A series' look takes what it sets from its points.
     POINTS: _SERIES_LOOKS | {'Point.Format.Fill.ForeColor.RGB', 'Point.Format.Line.ForeColor.RGB'},

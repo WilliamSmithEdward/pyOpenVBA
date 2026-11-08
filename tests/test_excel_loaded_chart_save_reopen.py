@@ -14,7 +14,7 @@ _SERIES = 'Set s = ws.ChartObjects(1).Chart.SeriesCollection({})'
 TARGETS = [Target(f'{book} series {number}', _SERIES.format(number), _SERIES.format(number), FIXTURES / f'loaded_chart_{book}.xlsx')
            for book in ('plain', 'labelled', 'dressed', 'styled') for number in (1, 2)]
 SETTINGS = {'s.HasDataLabels': ['True', 'False'], 's.Points(1).HasDataLabel': ['True', 'False'], 's.Points(1).DataLabel.Text': ['"P"'],
-            's.Points(2).DataLabel.Position': ['4'], 's.Points(2).DataLabel.ShowCategoryName': ['True'],
+            's.Points(2).DataLabel.Position': ['4'], 's.Points(1).DataLabel.Font.Size': ['12'], 's.Points(2).DataLabel.ShowCategoryName': ['True'],
             's.DataLabels.ShowCategoryName': ['True'], 's.DataLabels.ShowSeriesName': ['True'], 's.DataLabels.ShowValue': ['False'],
             's.DataLabels.Position': ['3'], 's.DataLabels.NumberFormat': ['"0.0"'], 's.DataLabels.Separator': ['"; "'],
             's.Format.Fill.ForeColor.RGB': ['255'], 's.Format.Fill.Visible': ['0'], 's.Format.Fill.Transparency': ['0.5'],

@@ -14,7 +14,7 @@ given after that lasts until the area is set again.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from pyopenvba.apps.excel._chart_styled import font_read, is_styled, theme_colour
 from pyopenvba.apps.excel._chart_xml import TextLook
@@ -124,6 +124,13 @@ class ChartFont(Created):
 
     def change(self, member: str = "") -> TextLook:
         self.look()
+        held = getattr(self.element, "held", None)
+        if self.labels is not None and self.chart.state.original and callable(held):
+            # A point's label on a loaded chart changes in its series' labels, as its text does (see _chart_loaded.admit_part).
+            own = cast(Any, held(member))
+            if own.font is None:
+                own.font = TextLook()
+            return cast(TextLook, own.font)
         try:
             self.chart.changed()
         except VBAUnsupportedError:
@@ -141,7 +148,8 @@ class ChartFont(Created):
 
     def put(self, **fields: object) -> None:
         """A setting set; on the chart area, everything set of every element goes."""
-        look = self.change(f"{self.key}.Font.{','.join(sorted(fields))}" if self.labels is None else "")
+        named = ",".join(sorted(fields))
+        look = self.change(f"{self.key}.Font.{named}" if self.labels is None else f"Font.{named}")
         for name, value in fields.items():
             setattr(look, name, value)
         if self.key != "area":

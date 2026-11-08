@@ -115,7 +115,8 @@ def measure() -> None:
             result = excel.run_vba(case['source'], 'Probe', timeout=30, line_numbers=False)
             shown = [dialog for dialog in result.dialogs if dialog.classification == 'runtime-error']
             if shown:
-                found = re.search(r"error '(-?\d+)'", shown[0].message)
+                # A number past 65535 shows its hexadecimal beside it: '-2147220991 (80040201)'.
+                found = re.search(r"error '(-?\d+)", shown[0].message)
                 answers.append(f'dialog {found.group(1) if found else shown[0].message[:60]}')
             elif result.ok:
                 answers.append(str(result.value))
